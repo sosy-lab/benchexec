@@ -106,26 +106,26 @@ class Tool(benchexec.tools.cpachecker.Tool):
                 elif 'Unknown function' in line:
                     status = 'ERROR (unknown function)'
             elif line.startswith("Invalid free found"):
-              bad_free = True
+                bad_free = True
             elif line.startswith("Memory leak found"):
-              memory_leak = True
+                memory_leak = True
             elif line.startswith("Invalid read found"):
-              bad_deref = True
+                bad_deref = True
             elif line.startswith("Invalid write found"):
-              bad_deref = True
+                bad_deref = True
             elif line.startswith("Non-target undefined behavior detected."):
-              status = "ERROR (undefined behavior)"
-              undef = True;
+                status = "ERROR (undefined behavior)"
+                undef = True;
 
             elif line.startswith('Verification result: '):
                 line = line[21:].strip()
                 if line.startswith('TRUE'):
                     newStatus = result.STATUS_TRUE_PROP
                 elif line.startswith('FALSE'):
-                  newStatus = result.STATUS_FALSE_REACH
-                  match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                  if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack']:
-                      newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
+                    newStatus = result.STATUS_FALSE_REACH
+                    match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
+                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack']:
+                        newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
 
                 else:
                     newStatus = result.STATUS_UNKNOWN if not status.startswith('ERROR') else None

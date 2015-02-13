@@ -129,7 +129,7 @@ def _statuses_of_property_file(propertyFile):
     return statuses
 
 def _file_is_java(filename):
-  return JAVA_CHECK_SUBSTRING in filename
+    return JAVA_CHECK_SUBSTRING in filename
 
 def get_result_category(filename, status, propertyFile=None):
     '''
@@ -143,14 +143,14 @@ def get_result_category(filename, status, propertyFile=None):
         
         # Currently, no properties for checking Java programs exist, so we only check for PROP_REACH for these
         if _file_is_java(filename):
-          fileStatuses = _statuses_of_file(filename)
+            fileStatuses = _statuses_of_file(filename)
 
-          if not fileStatuses:
-            category = CATEGORY_MISSING
-          elif all(prop is not PROP_REACH or s in status for (s, prop) in fileStatuses):
-            category = CATEGORY_CORRECT
-          else:
-            category = CATEGORY_WRONG
+            if not fileStatuses:
+                category = CATEGORY_MISSING
+            elif all(prop is not PROP_REACH or s in status for (s, prop) in fileStatuses):
+                category = CATEGORY_CORRECT
+            else:
+                category = CATEGORY_WRONG
 
         # Without propertyfile we do not return correct or wrong results, but always UNKNOWN.
         elif propertyFile is None:

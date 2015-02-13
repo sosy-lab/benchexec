@@ -81,7 +81,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         # delete tmp-files
         try:
-          os.remove(self.prepSourcefile)
+            os.remove(self.prepSourcefile)
         except OSError:
             print("Could not remove file " + self.prepSourcefile + "! Maybe clang call failed")
             pass

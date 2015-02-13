@@ -25,9 +25,9 @@ import sys
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 try:
-  import Queue
+    import Queue
 except ImportError: # Queue was renamed to queue in Python 3
-  import queue as Queue
+    import queue as Queue
 
 import collections
 import itertools
@@ -518,9 +518,9 @@ class _Worker(threading.Thread):
             run.cputime = 0
             try:
                 if benchmark.config.debug:
-                   os.rename(run.log_file, run.log_file + ".killed")
+                    os.rename(run.log_file, run.log_file + ".killed")
                 else:
-                   os.remove(run.log_file)
+                    os.remove(run.log_file)
             except OSError:
                 pass
             return
