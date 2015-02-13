@@ -58,7 +58,7 @@ setup(
     entry_points = {
         "console_scripts": [
             'benchexec = benchexec:main',
-            'runexecutor = benchexec.runexecutor:main',
+            'runexec = benchexec.runexecutor:main',
             'table-generator = benchexec.tablegenerator:main',
             ]
         },
