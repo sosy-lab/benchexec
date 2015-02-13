@@ -278,7 +278,7 @@ def signal_handler_ignore(signum, frame):
     """
     logging.warn('Received signal %d, ignoring it' % signum)
 
-def main(benchexec, argv=None):
+def main(benchexec=None, argv=None):
     """
     The main method of BenchExec for use in a command-line script.
     In addition to calling benchexec.start(argv),
@@ -290,6 +290,8 @@ def main(benchexec, argv=None):
     # ignore SIGTERM
     signal.signal(signal.SIGTERM, signal_handler_ignore)
     try:
+        if not benchexec:
+            benchexec = BenchExec()
         sys.exit(benchexec.start(argv or sys.argv))
     except KeyboardInterrupt: # this block is reached, when interrupt is thrown before or after a run set execution
         benchexec.stop()

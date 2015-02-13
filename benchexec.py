@@ -35,4 +35,4 @@ and either call "instance.start()" or "benchexec.main(instance)".
 
 import benchexec
 
-benchexec.main(benchexec.BenchExec())
+benchexec.main()
