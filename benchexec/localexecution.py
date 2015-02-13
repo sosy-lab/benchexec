@@ -501,7 +501,7 @@ class _Worker(threading.Thread):
 
         for key, value in result.items():
             if key == 'walltime':
-                run.walltime == value
+                run.walltime = value
             elif key == 'cputime':
                 run.cputime = value
             elif key == 'memory':
