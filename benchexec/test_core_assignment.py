@@ -30,6 +30,8 @@ import unittest
 
 from .localexecution import _get_cpu_cores_per_run0
 
+def lrange(start, end):
+    return list(range(start, end))
 
 class TestCpuCoresPerRun(unittest.TestCase):
 
@@ -52,12 +54,12 @@ class TestCpuCoresPerRun(unittest.TestCase):
         allCpus = range(core_count)
         cores_of_package = {}
         ht_spread = core_count // 2
-        for package in xrange(self.cpus):
+        for package in range(self.cpus):
             start = package * self.cores // (2 if self.ht else 1)
             end = (package+1) * self.cores // (2 if self.ht else 1)
-            cores_of_package[package] = range(start, end)
+            cores_of_package[package] = lrange(start, end)
             if self.ht:
-                cores_of_package[package].extend(xrange(start + ht_spread, end + ht_spread))
+                cores_of_package[package].extend(range(start + ht_spread, end + ht_spread))
         siblings_of_core = {}
         for core in allCpus:
             siblings_of_core[core] = [core]
@@ -75,8 +77,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
             # Creates list alternating between real core and hyper-threading core
             singleThread_assignment = list(itertools.chain(*zip(range(core_count // 2), range(core_count // 2, core_count))))
         else:
-            singleThread_assignment = range(core_count)
-        for coreLimit in xrange(1, core_count + 1):
+            singleThread_assignment = lrange(0, core_count)
+        for coreLimit in range(1, core_count + 1):
             self.assertValid(coreLimit, 1, [sorted(singleThread_assignment[:coreLimit])])
         self.assertInvalid(core_count + 1, 1)
 
@@ -95,7 +97,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.assertInvalid(1, maxThreads + 1)
         if not self.oneCore_assignment:
             self.skipTest("Need result specified")
-        for num_of_threads in xrange(1, maxThreads + 1):
+        for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(1, num_of_threads, self.oneCore_assignment[:num_of_threads])
 
     def test_twoCoresPerRun(self):
@@ -104,7 +106,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.assertInvalid(2, maxThreads + 1)
         if not self.twoCore_assignment:
             self.skipTest("Need result specified")
-        for num_of_threads in xrange(1, maxThreads + 1):
+        for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(2, num_of_threads, self.twoCore_assignment[:num_of_threads])
 
     def test_threeCoresPerRun(self):
@@ -113,7 +115,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.assertInvalid(3, maxThreads + 1)
         if not self.threeCore_assignment:
             self.skipTest("Need result specified")
-        for num_of_threads in xrange(1, maxThreads + 1):
+        for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(3, num_of_threads, self.threeCore_assignment[:num_of_threads])
 
     def test_fourCoresPerRun(self):
@@ -122,7 +124,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.assertInvalid(4, maxThreads + 1)
         if not self.fourCore_assignment:
             self.skipTest("Need result specified")
-        for num_of_threads in xrange(1, maxThreads + 1):
+        for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(4, num_of_threads, self.fourCore_assignment[:num_of_threads])
 
     def test_eightCoresPerRun(self):
@@ -133,7 +135,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.assertInvalid(8, maxThreads + 1)
         if not self.eightCore_assignment:
             self.skipTest("Need result specified")
-        for num_of_threads in xrange(1, maxThreads + 1):
+        for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(8, num_of_threads, self.eightCore_assignment[:num_of_threads])
 
 
@@ -142,11 +144,11 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     cores = 8
     ht = False
 
-    oneCore_assignment   = map(lambda x: [x], range(8))
+    oneCore_assignment   = list(map(lambda x: [x], range(8)))
     twoCore_assignment   = [[0, 1], [2, 3], [4, 5], [6, 7]]
     threeCore_assignment = [[0, 1, 2], [3, 4, 5]]
     fourCore_assignment  = [[0, 1, 2, 3], [4, 5, 6, 7]]
-    eightCore_assignment = [range(8)]
+    eightCore_assignment = [list(range(8))]
 
     def test_singleCPU_invalid(self):
         self.assertInvalid(2, 5)
@@ -167,7 +169,7 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     cores = 16
     ht = True
 
-    oneCore_assignment = map(lambda x: [x], [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30, 23, 31])
+    oneCore_assignment = list(map(lambda x: [x], [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30, 23, 31]))
 
     twoCore_assignment = [[0, 16], [8, 24], [1, 17], [9, 25], [2, 18], [10, 26], [3, 19], [11, 27], [4, 20], [12, 28], [5, 21], [13, 29], [6, 22], [14, 30], [7, 23], [15, 31]]
 
@@ -181,7 +183,7 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     eightCore_assignment = [[0, 1, 2, 3, 16, 17, 18, 19], [8, 9, 10, 11, 24, 25, 26, 27], [4, 5, 6, 7, 20, 21, 22, 23], [12, 13, 14, 15, 28, 29, 30, 31]]
 
     def test_dualCPU_HT(self):
-        self.assertValid(16, 2, [range(0, 8) + range(16, 24), range(8, 16) + range(24, 32)])
+        self.assertValid(16, 2, [lrange(0, 8) + lrange(16, 24), lrange(8, 16) + lrange(24, 32)])
 
     def test_dualCPU_HT_invalid(self):
         self.assertInvalid(2, 17)
@@ -197,7 +199,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     cores = 5
     ht = False
 
-    oneCore_assignment = map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14])
+    oneCore_assignment = list(map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]))
     twoCore_assignment = [[0, 1], [5, 6], [10, 11], [2, 3], [7, 8], [12, 13]]
     threeCore_assignment = [[0, 1, 2], [5, 6, 7], [10, 11, 12]]
     fourCore_assignment = [[0, 1, 2, 3], [5, 6, 7, 8], [10, 11, 12, 13]]
@@ -210,7 +212,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     cores = 10
     ht = True
 
-    oneCore_assignment = map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14, 15, 20, 25, 16, 21, 26, 17, 22, 27, 18, 23, 28, 19, 24, 29])
+    oneCore_assignment = list(map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14, 15, 20, 25, 16, 21, 26, 17, 22, 27, 18, 23, 28, 19, 24, 29]))
     twoCore_assignment = [[0, 15], [5, 20], [10, 25], [1, 16], [6, 21], [11, 26], [2, 17], [7, 22], [12, 27], [3, 18], [8, 23], [13, 28], [4, 19], [9, 24], [14, 29]]
     threeCore_assignment = [[0, 1, 15], [5, 6, 20], [10, 11, 25], [2, 3, 17], [7, 8, 22], [12, 13, 27], [4, 16, 19], [9, 21, 24], [14, 26, 29]]
     fourCore_assignment = [[0, 1, 15, 16], [5, 6, 20, 21], [10, 11, 25, 26], [2, 3, 17, 18], [7, 8, 22, 23], [12, 13, 27, 28]]
@@ -225,7 +227,7 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     ht = True
 
     def test_quadCPU_HT(self):
-        self.assertValid(16, 4, [range(0, 8) + range(32, 40), range(8, 16) + range(40, 48), range(16, 24) + range(48, 56), range(24, 32) + range(56, 64)])
+        self.assertValid(16, 4, [lrange(0, 8) + lrange(32, 40), lrange(8, 16) + lrange(40, 48), lrange(16, 24) + lrange(48, 56), lrange(24, 32) + lrange(56, 64)])
 
         # Just test that no exception occurs
         self.assertValid(1, 64)
