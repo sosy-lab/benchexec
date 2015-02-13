@@ -682,7 +682,7 @@ def _get_debug_output_after_crash(output_filename):
                 except IOError as e:
                     logging.warn('Could not append additional segmentation fault information from {0} ({1})'.format(dumpFile, e.strerror))
                 break
-            if unicode(line, errors='ignore').startswith('# An error report file with more information is saved as:'):
+            if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
                 logging.debug('Going to append error report file')
                 foundDumpFile = True
 
