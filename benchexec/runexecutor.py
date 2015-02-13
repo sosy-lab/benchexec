@@ -340,6 +340,7 @@ class RunExecutor():
         p = None
         try:
             p = subprocess.Popen(args,
+                                 stdin=subprocess.DEVNULL,
                                  stdout=outputFile, stderr=outputFile,
                                  env=runningEnv, cwd=workingDir,
                                  preexec_fn=preSubprocess)
