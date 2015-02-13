@@ -1,2 +1,5 @@
 *.pyc
 *~
+build
+dist
+BenchExec.egg-info
