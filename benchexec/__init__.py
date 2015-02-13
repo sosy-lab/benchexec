@@ -189,6 +189,10 @@ class BenchExec(object):
                           metavar="'YYYY-MM-DD hh:mm'",
                           help='Set the given date and time as the start time of the benchmark.')
 
+        parser.add_argument("--version",
+                            action="version",
+                            version="%(prog)s " + __version__)
+
         return parser
 
 

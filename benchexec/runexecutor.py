@@ -32,6 +32,7 @@ import sys
 import threading
 import time
 
+from . import __version__
 from . import util as util
 from .cgroups import *
 from . import oomhandler
@@ -77,6 +78,8 @@ def main(argv=None):
                         help="the list of memory nodes to use")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
+    parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument("--debug", action="store_true",
                            help="Show debug output")
@@ -156,7 +159,6 @@ def main(argv=None):
     if 'energy' in result:
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
-
 
 class RunExecutor():
 

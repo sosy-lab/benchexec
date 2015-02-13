@@ -35,6 +35,7 @@ import tempita
 
 from decimal import *
 
+from .. import __version__
 import benchexec.result as result
 
 NAME_START = "results" # first part of filename of table
@@ -1087,6 +1088,9 @@ def main(args=None):
     parser.add_argument("--show",
         action="store_true", dest="show_table",
         help="Open the produced HTML table(s) in the default browser."
+    )
+    parser.add_argument("--version",
+        action="version", version="%(prog)s " + __version__
     )
 
     options = parser.parse_args(args[1:])
