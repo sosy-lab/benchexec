@@ -1,2 +1,2 @@
 # BenchExec
-BenchExec: A Tool for Benchmarking and Resource Measurement
+BenchExec: A Framework for Reliable Benchmarking and Resource Measurement
