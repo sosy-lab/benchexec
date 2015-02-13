@@ -36,7 +36,7 @@ if __name__ == "__main__":
 import benchexec.util as util
 import benchexec.tools.cpachecker
 
-class Tool(benchmark.tools.cpachecker.Tool):
+class Tool(benchexec.tools.cpachecker.Tool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """

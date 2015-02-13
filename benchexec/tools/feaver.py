@@ -38,7 +38,7 @@ class Tool(benchexec.tools.template.BaseTool):
         sourcefile = sourcefiles[0]
         
         # create tmp-files for feaver, feaver needs special error-labels
-        self.prepSourcefile = _prepareSourcefile(sourcefile)
+        self.prepSourcefile = self._prepareSourcefile(sourcefile)
 
         return [executable] + ["--file"] + [self.prepSourcefile] + options
 

@@ -429,9 +429,6 @@ def insert_logfile_names(resultFile, resultElem):
         log_file_name = os.path.basename(sourcefile.get('name')) + ".log"
         sourcefile.set('logfile', log_folder + log_file_name)
 
-def get_default_log_folder(resultElem):
-    return log_folder
-
 
 def merge_sourcefiles(runSetResults):
     """

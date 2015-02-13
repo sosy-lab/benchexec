@@ -174,7 +174,7 @@ def kill_all_tasks_in_cgroup_recursively(cgroup):
     subdirs = filter(os.path.isdir, files)
 
     for subCgroup in subdirs:
-        _kill_all_tasks_in_cgroup_recursively(subCgroup)
+        kill_all_tasks_in_cgroup_recursively(subCgroup)
         remove_cgroup(subCgroup)
 
     kill_all_tasks_in_cgroup(cgroup)

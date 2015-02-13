@@ -200,7 +200,7 @@ class Benchmark:
         resultFilesTags = rootTag.findall("resultfiles")
         if resultFilesTags:
             if len(resultFilesTags) > 1:
-                logger.warning("Benchmark file {0} has multiple <resultfiles> tags, ignoring all but the first.")
+                logging.warning("Benchmark file {0} has multiple <resultfiles> tags, ignoring all but the first.")
             self.result_files_pattern = resultFilesTags[0].text
 
         # get benchmarks
