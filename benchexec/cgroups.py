@@ -30,6 +30,15 @@ import time
 
 from . import util as util
 
+__all__ = [
+           'init_cgroup',
+           'create_cgroup',
+           'add_task_to_cgroup',
+           'kill_all_tasks_in_cgroup',
+           'kill_all_tasks_in_cgroup_recursively',
+           'remove_cgroup',
+           ]
+
 CGROUP_NAME_PREFIX='benchmark_'
 
 ALL_KNOWN_SUBSYSTEMS = set(['cpuacct', 'cpuset', 'freezer', 'memory'])
