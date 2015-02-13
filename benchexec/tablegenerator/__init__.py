@@ -972,9 +972,13 @@ def create_tables(name, runSetResults, filenames, rows, rowsDiff, outputPath, ou
 
             # read template
             Template = tempita.HTMLTemplate if format == 'html' else tempita.Template
-            template = Template.from_filename(TEMPLATE_FILE_NAME.format(format=format),
-                                              namespace=templateNamespace,
-                                              encoding=TEMPLATE_ENCODING)
+            template_file = TEMPLATE_FILE_NAME.format(format=format)
+            try:
+                template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
+            except NameError:
+                with open(template_file, mode='r') as f:
+                    template_content = f.read()
+            template = Template(template_content, namespace=templateNamespace)
 
             # write file
             with open(outfile, 'w') as file:
