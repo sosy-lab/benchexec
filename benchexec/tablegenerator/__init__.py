@@ -872,7 +872,7 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
 
 def get_regression_count(rows, ignoreFlappingTimeouts): # for options.dump_counts
 
-    columns = rows_to_columns(rows)
+    columns = list(rows_to_columns(rows))
     if len(columns) < 2:
         return 0 # no regressions with only one run
 
