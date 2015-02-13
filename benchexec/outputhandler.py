@@ -553,12 +553,28 @@ class OutputHandler:
         self.statistics.print_to_terminal()
 
         if self.xml_file_names:
-            tableGeneratorName = 'table-generator.py'
-            tableGeneratorPath = os.path.relpath(os.path.join(os.path.dirname(__file__), os.path.pardir, tableGeneratorName))
-            if tableGeneratorPath == tableGeneratorName:
-                tableGeneratorPath = './' + tableGeneratorName
-            util.printOut("In order to get HTML and CSV tables, run\n{0} '{1}'"
-                          .format(tableGeneratorPath, "' '".join(self.xml_file_names)))
+
+            def _find_file_relative(name):
+                """
+                Find a file with the given name in the same directory as this script.
+                Returns a path relative to the current directory, or None.
+                """
+                path = os.path.join(os.path.dirname(sys.argv[0]), name)
+                if not os.path.isfile(path):
+                    path = os.path.join(os.path.dirname(__file__), os.path.pardir, name)
+                    if not os.path.isfile(path):
+                        return None
+
+                path = os.path.relpath(path)
+                if path == name:
+                    path = './' + path # for easier copy and paste into a shell
+                return path
+
+            tableGeneratorPath = _find_file_relative('table-generator.py') \
+                              or _find_file_relative('table-generator')
+            if tableGeneratorPath:
+                util.printOut("In order to get HTML and CSV tables, run\n{0} '{1}'"
+                              .format(tableGeneratorPath, "' '".join(self.xml_file_names)))
 
         if isStoppedByInterrupt:
             util.printOut("\nScript was interrupted by user, some runs may not be done.\n")
