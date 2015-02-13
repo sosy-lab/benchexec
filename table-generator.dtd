@@ -1,0 +1,4 @@
+<!ELEMENT result (column*)>
+<!ATTLIST result filename CDATA #REQUIRED>
+
+<!ELEMENT union ((result, column)*)>

@@ -1,0 +1,8 @@
+{{for line in ['tool', 'runset', 'title']}}
+{{if line in head and head[line]}}
+{{head[line].name.lower()}}	{{flatten([[value]*width for value, width in head[line].content]) | '\t'.join}}
+{{endif}}
+{{endfor}}
+{{for line in body}}
+{{line.short_filename}}	{{[remove_unit(value or '') for runResult in line.results for value in runResult.values] | '\t'.join}}
+{{endfor}}
