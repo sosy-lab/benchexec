@@ -269,7 +269,9 @@ class RunExecutor():
             memlimit = read_file(cgroupMemory, limitFile)
             logging.debug('Executing {0} with memory limit {1} bytes.'.format(args, memlimit))
 
-        if not os.path.exists(os.path.join(cgroups[MEMORY], 'memory.memsw.max_usage_in_bytes')) and _has_swap():
+        if MEMORY in cgroups \
+                and not os.path.exists(os.path.join(cgroups[MEMORY], 'memory.memsw.max_usage_in_bytes')) \
+                and _has_swap():
             logging.warning('Kernel misses feature for accounting swap memory, but machine has swap. Memory usage may be measured inaccurately. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
 
         return cgroups
