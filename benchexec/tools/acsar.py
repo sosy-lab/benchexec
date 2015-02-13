@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
-import subprocess
 
 import benchexec.util as util
 import benchexec.tools.template

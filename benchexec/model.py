@@ -27,8 +27,6 @@ import time
 import xml.etree.ElementTree as ET
 import sys
 
-from datetime import date
-
 from . import result
 from . import util as util
 
