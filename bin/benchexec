@@ -19,12 +19,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 import sys
 sys.dont_write_bytecode = True # prevent creation of .pyc files
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import benchexec.tablegenerator
+"""
+Main script of BenchExec for executing a whole benchmark (suite).
 
-try:
-    sys.exit(benchexec.tablegenerator.main())
-except KeyboardInterrupt:
-    print ('Interrupted')
+This script can be called from the command line.
+For integrating from within Python instantiate the benchexec.BenchExec class
+and either call "instance.start()" or "benchexec.main(instance)".
+"""
+
+import benchexec
+
+benchexec.main()
