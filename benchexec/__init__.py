@@ -280,7 +280,7 @@ def signal_handler_ignore(signum, frame):
     """
     Log and ignore all signals.
     """
-    logging.warn('Received signal %d, ignoring it' % signum)
+    logging.warning('Received signal %d, ignoring it' % signum)
 
 def main(benchexec=None, argv=None):
     """

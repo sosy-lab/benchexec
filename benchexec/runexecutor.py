@@ -605,7 +605,7 @@ class RunExecutor():
         self.PROCESS_KILLED = True
         with self.SUB_PROCESSES_LOCK:
             for process in self.SUB_PROCESSES:
-                logging.warn('Killing process {0} forcefully.'.format(process.pid))
+                logging.warning('Killing process {0} forcefully.'.format(process.pid))
                 util.kill_process(process.pid)
 
 
@@ -682,7 +682,7 @@ def _get_debug_output_after_crash(output_filename):
                         _copy_all_lines_from_to(dumpFile, outputFile)
                     os.remove(dumpFileName)
                 except IOError as e:
-                    logging.warn('Could not append additional segmentation fault information from {0} ({1})'.format(dumpFile, e.strerror))
+                    logging.warning('Could not append additional segmentation fault information from {0} ({1})'.format(dumpFile, e.strerror))
                 break
             if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
                 logging.debug('Going to append error report file')

@@ -75,7 +75,7 @@ def substitute_vars(oldList, runSet, sourcefile=None):
         for (key, value) in keyValueList:
             newStr = newStr.replace(key, value)
         if '${' in newStr:
-            logging.warn("a variable was not replaced in '{0}'".format(newStr))
+            logging.warning("a variable was not replaced in '{0}'".format(newStr))
         newList.append(newStr)
 
     return newList
