@@ -47,6 +47,11 @@ MEMORY = 'memory'
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
+try:
+    from subprocess import DEVNULL
+except ImportError:
+    DEVNULL = open(os.devnull, 'rb')
+
 
 def main(argv=None):
     """
@@ -342,7 +347,7 @@ class RunExecutor():
         p = None
         try:
             p = subprocess.Popen(args,
-                                 stdin=subprocess.DEVNULL,
+                                 stdin=DEVNULL,
                                  stdout=outputFile, stderr=outputFile,
                                  env=runningEnv, cwd=workingDir,
                                  preexec_fn=preSubprocess)
