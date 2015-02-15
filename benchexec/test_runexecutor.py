@@ -119,6 +119,21 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_input_is_redirected_from_devnull(self):
+        if not os.path.exists('/bin/cat'):
+            self.skipTest('missing /bin/cat')
+        (result, output) = self.execute_run('/bin/cat', walltimelimit=1, hardtimelimit=1)
+
+        self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
+        self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
+        self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
+        for key in result.keys():
+            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode'}, 'unexpected result value ' + key)
+
+        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
     def test_stop_run(self):
         if not os.path.exists('/bin/sleep'):
             self.skipTest('missing /bin/sleep')
