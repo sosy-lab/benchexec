@@ -511,6 +511,8 @@ class RunExecutor():
                 sys.exit("Soft time limit without hard time limit is not implemented.")
             if softtimelimit > hardtimelimit:
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
+            if not self.cgroupsParents[CPUACCT]:
+                sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
 
         if walltimelimit is None:
             if hardtimelimit is not None:
@@ -520,6 +522,8 @@ class RunExecutor():
                 sys.exit("Invalid wall time limit {0}.".format(walltimelimit))
             if hardtimelimit is None:
                 sys.exit("Wall time limit without hard time limit is not implemented.")
+            if not self.cgroupsParents[CPUACCT]:
+                sys.exit("Wall time limit is not implemented for systems without cpuacct cgroup.")
 
         if cores is not None:
             if self.cpus is None:
