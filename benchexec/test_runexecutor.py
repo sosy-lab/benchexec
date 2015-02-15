@@ -91,8 +91,13 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_softlimit(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
-        (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
-                                            hardtimelimit=10, softtimelimit=1)
+        try:
+            (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
+                                                hardtimelimit=10, softtimelimit=1)
+        except SystemExit as e:
+            self.assertEqual(str(e), 'Soft time limit cannot be specified without cpuacct cgroup.')
+            self.skipTest(e)
+
         self.assertEqual(result['exitcode'], 15, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
@@ -106,7 +111,11 @@ class TestRunExecutor(unittest.TestCase):
     def test_walltime_limit(self):
         if not os.path.exists('/bin/sleep'):
             self.skipTest('missing /bin/sleep')
-        (result, output) = self.execute_run('/bin/sleep', '10', walltimelimit=1, hardtimelimit=1)
+        try:
+            (result, output) = self.execute_run('/bin/sleep', '10', walltimelimit=1, hardtimelimit=1)
+        except SystemExit as e:
+            self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
+            self.skipTest(e)
 
         self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
         self.assertEqual(result['terminationreason'], 'walltime', 'termination reason is not "walltime"')
@@ -122,7 +131,11 @@ class TestRunExecutor(unittest.TestCase):
     def test_input_is_redirected_from_devnull(self):
         if not os.path.exists('/bin/cat'):
             self.skipTest('missing /bin/cat')
-        (result, output) = self.execute_run('/bin/cat', walltimelimit=1, hardtimelimit=1)
+        try:
+            (result, output) = self.execute_run('/bin/cat', walltimelimit=1, hardtimelimit=1)
+        except SystemExit as e:
+            self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
+            self.skipTest(e)
 
         self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
