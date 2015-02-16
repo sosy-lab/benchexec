@@ -17,7 +17,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import subprocess
 import os
 
 import benchexec.util as util
@@ -46,9 +45,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return subprocess.Popen([executable],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT).communicate()[0][6:11]
+        return self._version_from_tool(executable)[6:11]
 
 
     def cmdline(self, blastExe, options, sourcefiles, propertyfile, rlimits):

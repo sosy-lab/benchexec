@@ -34,8 +34,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return subprocess.Popen([executable, '--version'],
-                                stdout=subprocess.PIPE).communicate()[0].splitlines()[2][8:18]
+        return self._version_from_tool(executable).splitlines()[2][8:18]
 
 
     def name(self):

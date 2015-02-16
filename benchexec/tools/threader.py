@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import subprocess
 import os
 import benchexec.util as util
 import benchexec.tools.template
@@ -48,9 +47,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        exe = 'cream'
-        return subprocess.Popen([exe, '--help'], stdout=subprocess.PIPE)\
-                              .communicate()[0].splitlines()[2][34:42]
+        return self._version_from_tool('cream', '--help').splitlines()[2][34:42]
 
 
     def name(self):

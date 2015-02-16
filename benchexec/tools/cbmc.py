@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-import subprocess
 import xml.etree.ElementTree as ET
 
 import benchexec.util as util
@@ -36,8 +35,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return subprocess.Popen([executable, '--version'],
-                                stdout=subprocess.PIPE).communicate()[0].strip()
+        return self._version_from_tool(executable)
 
 
     def name(self):

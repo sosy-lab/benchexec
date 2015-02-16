@@ -17,6 +17,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+import subprocess
+
 import benchexec.util as util
 
 class BaseTool(object):
@@ -45,6 +48,15 @@ class BaseTool(object):
         Determine a version string for this tool, if available.
         """
         return ''
+
+    def _version_from_tool(self, executable, arg='--version'):
+        """
+        Get version of a tool by executing it with argument "--version"
+        and returning stdout.
+        """
+        stdout = subprocess.Popen([executable, arg],
+                                  stdout=subprocess.PIPE).communicate()[0]
+        return util.decode_to_string(stdout).strip()
 
 
     def name(self):
