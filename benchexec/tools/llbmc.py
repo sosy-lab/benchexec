@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        return util.find_executable('lib/native/x86_64-linux/llbmc')
+        return util.find_executable('llbmc')
 
 
     def version(self, executable):

@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-import platform
 import subprocess
 import xml.etree.ElementTree as ET
 
@@ -33,9 +32,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        fallback = "lib/native/x86_64-linux/cbmc" if platform.machine() == "x86_64" else \
-                   "lib/native/x86-linux/cbmc"    if platform.machine() == "i386" else None
-        return util.find_executable('cbmc', fallback)
+        return util.find_executable('cbmc')
 
 
     def version(self, executable):
