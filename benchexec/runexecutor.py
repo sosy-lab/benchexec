@@ -773,3 +773,6 @@ def _has_swap():
                 if int(swap) == 0:
                     return False
     return True
+
+if __name__ == '__main__':
+    main()
