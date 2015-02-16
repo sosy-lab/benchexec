@@ -82,6 +82,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif status == "FAILURE":
                     assert returncode == 10
                     reason = tree.find('goto_trace').find('failure').findtext('reason')
+                    if not reason:
+                        reason = tree.find('goto_trace').find('failure').get('reason')
                     if 'unwinding assertion' in reason:
                         status = result.STATUS_UNKNOWN
                     else:
@@ -94,7 +96,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     else:
                         status = result.STATUS_TRUE_PROP
 
-            except Exception as e: # catch all exceptions
+            except Exception:
                 if isTimeout:
                     # in this case an exception is expected as the XML is invalid
                     status = 'TIMEOUT'
@@ -102,7 +104,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = 'OUT OF MEMORY'
                 else:
                     status = 'INVALID OUTPUT'
-                    logging.warning("Error parsing CBMC output for returncode %d: %s" % (returncode, e))
+                    logging.exception("Error parsing CBMC output for returncode %d" % (returncode))
 
         elif returncode == 6:
             # parser error or something similar
