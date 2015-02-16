@@ -40,7 +40,7 @@ import benchexec.result as result
 
 NAME_START = "results" # first part of filename of table
 
-DEFAULT_OUTPUT_PATH = "test/results/"
+DEFAULT_OUTPUT_PATH = "results/"
 
 LIB_URL = "http://www.sosy-lab.org/lib"
 LIB_URL_OFFLINE = "lib/javascript"

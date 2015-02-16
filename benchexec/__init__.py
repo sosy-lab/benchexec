@@ -69,6 +69,8 @@ class BenchExec(object):
     By default, it uses an executor that executes all runs on the local machine.
     """
 
+    DEFAULT_OUTPUT_PATH = "results/"
+
     def __init__(self):
         self.executor = None
         self.stopped_by_interrupt = False
@@ -142,7 +144,7 @@ class BenchExec(object):
 
         parser.add_argument("-o", "--outputpath",
                           dest="output_path", type=str,
-                          default="./test/results/",
+                          default=self.DEFAULT_OUTPUT_PATH,
                           help="Output prefix for the generated results. "
                                 + "If the path is a folder files are put into it,"
                                 + "otherwise it is used as a prefix for the resulting files.")
