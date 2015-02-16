@@ -40,10 +40,6 @@ from . import oomhandler
 read_file = util.read_file
 write_file = util.write_file
 
-CPUACCT = 'cpuacct'
-CPUSET = 'cpuset'
-MEMORY = 'memory'
-
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
 

@@ -77,8 +77,8 @@ def execute_benchmark(benchmark, output_handler):
     logging.debug("I will use {0} threads.".format(benchmark.num_of_threads))
 
     cgroupsParents = {}
-    cgroups.init_cgroup(cgroupsParents, 'cpuset')
-    cgroupCpuset = cgroupsParents['cpuset']
+    cgroups.init_cgroup(cgroupsParents, cgroups.CPUSET)
+    cgroupCpuset = cgroupsParents[cgroups.CPUSET]
 
     coreAssignment = None # cores per run
     memoryAssignment = None # memory banks per run
@@ -366,8 +366,8 @@ def _check_memory_size(memLimit, num_of_threads, memoryAssignment, cgroupsParent
             logging.debug("System without NUMA support in Linux kernel, ignoring memory assignment.")
             return
 
-        cgroups.init_cgroup(cgroupsParents, 'memory')
-        cgroupMemory = cgroupsParents['memory']
+        cgroups.init_cgroup(cgroupsParents, cgroups.MEMORY)
+        cgroupMemory = cgroupsParents[cgroups.MEMORY]
         if cgroupMemory:
             # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
             # because the former may be lower if memory.use_hierarchy is enabled.
@@ -380,8 +380,8 @@ def _check_memory_size(memLimit, num_of_threads, memoryAssignment, cgroupsParent
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:
-            cgroups.init_cgroup(cgroupsParents, 'cpuset')
-            cgroupCpuset = cgroupsParents['cpuset']
+            cgroups.init_cgroup(cgroupsParents, cgroups.CPUSET)
+            cgroupCpuset = cgroupsParents[cgroups.CPUSET]
             if cgroupCpuset:
                 allMems = _get_allowed_memory_banks(cgroupCpuset)
             else:

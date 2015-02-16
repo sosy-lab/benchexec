@@ -37,11 +37,19 @@ __all__ = [
            'kill_all_tasks_in_cgroup',
            'kill_all_tasks_in_cgroup_recursively',
            'remove_cgroup',
+           'CPUACCT',
+           'CPUSET',
+           'FREEZER',
+           'MEMORY',
            ]
 
 CGROUP_NAME_PREFIX='benchmark_'
 
-ALL_KNOWN_SUBSYSTEMS = set(['cpuacct', 'cpuset', 'freezer', 'memory'])
+CPUACCT = 'cpuacct'
+CPUSET = 'cpuset'
+FREEZER = 'freezer'
+MEMORY = 'memory'
+ALL_KNOWN_SUBSYSTEMS = set([CPUACCT, CPUSET, FREEZER, MEMORY])
 
 def init_cgroup(cgroupsParents, subsystem):
     """
