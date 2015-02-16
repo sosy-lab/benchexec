@@ -36,6 +36,7 @@ from . import __version__
 from . import util as util
 from .cgroups import *
 from . import oomhandler
+from benchexec import systeminfo
 
 read_file = util.read_file
 write_file = util.write_file
@@ -259,7 +260,7 @@ class RunExecutor():
             # Some kernels might not have this feature,
             # which is ok if there is actually no swap.
             if not os.path.exists(os.path.join(cgroupMemory, swapLimitFile)):
-                if _has_swap():
+                if systeminfo.has_swap():
                     sys.exit('Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
             else:
                 try:
@@ -274,7 +275,7 @@ class RunExecutor():
 
         if MEMORY in cgroups \
                 and not os.path.exists(os.path.join(cgroups[MEMORY], 'memory.memsw.max_usage_in_bytes')) \
-                and _has_swap():
+                and systeminfo.has_swap():
             logging.warning('Kernel misses feature for accounting swap memory, but machine has swap. Memory usage may be measured inaccurately. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
 
         return cgroups
@@ -760,15 +761,6 @@ class _TimelimitThread(threading.Thread):
     def cancel(self):
         self.finished.set()
 
-
-def _has_swap():
-    with open('/proc/meminfo', 'r') as meminfo:
-        for line in meminfo:
-            if line.startswith('SwapTotal:'):
-                swap = line.split()[1]
-                if int(swap) == 0:
-                    return False
-    return True
 
 if __name__ == '__main__':
     main()

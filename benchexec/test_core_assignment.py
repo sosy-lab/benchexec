@@ -28,7 +28,7 @@ import itertools
 import logging
 import unittest
 
-from .localexecution import _get_cpu_cores_per_run0
+from benchexec.resources import _get_cpu_cores_per_run0
 
 def lrange(start, end):
     return list(range(start, end))

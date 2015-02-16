@@ -21,7 +21,23 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+"""
+This module allows to retrieve information about the current system.
+"""
+
 import os
+import sys
+
+from . import util
+
+__all__ = [
+           'has_swap',
+           'is_turbo_boost_enabled',
+           'SystemInfo',
+           ]
+
+_TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
+_TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
 
 class SystemInfo(object):
     def __init__(self):
@@ -74,3 +90,29 @@ class SystemInfo(object):
                             .strip('\n').split('\n'))
             memInfoFile.close()
         self.memory = memInfo.get('MemTotal', 'unknown').strip()
+
+
+def is_turbo_boost_enabled():
+    try:
+        if os.path.exists(_TURBO_BOOST_FILE):
+            boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
+            if not (0 <= boost_enabled <= 1):
+                raise ValueError('Invalid value {} for turbo boost activation'.format(boost_enabled))
+            return boost_enabled != 0
+        if os.path.exists(_TURBO_BOOST_FILE_PSTATE):
+            boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
+            if not (0 <= boost_disabled <= 1):
+                raise ValueError('Invalid value {} for turbo boost activation'.format(boost_enabled))
+            return boost_disabled != 1
+    except ValueError as e:
+        sys.exit("Could not read turbo-boost information from kernel: {0}".format(e))
+
+
+def has_swap():
+    with open('/proc/meminfo', 'r') as meminfo:
+        for line in meminfo:
+            if line.startswith('SwapTotal:'):
+                swap = line.split()[1]
+                if int(swap) == 0:
+                    return False
+    return True
