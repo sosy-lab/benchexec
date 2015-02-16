@@ -230,7 +230,7 @@ class RunExecutor():
 
         cgroups = create_cgroup(self.cgroupsParents, *subsystems)
 
-        logging.debug("Executing {0} in cgroups {1}.".format(args, cgroups.values()))
+        logging.debug("Executing {0} in cgroups {1}.".format(args, cgroups))
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
@@ -318,8 +318,7 @@ class RunExecutor():
                 pass
                 #print('libcgroup is not available: {}'.format(e.strerror))
 
-            for cgroup in set(cgroups.values()):
-                add_task_to_cgroup(cgroup, pid)
+            cgroups.add_task(pid)
 
 
         # copy parent-environment and set needed values, either override or append
@@ -406,8 +405,7 @@ class RunExecutor():
             logging.debug("size of logfile '{0}': {1}".format(output_filename, str(os.path.getsize(output_filename))))
 
             # kill all remaining processes if some managed to survive
-            for cgroup in set(cgroups.values()):
-                kill_all_tasks_in_cgroup(cgroup)
+            cgroups.kill_all_tasks()
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
@@ -576,9 +574,7 @@ class RunExecutor():
 
         finally: # always try to cleanup cgroups, even on sys.exit()
             logging.debug("execute_run: cleaning up CGroups.")
-            for cgroup in set(cgroups.values()):
-                # Need the set here to delete each cgroup only once.
-                remove_cgroup(cgroup)
+            cgroups.remove()
 
         # if exception is thrown, skip the rest, otherwise perform normally
 

@@ -164,7 +164,7 @@ def create_cgroup(cgroupsParents, *subsystems):
             # expected to fail if cpuset subsystem is not enabled in this hierarchy
             pass
 
-    return createdCgroupsPerSubsystem
+    return Cgroup(createdCgroupsPerSubsystem)
 
 def add_task_to_cgroup(cgroup, pid):
     if cgroup:
@@ -224,3 +224,32 @@ def remove_cgroup(cgroup):
             except OSError as e:
                 logging.warning("Failed to remove cgroup {0}: error {1} ({2})"
                                 .format(cgroup, e.errno, e.strerror))
+
+class Cgroup(object):
+    def __init__(self, cgroupsPerSubsystem):
+        assert cgroupsPerSubsystem.keys() <= ALL_KNOWN_SUBSYSTEMS
+        self.per_subsystem = cgroupsPerSubsystem
+        self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
+
+    def __contains__(self, key):
+        return key in self.per_subsystem
+
+    def __getitem__(self, key):
+        return self.per_subsystem[key]
+
+    def __str__(self):
+        return str(self.paths)
+
+    def add_task(self, pid):
+        for cgroup in self.paths:
+            add_task_to_cgroup(cgroup, pid)
+
+    def kill_all_tasks(self):
+        for cgroup in self.paths:
+            kill_all_tasks_in_cgroup(cgroup)
+
+    def remove(self):
+        for cgroup in self.paths:
+            remove_cgroup(cgroup)
+        del self.paths
+        del self.per_subsystem
