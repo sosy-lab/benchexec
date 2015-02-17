@@ -131,8 +131,13 @@ class TestRunExecutor(unittest.TestCase):
     def test_all_timelimits(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
-        (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
-                                            softtimelimit=1, hardtimelimit=2, walltimelimit=5)
+        try:
+            (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
+                                                softtimelimit=1, hardtimelimit=2, walltimelimit=5)
+        except SystemExit as e:
+            self.assertEqual(str(e), 'Soft time limit cannot be specified without cpuacct cgroup.')
+            self.skipTest(e)
+
         self.assertEqual(result['exitcode'], 15, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
