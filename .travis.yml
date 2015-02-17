@@ -7,3 +7,6 @@ install:
   - pip install .
 script:
   - python setup.py test
+notifications:
+  email:
+    - benchexec-dev@googlegroups.com
