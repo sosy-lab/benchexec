@@ -31,6 +31,7 @@ import time
 from . import util as util
 
 __all__ = [
+           'find_my_cgroups',
            'init_cgroup',
            'create_cgroup',
            'add_task_to_cgroup',
@@ -50,6 +51,26 @@ CPUSET = 'cpuset'
 FREEZER = 'freezer'
 MEMORY = 'memory'
 ALL_KNOWN_SUBSYSTEMS = set([CPUACCT, CPUSET, FREEZER, MEMORY])
+
+
+def find_my_cgroups():
+    """
+    Return a Cgroup object with the cgroups of the current process.
+    Note that it is not guaranteed that all subsystems are available
+    in the returned object, as a subsystem may not be mounted
+    or may be inaccessible with current rights.
+    Check with "subsystem in <instance>" before using.
+    """
+    logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
+    mounts = _find_cgroup_mounts()
+    cgroups = _find_own_cgroups()
+
+    cgroupsParents = {}
+    for mountedSubsystem, mount in mounts.items():
+        cgroupsParents[mountedSubsystem] = os.path.join(mount, cgroups[mountedSubsystem])
+
+    return Cgroup(cgroupsParents)
+
 
 def init_cgroup(cgroupsParents, subsystem):
     """
@@ -228,6 +249,7 @@ def remove_cgroup(cgroup):
 class Cgroup(object):
     def __init__(self, cgroupsPerSubsystem):
         assert cgroupsPerSubsystem.keys() <= ALL_KNOWN_SUBSYSTEMS
+        assert all(cgroupsPerSubsystem.values())
         self.per_subsystem = cgroupsPerSubsystem
         self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
 
@@ -267,6 +289,17 @@ class Cgroup(object):
         assert subsystem in self
         return util.read_file(self.per_subsystem[subsystem], subsystem + '.' + option)
 
+    def get_file_lines(self, subsystem, option):
+        """
+        Read the lines of the given file from the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        assert subsystem in self
+        with open(os.path.join(self.per_subsystem[subsystem], subsystem + '.' + option)) as f:
+            for line in f:
+                yield line
+
     def set_value(self, subsystem, option, value):
         """
         Write the given value for the given subsystem.
@@ -288,3 +321,7 @@ class Cgroup(object):
         @return cputime usage in seconds
         """
         return float(self.get_value(CPUACCT, 'usage'))/1000000000 # nano-seconds to seconds
+
+    def read_allowed_memory_banks(self):
+        """Get the list of all memory banks allowed by this cgroup."""
+        return util.parse_int_list(self.get_value(CPUSET, 'mems'))

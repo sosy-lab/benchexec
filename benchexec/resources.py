@@ -41,7 +41,7 @@ __all__ = [
            'get_memory_banks_per_run',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, cgroupCpuset):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -73,7 +73,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, cgroupCpuset):
     """
     try:
         # read list of available CPU cores
-        allCpus = util.parse_int_list(util.read_file(cgroupCpuset, 'cpuset.cpus'))
+        allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
         logging.debug("List of available CPU cores is {0}.".format(allCpus))
 
         # read mapping of core to CPU ("physical package")
@@ -173,13 +173,13 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
     return result
 
 
-def get_memory_banks_per_run(coreAssignment, cgroupCpuset):
+def get_memory_banks_per_run(coreAssignment, cgroups):
     """Get an assignment of memory banks to runs that fits to the given coreAssignment,
     i.e., no run is allowed to use memory that is not local (on the same NUMA node)
     to one of its CPU cores."""
     try:
         # read list of available memory banks
-        allMems = set(_get_allowed_memory_banks(cgroupCpuset))
+        allMems = set(cgroups.read_allowed_memory_banks())
 
         result = []
         for cores in coreAssignment:
@@ -204,10 +204,6 @@ def get_memory_banks_per_run(coreAssignment, cgroupCpuset):
         sys.exit("Could not read memory information from kernel: {0}".format(e))
 
 
-def _get_allowed_memory_banks(cgroupCpuset):
-    """Get the list of all memory banks allowed by the given cgroup."""
-    return util.parse_int_list(util.read_file(cgroupCpuset, 'cpuset.mems'))
-
 def _get_memory_banks_listed_in_dir(dir):
     """Get all memory banks the kernel lists in a given directory.
     Such a directory can be /sys/devices/system/node/ (contains all memory banks)
@@ -216,7 +212,7 @@ def _get_memory_banks_listed_in_dir(dir):
     return [int(entry[4:]) for entry in os.listdir(dir) if entry.startswith('node')]
 
 
-def check_memory_size(memLimit, num_of_threads, memoryAssignment, cgroupsParents):
+def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
     """Check whether the desired amount of parallel benchmarks fits in the memory.
     Implemented are checks for memory limits via cgroup controller "memory" and
     memory bank restrictions via cgroup controller "cpuset",
@@ -237,24 +233,19 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, cgroupsParents
             logging.debug("System without NUMA support in Linux kernel, ignoring memory assignment.")
             return
 
-        cgroups.init_cgroup(cgroupsParents, cgroups.MEMORY)
-        cgroupMemory = cgroupsParents[cgroups.MEMORY]
-        if cgroupMemory:
+        if cgroups.MEMORY in my_cgroups:
             # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
             # because the former may be lower if memory.use_hierarchy is enabled.
-            with open(os.path.join(cgroupMemory, 'memory.stat')) as f:
-                for line in f:
-                    if line.startswith('hierarchical_memory_limit'):
-                        check_limit(int(line.split()[1]))
-                    elif line.startswith('hierarchical_memsw_limit'):
-                        check_limit(int(line.split()[1]))
+            for line in my_cgroups.get_file_lines(cgroups.MEMORY, 'stat'):
+                if line.startswith('hierarchical_memory_limit'):
+                    check_limit(int(line.split()[1]))
+                elif line.startswith('hierarchical_memsw_limit'):
+                    check_limit(int(line.split()[1]))
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:
-            cgroups.init_cgroup(cgroupsParents, cgroups.CPUSET)
-            cgroupCpuset = cgroupsParents[cgroups.CPUSET]
-            if cgroupCpuset:
-                allMems = _get_allowed_memory_banks(cgroupCpuset)
+            if cgroups.CPUSET in my_cgroups:
+                allMems = my_cgroups.read_allowed_memory_banks()
             else:
                 allMems = _get_memory_banks_listed_in_dir('/sys/devices/system/node/')
             memoryAssignment = [allMems] * num_of_threads # "fake" memory assignment: all threads on all banks

@@ -39,7 +39,7 @@ import time
 
 from .model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
 from . import cgroups
-from benchexec.resources import *
+from .resources import *
 from .runexecutor import RunExecutor
 from .systeminfo import *
 from . import util as util
@@ -71,22 +71,20 @@ def execute_benchmark(benchmark, output_handler):
 
     logging.debug("I will use {0} threads.".format(benchmark.num_of_threads))
 
-    cgroupsParents = {}
-    cgroups.init_cgroup(cgroupsParents, cgroups.CPUSET)
-    cgroupCpuset = cgroupsParents[cgroups.CPUSET]
+    my_cgroups = cgroups.find_my_cgroups()
 
     coreAssignment = None # cores per run
     memoryAssignment = None # memory banks per run
     if CORELIMIT in benchmark.rlimits:
-        if not cgroupCpuset:
+        if not cgroups.CPUSET in my_cgroups:
             sys.exit("Cannot limit the number of CPU cores/memory nodes without cpuset cgroup.")
-        coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, cgroupCpuset)
-        memoryAssignment = get_memory_banks_per_run(coreAssignment, cgroupCpuset)
+        coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups)
+        memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
         memLimit = benchmark.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
-        check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, cgroupsParents)
+        check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, my_cgroups)
 
     if benchmark.num_of_threads > 1 and is_turbo_boost_enabled():
         logging.warning("Turbo boost of CPU is enabled. Starting more than one benchmark in parallel affects the CPU frequency and thus makes the performance unreliable.")
