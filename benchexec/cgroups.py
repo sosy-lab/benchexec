@@ -248,8 +248,43 @@ class Cgroup(object):
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup(cgroup)
 
+    def has_value(self, subsystem, option):
+        """
+        Check whether the given value exists in the given subsystem.
+        Does not make a difference whether the value is readable, writable, or both.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.  
+        """
+        assert subsystem in self
+        return os.path.isfile(os.path.join(self.per_subsystem[subsystem], subsystem + '.' + option))
+
+    def get_value(self, subsystem, option):
+        """
+        Read the given value from the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.  
+        """
+        assert subsystem in self
+        return util.read_file(self.per_subsystem[subsystem], subsystem + '.' + option)
+
+    def set_value(self, subsystem, option, value):
+        """
+        Write the given value for the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.  
+        """
+        assert subsystem in self
+        util.write_file(str(value), self.per_subsystem[subsystem], subsystem + '.' + option)
+
     def remove(self):
         for cgroup in self.paths:
             remove_cgroup(cgroup)
         del self.paths
         del self.per_subsystem
+
+    def read_cputime(self):
+        """
+        Read the cputime usage of this cgroup. CPUACCT cgroup needs to be available.
+        @return cputime usage in seconds
+        """
+        return float(self.get_value(CPUACCT, 'usage'))/1000000000 # nano-seconds to seconds

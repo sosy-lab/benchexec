@@ -234,47 +234,43 @@ class RunExecutor():
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
-            cgroupCpuset = cgroups[CPUSET]
             my_cpus_str = ','.join(map(str, my_cpus))
-            write_file(my_cpus_str, cgroupCpuset, 'cpuset.cpus')
-            my_cpus_str = read_file(cgroupCpuset, 'cpuset.cpus')
+            cgroups.set_value(CPUSET, 'cpus', my_cpus_str)
+            my_cpus_str = cgroups.get_value(CPUSET, 'cpus')
             logging.debug('Executing {0} with cpu cores [{1}].'.format(args, my_cpus_str))
 
         if memory_nodes is not None:
-            cgroupCpuset = cgroups[CPUSET]
-            write_file(','.join(map(str, memory_nodes)), cgroupCpuset, 'cpuset.mems')
-            memory_nodesStr = read_file(cgroupCpuset, 'cpuset.mems')
+            cgroups.set_value(CPUSET, 'mems', ','.join(map(str, memory_nodes)))
+            memory_nodesStr = cgroups.get_value(CPUSET, 'mems')
             logging.debug('Executing {0} with memory nodes [{1}].'.format(args, memory_nodesStr))
 
 
         # Setup memory limit
         if memlimit is not None:
-            cgroupMemory = cgroups[MEMORY]
+            limit = 'limit_in_bytes'
+            cgroups.set_value(MEMORY, limit, memlimit)
 
-            limitFile = 'memory.limit_in_bytes'
-            write_file(str(memlimit), cgroupMemory, limitFile)
-
-            swapLimitFile = 'memory.memsw.limit_in_bytes'
+            swap_limit = 'memsw.limit_in_bytes'
             # We need swap limit because otherwise the kernel just starts swapping
             # out our process if the limit is reached.
             # Some kernels might not have this feature,
             # which is ok if there is actually no swap.
-            if not os.path.exists(os.path.join(cgroupMemory, swapLimitFile)):
+            if not cgroups.has_value(MEMORY, swap_limit):
                 if systeminfo.has_swap():
                     sys.exit('Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
             else:
                 try:
-                    write_file(str(memlimit), cgroupMemory, swapLimitFile)
+                    cgroups.set_value(MEMORY, swap_limit, memlimit)
                 except IOError as e:
                     if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
                         sys.exit('Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
                     raise e
 
-            memlimit = read_file(cgroupMemory, limitFile)
+            memlimit = cgroups.get_value(MEMORY, limit)
             logging.debug('Executing {0} with memory limit {1} bytes.'.format(args, memlimit))
 
         if MEMORY in cgroups \
-                and not os.path.exists(os.path.join(cgroups[MEMORY], 'memory.memsw.max_usage_in_bytes')) \
+                and not cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes') \
                 and systeminfo.has_swap():
             logging.warning('Kernel misses feature for accounting swap memory, but machine has swap. Memory usage may be measured inaccurately. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
 
@@ -427,13 +423,12 @@ class RunExecutor():
             # and continue reading as long as the values differ.
             # This has never happened except when interrupting the script with Ctrl+C,
             # but just try to be on the safe side here.
-            cgroupCpuacct = cgroups[CPUACCT]
-            tmp = _read_cputime(cgroupCpuacct)
+            tmp = cgroups.read_cputime()
             tmp2 = None
             while tmp != tmp2:
                 time.sleep(0.1)
                 tmp2 = tmp
-                tmp = _read_cputime(cgroupCpuacct)
+                tmp = cgroups.read_cputime()
             cputime2 = tmp
 
         memUsage = None
@@ -441,15 +436,14 @@ class RunExecutor():
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
             # For more details, c.f. the kernel documentation:
             # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-            memUsageFile = 'memory.memsw.max_usage_in_bytes'
-            if not os.path.exists(os.path.join(cgroups[MEMORY], memUsageFile)):
-                memUsageFile = 'memory.max_usage_in_bytes'
-            if not os.path.exists(os.path.join(cgroups[MEMORY], memUsageFile)):
+            memUsageFile = 'memsw.max_usage_in_bytes'
+            if not cgroups.has_value(MEMORY, memUsageFile):
+                memUsageFile = 'max_usage_in_bytes'
+            if not cgroups.has_value(MEMORY, memUsageFile):
                 logging.warning('Memory-usage is not available due to missing files.')
             else:
                 try:
-                    memUsage = read_file(cgroups[MEMORY], memUsageFile)
-                    memUsage = int(memUsage)
+                    memUsage = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
                     if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
                         logging.critical("Kernel does not track swap memory usage, cannot measure memory usage. "
