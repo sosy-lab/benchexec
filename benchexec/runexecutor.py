@@ -355,9 +355,12 @@ class RunExecutor():
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.add(p)
 
-            if any([hardtimelimit, softtimelimit, walltimelimit]):
+            # hard time limit with cgroups is optional (additionally enforce by ulimit)
+            cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
+            
+            if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
                 # Start a timer to periodically check timelimit
-                timelimitThread = _TimelimitThread(cgroups, hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
+                timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
                 timelimitThread.start()
 
             if memlimit is not None:
