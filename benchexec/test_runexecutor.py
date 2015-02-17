@@ -128,6 +128,24 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_cputime_walltime_limit(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
+                                            hardtimelimit=1, walltimelimit=5)
+
+        self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
+        if 'terminationreason' in result:
+            # not produced currently if killed by ulimit
+            self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
+        self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
+        self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
+        for key in result.keys():
+            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
     def test_all_timelimits(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
