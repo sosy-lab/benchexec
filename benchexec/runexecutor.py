@@ -511,8 +511,6 @@ class RunExecutor():
         else:
             if walltimelimit <= 0:
                 sys.exit("Invalid wall time limit {0}.".format(walltimelimit))
-            if not self.cgroupsParents[CPUACCT]:
-                sys.exit("Wall time limit is not implemented for systems without cpuacct cgroup.")
 
         if cores is not None:
             if self.cpus is None:
