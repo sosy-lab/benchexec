@@ -355,10 +355,9 @@ class RunExecutor():
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.add(p)
 
-            if hardtimelimit is not None and CPUACCT in cgroups:
-                # Start a timer to periodically check timelimit with cgroup
-                # if the tool uses subprocesses and ulimit does not work.
-                timelimitThread = _TimelimitThread(cgroups[CPUACCT], hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
+            if any([hardtimelimit, softtimelimit, walltimelimit]):
+                # Start a timer to periodically check timelimit
+                timelimitThread = _TimelimitThread(cgroups, hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
                 timelimitThread.start()
 
             if memlimit is not None:
@@ -496,9 +495,7 @@ class RunExecutor():
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
-            if hardtimelimit is None:
-                sys.exit("Soft time limit without hard time limit is not implemented.")
-            if softtimelimit > hardtimelimit:
+            if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
             if not self.cgroupsParents[CPUACCT]:
                 sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
@@ -506,11 +503,11 @@ class RunExecutor():
         if walltimelimit is None:
             if hardtimelimit is not None:
                 walltimelimit = hardtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
+            elif softtimelimit is not None:
+                walltimelimit = softtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
         else:
             if walltimelimit <= 0:
                 sys.exit("Invalid wall time limit {0}.".format(walltimelimit))
-            if hardtimelimit is None:
-                sys.exit("Wall time limit without hard time limit is not implemented.")
             if not self.cgroupsParents[CPUACCT]:
                 sys.exit("Wall time limit is not implemented for systems without cpuacct cgroup.")
 
@@ -698,34 +695,41 @@ class _TimelimitThread(threading.Thread):
     Thread that periodically checks whether the given process has already
     reached its timelimit. After this happens, the process is terminated.
     """
-    def __init__(self, cgroupCpuacct, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
+    def __init__(self, cgroups, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
                  callbackFn=lambda reason: None):
         super(_TimelimitThread, self).__init__()
+
+        if hardtimelimit or softtimelimit:
+            assert CPUACCT in cgroups
+        assert walltimelimit is not None
+
         self.daemon = True
-        self.cgroupCpuacct = cgroupCpuacct
-        self.timelimit = hardtimelimit
-        self.softtimelimit = softtimelimit or hardtimelimit
+        self.cgroups = cgroups
+        self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
+        self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value
         self.latestKillTime = time.time() + walltimelimit
         self.cpuCount = cpuCount
         self.process = process
         self.callback = callbackFn
         self.finished = threading.Event()
 
+    def read_cputime(self):
+        while True:
+            try:
+                return self.cgroups.read_cputime()
+            except ValueError:
+                # Sometimes the kernel produces strange values with linebreaks in them
+                time.sleep(1)
+                pass
+
     def run(self):
         while not self.finished.is_set():
-            read = False
-            while not read:
-                try:
-                    usedCpuTime = _read_cputime(self.cgroupCpuacct)
-                    read = True
-                except ValueError:
-                    # Sometimes the kernel produces strange values with linebreaks in them
-                    time.sleep(1)
-                    pass
+            usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
+            remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.time()
-            logging.debug("TimelimitThread for process {0}: used CPU time: {1}, remaining CPU time: {2}, remaining wall time: {3}."
-                          .format(self.process.pid, usedCpuTime, remainingCpuTime, remainingWallTime))
+            logging.debug("TimelimitThread for process {0}: used CPU time: {1}, remaining CPU time: {2}, remaining soft CPU time: {3}, remaining wall time: {4}."
+                          .format(self.process.pid, usedCpuTime, remainingCpuTime, remainingSoftCpuTime, remainingWallTime))
             if remainingCpuTime <= 0:
                 self.callback('cputime')
                 logging.debug('Killing process {0} due to CPU time timeout.'.format(self.process.pid))
@@ -739,13 +743,15 @@ class _TimelimitThread(threading.Thread):
                 self.finished.set()
                 return
 
-            if (self.softtimelimit - usedCpuTime) <= 0:
+            if remainingSoftCpuTime <= 0:
                 self.callback('cputime-soft')
                 # soft time limit violated, ask process to terminate
                 util.kill_process(self.process.pid, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
-            remainingTime = min(remainingCpuTime/self.cpuCount, remainingWallTime)
+            remainingTime = min(remainingCpuTime/self.cpuCount,
+                                remainingSoftCpuTime/self.cpuCount,
+                                remainingWallTime)
             self.finished.wait(remainingTime + 1)
 
     def cancel(self):
