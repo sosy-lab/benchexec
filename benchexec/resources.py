@@ -236,11 +236,9 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
         if cgroups.MEMORY in my_cgroups:
             # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
             # because the former may be lower if memory.use_hierarchy is enabled.
-            for line in my_cgroups.get_file_lines(cgroups.MEMORY, 'stat'):
-                if line.startswith('hierarchical_memory_limit'):
-                    check_limit(int(line.split()[1]))
-                elif line.startswith('hierarchical_memsw_limit'):
-                    check_limit(int(line.split()[1]))
+            for key, value in my_cgroups.get_key_value_pairs(cgroups.MEMORY, 'stat'):
+                if key == 'hierarchical_memory_limit' or key == 'hierarchical_memsw_limit':
+                    check_limit(int(value))
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:

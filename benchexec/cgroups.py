@@ -284,6 +284,16 @@ class Cgroup(object):
             for line in f:
                 yield line
 
+    def get_key_value_pairs(self, subsystem, filename):
+        """
+        Read the lines of the given file from the given subsystem
+        and split the lines into key-value pairs.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        for line in self.get_file_lines(subsystem, filename):
+            yield line.split(' ', maxsplit=1)
+
     def set_value(self, subsystem, option, value):
         """
         Write the given value for the given subsystem.
