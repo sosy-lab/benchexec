@@ -32,12 +32,6 @@ from . import util as util
 
 __all__ = [
            'find_my_cgroups',
-           'init_cgroup',
-           'create_cgroup',
-           'add_task_to_cgroup',
-           'kill_all_tasks_in_cgroup',
-           'kill_all_tasks_in_cgroup_recursively',
-           'remove_cgroup',
            'CPUACCT',
            'CPUSET',
            'FREEZER',
@@ -57,9 +51,10 @@ def find_my_cgroups():
     """
     Return a Cgroup object with the cgroups of the current process.
     Note that it is not guaranteed that all subsystems are available
-    in the returned object, as a subsystem may not be mounted
-    or may be inaccessible with current rights.
+    in the returned object, as a subsystem may not be mounted.
     Check with "subsystem in <instance>" before using.
+    A subsystem may also be present but we do not have the rights to create
+    child cgroups, this can be checked with require_subsystem().
     """
     logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
     mounts = _find_cgroup_mounts()
@@ -70,45 +65,6 @@ def find_my_cgroups():
         cgroupsParents[mountedSubsystem] = os.path.join(mount, cgroups[mountedSubsystem])
 
     return Cgroup(cgroupsParents)
-
-
-def init_cgroup(cgroupsParents, subsystem):
-    """
-    Initialize a cgroup subsystem.
-    Call this before calling any other methods from this module for this subsystem.
-    @param cgroupsParents: A dictionary with the cgroup mount points for each subsystem (filled by this method)
-    @param subsystem: The subsystem to initialize
-    """
-    if not cgroupsParents:
-        # first call to this method
-        logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
-        mounts = _find_cgroup_mounts()
-        cgroups = _find_own_cgroups()
-
-        for mountedSubsystem, mount in mounts.items():
-            cgroupsParents[mountedSubsystem] = os.path.join(mount, cgroups[mountedSubsystem])
-
-    if not subsystem in cgroupsParents:
-        logging.warning(
-'''Cgroup subsystem {0} not enabled.
-Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".'''
-            .format(subsystem)
-            )
-        cgroupsParents[subsystem] = None
-        return
-
-    cgroup = cgroupsParents[subsystem]
-    logging.debug('My cgroup for subsystem {0} is {1}'.format(subsystem, cgroup))
-
-    try: # only for testing?
-        testCgroup = create_cgroup(cgroupsParents, subsystem)[subsystem]
-        remove_cgroup(testCgroup)
-    except OSError as e:
-        logging.warning(
-'''Cannot use cgroup hierarchy mounted at {0}, reason: {1}
-If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'''
-            .format(cgroup, e.strerror))
-        cgroupsParents[subsystem] = None
 
 
 def _find_cgroup_mounts():
@@ -149,65 +105,6 @@ def _find_own_cgroups():
     return ownCgroups
 
 
-def create_cgroup(cgroupsParents, *subsystems):
-    """
-    Try to create a cgroup for each of the given subsystems.
-    If multiple subsystems are available in the same hierarchy,
-    a common cgroup for theses subsystems is used.
-    @param subsystems: a list of cgroup subsystems
-    @return a map from subsystem to cgroup for each subsystem where it was possible to create a cgroup
-    """
-    createdCgroupsPerSubsystem = {}
-    createdCgroupsPerParent = {}
-    for subsystem in subsystems:
-        if not subsystem in cgroupsParents:
-            init_cgroup(cgroupsParents, subsystem)
-
-        parentCgroup = cgroupsParents.get(subsystem)
-        if not parentCgroup:
-            # subsystem not enabled
-            continue
-        if parentCgroup in createdCgroupsPerParent:
-            # reuse already created cgroup
-            createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[parentCgroup]
-            continue
-
-        cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
-        createdCgroupsPerSubsystem[subsystem] = cgroup
-        createdCgroupsPerParent[parentCgroup] = cgroup
-
-        # add allowed cpus and memory to cgroup if necessary
-        # (otherwise we can't add any tasks)
-        try:
-            shutil.copyfile(os.path.join(parentCgroup, 'cpuset.cpus'), os.path.join(cgroup, 'cpuset.cpus'))
-            shutil.copyfile(os.path.join(parentCgroup, 'cpuset.mems'), os.path.join(cgroup, 'cpuset.mems'))
-        except IOError:
-            # expected to fail if cpuset subsystem is not enabled in this hierarchy
-            pass
-
-    return Cgroup(createdCgroupsPerSubsystem)
-
-def add_task_to_cgroup(cgroup, pid):
-    if cgroup:
-        with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
-            tasksFile.write(str(pid))
-
-
-def kill_all_tasks_in_cgroup_recursively(cgroup):
-    """
-    Iterate through a cgroup and all its children cgroups
-    and kill all processes in any of these cgroups forcefully.
-    Additionally, the children cgroups will be deleted.
-    """
-    files = [os.path.join(cgroup,f) for f in os.listdir(cgroup)]
-    subdirs = filter(os.path.isdir, files)
-
-    for subCgroup in subdirs:
-        kill_all_tasks_in_cgroup_recursively(subCgroup)
-        remove_cgroup(subCgroup)
-
-    kill_all_tasks_in_cgroup(cgroup)
-
 
 def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = os.path.join(cgroup, 'tasks')
@@ -231,26 +128,26 @@ def kill_all_tasks_in_cgroup(cgroup):
 
 
 def remove_cgroup(cgroup):
-    if cgroup:
-        if not os.path.exists(cgroup):
-            logging.warning('Cannot remove CGroup {0}, because it does not exist.'.format(cgroup))
-            return
-        assert os.path.getsize(os.path.join(cgroup, 'tasks')) == 0
+    if not os.path.exists(cgroup):
+        logging.warning('Cannot remove CGroup {0}, because it does not exist.'.format(cgroup))
+        return
+    assert os.path.getsize(os.path.join(cgroup, 'tasks')) == 0
+    try:
+        os.rmdir(cgroup)
+    except OSError:
+        # sometimes this fails because the cgroup is still busy, we try again once
         try:
             os.rmdir(cgroup)
-        except OSError:
-            # sometimes this fails because the cgroup is still busy, we try again once
-            try:
-                os.rmdir(cgroup)
-            except OSError as e:
-                logging.warning("Failed to remove cgroup {0}: error {1} ({2})"
-                                .format(cgroup, e.errno, e.strerror))
+        except OSError as e:
+            logging.warning("Failed to remove cgroup {0}: error {1} ({2})"
+                            .format(cgroup, e.errno, e.strerror))
+
 
 class Cgroup(object):
     def __init__(self, cgroupsPerSubsystem):
         assert cgroupsPerSubsystem.keys() <= ALL_KNOWN_SUBSYSTEMS
         assert all(cgroupsPerSubsystem.values())
-        self.per_subsystem = cgroupsPerSubsystem
+        self.per_subsystem = cgroupsPerSubsystem # update self.paths on every update to this
         self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
 
     def __contains__(self, key):
@@ -276,7 +173,7 @@ class Cgroup(object):
             return False
 
         try:
-            test_cgroup = create_cgroup(self.per_subsystem, subsystem)
+            test_cgroup = self.create_fresh_child_cgroup(subsystem)
             test_cgroup.remove()
         except OSError as e:
             del self.per_subsystem[subsystem]
@@ -292,15 +189,64 @@ class Cgroup(object):
         @return: A Cgroup instance representing the new child cgroup(s). 
         """
         assert set(subsystems).issubset(self.per_subsystem.keys())
-        return create_cgroup(self.per_subsystem, *subsystems)
+        createdCgroupsPerSubsystem = {}
+        createdCgroupsPerParent = {}
+        for subsystem in subsystems:
+            parentCgroup = self.per_subsystem[subsystem]
+            if parentCgroup in createdCgroupsPerParent:
+                # reuse already created cgroup
+                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[parentCgroup]
+                continue
+
+            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            createdCgroupsPerSubsystem[subsystem] = cgroup
+            createdCgroupsPerParent[parentCgroup] = cgroup
+
+            # add allowed cpus and memory to cgroup if necessary
+            # (otherwise we can't add any tasks)
+            def copy_parent_to_child(name):
+                shutil.copyfile(os.path.join(parentCgroup, name), os.path.join(cgroup, name))
+            try:
+                copy_parent_to_child('cpuset.cpus')
+                copy_parent_to_child('cpuset.mems')
+            except IOError:
+                # expected to fail if cpuset subsystem is not enabled in this hierarchy
+                pass
+
+        return Cgroup(createdCgroupsPerSubsystem)
 
     def add_task(self, pid):
+        """
+        Add a process to the cgroups represented by this instance.
+        """
         for cgroup in self.paths:
-            add_task_to_cgroup(cgroup, pid)
+            with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
+                tasksFile.write(str(pid))
 
     def kill_all_tasks(self):
+        """
+        Kill all tasks in this cgroup forcefully.
+        """
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup(cgroup)
+
+    def kill_all_tasks_recursively(self):
+        """
+        Kill all tasks in this cgroup and all its children cgroups forcefully.
+        Additionally, the children cgroups will be deleted.
+        """
+        def kill_all_tasks_in_cgroup_recursively(cgroup):
+            files = [os.path.join(cgroup,f) for f in os.listdir(cgroup)]
+            subdirs = filter(os.path.isdir, files)
+
+            for subCgroup in subdirs:
+                kill_all_tasks_in_cgroup_recursively(subCgroup)
+                remove_cgroup(subCgroup)
+
+            kill_all_tasks_in_cgroup(cgroup)
+
+        for cgroup in self.paths:
+            kill_all_tasks_in_cgroup_recursively(cgroup)
 
     def has_value(self, subsystem, option):
         """
@@ -342,8 +288,13 @@ class Cgroup(object):
         util.write_file(str(value), self.per_subsystem[subsystem], subsystem + '.' + option)
 
     def remove(self):
+        """
+        Remove all cgroups this instance represents from the system.
+        This instance is afterwards not usable anymore!
+        """
         for cgroup in self.paths:
             remove_cgroup(cgroup)
+
         del self.paths
         del self.per_subsystem
 
