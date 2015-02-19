@@ -262,6 +262,30 @@ class Cgroup(object):
     def __str__(self):
         return str(self.paths)
 
+    def require_subsystem(self, subsystem):
+        """
+        Check whether the given subsystem is enabled and is writable
+        (i.e., new cgroups can be created for it).
+        Produces a log message for the user if one of the conditions is not fulfilled.
+        If the subsystem is enabled but not writable, it will be removed from
+        this instance such that further checks with "in" will return "False".
+        @return A boolean value.
+        """
+        if not subsystem in self:
+            logging.warning('Cgroup subsystem {0} is not enabled. Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".'.format(subsystem))
+            return False
+
+        try:
+            test_cgroup = create_cgroup(self.per_subsystem, subsystem)
+            test_cgroup.remove()
+        except OSError as e:
+            del self.per_subsystem[subsystem]
+            self.paths = set(self.per_subsystem.values())
+            logging.warning('Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'.format(self.per_subsystem[subsystem], subsystem, e.strerror))
+            return False
+
+        return True
+
     def add_task(self, pid):
         for cgroup in self.paths:
             add_task_to_cgroup(cgroup, pid)
