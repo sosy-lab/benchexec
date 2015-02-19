@@ -286,6 +286,14 @@ class Cgroup(object):
 
         return True
 
+    def create_fresh_child_cgroup(self, *subsystems):
+        """
+        Create child cgroups of the current cgroup for at least the given subsystems.
+        @return: A Cgroup instance representing the new child cgroup(s). 
+        """
+        assert set(subsystems).issubset(self.per_subsystem.keys())
+        return create_cgroup(self.per_subsystem, *subsystems)
+
     def add_task(self, pid):
         for cgroup in self.paths:
             add_task_to_cgroup(cgroup, pid)

@@ -175,38 +175,32 @@ class RunExecutor():
 
     def _init_cgroups(self):
         """
-        This function initializes the cgroups for the limitations.
-        Please call it before any calls to execute_run(),
-        if you want to separate initialization from actual run execution
-        (e.g., for better error message handling).
+        This function initializes the cgroups for the limitations and measurements.
         """
-        self.cgroupsParents = {} # contains the roots of all cgroup-subsystems
+        self.cgroups = find_my_cgroups()
 
-        init_cgroup(self.cgroupsParents, CPUACCT)
-        if not self.cgroupsParents[CPUACCT]:
+        self.cgroups.require_subsystem(CPUACCT)
+        if CPUACCT not in self.cgroups:
             logging.warning('Without cpuacct cgroups, cputime measurement and limit might not work correctly if subprocesses are started.')
 
-        init_cgroup(self.cgroupsParents, MEMORY)
-        if not self.cgroupsParents[MEMORY]:
+        self.cgroups.require_subsystem(MEMORY)
+        if MEMORY not in self.cgroups:
             logging.warning('Cannot measure memory consumption without memory cgroup.')
 
-        init_cgroup(self.cgroupsParents, CPUSET)
+        self.cgroups.require_subsystem(CPUSET)
 
         self.cpus = None # to indicate that we cannot limit cores
         self.memory_nodes = None # to indicate that we cannot limit cores
-        cgroupCpuset = self.cgroupsParents[CPUSET]
-        if cgroupCpuset:
+        if CPUSET in self.cgroups:
             # Read available cpus/memory nodes:
-            cpuStr = read_file(cgroupCpuset, 'cpuset.cpus')
             try:
-                self.cpus = util.parse_int_list(cpuStr)
+                self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, 'cpus'))
             except ValueError as e:
                 logging.warning("Could not read available CPU cores from kernel: {0}".format(e.strerror))
             logging.debug("List of available CPU cores is {0}.".format(self.cpus))
 
-            memsStr = read_file(cgroupCpuset, 'cpuset.mems')
             try:
-                self.memory_nodes = util.parse_int_list(memsStr)
+                self.memory_nodes = util.parse_int_list(self.cgroups.get_value(CPUSET, 'mems'))
             except ValueError as e:
                 logging.warning("Could not read available memory nodes from kernel: {0}".format(e.strerror))
             logging.debug("List of available memory nodes is {0}.".format(self.memory_nodes))
@@ -227,8 +221,9 @@ class RunExecutor():
         subsystems = [CPUACCT, MEMORY]
         if my_cpus is not None:
             subsystems.append(CPUSET)
+        subsystems = [s for s in subsystems if s in self.cgroups]
 
-        cgroups = create_cgroup(self.cgroupsParents, *subsystems)
+        cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
 
         logging.debug("Executing {0} in cgroups {1}.".format(args, cgroups))
 
@@ -500,7 +495,7 @@ class RunExecutor():
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
-            if not self.cgroupsParents[CPUACCT]:
+            if not CPUACCT in self.cgroups:
                 sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
 
         if walltimelimit is None:
@@ -529,7 +524,7 @@ class RunExecutor():
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
-            if not self.cgroupsParents[MEMORY]:
+            if not MEMORY in self.cgroups:
                 sys.exit("Memory limit specified, but cannot be implemented without cgroup support.")
 
         if memory_nodes is not None:
