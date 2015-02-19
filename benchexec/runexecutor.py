@@ -183,6 +183,10 @@ class RunExecutor():
         if CPUACCT not in self.cgroups:
             logging.warning('Without cpuacct cgroups, cputime measurement and limit might not work correctly if subprocesses are started.')
 
+        self.cgroups.require_subsystem(FREEZER)
+        if FREEZER not in self.cgroups:
+            logging.warning('Cannot reliably kill sub-processes without freezer cgroup.')
+
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
             logging.warning('Cannot measure memory consumption without memory cgroup.')
@@ -218,7 +222,7 @@ class RunExecutor():
         """
       
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
-        subsystems = [CPUACCT, MEMORY]
+        subsystems = [CPUACCT, FREEZER, MEMORY]
         if my_cpus is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]

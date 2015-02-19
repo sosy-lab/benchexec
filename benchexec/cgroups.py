@@ -106,11 +106,19 @@ def _find_own_cgroups():
 
 def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = os.path.join(cgroup, 'tasks')
+    freezer_file = os.path.join(cgroup, 'freezer.state')
+
+    def try_write_to_freezer(content):
+        try:
+            util.write_file(content, freezer_file)
+        except IOError:
+            pass # expected if freezer not enabled, we try killing without it
 
     i = 0
     while True:
         i += 1
         for sig in [signal.SIGINT, signal.SIGTERM, signal.SIGKILL]:
+            try_write_to_freezer('FROZEN')
             with open(tasksFile, 'rt') as tasks:
                 task = None
                 for task in tasks:
@@ -121,8 +129,8 @@ def kill_all_tasks_in_cgroup(cgroup):
 
                 if task is None:
                     return # No process was hanging, exit
-
-                time.sleep(i * 0.5) # wait for the process to exit, this might take some time
+            try_write_to_freezer('THAWED')
+            time.sleep(i * 0.5) # wait for the process to exit, this might take some time
 
 
 def remove_cgroup(cgroup):
