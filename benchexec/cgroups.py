@@ -57,18 +57,20 @@ def find_my_cgroups():
     child cgroups, this can be checked with require_subsystem().
     """
     logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
-    mounts = _find_cgroup_mounts()
-    cgroups = _find_own_cgroups()
+    my_cgroups = dict(_find_own_cgroups())
 
     cgroupsParents = {}
-    for mountedSubsystem, mount in mounts.items():
-        cgroupsParents[mountedSubsystem] = os.path.join(mount, cgroups[mountedSubsystem])
+    for subsystem, mount in _find_cgroup_mounts():
+        cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
 
     return Cgroup(cgroupsParents)
 
 
 def _find_cgroup_mounts():
-    mounts = {}
+    """
+    Return the information which subsystems are mounted where.
+    @return a generator of tuples (subsystem, mountpoint)
+    """
     try:
         with open('/proc/mounts', 'rt') as mountsFile:
             for mount in mountsFile:
@@ -78,20 +80,17 @@ def _find_cgroup_mounts():
                     options = mount[3]
                     for option in options.split(','):
                         if option in ALL_KNOWN_SUBSYSTEMS:
-                            mounts[option] = mountpoint
-    except IOError as e:
+                            yield (option, mountpoint)
+    except IOError:
         logging.exception('Cannot read /proc/mounts')
-    return mounts
 
 
 def _find_own_cgroups():
     """
-    Given a cgroup subsystem,
-    find the cgroup in which this process is in.
+    For all subsystems, return the information in which (sub-)cgroup this process is in.
     (Each process is in exactly cgroup in each hierarchy.)
-    @return the path to the cgroup inside the hierarchy
+    @return a generator of tuples (subsystem, cgroup)
     """
-    ownCgroups = {}
     try:
         with open('/proc/self/cgroup', 'rt') as ownCgroupsFile:
             for ownCgroup in ownCgroupsFile:
@@ -99,10 +98,9 @@ def _find_own_cgroups():
                 ownCgroup = ownCgroup.strip().split(':')
                 path = ownCgroup[2][1:] # remove leading /
                 for subsystem in ownCgroup[1].split(','):
-                    ownCgroups[subsystem] = path
-    except IOError as e:
+                    yield (subsystem, path)
+    except IOError:
         logging.exception('Cannot read /proc/self/cgroup')
-    return ownCgroups
 
 
 
