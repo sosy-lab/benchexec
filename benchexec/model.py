@@ -565,10 +565,12 @@ class Run():
         return args;
 
 
-    def after_execution(self, returnvalue, forceTimeout=False):
+    def after_execution(self, returnvalue, forceTimeout=False, termination_reason=None):
 
         rlimits = self.runSet.benchmark.rlimits
-        isTimeout = forceTimeout or self._is_timeout()
+        isTimeout = forceTimeout \
+                or termination_reason in ['cputime', 'cputime-soft', 'walltime'] \
+                or self._is_timeout()
 
         # read output
         try:
@@ -590,7 +592,7 @@ class Run():
         self.category = result.get_result_category(self.identifier, self.status, self.propertyfile)
         self.runSet.benchmark.tool.add_column_values(output, self.columns)
 
-        
+
         # Tools sometimes produce a result even after a timeout.
         # This should not be counted, so we overwrite the result with TIMEOUT
         # here. if this is the case.
@@ -599,12 +601,16 @@ class Run():
         if self.status in result.STATUS_LIST and isTimeout:
             self.status = "TIMEOUT"
             self.category = result.CATEGORY_ERROR
-        if returnvalue is not None \
+
+        # TODO probably this is not necessary anymore
+        guessed_OOM = returnvalue is not None \
                 and returnsignal == 9 \
                 and MEMLIMIT in rlimits \
                 and 'memUsage' in self.values \
                 and not self.values['memUsage'] is None \
-                and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99):
+                and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99)
+
+        if termination_reason == 'memory' or guessed_OOM:
             self.status = 'OUT OF MEMORY'
             self.category = result.CATEGORY_ERROR
 

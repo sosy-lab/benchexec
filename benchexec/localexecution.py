@@ -249,7 +249,7 @@ class _Worker(threading.Thread):
                 pass
             return
 
-        run.after_execution(result['exitcode'])
+        run.after_execution(result['exitcode'], termination_reason=result.get('terminationreason', None))
         self.output_handler.output_after_run(run)
 
 
