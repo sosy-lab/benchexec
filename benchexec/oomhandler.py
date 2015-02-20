@@ -25,6 +25,7 @@ import logging
 import os
 import threading
 
+from .cgroups import MEMORY
 from . import util
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
@@ -49,18 +50,19 @@ class KillProcessOnOomThread(threading.Thread):
     https://www.kernel.org/doc/Documentation/cgroups/memory.txt
     https://access.redhat.com/site/documentation//en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/sec-memory.html#ex-OOM-control-notifications
 
-    @param cgroup: The memory cgroup the process is in
+    @param cgroups: The cgroups instance to monitor
     @param process: The process instance to kill
     @param callbackFn: A one-argument function that is called in case of OOM with a string for the reason as argument
     """
-    def __init__(self, cgroup, process, callbackFn=lambda reason: None):
+    def __init__(self, cgroups, process, callbackFn=lambda reason: None):
         super(KillProcessOnOomThread, self).__init__()
         self.daemon = True
         self._finished = threading.Event()
         self._process = process
-        self._cgroup = cgroup
+        self._cgroups = cgroups
         self._callback = callbackFn
 
+        cgroup = cgroups[MEMORY] #for raw access
         ofd = os.open(os.path.join(cgroup, 'memory.oom_control'), os.O_WRONLY)
         try:
             from ctypes import cdll
@@ -99,7 +101,7 @@ class KillProcessOnOomThread(threading.Thread):
                 logging.debug('Killing process {0} due to out-of-memory event from kernel.'.format(self._process.pid))
                 util.kill_process(self._process.pid)
                 # Also kill all children of subprocesses directly.
-                with open(os.path.join(self._cgroup, 'tasks'), 'rt') as tasks:
+                with open(os.path.join(self._cgroups[MEMORY], 'tasks'), 'rt') as tasks:
                     for task in tasks:
                         util.kill_process(int(task))
 
@@ -115,11 +117,11 @@ class KillProcessOnOomThread(threading.Thread):
                 pass # when the Python process is shutting down, "os" is sometimes already missing
 
     def _reset_memory_limit(self, limitFile):
-        if os.path.exists(os.path.join(self._cgroup, limitFile)):
+        if self._cgroups.has_value(MEMORY, limitFile):
             try:
                 # Write a high value (1 PB) as the limit
-                util.write_file(str(1 * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR),
-                                     self._cgroup, limitFile)
+                self._cgroups.set_value(MEMORY, limitFile,
+                                        str(1 * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR))
             except IOError as e:
                 logging.warning('Failed to increase {0} after OOM: error {1} ({2})'.format(limitFile, e.errno, e.strerror))
 

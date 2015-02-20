@@ -375,7 +375,7 @@ class RunExecutor():
 
             if memlimit is not None:
                 try:
-                    oomThread = oomhandler.KillProcessOnOomThread(cgroups[MEMORY], p,
+                    oomThread = oomhandler.KillProcessOnOomThread(cgroups, p,
                                                                   self._set_termination_reason)
                     oomThread.start()
                 except OSError as e:
