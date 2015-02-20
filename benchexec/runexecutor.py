@@ -682,14 +682,6 @@ def _get_debug_output_after_crash(output_filename):
                 foundDumpFile = True
 
 
-def _read_cputime(cgroupCpuacct):
-    cputimeFile = os.path.join(cgroupCpuacct, 'cpuacct.usage')
-    if not os.path.exists(cputimeFile):
-        logging.warning('Could not read cputime. File {0} does not exist.'.format(cputimeFile))
-        return 0 # dummy value, if cputime is not available
-    return float(read_file(cputimeFile))/1000000000 # nano-seconds to seconds
-
-
 class _TimelimitThread(threading.Thread):
     """
     Thread that periodically checks whether the given process has already
