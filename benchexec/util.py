@@ -252,7 +252,7 @@ def read_key_value_pairs_from_file(*path, sep=' '):
     """
     with open(os.path.join(*path)) as f:
         for line in f:
-            yield line.split(' ', maxsplit=1)
+            yield line.split(' ', 1) #maxsplit=1
 
 def add_files_to_git_repository(base_dir, files, description):
     """
