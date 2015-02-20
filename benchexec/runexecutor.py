@@ -282,7 +282,7 @@ class RunExecutor():
                 # Our process might get killed because of this.
                 cgroups.set_value(MEMORY, 'swappiness', '0')
             except IOError as e:
-                logging.warning('Could not disable swapping for benchmarked process: ' + e)
+                logging.warning('Could not disable swapping for benchmarked process: ' + str(e))
 
         return cgroups
 
@@ -783,7 +783,7 @@ class _CPUThrottleCheck(object):
             try:
                 self.cpu_throttle_count[file] = int(util.read_file(file))
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: ' + e)
+                logging.warning('Cannot read throttling count of CPU from kernel: ' + str(e))
 
     def has_throttled(self):
         """
@@ -797,7 +797,7 @@ class _CPUThrottleCheck(object):
                 if new_value > value:
                     return True
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: ' + e)
+                logging.warning('Cannot read throttling count of CPU from kernel: ' + str(e))
         return False
 
 
@@ -814,7 +814,7 @@ class _SwapCheck(object):
                                     in util.read_key_value_pairs_from_file('/proc/vmstat')
                                     if k in ['pswpin', 'pswpout'])
         except Exception as e:
-                logging.warning('Cannot read swap count from kernel: ' + e)
+                logging.warning('Cannot read swap count from kernel: ' + str(e))
 
     def has_swapped(self):
         """
