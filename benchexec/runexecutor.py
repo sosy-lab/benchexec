@@ -466,14 +466,19 @@ class RunExecutor():
         logging.debug('Run exited with code {0}, walltime={1}, cputime={2}, cgroup-cputime={3}, memory={4}'
                       .format(returnvalue, walltime, cputime, cputime2, memUsage))
 
-        # Usually cputime2 seems to be 0.01s greater than cputime.
+        # Usually cputime2 (measured with cgroups) seems to be 0.01s greater
+        # than cputime (measured with ulimit).
         # Furthermore, cputime might miss some subprocesses,
         # therefore we expect cputime2 to be always greater (and more correct).
         # However, sometimes cputime is a little bit bigger than cputime2.
-        # This may indicate a problem with cgroups, for example another process
-        # moving our benchmarked process between cgroups.
-        if cputime2 is not None:
-            if (cputime * 0.9) > cputime2:
+        # For small values, this is probably because cputime counts since fork,
+        # whereas cputime2 counts only after cgroups.add_task()
+        # (so overhead from runexecutor is correctly excluded in cputime2).
+        # For large values, a difference may also indicate a problem with cgroups,
+        # for example another process moving our benchmarked process between cgroups,
+        # thus we warn if the difference is substantial and take the larger ulimit value.
+        if cputime2 is not None and cputime > 0.5:
+            if (cputime * 0.95) > cputime2:
                 logging.warning('Cputime measured by wait was {0}, cputime measured by cgroup was only {1}, perhaps measurement is flawed.'.format(cputime, cputime2))
             else:
                 cputime = cputime2
