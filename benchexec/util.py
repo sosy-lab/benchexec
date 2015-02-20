@@ -243,6 +243,16 @@ def read_file(*path):
     with open(os.path.join(*path)) as f:
         return f.read().strip()
 
+def read_key_value_pairs_from_file(*path, sep=' '):
+    """
+    Read key value pairs from a file (each pair on a separate line).
+    Key and value are separated by the given separator
+    (default: ' ' as this is often used by the kernel).
+    @return a generator of tuples
+    """
+    with open(os.path.join(*path)) as f:
+        for line in f:
+            yield line.split(' ', maxsplit=1)
 
 def add_files_to_git_repository(base_dir, files, description):
     """

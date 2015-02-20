@@ -291,8 +291,8 @@ class Cgroup(object):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        for line in self.get_file_lines(subsystem, filename):
-            yield line.split(' ', maxsplit=1)
+        assert subsystem in self
+        return util.read_key_value_pairs_from_file(self.per_subsystem[subsystem], subsystem + '.' + filename)
 
     def set_value(self, subsystem, option, value):
         """
