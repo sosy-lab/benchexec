@@ -273,6 +273,16 @@ class RunExecutor():
                 and systeminfo.has_swap():
             logging.warning('Kernel misses feature for accounting swap memory, but machine has swap. Memory usage may be measured inaccurately. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
 
+        if MEMORY in cgroups:
+            try:
+                # Note that this disables swapping completely according to
+                # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
+                # (unlike setting the global swappiness to 0).
+                # Our process might get killed because of this.
+                cgroups.set_value(MEMORY, 'swappiness', '0')
+            except IOError as e:
+                logging.warning('Could not disable swapping for benchmarked process: ' + e)
+
         return cgroups
 
 
