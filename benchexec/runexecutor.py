@@ -564,6 +564,7 @@ class RunExecutor():
         cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
 
         throttle_check = _CPUThrottleCheck(cores)
+        swap_check = _SwapCheck()
 
         try:
             logging.debug("execute_run: executing tool.")
@@ -582,9 +583,10 @@ class RunExecutor():
 
         # if exception is thrown, skip the rest, otherwise perform normally
 
-        # Warn if CPU was throttled
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. Benchmark results are unreliable!')
+        if swap_check.has_swapped():
+            logging.warning('System has swapped during benchmarking. Benchmark results are unreliable!')
 
         _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
 
@@ -796,6 +798,34 @@ class _CPUThrottleCheck(object):
                     return True
             except Exception as e:
                 logging.warning('Cannot read throttling count of CPU from kernel: ' + e)
+        return False
+
+
+class _SwapCheck(object):
+    """
+    Class for checking whether the system has swapped during some period.
+    """
+    def __init__(self):
+        self.swap_count = self._read_swap_count()
+
+    def _read_swap_count(self):
+        try:
+            return dict((k, int(v)) for k, v
+                                    in util.read_key_value_pairs_from_file('/proc/vmstat')
+                                    if k in ['pswpin', 'pswpout'])
+        except Exception as e:
+                logging.warning('Cannot read swap count from kernel: ' + e)
+
+    def has_swapped(self):
+        """
+        Check whether any swapping occured on this system since this instance was created.
+        @return a boolean value
+        """
+        new_values = self._read_swap_count()
+        for key, new_value in new_values.items():
+            old_value = self.swap_count.get(key, 0)
+            if new_value > old_value:
+                return True
         return False
 
 
