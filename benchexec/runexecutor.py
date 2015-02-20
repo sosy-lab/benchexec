@@ -22,6 +22,7 @@ limitations under the License.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import glob
 import logging
 import multiprocessing
 import os
@@ -562,6 +563,8 @@ class RunExecutor():
         logging.debug("execute_run: setting up Cgroups.")
         cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
 
+        throttle_check = _CPUThrottleCheck(cores)
+
         try:
             logging.debug("execute_run: executing tool.")
             (exitcode, walltime, cputime, energy) = \
@@ -578,6 +581,10 @@ class RunExecutor():
             cgroups.remove()
 
         # if exception is thrown, skip the rest, otherwise perform normally
+
+        # Warn if CPU was throttled
+        if throttle_check.has_throttled():
+            logging.warning('CPU throttled itself during benchmarking due to overheating. Benchmark results are unreliable!')
 
         _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
 
@@ -758,6 +765,38 @@ class _TimelimitThread(threading.Thread):
 
     def cancel(self):
         self.finished.set()
+
+
+class _CPUThrottleCheck(object):
+    """
+    Class for checking whether the CPU has throttled during some time period.
+    """
+    def __init__(self, cores=None):
+        """
+        Create an instance that monitors the given list of cores (or all CPUs).
+        """
+        self.cpu_throttle_count = {}
+        cpu_pattern = '[{0}]'.format(','.join(map(str, cores))) if cores else '*'
+        for file in glob.glob('/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count'.format(cpu_pattern)):
+            try:
+                self.cpu_throttle_count[file] = int(util.read_file(file))
+            except Exception as e:
+                logging.warning('Cannot read throttling count of CPU from kernel: ' + e)
+
+    def has_throttled(self):
+        """
+        Check whether any of the CPU cores monitored by this instance has
+        throttled since this instance was created.
+        @return a boolean value
+        """
+        for file, value in self.cpu_throttle_count.items():
+            try:
+                new_value = int(util.read_file(file))
+                if new_value > value:
+                    return True
+            except Exception as e:
+                logging.warning('Cannot read throttling count of CPU from kernel: ' + e)
+        return False
 
 
 if __name__ == '__main__':
