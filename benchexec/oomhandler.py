@@ -28,6 +28,10 @@ import threading
 from .cgroups import MEMORY
 from . import util
 
+from ctypes import cdll
+_libc = cdll.LoadLibrary('libc.so.6')
+_EFD_CLOEXEC = 0x80000 # from <sys/eventfd.h>: mark eventfd as close-on-exec
+
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
 class KillProcessOnOomThread(threading.Thread):
@@ -65,13 +69,9 @@ class KillProcessOnOomThread(threading.Thread):
         cgroup = cgroups[MEMORY] #for raw access
         ofd = os.open(os.path.join(cgroup, 'memory.oom_control'), os.O_WRONLY)
         try:
-            from ctypes import cdll
-            libc = cdll.LoadLibrary('libc.so.6')
-
             # Important to use CLOEXEC, otherwise the benchmarked tool inherits
             # the file descriptor.
-            EFD_CLOEXEC = 0x80000 # from <sys/eventfd.h>
-            self._efd = libc.eventfd(0, EFD_CLOEXEC)
+            self._efd = _libc.eventfd(0, _EFD_CLOEXEC)
 
             try:
                 util.write_file('{} {}'.format(self._efd, ofd),
