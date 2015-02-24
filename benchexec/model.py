@@ -618,6 +618,8 @@ class Run():
 
     def _is_timeout(self):
         ''' try to find out whether the tool terminated because of a timeout '''
+        if self.cputime is None:
+            return False
         rlimits = self.runSet.benchmark.rlimits
         if SOFTTIMELIMIT in rlimits:
             limit = rlimits[SOFTTIMELIMIT]
