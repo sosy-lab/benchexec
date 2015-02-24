@@ -510,11 +510,14 @@ class Run():
 
         self.propertyfile = propertyfile or runSet.propertyfile
 
-        # replace run-specific stuff in the propertyfile and add it to the set of required files
-        if self.propertyfile is None:
+        def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
                 _logged_missing_property_files.add(self.propertyfile)
-                logging.warning('No propertyfile specified. Results for C programs will be handled as UNKNOWN.')
+                logging.warning(msg)
+
+        # replace run-specific stuff in the propertyfile and add it to the set of required files
+        if self.propertyfile is None:
+            log_property_file_once('No propertyfile specified. Results for C programs will be handled as UNKNOWN.')
         else:
             # we check two cases: direct filename or user-defined substitution, one of them must be a 'file'
             # TODO: do we need the second case? it is equal to previous used option "-spec ${sourcefile_path}/ALL.prp"
@@ -523,14 +526,15 @@ class Run():
             assert len(substitutedPropertyfiles) == 1
             
             if expandedPropertyFiles:
-                self.propertyfile = expandedPropertyFiles[0] # take only the first one
+                if len(expandedPropertyFiles) > 1:
+                    log_property_file_once('Pattern {0} for sourcefile {1} in propertyfile tag matches more than one file. Only {2} will be used.'
+                                           .format(self.propertyfile, self.identifier, expandedPropertyFiles[0]))
+                self.propertyfile = expandedPropertyFiles[0]
             elif substitutedPropertyfiles and os.path.isfile(substitutedPropertyfiles[0]):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
-                if not self.propertyfile in _logged_missing_property_files:
-                    _logged_missing_property_files.add(self.propertyfile)
-                    logging.warning('Pattern {0} for sourcefile {1} in propertyfile tag did not match any file. It will be ignored.'
-                        .format(self.propertyfile, self.identifier))
+                log_property_file_once('Pattern {0} for sourcefile {1} in propertyfile tag did not match any file. It will be ignored.'
+                                       .format(self.propertyfile, self.identifier))
                 self.propertyfile = None
 
             self.runSet.benchmark.add_required_file(self.propertyfile)
