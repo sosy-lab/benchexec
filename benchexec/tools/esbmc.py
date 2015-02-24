@@ -105,15 +105,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
         return status
 
-
-    def add_column_values(self, output, columns):
-        """
-        This method adds the values that the user requested to the column objects.
-        If a value is not found, it should be set to '-'.
-        If not supported, this method does not need to get overridden.
-        """
-        pass
-
     """ helper method """
     def allInText(self, words, text):
         """

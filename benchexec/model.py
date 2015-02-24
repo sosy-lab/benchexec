@@ -590,7 +590,8 @@ class Run():
             logging.debug("My subprocess returned {0}, code {1}, signal {2}.".format(returnvalue, returncode, returnsignal))
             self.status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
         self.category = result.get_result_category(self.identifier, self.status, self.propertyfile)
-        self.runSet.benchmark.tool.add_column_values(output, self.columns)
+        for column in self.columns:
+            column.value = self.runSet.benchmark.tool.get_value_from_output(output, column.text)
 
 
         # Tools sometimes produce a result even after a timeout.

@@ -93,13 +93,12 @@ class BaseTool(object):
         return 'UNKNOWN'
 
 
-    def add_column_values(self, output, columns):
+    def get_value_from_output(self, lines, identifier):
         """
-        OPTIONAL, override this to add statistics data from the output of the tool
-        to the tables if requested by the user.
-        If a value is not found, it should be set to '-'.
+        OPTIONAL, extract a statistic value from the output of the tool.
+        @param lines The output of the tool as list of lines.
+        @param identifier The user-specified identifier for the statistic item.
         """
-        pass
 
 
     def program_files(self, executable):

@@ -211,21 +211,18 @@ class Tool(benchexec.tools.template.BaseTool):
         return status
 
 
-    def add_column_values(self, output, columns):
-        for column in columns:
-
-            # search for the text in output and get its value,
-            # stop after the first line, that contains the searched text
-            column.value = "-" # default value
-            for line in output:
-                if column.text in line:
-                    startPosition = line.find(':') + 1
-                    endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
-                    if (endPosition == -1):
-                        column.value = line[startPosition:].strip()
-                    else:
-                        column.value = line[startPosition: endPosition].strip()
-                    break
+    def get_value_from_output(self, lines, identifier):
+        # search for the text in output and get its value,
+        # stop after the first line, that contains the searched text
+        for line in lines:
+            if identifier in line:
+                startPosition = line.find(':') + 1
+                endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
+                if (endPosition == -1):
+                    return line[startPosition:].strip()
+                else:
+                    return line[startPosition: endPosition].strip()
+        return None
 
 
 if __name__ == "__main__":
