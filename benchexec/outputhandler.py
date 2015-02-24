@@ -140,7 +140,8 @@ class OutputHandler:
         self.xml_header = ET.Element("result",
                     {"benchmarkname": self.benchmark.name,
                      "date":  time.strftime("%y-%m-%d %H:%M", self.benchmark.start_time),
-                     "tool": self.benchmark.tool_name, "version": version})
+                     "tool": self.benchmark.tool_name, "version": version,
+                     "toolmodule": self.benchmark.tool_module})
 
         self.xml_header.set(MEMLIMIT, memlimit if memlimit else '-')
         self.xml_header.set(TIMELIMIT, timelimit if timelimit else '-')

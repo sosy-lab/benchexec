@@ -118,9 +118,9 @@ class Benchmark:
         tool_name = rootTag.get('tool')
         if not tool_name:
             sys.exit('A tool needs to be specified in the benchmark definition file.')
-        toolModule = "benchexec.tools." + tool_name
+        self.tool_module = "benchexec.tools." + tool_name
         try:
-            self.tool = __import__(toolModule, fromlist=['Tool']).Tool()
+            self.tool = __import__(self.tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
             sys.exit('Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie))
         except AttributeError:
