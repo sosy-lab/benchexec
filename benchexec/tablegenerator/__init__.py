@@ -522,15 +522,7 @@ class RunResult:
                 return []
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
-        category = Util.get_column_value(sourcefileTag, 'category', 'placeholderForUnknown')
-        
-        # fallback for compatibility, 
-        # TODO: remove this block and set CATEGORY_UNKNOWN as default value
-        if status == 'false(label)':
-            status = 'false(reach)'
-        if category == 'placeholderForUnknown':
-            category = result.get_result_category(sourcefileTag.get('name'), status)
-
+        category = Util.get_column_value(sourcefileTag, 'category', 'missing')
         score = result.calculate_score(category, status)
         logfileLines = None
 

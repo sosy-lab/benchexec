@@ -20,78 +20,77 @@ limitations under the License.
 
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
-from . import util
 import os
+import sys
 
 
 # CONSTANTS
 
+# categorization of a run result
 CATEGORY_CORRECT = 'correct'
 CATEGORY_WRONG   = 'wrong'
 CATEGORY_UNKNOWN = 'unknown'
 CATEGORY_ERROR   = 'error'
 CATEGORY_MISSING = 'missing'
 
-STR_TRUE = 'true'
-STATUS_UNKNOWN = 'unknown'
+# property names used in this module
+_PROP_LABEL =        'unreach-label'
+_PROP_CALL =         'unreach-call'
+_PROP_TERMINATION =  'termination'
+_PROP_DEREF =        'valid-deref'
+_PROP_FREE =         'valid-free'
+_PROP_MEMTRACK =     'valid-memtrack'
+_PROP_ASSERT =       'assert'
+_PROP_AUTOMATON =    'observer-automaton'
+
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
-PROP_REACH =        'reach'
-PROP_TERMINATION =  'termination'
-PROP_DEREF =        'valid-deref'
-PROP_FREE =         'valid-free'
-PROP_MEMTRACK =     'valid-memtrack'
+# possible run results (output of a tool)
+STATUS_UNKNOWN =            'unknown'
+STATUS_TRUE_PROP =          'true'
+STATUS_FALSE_REACH =        STR_FALSE + '(reach)'
+STATUS_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
+STATUS_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
+STATUS_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
+STATUS_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
 
-# next lines are for public usage in tool-wrappers or in the scripts
-STATUS_TRUE_PROP =          STR_TRUE
-STATUS_FALSE_REACH =        STR_FALSE + '(' + PROP_REACH       + ')'
-STATUS_FALSE_TERMINATION =  STR_FALSE + '(' + PROP_TERMINATION + ')'
-STATUS_FALSE_DEREF =        STR_FALSE + '(' + PROP_DEREF       + ')'
-STATUS_FALSE_FREE =         STR_FALSE + '(' + PROP_FREE        + ')'
-STATUS_FALSE_MEMTRACK =     STR_FALSE + '(' + PROP_MEMTRACK    + ')'
-
-
-# list of all public constants,
-# if a tool-result is not in this list, it is handled as CATEGORY_ERROR
+# List of all possible results.
+# If a result is not in this list, it is handled as CATEGORY_ERROR.
 STATUS_LIST = [STATUS_TRUE_PROP, STATUS_UNKNOWN,
             STATUS_FALSE_REACH, STATUS_FALSE_TERMINATION, 
             STATUS_FALSE_DEREF, STATUS_FALSE_FREE, STATUS_FALSE_MEMTRACK]
 
-# string used to recognize java programs
-JAVA_CHECK_SUBSTRING = '_assert'
+# This maps content of property files to property name.
+_PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
+                   'LTL(G ! call(__VERIFIER_error()))': _PROP_CALL,
+                   'LTL(F end)':                        _PROP_TERMINATION,
+                   'LTL(G valid-free)':                 _PROP_FREE,
+                   'LTL(G valid-deref)':                _PROP_DEREF,
+                   'LTL(G valid-memtrack)':             _PROP_MEMTRACK,
+                   'OBSERVER AUTOMATON':                _PROP_AUTOMATON,
+                  }
 
-# strings searched in filenames to determine correct or incorrect status.
-# use lower case! the dict contains assignments 'substring' --> 'partial statuses'
-SUBSTRINGS = {
-              '_true-unreach-label':   (STR_TRUE, [PROP_REACH]),
-              '_true-unreach-call':    (STR_TRUE, [PROP_REACH]),
-              '_true_assert':          (STR_TRUE, [PROP_REACH]),
-              '_true-termination':     (STR_TRUE, [PROP_TERMINATION]),
-              '_true-valid-deref':     (STR_TRUE, [PROP_DEREF]),
-              '_true-valid-free':      (STR_TRUE, [PROP_FREE]),
-              '_true-valid-memtrack':  (STR_TRUE, [PROP_MEMTRACK]),
-              '_true-valid-memsafety': (STR_TRUE, [PROP_DEREF, PROP_FREE, PROP_MEMTRACK]),
+# This maps a possible result substring of a file name
+# to the expected result string of the tool and the set of properties
+# for which this result is relevant.
+_FILE_RESULTS = {
+              '_true-unreach-label':   (STATUS_TRUE_PROP, {_PROP_LABEL}),
+              '_true-unreach-call':    (STATUS_TRUE_PROP, {_PROP_CALL}),
+              '_true_assert':          (STATUS_TRUE_PROP, {_PROP_ASSERT}),
+              '_true-termination':     (STATUS_TRUE_PROP, {_PROP_TERMINATION}),
+              '_true-valid-deref':     (STATUS_TRUE_PROP, {_PROP_DEREF}),
+              '_true-valid-free':      (STATUS_TRUE_PROP, {_PROP_FREE}),
+              '_true-valid-memtrack':  (STATUS_TRUE_PROP, {_PROP_MEMTRACK}),
+              '_true-valid-memsafety': (STATUS_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
 
-              '_false-unreach-label':  (STR_FALSE, [PROP_REACH]),
-              '_false-unreach-call':   (STR_FALSE, [PROP_REACH]),
-              '_false_assert':         (STR_FALSE, [PROP_REACH]),
-              '_false-termination':    (STR_FALSE, [PROP_TERMINATION]),
-              '_false-valid-deref':    (STR_FALSE, [PROP_DEREF]),
-              '_false-valid-free':     (STR_FALSE, [PROP_FREE]),
-              '_false-valid-memtrack': (STR_FALSE, [PROP_MEMTRACK])
+              '_false-unreach-label':  (STATUS_FALSE_REACH,       {_PROP_LABEL}),
+              '_false-unreach-call':   (STATUS_FALSE_REACH,       {_PROP_CALL}),
+              '_false_assert':         (STATUS_FALSE_REACH,       {_PROP_ASSERT}),
+              '_false-termination':    (STATUS_FALSE_TERMINATION, {_PROP_TERMINATION}),
+              '_false-valid-deref':    (STATUS_FALSE_DEREF,       {_PROP_DEREF}),
+              '_false-valid-free':     (STATUS_FALSE_FREE,        {_PROP_FREE}),
+              '_false-valid-memtrack': (STATUS_FALSE_MEMTRACK,    {_PROP_MEMTRACK})
               }
-
-
-# this map contains substring of property-files with their status
-PROPERTY_MATCHER = {'LTL(G ! label(':                    PROP_REACH,
-                    'LTL(G ! call(__VERIFIER_error()))': PROP_REACH,
-                    'LTL(F end)':                        PROP_TERMINATION,
-                    'LTL(G valid-free)':                 PROP_FREE,
-                    'LTL(G valid-deref)':                PROP_DEREF,
-                    'LTL(G valid-memtrack)':             PROP_MEMTRACK,
-                    'OBSERVER AUTOMATON':                PROP_REACH
-                   }
-
 
 # Score values taken from http://sv-comp.sosy-lab.org/
 SCORE_CORRECT_TRUE = 2
@@ -101,91 +100,93 @@ SCORE_WRONG_FALSE = -6
 SCORE_WRONG_TRUE = -12
 
 
-def _statuses_of_file(filename):
+def _expected_status(filename, checked_properties):
+    results = []
+    for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
+        if filename_part in filename \
+                and for_properties.intersection(checked_properties):
+            results.append(expected_result)
+    if not results:
+        # No expected result for any of the properties
+        return None
+    if len(results) > 1:
+        # Multiple checked properties per file not supported
+        return None
+    return results[0]
+
+
+def properties_of_file(propertyfile):
     """
-    This function returns a list of all properties in the filename.
+    Return a list of property names that should be checked according to the given property file.
+    @param propertyfile: None or a file name of a property file.
+    @return: A possibly empty list of property names. 
     """
-    statuses = []
-    for (substr, props) in SUBSTRINGS.items():
-        if substr in filename:
-            statuses.extend((props[0], prop) for prop in props[1])
-    return statuses
+    if not propertyfile:
+        return []
+    assert os.path.isfile(propertyfile)
 
-
-def _statuses_of_property_file(propertyFile):
-    assert os.path.isfile(propertyFile)
-
-    statuses = []
-    with open(propertyFile) as f:
+    with open(propertyfile) as f:
         content = f.read()
-        assert 'CHECK' in content or 'OBSERVER' in content, "Invalid property {0}".format(content)
+    if not( 'CHECK' in content or 'OBSERVER' in content):
+        sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
 
-        # TODO: should we switch to regex or line-based reading?
-        for substring, status in PROPERTY_MATCHER.items():
-            if substring in content:
-                statuses.append(status)
+    properties = []
+    # TODO: should we switch to regex or line-based reading?
+    for substring, status in _PROPERTY_NAMES.items():
+        if substring in content:
+            properties.append(status)
 
-        assert statuses, "Unkown property {0}".format(content)
-    return statuses
+    if not properties:
+        sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))
+    return properties
+
 
 def _file_is_java(filename):
-    return JAVA_CHECK_SUBSTRING in filename
+    # Java benchmarks have as filename their main class, so we cannot check for '.java'
+    return '_assert' in filename
 
-def get_result_category(filename, status, propertyFile=None):
+
+def get_result_category(filename, result, properties):
     '''
-    This function return a string
-    that shows the relation between status and file.
+    This function determines the relation between actual result and expected result
+    for the given file and properties.
+    @param filename: The file name of the input file.
+    @param result: The result given by the tool (needs to be one of the STATUS_* strings to be recognized).
+    @param properties: The list of properties to check (as returned by properties_of_file()).
+    @return One of the CATEGORY_* strings.
     '''
+    if result not in STATUS_LIST:
+        return CATEGORY_ERROR
 
-    if status == STATUS_UNKNOWN:
-        category = CATEGORY_UNKNOWN
-    elif status in STATUS_LIST:
-        
-        # Currently, no properties for checking Java programs exist, so we only check for PROP_REACH for these
-        if _file_is_java(filename):
-            fileStatuses = _statuses_of_file(filename)
+    if result == STATUS_UNKNOWN:
+        return CATEGORY_UNKNOWN
 
-            if not fileStatuses:
-                category = CATEGORY_MISSING
-            elif all(prop is not PROP_REACH or s in status for (s, prop) in fileStatuses):
-                category = CATEGORY_CORRECT
-            else:
-                category = CATEGORY_WRONG
+    if _file_is_java(filename) and not properties:
+        # Currently, no property files for checking Java programs exist,
+        # so we hard-code a check for _PROP_ASSERT for these
+        properties = [_PROP_ASSERT]
 
-        # Without propertyfile we do not return correct or wrong results, but always UNKNOWN.
-        elif propertyFile is None:
-            category = CATEGORY_MISSING
-        else:
-            fileStatuses = _statuses_of_file(filename)
-            propertiesToCheck = _statuses_of_property_file(propertyFile)
+    if not properties:
+        # Without property we cannot return correct or wrong results.
+        return CATEGORY_MISSING
 
-            searchedProperties = []
-            for (flag,prop) in fileStatuses:
-                if prop in propertiesToCheck:
-                    searchedProperties.append(flag + '(' + prop + ')') # format must match with above!
-
-            if not searchedProperties:
-                # filename gives no hint on the searched bug or
-                # we are searching for a property, that has nothing to do with the file
-                category = CATEGORY_MISSING
-
-            elif status is STR_TRUE:
-                if all(prop.startswith(STR_TRUE) for prop in searchedProperties):
-                    category = CATEGORY_CORRECT
-                else:
-                    category = CATEGORY_WRONG
-
-            elif status in searchedProperties:
-                category = CATEGORY_CORRECT
-            else:
-                category = CATEGORY_WRONG
-
+    expected_result = _expected_status(filename, properties)
+    if not expected_result:
+        # filename gives no hint on the expected output
+        return CATEGORY_MISSING
     else:
-        category = CATEGORY_ERROR
-    return category
+        if expected_result == result:
+            return CATEGORY_CORRECT
+        else:
+            return CATEGORY_WRONG
 
 
 def calculate_score(category, status):
+    '''
+    Calculate the score for a given result.
+    @param category: The category of the result as returned by get_result_category().
+    @param status: The result given by the tool.
+    '''
     if category == CATEGORY_CORRECT:
         return SCORE_CORRECT_TRUE if status == STATUS_TRUE_PROP else SCORE_CORRECT_FALSE
     elif category == CATEGORY_WRONG:
