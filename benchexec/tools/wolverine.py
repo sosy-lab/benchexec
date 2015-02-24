@@ -40,10 +40,10 @@ class Tool(benchexec.tools.template.BaseTool):
         output = '\n'.join(output)
         if "VERIFICATION SUCCESSFUL" in output:
             assert returncode == 0
-            status = result.STATUS_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
         elif "VERIFICATION FAILED" in output:
             assert returncode == 10
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
         elif returnsignal == 9:
             status = "TIMEOUT"
         elif returnsignal == 6 or (returncode == 6 and "Out of memory" in output):

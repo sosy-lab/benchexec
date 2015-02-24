@@ -46,19 +46,19 @@ _PROP_AUTOMATON =    'observer-automaton'
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
 # possible run results (output of a tool)
-STATUS_UNKNOWN =            'unknown'
-STATUS_TRUE_PROP =          'true'
-STATUS_FALSE_REACH =        STR_FALSE + '(reach)'
-STATUS_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
-STATUS_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
-STATUS_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
-STATUS_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
+RESULT_UNKNOWN =            'unknown'
+RESULT_TRUE_PROP =          'true'
+RESULT_FALSE_REACH =        STR_FALSE + '(reach)'
+RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
+RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
+RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
+RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
 
 # List of all possible results.
 # If a result is not in this list, it is handled as CATEGORY_ERROR.
-STATUS_LIST = [STATUS_TRUE_PROP, STATUS_UNKNOWN,
-            STATUS_FALSE_REACH, STATUS_FALSE_TERMINATION, 
-            STATUS_FALSE_DEREF, STATUS_FALSE_FREE, STATUS_FALSE_MEMTRACK]
+RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
+               RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
+               RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK]
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
@@ -74,22 +74,22 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
 # to the expected result string of the tool and the set of properties
 # for which this result is relevant.
 _FILE_RESULTS = {
-              '_true-unreach-label':   (STATUS_TRUE_PROP, {_PROP_LABEL}),
-              '_true-unreach-call':    (STATUS_TRUE_PROP, {_PROP_CALL}),
-              '_true_assert':          (STATUS_TRUE_PROP, {_PROP_ASSERT}),
-              '_true-termination':     (STATUS_TRUE_PROP, {_PROP_TERMINATION}),
-              '_true-valid-deref':     (STATUS_TRUE_PROP, {_PROP_DEREF}),
-              '_true-valid-free':      (STATUS_TRUE_PROP, {_PROP_FREE}),
-              '_true-valid-memtrack':  (STATUS_TRUE_PROP, {_PROP_MEMTRACK}),
-              '_true-valid-memsafety': (STATUS_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
+              '_true-unreach-label':   (RESULT_TRUE_PROP, {_PROP_LABEL}),
+              '_true-unreach-call':    (RESULT_TRUE_PROP, {_PROP_CALL}),
+              '_true_assert':          (RESULT_TRUE_PROP, {_PROP_ASSERT}),
+              '_true-termination':     (RESULT_TRUE_PROP, {_PROP_TERMINATION}),
+              '_true-valid-deref':     (RESULT_TRUE_PROP, {_PROP_DEREF}),
+              '_true-valid-free':      (RESULT_TRUE_PROP, {_PROP_FREE}),
+              '_true-valid-memtrack':  (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
+              '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
 
-              '_false-unreach-label':  (STATUS_FALSE_REACH,       {_PROP_LABEL}),
-              '_false-unreach-call':   (STATUS_FALSE_REACH,       {_PROP_CALL}),
-              '_false_assert':         (STATUS_FALSE_REACH,       {_PROP_ASSERT}),
-              '_false-termination':    (STATUS_FALSE_TERMINATION, {_PROP_TERMINATION}),
-              '_false-valid-deref':    (STATUS_FALSE_DEREF,       {_PROP_DEREF}),
-              '_false-valid-free':     (STATUS_FALSE_FREE,        {_PROP_FREE}),
-              '_false-valid-memtrack': (STATUS_FALSE_MEMTRACK,    {_PROP_MEMTRACK})
+              '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
+              '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
+              '_false_assert':         (RESULT_FALSE_REACH,       {_PROP_ASSERT}),
+              '_false-termination':    (RESULT_FALSE_TERMINATION, {_PROP_TERMINATION}),
+              '_false-valid-deref':    (RESULT_FALSE_DEREF,       {_PROP_DEREF}),
+              '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
+              '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK})
               }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
@@ -100,7 +100,7 @@ SCORE_WRONG_FALSE = -6
 SCORE_WRONG_TRUE = -12
 
 
-def _expected_status(filename, checked_properties):
+def _expected_result(filename, checked_properties):
     results = []
     for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
         if filename_part in filename \
@@ -151,14 +151,14 @@ def get_result_category(filename, result, properties):
     This function determines the relation between actual result and expected result
     for the given file and properties.
     @param filename: The file name of the input file.
-    @param result: The result given by the tool (needs to be one of the STATUS_* strings to be recognized).
+    @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @param properties: The list of properties to check (as returned by properties_of_file()).
     @return One of the CATEGORY_* strings.
     '''
-    if result not in STATUS_LIST:
+    if result not in RESULT_LIST:
         return CATEGORY_ERROR
 
-    if result == STATUS_UNKNOWN:
+    if result == RESULT_UNKNOWN:
         return CATEGORY_UNKNOWN
 
     if _file_is_java(filename) and not properties:
@@ -170,7 +170,7 @@ def get_result_category(filename, result, properties):
         # Without property we cannot return correct or wrong results.
         return CATEGORY_MISSING
 
-    expected_result = _expected_status(filename, properties)
+    expected_result = _expected_result(filename, properties)
     if not expected_result:
         # filename gives no hint on the expected output
         return CATEGORY_MISSING
@@ -181,16 +181,16 @@ def get_result_category(filename, result, properties):
             return CATEGORY_WRONG
 
 
-def calculate_score(category, status):
+def calculate_score(category, result):
     '''
     Calculate the score for a given result.
     @param category: The category of the result as returned by get_result_category().
-    @param status: The result given by the tool.
+    @param result: The result given by the tool.
     '''
     if category == CATEGORY_CORRECT:
-        return SCORE_CORRECT_TRUE if status == STATUS_TRUE_PROP else SCORE_CORRECT_FALSE
+        return SCORE_CORRECT_TRUE if result == RESULT_TRUE_PROP else SCORE_CORRECT_FALSE
     elif category == CATEGORY_WRONG:
-        return SCORE_WRONG_TRUE if status == STATUS_TRUE_PROP else SCORE_WRONG_FALSE
+        return SCORE_WRONG_TRUE if result == RESULT_TRUE_PROP else SCORE_WRONG_FALSE
     elif category in [CATEGORY_UNKNOWN, CATEGORY_ERROR, CATEGORY_MISSING]:
         return SCORE_UNKNOWN
     else:

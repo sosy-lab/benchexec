@@ -85,16 +85,16 @@ class Tool(benchexec.tools.template.BaseTool):
                     if not reason:
                         reason = tree.find('goto_trace').find('failure').get('reason')
                     if 'unwinding assertion' in reason:
-                        status = result.STATUS_UNKNOWN
+                        status = result.RESULT_UNKNOWN
                     else:
-                        status = result.STATUS_FALSE_REACH
+                        status = result.RESULT_FALSE_REACH
 
                 elif status == "SUCCESS":
                     assert returncode == 0
                     if "--no-unwinding-assertions" in self.options:
-                        status = result.STATUS_UNKNOWN
+                        status = result.RESULT_UNKNOWN
                     else:
-                        status = result.STATUS_TRUE_PROP
+                        status = result.RESULT_TRUE_PROP
 
             except Exception:
                 if isTimeout:

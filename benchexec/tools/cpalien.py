@@ -120,22 +120,22 @@ class Tool(benchexec.tools.cpachecker.Tool):
             elif line.startswith('Verification result: '):
                 line = line[21:].strip()
                 if line.startswith('TRUE'):
-                    newStatus = result.STATUS_TRUE_PROP
+                    newStatus = result.RESULT_TRUE_PROP
                 elif line.startswith('FALSE'):
-                    newStatus = result.STATUS_FALSE_REACH
+                    newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
                     if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack']:
                         newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
 
                 else:
-                    newStatus = result.STATUS_UNKNOWN if not status.startswith('ERROR') else None
+                    newStatus = result.RESULT_UNKNOWN if not status.startswith('ERROR') else None
                 if newStatus and not status:
                     status = newStatus
 
         if status == 'KILLED (UNKNOWN)':
             status = 'KILLED'
         if not status or undef:
-            status = result.STATUS_UNKNOWN
+            status = result.RESULT_UNKNOWN
         return status
 
 

@@ -38,4 +38,4 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + sourcefiles
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        return result.STATUS_TRUE_PROP if random() < 0.5 else result.STATUS_FALSE_REACH
+        return result.RESULT_TRUE_PROP if random() < 0.5 else result.RESULT_FALSE_REACH

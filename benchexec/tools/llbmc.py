@@ -70,13 +70,13 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        status = result.STATUS_UNKNOWN
+        status = result.RESULT_UNKNOWN
 
         for line in output:
             if 'Error detected.' in line:
-                status = result.STATUS_FALSE_REACH
+                status = result.RESULT_FALSE_REACH
             elif 'No error detected.' in line:
-                status = result.STATUS_TRUE_PROP
+                status = result.RESULT_TRUE_PROP
 
         # delete tmp-files
         try:

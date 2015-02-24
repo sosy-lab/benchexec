@@ -75,7 +75,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         for line in output:
             if 'A real bug found.' in line:
-                status = result.STATUS_FALSE_REACH
+                status = result.RESULT_FALSE_REACH
             elif 'VERIFICATION SUCCESSFUL' in line:
                 verificationSuccessfulFound = True
             elif 'VERIFICATION FAILED' in line:
@@ -85,13 +85,13 @@ class Tool(benchexec.tools.template.BaseTool):
             elif 'The program models are identical' in line:
                 status = self.previousStatus
             elif 'Assertion(s) hold trivially.' in line:
-                status = result.STATUS_TRUE_PROP
+                status = result.RESULT_TRUE_PROP
 
         if status is None:
             if verificationSuccessfulFound and not verificationFailedFound:
-                status = result.STATUS_TRUE_PROP
+                status = result.RESULT_TRUE_PROP
             else:
-                status = result.STATUS_UNKNOWN
+                status = result.RESULT_UNKNOWN
 
         self.previousStatus = status
 

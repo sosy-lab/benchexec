@@ -63,37 +63,37 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        status = result.STATUS_UNKNOWN
+        status = result.RESULT_UNKNOWN
 
         if self.allInText(['Violated property:',
                       'dereference failure: dynamic object lower bound',
                       'VERIFICATION FAILED'],
                       output):
-            status = result.STATUS_FALSE_DEREF
+            status = result.RESULT_FALSE_DEREF
         elif self.allInText(['Violated property:',
                       'Operand of free must have zero pointer offset',
                       'VERIFICATION FAILED'],
                       output):
-            status = result.STATUS_FALSE_FREE
+            status = result.RESULT_FALSE_FREE
         elif self.allInText(['Violated property:',
                       'error label',
                       'VERIFICATION FAILED'],
                       output):
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
         elif self.allInText(['Violated property:',
                       'assertion',
                       'VERIFICATION FAILED'],
                       output):
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
         elif self.allInText(['Violated property:',
                       'dereference failure: forgotten memory',
                       'VERIFICATION FAILED'],
                       output):
-            status = result.STATUS_FALSE_MEMTRACK
+            status = result.RESULT_FALSE_MEMTRACK
         elif 'VERIFICATION SUCCESSFUL' in output:
-            status = result.STATUS_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
 
-        if status == result.STATUS_UNKNOWN:
+        if status == result.RESULT_UNKNOWN:
             if isTimeout:
                 status = 'TIMEOUT'
             elif output.endswith(('Z3 Error 9', 'Z3 Error 9\n')):

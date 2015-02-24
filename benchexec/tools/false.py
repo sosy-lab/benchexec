@@ -37,4 +37,4 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + sourcefiles
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        return result.STATUS_FALSE_REACH
+        return result.RESULT_FALSE_REACH

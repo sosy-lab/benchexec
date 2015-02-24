@@ -64,13 +64,13 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
         if 'SSSAFE' in output:
-            status = result.STATUS_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
         elif 'UNSAFE' in output:
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
         else:
-            status = result.STATUS_UNKNOWN
+            status = result.RESULT_UNKNOWN
 
-        if status == result.STATUS_UNKNOWN and isTimeout:
+        if status == result.RESULT_UNKNOWN and isTimeout:
             status = 'TIMEOUT'
 
         return status

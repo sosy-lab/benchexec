@@ -36,4 +36,4 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + sourcefiles
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        return result.STATUS_TRUE_PROP
+        return result.RESULT_TRUE_PROP

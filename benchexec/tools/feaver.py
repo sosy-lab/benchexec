@@ -69,13 +69,13 @@ class Tool(benchexec.tools.template.BaseTool):
             status = "ERROR"
 
         elif "Error Found:" in output:
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
 
         elif "No Errors Found" in output:
-            status = result.STATUS_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
 
         else:
-            status = result.STATUS_UNKNOWN
+            status = result.RESULT_UNKNOWN
 
         # delete tmp-files
         for tmpfile in [self.prepSourcefile, self.prepSourcefile[0:-1] + "M",

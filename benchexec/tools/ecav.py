@@ -32,12 +32,12 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        status = result.STATUS_UNKNOWN
+        status = result.RESULT_UNKNOWN
         for line in output:
             if line.startswith('0 safe, 1 unsafe'):
-                status = result.STATUS_FALSE_REACH
+                status = result.RESULT_FALSE_REACH
             elif line.startswith('1 safe, 0 unsafe'):
-                status = result.STATUS_TRUE_PROP
+                status = result.RESULT_TRUE_PROP
             elif returnsignal == 9:
                 if isTimeout:
                     status = 'TIMEOUT'

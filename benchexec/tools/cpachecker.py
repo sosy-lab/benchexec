@@ -192,22 +192,22 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith('Verification result: '):
                 line = line[21:].strip()
                 if line.startswith('TRUE'):
-                    newStatus = result.STATUS_TRUE_PROP
+                    newStatus = result.RESULT_TRUE_PROP
                 elif line.startswith('FALSE'):
-                    newStatus = result.STATUS_FALSE_REACH
+                    newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
                     if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack']:
                         newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
                 else:
-                    newStatus = result.STATUS_UNKNOWN
+                    newStatus = result.RESULT_UNKNOWN
 
                 if not status:
                     status = newStatus
-                elif newStatus != result.STATUS_UNKNOWN:
+                elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
 
         if not status:
-            status = result.STATUS_UNKNOWN
+            status = result.RESULT_UNKNOWN
         return status
 
 

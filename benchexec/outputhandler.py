@@ -608,14 +608,14 @@ class Statistics:
 
     def __init__(self):
         self.dic = dict((category,0) for category in COLOR_DIC)
-        self.dic[(result.CATEGORY_WRONG, result.STATUS_TRUE_PROP)] = 0
+        self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] = 0
         self.counter = 0
 
     def add_result(self, category, status):
         self.counter += 1
         assert category in self.dic
-        if category == result.CATEGORY_WRONG and status == result.STATUS_TRUE_PROP:
-            self.dic[(result.CATEGORY_WRONG, result.STATUS_TRUE_PROP)] += 1
+        if category == result.CATEGORY_WRONG and status == result.RESULT_TRUE_PROP:
+            self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] += 1
         self.dic[category] += 1
 
 
@@ -623,8 +623,8 @@ class Statistics:
         util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(13) + ' Files',
                  '    correct:        ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
                  '    unknown:        ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
-                 '    false positives:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.STATUS_TRUE_PROP)]).rjust(4) + \
+                 '    false positives:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4) + \
                  '        (result is false, file is true or has a different false-property)',
-                 '    false negatives:' + str(self.dic[(result.CATEGORY_WRONG, result.STATUS_TRUE_PROP)]).rjust(4) + \
+                 '    false negatives:' + str(self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4) + \
                  '        (result is true, file is false)',
                  '']))

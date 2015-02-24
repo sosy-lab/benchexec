@@ -81,13 +81,13 @@ class Tool(benchexec.tools.template.BaseTool):
             status = "KILLED"
 
         elif "Error Location <<ERROR_LOCATION>> is not reachable" in output:
-            status = result.STATUS_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
 
         elif "Error Location <<ERROR_LOCATION>> is reachable via the following path" in output:
-            status = result.STATUS_FALSE_REACH
+            status = result.RESULT_FALSE_REACH
 
         else:
-            status = result.STATUS_UNKNOWN
+            status = result.RESULT_UNKNOWN
 
         # delete tmp-files
         os.remove(self.prepSourcefile)

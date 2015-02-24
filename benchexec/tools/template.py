@@ -89,6 +89,11 @@ class BaseTool(object):
         """
         Parse the output of the tool and extract the verification result.
         This method always needs to be overridden.
+        If the tool gave a result, this method needs to return one of the
+        benchexec.result.RESULT_* strings.
+        Otherwise an arbitrary string can be returned that will be shown to the user
+        and should give some indication of the failure reason
+        (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
         return 'UNKNOWN'
 
