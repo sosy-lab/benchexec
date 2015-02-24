@@ -300,7 +300,7 @@ class OutputHandler:
         runSetInfo += "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
                 runSet.index, len(self.benchmark.run_sets),
                 " ".join(runSet.options),
-                " ".join(runSet.property_files))
+                runSet.propertyfile)
 
         titleLine = self.create_output_line("sourcefile", "status", "cpu time",
                             "wall time", "host", self.benchmark.columns, True)
@@ -448,7 +448,8 @@ class OutputHandler:
         # copy benchmarkinfo, limits, columntitles, systeminfo from xml_header
         runsElem = util.copy_of_xml_element(self.xml_header)
         runsElem.set("options", " ".join(runSet.options))
-        runsElem.set("propertyfiles", " ".join(runSet.property_files))
+        if runSet.propertyfile:
+            runsElem.set("propertyfile", runSet.propertyfile)
         if blockname is not None:
             runsElem.set("block", blockname)
             runsElem.set("name", ((runSet.real_name + ".") if runSet.real_name else "") + blockname)

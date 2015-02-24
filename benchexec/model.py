@@ -173,9 +173,9 @@ class Benchmark:
             logging.error("At least ONE thread must be given!")
             sys.exit()
 
-        # get global options and property_files
+        # get global options and property file
         self.options = util.get_list_from_xml(rootTag)
-        self.property_files = util.get_list_from_xml(rootTag, tag=PROPERTY_TAG, attributes=[])
+        self.propertyfile = util.text_or_none(util.get_single_child_from_xml(rootTag, PROPERTY_TAG))
 
         # get columns
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
@@ -288,7 +288,7 @@ class RunSet:
 
         # get all run-set-specific options from rundefinitionTag
         self.options = benchmark.options + util.get_list_from_xml(rundefinitionTag)
-        self.property_files = benchmark.property_files + util.get_list_from_xml(rundefinitionTag, tag=PROPERTY_TAG, attributes=[])
+        self.propertyfile = util.text_or_none(util.get_single_child_from_xml(rundefinitionTag, PROPERTY_TAG)) or benchmark.propertyfile
 
         # get run-set specific required files
         required_files = set()
@@ -360,11 +360,11 @@ class RunSet:
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
-            property_files = util.get_list_from_xml(sourcefilesTag, tag=PROPERTY_TAG, attributes=[])
+            propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
 
             currentRuns = []
             for sourcefile in sourcefiles:
-                currentRuns.append(Run(sourcefile, fileOptions, self, property_files,
+                currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile,
                                        list(globalRequiredFiles.union(required_files))))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -493,7 +493,7 @@ class Run():
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, sourcefiles, fileOptions, runSet, property_files=[], required_files=[]):
+    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, required_files=[]):
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -508,13 +508,7 @@ class Run():
         substitutedOptions = substitute_vars(self.options, runSet, self.identifier)
         if substitutedOptions != self.options: self.options = substitutedOptions # for less memory again
 
-        # get propertyfile for Run: if available, use the last one
-        if property_files:
-            self.propertyfile = property_files[-1]
-        elif runSet.property_files:
-            self.propertyfile = runSet.property_files[-1]
-        else:
-            self.propertyfile = None
+        self.propertyfile = propertyfile or runSet.propertyfile
 
         # replace run-specific stuff in the propertyfile and add it to the set of required files
         if self.propertyfile is None:
