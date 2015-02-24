@@ -49,8 +49,6 @@ TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), 'template.{format}'
 TEMPLATE_FORMATS = ['html', 'csv']
 TEMPLATE_ENCODING = 'UTF-8'
 
-LOG_VALUE_EXTRACT_PATTERN = re.compile(': *([^ :]*)')
-
 DEFAULT_TIME_PRECISION = 3
 
 class Util:
@@ -508,7 +506,7 @@ class RunResult:
         self.category = category
 
     @staticmethod
-    def create_from_xml(sourcefileTag, listOfColumns, correct_only):
+    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only):
         '''
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
@@ -522,20 +520,6 @@ class RunResult:
             except IOError as e:
                 print('WARNING: Could not read value from logfile: {}'.format(e))
                 return []
-
-        def get_value_from_logfile(lines, identifier):
-            """
-            This method searches for values in lines of the content.
-            The format of such a line must be:    "identifier:  value  (rest)".
-
-            If a value is not found, the value is set to None.
-            """
-            # stop after the first line, that contains the searched text
-            for line in lines:
-                if identifier in line:
-                    match = LOG_VALUE_EXTRACT_PATTERN.search(line)
-                    return match.group(1).strip() if match else None
-            return None
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', 'placeholderForUnknown')
@@ -610,13 +594,50 @@ def get_rows(runSetResults, filenames, correct_only):
     """
     Create list of rows with all data. Each row consists of several RunResults.
     """
+
+    def load_tool(result):
+        """
+        Load the module with the tool-specific code.
+        """
+        tool_module = result.attributes['toolmodule'][0] if 'toolmodule' in result.attributes else None
+        if not tool_module:
+            print('Cannot extract values from log files for benchmark results {0} (missing attribute "toolmodule" on tag "result").'.format(
+                    Util.prettylist(result.attributes['name'])))
+            return None
+        try:
+            return __import__(tool_module, fromlist=['Tool']).Tool()
+        except ImportError as ie:
+            print('Missing module "{0}", cannot extract values from log files (ImportError: {1}).'.format(tool_module, ie))
+        except AttributeError:
+            print('The module "{0}" does not define the necessary class Tool, cannot extract values from log files.'.format(tool_module))
+        return None
+
     rows = [Row(filename) for filename in filenames]
 
     # get values for each run set
     for result in runSetResults:
+
+        def get_value_from_logfile(lines, identifier):
+            """
+            This method searches for values in lines of the content.
+            It uses a tool-specific method to so.
+            """
+            # store tool instance lazily in attribute of the function to load it only once
+            if not 'tool' in get_value_from_logfile.__dict__:
+                get_value_from_logfile.tool = load_tool(result)
+
+            if get_value_from_logfile.tool:
+                return get_value_from_logfile.tool.get_value_from_output(lines, identifier)
+            else:
+                return None
+
         # get values for each file in a run set
         for fileResult, row in zip(result.filelist, rows):
-            row.add_run_result(RunResult.create_from_xml(fileResult, result.columns, correct_only))
+            row.add_run_result(RunResult.create_from_xml(
+                    fileResult,
+                    get_value_from_logfile,
+                    result.columns,
+                    correct_only))
 
     return rows
 
