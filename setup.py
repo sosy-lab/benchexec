@@ -23,6 +23,7 @@ import re
 from setuptools import setup
 
 # Links for documentation on how to build and use Python packages:
+# http://python-packaging-user-guide.readthedocs.org/en/latest/
 # http://gehrcke.de/2014/02/distributing-a-python-command-line-application/
 # http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 # https://pythonhosted.org/setuptools/setuptools.html
