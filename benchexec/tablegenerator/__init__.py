@@ -575,6 +575,7 @@ class Row:
     def __init__(self, task_id):
         self.id = task_id
         self.filename = task_id[0]
+        self.properties = task_id[1] if len(task_id) > 1 else None
         self.results = []
 
     def add_run_result(self, runresult):
@@ -732,14 +733,37 @@ def get_stats(rows):
     stats = [get_stats_of_run_set(runResults) for runResults in rows_to_columns(rows)] # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
+    # Calculate maximal score and number of true/false files for the given properties
+    count_true = count_false = 0
+    for row in rows:
+        if not row.properties:
+            # properties missing for at least one task, result would be wrong
+            count_true = count_false = 0
+            print('Missing property for ' + row.filename)
+            break
+        correct_result = result.satisfies_file_property(row.filename, row.properties.split())
+        if correct_result is True:
+            count_true += 1
+        elif correct_result is False:
+            count_false += 1
+    max_score = count_true * result.SCORE_CORRECT_TRUE + count_false * result.SCORE_CORRECT_FALSE
+
+    if max_score:
+        score_row = tempita.bunch(default=None, id='score',
+                                  title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
+                                  description='{0} true files, {1} false files'.format(count_true, count_false),
+                                  content=rowsForStats[5])
+    else:
+        score_row = tempita.bunch(default=None, id='score',
+                                  title='score ({0} tasks)'.format(len(rows)),
+                                  content=rowsForStats[5])
+
     return [tempita.bunch(default=None, title='total tasks', content=rowsForStats[0]),
             tempita.bunch(default=None, title='correct results', description='(no bug exists + result is TRUE) OR (bug exists + result is FALSE)', content=rowsForStats[1]),
             tempita.bunch(default=None, title='false negatives', description='bug exists + result is TRUE', content=rowsForStats[2]),
             tempita.bunch(default=None, title='false positives', description='no bug exists + result is FALSE', content=rowsForStats[3]),
             tempita.bunch(default=None, title='false properties', description='bug exists + bug found, but not searched for it', content=rowsForStats[4]),
-            #TODO re-enable "max score" when we have found a way to correctly calculate it
-            #tempita.bunch(default=None, title='score ({0} tasks, max score: {1})'.format(len(rows), maxScore), id='score', description='{0} true files, {1} false files'.format(countTrue, countFalse), content=rowsForStats[5])
-            tempita.bunch(default=None, title='score ({0} tasks)'.format(len(rows)), id='score', content=rowsForStats[5])
+            score_row,
             ]
 
 

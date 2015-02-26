@@ -139,6 +139,23 @@ def properties_of_file(propertyfile):
     return properties
 
 
+def satisfies_file_property(filename, properties):
+    """
+    Tell whether the given property is violated or satisfied in a given file.
+    @param filename: The file name of the input file.
+    @param properties: The list of properties to check (as returned by properties_of_file()).
+    @return True if the property is satisfied; False if it is violated; None if it is unknown
+    """
+    expected_result = _expected_result(filename, properties)
+    if not expected_result:
+        return None
+    if expected_result.startswith('true'):
+        return True
+    if expected_result.startswith('false'):
+        return False
+    return None
+
+
 def _file_is_java(filename):
     # Java benchmarks have as filename their main class, so we cannot check for '.java'
     return '_assert' in filename
