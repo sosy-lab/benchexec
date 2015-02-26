@@ -253,6 +253,8 @@ class OutputHandler:
                                  {"name": run.identifier, "files": "[" + ", ".join(run.sourcefiles) + "]"})
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
+            if run.properties:
+                run.xml.set("properties", " ".join(sorted(run.properties)))
             run.xml.extend(self.xml_dummy_elements)
 
         runSet.xml = self.runs_to_xml(runSet, runSet.runs)
@@ -448,8 +450,6 @@ class OutputHandler:
         # copy benchmarkinfo, limits, columntitles, systeminfo from xml_header
         runsElem = util.copy_of_xml_element(self.xml_header)
         runsElem.set("options", " ".join(runSet.options))
-        if runSet.propertyfile:
-            runsElem.set("propertyfile", runSet.propertyfile)
         if blockname is not None:
             runsElem.set("block", blockname)
             runsElem.set("name", ((runSet.real_name + ".") if runSet.real_name else "") + blockname)

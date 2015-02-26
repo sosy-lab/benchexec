@@ -33,7 +33,7 @@ CATEGORY_UNKNOWN = 'unknown'
 CATEGORY_ERROR   = 'error'
 CATEGORY_MISSING = 'missing'
 
-# property names used in this module
+# property names used in this module (should not contain spaces)
 _PROP_LABEL =        'unreach-label'
 _PROP_CALL =         'unreach-call'
 _PROP_TERMINATION =  'termination'
@@ -121,8 +121,6 @@ def properties_of_file(propertyfile):
     @param propertyfile: None or a file name of a property file.
     @return: A possibly empty list of property names. 
     """
-    if not propertyfile:
-        return []
     assert os.path.isfile(propertyfile)
 
     with open(propertyfile) as f:

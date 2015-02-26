@@ -537,7 +537,11 @@ class Run():
                                        .format(self.propertyfile, self.identifier))
                 self.propertyfile = None
 
+        if self.propertyfile:
             self.runSet.benchmark.add_required_file(self.propertyfile)
+            self.properties = result.properties_of_file(self.propertyfile)
+        else:
+            self.properties = []
 
         # Copy columns for having own objects in run
         # (we need this for storing the results in them).
@@ -587,7 +591,7 @@ class Run():
             returncode = returnvalue >> 8
             logging.debug("My subprocess returned {0}, code {1}, signal {2}.".format(returnvalue, returncode, returnsignal))
             self.status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
-        self.category = result.get_result_category(self.identifier, self.status, result.properties_of_file(self.propertyfile))
+        self.category = result.get_result_category(self.identifier, self.status, self.properties)
         for column in self.columns:
             column.value = self.runSet.benchmark.tool.get_value_from_output(output, column.text)
 
