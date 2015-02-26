@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 
+import os
 import re
 from setuptools import setup
 
@@ -37,11 +38,21 @@ version = re.search(
     re.M
     ).group(1)
 
+# Get the long description from the relevant file
+readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md')
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst', format='markdown_github-hard_line_breaks')
+except (IOError, ImportError):
+    with open(readme, encoding='utf-8') as f:
+        long_description = open(f).read()
+
 setup(
     name = 'BenchExec',
     version = version,
     author = 'Dirk Beyer',
     description = ('A Framework for Reliable Benchmarking and Resource Measurement.'),
+    long_description = long_description,
     url = 'https://github.com/dbeyer/benchexec/',
     license = 'Apache 2.0 License',
     keywords = 'benchmarking resource measurement',
