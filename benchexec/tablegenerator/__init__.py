@@ -269,6 +269,18 @@ def parse_table_definition_file(file, all_columns):
     return runSetResults
 
 
+def get_task_id(task):
+    """
+    Return a unique identifier for a given task.
+    @param task: the XML element that represents a task
+    @return a tuple with filename of task as first element
+    """
+    if 'properties' in task.keys():
+        return (task.get('name'), task.get('properties'))
+    else:
+        return (task.get('name'), )
+
+
 class Column:
     """
     The class Column contains title, pattern (to identify a line in log_file),
@@ -293,8 +305,8 @@ class RunSetResult():
         self.columns = columns
         self.summary = summary
 
-    def get_sourcefile_names(self):
-        return [file.get('name') for file in self.filelist]
+    def get_tasks(self):
+        return list(map(get_task_id, self.filelist))
 
     def append(self, resultFile, resultElem, all_columns=False):
         self.filelist += resultElem.findall('sourcefile')
@@ -429,68 +441,68 @@ def insert_logfile_names(resultFile, resultElem):
         sourcefile.set('logfile', log_folder + log_file_name)
 
 
-def merge_sourcefiles(runSetResults):
+def merge_tasks(runset_results):
     """
     This function merges the filelists of all RunSetResult objects.
     If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C]
     and add dummy elements to the filelists.
     It also ensures the same order of files.
-    Returns a list of filenames
+    Returns a list of task ids.
     """
-    nameList = []
-    nameSet = set()
-    for result in runSetResults:
+    task_list = []
+    task_set = set()
+    for result in runset_results:
         index = -1
-        currentResultNameSet = set()
-        for name in result.get_sourcefile_names():
-            if name in currentResultNameSet:
-                print ("File {0} is present twice, skipping it.".format(name))
+        currentresult_taskset = set()
+        for task in result.get_tasks():
+            if task in currentresult_taskset:
+                print ("File {0} is present twice, skipping it.".format(task[0]))
             else:
-                currentResultNameSet.add(name)
-                if name not in nameSet:
-                    nameList.insert(index+1, name)
-                    nameSet.add(name)
+                currentresult_taskset.add(task)
+                if task not in task_set:
+                    task_list.insert(index+1, task)
+                    task_set.add(task)
                     index += 1
                 else:
-                    index = nameList.index(name)
+                    index = task_list.index(task)
 
-    merge_file_lists(runSetResults, nameList)
-    return nameList
+    merge_task_lists(runset_results, task_list)
+    return task_list
 
-def merge_file_lists(runSetResults, filenames):
+def merge_task_lists(runset_results, tasks):
     """
     Set the filelists of all RunSetResult elements so that they contain the same files
     in the same order. For missing files a dummy element is inserted.
     """
-    for result in runSetResults:
-        # create mapping from name to sourcefile tag
-        dic = dict([(file.get('name'), file) for file in result.filelist])
+    for result in runset_results:
+        # create mapping from id to sourcefile tag
+        dic = dict([(get_task_id(task), task) for task in result.filelist])
         result.filelist = [] # clear and repopulate filelist
-        for filename in filenames:
-            fileResult = dic.get(filename)
-            if fileResult == None:
-                fileResult = ET.Element('sourcefile') # create an empty dummy element
-                fileResult.set('logfile', None)
-                fileResult.set('name', filename)
-                print ('    no result for {0}'.format(filename))
-            result.filelist.append(fileResult)
+        for task in tasks:
+            task_result = dic.get(task)
+            if task_result is None:
+                task_result = ET.Element('sourcefile') # create an empty dummy element
+                task_result.set('logfile', None)
+                task_result.set('name', task[0])
+                print ('    no result for {0}'.format(task[0]))
+            result.filelist.append(task_result)
 
 
-def find_common_sourcefiles(runSetResults):
-    filesInFirstRunSet = runSetResults[0].get_sourcefile_names()
+def find_common_tasks(runset_results):
+    tasks_in_first_runset = runset_results[0].get_tasks()
 
-    fileSet = set(filesInFirstRunSet)
-    for result in runSetResults:
-        fileSet = fileSet & set(result.get_sourcefile_names())
+    task_set = set(tasks_in_first_runset)
+    for result in runset_results:
+        task_set = task_set & set(result.tasks())
 
-    fileList = []
-    if not fileSet:
+    task_list = []
+    if not task_set:
         print('No files are present in all benchmark results.')
     else:
-        fileList = [file for file in filesInFirstRunSet if file in fileSet]
-        merge_file_lists(runSetResults, fileList)
+        task_list = [task for task in tasks_in_first_runset if task in task_set]
+        merge_task_lists(runset_results, task_list)
 
-    return fileList
+    return task_list
 
 
 class RunResult:
@@ -556,10 +568,13 @@ class RunResult:
 class Row:
     """
     The class Row contains all the results for one sourcefile (a list of RunResult instances).
+    It is identified by the name of the source file and optional additional data
+    (such as the property).
     It corresponds to one complete row in the final tables.
     """
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, task_id):
+        self.id = task_id
+        self.filename = task_id[0]
         self.results = []
 
     def add_run_result(self, runresult):
@@ -582,7 +597,7 @@ def rows_to_columns(rows):
     return zip(*[row.results for row in rows])
 
 
-def get_rows(runSetResults, filenames, correct_only):
+def get_rows(runSetResults, task_ids, correct_only):
     """
     Create list of rows with all data. Each row consists of several RunResults.
     """
@@ -604,7 +619,7 @@ def get_rows(runSetResults, filenames, correct_only):
             print('The module "{0}" does not define the necessary class Tool, cannot extract values from log files.'.format(tool_module))
         return None
 
-    rows = [Row(filename) for filename in filenames]
+    rows = [Row(task_id) for task_id in task_ids]
 
     # get values for each run set
     for result in runSetResults:
@@ -950,13 +965,13 @@ def get_summary(runSetResults):
         return None
 
 
-def create_tables(name, runSetResults, filenames, rows, rowsDiff, outputPath, outputFilePattern, options):
+def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options):
     '''
     create tables and write them to files
     '''
 
     # get common folder of sourcefiles
-    common_prefix = os.path.commonprefix(filenames) # maybe with parts of filename
+    common_prefix = os.path.commonprefix(list(map(lambda x : x[0], task_ids))) # maybe with parts of filename
     common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
     list(map(lambda row: Row.set_relative_path(row, common_prefix, outputPath), rows))
 
@@ -1169,14 +1184,14 @@ def main(args=None):
 
     print ('merging results ...')
     if options.common:
-        filenames = find_common_sourcefiles(runSetResults)
+        task_ids = find_common_tasks(runSetResults)
     else:
-        # merge list of run sets, so that all run sets contain the same filenames
-        filenames = merge_sourcefiles(runSetResults)
+        # merge list of run sets, so that all run sets contain the same tasks
+        task_ids = merge_tasks(runSetResults)
 
     # collect data and find out rows with differences
     print ('collecting data ...')
-    rows     = get_rows(runSetResults, filenames, options.correct_only)
+    rows     = get_rows(runSetResults, task_ids, options.correct_only)
     if not rows:
         print ('Warning: No results found, no tables produced.')
         sys.exit()
@@ -1185,7 +1200,7 @@ def main(args=None):
 
     print ('generating table ...')
     if not os.path.isdir(outputPath): os.makedirs(outputPath)
-    create_tables(name, runSetResults, filenames, rows, rowsDiff, outputPath, outputFilePattern, options)
+    create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options)
 
     print ('done')
 
