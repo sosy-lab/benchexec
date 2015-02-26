@@ -139,7 +139,7 @@ class OutputHandler:
         # store benchmarkInfo in XML
         self.xml_header = ET.Element("result",
                     {"benchmarkname": self.benchmark.name,
-                     "date":  time.strftime("%y-%m-%d %H:%M", self.benchmark.start_time),
+                     "date":  time.strftime("%Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time),
                      "tool": self.benchmark.tool_name, "version": version,
                      "toolmodule": self.benchmark.tool_module})
 

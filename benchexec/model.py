@@ -106,7 +106,7 @@ class Benchmark:
             self.name += "."+config.name
 
         self.start_time = start_time
-        self.instance = time.strftime("%y-%m-%d_%H%M", self.start_time)
+        self.instance = time.strftime("%Y-%m-%d_%H%M", self.start_time)
 
         self.output_base_name = config.output_path + self.name + "." + self.instance
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep

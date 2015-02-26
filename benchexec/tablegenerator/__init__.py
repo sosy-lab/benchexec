@@ -1179,7 +1179,7 @@ def main(args=None):
             outputFilePattern = "{name}.{ext}"
         else:
             if not name:
-                name = NAME_START + "." + time.strftime("%y-%m-%d_%H%M", time.localtime())
+                name = NAME_START + "." + time.strftime("%Y-%m-%d_%H%M", time.localtime())
 
         if inputFiles and not outputPath:
             dir = os.path.dirname(inputFiles[0])
