@@ -61,9 +61,11 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: System :: Benchmark',
         ],
+    platforms = ['Linux'],
 
     packages = ['benchexec', 'benchexec.tablegenerator', 'benchexec.tools'],
     package_data = {'benchexec.tablegenerator': ['template.*']},
