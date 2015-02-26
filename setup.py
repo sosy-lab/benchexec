@@ -42,10 +42,10 @@ version = re.search(
 readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md')
 try:
     import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst', format='markdown_github-hard_line_breaks')
+    long_description = pypandoc.convert(readme, 'rst', format='markdown_github-hard_line_breaks')
 except (IOError, ImportError):
     with open(readme, encoding='utf-8') as f:
-        long_description = open(f).read()
+        long_description = f.read()
 
 setup(
     name = 'BenchExec',
