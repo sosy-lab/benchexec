@@ -7,7 +7,34 @@
 
 <style type="text/css">
   <!--
-  table { outline:3px solid black; border-spacing:0px; font-family:arial, sans serif}
+  body { margin: 0px; }
+  #header {
+    position: fixed;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    text-align: center;
+    padding: 0.2em;
+    color: white;
+    background-color: rgb(85, 85, 85);
+    font-family: arial, sans serif
+  }
+  #header a {
+    display: inline-block;
+    margin: 0px 2em;
+  }
+  #header a:hover {
+    background-color: white;
+    color: black;
+  }
+  table {
+    outline:3px solid black;
+    border-spacing:0px;
+    font-family:arial, sans serif;
+  }
+  table#dataTable {
+    margin: 6px; margin-top: 2em;
+  }
   thead { text-align:center}
   tbody { text-align:right; white-space: nowrap}
   tfoot { text-align:center}
@@ -45,9 +72,13 @@
     overflow:auto;
   }
 
+  .scriptonly {
+    display: none; // only enabled via JavaScript
+  }
 @media print {
   /* don't print tfoot on each page */
   tfoot { display: table-row-group; }
+  #header { display: none!important; }
 }
 
   -->
@@ -197,7 +228,7 @@ function loadContent(url) {
 }
 
 $(document).ready(function() {
-  var cellsWithUrls = $('a');
+  var cellsWithUrls = $('#dataTable a');
   cellsWithUrls.each(
     function(index, elem) {
       $(elem).click(highlightCell).click(loadContentWrapper);
@@ -1198,17 +1229,24 @@ function showPlot() {
   });
 };
 
+function createQuantilePlotView(event) {
+  graphData.target = event.target;
+  graphData.isRunSet = false;
+  showPlot();
+};
+
+function createScatterPlotView() {
+  graphData.target = [2,2]; // default indices of the columns in the plot
+  graphData.isRunSet = false;
+  showScatterPlot();
+};
 
 // this function adds the listeners to the table
 $(document).ready(function() {
   $('.columnTitles > td:not(:first-child)') // do not use first column
       .addClass("clickable")
       .attr("title", "Click here to show a graph of this column")
-      .click(function (event) {
-            graphData.target = event.target;
-            graphData.isRunSet = false;
-            showPlot();
-      });
+      .click(createQuantilePlotView);
   
   $('.run > td:not(:first-child)') // do not use first column
       .addClass("clickable")
@@ -1222,11 +1260,7 @@ $(document).ready(function() {
   $('.run > td:first-child')
       .addClass("clickable")
       .attr("title", "Click here to show some scatter-graphs")
-      .click(function (event) {
-            graphData.target = [1,1]; // default indices of the columns in the plot
-            graphData.isRunSet = false;
-            showScatterPlot();
-      });
+      .click(createScatterPlotView);
 });
 
 </script>
@@ -1239,6 +1273,24 @@ $(document).ready(function() {
 </head>
 
 <body>
+
+<div id="header">
+  <div class="scriptonly">
+    <a href="javascript:createColumnToggleView()">Select Columns</a>
+    <a href="javascript:createRowFilterButtons()">Filter Rows</a>
+    <!--
+    <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
+    -->
+    <a href="javascript:createScatterPlotView()">Scatter Plot</a>
+  </div>
+  <div class="noscript">
+    Please enable JavaScript for advanced features.
+  </div>
+</div>
+<script type="text/javascript">
+  $('.noscript').hide();
+  $('.scriptonly').show();
+</script>
 
 <div id="contentPaneBackground"></div>
 <div id="contentPane"></div>
