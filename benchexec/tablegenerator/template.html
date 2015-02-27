@@ -1053,6 +1053,10 @@ function showScatterPlot() {
   var maxValue = graphData.maxValue * 100; // should be bigger than all measurable values
   var minValue = graphData.isLogScale ? 0.0000001 : (-maxValue); // there is no zero in logscale
 
+  if (graphData.data[0].length == 0) {
+    // crude hack to avoid error in jqplot due to empty data
+    graphData.data[0].push(0);
+  }
   var plot = $.jqplot('chart', graphData.data, {
     title: 'ScatterPlot: ',
     legend: {
