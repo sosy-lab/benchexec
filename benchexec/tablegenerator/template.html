@@ -667,13 +667,14 @@ $(document).ready(function() {
   .jqplot-table-legend { border-style:none; outline:none }
   .jqplot-table-legend tbody { border-style:none }
   .jqplot-table-legend tbody tr td { border-top:none; cursor:pointer }
-  .jqplot-highlighter-tooltip {font-family:arial, sans serif; font-size:large;
+  .jqplot-highlighter-tooltip {font-family:arial, sans serif; font-size:100%;
+           text-align: center;
            border:solid 1px black; padding:2px;
-           border-radius:8px; border-bottom-left-radius:0px;
+           border-radius:8px;
            background-color:white; opacity:0.8; }
   .jqplot-table-legend { text-align: left; }
   table.jqplot-table-legend[style] { position:absolute; left:auto !important; right:0px !important; } /* overrides inner css-style */
-  #chart { height:100%; width:100% }
+  #chart { height:100%; width:100%; overflow:hidden; }
   #button-quantile { position:absolute; bottom:50px; }
   #button-logScale { position:absolute; bottom:25px; }
   #button-showCorrectOnly { position:absolute; bottom:0px; }
@@ -1068,7 +1069,7 @@ function showScatterPlot() {
       sizeAdjust: 10,
       showMarker: true,
       tooltipAxes: 'y',
-      tooltipLocation: 'ne',
+      tooltipLocation: 'n',
       tooltipContentEditor: highlightFormatterForScatter, // functionPointer!
       tooltipFormatString: '%s', // how to format the y-value
       useAxesFormatters: false
@@ -1155,10 +1156,11 @@ function showPlot() {
       sizeAdjust: 10,
       showMarker: true,
       tooltipAxes: 'y',
-      tooltipLocation: 'ne',
+      tooltipLocation: 'n',
       tooltipContentEditor: highlightFormatter, // functionPointer!
       tooltipFormatString: '%s',
-      useAxesFormatters: false
+      useAxesFormatters: false,
+      bringSeriesToFront: true,
     },
     seriesDefaults:{
       shadow: false,
