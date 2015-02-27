@@ -1039,16 +1039,19 @@ function addButtons(target, callback, showQuantileButton) {
 function getSelectorForScatter(identifier) {
     var select = $('<select>', {class:'plot-selector'});
     var columnIndex = 1; // columns start with 1
+    var cells = document.getElementById('columnTitles').cells;
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
         var group = $('<optgroup>', {label:getNameOfTestDirect(runSet)})
                 .appendTo(select);
         for (var j = 0; j < runSet.columns.length; j++, columnIndex++) {
-            var column = runSet.columns[j];
-            var option = $('<option>', {
-                            value:columnIndex, 
-                            selected:(graphData.target[identifier] == columnIndex)})
-                        .text(column).appendTo(group);
+            if ($(cells[columnIndex]).is(':visible')) {
+                var column = runSet.columns[j];
+                var option = $('<option>', {
+                                value:columnIndex,
+                                selected:(graphData.target[identifier] == columnIndex)})
+                            .text(column).appendTo(group);
+            }
         }
     }
     
@@ -1175,11 +1178,12 @@ function getSelectorForQuantile() {
     } else {
       var columns = []
       var columnIndex = 1; // columns start with 1
+      var cells = document.getElementById('columnTitles').cells;
       for (var i = 0; i < run_sets.length; i++) {
           var run_set = run_sets[i];
           for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
               var column = run_set.columns[j];
-              if (columns[column] == null) {
+              if (columns[column] == null && $(cells[columnIndex]).is(':visible')) {
                 $('<option>', { value:columnIndex, selected:(graphData.target.textContent == column) })
                     .text(column).appendTo(select);
                 columns[column] = column;
