@@ -709,7 +709,7 @@ $(document).ready(function() {
   #button-quantile { position:absolute; bottom:50px; }
   #button-logScale { position:absolute; bottom:25px; }
   #button-showCorrectOnly { position:absolute; bottom:0px; }
-  .scatterplot-selector { width:30%; }
+  .plot-selector { width:30%; }
 </style>
 
 <script type="text/javascript">
@@ -1036,9 +1036,8 @@ function addButtons(target, callback, showQuantileButton) {
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
 }
 
-
 function getSelectorForScatter(identifier) {
-    var select = $('<select>', {class:'scatterplot-selector'});
+    var select = $('<select>', {class:'plot-selector'});
     var columnIndex = 1; // columns start with 1
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
@@ -1164,11 +1163,78 @@ function showScatterPlot() {
 };
 
 
+function getSelectorForQuantile() {
+    var select = $('<select>', {class:'plot-selector'});
+    if (graphData.isRunSet) {
+      for (var i = 0; i < run_sets.length; i++) {
+        var run_set = run_sets[i];
+        var name = getNameOfTestDirect(run_set);
+        $('<option>', { value:i+1, selected:($(graphData.target).index() == i+1) })
+            .text(name).appendTo(select);
+      }
+    } else {
+      var columns = []
+      var columnIndex = 1; // columns start with 1
+      for (var i = 0; i < run_sets.length; i++) {
+          var run_set = run_sets[i];
+          for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
+              var column = run_set.columns[j];
+              if (columns[column] == null) {
+                $('<option>', { value:columnIndex, selected:(graphData.target.textContent == column) })
+                    .text(column).appendTo(select);
+                columns[column] = column;
+              }
+          }
+      }
+    }
+
+    select.change(function() {
+        var selectedValue = Number(select.find(':selected')[0].value);
+        if (graphData.isRunSet) {
+          var cells = document.getElementById('run').cells;
+        } else {
+          var cells = document.getElementById('columnTitles').cells;
+        }
+        graphData.target = cells[selectedValue];
+        showPlot();
+    });
+
+    return select;
+}
+// this function collects the indices of columns with target as cell above the column
+function getColumnIndicesForTarget(target) {
+  var columnIndizes = [];
+  var cells = document.getElementById('columnTitles').cells;
+
+  if (graphData.isRunSet) {
+    var index = $(target).index(); // index of runset relative to table-row
+    for (i = 1; i < cells.length; i++) { // skip first cell
+      if ($(cells[i]).is(":visible")) {
+        if ("status" != cells[i].textContent
+            && run_sets[index-1] === columnsToRunset[i-1]) {
+          columnIndizes.push(i);
+        }
+      }
+    }
+  } else {
+    for (i = 1; i < cells.length; i++) { // skip first cell
+      if ($(cells[i]).is(":visible")) {
+        if (target.textContent == cells[i].textContent) {
+          columnIndizes.push(i);
+        }
+      }
+    }
+  }
+
+  return columnIndizes;
+};
+
 function showPlot() {
   $('#contentPaneBackground').trigger('click'); // cleanup
   $('#contentPane').append('<div id="chart"></div>');
   addButtons($('#contentPane'), showPlot, true);
   showContentPane();
+  var selector = getSelectorForQuantile();
   collectTableData();
 
   var plot = $.jqplot('chart', graphData.data, {
@@ -1220,6 +1286,8 @@ function showPlot() {
       }
     },
   });
+
+  $('.jqplot-title').empty().append(selector);
 
   addLegendActions();
   
