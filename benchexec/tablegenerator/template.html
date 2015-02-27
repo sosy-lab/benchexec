@@ -56,7 +56,7 @@
 
 <!-- ################## Base JS ################## -->
 
-<script type="text/javascript" src="{{lib_url}}/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
 
 <script type="text/javascript">
 
@@ -566,12 +566,12 @@ function fillRowFilterField(columnIndex) {
 
     $('<button>').text('select all').attr('id', 'button-filter-all')
         .attr('title', 'Click here to select all values')
-        .click(function(){ $('#rowFilterSelector option').attr('selected',true); })
+        .click(function(){ $('#rowFilterSelector option').prop('selected',true); })
         .appendTo($('#contentPane'));
 
     $('<button>').text('select none').attr('id', 'button-filter-none')
         .attr('title', 'Click here to deselect all values')
-        .click(function(){ $('#rowFilterSelector option').attr('selected',false); })
+        .click(function(){ $('#rowFilterSelector option').prop('selected',false); })
         .appendTo($('#contentPane'));
 
     $('<button>').text('apply filter').attr('id', 'button-filter-start')
@@ -650,16 +650,16 @@ $(document).ready(function() {
 
 <!-- ################## Everything related to showing plots of the data ################## -->
 
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.logAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.0/plugins/jqplot.canvasOverlay.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{{lib_url}}/jqplot/1.0.0/jquery.jqplot.min.css"/>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.logAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasOverlay.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.css"/>
 
 <style type="text/css">
   .jqplot-title {font-family:arial, sans serif; font-size:large; z-index:10 }
