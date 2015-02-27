@@ -1308,7 +1308,11 @@ function showPlot() {
 };
 
 function createQuantilePlotView(event) {
-  graphData.target = event.target;
+  if (event == undefined) {
+    graphData.target = document.getElementById('columnTitles').cells[2]; // second column
+  } else {
+    graphData.target = event.target;
+  }
   graphData.isRunSet = false;
   showPlot();
 };
@@ -1356,9 +1360,7 @@ $(document).ready(function() {
   <div class="scriptonly">
     <a href="javascript:createColumnToggleView()">Select Columns</a>
     <a href="javascript:createRowFilterButtons()">Filter Rows</a>
-    <!--
     <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
-    -->
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
   </div>
   <div class="noscript">
