@@ -1168,36 +1168,42 @@ function showScatterPlot() {
 
 function getSelectorForQuantile() {
     var select = $('<select>', {class:'plot-selector'});
-    if (graphData.isRunSet) {
-      for (var i = 0; i < run_sets.length; i++) {
+    var group = $('<optgroup>', {label:'Run sets'})
+            .appendTo(select);
+    for (var i = 0; i < run_sets.length; i++) {
+      var run_set = run_sets[i];
+      var name = getNameOfTestDirect(run_set);
+      $('<option>', { value:'runset' + (i+1), selected:(graphData.isRunSet && $(graphData.target).index() == i+1) })
+          .text(name).appendTo(group);
+    }
+    var group = $('<optgroup>', {label:'Columns'})
+            .appendTo(select);
+    var columns = []
+    var columnIndex = 1; // columns start with 1
+    var cells = document.getElementById('columnTitles').cells;
+    for (var i = 0; i < run_sets.length; i++) {
         var run_set = run_sets[i];
-        var name = getNameOfTestDirect(run_set);
-        $('<option>', { value:i+1, selected:($(graphData.target).index() == i+1) })
-            .text(name).appendTo(select);
-      }
-    } else {
-      var columns = []
-      var columnIndex = 1; // columns start with 1
-      var cells = document.getElementById('columnTitles').cells;
-      for (var i = 0; i < run_sets.length; i++) {
-          var run_set = run_sets[i];
-          for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
-              var column = run_set.columns[j];
-              if (columns[column] == null && $(cells[columnIndex]).is(':visible')) {
-                $('<option>', { value:columnIndex, selected:(graphData.target.textContent == column) })
-                    .text(column).appendTo(select);
-                columns[column] = column;
-              }
-          }
-      }
+        for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
+            var column = run_set.columns[j];
+            if (columns[column] == null && $(cells[columnIndex]).is(':visible')) {
+              $('<option>', { value:'column' + columnIndex, selected:(!graphData.isRunSet && graphData.target.textContent == column) })
+                  .text(column).appendTo(group);
+              columns[column] = column;
+            }
+        }
     }
 
     select.change(function() {
-        var selectedValue = Number(select.find(':selected')[0].value);
-        if (graphData.isRunSet) {
+        var selection = select.find(':selected')[0].value;
+        var selectedValue = Number(selection.substring(6));
+        if (selection.substring(0, 6) == 'runset') {
           var cells = document.getElementById('run').cells;
-        } else {
+          graphData.isRunSet = true;
+        } else if (selection.substring(0, 6) == 'column') {
           var cells = document.getElementById('columnTitles').cells;
+          graphData.isRunSet = false;
+        } else {
+          return;
         }
         graphData.target = cells[selectedValue];
         showPlot();
