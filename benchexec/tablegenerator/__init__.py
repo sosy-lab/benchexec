@@ -413,14 +413,8 @@ def parse_results_file(resultFile):
     return resultElem
 
 def insert_logfile_names(resultFile, resultElem):
-    parts = os.path.basename(resultFile).split("#", 1)
-
-    # get folder of logfiles
-    date = resultElem.get('date').replace(':','').replace(' ','_') # from ISO-format to filename-format
-    log_folder = resultElem.get('benchmarkname') + '.' + date + '.logfiles/'
-    if len(parts) > 1:
-        log_folder = parts[0] + '#' + log_folder
-    log_folder = os.path.join(os.path.dirname(resultFile), resultElem.get('baseDir', ''), log_folder)
+    # get folder of logfiles (truncate end of XML file name and append .logfiles instead)
+    log_folder = resultFile[0:resultFile.rfind('.results.')] + '.logfiles/'
 
     # append begin of filename
     runSetName = resultElem.get('name')
