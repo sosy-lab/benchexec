@@ -19,13 +19,21 @@
     background-color: rgb(85, 85, 85);
     font-family: arial, sans serif
   }
-  #header a {
-    display: inline-block;
+  #header .buttons a {
     margin: 0px 2em;
+    white-space: nowrap;
   }
   #header a:hover {
     background-color: white;
     color: black;
+  }
+  #attribution {
+    float: right;
+    padding-right: 1em;
+    font-size: 85%;
+  }
+  #attribution a {
+    text-decoration: underline;
   }
   table {
     outline:3px solid black;
@@ -54,7 +62,8 @@
   .status.error { color:magenta; font-weight: bold; }
   .value { font-family: monospace }
   .score { text-align:center; font-size:large; font-weight:bold; }
-  a { color: inherit; text-decoration: none; display: block; }
+  a { color: inherit; text-decoration: none; }
+  #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
 
   #contentPaneBackground { height:5000px; width:5000px;
@@ -80,6 +89,15 @@
   tfoot { display: table-row-group; }
   #header { display: none!important; }
   #dataTable { margin: 0px!important; }
+}
+
+@media (max-width: 850px) {
+  #attribution {
+    float: none;
+  }
+  #header .buttons a {
+    margin: 0px 1em;
+  }
 }
 
   -->
@@ -1358,14 +1376,17 @@ $(document).ready(function() {
 <body>
 
 <div id="header">
-  <div class="scriptonly">
+  <span class="scriptonly buttons">
     <a href="javascript:createColumnToggleView()">Select Columns</a>
     <a href="javascript:createRowFilterButtons()">Filter Rows</a>
     <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
-  </div>
-  <div class="noscript">
+  </span>
+  <span class="noscript">
     Please enable JavaScript for advanced features.
+  </span>
+  <div id="attribution">
+    Generated with <a href="https://github.com/dbeyer/benchexec" target="_blank">BenchExec</a>
   </div>
 </div>
 <script type="text/javascript">
