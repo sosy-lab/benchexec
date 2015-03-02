@@ -355,10 +355,8 @@ class RunExecutor():
                                  preexec_fn=preSubprocess)
 
         except OSError as e:
-            logging.critical("OSError {0} while starting {1}: {2}. "
-                             + "Assure that the directory containing the tool to be benchmarked is included "
-                             + "in the PATH environment variable or an alias is set."
-                             .format(e.errno, args[0], e.strerror))
+            logging.critical("OSError {0} while starting '{1}' in '{2}': {3}."
+                             .format(e.errno, args[0], workingDir or '.', e.strerror))
             return (0, 0, 0, None)
 
         try:
