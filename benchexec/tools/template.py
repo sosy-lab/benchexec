@@ -39,6 +39,7 @@ class BaseTool(object):
         Find the path to the executable file that will get executed.
         This method always needs to be overridden,
         and most implementations will look similar to this one.
+        The path returned should be relative to the current directory.
         """
         return util.find_executable('tool')
 
@@ -73,7 +74,10 @@ class BaseTool(object):
         This method can get overridden, if, for example, some options should
         be enabled or if the order of arguments must be changed.
 
-        @param executable: the path to the executable of the tool, the result of executable()
+        All paths passed to this method (executable, sourcefiles, and propertyfile)
+        are either absolute or have been made relative to the designated working directory.
+
+        @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
         @param sourcefiles: a list of sourcefiles, that should be analysed with the tool in one run.
                             In most cases we we have only _one_ sourcefile.

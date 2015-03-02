@@ -559,9 +559,16 @@ class Run():
 
 
     def cmdline(self):
+        working_directory = self.runSet.benchmark.tool.working_directory(self.runSet.benchmark.executable)
+        def relpath(path):
+            return path if os.path.isabs(path) \
+                else os.path.relpath(path, working_directory)
+
         args = self.runSet.benchmark.tool.cmdline(
-            self.runSet.benchmark.executable, self.options, self.sourcefiles, 
-            self.propertyfile, self.runSet.benchmark.rlimits)
+            relpath(self.runSet.benchmark.executable), self.options,
+            list(map(relpath, self.sourcefiles)),
+            relpath(self.propertyfile) if self.propertyfile else None,
+            self.runSet.benchmark.rlimits)
         args = [os.path.expandvars(arg) for arg in args]
         args = [os.path.expanduser(arg) for arg in args]
         return args;
