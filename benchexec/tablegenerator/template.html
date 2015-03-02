@@ -7,7 +7,10 @@
 
 <style type="text/css">
   <!--
-  body { margin: 0px; }
+  body {
+    margin: 0px;
+    font-family: arial, sans serif;
+  }
   #header {
     position: fixed;
     width: 100%;
@@ -17,7 +20,6 @@
     padding: 0.2em;
     color: white;
     background-color: rgb(85, 85, 85);
-    font-family: arial, sans serif
   }
   #header .buttons a {
     margin: 0px 2em;
@@ -38,7 +40,6 @@
   table {
     outline:3px solid black;
     border-spacing:0px;
-    font-family:arial, sans serif;
   }
   table#dataTable {
     margin: 6px; margin-top: 2em;
@@ -49,7 +50,7 @@
   tr:hover { background-color:yellow}
   td { border:1px solid black}
   td:first-child { text-align:left; white-space:nowrap}
-  tbody td:first-child { font-family: monospace; }
+  #dataTable tbody td:first-child { font-family: monospace; }
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
                                    font-family: monospace; vertical-align: top; }
   .columnTitles td:first-child { font-family: monospace; font-size: x-small; }
@@ -66,7 +67,7 @@
   #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
 
-  #contentPaneBackground { height:5000px; width:5000px;
+  #contentPaneBackground { height: 100%; width: 100%;
            position:fixed; top:0px; left:0px;
            background-color:green;
            opacity:0.2; display:none }
@@ -263,8 +264,7 @@ $(document).ready(function() {
 <style type="text/css">
   #tableViewTable { margin: auto; }
   #tableViewTable td { padding-bottom: 5px; padding-top: 5px; }
-  #tableViewTable thead td:first-child { font-family: arial, sans serif; font-size:large; font-weight:bold; text-align:center }
-  #tableViewTable tbody td:first-child { font-family: arial, sans serif; }
+  #tableViewTable thead td:first-child { font-size:large; font-weight:bold; text-align:center }
   #tableViewTableWrapper { height: 100%; overflow: auto; width: 100%; }
   .hiddenCell { background: red; }
   .visibleCell { background: green; }
@@ -712,12 +712,12 @@ $(document).ready(function() {
 <link rel="stylesheet" type="text/css" href="{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.css"/>
 
 <style type="text/css">
-  .jqplot-title {font-family:arial, sans serif; font-size:large; z-index:10 }
+  .jqplot-title { font-size:large; z-index:10 }
   .jqplot-table-legend-swatch {width:20px; height:15px }
   .jqplot-table-legend { border-style:none; outline:none }
   .jqplot-table-legend tbody { border-style:none }
   .jqplot-table-legend tbody tr td { border-top:none; cursor:pointer }
-  .jqplot-highlighter-tooltip {font-family:arial, sans serif; font-size:100%;
+  .jqplot-highlighter-tooltip { font-size:100%;
            text-align: center;
            border:solid 1px black; padding:2px;
            border-radius:8px;
