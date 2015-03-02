@@ -118,7 +118,7 @@ class Benchmark:
         tool_name = rootTag.get('tool')
         if not tool_name:
             sys.exit('A tool needs to be specified in the benchmark definition file.')
-        self.tool_module = "benchexec.tools." + tool_name
+        self.tool_module = tool_name if '.' in tool_name else ("benchexec.tools." + tool_name)
         try:
             self.tool = __import__(self.tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
