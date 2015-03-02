@@ -567,6 +567,10 @@ class OutputHandler:
                     if not os.path.isfile(path):
                         return None
 
+                if os.path.dirname(path) in os.environ['PATH'].split(os.pathsep):
+                    # in PATH, just use command name
+                    return os.path.basename(path)
+
                 path = os.path.relpath(path)
                 if path == name:
                     path = './' + path # for easier copy and paste into a shell
