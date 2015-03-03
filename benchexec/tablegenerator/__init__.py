@@ -247,6 +247,9 @@ def parse_table_definition_file(file, all_columns):
         return tags
 
     for resultTag in getResultTags(tableGenFile):
+        if not 'filename' in resultTag.attrib:
+            print('Result tag without filename attribute in {0}.'.format(file))
+            continue
         columnsToShow = extract_columns_from_table_definition_file(resultTag) or defaultColumnsToShow
         filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
         runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile), columnsToShow, all_columns) for resultsFile in filelist]
@@ -256,6 +259,9 @@ def parse_table_definition_file(file, all_columns):
         result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
         for resultTag in getResultTags(unionTag):
+            if not 'filename' in resultTag.attrib:
+                print('Result tag without filename attribute in {0}.'.format(file))
+                continue
             filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
             for resultsFile in filelist:
                 result.append(resultsFile, parse_results_file(resultsFile), all_columns)
