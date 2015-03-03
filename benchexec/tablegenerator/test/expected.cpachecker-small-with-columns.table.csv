@@ -1,0 +1,6 @@
+tool	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M
+run set	integration-simpleTests	integration-simpleTests	integration-simpleTests	integration-simpleTests
+test/programs/simple/	status	cputime	setup	non-existent
+functionCall.c	true	2.164897237	1.646	
+loop1.c	true	2.272138745	1.750	
+uninitVars.cil.c	true	2.19226382	1.652	

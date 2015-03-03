@@ -1,0 +1,6 @@
+tool	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M
+run set	integration-simpleTests	integration-simpleTests	integration-simpleTests	integration-simpleTests	integration-simpleTests	integration-simpleTests	integration-simpleTests
+test/programs/simple/	status	cputime	walltime	memUsage	total	cpa time	reached
+functionCall.c	true	2.164897237	2.1711337566375732	53112832	1.659	0.006	0.000
+loop1.c	true	2.272138745	2.2802369594573975	51933184	1.758	0.005	0.000
+uninitVars.cil.c	true	2.19226382	2.201310157775879	54870016	1.675	0.019	0.001
