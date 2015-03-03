@@ -183,12 +183,12 @@ def format_options(str):
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-  <tr id="{{line.id}}" class="{{line.id}}">
-    <td>{{line.name}}</td>
+<tr id="{{line.id}}" class="{{line.id}}">
+<td>{{line.name}}</td>
     {{for cell, width in line.content}}
-    <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
+<td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
     {{endfor}}
-  </tr>
+</tr>
   {{endif}}
 {{endfor}}
 </thead>
@@ -200,12 +200,12 @@ def format_options(str):
   {{for column, value in zip(runResult.columns, runResult.values)}}
   {{if column.title == 'status'}}
     {{if runResult.log_file}}
-    <td class="status {{runResult.category}}" title="Click here to show output of tool"><a href="{{relpath(runResult.log_file, base_dir)|url}}">{{(value or '-').lower()}}</a></td>
+<td class="status {{runResult.category}}" title="Click here to show output of tool"><a href="{{relpath(runResult.log_file, base_dir)|url}}">{{(value or '-').lower()}}</a></td>
     {{else}}
-    <td class="status {{runResult.category}}">{{(value or '-').lower()}}</td>
+<td class="status {{runResult.category}}">{{(value or '-').lower()}}</td>
     {{endif}}
   {{else}}
-  <td class="{{runResult.category}} value">{{format_value(value, column)}}</td>
+<td class="{{runResult.category}} value">{{format_value(value, column)}}</td>
   {{endif}}
   {{endfor}}
   {{endfor}}
@@ -224,24 +224,24 @@ def format_stat_title(stat, column, format_value):
 }}
 {{py:line = head['title']}}
 <tr class="{{line.id}}">
-  <td>{{line.name}}</td>
+<td>{{line.name}}</td>
   {{for cell, width in line.content}}
-  <td colspan="{{width}}">{{cell}}</td>
+<td colspan="{{width}}">{{cell}}</td>
   {{endfor}}
 </tr>
 {{for line in foot}}
-  <tr class="statistics">
-    <td {{attr(title=line.description)}}>{{line.title}}</td>
+<tr class="statistics">
+<td {{attr(title=line.description)}}>{{line.title}}</td>
     {{for cell, column in zip(line.content, flatten(columns))}}
-    <td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column)}}</td>
+<td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column)}}</td>
     {{endfor}}
-  </tr>
+</tr>
 {{endfor}}
 {{py:line = head['runset']}}
 <tr class="{{line.id}}">
-  <td>{{line.name}}</td>
+<td>{{line.name}}</td>
   {{for cell, width in line.content}}
-  <td colspan="{{width}}">{{cell}}</td>
+<td colspan="{{width}}">{{cell}}</td>
   {{endfor}}
 </tr>
 </tfoot>
