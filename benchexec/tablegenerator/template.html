@@ -966,8 +966,12 @@ function getValue(cell, title) {
             if (value > graphData.maxValue) { graphData.maxValue = value; }
         }
 
-        if (value == 0 && graphData.isLogScale) {
-            value = 0.00001; // zero is not part of log-scale
+        if (graphData.isLogScale) {
+            if (value == 0) {
+                value = 0.00001; // zero is not part of log-scale, so we use a value that looks like zero in the graph
+            } else if (value < 0) {
+                value = Number.NaN; // values below zero are not supported in a log-scale graph at all
+            }
         }
     }
     return value;
