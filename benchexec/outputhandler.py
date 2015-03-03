@@ -604,7 +604,8 @@ class OutputHandler:
         '''
         Formats the file name of a program for printing on console.
         '''
-        fileName = fileName.replace(self.common_prefix, '', 1)
+        if fileName.startswith(self.common_prefix):
+            fileName = fileName[len(self.common_prefix):]
         return fileName.ljust(self.max_length_of_filename + 4)
 
 
