@@ -78,6 +78,7 @@ setup(
         },
     include_package_data = True,
     install_requires = ['tempita==0.5.2'],
-    test_suite = 'benchexec',
+    setup_requires=['nose>=1.0'],
+    test_suite = 'nose.collector',
     zip_safe = True,
 )
