@@ -1,0 +1,15 @@
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+  <result filename="results/test.2015-03-03_1613.results.valueAnalysis.xml"/>
+  <result filename="results/test.2015-03-03_1815.results.predicateAnalysis.xml"/>
+  <result filename="results/test.2015-03-03_1815.results.valueAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="category"/>
+  <column title="score"/>
+  <column title="cputime"/>
+  <column title="setup">Time for analysis setup</column>
+  <column title="non-existent">Pattern that does not match</column>
+  <column title="SMT time">Total time for SMT solver</column>
+  <column title="variable count">Number of variables</column>
+</table>

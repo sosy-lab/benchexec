@@ -234,3 +234,17 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='test.2015-03-03_1613-reverse.diff',
             expected_counts='REGRESSIONS 1\nSTATS\n2 0 2\n3 1 0',
             )
+
+    def test_multi_table_xml(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'multi-table.xml')],
+            table_prefix='multi-table.table',
+            diff_prefix='multi-table.diff',
+            )
+
+    def test_multi_table_xml_with_columns(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'multi-table-with-columns.xml')],
+            table_prefix='multi-table-with-columns.table',
+            diff_prefix='multi-table-with-columns.diff',
+            )
