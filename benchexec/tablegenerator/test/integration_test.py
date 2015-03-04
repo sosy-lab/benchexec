@@ -165,6 +165,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='test.2015-03-03_1613.diff',
             )
 
+    def test_multi_table_differing_files_common(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613-common', '--common',
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613-common.table',
+            diff_prefix='test.2015-03-03_1613-common.diff',
+            )
+
     def test_multi_table_differing_files_reverse(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613-reverse',
