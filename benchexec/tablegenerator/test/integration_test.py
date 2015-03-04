@@ -52,10 +52,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_cmd(self, *args):
-        print(subprocess.check_output(args=args).decode())
+        output = subprocess.check_output(args=args).decode()
+        print(output)
+        return output
 
-    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None, diff_prefix=None):
-        self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', self.tmp])
+    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None, diff_prefix=None, expected_counts=None):
+        output = self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', self.tmp])
         generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
 
         csv_file = os.path.join(self.tmp, table_prefix + '.csv')
@@ -76,6 +78,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             generated_diff = util.read_file(csv_diff_file)
             expected_diff = util.read_file(here, 'expected', diff_prefix + '.csv')
             self.assertMultiLineEqual(generated_diff, expected_diff)
+
+        if expected_counts:
+            # output of table-generator should end with statistics about regressions
+            counts = output[output.find('REGRESSIONS'):].strip()
+            self.assertMultiLineEqual(expected_counts, counts)
+        else:
+            self.assertNotIn('REGRESSIONS', output)
+            self.assertNotIn('STATS', output)
 
     def test_simple_table(self):
         self.generate_tables_and_compare_csv(
@@ -165,4 +175,44 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ],
             table_prefix='test.2015-03-03_1613-correct-only.table',
             diff_prefix='test.2015-03-03_1613-correct-only.diff',
+            )
+
+    def test_dump_count_single_table(self):
+        self.generate_tables_and_compare_csv(
+            ['--dump',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            expected_counts='REGRESSIONS 0\nSTATS\n3 1 0', # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
+            )
+
+    def test_dump_count_single_table2(self):
+        self.generate_tables_and_compare_csv(
+            ['--dump',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.results.valueAnalysis',
+            expected_counts='REGRESSIONS 0\nSTATS\n2 0 1', # 2 correct, 0 incorrect, 1 unknown
+            )
+
+    def test_dump_count_multi_table(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613', '--dump',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.table',
+            diff_prefix='test.2015-03-03_1613.diff',
+            expected_counts='REGRESSIONS 2\nSTATS\n3 1 0\n2 0 2',
+            )
+
+    def test_dump_count_multi_table_reverse(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613-reverse', '--dump',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613-reverse.table',
+            diff_prefix='test.2015-03-03_1613-reverse.diff',
+            expected_counts='REGRESSIONS 1\nSTATS\n2 0 2\n3 1 0',
             )
