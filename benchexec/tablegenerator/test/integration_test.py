@@ -64,7 +64,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
-    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None, diff_prefix=None, expected_counts=None):
+    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None,
+                                        diff_prefix=None, result_diff_prefix=None,
+                                        expected_counts=None):
         output = self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', self.tmp])
         generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
 
@@ -84,7 +86,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
         if diff_prefix:
             generated_diff = util.read_file(csv_diff_file)
-            expected_diff = util.read_file(here, 'expected', diff_prefix + '.csv')
+            expected_diff = util.read_file(here, 'expected', (result_diff_prefix or diff_prefix) + '.csv')
             self.assertMultiLineEqual(generated_diff, expected_diff)
 
         if expected_counts:
@@ -247,4 +249,27 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ['-x', os.path.join(here, 'multi-table-with-columns.xml')],
             table_prefix='multi-table-with-columns.table',
             diff_prefix='multi-table-with-columns.diff',
+            )
+
+    def test_union_table(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'union-table-predicateAnalysis.xml')],
+            table_prefix='union-table-predicateAnalysis.table',
+            result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            )
+
+    def test_union_table2(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'union-table-valueAnalysis.xml')],
+            table_prefix='union-table-valueAnalysis.table',
+            result_prefix='test.2015-03-03_1613.results.valueAnalysis',
+            )
+
+    def test_union_table_different_result_order(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'union-table.xml')],
+            table_prefix='union-table.table',
+            diff_prefix='union-table.diff',
+            result_prefix='test.2015-03-03_1613.table',
+            result_diff_prefix='test.2015-03-03_1613.diff',
             )

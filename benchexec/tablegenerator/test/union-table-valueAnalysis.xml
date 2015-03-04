@@ -1,0 +1,6 @@
+<table>
+  <union name="valueAnalysis">
+    <result filename="results/test.2015-03-03_1613.results.valueAnalysis.0.xml"/>
+    <result filename="results/test.2015-03-03_1613.results.valueAnalysis.1.xml"/>
+  </union>
+</table>
