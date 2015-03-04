@@ -493,7 +493,7 @@ def find_common_tasks(runset_results):
 
     task_set = set(tasks_in_first_runset)
     for result in runset_results:
-        task_set = task_set & set(result.tasks())
+        task_set = task_set & set(result.get_tasks())
 
     task_list = []
     if not task_set:
