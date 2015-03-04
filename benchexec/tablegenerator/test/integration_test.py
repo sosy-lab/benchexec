@@ -54,17 +54,28 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         print(subprocess.check_output(args=args).decode())
 
-    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None):
+    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None, diff_prefix=None):
         self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', self.tmp])
-        print('table-generator produced files: ' + '\n'.join(os.listdir(self.tmp)))
+        generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
+
         csv_file = os.path.join(self.tmp, table_prefix + '.csv')
         html_file = os.path.join(self.tmp, table_prefix + '.html')
-        self.assertTrue(os.path.exists(html_file), 'Missing file for HTML table')
-        self.assertTrue(os.path.exists(csv_file), 'Missing file for CSV table')
+        expected_files = {csv_file, html_file}
+        if diff_prefix:
+            csv_diff_file = os.path.join(self.tmp, diff_prefix + '.csv')
+            html_diff_file = os.path.join(self.tmp, diff_prefix + '.html')
+            expected_files |= {csv_diff_file, html_diff_file}
+
+        self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
 
         generated = util.read_file(csv_file)
         expected = util.read_file(here, 'expected', (result_prefix or table_prefix) + '.csv')
         self.assertMultiLineEqual(generated, expected)
+
+        if diff_prefix:
+            generated_diff = util.read_file(csv_diff_file)
+            expected_diff = util.read_file(here, 'expected', diff_prefix + '.csv')
+            self.assertMultiLineEqual(generated_diff, expected_diff)
 
     def test_simple_table(self):
         self.generate_tables_and_compare_csv(
@@ -97,4 +108,61 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         self.generate_tables_and_compare_csv(
             ['-x', os.path.join(here, 'simple-table-with-columns.xml')],
             'simple-table-with-columns.table',
+            )
+
+    def test_multi_table(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'predicateAnalysis',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1815.results.predicateAnalysis.xml'),
+            ],
+            table_prefix='predicateAnalysis.table',
+            )
+
+    def test_multi_table_reverse(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'predicateAnalysis-reverse',
+             os.path.join(here, 'results', 'test.2015-03-03_1815.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+            ],
+            table_prefix='predicateAnalysis-reverse.table',
+            )
+
+    def test_multi_table_no_diff(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613', '--no-diff',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.table',
+            )
+
+    def test_multi_table_differing_files(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.table',
+            diff_prefix='test.2015-03-03_1613.diff',
+            )
+
+    def test_multi_table_differing_files_reverse(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613-reverse',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613-reverse.table',
+            diff_prefix='test.2015-03-03_1613-reverse.diff',
+            )
+
+    def test_multi_table_differing_files_correct_only(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613-correct-only', '--correct-only',
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613-correct-only.table',
+            diff_prefix='test.2015-03-03_1613-correct-only.diff',
             )
