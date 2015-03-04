@@ -269,7 +269,7 @@ def parse_table_definition_file(file, all_columns):
         if result.filelist:
             name = unionTag.get('title', unionTag.get('name'))
             if name:
-                result.attributes['name'] = name
+                result.attributes['name'] = [name]
             runSetResults.append(result)
 
     return runSetResults
