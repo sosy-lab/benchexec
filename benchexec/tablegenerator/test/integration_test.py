@@ -28,12 +28,16 @@ import sys
 import tempfile
 import unittest
 import benchexec.util as util
+from subprocess import CalledProcessError
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, '..', '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
 tablegenerator = os.path.join(bin_dir, 'table-generator')
+
+def result_file(name):
+    return os.path.join(here, 'results', name)
 
 class TableGeneratorIntegrationTests(unittest.TestCase):
 
@@ -52,7 +56,11 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_cmd(self, *args):
-        output = subprocess.check_output(args=args).decode()
+        try:
+            output = subprocess.check_output(args=args, stderr=subprocess.STDOUT).decode()
+        except CalledProcessError as e:
+            print(e.output.decode())
+            raise e
         print(output)
         return output
 
@@ -89,20 +97,20 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
     def test_simple_table(self):
         self.generate_tables_and_compare_csv(
-            [os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml')],
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_simple_table_correct_only(self):
         self.generate_tables_and_compare_csv(
-            ['--correct-only', os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml')],
+            ['--correct-only', result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             'test.2015-03-03_1613.results.predicateAnalysis.correct-only',
             )
 
     def test_simple_table_all_columns(self):
         self.generate_tables_and_compare_csv(
-            ['--all-columns', os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml')],
+            ['--all-columns', result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             'test.2015-03-03_1613.results.predicateAnalysis.all-columns',
             )
@@ -123,8 +131,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'predicateAnalysis',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1815.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1815.results.predicateAnalysis.xml'),
             ],
             table_prefix='predicateAnalysis.table',
             )
@@ -132,8 +140,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table_reverse(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'predicateAnalysis-reverse',
-             os.path.join(here, 'results', 'test.2015-03-03_1815.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1815.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
             ],
             table_prefix='predicateAnalysis-reverse.table',
             )
@@ -141,8 +149,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table_no_diff(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613', '--no-diff',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613.table',
             )
@@ -150,8 +158,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table_differing_files(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613.table',
             diff_prefix='test.2015-03-03_1613.diff',
@@ -160,8 +168,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table_differing_files_reverse(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613-reverse',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613-reverse.table',
             diff_prefix='test.2015-03-03_1613-reverse.diff',
@@ -170,8 +178,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_multi_table_differing_files_correct_only(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613-correct-only', '--correct-only',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613-correct-only.table',
             diff_prefix='test.2015-03-03_1613-correct-only.diff',
@@ -180,7 +188,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_dump_count_single_table(self):
         self.generate_tables_and_compare_csv(
             ['--dump',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             expected_counts='REGRESSIONS 0\nSTATS\n3 1 0', # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
@@ -189,7 +197,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_dump_count_single_table2(self):
         self.generate_tables_and_compare_csv(
             ['--dump',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613.results.valueAnalysis',
             expected_counts='REGRESSIONS 0\nSTATS\n2 0 1', # 2 correct, 0 incorrect, 1 unknown
@@ -198,8 +206,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_dump_count_multi_table(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613', '--dump',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613.table',
             diff_prefix='test.2015-03-03_1613.diff',
@@ -209,8 +217,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_dump_count_multi_table_reverse(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'test.2015-03-03_1613-reverse', '--dump',
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.valueAnalysis.xml'),
-             os.path.join(here, 'results', 'test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
             ],
             table_prefix='test.2015-03-03_1613-reverse.table',
             diff_prefix='test.2015-03-03_1613-reverse.diff',
