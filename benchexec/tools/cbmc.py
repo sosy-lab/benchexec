@@ -52,14 +52,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
         #an empty tag cannot be parsed into a tree
-        output = output.replace("<>", "<emptyTag>")
-        output = output.replace("</>", "</emptyTag>")
+        def sanitizeXML(s):
+            return s.replace("<>", "<emptyTag>") \
+                    .replace("</>", "</emptyTag>")
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             try:
-                tree = ET.fromstring(output)
+                tree = ET.fromstringlist(map(sanitizeXML, output))
                 status = tree.findtext('cprover-status')
 
                 if status is None:
