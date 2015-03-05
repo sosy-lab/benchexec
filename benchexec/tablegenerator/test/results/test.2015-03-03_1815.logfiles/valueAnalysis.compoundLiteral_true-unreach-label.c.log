@@ -1,0 +1,124 @@
+scripts/cpa.sh -noout -setprop log.consoleLevel=WARNING -valueAnalysis -stats -spec test/programs/simple/ALL.prp test/programs/simple/compoundLiteral_true-unreach-label.c
+
+
+--------------------------------------------------------------------------------
+
+
+Running CPAchecker with default heap size (1200M). Specify a larger value with -heap if you have more RAM.
+Infeasible counterexample found, but could not remove it from the ARG. Therefore, we cannot prove safety. (CounterexampleCheckAlgorithm.checkCounterexample, WARNING)
+
+Analysis incomplete: no errors found, but not everything could be checked. (CPAchecker.analyzeResult, WARNING)
+
+ValueAnalysisCPA statistics
+---------------------------
+Number of variables:                                      0 (count: 9, min: 0, max: 0, avg: 0,00)
+Number of global variables:                               0 (count: 9, min: 0, max: 0, avg: 0,00)
+
+ValueAnalysisPrecisionAdjustment statistics
+-------------------------------------------
+Number of abstraction computations:                      10
+Total time for liveness abstraction:                   0.000s
+Total time for abstraction computation:                0.001s
+Total time for path thresholds:                        0.000s
+
+AutomatonAnalysis (SVCOMP) statistics
+-------------------------------------
+Number of states:                                  1
+Total time for successor computation:                  0.001s
+Automaton transfers with branching:                0
+Automaton transfer successors:                           15 (count: 15, min: 1, max: 1, avg: 1,00) [1 x 15]
+
+CPA algorithm statistics
+------------------------
+Number of iterations:            10
+Max size of waitlist:            2
+Average size of waitlist:        1
+Number of computed successors:   10
+Max successors for one state:    2
+Number of times merged:          0
+Number of times stopped:         0
+Number of times breaked:         1
+
+Total time for CPA algorithm:         0.020s (Max:     0.018s)
+  Time for choose from waitlist:      0.001s
+  Time for precision adjustment:      0.003s
+  Time for transfer relation:         0.007s
+  Time for stop operator:             0.001s
+  Time for adding to reached set:     0.000s
+
+ValueAnalysisRefiner statistics
+-------------------------------
+Total number of refinements:              1
+Total number of targets found:            1
+Time for completing refinement:           0.001s
+  Time for interpolation:                              0.000s
+  Number of interpolations:                               0
+  Number of interpolation queries:                        0 (count: 0, min: 0, max: 0, avg: 0,00)
+  Size of interpolant:                                    0 (count: 0, min: 0, max: 0, avg: 0,00)
+  Number of sliced prefixes:                              0 (count: 0, min: 0, max: 0, avg: 0,00)
+Total number of root relocations:         0
+Total number of similar, repeated refinements:         0
+
+CEGAR algorithm statistics
+--------------------------
+Number of refinements:                1
+Number of successful refinements:     0
+Number of failed refinements:         0
+Max. size of reached set before ref.: 9
+Max. size of reached set after ref.:  0
+Avg. size of reached set before ref.: 9.00
+Avg. size of reached set after ref.:  NaN
+
+Total time for CEGAR algorithm:       0.035s
+Time for refinements:                 0.015s
+Average time for refinement:          0.015s
+Max time for refinement:              0.015s
+
+Counterexample-Check Algorithm statistics
+-----------------------------------------
+Number of counterexample checks:    1
+Number of infeasible paths:         1 (100%)
+Time for counterexample checks:         0.132s
+
+CPAchecker general statistics
+-----------------------------
+Number of program locations:     11
+Number of CFA edges:             11
+Number of relevant variables:    2
+Number of functions:             2
+Number of loops:                 0
+Size of reached set:             9
+  Number of reached locations:   9 (82%)
+    Avg states per location:     1
+    Max states per location:     1 (at node N0)
+  Number of reached functions:   2 (100%)
+  Number of partitions:          9
+    Avg size of partitions:      1
+    Max size of partitions:      1
+  Number of target states:       0
+
+Time for analysis setup:          1.201s
+  Time for loading CPAs:          0.214s
+  Time for loading parser:        0.505s
+  Time for CFA construction:      0.437s
+    Time for parsing file(s):     0.310s
+    Time for AST to CFA:          0.062s
+    Time for CFA sanity check:    0.003s
+    Time for post-processing:     0.034s
+      Time for var class.:        0.000s
+Time for Analysis:                0.167s
+CPU time for analysis:            0.160s
+Total time for CPAchecker:        1.369s
+Total CPU time for CPAchecker:    1.360s
+
+Time for Garbage Collector:       0.035s (in 1 runs)
+Garbage Collector(s) used:    PS MarkSweep, PS Scavenge
+Used heap memory:                 64MB (    61 MiB) max;     37MB (    35 MiB) avg;     76MB (    73 MiB) peak
+Used non-heap memory:             19MB (    18 MiB) max;     12MB (    11 MiB) avg;     19MB (    18 MiB) peak
+Used in PS Old Gen pool:           0MB (     0 MiB) max;      0MB (     0 MiB) avg;      0MB (     0 MiB) peak
+Allocated heap memory:           251MB (   240 MiB) max;    251MB (   240 MiB) avg
+Allocated non-heap memory:        24MB (    23 MiB) max;     24MB (    23 MiB) avg
+Total process virtual memory:   3029MB (  2889 MiB) max;   2949MB (  2812 MiB) avg
+
+Verification result: UNKNOWN, incomplete analysis.
+More details about the verification run can be found in the directory "./output".
