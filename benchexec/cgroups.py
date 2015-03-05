@@ -182,9 +182,9 @@ class Cgroup(object):
             test_cgroup = self.create_fresh_child_cgroup(subsystem)
             test_cgroup.remove()
         except OSError as e:
-            del self.per_subsystem[subsystem]
             self.paths = set(self.per_subsystem.values())
             logging.warning('Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'.format(self.per_subsystem[subsystem], subsystem, e.strerror))
+            del self.per_subsystem[subsystem]
             return False
 
         return True
