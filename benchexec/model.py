@@ -61,6 +61,9 @@ def substitute_vars(oldList, runSet, sourcefile=None):
                     ('${test_name}',          runSet.real_name if runSet.real_name else '')]
 
     if sourcefile:
+        keyValueList.append(('${inputfile_name}', os.path.basename(sourcefile)))
+        keyValueList.append(('${inputfile_path}', os.path.dirname(sourcefile) or '.'))
+        keyValueList.append(('${inputfile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
         keyValueList.append(('${sourcefile_name}', os.path.basename(sourcefile)))
         keyValueList.append(('${sourcefile_path}', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('${sourcefile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
@@ -181,7 +184,7 @@ class Benchmark:
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
 
         # get global source files, they are used in all run sets
-        globalSourcefilesTags = rootTag.findall("sourcefiles")
+        globalSourcefilesTags = rootTag.findall("inputfiles") + rootTag.findall("sourcefiles")
 
         # get required files
         self._required_files = set()
@@ -299,8 +302,9 @@ class RunSet:
             required_files = required_files.union(thisRequiredFiles)
 
         # get all runs, a run contains one sourcefile with options
-        self.blocks = self.extract_runs_from_xml(globalSourcefilesTags + rundefinitionTag.findall("sourcefiles"),
-                                              required_files)
+        self.blocks = self.extract_runs_from_xml(
+            globalSourcefilesTags + rundefinitionTag.findall("inputfiles") + rundefinitionTag.findall("sourcefiles"),
+            required_files)
         self.runs = [run for block in self.blocks for run in block.runs]
 
         names = [self.real_name]
