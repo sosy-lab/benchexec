@@ -113,11 +113,10 @@ class BenchExec(object):
         @return: an argparse.ArgumentParser instance
         """
         parser = argparse.ArgumentParser(description=
-            """Run benchmarks with a (verification) tool.
-            Documented example files for the benchmark definitions
-            can be found as 'doc/examples/benchmark*.xml'.
-            Use the table-generator.py script to create nice tables
-            from the output of this script.""")
+            """Execute benchmarks for a given tool with a set of input files.
+               Benchmarks are defined in an XML file given as input.
+               The tool table-generator can be used to create tables for the results.
+               Part of BenchExec: https://github.com/dbeyer/benchexec/""")
 
         parser.add_argument("files", nargs='+', metavar="FILE",
                           help="XML file with benchmark definition")

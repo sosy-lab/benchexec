@@ -1078,9 +1078,9 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    parser = argparse.ArgumentParser(
-        description="""Create table with the results of one or more benchmark executions.
-        Documented example files for the table definitions can be found in 'doc/examples'\n"""
+    parser = argparse.ArgumentParser(description=
+        """Create tables with the results of one or more benchmark executions.
+           Part of BenchExec: https://github.com/dbeyer/benchexec/"""
     )
 
     parser.add_argument("tables",

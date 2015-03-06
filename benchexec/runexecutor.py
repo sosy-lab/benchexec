@@ -60,34 +60,35 @@ def main(argv=None):
 
     # parse options
     parser = argparse.ArgumentParser(description=
-        "Run a command with resource limits and measurements.")
+        """Execute a command with resource limits and measurements.
+           Part of BenchExec: https://github.com/dbeyer/benchexec/""")
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
     parser.add_argument("--output", default="output.log", metavar="FILE",
                         help="file name for file with command output")
     parser.add_argument("--maxOutputSize", type=int, metavar="BYTES",
-                        help="approximate size of command output after which it will be truncated")
+                        help="shrink output file to approximately this size if necessary (by removing lines from the middle of the output)")
     parser.add_argument("--memlimit", type=int, metavar="BYTES",
                         help="memory limit in bytes")
     parser.add_argument("--timelimit", type=int, metavar="SECONDS",
                         help="CPU time limit in seconds")
     parser.add_argument("--softtimelimit", type=int, metavar="SECONDS",
-                        help='"soft" CPU time limit in seconds')
+                        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)')
     parser.add_argument("--walltimelimit", type=int, metavar="SECONDS",
-                        help='wall time limit in seconds (default is CPU time plus a few seconds)')
+                        help='wall time limit in seconds (default is CPU time limit plus a few seconds)')
     parser.add_argument("--cores", type=util.parse_int_list, metavar="N,M-K",
-                        help="the list of CPU cores to use")
+                        help="list of CPU cores to use")
     parser.add_argument("--memoryNodes", type=util.parse_int_list, metavar="N,M-K",
-                        help="the list of memory nodes to use")
+                        help="list of memory nodes to use")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument("--debug", action="store_true",
-                           help="Show debug output")
+                           help="show debug output")
     verbosity.add_argument("--quiet", action="store_true",
-                           help="Show only warnings")
+                           help="show only warnings")
     options = parser.parse_args(argv[1:])
 
     # For integrating into some benchmarking frameworks,
