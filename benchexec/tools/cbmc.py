@@ -42,13 +42,13 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'CBMC'
 
 
-    def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
+    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
         if ("--xml-ui" not in options):
             options = options + ["--xml-ui"]
 
         self.options = options
 
-        return [executable] + options + sourcefiles
+        return [executable] + options + inputfiles
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):

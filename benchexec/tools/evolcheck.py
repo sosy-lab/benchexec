@@ -38,13 +38,13 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'eVolCheck'
 
-    def preprocessSourcefile(self, sourcefile):
+    def preprocessInputfile(self, inputfile):
         gotoCcExecutable      = util.find_executable('goto-cc')
         # compile with goto-cc to same file, bith '.cc' appended
-        self.preprocessedFile = sourcefile + ".cc"
+        self.preprocessedFile = inputfile + ".cc"
 
         subprocess.Popen([gotoCcExecutable,
-                            sourcefile,
+                            inputfile,
                             '-o',
                             self.preprocessedFile],
                           stdout=subprocess.PIPE).wait()
@@ -52,16 +52,16 @@ class Tool(benchexec.tools.template.BaseTool):
         return self.preprocessedFile
 
 
-    def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
-        assert len(sourcefiles) == 1, "only one sourcefile supported"
-        sourcefile = sourcefiles[0]
-        sourcefile = self.preprocessSourcefile(sourcefile)
+    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
+        assert len(inputfiles) == 1, "only one inputfile supported"
+        inputfile = inputfiles[0]
+        inputfile = self.preprocessInputfile(inputfile)
 
         # also append '.cc' to the predecessor-file
         if '--predecessor' in options :
             options[options.index('--predecessor') + 1] = options[options.index('--predecessor') + 1] + '.cc'
 
-        return [executable] + [sourcefile] + options
+        return [executable] + [inputfile] + options
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if not os.path.isfile(self.preprocessedFile):

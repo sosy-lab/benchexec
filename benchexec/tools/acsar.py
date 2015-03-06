@@ -33,23 +33,23 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'Acsar'
 
 
-    def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
-        assert len(sourcefiles) == 1, "only one sourcefile supported"
-        sourcefile = sourcefiles[0]
+    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
+        assert len(inputfiles) == 1, "only one inputfile supported"
+        inputfile = inputfiles[0]
 
         # create tmp-files for acsar, acsar needs special error-labels
-        self.prepSourcefile = self._prepareSourcefile(sourcefile)
+        self.prepInputfile = self._prepareInputfile(inputfile)
 
-        return [executable] + ["--file"] + [self.prepSourcefile] + options
+        return [executable] + ["--file"] + [self.prepInputfile] + options
 
 
-    def _prepareSourcefile(self, sourcefile):
-        content = open(sourcefile, "r").read()
+    def _prepareInputfile(self, inputfile):
+        content = open(inputfile, "r").read()
         content = content.replace(
             "ERROR;", "ERROR_LOCATION;").replace(
             "ERROR:", "ERROR_LOCATION:").replace(
             "errorFn();", "goto ERROR_LOCATION; ERROR_LOCATION:;")
-        newFilename = sourcefile + "_acsar.c"
+        newFilename = inputfile + "_acsar.c"
         util.write_file(newFilename, content)
         return newFilename
 
@@ -90,6 +90,6 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_UNKNOWN
 
         # delete tmp-files
-        os.remove(self.prepSourcefile)
+        os.remove(self.prepInputfile)
 
         return status

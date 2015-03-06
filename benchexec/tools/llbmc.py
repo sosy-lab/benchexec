@@ -41,25 +41,25 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'LLBMC'
 
 
-    def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
-        assert len(sourcefiles) == 1, "only one sourcefile supported"
-        sourcefile = sourcefiles[0]
-        # compile sourcefile with clang
-        self.prepSourcefile = self._prepareSourcefile(sourcefile)
+    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
+        assert len(inputfiles) == 1, "only one inputfile supported"
+        inputfile = inputfiles[0]
+        # compile inputfile with clang
+        self.prepInputfile = self._prepareInputfile(inputfile)
 
-        return [executable] + options + [self.prepSourcefile]
+        return [executable] + options + [self.prepInputfile]
 
 
-    def _prepareSourcefile(self, sourcefile):
+    def _prepareInputfile(self, inputfile):
         clangExecutable = util.find_executable('clang')
-        newFilename     = sourcefile + ".o"
+        newFilename     = inputfile + ".o"
 
         subprocess.Popen([clangExecutable,
                             '-c',
                             '-emit-llvm',
                             '-std=gnu89',
                             '-m32',
-                            sourcefile,
+                            inputfile,
                             '-O0',
                             '-o',
                             newFilename,
@@ -80,9 +80,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
         # delete tmp-files
         try:
-            os.remove(self.prepSourcefile)
+            os.remove(self.prepInputfile)
         except OSError:
-            print("Could not remove file " + self.prepSourcefile + "! Maybe clang call failed")
+            print("Could not remove file " + self.prepInputfile + "! Maybe clang call failed")
             pass
 
         return status

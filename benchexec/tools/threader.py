@@ -54,10 +54,10 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'Threader'
 
 
-    def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
-        assert len(sourcefiles) == 1, "only one sourcefile supported"
-        sourcefile = sourcefiles[0]
-        return [executable] + options + [sourcefile]
+    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
+        assert len(inputfiles) == 1, "only one inputfile supported"
+        inputfile = inputfiles[0]
+        return [executable] + options + [inputfile]
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):

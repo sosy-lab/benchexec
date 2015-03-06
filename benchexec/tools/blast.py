@@ -48,10 +48,10 @@ class Tool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)[6:11]
 
 
-    def cmdline(self, blastExe, options, sourcefiles, propertyfile, rlimits):
+    def cmdline(self, blastExe, options, inputfiles, propertyfile, rlimits):
         workingDir = self.working_directory(blastExe)
         ocamlExe = util.find_executable('ocamltune')
-        return [os.path.relpath(ocamlExe, start=workingDir), blastExe] + options + sourcefiles
+        return [os.path.relpath(ocamlExe, start=workingDir), blastExe] + options + inputfiles
 
 
     def name(self):
