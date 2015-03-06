@@ -1,12 +1,14 @@
-<!ELEMENT result (systeminfo, columns, run+, time?)>
+<!ELEMENT result (systeminfo, columns, run+, column*)>
 <!ATTLIST result name CDATA #IMPLIED
                benchmarkname CDATA #REQUIRED
                date CDATA #REQUIRED
                tool CDATA #REQUIRED
+               toolmodule CDATA #REQUIRED
                version CDATA #REQUIRED
                options CDATA #IMPLIED
                memlimit CDATA #IMPLIED
-               timelimit CDATA #IMPLIED>
+               timelimit CDATA #IMPLIED
+               cpuCores CDATA #IMPLIED>
 
 <!ELEMENT systeminfo (os, cpu, ram)>
 <!ATTLIST systeminfo hostname CDATA #IMPLIED>
@@ -18,21 +20,9 @@
 
 <!ELEMENT columns (column*)>
 <!ATTLIST column title CDATA #REQUIRED
-                 value CDATA #IMPLIED>
+                 value CDATA #IMPLIED
+                 hidden CDATA #IMPLIED>
 
 <!ELEMENT run (column*)>
 <!ATTLIST run name CDATA #REQUIRED
               options CDATA #IMPLIED>
-
-<!-- element time is deprecated -->
-<!ATTLIST time cputime CDATA #REQUIRED
-               walltime CDATA #REQUIRED
-               memUsage CDATA #IMPLIED>
-
-
-<!-- not used: -->
-<!ELEMENT os (#PCDATA)>
-<!ELEMENT cpu (#PCDATA)>
-<!ELEMENT ram (#PCDATA)>
-<!ELEMENT column (#PCDATA)>
-<!ELEMENT time (#PCDATA)>

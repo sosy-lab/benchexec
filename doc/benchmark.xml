@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Example file for benchmark definition for BenchExec. -->
+<benchmark tool="*tool to benchmark (name of tool-specific Python module for BenchExec)*"
+           timelimit="*optional CPU time limit in seconds (default: none)*"
+           hardtimelimit="*optional hard CPU time limit in seconds (tool will be forcefully killed, otherwise identical with timelimit)"
+           memlimit="*optional memory limit in MiB (default: none)*"
+           cpuCores="*optional CPU core limit (default: none)*"
+           threads="*optional number of parallel tool executions (default: 1)*">
+
+  <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
+  <rundefinition name="*optional name for tool configuration*">
+
+    <!-- <option> defines command-line arguments (can appear multiple times). -->
+    <option name="*command-line argument for tool*">*optional value for command-line argument*</option>
+  </rundefinition>
+
+  <!-- <inputfiles> defines a set of input files (can appear multiple times). -->
+  <inputfiles name="*optional name for this subset of input files*">
+    <include>*file-name pattern for input files*</include>
+    <includesfile>*file-name pattern for include files (text files with a pattern on each line)*</includesfile>
+    <exclude>*file-name pattern for exclusion from input files*</exclude>
+    <excludesfile>*file-name pattern for exclude files (text files with a pattern on each line)*</excludesfile>
+
+    <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
+    <!-- <propertyfile>*file.prp*</propertyfile> -->
+
+    <!-- <option> may be used here, too. -->
+  </inputfiles>
+
+  <!-- <column> tags may be used to define columns in the result tables with data from the tool output. -->
+  <column title="*column title*">*pattern for extract data for this column from tool output*</column>
+
+  <!-- <option> may be used here, too. -->
+  <!-- <propertyfile> may be used here, too. -->
+</benchmark>
