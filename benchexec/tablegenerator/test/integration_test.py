@@ -273,3 +273,10 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             result_prefix='test.2015-03-03_1613.table',
             result_diff_prefix='test.2015-03-03_1613.diff',
             )
+
+    def test_simple_table_legacy(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis-legacy.xml')],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis-legacy',
+            result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            )

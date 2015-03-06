@@ -315,7 +315,7 @@ class RunSetResult():
         return list(map(get_task_id, self.filelist))
 
     def append(self, resultFile, resultElem, all_columns=False):
-        self.filelist += resultElem.findall('sourcefile')
+        self.filelist += _get_run_tags_from_xml(resultElem)
         for attrib, values in RunSetResult._extract_attributes_from_result(resultFile, resultElem).items():
             self.attributes[attrib].extend(values)
 
@@ -336,18 +336,19 @@ class RunSetResult():
 
         summary = RunSetResult._extract_summary_from_result(resultElem, columns)
 
-        return RunSetResult(resultElem.findall('sourcefile'),
+        return RunSetResult(_get_run_tags_from_xml(resultElem),
                 attributes, columns, summary)
 
     @staticmethod
     def _extract_existing_columns_from_result(resultFile, resultElem, all_columns):
-        if resultElem.find('sourcefile') is None:
+        run_results = _get_run_tags_from_xml(resultElem)
+        if not run_results:
             print("Empty resultfile found: " + resultFile)
             return []
         else: # show all available columns
             columnNames = set()
             columns = []
-            for s in resultElem.findall('sourcefile'):
+            for s in run_results:
                 for c in s.findall('column'):
                     title = c.get('title')
                     if not title in columnNames \
@@ -394,6 +395,10 @@ class RunSetResult():
         return summary
 
 
+def _get_run_tags_from_xml(result_elem):
+    return result_elem.findall('run') + result_elem.findall('sourcefile')
+
+
 def parse_results_file(resultFile):
     '''
     This function parses a XML file with the results of the execution of a run set.
@@ -436,7 +441,7 @@ def insert_logfile_names(resultFile, resultElem):
             log_folder += runSetName + "."
 
     # for each file: append original filename and insert log_file_name into sourcefileElement
-    for sourcefile in resultElem.findall('sourcefile'):
+    for sourcefile in _get_run_tags_from_xml(resultElem):
         log_file_name = os.path.basename(sourcefile.get('name')) + ".log"
         sourcefile.set('logfile', log_folder + log_file_name)
 
@@ -475,13 +480,13 @@ def merge_task_lists(runset_results, tasks):
     in the same order. For missing files a dummy element is inserted.
     """
     for result in runset_results:
-        # create mapping from id to sourcefile tag
+        # create mapping from id to run tag
         dic = dict([(get_task_id(task), task) for task in result.filelist])
         result.filelist = [] # clear and repopulate filelist
         for task in tasks:
             task_result = dic.get(task)
             if task_result is None:
-                task_result = ET.Element('sourcefile') # create an empty dummy element
+                task_result = ET.Element('run') # create an empty dummy element
                 task_result.set('logfile', None)
                 task_result.set('name', task[0])
                 print ('    no result for {0}'.format(task[0]))

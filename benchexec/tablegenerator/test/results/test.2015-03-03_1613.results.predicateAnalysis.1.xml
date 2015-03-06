@@ -10,12 +10,12 @@
     <cpu cores="8" frequency="3401 MHz" model="Intel Core i7-2600 CPU @ 3.40GHz"/>
     <ram size="16389384 kB"/>
   </systeminfo>
-  <sourcefile files="[doc/examples/example.c]" name="doc/examples/example.c">
+  <run files="[doc/examples/example.c]" name="doc/examples/example.c">
     <column title="status" value="true"/>
     <column title="cputime" value="2.272238619s"/>
     <column title="walltime" value="2.2822041511535645s"/>
     <column hidden="true" title="category" value="missing"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column title="memUsage" value="129470464"/>
-  </sourcefile>
+  </run>
 </result>

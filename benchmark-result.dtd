@@ -1,4 +1,4 @@
-<!ELEMENT result (systeminfo, columns, sourcefile+, time?)>
+<!ELEMENT result (systeminfo, columns, run+, time?)>
 <!ATTLIST result name CDATA #IMPLIED
                benchmarkname CDATA #REQUIRED
                date CDATA #REQUIRED
@@ -20,9 +20,9 @@
 <!ATTLIST column title CDATA #REQUIRED
                  value CDATA #IMPLIED>
 
-<!ELEMENT sourcefile (column*)>
-<!ATTLIST sourcefile name CDATA #REQUIRED
-                     options CDATA #IMPLIED>
+<!ELEMENT run (column*)>
+<!ATTLIST run name CDATA #REQUIRED
+              options CDATA #IMPLIED>
 
 <!-- element time is deprecated -->
 <!ATTLIST time cputime CDATA #REQUIRED

@@ -249,7 +249,7 @@ class OutputHandler:
             run.resultline = self.format_sourcefile_name(run.identifier)
 
         # prepare XML structure for each run and runSet
-            run.xml = ET.Element("sourcefile", 
+            run.xml = ET.Element("run",
                                  {"name": run.identifier, "files": "[" + ", ".join(run.sourcefiles) + "]"})
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
@@ -304,7 +304,7 @@ class OutputHandler:
                 " ".join(runSet.options),
                 runSet.propertyfile)
 
-        titleLine = self.create_output_line("sourcefile", "status", "cpu time",
+        titleLine = self.create_output_line("inputfile", "status", "cpu time",
                             "wall time", "host", self.benchmark.columns, True)
 
         runSet.simpleLine = "-" * (len(titleLine))
