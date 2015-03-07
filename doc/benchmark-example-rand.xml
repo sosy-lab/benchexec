@@ -10,11 +10,15 @@
 
   <!-- <inputfiles> defines a set of input files:
        we define two sets of some arbitrary example files here. -->
-  <inputfiles name="XML files">
-    <include>*.xml</include>
+  <inputfiles name="DTD files">
+    <include>*.dtd</include>
   </inputfiles>
 
   <inputfiles name="Markdown files">
     <include>*.md</include>
+  </inputfiles>
+
+  <inputfiles name="XML files">
+    <include>*.xml</include>
   </inputfiles>
 </benchmark>

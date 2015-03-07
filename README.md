@@ -239,10 +239,15 @@ Example:
 
     benchexec doc/benchmark-example-rand.xml --inputfiles "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
 
+The full set of available parameters can be seen with `benchexec -h`.
+
 `benchexec` produces as output the results and resource measurements
-of all the individual tool executions in an XML file from which tables
-can be created using `table-generator` (by default in directory `./result/`).
-A document-type definition with a formal specification of such files can be found in
+of all the individual tool executions in XML files
+from which tables can be created using `table-generator`.
+There is one file per run definition/tool configuration,
+and additional files for each subset of input files
+(all by default in directory `./result/`).
+A document-type definition with a formal specification of such result files can be found in
 [doc/benchmark-result.dtd](doc/benchmark-result.dtd).
 The output of the tool executions is stored in additional files in a sub-directory.
 If the target directory for the output files (specified with `--outputpath`)
@@ -252,6 +257,35 @@ One can use this to create a reliable archive of experimental results.
 
 
 ### Using table-generator to Generate Tables of Results
+
+The program `table-generator` allows to generate HTML and CSV tables.
+It takes one or more XML files with results from `benchexec`
+and produces tables with columns for each of the files,
+such that all results for a given input file appear on the same line.
+To start it, simply pass all result files on the command line, e.g.
+
+    table-generator results/benchmark-example-rand.*.results.xml
+
+Further command-line arguments can be used to customized the table,
+e.g. for ignoring all incorrect results (`--correct-only`),
+or for specifying name and location of the table files (`--name`, `--outputpath`).
+The full set of available parameters can be seen with `table-generator -h`.
+
+`table-generator` also supports using a special file as input
+that defines the layout of the generated tables
+and allows even more customizations,
+including the ability to extract arbitrary values
+from the output of the tool of each run
+and inserting them into the table.
+Such table-definitition files are also in XML format
+and a complete definition can be found in the file
+[doc/table-generator.xml](doc/table-generator.xml),
+and an example in [doc/table-generator-example.xml](doc/table-generator-example.xml).
+A document-type definition with a formal specification of such files can be found in
+[doc/table-generator.dtd](doc/table-generator.dtd).
+To use such files pass them with the parameter `-x` to `table-generator`:
+
+    table-generator -x doc/table-generator-example.xml
 
 
 ### Integration into other Benchmarking Frameworks

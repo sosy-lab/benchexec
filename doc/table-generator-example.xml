@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<table>
+
+  <!-- By default, use all columns (no <column> tags). -->
+
+  <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
+  <result filename="../results/benchmark-example-rand.*.results.xml">
+
+    <!-- <column> can be used here to override the global set of columns.  -->
+    <column title="status"/>
+    <column title="cputime"/>
+  </result>
+
+  <!-- <union> groups a set of results which should be placed below each other in the table
+       (instead of side-by-side). The inputfiles need to be distinct in all of the results. -->
+  <union>
+    <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.Markdown files.xml"/>
+    <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.XML files.xml"/>
+  </union>
+</table>

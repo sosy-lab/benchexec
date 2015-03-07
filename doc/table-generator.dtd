@@ -1,0 +1,10 @@
+<!ELEMENT table ((result | union | column)*)>
+
+<!ELEMENT result (column*)>
+<!ATTLIST result filename CDATA #REQUIRED>
+
+<!ELEMENT union ((result, column)*)>
+
+<!ELEMENT column (#PCDATA)>
+<!ATTLIST column title CDATA #IMPLIED
+                 numberOfDigits CDATA #IMPLIED>

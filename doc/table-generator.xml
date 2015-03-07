@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<table>
+
+  <!-- <column> defines which column should appear in the tables (can appear multiple times).
+       If omitted, all columns are used.
+       Either pre-defined columns can be used,
+       or data can be extracted using a pattern from the output of the tool
+       (needs specific support in the tool-specifiy Python module). -->
+  <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memUsage*"
+          numberOfDigits="*optional number of digits for rounding the value*"/>
+  <column title="*name of a column*"
+          numberOfDigits="*optional number of digits for rounding the value*">*pattern for extracting data from tool output*</column>
+
+  <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
+  <result filename="*file-name pattern for XML files produced by BenchExec*">
+    <!-- <column> can be used here to override the global set of columns.  -->
+  </result>
+
+  <!-- <union> groups a set of results which should be placed below each other in the table
+       (instead of side-by-side). The inputfiles need to be distinct in all of the results. -->
+  <union title="*optional title*">
+    <result filename="*file-name pattern for XML files produced by BenchExec*"/>
+    <!-- <column> can be used here to override the global set of columns.  -->
+  </union>
+</table>
