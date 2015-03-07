@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!-- Example file for benchmark definition for BenchExec
+     with dummy tool "rand" that simply returns random answers.
+     No resource limits are specified. -->
+<benchmark tool="rand">
+
+  <!-- <rundefinition> defines a tool configuration to benchmark
+       (tool rand does not need any arguments and has only one configuration). -->
+  <rundefinition/>
+
+  <!-- <inputfiles> defines a set of input files:
+       we define two sets of some arbitrary example files here. -->
+  <inputfiles name="XML files">
+    <include>*.xml</include>
+  </inputfiles>
+
+  <inputfiles name="Markdown files">
+    <include>*.md</include>
+  </inputfiles>
+</benchmark>

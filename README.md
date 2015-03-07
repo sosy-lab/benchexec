@@ -61,13 +61,15 @@ You can also install BenchExec only for your user with
 
     pip3 install --user benchexec
 
-In this case you probably need to add the directory where pip installs the commands to the PATH environment by adding the following line to your `~/.profile` file:
+In this case you probably need to add the directory where pip installs the commands
+to the PATH environment by adding the following line to your `~/.profile` file:
 
     export PATH=~/.local/bin:$PATH
 
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
 
-To install the latest development version from the [GitHub repository](https://github.com/dbeyer/benchexec), run this command:
+To install the latest development version from the
+[GitHub repository](https://github.com/dbeyer/benchexec), run this command:
 
     pip3 install --user git+https://github.com/dbeyer/benchexec.git
 
@@ -164,8 +166,10 @@ multiple executions of a tool in one go.
 #### Input for benchexec
 `benchexec` uses as input an XML file that defines the command(s) to execute,
 the resource limits, and the input files for which the command should be run.
-A complete definition of the input format can be found in the example file
-[doc/benchmark.xml](doc/benchmark.xml).
+A complete definition of the input format can be found in the file
+[doc/benchmark.xml](doc/benchmark.xml),
+and examples in [doc/benchmark-example-rand.xml](doc/benchmark-example-rand.xml)
+and [doc/benchmark-example-cbmc.xml](doc/benchmark-example-cbmc.xml).
 A document-type definition with a formal specification of such files can be found in
 [doc/benchmark.dtd](doc/benchmark.dtd).
 Such benchmark-definition files consist of a root tag `<benchmark>`
@@ -219,11 +223,21 @@ This class also defines the [documentation](benchexec/tools/template.py)
 on how to write such a module.
 BenchExec already provides such [ready-to-use modules for some common tools](benchexec/tools/).
 
-#### Running benchexec
+#### Starting benchexec
+To use `benchexec`, simply call it with an XML file with a benchmark definition:
+
+    benchexec doc/benchmark-example-rand.xml
+
 Command-line arguments to `benchexec` allow to override the defined resource limits.
 If one wants to execute only a subset of the defined benchmark runs,
 the name of the `<rundefinition>` and/or `<inputfiles>` tags
 that should be executed can also be given on the command line.
+To start multiple executions of the benchmarked tool in parallel
+(if the local machine has enough resources),
+use the parameter `--numOfThreads`.
+Example:
+
+    benchexec doc/benchmark-example-rand.xml --inputfiles "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
 
 `benchexec` produces as output the results and resource measurements
 of all the individual tool executions in an XML file from which tables

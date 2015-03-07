@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- Example file for benchmark definition for BenchExec,
+     using tool "cbmc" with a CPU time limit of 60s,
+     1000 MB of RAM, and 1 CPU core.
+     To use this file, CBMC needs to be on PATH
+     and C programs from SV-COMP need to be available in directory programs/
+     (or input files need to be changed). -->
+<benchmark tool="cbmc"
+           timelimit="60"
+           hardtimelimit="90"
+           memlimit="1000"
+           cpuCores="1">
+
+  <!-- <rundefinition> defines tool configurations to benchmark. -->
+  <rundefinition name="unwind3">
+    <option name="--unwind">3</option> <!-- Pass command-line option "unwind 3" to CBMC. -->
+  </rundefinition>
+
+  <rundefinition name="unwind10">
+    <option name="--unwind">10</option>
+  </rundefinition>
+
+  <!-- <inputfiles> defines a set of input files
+       (here two group of files from SV-COMP15 declared in a separate file). -->
+  <inputfiles name="ControlFlowInteger">
+    <includesfile>programs/ControlFlowInteger.set</includesfile>
+  </inputfiles>
+
+  <inputfiles name="Simple.set">
+    <includesfile>programs/Simple.set</includesfile>
+  </inputfiles>
+
+  <!-- Use an SV-COMP property file as specification
+    (file ALL.prp in the same directory as each source file). -->
+  <propertyfile>${sourcefile_path}/ALL.prp</propertyfile>
+</benchmark>
