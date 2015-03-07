@@ -42,11 +42,12 @@ Naming conventions used within BenchExec:
 
 TOOL: a (verification) tool that should be executed
 EXECUTABLE: the executable file that should be called for running a TOOL
-SOURCEFILE: one input file for the TOOL
-RUN: one execution of a TOOL on one SOURCEFILE
-RUNSET: a set of RUNs of one TOOL with at most one RUN per SOURCEFILE
-RUNDEFINITION: a template for the creation of a RUNSET with RUNS from one or more SOURCEFILESETs
-BENCHMARK: a list of RUNDEFINITIONs and SOURCEFILESETs for one TOOL
+INPUTFILE: one input file for the TOOL
+SOURCEFILE: deprecated name for INPUTFILE
+RUN: one execution of a TOOL on one INPUTFILE
+RUNSET: a set of RUNs of one TOOL with at most one RUN per INPUTFILE
+RUNDEFINITION: a template for the creation of a RUNSET with RUNS from one or more INPUTFILESETs
+BENCHMARK: a list of RUNDEFINITIONs and INPUTFILESETs for one TOOL
 OPTION: a user-specified option to add to the command-line of the TOOL when it its run
 CONFIG: the configuration of this script consisting of the command-line arguments given by the user
 EXECUTOR: a module for executing a BENCHMARK
@@ -130,11 +131,11 @@ class BenchExec(object):
                                 + "This option can be specified several times.",
                           metavar="RUN_DEFINITION")
 
-        parser.add_argument("-s", "--sourcefiles", dest="selected_sourcefile_sets",
+        parser.add_argument("-i", "--inputfiles", dest="selected_sourcefile_sets",
                           action="append",
-                          help="Run only the files from the sourcefiles tag with SOURCE as name. "
+                          help="Run only the files from the inputfiles tag with INPUT as name. "
                                 + "This option can be specified several times.",
-                          metavar="SOURCES")
+                          metavar="INPUT")
 
         parser.add_argument("-n", "--name",
                           dest="name", default=None,
