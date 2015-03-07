@@ -827,6 +827,8 @@ def get_stats_of_run_set(runResults):
         scoreRow.append(score)
 
     def replace_irrelevant(row):
+        if not row:
+            return
         count = row[0]
         if not count or not count.sum:
             for i in range(1, len(row)):
