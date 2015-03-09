@@ -656,6 +656,9 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
             # Position outputFile between A and B
             outputFile.seek(maxSize // 2)
             outputFile.readline() # jump to end of current line so that we truncate at line boundaries
+            if outputFile.tell() == fileSize:
+                # readline jumped to end of file because of a long line
+                return
 
             outputFile.write("\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n".encode())
 
