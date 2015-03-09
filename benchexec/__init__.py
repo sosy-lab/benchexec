@@ -237,7 +237,14 @@ class BenchExec(object):
         logging.debug("I'm benchmarking {0} consisting of {1} run sets.".format(
                 repr(benchmark_file), len(benchmark.run_sets)))
 
-        result = self.executor.execute_benchmark(benchmark, output_handler)
+        try:
+            result = self.executor.execute_benchmark(benchmark, output_handler)
+        finally:
+            # remove useless log folder if it is empty
+            try:
+                os.rmdir(benchmark.log_folder)
+            except:
+                pass
 
         if self.config.commit and not self.stopped_by_interrupt:
             util.add_files_to_git_repository(self.config.output_path, output_handler.all_created_files,
