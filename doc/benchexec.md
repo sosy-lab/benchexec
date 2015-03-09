@@ -60,9 +60,16 @@ In order to know how to execute a tool and how to interpret its output,
 `benchexec` needs a tool-specific Python module
 with functions for creating the appropriate command-line arguments for a run etc.
 Such modules need to define a class `Tool` that inherits from `benchexec.tools.template.BaseTool`.
-This class also defines the [documentation](../benchexec/tools/template.py)
+This class also contains the [documentation](../benchexec/tools/template.py)
 on how to write such a module.
+
 BenchExec already provides such [ready-to-use modules for some common tools](../benchexec/tools/).
+These are written such that they try to find the executable of the tool
+either in a directory of the PATH environment variable or in the current directory.
+To point BenchExec to a location of the executable, the easiest way is to adjust PATH accordingly:
+
+    PATH=/path/to/tool/directory:$PATH benchexec ...
+
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:
