@@ -1,3 +1,5 @@
 include *.md
 include LICENSE
 include benchexec/tablegenerator/template.*
+recursive-include doc *
+recursive-include benchexec/tablegenerator/test *.py *.xml *.log

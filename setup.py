@@ -76,7 +76,6 @@ setup(
             'table-generator = benchexec.tablegenerator:main',
             ]
         },
-    include_package_data = True,
     install_requires = ['tempita==0.5.2'],
     setup_requires=['nose>=1.0'],
     test_suite = 'nose.collector',
