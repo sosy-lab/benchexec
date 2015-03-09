@@ -651,13 +651,13 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     # Then we copy the content of C into B, overwriting what is there.
     # Afterwards we truncate the file after A+C.
 
-    with open(fileName, 'r+') as outputFile:
-        with open(fileName, 'r') as inputFile:
+    with open(fileName, 'r+b') as outputFile:
+        with open(fileName, 'rb') as inputFile:
             # Position outputFile between A and B
             outputFile.seek(maxSize // 2)
             outputFile.readline() # jump to end of current line so that we truncate at line boundaries
 
-            outputFile.write("\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n")
+            outputFile.write("\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n".encode())
 
             # Position inputFile between B and C
             inputFile.seek(-maxSize // 2, os.SEEK_END) # jump to beginning of second part we want to keep from end of file
