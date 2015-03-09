@@ -31,12 +31,14 @@ import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.runexecutor import RunExecutor
+from benchexec.runexecutor import _reduce_file_size_if_necessary
 
 class TestRunExecutor(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.longMessage = True
+        cls.maxDiff = None
         logging.disable(logging.CRITICAL)
 
     def setUp(self):
@@ -203,6 +205,56 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(output[0], '/bin/sleep 10', 'run output misses executed command')
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+
+    def test_reduce_file_size_empty_file(self):
+        with tempfile.NamedTemporaryFile() as tmp:
+            _reduce_file_size_if_necessary(tmp.name, 0)
+            self.assertEqual(os.path.getsize(tmp.name), 0)
+
+    def test_reduce_file_size_empty_file2(self):
+        with tempfile.NamedTemporaryFile() as tmp:
+            _reduce_file_size_if_necessary(tmp.name, 500)
+            self.assertEqual(os.path.getsize(tmp.name), 0)
+
+    def test_reduce_file_size_long_line_not_truncated(self):
+        with tempfile.NamedTemporaryFile(mode='wt') as tmp:
+            content = 'Long line ' * 500
+            tmp.write(content)
+            tmp.flush()
+            _reduce_file_size_if_necessary(tmp.name, 500)
+            with open(tmp.name, 'rt') as tmp2:
+                self.assertMultiLineEqual(tmp2.read(), content)
+
+    REDUCE_WARNING_MSG = "WARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED."
+    REDUCE_OVERHEAD = 100
+
+    def test_reduce_file_size(self):
+        with tempfile.NamedTemporaryFile(mode='wt') as tmp:
+            line = 'Some text\n'
+            tmp.write(line * 500)
+            tmp.flush()
+            limit = 500
+            _reduce_file_size_if_necessary(tmp.name, limit)
+            self.assertLessEqual(os.path.getsize(tmp.name), limit + self.REDUCE_OVERHEAD)
+            with open(tmp.name, 'rt') as tmp2:
+                new_content = tmp2.read()
+        self.assertIn(self.REDUCE_WARNING_MSG, new_content)
+        self.assertTrue(new_content.startswith(line))
+        self.assertTrue(new_content.endswith(line))
+
+    def test_reduce_file_size_limit_zero(self):
+        with tempfile.NamedTemporaryFile(mode='wt') as tmp:
+            line = 'Some text\n'
+            tmp.write(line * 500)
+            tmp.flush()
+            _reduce_file_size_if_necessary(tmp.name, 0)
+            self.assertLessEqual(os.path.getsize(tmp.name), self.REDUCE_OVERHEAD)
+            with open(tmp.name, 'rt') as tmp2:
+                new_content = tmp2.read()
+        self.assertIn(self.REDUCE_WARNING_MSG, new_content)
+        self.assertTrue(new_content.startswith(line))
+
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
