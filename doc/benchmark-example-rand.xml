@@ -8,17 +8,17 @@
        (tool rand does not need any arguments and has only one configuration). -->
   <rundefinition/>
 
-  <!-- <inputfiles> defines a set of input files:
+  <!-- <tasks> defines a set of tasks:
        we define two sets of some arbitrary example files here. -->
-  <inputfiles name="DTD files">
+  <tasks name="DTD files">
     <include>*.dtd</include>
-  </inputfiles>
+  </tasks>
 
-  <inputfiles name="Markdown files">
+  <tasks name="Markdown files">
     <include>*.md</include>
-  </inputfiles>
+  </tasks>
 
-  <inputfiles name="XML files">
+  <tasks name="XML files">
     <include>*.xml</include>
-  </inputfiles>
+  </tasks>
 </benchmark>

@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
     This tool is an imaginary tool that returns always SAFE.
     To use it you need a normal benchmark-xml-file
-    with the tool and inputfiles, however options are ignored.
+    with the tool and tasks, however options are ignored.
     """
     def executable(self):
         return '/bin/true'
@@ -32,8 +32,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'AlwaysTrue'
 
-    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
-        return [executable] + inputfiles
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        return [executable] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         return result.RESULT_TRUE_PROP

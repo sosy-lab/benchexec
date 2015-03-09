@@ -184,7 +184,7 @@ class Benchmark:
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
 
         # get global source files, they are used in all run sets
-        globalSourcefilesTags = rootTag.findall("inputfiles") + rootTag.findall("sourcefiles")
+        globalSourcefilesTags = rootTag.findall("tasks") + rootTag.findall("sourcefiles")
 
         # get required files
         self._required_files = set()
@@ -303,7 +303,7 @@ class RunSet:
 
         # get all runs, a run contains one sourcefile with options
         self.blocks = self.extract_runs_from_xml(
-            globalSourcefilesTags + rundefinitionTag.findall("inputfiles") + rundefinitionTag.findall("sourcefiles"),
+            globalSourcefilesTags + rundefinitionTag.findall("tasks") + rundefinitionTag.findall("sourcefiles"),
             required_files)
         self.runs = [run for block in self.blocks for run in block.runs]
 

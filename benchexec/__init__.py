@@ -131,11 +131,11 @@ class BenchExec(object):
                                 + "This option can be specified several times.",
                           metavar="RUN_DEFINITION")
 
-        parser.add_argument("-i", "--inputfiles", dest="selected_sourcefile_sets",
+        parser.add_argument("-t", "--tasks", dest="selected_sourcefile_sets",
                           action="append",
-                          help="Run only the files from the inputfiles tag with INPUT as name. "
+                          help="Run only the tasks from the tasks tag with TASKS as name. "
                                 + "This option can be specified several times.",
-                          metavar="INPUT")
+                          metavar="TASKS")
 
         parser.add_argument("-n", "--name",
                           dest="name", default=None,

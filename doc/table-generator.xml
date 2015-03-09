@@ -17,7 +17,7 @@
   </result>
 
   <!-- <union> groups a set of results which should be placed below each other in the table
-       (instead of side-by-side). The inputfiles need to be distinct in all of the results. -->
+       (instead of side-by-side). The tasks need to be distinct in all of the results. -->
   <union title="*optional title*">
     <result filename="*file-name pattern for XML files produced by BenchExec*"/>
     <!-- <column> can be used here to override the global set of columns.  -->

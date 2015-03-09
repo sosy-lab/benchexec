@@ -20,15 +20,15 @@
     <option name="--unwind">10</option>
   </rundefinition>
 
-  <!-- <inputfiles> defines a set of input files
+  <!-- <tasks> defines a set of tasks
        (here two group of files from SV-COMP15 declared in a separate file). -->
-  <inputfiles name="ControlFlowInteger">
+  <tasks name="ControlFlowInteger">
     <includesfile>programs/ControlFlowInteger.set</includesfile>
-  </inputfiles>
+  </tasks>
 
-  <inputfiles name="Simple.set">
+  <tasks name="Simple.set">
     <includesfile>programs/Simple.set</includesfile>
-  </inputfiles>
+  </tasks>
 
   <!-- Use an SV-COMP property file as specification
     (file ALL.prp in the same directory as each source file). -->

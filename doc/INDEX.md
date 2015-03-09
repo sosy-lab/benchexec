@@ -31,7 +31,7 @@ In BenchExec, we use the following definitions:
   which consists of the options for a tool configuration
   and will be combined with a task to define a run.
 
-- **task**: A combination of an input file and an expected results
+- **task**: A combination of an input file and an expected result
   that defines a problem for a tool to solve.
 
 - **tool**: A program that should be benchmarked with BenchExec.

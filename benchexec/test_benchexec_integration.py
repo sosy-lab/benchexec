@@ -36,7 +36,7 @@ bin_dir = os.path.join(base_dir, 'bin')
 benchexec = os.path.join(bin_dir, 'benchexec')
 
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
-benchmark_test_inputfiles = ['DTD files', 'Markdown files', 'XML files']
+benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files']
 
 class BenchExecIntegrationTests(unittest.TestCase):
 
@@ -60,7 +60,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
-    def run_benchexec_and_compare_expected_files(self, *args, inputfiles=benchmark_test_inputfiles, name=None):
+    def run_benchexec_and_compare_expected_files(self, *args, tasks=benchmark_test_tasks, name=None):
         self.run_cmd(*[benchexec, benchmark_test_file,
                        '--outputpath', self.tmp,
                        '--startTime', '2015-01-01 00:00',
@@ -68,7 +68,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         generated_files = set(os.listdir(self.tmp))
 
         expected_files = ['logfiles', 'results.txt', 'results.xml'] \
-                       + ['results.'+files+'.xml' for files in inputfiles]
+                       + ['results.'+files+'.xml' for files in tasks]
         if name is None:
             basename = 'benchmark-example-rand.2015-01-01_0000.'
         else:
@@ -80,10 +80,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def test_simple(self):
         self.run_benchexec_and_compare_expected_files()
 
-    def test_simple_select_inputfiles(self):
-        self.run_benchexec_and_compare_expected_files('--inputfiles', 'DTD files',
-                                                      '--inputfiles', 'XML files',
-                                                      inputfiles=['DTD files', 'XML files'])
+    def test_simple_select_tasks(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', 'DTD files',
+                                                      '--tasks', 'XML files',
+                                                      tasks=['DTD files', 'XML files'])
 
     def test_simple_set_name(self):
         test_name = 'integration test'

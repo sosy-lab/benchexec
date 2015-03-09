@@ -12,7 +12,7 @@
   </result>
 
   <!-- <union> groups a set of results which should be placed below each other in the table
-       (instead of side-by-side). The inputfiles need to be distinct in all of the results. -->
+       (instead of side-by-side). The tasks need to be distinct in all of the results. -->
   <union>
     <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.Markdown files.xml"/>
     <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.XML files.xml"/>

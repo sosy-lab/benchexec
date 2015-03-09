@@ -14,8 +14,8 @@
     <option name="*command-line argument for tool*">*optional value for command-line argument*</option>
   </rundefinition>
 
-  <!-- <inputfiles> defines a set of input files (can appear multiple times). -->
-  <inputfiles name="*optional name for this subset of input files*">
+  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
+  <tasks name="*optional name for this subset of tasks*">
     <include>*file-name pattern for input files*</include>
     <includesfile>*file-name pattern for include files (text files with a pattern on each line)*</includesfile>
     <exclude>*file-name pattern for exclusion from input files*</exclude>
@@ -25,7 +25,7 @@
     <!-- <propertyfile>*file.prp*</propertyfile> -->
 
     <!-- <option> may be used here, too. -->
-  </inputfiles>
+  </tasks>
 
   <!-- <column> tags may be used to define columns in the result tables with data from the tool output. -->
   <column title="*column title*">*pattern for extract data for this column from tool output*</column>

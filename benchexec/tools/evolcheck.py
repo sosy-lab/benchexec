@@ -52,9 +52,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return self.preprocessedFile
 
 
-    def cmdline(self, executable, options, inputfiles, propertyfile, rlimits):
-        assert len(inputfiles) == 1, "only one inputfile supported"
-        inputfile = inputfiles[0]
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        assert len(tasks) == 1, "only one inputfile supported"
+        inputfile = tasks[0]
         inputfile = self.preprocessInputfile(inputfile)
 
         # also append '.cc' to the predecessor-file

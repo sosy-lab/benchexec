@@ -6,7 +6,7 @@ multiple executions of a tool in one go.
 
 ### Input for benchexec
 `benchexec` uses as input an XML file that defines the command(s) to execute,
-the resource limits, and the input files for which the command should be run.
+the resource limits, and the tasks for which the command should be run.
 A complete definition of the input format can be found in the file
 [doc/benchmark.xml](benchmark.xml),
 and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml)
@@ -16,20 +16,20 @@ A document-type definition with a formal specification of such files can be foun
 Such benchmark-definition files consist of a root tag `<benchmark>`
 that has attributes for the tool to use and the resource limits.
 Nested `<rundefinition>` tags allow to specify multiple different configurations of the tool,
-each of which is executed with the input files.
-The input files are defined in nested `<inputfiles>` tags,
+each of which is executed with the tasks.
+The tasks are defined in nested `<tasks>` tags,
 either with `<include>` tags (which directly specify patterns of input files)
 or with `<includesfile>` tags (which specify text files with file-name patterns on each line).
 Relative file names in these tags are interpreted as relative to the directory of the XML file. 
 Command-line arguments for the tool are given with `<option>` tags,
 which can appear directly inside the root tag (always effective),
 inside a `<rundefinition>` tag (affective for this configuration),
-or inside a `<inputfiles>` tag (affective only for this subset of files for all configurations).
+or inside a `<tasks>` tag (affective only for this subset of tasks for all configurations).
 Note that you need to use a separate `<option>` tag for each argument,
 putting multiple arguments separated by spaces into a single tag will not have the desired effect.
 
 BenchExec allows to check whether the output of the tool matches the expected result
-for a given input file, and to categorize the results accordingly.
+for a given task, and to categorize the results accordingly.
 This is currently only available for the domain of software verification,
 where `benchexec` uses a
 [property file as defined by the International Competition on Software Verification](http://sv-comp.sosy-lab.org/2015/rules.php).
@@ -51,7 +51,7 @@ that will be expanded by BenchExec. The following variables are supported:
     ${inputfile_path_abs}   Directory of current input file (absolute path)
 
 For example, to pass as additional tool parameter the name of a file
-that is in the same directory as each input files, use
+that is in the same directory as each input file, use
 
     <option name="-f">${inputfile_path}/additional-file.txt</option>
 
@@ -78,14 +78,14 @@ To use `benchexec`, simply call it with an XML file with a benchmark definition:
 
 Command-line arguments to `benchexec` allow to override the defined resource limits.
 If one wants to execute only a subset of the defined benchmark runs,
-the name of the `<rundefinition>` and/or `<inputfiles>` tags
+the name of the `<rundefinition>` and/or `<tasks>` tags
 that should be executed can also be given on the command line.
 To start multiple executions of the benchmarked tool in parallel
 (if the local machine has enough resources),
 use the parameter `--numOfThreads`.
 Example:
 
-    benchexec doc/benchmark-example-rand.xml --inputfiles "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
+    benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
 
@@ -93,7 +93,7 @@ The full set of available parameters can be seen with `benchexec -h`.
 of all the individual tool executions in XML files
 from which tables can be created using `table-generator`.
 There is one file per run definition/tool configuration,
-and additional files for each subset of input files
+and additional files for each subset of tasks
 (all by default in directory `./result/`).
 A document-type definition with a formal specification of such result files can be found in
 [doc/benchmark-result.dtd](benchmark-result.dtd).
