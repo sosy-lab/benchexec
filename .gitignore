@@ -3,3 +3,5 @@
 build
 dist
 BenchExec.egg-info
+.coverage.*
+coverage
