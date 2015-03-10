@@ -74,3 +74,22 @@ should be mounted and usable,
 i.e., they should be listed in `/proc/self/cgroups` and the current user
 should have at least the permission to create sub-cgroups of the current cgroup(s)
 listed in this file for these controllers.
+
+
+## Installation for Development
+
+After cloning the [GitHub repository](https://github.com/dbeyer/benchexec),
+BenchExec can be used directly from within the working directory.
+Scripts for starting the three programs are available in the `bin` directory.
+For `table-generator`, the [Python package Tempita](https://pypi.python.org/pypi/Tempita)
+needs to be installed on the system.
+
+The alternative (recommended) way is to create a virtual Python environment
+and to install BenchExec in development mode within this environment:
+
+    virtualenv -p /usr/bin/python3 path/to/venv
+    source path/to/venv/bin/activate
+    pip install -e path/to/benchexec/working/directory
+
+This will automatically install all dependencies
+and place appropriate start scripts on the PATH.
