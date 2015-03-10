@@ -65,7 +65,7 @@ def main(argv=None):
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
     parser.add_argument("--output", default="output.log", metavar="FILE",
-                        help="file name for file with command output")
+                        help="name of file where command output is written")
     parser.add_argument("--maxOutputSize", type=int, metavar="BYTES",
                         help="shrink output file to approximately this size if necessary (by removing lines from the middle of the output)")
     parser.add_argument("--memlimit", type=int, metavar="BYTES",
@@ -338,7 +338,10 @@ class RunExecutor():
         logging.debug("Using additional environment {0}.".format(str(environments)))
 
         # write command line into outputFile
-        outputFile = open(output_filename, 'w') # override existing file
+        try:
+            outputFile = open(output_filename, 'w') # override existing file
+        except IOError as e:
+            sys.exit(e)
         outputFile.write(' '.join(args) + '\n\n\n' + '-' * 80 + '\n\n\n')
         outputFile.flush()
 
