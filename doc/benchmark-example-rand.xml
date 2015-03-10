@@ -9,7 +9,7 @@
   <rundefinition/>
 
   <!-- <tasks> defines a set of tasks:
-       we define two sets of some arbitrary example files here. -->
+       we define three sets of some arbitrary example files here. -->
   <tasks name="DTD files">
     <include>*.dtd</include>
   </tasks>
@@ -20,5 +20,13 @@
 
   <tasks name="XML files">
     <include>*.xml</include>
+  </tasks>
+
+  <!-- <tasks> with <withoutfiles> allows to define tasks without input files,
+       if the tool supports this. -->
+  <tasks name="Dummy tasks">
+    <withoutfiles>dummy task 1</withoutfiles>
+    <withoutfiles>dummy task 2</withoutfiles>
+    <withoutfiles>dummy task 3</withoutfiles>
   </tasks>
 </benchmark>

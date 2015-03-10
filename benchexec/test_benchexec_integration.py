@@ -36,7 +36,7 @@ bin_dir = os.path.join(base_dir, 'bin')
 benchexec = os.path.join(bin_dir, 'benchexec')
 
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
-benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files']
+benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
 
 class BenchExecIntegrationTests(unittest.TestCase):
 
