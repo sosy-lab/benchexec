@@ -568,8 +568,11 @@ class Run():
             return path if os.path.isabs(path) \
                 else os.path.relpath(path, working_directory)
 
+        executable = relpath(self.runSet.benchmark.executable)
+        if os.path.sep not in executable:
+            executable = os.path.join(os.curdir, executable)
         args = self.runSet.benchmark.tool.cmdline(
-            relpath(self.runSet.benchmark.executable), self.options,
+            executable, self.options,
             list(map(relpath, self.sourcefiles)),
             relpath(self.propertyfile) if self.propertyfile else None,
             self.runSet.benchmark.rlimits)
