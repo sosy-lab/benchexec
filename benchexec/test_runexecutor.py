@@ -221,6 +221,30 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_input_is_redirected_from_file(self):
+        if not os.path.exists('/bin/cat'):
+            self.skipTest('missing /bin/cat')
+        with tempfile.TemporaryFile() as tmp:
+            tmp.write(b'TEST_TOKEN')
+            tmp.flush()
+            tmp.seek(0)
+            try:
+                (result, output) = self.execute_run('/bin/cat', stdin=tmp, walltimelimit=1)
+            except SystemExit as e:
+                self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
+                self.skipTest(e)
+
+        self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
+        self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
+        self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
+        for key in result.keys():
+            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode'}, 'unexpected result value ' + key)
+
+        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
+        for line in output[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
     def test_stop_run(self):
         if not os.path.exists('/bin/sleep'):
             self.skipTest('missing /bin/sleep')

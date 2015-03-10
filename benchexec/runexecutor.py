@@ -68,6 +68,8 @@ def main(argv=None):
            Part of BenchExec: https://github.com/dbeyer/benchexec/""")
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
+    parser.add_argument("--input", metavar="FILE",
+                        help="name of file used as stdin for command (default: /dev/null)")
     parser.add_argument("--output", default="output.log", metavar="FILE",
                         help="name of file where command output is written")
     parser.add_argument("--maxOutputSize", type=int, metavar="BYTES",
@@ -117,6 +119,16 @@ def main(argv=None):
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                         level=logLevel)
 
+    if options.input is not None:
+        if options.input == options.output:
+            sys.exit("Input and output files cannot be the same.")
+        try:
+            stdin = open(options.input, 'rt')
+        except IOError as e:
+            sys.exit(e)
+    else:
+        stdin = None
+
     executor = RunExecutor()
 
     # ensure that process gets killed on interrupt/kill signal
@@ -129,9 +141,11 @@ def main(argv=None):
     logging.info('Writing output to ' + options.output)
 
     # actual run execution
-    result = \
-        executor.execute_run(args=options.args,
+    try:
+        result = executor.execute_run(
+                            args=options.args,
                             output_filename=options.output,
+                            stdin=stdin,
                             hardtimelimit=options.timelimit,
                             softtimelimit=options.softtimelimit,
                             walltimelimit=options.walltimelimit,
@@ -141,6 +155,9 @@ def main(argv=None):
                             environments=env,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize)
+    finally:
+        if stdin:
+            stdin.close()
 
     # exit_code is a special number:
     # It is a 16bit int of which the lowest 7 bit are the signal number,
@@ -292,7 +309,7 @@ class RunExecutor():
         return cgroups
 
 
-    def _execute(self, args, output_filename, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
+    def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
         """
         This method executes the command line and waits for the termination of it. 
         """
@@ -371,7 +388,7 @@ class RunExecutor():
         p = None
         try:
             p = subprocess.Popen(args,
-                                 stdin=DEVNULL,
+                                 stdin=stdin,
                                  stdout=outputFile, stderr=outputFile,
                                  env=runningEnv, cwd=workingDir,
                                  close_fds=True,
@@ -507,7 +524,7 @@ class RunExecutor():
         return (cputime, memUsage)
 
 
-    def execute_run(self, args, output_filename,
+    def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None):
@@ -516,6 +533,7 @@ class RunExecutor():
         and writes the output to a file.
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
+        @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param walltimelimit: None or the wall time in seconds after which the tool is forcefully killed (default: hardtimelimit + a few seconds)
@@ -527,6 +545,11 @@ class RunExecutor():
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @return: a tuple with walltime in seconds, cputime in seconds, memory usage in bytes, returnvalue, and process output
         """
+
+        if stdin == subprocess.PIPE:
+            sys.exit('Illegal value subprocess.PIPE for stdin')
+        elif stdin is None:
+            stdin = DEVNULL
 
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
@@ -595,7 +618,7 @@ class RunExecutor():
         try:
             logging.debug("execute_run: executing tool.")
             (exitcode, walltime, cputime, energy) = \
-                self._execute(args, output_filename, cgroups,
+                self._execute(args, output_filename, stdin, cgroups,
                               hardtimelimit, softtimelimit, walltimelimit,
                               coreCount, memlimit,
                               environments, workingDir)
