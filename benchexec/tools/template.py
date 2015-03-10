@@ -117,7 +117,7 @@ class BaseTool(object):
         (to transport them to a cloud service, for example).
         Returns a list of files or directories that are necessary to run the tool.
         """
-        return []
+        return [executable]
 
 
     def working_directory(self, executable):
