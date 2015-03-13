@@ -20,7 +20,7 @@ and allows even more customizations,
 including the ability to extract arbitrary values
 from the output of the tool of each run
 and inserting them into the table.
-Such table-definitition files are also in XML format
+Such table-definition files are also in XML format
 and a complete definition can be found in the file
 [doc/table-generator.xml](table-generator.xml),
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
