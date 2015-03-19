@@ -180,10 +180,11 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'JAVA HEAP ERROR'
             elif line.startswith('Error: ') and not status:
                 status = 'ERROR'
-                if 'Unsupported C feature (recursion)' in line:
-                    status = 'ERROR (recursion)'
-                elif 'Unsupported C feature (threads)' in line:
-                    status = 'ERROR (threads)'
+                if 'Unsupported' in line:
+                    if 'recursion' in line:
+                        status = 'ERROR (recursion)'
+                    elif 'threads' in line:
+                        status = 'ERROR (threads)'
                 elif 'Parsing failed' in line:
                     status = 'ERROR (parsing failed)'
             elif line.startswith('For your information: CPAchecker is currently hanging at') and status == 'ERROR (1)' and isTimeout:
