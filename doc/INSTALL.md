@@ -7,9 +7,6 @@ BenchExec requires at least Python 3.2.
 To install BenchExec we recommend to use the Python package installer pip
 (installable for example with `sudo apt-get install pip3` on Debian/Ubuntu).
 
-In the future, BenchExec will be available on PyPI.
-Then you can use the following instructions:
-
 To automatically download and install the latest stable version and its dependencies
 from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec),
 run this command:
