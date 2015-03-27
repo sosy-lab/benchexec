@@ -225,11 +225,11 @@ class OutputHandler:
         sourcefiles = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
-        self.common_prefix = util.common_base_dir(sourcefiles) + os.path.sep
+        runSet.common_prefix = util.common_base_dir(sourcefiles) + os.path.sep
 
         # length of the first column in terminal
-        self.max_length_of_filename = max(len(file) for file in sourcefiles) if sourcefiles else 20
-        self.max_length_of_filename = max(20, self.max_length_of_filename - len(self.common_prefix))
+        runSet.max_length_of_filename = max(len(file) for file in sourcefiles) if sourcefiles else 20
+        runSet.max_length_of_filename = max(20, runSet.max_length_of_filename - len(runSet.common_prefix))
 
         # write run set name to terminal
         numberOfFiles = len(runSet.runs)
@@ -261,9 +261,9 @@ class OutputHandler:
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
         xml_file_name = self.get_filename(runSet.name, "xml")
-        self.xml_file = filewriter.FileWriter(xml_file_name,
+        runSet.xml_file = filewriter.FileWriter(xml_file_name,
                        util.xml_to_string(runSet.xml))
-        self.xml_file.lastModifiedTime = time.time()
+        runSet.xml_file.lastModifiedTime = time.time()
         self.all_created_files.append(xml_file_name)
         self.xml_file_names.append(xml_file_name)
 
@@ -391,9 +391,9 @@ class OutputHandler:
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
             currentTime = time.time()
-            if currentTime - self.xml_file.lastModifiedTime > 60:
-                self.xml_file.replace(util.xml_to_string(run.runSet.xml))
-                self.xml_file.lastModifiedTime = time.time()
+            if currentTime - self.runSet.xml_file.lastModifiedTime > 60:
+                self.runSet.xml_file.replace(util.xml_to_string(run.runSet.xml))
+                self.runSet.xml_file.lastModifiedTime = time.time()
 
         finally:
             OutputHandler.print_lock.release()
@@ -408,7 +408,7 @@ class OutputHandler:
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        self.xml_file.replace(util.xml_to_string(runSet.xml))
+        self.runSet.xml_file.replace(util.xml_to_string(runSet.xml))
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
@@ -603,9 +603,9 @@ class OutputHandler:
         '''
         Formats the file name of a program for printing on console.
         '''
-        if fileName.startswith(self.common_prefix):
-            fileName = fileName[len(self.common_prefix):]
-        return fileName.ljust(self.max_length_of_filename + 4)
+        if fileName.startswith(self.runSet.common_prefix):
+            fileName = fileName[len(self.runSet.common_prefix):]
+        return fileName.ljust(self.runSet.max_length_of_filename + 4)
 
 
 class Statistics:
