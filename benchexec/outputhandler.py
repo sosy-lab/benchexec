@@ -245,7 +245,7 @@ class OutputHandler:
 
         # prepare information for text output
         for run in runSet.runs:
-            run.resultline = self.format_sourcefile_name(run.identifier)
+            run.resultline = self.format_sourcefile_name(run.identifier, runSet)
 
         # prepare XML structure for each run and runSet
             run.xml = ET.Element("run",
@@ -303,7 +303,7 @@ class OutputHandler:
                 " ".join(runSet.options),
                 runSet.propertyfile)
 
-        titleLine = self.create_output_line("inputfile", "status", "cpu time",
+        titleLine = self.create_output_line(runSet, "inputfile", "status", "cpu time",
                             "wall time", "host", self.benchmark.columns, True)
 
         runSet.simpleLine = "-" * (len(titleLine))
@@ -321,16 +321,17 @@ class OutputHandler:
         @param run: a Run object
         """
         # output in terminal
+        runSet = run.runSet
         try:
             OutputHandler.print_lock.acquire()
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
-            progressIndicator = " ({0}/{1})".format(self.runSet.runs.index(run), len(self.runSet.runs))
-            terminalTitle = TERMINAL_TITLE.format(self.runSet.full_name + progressIndicator) if USE_COLORS and sys.stdout.isatty() else ""
+            progressIndicator = " ({0}/{1})".format(runSet.runs.index(run), len(runSet.runs))
+            terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator) if USE_COLORS and sys.stdout.isatty() else ""
             if self.benchmark.num_of_threads == 1:
-                util.printOut(terminalTitle + timeStr + self.format_sourcefile_name(run.identifier), '')
+                util.printOut(terminalTitle + timeStr + self.format_sourcefile_name(run.identifier, runSet), '')
             else:
-                util.printOut(terminalTitle + timeStr + "starting   " + self.format_sourcefile_name(run.identifier))
+                util.printOut(terminalTitle + timeStr + "starting   " + self.format_sourcefile_name(run.identifier, runSet))
         finally:
             OutputHandler.print_lock.release()
 
@@ -363,7 +364,7 @@ class OutputHandler:
                     pass
 
         # store information in run
-        run.resultline = self.create_output_line(run.identifier, run.status,
+        run.resultline = self.create_output_line(run.runSet, run.identifier, run.status,
                 cputime_str, walltime_str, run.values.get('host'), 
                 run.columns)
         self.add_values_to_run_xml(run)
@@ -382,7 +383,7 @@ class OutputHandler:
                 util.printOut(valueStr)
             else:
                 timeStr = time.strftime("%H:%M:%S", time.localtime()) + " "*14
-                util.printOut(timeStr + self.format_sourcefile_name(run.identifier) + valueStr)
+                util.printOut(timeStr + self.format_sourcefile_name(run.identifier, run.runSet) + valueStr)
 
             # write result in txt_file and XML
             self.txt_file.append(self.run_set_to_text(run.runSet), False)
@@ -391,9 +392,9 @@ class OutputHandler:
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
             currentTime = time.time()
-            if currentTime - self.runSet.xml_file.lastModifiedTime > 60:
-                self.runSet.xml_file.replace(util.xml_to_string(run.runSet.xml))
-                self.runSet.xml_file.lastModifiedTime = time.time()
+            if currentTime - run.runSet.xml_file.lastModifiedTime > 60:
+                run.runSet.xml_file.replace(util.xml_to_string(run.runSet.xml))
+                run.runSet.xml_file.lastModifiedTime = time.time()
 
         finally:
             OutputHandler.print_lock.release()
@@ -408,7 +409,7 @@ class OutputHandler:
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        self.runSet.xml_file.replace(util.xml_to_string(runSet.xml))
+        runSet.xml_file.replace(util.xml_to_string(runSet.xml))
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
@@ -437,7 +438,7 @@ class OutputHandler:
             # format time, type is changed from float to string!
             cputime_str  = "None" if cputime  is None else util.format_number(cputime, TIME_PRECISION)
             walltime_str = "None" if walltime is None else util.format_number(walltime, TIME_PRECISION)
-            lines.append(self.create_output_line(endline, "done", cputime_str,
+            lines.append(self.create_output_line(runSet, endline, "done", cputime_str,
                              walltime_str, "-", []))
 
         return "\n".join(lines) + "\n"
@@ -516,7 +517,7 @@ class OutputHandler:
         xml.append(ET.Element("column", attributes))
 
 
-    def create_output_line(self, sourcefile, status, cputime_delta, walltime_delta, host, columns, isFirstLine=False):
+    def create_output_line(self, runSet, sourcefile, status, cputime_delta, walltime_delta, host, columns, isFirstLine=False):
         """
         @param sourcefile: title of a sourcefile
         @param status: status of programm
@@ -528,10 +529,9 @@ class OutputHandler:
         """
 
         lengthOfTime = 12
-        lengthOfEnergy = 18
         minLengthOfColumns = 8
 
-        outputLine = self.format_sourcefile_name(sourcefile) + \
+        outputLine = self.format_sourcefile_name(sourcefile, runSet) + \
                      status.ljust(LEN_OF_STATUS) + \
                      cputime_delta.rjust(lengthOfTime) + \
                      walltime_delta.rjust(lengthOfTime) + \
@@ -599,13 +599,13 @@ class OutputHandler:
         return fileName + fileExtension
 
 
-    def format_sourcefile_name(self, fileName):
+    def format_sourcefile_name(self, fileName, runSet):
         '''
         Formats the file name of a program for printing on console.
         '''
-        if fileName.startswith(self.runSet.common_prefix):
-            fileName = fileName[len(self.runSet.common_prefix):]
-        return fileName.ljust(self.runSet.max_length_of_filename + 4)
+        if fileName.startswith(runSet.common_prefix):
+            fileName = fileName[len(runSet.common_prefix):]
+        return fileName.ljust(runSet.max_length_of_filename + 4)
 
 
 class Statistics:
