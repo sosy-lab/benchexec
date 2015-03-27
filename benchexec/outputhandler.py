@@ -105,7 +105,6 @@ class OutputHandler:
                                  sysinfo.memory, sysinfo.hostname)
         self.xml_file_names = []
 
-
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname):
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
@@ -392,9 +391,9 @@ class OutputHandler:
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
             currentTime = time.time()
-            if currentTime - self.xml_file.lastModifiedTime > 10:
+            if currentTime - self.xml_file.lastModifiedTime > 60:
                 self.xml_file.replace(util.xml_to_string(run.runSet.xml))
-                self.xml_file.lastModifiedTime = currentTime
+                self.xml_file.lastModifiedTime = time.time()
 
         finally:
             OutputHandler.print_lock.release()
