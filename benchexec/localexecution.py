@@ -143,7 +143,7 @@ def execute_benchmark(benchmark, output_handler):
                         - (ruBefore.ru_utime + ruBefore.ru_stime)
 
             if STOPPED_BY_INTERRUPT:
-                output_handler.set_error('interrupted')
+                output_handler.set_error('interrupted', runSet)
             output_handler.output_after_run_set(runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy)
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)

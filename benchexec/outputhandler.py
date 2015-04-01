@@ -76,7 +76,6 @@ class OutputHandler:
         self.all_created_files = []
         self.benchmark = benchmark
         self.statistics = Statistics()
-        self.runSet = None
 
         version = self.benchmark.tool_version
 
@@ -105,7 +104,8 @@ class OutputHandler:
                                  sysinfo.memory, sysinfo.hostname)
         self.xml_file_names = []
 
-    def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname):
+    def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
+                          runSet=None):
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
                         return
@@ -119,18 +119,18 @@ class OutputHandler:
         systemInfo.append(ramElem)
             
         self.xml_header.append(systemInfo)
-        if self.runSet and self.runSet.xml:
-            self.runSet.xml.append(systemInfo)
+        if runSet:
+            runSet.xml.append(systemInfo)
 
 
-    def set_error(self, msg):
+    def set_error(self, msg, runSet=None):
         """
         Mark the benchmark as erroneous, e.g., because the benchmarking tool crashed.
         The message is intended as explanation for the user.
         """
         self.xml_header.set('error', msg if msg else 'unknown error')
-        if self.runSet:
-            self.runSet.xml.set('error', msg if msg else 'unknown error')
+        if runSet:
+            runSet.xml.set('error', msg if msg else 'unknown error')
 
 
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
@@ -219,9 +219,6 @@ class OutputHandler:
         about the runSet in XML.
         @param runSet: current run set
         """
-
-        self.runSet = runSet
-
         sourcefiles = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
