@@ -247,8 +247,12 @@ class BenchExec(object):
                 pass
 
         if self.config.commit and not self.stopped_by_interrupt:
-            util.add_files_to_git_repository(self.config.output_path, output_handler.all_created_files,
-                                         self.config.commit_message+'\n\n'+output_handler.description)
+            try:
+                util.add_files_to_git_repository(self.config.output_path,
+                        output_handler.all_created_files,
+                        self.config.commit_message+'\n\n'+output_handler.description)
+            except OSError as e:
+                logging.warning('Could not add files to git repository: ' + str(e))
         return result
 
 
