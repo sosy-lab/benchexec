@@ -59,8 +59,11 @@ def main(argv=None):
         argv = sys.argv
 
     # parse options
-    parser = argparse.ArgumentParser(description=
+    parser = argparse.ArgumentParser(
+        fromfile_prefix_chars='@',
+        description=
         """Execute a command with resource limits and measurements.
+           Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
            Part of BenchExec: https://github.com/dbeyer/benchexec/""")
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')

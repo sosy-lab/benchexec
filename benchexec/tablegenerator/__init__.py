@@ -1080,8 +1080,11 @@ def main(args=None):
     if args is None:
         args = sys.argv
 
-    parser = argparse.ArgumentParser(description=
+    parser = argparse.ArgumentParser(
+        fromfile_prefix_chars='@',
+        description=
         """Create tables with the results of one or more benchmark executions.
+           Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
            Part of BenchExec: https://github.com/dbeyer/benchexec/"""
     )
 

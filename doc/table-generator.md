@@ -13,6 +13,8 @@ Further command-line arguments can be used to customized the table,
 e.g. for ignoring all incorrect results (`--correct-only`),
 or for specifying name and location of the table files (`--name`, `--outputpath`).
 The full set of available parameters can be seen with `table-generator -h`.
+Command-line parameters can additionally be read from a file
+as [described for benchexec](benchexec.md#starting-benchexec).
 
 `table-generator` also supports using a special file as input
 that defines the layout of the generated tables

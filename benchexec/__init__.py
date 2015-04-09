@@ -113,9 +113,12 @@ class BenchExec(object):
         May be overwritten for adding more configuration options.
         @return: an argparse.ArgumentParser instance
         """
-        parser = argparse.ArgumentParser(description=
+        parser = argparse.ArgumentParser(
+            fromfile_prefix_chars='@',
+            description=
             """Execute benchmarks for a given tool with a set of input files.
                Benchmarks are defined in an XML file given as input.
+               Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
                The tool table-generator can be used to create tables for the results.
                Part of BenchExec: https://github.com/dbeyer/benchexec/""")
 

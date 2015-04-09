@@ -93,6 +93,23 @@ Example:
     benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
+Command-line arguments can additionally be read from a file,
+if the file name prefixed with `@` is given as argument.
+The file needs to contain one argument per line.
+For example, if the file `benchexec.cfg` has the content
+
+    --tasks
+    "XML files"
+    --limitCores
+    1
+    --timelimit
+    10
+    --numOfThreads
+    4
+
+the following command-line is equivalent to the one above:
+
+    benchexec doc/benchmark-example-rand.xml @benchexec.cfg
 
 `benchexec` produces as output the results and resource measurements
 of all the individual tool executions in XML files
