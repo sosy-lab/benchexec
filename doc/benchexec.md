@@ -96,6 +96,9 @@ The full set of available parameters can be seen with `benchexec -h`.
 Command-line arguments can additionally be read from a file,
 if the file name prefixed with `@` is given as argument.
 The file needs to contain one argument per line.
+If parameter name and value are on the same line,
+they need to be separated with `=` (not with a space).
+Alternatively, each of them can be put on a separate line.
 For example, if the file `benchexec.cfg` has the content
 
     --tasks
