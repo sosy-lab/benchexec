@@ -67,6 +67,8 @@ with functions for creating the appropriate command-line arguments for a run etc
 Such modules need to define a class `Tool` that inherits from `benchexec.tools.template.BaseTool`.
 This class also contains the [documentation](../benchexec/tools/template.py)
 on how to write such a module.
+If you write a module, consider sending us a pull request with it
+such that we can include it in BenchExec.
 
 BenchExec already provides such [ready-to-use modules for some common tools](../benchexec/tools/).
 These are written such that they try to find the executable of the tool
