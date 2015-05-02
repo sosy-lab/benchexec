@@ -12,13 +12,17 @@
 
 <!ELEMENT systeminfo (os, cpu, ram)>
 <!ATTLIST systeminfo hostname CDATA #IMPLIED>
+<!ELEMENT os EMPTY>
 <!ATTLIST os name CDATA #REQUIRED>
+<!ELEMENT cpu EMPTY>
 <!ATTLIST cpu cores CDATA #REQUIRED
               frequency CDATA #REQUIRED
               model CDATA #REQUIRED>
+<!ELEMENT ram EMPTY>
 <!ATTLIST ram size CDATA #REQUIRED>
 
 <!ELEMENT columns (column*)>
+<!ELEMENT column EMPTY>
 <!ATTLIST column title CDATA #REQUIRED
                  value CDATA #IMPLIED
                  hidden CDATA #IMPLIED>

@@ -18,7 +18,7 @@
 <!ELEMENT columns (column*)>
 <!ELEMENT column (#PCDATA)>
 
-<!ATTLIST rundefinition name>
+<!ATTLIST rundefinition name CDATA #IMPLIED>
 
 <!ATTLIST benchmark tool CDATA #REQUIRED>
 <!ATTLIST benchmark memlimit CDATA #IMPLIED>
