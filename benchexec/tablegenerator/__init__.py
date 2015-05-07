@@ -757,17 +757,22 @@ def get_stats(rows):
         score_row = tempita.bunch(default=None, id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
                                   description='{0} true files, {1} false files'.format(count_true, count_false),
-                                  content=rowsForStats[5])
+                                  content=rowsForStats[7])
     else:
         score_row = tempita.bunch(default=None, id='score',
                                   title='score ({0} tasks)'.format(len(rows)),
-                                  content=rowsForStats[5])
+                                  content=rowsForStats[7])
+
+    def indent(n):
+        return '&nbsp;'*(n*4)
 
     return [tempita.bunch(default=None, title='total tasks', content=rowsForStats[0]),
-            tempita.bunch(default=None, title='correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
-            tempita.bunch(default=None, title='incorrect true', description='property does not hold + result is true', content=rowsForStats[2]),
-            tempita.bunch(default=None, title='incorrect false', description='property holds + result is false', content=rowsForStats[3]),
-            tempita.bunch(default=None, title='incorrect property', description='property does not hold + different property violation found', content=rowsForStats[4]),
+            tempita.bunch(default=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
+            tempita.bunch(default=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
+            tempita.bunch(default=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
+            tempita.bunch(default=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
+            tempita.bunch(default=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
+            tempita.bunch(default=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
             score_row,
             ]
 
@@ -790,9 +795,11 @@ def get_stats_of_run_set(runResults):
     # collect some statistics
     sumRow = []
     correctRow = []
+    correctTrueRow = []
+    correctFalseRow = []
+    incorrectRow = []
     wrongTrueRow = []
     wrongFalseRow = []
-    wrongPropertyRow = []
     scoreRow = []
 
     for column, values in zip(columns, listsOfValues):
@@ -801,6 +808,8 @@ def get_stats_of_run_set(runResults):
 
             sum     = StatValue(len([status for (category, status) in statusList if status]))
             correct = StatValue(countCorrectTrue + countCorrectFalse + countCorrectProperty)
+            correctTrue = StatValue(countCorrectTrue)
+            correctFalse = StatValue(countCorrectFalse)
             score   = StatValue(result.SCORE_CORRECT_TRUE   * countCorrectTrue + \
                                 result.SCORE_CORRECT_FALSE * countCorrectFalse + \
                                 result.SCORE_CORRECT_FALSE * countCorrectProperty + \
@@ -808,22 +817,24 @@ def get_stats_of_run_set(runResults):
                                 result.SCORE_WRONG_FALSE   * countWrongFalse + \
                                 result.SCORE_WRONG_FALSE   * countWrongProperty,
                                 )
+            incorrect = StatValue(countWrongTrue + countWrongFalse + countWrongProperty)
             wrongTrue   = StatValue(countWrongTrue)
-            wrongFalse = StatValue(countWrongFalse)
-            wrongProperty = StatValue(countWrongProperty)
+            wrongFalse = StatValue(countWrongFalse + countWrongProperty)
 
         else:
-            sum, correct, wrongTrue, wrongFalse, wrongProperty = get_stats_of_number_column(values, statusList, column.title)
+            sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
             score = ''
 
-        if (sum.sum, correct.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0):
-            (sum, correct, wrongTrue, wrongFalse) = (None, None, None, None)
+        if (sum.sum, correct.sum, correctTrue.sum, correctFalse.sum, incorrect.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0,0,0,0):
+            (sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse) = (None, None, None, None, None, None, None)
 
         sumRow.append(sum)
         correctRow.append(correct)
+        correctTrueRow.append(correctTrue)
+        correctFalseRow.append(correctFalse)
+        incorrectRow.append(incorrect)
         wrongTrueRow.append(wrongTrue)
         wrongFalseRow.append(wrongFalse)
-        wrongPropertyRow.append(wrongProperty)
         scoreRow.append(score)
 
     def replace_irrelevant(row):
@@ -836,12 +847,14 @@ def get_stats_of_run_set(runResults):
 
     replace_irrelevant(sumRow)
     replace_irrelevant(correctRow)
+    replace_irrelevant(correctTrueRow)
+    replace_irrelevant(correctFalseRow)
+    replace_irrelevant(incorrectRow)
     replace_irrelevant(wrongTrueRow)
     replace_irrelevant(wrongFalseRow)
-    replace_irrelevant(wrongPropertyRow)
     replace_irrelevant(scoreRow)
 
-    return (sumRow, correctRow, wrongTrueRow, wrongFalseRow, wrongPropertyRow, scoreRow)
+    return (sumRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
 
 
 class StatValue:
@@ -909,24 +922,24 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     except InvalidOperation as e:
         if columnTitle != "host": # we ignore values of column host, used in cloud-mode
             print("Warning: {0}. Statistics may be wrong.".format(e))
-        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
+        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
 
     valuesPerCategory = collections.defaultdict(list)
     for value, catStat in zip(valueList, categoryList):
         category, status = catStat
-        if category == result.CATEGORY_CORRECT:
-            status = None # ignore status, we do not need it, use None as DUMMY
+        if status.startswith(result.STR_FALSE):
+            status = result.STR_FALSE # ignore exact status, we do not need it
         valuesPerCategory[category, status].append(value)
 
     return (StatValue.from_list(valueList),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, None]), # None as DUMMY
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP]
+                              + valuesPerCategory[result.CATEGORY_CORRECT, result.STR_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.STR_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP]
+                              + valuesPerCategory[result.CATEGORY_WRONG, result.STR_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_FALSE_REACH]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_FALSE_DEREF] +
-                               valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_FALSE_FREE] +
-                               valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_FALSE_MEMTRACK] +
-                               valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_FALSE_TERMINATION]
-                               ),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.STR_FALSE]),
             )
 
 

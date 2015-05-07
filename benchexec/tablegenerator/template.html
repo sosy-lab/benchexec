@@ -231,7 +231,7 @@ def format_stat_title(stat, column, format_value):
 </tr>
 {{for line in foot}}
 <tr class="statistics">
-<td {{attr(title=line.description)}}>{{line.title}}</td>
+<td {{attr(title=line.description)}}>{{line.title | html}}</td>
     {{for cell, column in zip(line.content, flatten(columns))}}
 <td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column)}}</td>
     {{endfor}}
