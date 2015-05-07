@@ -804,22 +804,20 @@ def get_stats_of_run_set(runResults):
 
     for column, values in zip(columns, listsOfValues):
         if column.title == 'status':
-            countCorrectTrue, countCorrectFalse, countCorrectProperty, countWrongTrue, countWrongFalse, countWrongProperty, countMissing = get_category_count(statusList)
+            countCorrectTrue, countCorrectFalse, countWrongTrue, countWrongFalse, countMissing = get_category_count(statusList)
 
             sum     = StatValue(len([status for (category, status) in statusList if status]))
-            correct = StatValue(countCorrectTrue + countCorrectFalse + countCorrectProperty)
+            correct = StatValue(countCorrectTrue + countCorrectFalse)
             correctTrue = StatValue(countCorrectTrue)
             correctFalse = StatValue(countCorrectFalse)
             score   = StatValue(result.SCORE_CORRECT_TRUE   * countCorrectTrue + \
                                 result.SCORE_CORRECT_FALSE * countCorrectFalse + \
-                                result.SCORE_CORRECT_FALSE * countCorrectProperty + \
                                 result.SCORE_WRONG_TRUE     * countWrongTrue + \
-                                result.SCORE_WRONG_FALSE   * countWrongFalse + \
-                                result.SCORE_WRONG_FALSE   * countWrongProperty,
+                                result.SCORE_WRONG_FALSE   * countWrongFalse,
                                 )
-            incorrect = StatValue(countWrongTrue + countWrongFalse + countWrongProperty)
+            incorrect = StatValue(countWrongTrue + countWrongFalse)
             wrongTrue   = StatValue(countWrongTrue)
-            wrongFalse = StatValue(countWrongFalse + countWrongProperty)
+            wrongFalse = StatValue(countWrongFalse)
 
         else:
             sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
@@ -889,22 +887,22 @@ def get_category_count(categoryList):
 
     # warning: read next lines carefully, there are some brackets and commas!
     return (
-        # correctTrue, correctFalseLabel, correctProperty
+        # correctTrue, correctFalse
             counts[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP],
-            counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_REACH],
-            counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_DEREF] \
+            counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_REACH] \
+          + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_DEREF] \
           + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_FREE] \
           + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_MEMTRACK] \
           + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_TERMINATION],
 
-        # wrongTrue, wrongFalseLabel, wrongProperty
+        # wrongTrue, wrongFalse
             counts[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP],
-            counts[result.CATEGORY_WRONG, result.RESULT_FALSE_REACH],
-            counts[result.CATEGORY_WRONG, result.RESULT_FALSE_DEREF] \
+            counts[result.CATEGORY_WRONG, result.RESULT_FALSE_REACH] \
+          + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_DEREF] \
           + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_FREE] \
           + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_MEMTRACK] \
           + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_TERMINATION],
-          
+
         # missing
             counts[result.CATEGORY_MISSING, result.RESULT_TRUE_PROP] \
           + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_REACH] \
@@ -978,10 +976,10 @@ def get_counts(rows): # for options.dump_counts
 
     for runResults in rows_to_columns(rows):
         statusList = [(runResult.category, runResult.status) for runResult in runResults]
-        correctTrue, correctFalse, correctProperty, wrongTrue, wrongFalse, wrongProperty, missing = get_category_count(statusList)
+        correctTrue, correctFalse, wrongTrue, wrongFalse, missing = get_category_count(statusList)
 
-        correct = correctTrue + correctFalse + correctProperty
-        wrong = wrongTrue + wrongFalse + wrongProperty
+        correct = correctTrue + correctFalse
+        wrong = wrongTrue + wrongFalse
         unknown = len(statusList) - correct - wrong - missing
 
         countsList.append((correct, wrong, unknown))
