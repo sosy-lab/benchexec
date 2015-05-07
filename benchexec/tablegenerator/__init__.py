@@ -764,10 +764,10 @@ def get_stats(rows):
                                   content=rowsForStats[5])
 
     return [tempita.bunch(default=None, title='total tasks', content=rowsForStats[0]),
-            tempita.bunch(default=None, title='correct results', description='(no bug exists + result is TRUE) OR (bug exists + result is FALSE)', content=rowsForStats[1]),
-            tempita.bunch(default=None, title='false negatives', description='bug exists + result is TRUE', content=rowsForStats[2]),
-            tempita.bunch(default=None, title='false positives', description='no bug exists + result is FALSE', content=rowsForStats[3]),
-            tempita.bunch(default=None, title='false properties', description='bug exists + bug found, but not searched for it', content=rowsForStats[4]),
+            tempita.bunch(default=None, title='correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
+            tempita.bunch(default=None, title='incorrect true', description='property does not hold + result is true', content=rowsForStats[2]),
+            tempita.bunch(default=None, title='incorrect false', description='property holds + result is false', content=rowsForStats[3]),
+            tempita.bunch(default=None, title='incorrect property', description='property does not hold + different property violation found', content=rowsForStats[4]),
             score_row,
             ]
 

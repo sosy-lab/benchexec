@@ -58,7 +58,7 @@
   tfoot tr:first-child td { border-top:3px solid black}
   .status { text-align: center; }
   .status.correct { color:green}
-  .status.wrong { color:red; font-weight: bold; }
+  .status.incorrect { color:red; font-weight: bold; }
   .status.unknown { color:orange; font-weight: bold; }
   .status.error { color:magenta; font-weight: bold; }
   .value { font-family: monospace }
@@ -705,7 +705,7 @@ function fillRowFilterField(columnIndex) {
     var options = [];
     var columnName = $('#columnTitles')[0].cells[columnIndex].textContent;
     if (columnName == 'status') {
-        options = options.concat(['correct', 'wrong', 'unknown']);
+        options = options.concat(['correct', 'incorrect', 'unknown']);
     }
     $('#dataTable > tbody > tr').filter(':visible').each(function(_, row) {
         currentValue = row.cells[columnIndex].textContent;
@@ -772,21 +772,21 @@ function hideRows(values, columnIndex) {
             isVisible = true;
         }
 
-        // special case: show 'correct', 'wrong' and 'unknown' results
+        // special case: show 'correct', 'incorrect' and 'unknown' results
         if (!isVisible && columnName == 'status') {
             var classNames = row.cells[columnIndex].className.split(' ');
             for (var j = 0; j < values.length; j++) {
                 var value = values[j];
                 switch (value) {
                     case 'correct':
-                    case 'wrong':
+                    case 'incorrect':
                         if (anyStartsWith(value, classNames)) {
                             isVisible = true;
                         }
                         break;
 
                     case 'unknown':
-                        if (!anyStartsWith('correct', classNames) && !anyStartsWith('wrong', classNames)) {
+                        if (!anyStartsWith('correct', classNames) && !anyStartsWith('incorrect', classNames)) {
                             isVisible = true;
                         }
                         break;
@@ -952,7 +952,7 @@ function getValue(cell, title) {
 
     } else if (title === 'status') {
         if (cell.hasClass('correct'))     value = 1;
-        else if (cell.hasClass('wrong'))  value = -1;
+        else if (cell.hasClass('incorrect'))  value = -1;
         else                              value = 0;
 
     } else {
@@ -1052,7 +1052,7 @@ function getXTicks() {
 // get labels for y-direction
 function getYTicks() {
   if (graphData.target.textContent == "status") {
-    return [[-1.5, " "], [-1, "wrong"], [0, "unknown"], [1, "correct"], [1.5, " "]];
+    return [[-1.5, " "], [-1, "incorrect"], [0, "unknown"], [1, "correct"], [1.5, " "]];
   } else {
     return [];
   }
@@ -1116,7 +1116,7 @@ function highlightFormatter(str, seriesIndex, pointIndex) {
     if (graphData.target.textContent == "status") {
       if (str == 1)       str = "correct";
       else if (str == 0)  str = "unknown";
-      else                str = "wrong";
+      else                str = "incorrect";
     }
     return filename + "<br>" + str;
 }
@@ -1128,7 +1128,7 @@ function highlightFormatterForScatter(str, seriesIndex, pointIndex, plot) {
     if (graphData.target.textContent == "status") { // TODO not working, we have 2 independent values
       if (str == 1)       str = "correct";
       else if (str == 0)  str = "unknown";
-      else                str = "wrong";
+      else                str = "incorrect";
     }
     return point[2] + "<br>X: " + point[0] + "<br>Y: " + point[1]; // + "<br>STR: " + str;
 }
