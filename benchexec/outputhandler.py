@@ -619,23 +619,26 @@ class Statistics:
 
     def print_to_terminal(self):
         correct_proofs = self.dic[(result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP)]
-        correct_cex = self.dic[(result.CATEGORY_WRONG, result.RESULT_FALSE_REACH)]
+        correct_cex = self.dic[(result.CATEGORY_CORRECT, result.RESULT_FALSE_REACH)]
+
         false_bugs = self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
         false_proofs = self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
+        unknown = self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]
         sv_comp_score = sum([
             correct_proofs * result.SCORE_CORRECT_TRUE,
             correct_cex * result.SCORE_CORRECT_FALSE,
             false_bugs * result.SCORE_WRONG_FALSE,
             false_proofs * result.SCORE_WRONG_TRUE
         ])
+        align = lambda s: str(s).rjust(4)
 
         util.printOut('\n'.join(['',
-                 'Statistics:             ' + str(self.counter).rjust(4) + ' Files',
-                 '    correct:            ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
-                 '    correct proofs:     ' + str(correct_proofs).rjust(4),
-                 '    correct bug-reports:' + str(correct_cex).rjust(4),
-                 '    SV-Comp score:      ' + str(sv_comp_score).rjust(4),
-                 '    unknown:            ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
-                 '    false bugs:         ' + str(false_bugs).rjust(4),
-                 '    false bug-reports:  ' + str(false_proofs).rjust(4),
+                 'Statistics:                  ' + align(self.counter) + ' Files',
+                 '    correct:                 ' + align(self.dic[result.CATEGORY_CORRECT]),
+                 '    correct true verdicts:   ' + align(correct_proofs),
+                 '    correct false verdicts:  ' + align(correct_cex),
+                 '    SV-Comp score:           ' + align(sv_comp_score),
+                 '    unknown:                 ' + align(unknown),
+                 '    incorrect true verdicts: ' + align(false_bugs),
+                 '    incorrect false verdicts:' + align(false_proofs),
                  '']))
