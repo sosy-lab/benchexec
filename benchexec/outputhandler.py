@@ -21,6 +21,7 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import collections
 import threading
 import time
 import sys
@@ -608,22 +609,34 @@ class OutputHandler:
 class Statistics:
 
     def __init__(self):
-        self.dic = dict((category,0) for category in COLOR_DIC)
-        self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] = 0
+        self.dic = collections.defaultdict(int)
         self.counter = 0
 
     def add_result(self, category, status):
         self.counter += 1
-        assert category in self.dic
-        if category == result.CATEGORY_WRONG and status == result.RESULT_TRUE_PROP:
-            self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] += 1
         self.dic[category] += 1
-
+        self.dic[(category, status)] += 1
 
     def print_to_terminal(self):
-        util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(13) + ' Files',
-                 '    correct:        ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
-                 '    unknown:        ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
-                 '    incorrect true: ' + str(self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4),
-                 '    incorrect false:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4),
+        correct = self.dic[result.CATEGORY_CORRECT]
+        correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP)]
+        correct_false = correct - correct_true
+        incorrect = self.dic[result.CATEGORY_WRONG]
+        incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
+        incorrect_false = incorrect - incorrect_true
+        score = correct_true    * result.SCORE_CORRECT_TRUE \
+              + correct_false   * result.SCORE_CORRECT_FALSE \
+              + incorrect_true  * result.SCORE_WRONG_TRUE \
+              + incorrect_false * result.SCORE_WRONG_FALSE
+
+        width = 6
+        util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(width + 9) + ' Files',
+                 '  correct:          ' + str(correct).rjust(width),
+                 '    correct true:   ' + str(correct_true).rjust(width),
+                 '    correct false:  ' + str(correct_false).rjust(width),
+                 '  incorrect:        ' + str(incorrect).rjust(width),
+                 '    incorrect true: ' + str(incorrect_true).rjust(width),
+                 '    incorrect false:' + str(incorrect_false).rjust(width),
+                 '  unknown:          ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(width),
+                 '  Score:            ' + str(score).rjust(width),
                  '']))
