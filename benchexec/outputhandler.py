@@ -21,10 +21,11 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from collections import defaultdict
+import os
+import sys
 import threading
 import time
-import sys
-import os
 import xml.etree.ElementTree as ET
 
 from .model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
@@ -608,24 +609,33 @@ class OutputHandler:
 class Statistics:
 
     def __init__(self):
-        self.dic = dict((category,0) for category in COLOR_DIC)
-        self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] = 0
+        self.dic = defaultdict(int)
         self.counter = 0
 
     def add_result(self, category, status):
         self.counter += 1
-        assert category in self.dic
-        if category == result.CATEGORY_WRONG and status == result.RESULT_TRUE_PROP:
-            self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)] += 1
         self.dic[category] += 1
-
+        self.dic[(category, status)] += 1
 
     def print_to_terminal(self):
-        util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(13) + ' Files',
-                 '    correct:        ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
-                 '    unknown:        ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
-                 '    false positives:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4) + \
-                 '        (result is false, file is true or has a different false-property)',
-                 '    false negatives:' + str(self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4) + \
-                 '        (result is true, file is false)',
+        correct_proofs = self.dic[(result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP)]
+        correct_cex = self.dic[(result.CATEGORY_WRONG, result.RESULT_FALSE_REACH)]
+        false_bugs = self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
+        false_proofs = self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
+        sv_comp_score = sum([
+            correct_proofs * result.SCORE_CORRECT_TRUE,
+            correct_cex * result.SCORE_CORRECT_FALSE,
+            false_bugs * result.SCORE_WRONG_FALSE,
+            false_proofs * result.SCORE_WRONG_TRUE
+        ])
+
+        util.printOut('\n'.join(['',
+                 'Statistics:             ' + str(self.counter).rjust(4) + ' Files',
+                 '    correct:            ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
+                 '    correct proofs:     ' + str(correct_proofs).rjust(4),
+                 '    correct bug-reports:' + str(correct_cex).rjust(4),
+                 '    SV-Comp score:      ' + str(sv_comp_score).rjust(4),
+                 '    unknown:            ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
+                 '    false bugs:         ' + str(false_bugs).rjust(4),
+                 '    false bug-reports:  ' + str(false_proofs).rjust(4),
                  '']))
