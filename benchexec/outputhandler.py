@@ -624,6 +624,6 @@ class Statistics:
         util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(13) + ' Files',
                  '    correct:        ' + str(self.dic[result.CATEGORY_CORRECT]).rjust(4),
                  '    unknown:        ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(4),
-                 '    incorrect false:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4),
                  '    incorrect true: ' + str(self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4),
+                 '    incorrect false:' + str(self.dic[result.CATEGORY_WRONG] - self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]).rjust(4),
                  '']))
