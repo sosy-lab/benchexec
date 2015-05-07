@@ -1,0 +1,32 @@
+import benchexec.util as util
+import benchexec.tools.template
+import benchexec.result as result
+
+class Tool(benchexec.tools.template.BaseTool):
+    """
+    Wrapper for a PAGAI tool (http://pagai.forge.imag.fr/).
+    """
+
+    def executable(self):
+        return util.find_executable('pagai')
+
+    def name(self):
+        return 'PAGAI'
+
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        output = '\n'.join(output)
+        if returnsignal == 9 or returnsignal == (128+9):
+            if isTimeout:
+                status = "TIMEOUT"
+            else:
+                status = "KILLED BY SIGNAL 9"
+        elif "RESULT: TRUE" in output:
+            status = result.RESULT_TRUE_PROP
+        elif returncode != 0:
+            status = "ERROR ({0})".format(returncode)
+        elif "RESULT: UNKNOWN" in output:
+            status = result.RESULT_UNKNOWN
+        else:
+            status = result.RESULT_UNKNOWN
+        return status
+
