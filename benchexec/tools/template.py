@@ -105,6 +105,8 @@ class BaseTool(object):
     def get_value_from_output(self, lines, identifier):
         """
         OPTIONAL, extract a statistic value from the output of the tool.
+        This value will be added to the resulting tables.
+        It may contain HTML code, which will be rendered appropriately in the HTML tables.
         @param lines The output of the tool as list of lines.
         @param identifier The user-specified identifier for the statistic item.
         """
