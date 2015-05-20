@@ -77,7 +77,7 @@ All the above requirements can be checked easily by running
 
     python3 -m benchexec.check_cgroups
 
-git diffafter BenchExec has been installed.
+after BenchExec has been installed.
 It will report warnings and exit with code 1 if something is missing.
 
 It may be that your Linux distribution already mounts the cgroup file system
