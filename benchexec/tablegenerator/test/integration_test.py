@@ -281,6 +281,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='union-table-duplicate-results.diff',
             )
 
+    def test_union_table_multiple_results(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'union-table-multiple-results.xml')],
+            table_prefix='union-table-multiple-results.table',
+            diff_prefix='union-table-multiple-results.diff',
+            )
+
     def test_simple_table_legacy(self):
         self.generate_tables_and_compare_csv(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis-legacy.xml')],

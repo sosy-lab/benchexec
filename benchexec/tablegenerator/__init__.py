@@ -252,7 +252,8 @@ def parse_table_definition_file(file, all_columns):
             continue
         columnsToShow = extract_columns_from_table_definition_file(resultTag) or defaultColumnsToShow
         filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
-        runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile), columnsToShow, all_columns) for resultsFile in filelist]
+        run_set_id = resultTag.get('id')
+        runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns) for resultsFile in filelist]
 
     for unionTag in tableGenFile.findall('union'):
         columnsToShow = extract_columns_from_table_definition_file(unionTag) or defaultColumnsToShow
@@ -263,8 +264,9 @@ def parse_table_definition_file(file, all_columns):
                 print('Result tag without filename attribute in {0}.'.format(file))
                 continue
             filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
+            run_set_id = resultTag.get('id')
             for resultsFile in filelist:
-                result.append(resultsFile, parse_results_file(resultsFile), all_columns)
+                result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
 
         if result.filelist:
             name = unionTag.get('title', unionTag.get('name'))
@@ -281,10 +283,12 @@ def get_task_id(task):
     @param task: the XML element that represents a task
     @return a tuple with filename of task as first element
     """
+    task_id = [task.get('name')]
     if 'properties' in task.keys():
-        return (task.get('name'), task.get('properties'))
-    else:
-        return (task.get('name'), )
+        task_id += task.get('properties')
+    if 'runset' in task.keys():
+        task_id += task.get('runset')
+    return tuple(task_id)
 
 
 class Column:
@@ -399,10 +403,12 @@ def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
 
-def parse_results_file(resultFile):
+def parse_results_file(resultFile, run_set_id=None):
     '''
     This function parses a XML file with the results of the execution of a run set.
-    It returns the "result" XML tag
+    It returns the "result" XML tag.
+    @param resultFile: The file name of the XML file with the results.
+    @param run_set_id: An optional identifier of this set of results.
     '''
     if not os.path.isfile(resultFile):
         print ('File {0!r} is not found.'.format(resultFile))
@@ -419,6 +425,10 @@ def parse_results_file(resultFile):
             + "If you want to run a table-definition file,\n"\
             + "you should use the option '-x' or '--xml'.").replace('\n','\n    '))
         exit()
+
+    if run_set_id is not None:
+        for sourcefile in _get_run_tags_from_xml(resultElem):
+            sourcefile.set('runset', run_set_id)
 
     insert_logfile_names(resultFile, resultElem)
     return resultElem

@@ -17,8 +17,13 @@
   </result>
 
   <!-- <union> groups a set of results which should be placed below each other in the table
-       (instead of side-by-side). The tasks need to be distinct in all of the results. -->
+       (instead of side-by-side). The tasks should be distinct in all of the results. -->
   <union title="*optional title*">
+    <!-- If each of the result files contains results for the same set of tasks,
+         and all these results should be placed below each other in the table
+         (note that you will not be able to distinguish them),
+         add a unique attribute "id" to the <result> tag
+         and make sure its file pattern matches only one file. -->
     <result filename="*file-name pattern for XML files produced by BenchExec*"/>
     <!-- <column> can be used here to override the global set of columns.  -->
   </union>

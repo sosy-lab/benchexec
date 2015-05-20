@@ -1,7 +1,8 @@
 <!ELEMENT table ((result | union | column)*)>
 
 <!ELEMENT result (column*)>
-<!ATTLIST result filename CDATA #REQUIRED>
+<!ATTLIST result id CDATA #IMPLIED
+                 filename CDATA #REQUIRED>
 
 <!ELEMENT union ((result, column)*)>
 
