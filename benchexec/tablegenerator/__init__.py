@@ -481,7 +481,8 @@ def merge_task_lists(runset_results, tasks):
     """
     for result in runset_results:
         # create mapping from id to run tag
-        dic = dict([(get_task_id(task), task) for task in result.filelist])
+        # Use reversed list such that the first instance of equal tasks end up in dic
+        dic = dict([(get_task_id(task), task) for task in reversed(result.filelist)])
         result.filelist = [] # clear and repopulate filelist
         for task in tasks:
             task_result = dic.get(task)
