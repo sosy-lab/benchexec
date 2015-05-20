@@ -47,7 +47,7 @@ MEMORY = 'memory'
 ALL_KNOWN_SUBSYSTEMS = set([CPUACCT, CPUSET, FREEZER, MEMORY])
 
 
-def find_my_cgroups():
+def find_my_cgroups(cgroup_paths=None):
     """
     Return a Cgroup object with the cgroups of the current process.
     Note that it is not guaranteed that all subsystems are available
@@ -55,9 +55,13 @@ def find_my_cgroups():
     Check with "subsystem in <instance>" before using.
     A subsystem may also be present but we do not have the rights to create
     child cgroups, this can be checked with require_subsystem().
+    @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
     """
     logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
-    my_cgroups = dict(_find_own_cgroups())
+    if cgroup_paths is None:
+        my_cgroups = dict(_find_own_cgroups())
+    else:
+        my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_paths))
 
     cgroupsParents = {}
     for subsystem, mount in _find_cgroup_mounts():
@@ -93,15 +97,24 @@ def _find_own_cgroups():
     """
     try:
         with open('/proc/self/cgroup', 'rt') as ownCgroupsFile:
-            for ownCgroup in ownCgroupsFile:
-                #each line is "id:subsystem,subsystem:path"
-                ownCgroup = ownCgroup.strip().split(':')
-                path = ownCgroup[2][1:] # remove leading /
-                for subsystem in ownCgroup[1].split(','):
-                    yield (subsystem, path)
+            for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
+                yield cgroup
     except IOError:
         logging.exception('Cannot read /proc/self/cgroup')
 
+
+def _parse_proc_pid_cgroup(content):
+    """
+    Parse a /proc/*/cgroup file into tuples of (subsystem,cgroup).
+    @param content: An iterable over the lines of the file.
+    @return: a generator of tuples
+    """
+    for ownCgroup in content:
+        #each line is "id:subsystem,subsystem:path"
+        ownCgroup = ownCgroup.strip().split(':')
+        path = ownCgroup[2][1:] # remove leading /
+        for subsystem in ownCgroup[1].split(','):
+            yield (subsystem, path)
 
 
 def kill_all_tasks_in_cgroup(cgroup):
