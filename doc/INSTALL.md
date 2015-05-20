@@ -57,6 +57,14 @@ Alternatively, software such as `cgrulesengd` from
 the [cgroup-bin](http://libcg.sourceforge.net/) package
 can be used to setup the cgroups hierarchy.
 
+Note that `cgrulesengd` might interfere with the cgroups of processes,
+if configured to do so via `cgrules.conf`.
+This can invalidate the measurements.
+BenchExec will try to prevent such interference automatically,
+but for this it needs write access to `/run/cgred.socket`.
+Alternatively, start BenchExec with `cgexec --sticky` to tell `cgrulesengd`
+that it should not interfere with BenchExec and its child processes.
+
 If your machine has swap, cgroups should be configured to also track swap memory.
 If the file `memory.memsw.usage_in_bytes` does not exist in the directory
 where the cgroup file system is mounted, this needs to be enabled by setting
@@ -64,6 +72,13 @@ where the cgroup file system is mounted, this needs to be enabled by setting
 To do so, you typically need to edit your bootloader configuration
 (under Ubuntu for example in `/etc/default/grub`, line `GRUB_CMDLINE_LINUX`),
 update the bootloader (`sudo update-grub`), and reboot.
+
+All the above requirements can be checked easily by running
+
+    python3 -m benchexec.check_cgroups
+
+git diffafter BenchExec has been installed.
+It will report warnings and exit with code 1 if something is missing.
 
 It may be that your Linux distribution already mounts the cgroup file system
 and creates a cgroup hierarchy for you.
