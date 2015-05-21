@@ -1048,7 +1048,7 @@ def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, out
         if summary and type != 'diff' and not options.correct_only and not options.common:
             stats.insert(1, summary)
 
-        for format in TEMPLATE_FORMATS:
+        for format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
                 logging.info('Writing %s to stdout...', format.upper().ljust(4))
             else:
@@ -1154,6 +1154,11 @@ def main(args=None):
     parser.add_argument("--ignore-flapping-timeout-regressions",
         action="store_true", dest="ignoreFlappingTimeouts",
         help="For the regression-count statistics, do not count regressions to timeouts if the file already had timeouts before."
+    )
+    parser.add_argument("-f", "--format",
+        action="append",
+        choices=TEMPLATE_FORMATS,
+        help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated."
     )
     parser.add_argument("-c", "--common",
         action="store_true", dest="common",
