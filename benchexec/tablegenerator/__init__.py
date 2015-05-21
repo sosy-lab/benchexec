@@ -26,6 +26,7 @@ import collections
 import os.path
 import glob
 import json
+import logging
 import argparse
 import re
 import subprocess
@@ -74,7 +75,7 @@ class Util:
         if len(fileList) != 0:
             fileList.sort()
         else:
-            print ('\nWarning: no file matches "{0}".'.format(shortFile))
+            logging.warning("No file matches '%s'.", shortFile)
 
         return fileList
 
@@ -214,10 +215,10 @@ def parse_table_definition_file(file, all_columns):
 
     @return: a list of RunSetResult objects
     '''
-    print ("reading table definition from '{0}'...".format(file))
+    logging.info("Reading table definition from '%s'...", file)
     if not os.path.isfile(file):
-        print ('File {0!r} does not exist.'.format(file))
-        exit()
+        logging.error("File '%s' does not exist.", file)
+        exit(1)
 
     def extract_columns_from_table_definition_file(xmltag):
         """
@@ -229,10 +230,9 @@ def parse_table_definition_file(file, all_columns):
     runSetResults = []
     tableGenFile = ET.ElementTree().parse(file)
     if 'table' != tableGenFile.tag:
-        print ("ERROR:\n" \
-            + "    The XML file seems to be invalid.\n" \
-            + "    The rootelement of table-definition-file is not named 'table'.")
-        exit()
+        logging.error("The XML file seems to be invalid.\n" \
+            + "The rootelement of table-definition-file is not named 'table'.")
+        exit(1)
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
 
@@ -243,12 +243,12 @@ def parse_table_definition_file(file, all_columns):
         if not tags:
             tags = rootTag.findall('test')
             if tags:
-                print("Warning: file {0} contains deprecated 'test' tags, rename them to 'result'".format(file))
+                logging.warning("File '%s' contains deprecated 'test' tags, rename them to 'result'", file)
         return tags
 
     for resultTag in getResultTags(tableGenFile):
         if not 'filename' in resultTag.attrib:
-            print('Result tag without filename attribute in {0}.'.format(file))
+            logging.warning("Result tag without filename attribute in file '%s'.", file)
             continue
         columnsToShow = extract_columns_from_table_definition_file(resultTag) or defaultColumnsToShow
         filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
@@ -261,7 +261,7 @@ def parse_table_definition_file(file, all_columns):
 
         for resultTag in getResultTags(unionTag):
             if not 'filename' in resultTag.attrib:
-                print('Result tag without filename attribute in {0}.'.format(file))
+                logging.warning("Result tag without filename attribute in file '%s'.", file)
                 continue
             filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
             run_set_id = resultTag.get('id')
@@ -347,7 +347,7 @@ class RunSetResult():
     def _extract_existing_columns_from_result(resultFile, resultElem, all_columns):
         run_results = _get_run_tags_from_xml(resultElem)
         if not run_results:
-            print("Empty resultfile found: " + resultFile)
+            logging.warning("Result file '%s' is empty.", resultFile)
             return []
         else: # show all available columns
             columnNames = set()
@@ -411,20 +411,20 @@ def parse_results_file(resultFile, run_set_id=None):
     @param run_set_id: An optional identifier of this set of results.
     '''
     if not os.path.isfile(resultFile):
-        print ('File {0!r} is not found.'.format(resultFile))
-        exit()
+        logging.error("File '%s' not found.", resultFile)
+        exit(1)
 
-    print ('    ' + resultFile)
+    logging.info('    %s', resultFile)
 
     resultElem = ET.ElementTree().parse(resultFile)
 
     if resultElem.tag not in ['result', 'test']:
-        print (("ERROR:\n" \
-            + "XML file with benchmark results seems to be invalid.\n" \
+        logging.error(
+            "XML file with benchmark results seems to be invalid.\n"
             + "The root element of the file is not named 'result' or 'test'.\n" \
             + "If you want to run a table-definition file,\n"\
-            + "you should use the option '-x' or '--xml'.").replace('\n','\n    '))
-        exit()
+            + "you should use the option '-x' or '--xml'.")
+        exit(1)
 
     if run_set_id is not None:
         for sourcefile in _get_run_tags_from_xml(resultElem):
@@ -471,7 +471,7 @@ def merge_tasks(runset_results):
         currentresult_taskset = set()
         for task in result.get_tasks():
             if task in currentresult_taskset:
-                print ("File {0} is present twice, skipping it.".format(task[0]))
+                logging.warning("Task '%s' is present twice, skipping it.", task[0])
             else:
                 currentresult_taskset.add(task)
                 if task not in task_set:
@@ -500,7 +500,7 @@ def merge_task_lists(runset_results, tasks):
                 task_result = ET.Element('run') # create an empty dummy element
                 task_result.set('logfile', None)
                 task_result.set('name', task[0])
-                print ('    no result for {0}'.format(task[0]))
+                logging.info("    no result for task '%s'", task[0])
             result.filelist.append(task_result)
 
 
@@ -513,7 +513,7 @@ def find_common_tasks(runset_results):
 
     task_list = []
     if not task_set:
-        print('No files are present in all benchmark results.')
+        logging.warning('No tasks are present in all benchmark results.')
     else:
         task_list = [task for task in tasks_in_first_runset if task in task_set]
         merge_task_lists(runset_results, task_list)
@@ -546,7 +546,7 @@ class RunResult:
                 with open(logfilename, 'rt') as logfile:
                     return logfile.readlines()
             except IOError as e:
-                print('WARNING: Could not read value from logfile: {}'.format(e))
+                logging.warning("Could not read value from logfile: %s", e)
                 return []
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
@@ -625,15 +625,15 @@ def get_rows(runSetResults, task_ids, correct_only):
         """
         tool_module = result.attributes['toolmodule'][0] if 'toolmodule' in result.attributes else None
         if not tool_module:
-            print('Cannot extract values from log files for benchmark results {0} (missing attribute "toolmodule" on tag "result").'.format(
-                    Util.prettylist(result.attributes['name'])))
+            logging.warning('Cannot extract values from log files for benchmark results %s (missing attribute "toolmodule" on tag "result").',
+                    Util.prettylist(result.attributes['name']))
             return None
         try:
             return __import__(tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
-            print('Missing module "{0}", cannot extract values from log files (ImportError: {1}).'.format(tool_module, ie))
+            logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
         except AttributeError:
-            print('The module "{0}" does not define the necessary class Tool, cannot extract values from log files.'.format(tool_module))
+            logging.warning('The module "%s" does not define the necessary class Tool, cannot extract values from log files.', tool_module)
         return None
 
     rows = [Row(task_id) for task_id in task_ids]
@@ -684,9 +684,9 @@ def filter_rows_with_differences(rows):
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
 
     if len(rowsDiff) == 0:
-        print ("---> NO DIFFERENCE FOUND IN COLUMN 'STATUS'")
+        logging.info("---> NO DIFFERENCE FOUND IN COLUMN 'STATUS'")
     elif len(rowsDiff) == len(rows):
-        print ("---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE")
+        logging.info("---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE")
         return []
 
     return rowsDiff
@@ -755,7 +755,7 @@ def get_stats(rows):
         if not row.properties:
             # properties missing for at least one task, result would be wrong
             count_true = count_false = 0
-            print('Missing property for ' + row.filename)
+            logging.info('Missing property for %s.', row.filename)
             break
         correct_result = result.satisfies_file_property(row.filename, row.properties.split())
         if correct_result is True:
@@ -930,7 +930,7 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
         valueList = [Util.to_decimal(v) for v in values]
     except InvalidOperation as e:
         if columnTitle != "host": # we ignore values of column host, used in cloud-mode
-            print("Warning: {0}. Statistics may be wrong.".format(e))
+            logging.warning("%s. Statistics may be wrong.", e)
         return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
 
     valuesPerCategory = collections.defaultdict(list)
@@ -1050,7 +1050,7 @@ def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, out
 
         for format in TEMPLATE_FORMATS:
             outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=type, ext=format))
-            print ('writing {0} into {1} ...'.format(format.upper().ljust(4), outfile))
+            logging.info('Writing %s into %s ...', format.upper().ljust(4), outfile)
 
             # read template
             Template = tempita.HTMLTemplate if format == 'html' else tempita.Template
@@ -1179,14 +1179,17 @@ def main(args=None):
 
     options = parser.parse_args(args[1:])
 
+    logging.basicConfig(format="%(levelname)s: %(message)s",
+                        level=logging.INFO)
+
     name = options.output_name
     outputPath = options.outputPath
     outputFilePattern = "{name}.{type}.{ext}"
 
     if options.xmltablefile:
         if options.tables:
-            print ("Invalid additional arguments '{}'".format(" ".join(options.tables)))
-            exit()
+            logging.error("Invalid additional arguments '%s'.", " ".join(options.tables))
+            exit(1)
         runSetResults = parse_table_definition_file(options.xmltablefile, options.all_columns)
         if not name:
             name = basename_without_ending(options.xmltablefile)
@@ -1199,7 +1202,7 @@ def main(args=None):
             inputFiles = options.tables
         else:
             searchDir = outputPath or DEFAULT_OUTPUT_PATH
-            print ("searching result files in '{}'...".format(searchDir))
+            logging.info("Searching result files in '%s'...", searchDir)
             inputFiles = [os.path.join(searchDir, '*.results*.xml')]
 
         inputFiles = Util.extend_file_list(inputFiles) # expand wildcards
@@ -1227,18 +1230,18 @@ def main(args=None):
         filteredRunSets = []
         for runSet in runSetResults:
             if 'error' in runSet.attributes:
-                print('Ignoring benchmark {0} because of error: {1}'
-                      .format(", ".join(set(runSet.attributes['name'])),
-                              ", ".join(set(runSet.attributes['error']))))
+                logging.warning('Ignoring benchmark %s because of error: %s',
+                                ", ".join(set(runSet.attributes['name'])),
+                                ", ".join(set(runSet.attributes['error'])))
             else:
                 filteredRunSets.append(runSet)
         runSetResults = filteredRunSets
 
     if not runSetResults:
-        print ('\nError! No benchmark results found.')
-        exit()
+        logging.error('No benchmark results found.')
+        exit(1)
 
-    print ('merging results ...')
+    logging.info('Merging results...')
     if options.common:
         task_ids = find_common_tasks(runSetResults)
     else:
@@ -1246,19 +1249,19 @@ def main(args=None):
         task_ids = merge_tasks(runSetResults)
 
     # collect data and find out rows with differences
-    print ('collecting data ...')
+    logging.info('Collecting data...')
     rows     = get_rows(runSetResults, task_ids, options.correct_only)
     if not rows:
-        print ('Warning: No results found, no tables produced.')
-        sys.exit()
+        logging.warning('No results found, no tables produced.')
+        exit()
 
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
-    print ('generating table ...')
+    logging.info('Generating table...')
     if not os.path.isdir(outputPath): os.makedirs(outputPath)
     create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options)
 
-    print ('done')
+    logging.info('done')
 
     if options.dump_counts: # print some stats for Buildbot
         print ("REGRESSIONS {}".format(get_regression_count(rows, options.ignoreFlappingTimeouts)))
@@ -1272,5 +1275,5 @@ if __name__ == '__main__':
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        print ('script was interrupted by user')
+        logging.info('Script was interrupted by user.')
         pass
