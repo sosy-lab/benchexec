@@ -1049,8 +1049,11 @@ def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, out
             stats.insert(1, summary)
 
         for format in TEMPLATE_FORMATS:
-            outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=type, ext=format))
-            logging.info('Writing %s into %s ...', format.upper().ljust(4), outfile)
+            if outputFilePattern == '-':
+                logging.info('Writing %s to stdout...', format.upper().ljust(4))
+            else:
+                outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=type, ext=format))
+                logging.info('Writing %s into %s ...', format.upper().ljust(4), outfile)
 
             # read template
             Template = tempita.HTMLTemplate if format == 'html' else tempita.Template
@@ -1062,9 +1065,7 @@ def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, out
                     template_content = f.read()
             template = Template(template_content, namespace=templateNamespace)
 
-            # write file
-            with open(outfile, 'w') as file:
-                file.write(template.substitute(
+            result = template.substitute(
                         title=title,
                         head=head,
                         body=rows,
@@ -1074,7 +1075,14 @@ def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, out
                         columnTitles=run_sets_column_titles,
                         lib_url=options.lib_url,
                         base_dir=outputPath,
-                        ))
+                        )
+
+            # write file
+            if outputFilePattern == '-':
+                print(result, end='')
+            else:
+                with open(outfile, 'w') as file:
+                    file.write(result)
 
             if options.show_table and format == 'html':
                 try:
@@ -1126,7 +1134,7 @@ def main(args=None):
         action="store",
         type=str,
         dest="outputPath",
-        help="Output path for the tables."
+        help="Output path for the tables. If '-', the tables are written to stdout."
     )
     parser.add_argument("-n", "--name",
         action="store",
@@ -1188,7 +1196,12 @@ def main(args=None):
 
     name = options.output_name
     outputPath = options.outputPath
-    outputFilePattern = "{name}.{type}.{ext}"
+    if outputPath == '-':
+        # write to stdout
+        outputFilePattern = '-'
+        outputPath = None
+    else:
+        outputFilePattern = "{name}.{type}.{ext}"
 
     if options.xmltablefile:
         if options.tables:
@@ -1215,7 +1228,8 @@ def main(args=None):
         if len(inputFiles) == 1:
             if not name:
                 name = basename_without_ending(inputFiles[0])
-            outputFilePattern = "{name}.{ext}"
+            if not outputFilePattern == '-':
+                outputFilePattern = "{name}.{ext}"
         else:
             if not name:
                 name = NAME_START + "." + time.strftime("%Y-%m-%d_%H%M", time.localtime())
@@ -1262,7 +1276,8 @@ def main(args=None):
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info('Generating table...')
-    if not os.path.isdir(outputPath): os.makedirs(outputPath)
+    if not os.path.isdir(outputPath) and not outputFilePattern == '-':
+        os.makedirs(outputPath)
     create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options)
 
     logging.info('done')
