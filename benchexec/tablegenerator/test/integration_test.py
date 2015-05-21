@@ -64,21 +64,32 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
+    def generate_tables_and_check_produced_files(self, args, table_prefix,
+                                                 diff_prefix=None,
+                                                 formats=['html', 'csv'],
+                                                 output_path=None):
+        output = self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', output_path or self.tmp])
+        generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
+
+        csv_file = os.path.join(self.tmp, table_prefix + '.csv') if 'csv' in formats else None
+        html_file = os.path.join(self.tmp, table_prefix + '.html') if 'html' in formats else None
+        expected_files = {csv_file, html_file}
+        if diff_prefix:
+            csv_diff_file = os.path.join(self.tmp, diff_prefix + '.csv') if 'csv' in formats else None
+            html_diff_file = os.path.join(self.tmp, diff_prefix + '.html') if 'html' in formats else None
+            expected_files |= {csv_diff_file, html_diff_file}
+        else:
+            csv_diff_file = None
+
+        expected_files.discard(None)
+        self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
+        return output, csv_file, csv_diff_file
+
     def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None,
                                         diff_prefix=None, result_diff_prefix=None,
                                         expected_counts=None):
-        output = self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', self.tmp])
-        generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
-
-        csv_file = os.path.join(self.tmp, table_prefix + '.csv')
-        html_file = os.path.join(self.tmp, table_prefix + '.html')
-        expected_files = {csv_file, html_file}
-        if diff_prefix:
-            csv_diff_file = os.path.join(self.tmp, diff_prefix + '.csv')
-            html_diff_file = os.path.join(self.tmp, diff_prefix + '.html')
-            expected_files |= {csv_diff_file, html_diff_file}
-
-        self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
+        output, csv_file, csv_diff_file = \
+            self.generate_tables_and_check_produced_files(args, table_prefix, diff_prefix)
 
         generated = util.read_file(csv_file)
         expected = util.read_file(here, 'expected', (result_prefix or table_prefix) + '.csv')
@@ -293,4 +304,39 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             [result_file('test.2015-03-03_1613.results.predicateAnalysis-legacy.xml')],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis-legacy',
             result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            )
+
+    def test_output_stdout(self):
+        output, _, _ = self.generate_tables_and_check_produced_files(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             '-f', 'csv', '-q'],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            formats=[],
+            output_path='-',
+            )
+        expected = util.read_file(here, 'expected', 'test.2015-03-03_1613.results.predicateAnalysis' + '.csv')
+        self.assertMultiLineEqual(output.strip(), expected)
+
+    def test_format_csv(self):
+        self.generate_tables_and_check_produced_files(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             '-f', 'csv'],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            formats=['csv'],
+            )
+
+    def test_format_html(self):
+        self.generate_tables_and_check_produced_files(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             '-f', 'html'],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            formats=['html'],
+            )
+
+    def test_format_csv_html(self):
+        self.generate_tables_and_check_produced_files(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+             '-f', 'csv', '-f', 'html'],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            formats=['csv', 'html'],
             )
