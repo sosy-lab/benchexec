@@ -1173,6 +1173,10 @@ def main(args=None):
         action="store_true", dest="show_table",
         help="Open the produced HTML table(s) in the default browser."
     )
+    parser.add_argument("-q", "--quiet",
+        action="store_true",
+        help="Do not show informational messages, only warnings."
+    )
     parser.add_argument("--version",
         action="version", version="%(prog)s " + __version__
     )
@@ -1180,7 +1184,7 @@ def main(args=None):
     options = parser.parse_args(args[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",
-                        level=logging.INFO)
+                        level=logging.WARNING if options.quiet else logging.INFO)
 
     name = options.output_name
     outputPath = options.outputPath
