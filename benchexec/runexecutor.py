@@ -43,6 +43,7 @@ read_file = util.read_file
 write_file = util.write_file
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
+_ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
 try:
@@ -301,10 +302,14 @@ class RunExecutor():
             os.nice(5) # increase niceness of subprocess
 
             if hardtimelimit is not None:
-                # Also use ulimit for CPU time limit as a fallback if cgroups are not available
-                resource.setrlimit(resource.RLIMIT_CPU, (hardtimelimit, hardtimelimit))
-                # TODO: using ulimit allows the tool to be killed because of timelimit
-                # without the termination reason to be properly set
+                # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
+                if CPUACCT in cgroups:
+                    # Use a slightly higher limit to ensure cgroups get used
+                    # (otherwise we cannot detect the timeout properly).
+                    ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
+                else:
+                    ulimit = hardtimelimit
+                resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
             # put us into the cgroup(s)
             pid = os.getpid()

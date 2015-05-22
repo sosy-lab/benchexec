@@ -645,7 +645,7 @@ class Run():
         else:
             limit = float('inf')
 
-        return self.cputime > limit*0.99
+        return self.cputime > limit
 
 
 class Column:
