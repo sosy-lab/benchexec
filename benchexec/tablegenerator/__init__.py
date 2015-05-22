@@ -186,7 +186,7 @@ class Util:
 
     @staticmethod
     def json(obj):
-        return tempita.html(json.dumps(obj))
+        return tempita.html(json.dumps(obj, sort_keys=True))
 
     @staticmethod
     def prettylist(list):
