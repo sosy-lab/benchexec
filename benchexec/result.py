@@ -93,6 +93,9 @@ _FILE_RESULTS = {
               }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
+# If different scores should be used depending on the checked property,
+# change score_for_task() appropriately
+# (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
 _SCORE_CORRECT_FALSE = 1
 _SCORE_UNKNOWN = 0
@@ -160,7 +163,6 @@ def score_for_task(filename, properties, category):
     """
     Return the possible score of task, depending on whether the result is correct or not.
     """
-    #TODO The following code does not support different scores per property
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     correct = (category == CATEGORY_CORRECT)
