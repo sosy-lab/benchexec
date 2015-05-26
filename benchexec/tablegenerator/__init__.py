@@ -651,7 +651,7 @@ class Row:
         self.id = results[0].task_id
         assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
         self.filename = self.id[0]
-        self.properties = self.id[1] if len(self.id) > 1 else None
+        self.properties = self.id[1].split() if len(self.id) > 1 else []
 
     def set_relative_path(self, common_prefix, base_dir):
         """
@@ -773,12 +773,12 @@ def get_stats(rows):
             count_true = count_false = 0
             logging.info('Missing property for %s.', row.filename)
             break
-        correct_result = result.satisfies_file_property(row.filename, row.properties.split())
+        correct_result = result.satisfies_file_property(row.filename, row.properties)
         if correct_result is True:
             count_true += 1
         elif correct_result is False:
             count_false += 1
-        max_score += result.score_for_task(row.filename, row.properties.split(), correct=True)
+        max_score += result.score_for_task(row.filename, row.properties, correct=True)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
@@ -840,9 +840,9 @@ def get_stats_of_run_set(runResults, rows):
             score = 0
             for row, run_result in zip(rows, runResults):
                 if run_result.category == result.CATEGORY_CORRECT:
-                    score += result.score_for_task(row.filename, row.properties.split(), True)
+                    score += result.score_for_task(row.filename, row.properties, True)
                 elif run_result.category == result.CATEGORY_WRONG:
-                    score += result.score_for_task(row.filename, row.properties.split(), False)
+                    score += result.score_for_task(row.filename, row.properties, False)
             score = StatValue(score)
 
         else:
