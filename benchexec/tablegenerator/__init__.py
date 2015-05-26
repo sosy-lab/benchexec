@@ -778,7 +778,7 @@ def get_stats(rows):
             count_true += 1
         elif correct_result is False:
             count_false += 1
-        max_score += result.score_for_task(row.filename, row.properties, correct=True)
+        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
@@ -839,10 +839,7 @@ def get_stats_of_run_set(runResults, rows):
 
             score = 0
             for row, run_result in zip(rows, runResults):
-                if run_result.category == result.CATEGORY_CORRECT:
-                    score += result.score_for_task(row.filename, row.properties, True)
-                elif run_result.category == result.CATEGORY_WRONG:
-                    score += result.score_for_task(row.filename, row.properties, False)
+                score += result.score_for_task(row.filename, row.properties, run_result.category)
             score = StatValue(score)
 
         else:

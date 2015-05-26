@@ -156,11 +156,14 @@ def satisfies_file_property(filename, properties):
     return None
 
 
-def score_for_task(filename, properties, correct):
+def score_for_task(filename, properties, category):
     """
     Return the possible score of task, depending on whether the result is correct or not.
     """
     #TODO The following code does not support different scores per property
+    if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
+        return 0
+    correct = (category == CATEGORY_CORRECT)
     if satisfies_file_property(filename, properties):
         return SCORE_CORRECT_TRUE if correct else SCORE_WRONG_FALSE
     else:
