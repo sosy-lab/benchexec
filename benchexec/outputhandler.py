@@ -385,7 +385,7 @@ class OutputHandler:
 
             # write result in txt_file and XML
             self.txt_file.append(self.run_set_to_text(run.runSet), False)
-            self.statistics.add_result(run.category, run.status)
+            self.statistics.add_result(run)
 
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
@@ -611,11 +611,13 @@ class Statistics:
     def __init__(self):
         self.dic = collections.defaultdict(int)
         self.counter = 0
+        self.score = 0
 
-    def add_result(self, category, status):
+    def add_result(self, run):
         self.counter += 1
-        self.dic[category] += 1
-        self.dic[(category, status)] += 1
+        self.dic[run.category] += 1
+        self.dic[(run.category, run.status)] += 1
+        self.score += result.score_for_task(run.identifier, run.properties, run.category)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]
@@ -624,10 +626,6 @@ class Statistics:
         incorrect = self.dic[result.CATEGORY_WRONG]
         incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
         incorrect_false = incorrect - incorrect_true
-        score = correct_true    * result.SCORE_CORRECT_TRUE \
-              + correct_false   * result.SCORE_CORRECT_FALSE \
-              + incorrect_true  * result.SCORE_WRONG_TRUE \
-              + incorrect_false * result.SCORE_WRONG_FALSE
 
         width = 6
         util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(width + 9) + ' Files',
@@ -638,5 +636,5 @@ class Statistics:
                  '    incorrect true: ' + str(incorrect_true).rjust(width),
                  '    incorrect false:' + str(incorrect_false).rjust(width),
                  '  unknown:          ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(width),
-                 '  Score:            ' + str(score).rjust(width),
+                 '  Score:            ' + str(self.score).rjust(width),
                  '']))

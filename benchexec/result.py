@@ -93,11 +93,11 @@ _FILE_RESULTS = {
               }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
-SCORE_CORRECT_TRUE = 2
-SCORE_CORRECT_FALSE = 1
-SCORE_UNKNOWN = 0
-SCORE_WRONG_FALSE = -6
-SCORE_WRONG_TRUE = -12
+_SCORE_CORRECT_TRUE = 2
+_SCORE_CORRECT_FALSE = 1
+_SCORE_UNKNOWN = 0
+_SCORE_WRONG_FALSE = -6
+_SCORE_WRONG_TRUE = -12
 
 
 def _expected_result(filename, checked_properties):
@@ -165,9 +165,9 @@ def score_for_task(filename, properties, category):
         return 0
     correct = (category == CATEGORY_CORRECT)
     if satisfies_file_property(filename, properties):
-        return SCORE_CORRECT_TRUE if correct else SCORE_WRONG_FALSE
+        return _SCORE_CORRECT_TRUE if correct else _SCORE_WRONG_FALSE
     else:
-        return SCORE_CORRECT_FALSE if correct else SCORE_WRONG_TRUE
+        return _SCORE_CORRECT_FALSE if correct else _SCORE_WRONG_TRUE
 
 
 def _file_is_java(filename):
@@ -217,10 +217,10 @@ def calculate_score(category, result):
     @param result: The result given by the tool.
     '''
     if category == CATEGORY_CORRECT:
-        return SCORE_CORRECT_TRUE if result == RESULT_TRUE_PROP else SCORE_CORRECT_FALSE
+        return _SCORE_CORRECT_TRUE if result == RESULT_TRUE_PROP else _SCORE_CORRECT_FALSE
     elif category == CATEGORY_WRONG:
-        return SCORE_WRONG_TRUE if result == RESULT_TRUE_PROP else SCORE_WRONG_FALSE
+        return _SCORE_WRONG_TRUE if result == RESULT_TRUE_PROP else _SCORE_WRONG_FALSE
     elif category in [CATEGORY_UNKNOWN, CATEGORY_ERROR, CATEGORY_MISSING]:
-        return SCORE_UNKNOWN
+        return _SCORE_UNKNOWN
     else:
         assert False, 'impossible category {0}'.format(category)
