@@ -110,15 +110,14 @@ class Tool(benchexec.tools.template.BaseTool):
             # parser error or something similar
             status = 'ERROR'
 
-        elif returnsignal == 9:
-            if isTimeout:
-                status = 'TIMEOUT'
-            else:
-                status = "KILLED BY SIGNAL 9"
+        elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
+            status = 'TIMEOUT'
 
+        elif returnsignal == 9:
+            status = "KILLED BY SIGNAL 9"
         elif returnsignal == 6:
             status = "ABORTED"
-        elif returnsignal == 15 or returncode == 15:
+        elif returnsignal == 15:
             status = "KILLED"
         elif returncode == 64 and 'Usage error!' in output:
             status = 'INVALID ARGUMENTS'

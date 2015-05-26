@@ -38,10 +38,9 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_FALSE_REACH
             elif line.startswith('1 safe, 0 unsafe'):
                 status = result.RESULT_TRUE_PROP
+            elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
+                status = 'TIMEOUT'
             elif returnsignal == 9:
-                if isTimeout:
-                    status = 'TIMEOUT'
-                else:
-                    status = "KILLED BY SIGNAL 9"
+                status = "KILLED BY SIGNAL 9"
 
         return status

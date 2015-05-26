@@ -147,7 +147,7 @@ class Tool(benchexec.tools.template.BaseTool):
         if returnsignal != 0:
             if returnsignal == 6:
                 status = 'ABORTED'
-            elif returnsignal == 9 and isTimeout:
+            elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
                 status = 'TIMEOUT'
             elif returnsignal == 11:
                 status = 'SEGMENTATION FAULT'

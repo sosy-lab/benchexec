@@ -15,11 +15,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        if returnsignal == 9 or returnsignal == (128+9):
-            if isTimeout:
-                status = "TIMEOUT"
-            else:
-                status = "KILLED BY SIGNAL 9"
+        if ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
+            status = 'TIMEOUT'
+        elif returnsignal == 9:
+            status = "KILLED BY SIGNAL 9"
         elif "RESULT: TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif returncode != 0:
