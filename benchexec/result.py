@@ -208,19 +208,3 @@ def get_result_category(filename, result, properties):
             return CATEGORY_CORRECT
         else:
             return CATEGORY_WRONG
-
-
-def calculate_score(category, result):
-    '''
-    Calculate the score for a given result.
-    @param category: The category of the result as returned by get_result_category().
-    @param result: The result given by the tool.
-    '''
-    if category == CATEGORY_CORRECT:
-        return _SCORE_CORRECT_TRUE if result == RESULT_TRUE_PROP else _SCORE_CORRECT_FALSE
-    elif category == CATEGORY_WRONG:
-        return _SCORE_WRONG_TRUE if result == RESULT_TRUE_PROP else _SCORE_WRONG_FALSE
-    elif category in [CATEGORY_UNKNOWN, CATEGORY_ERROR, CATEGORY_MISSING]:
-        return _SCORE_UNKNOWN
-    else:
-        assert False, 'impossible category {0}'.format(category)

@@ -607,8 +607,10 @@ class RunResult:
                 return []
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
-        category = Util.get_column_value(sourcefileTag, 'category', 'missing')
-        score = result.calculate_score(category, status)
+        category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
+        score = result.score_for_task(sourcefileTag.get('name'),
+                                      sourcefileTag.get('properties', '').split(),
+                                      category)
         logfileLines = None
 
         values = []
