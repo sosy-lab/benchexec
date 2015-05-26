@@ -1042,13 +1042,13 @@ def get_summary(runSetResults):
         return None
 
 
-def create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options):
+def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
     '''
     create tables and write them to files
     '''
 
     # get common folder of sourcefiles
-    common_prefix = os.path.commonprefix(list(map(lambda x : x[0], task_ids))) # maybe with parts of filename
+    common_prefix = os.path.commonprefix(list(map(lambda r : r.filename, rows))) # maybe with parts of filename
     common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
     list(map(lambda row: Row.set_relative_path(row, common_prefix, outputPath), rows))
 
@@ -1309,7 +1309,7 @@ def main(args=None):
     logging.info('Generating table...')
     if not os.path.isdir(outputPath) and not outputFilePattern == '-':
         os.makedirs(outputPath)
-    create_tables(name, runSetResults, task_ids, rows, rowsDiff, outputPath, outputFilePattern, options)
+    create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options)
 
     logging.info('done')
 
