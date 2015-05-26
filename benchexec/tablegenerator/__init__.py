@@ -285,9 +285,9 @@ def get_task_id(task):
     """
     task_id = [task.get('name')]
     if 'properties' in task.keys():
-        task_id += task.get('properties')
+        task_id.append(task.get('properties'))
     if 'runset' in task.keys():
-        task_id += task.get('runset')
+        task_id.append(task.get('runset'))
     return tuple(task_id)
 
 
