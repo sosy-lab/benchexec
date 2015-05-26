@@ -762,7 +762,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
 
 
 def get_stats(rows):
-    stats = [get_stats_of_run_set(runResults) for runResults in rows_to_columns(rows)] # column-wise
+    stats = [get_stats_of_run_set(runResults, rows) for runResults in rows_to_columns(rows)] # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
@@ -800,12 +800,12 @@ def get_stats(rows):
             ] + ([score_row] if max_score else [])
 
 
-def get_stats_of_run_set(runResults):
+def get_stats_of_run_set(runResults, rows):
     """
     This function returns the numbers of the statistics.
     @param runResults: All the results of the execution of one run set (as list of RunResult objects)
     """
-
+    assert len(runResults) == len(rows)
     # convert:
     # [['TRUE', 0,1], ['FALSE', 0,2]] -->  [['TRUE', 'FALSE'], [0,1, 0,2]]
     # in python2 this is a list, in python3 this is the iterator of the list
@@ -829,18 +829,21 @@ def get_stats_of_run_set(runResults):
         if column.title == 'status':
             countCorrectTrue, countCorrectFalse, countWrongTrue, countWrongFalse, countMissing = get_category_count(statusList)
 
-            sum     = StatValue(len([status for (category, status) in statusList if status]))
+            sum     = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
             correct = StatValue(countCorrectTrue + countCorrectFalse)
             correctTrue = StatValue(countCorrectTrue)
             correctFalse = StatValue(countCorrectFalse)
-            score   = StatValue(result.SCORE_CORRECT_TRUE   * countCorrectTrue + \
-                                result.SCORE_CORRECT_FALSE * countCorrectFalse + \
-                                result.SCORE_WRONG_TRUE     * countWrongTrue + \
-                                result.SCORE_WRONG_FALSE   * countWrongFalse,
-                                )
             incorrect = StatValue(countWrongTrue + countWrongFalse)
             wrongTrue   = StatValue(countWrongTrue)
             wrongFalse = StatValue(countWrongFalse)
+
+            score = 0
+            for row, run_result in zip(rows, runResults):
+                if run_result.category == result.CATEGORY_CORRECT:
+                    score += result.score_for_task(row.filename, row.properties.split(), True)
+                elif run_result.category == result.CATEGORY_WRONG:
+                    score += result.score_for_task(row.filename, row.properties.split(), False)
+            score = StatValue(score)
 
         else:
             sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
