@@ -763,17 +763,18 @@ def get_stats(rows):
         elif correct_result is False:
             count_false += 1
     max_score = count_true * result.SCORE_CORRECT_TRUE + count_false * result.SCORE_CORRECT_FALSE
+    task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
         score_row = tempita.bunch(default=None, id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
-                                  description='{0} true files, {1} false files'.format(count_true, count_false),
+                                  description=task_counts,
                                   content=rowsForStats[7])
 
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(default=None, title='total tasks', content=rowsForStats[0]),
+    return [tempita.bunch(default=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
             tempita.bunch(default=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(default=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
             tempita.bunch(default=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
