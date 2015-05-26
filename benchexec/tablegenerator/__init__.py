@@ -268,7 +268,7 @@ def parse_table_definition_file(file, all_columns):
             for resultsFile in filelist:
                 result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
 
-        if result.filelist:
+        if result._xml_results:
             name = unionTag.get('title', unionTag.get('name'))
             if name:
                 result.attributes['name'] = [name]
@@ -303,35 +303,95 @@ class Column:
         self.number_of_digits = numOfDigits
 
 
+loaded_tools = {}
+def load_tool(result):
+    """
+    Load the module with the tool-specific code.
+    """
+    def load_tool_module(tool_module):
+        if not tool_module:
+            logging.warning('Cannot extract values from log files for benchmark results %s (missing attribute "toolmodule" on tag "result").',
+                    Util.prettylist(result.attributes['name']))
+            return None
+        try:
+            print('Loading %s' % tool_module)
+            return __import__(tool_module, fromlist=['Tool']).Tool()
+        except ImportError as ie:
+            logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
+        except AttributeError:
+            logging.warning('The module "%s" does not define the necessary class Tool, cannot extract values from log files.', tool_module)
+        return None
+
+    tool_module = result.attributes['toolmodule'][0] if 'toolmodule' in result.attributes else None
+    if tool_module in loaded_tools:
+        return loaded_tools[tool_module]
+    else:
+        result = load_tool_module(tool_module)
+        loaded_tools[tool_module] = result
+        return result
+
+
 class RunSetResult():
     """
     The Class RunSetResult contains all the results of one execution of a run set:
     the sourcefiles tags (with sourcefiles + values), the columns to show
     and the benchmark attributes.
     """
-    def __init__(self, filelist, attributes, columns, summary={}):
-        self.filelist = filelist
+    def __init__(self, xml_results, attributes, columns, summary={}):
+        self._xml_results = xml_results
         self.attributes = attributes
         self.columns = columns
         self.summary = summary
 
     def get_tasks(self):
-        return list(map(get_task_id, self.filelist))
+        """
+        Return the list of task ids for these results.
+        May be called only after collect_data()
+        """
+        return list(map(lambda r : r.task_id, self.results))
 
     def append(self, resultFile, resultElem, all_columns=False):
-        self.filelist += _get_run_tags_from_xml(resultElem)
+        """
+        Append the result for one run. Needs to be called before collect_data().
+        """
+        self._xml_results += _get_run_tags_from_xml(resultElem)
         for attrib, values in RunSetResult._extract_attributes_from_result(resultFile, resultElem).items():
             self.attributes[attrib].extend(values)
 
         if not self.columns:
             self.columns = RunSetResult._extract_existing_columns_from_result(resultFile, resultElem, all_columns)
 
+    def collect_data(self, correct_only):
+        """
+        Load the actual result values from the XML file and the log files.
+        This may take some time if many log files have to be opened and parsed.
+        """
+        self.results = []
+
+        def get_value_from_logfile(lines, identifier):
+            """
+            This method searches for values in lines of the content.
+            It uses a tool-specific method to so.
+            """
+            return load_tool(self).get_value_from_output(lines, identifier)
+
+        for xml_result in self._xml_results:
+            self.results.append(RunResult.create_from_xml(xml_result,
+                                                          get_value_from_logfile,
+                                                          self.columns,
+                                                          correct_only))
+
+        del self._xml_results
+
     @staticmethod
     def create_from_xml(resultFile, resultElem, columns=None, all_columns=False):
         '''
         This function extracts everything necessary for creating a RunSetResult object
         from the "result" XML tag of a benchmark result file.
-        It returns a RunSetResult object.
+        It returns a RunSetResult object, which is not yet fully initialized.
+        To finish initializing the object, call collect_data()
+        before using it for anything else
+        (this is to separate the possibly costly collect_data() call from object instantiation).
         '''
         attributes = RunSetResult._extract_attributes_from_result(resultFile, resultElem)
 
@@ -458,18 +518,18 @@ def insert_logfile_names(resultFile, resultElem):
 
 def merge_tasks(runset_results):
     """
-    This function merges the filelists of all RunSetResult objects.
+    This function merges the results of all RunSetResult objects.
     If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C]
-    and add dummy elements to the filelists.
-    It also ensures the same order of files.
+    and add dummy elements to the results.
+    It also ensures the same order of tasks.
     Returns a list of task ids.
     """
     task_list = []
     task_set = set()
-    for result in runset_results:
+    for runset in runset_results:
         index = -1
         currentresult_taskset = set()
-        for task in result.get_tasks():
+        for task in runset.get_tasks():
             if task in currentresult_taskset:
                 logging.warning("Task '%s' is present twice, skipping it.", task[0])
             else:
@@ -489,19 +549,19 @@ def merge_task_lists(runset_results, tasks):
     Set the filelists of all RunSetResult elements so that they contain the same files
     in the same order. For missing files a dummy element is inserted.
     """
-    for result in runset_results:
-        # create mapping from id to run tag
+    for runset in runset_results:
+        # create mapping from id to RunResult object
         # Use reversed list such that the first instance of equal tasks end up in dic
-        dic = dict([(get_task_id(task), task) for task in reversed(result.filelist)])
-        result.filelist = [] # clear and repopulate filelist
+        dic = dict([(run_result.task_id, run_result) for run_result in reversed(runset.results)])
+        runset.results = [] # clear and repopulate results
         for task in tasks:
-            task_result = dic.get(task)
-            if task_result is None:
-                task_result = ET.Element('run') # create an empty dummy element
-                task_result.set('logfile', None)
-                task_result.set('name', task[0])
+            run_result = dic.get(task)
+            if run_result is None:
                 logging.info("    no result for task '%s'", task[0])
-            result.filelist.append(task_result)
+                # create an empty dummy element
+                run_result = RunResult(task, None, result.CATEGORY_MISSING, None,
+                                       runset.columns, [None]*len(runset.columns))
+            runset.results.append(run_result)
 
 
 def find_common_tasks(runset_results):
@@ -525,8 +585,9 @@ class RunResult:
     """
     The class RunResult contains the results of a single verification run.
     """
-    def __init__(self, status, category, log_file, columns, values):
+    def __init__(self, task_id, status, category, log_file, columns, values):
         assert(len(columns) == len(values))
+        self.task_id = task_id
         self.status = status
         self.log_file = log_file
         self.columns = columns
@@ -578,7 +639,7 @@ class RunResult:
 
             values.append(value)
 
-        return RunResult(status, category, sourcefileTag.get('logfile'), listOfColumns, values)
+        return RunResult(get_task_id(sourcefileTag), status, category, sourcefileTag.get('logfile'), listOfColumns, values)
 
 
 class Row:
@@ -595,6 +656,7 @@ class Row:
         self.results = []
 
     def add_run_result(self, runresult):
+        assert self.id == runresult.task_id
         self.results.append(runresult)
 
     def set_relative_path(self, common_prefix, base_dir):
@@ -614,54 +676,17 @@ def rows_to_columns(rows):
     return zip(*[row.results for row in rows])
 
 
-def get_rows(runSetResults, task_ids, correct_only):
+def get_rows(runSetResults, task_ids):
     """
     Create list of rows with all data. Each row consists of several RunResults.
     """
-
-    def load_tool(result):
-        """
-        Load the module with the tool-specific code.
-        """
-        tool_module = result.attributes['toolmodule'][0] if 'toolmodule' in result.attributes else None
-        if not tool_module:
-            logging.warning('Cannot extract values from log files for benchmark results %s (missing attribute "toolmodule" on tag "result").',
-                    Util.prettylist(result.attributes['name']))
-            return None
-        try:
-            return __import__(tool_module, fromlist=['Tool']).Tool()
-        except ImportError as ie:
-            logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
-        except AttributeError:
-            logging.warning('The module "%s" does not define the necessary class Tool, cannot extract values from log files.', tool_module)
-        return None
-
     rows = [Row(task_id) for task_id in task_ids]
 
     # get values for each run set
-    for result in runSetResults:
-
-        def get_value_from_logfile(lines, identifier):
-            """
-            This method searches for values in lines of the content.
-            It uses a tool-specific method to so.
-            """
-            # store tool instance lazily in attribute of the function to load it only once
-            if not 'tool' in get_value_from_logfile.__dict__:
-                get_value_from_logfile.tool = load_tool(result)
-
-            if get_value_from_logfile.tool:
-                return get_value_from_logfile.tool.get_value_from_output(lines, identifier)
-            else:
-                return None
-
-        # get values for each file in a run set
-        for fileResult, row in zip(result.filelist, rows):
-            row.add_run_result(RunResult.create_from_xml(
-                    fileResult,
-                    get_value_from_logfile,
-                    result.columns,
-                    correct_only))
+    for runset in runSetResults:
+        # get values for each task in a run set
+        for run_result, row in zip(runset.results, rows):
+            row.add_run_result(run_result)
 
     return rows
 
@@ -679,6 +704,7 @@ def filter_rows_with_differences(rows):
 
     def all_equal_result(listOfResults):
         allStatus = set([result.status for result in listOfResults if result.status])
+        allStatus.discard(None)
         return len(allStatus) <= 1
 
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
@@ -932,6 +958,8 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     valuesPerCategory = collections.defaultdict(list)
     for value, catStat in zip(valueList, categoryList):
         category, status = catStat
+        if status is None:
+            continue
         if status.startswith(result.STR_FALSE):
             status = result.STR_FALSE # ignore exact status, we do not need it
         valuesPerCategory[category, status].append(value)
@@ -1260,20 +1288,22 @@ def main(args=None):
         logging.error('No benchmark results found.')
         exit(1)
 
+    # collect data
+    logging.info('Collecting data...')
+    for result in runSetResults:
+        result.collect_data(options.correct_only)
+
     logging.info('Merging results...')
     if options.common:
         task_ids = find_common_tasks(runSetResults)
     else:
         # merge list of run sets, so that all run sets contain the same tasks
         task_ids = merge_tasks(runSetResults)
-
-    # collect data and find out rows with differences
-    logging.info('Collecting data...')
-    rows     = get_rows(runSetResults, task_ids, options.correct_only)
-    if not rows:
+    if not task_ids:
         logging.warning('No results found, no tables produced.')
         exit()
 
+    rows     = get_rows(runSetResults, task_ids)
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info('Generating table...')
