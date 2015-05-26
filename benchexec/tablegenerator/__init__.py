@@ -623,7 +623,7 @@ class RunResult:
             elif column.title.lower() == 'status':
                 value = status
 
-            elif not correct_only or score > 0:
+            elif not correct_only or category == result.CATEGORY_CORRECT:
                 if not column.pattern: # collect values from XML
                     value = Util.get_column_value(sourcefileTag, column.title)
 
