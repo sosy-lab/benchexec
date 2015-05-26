@@ -818,7 +818,7 @@ def get_stats_of_run_set(runResults, rows):
     statusList = [(runResult.category, runResult.status) for runResult in runResults]
 
     # collect some statistics
-    sumRow = []
+    totalRow = []
     correctRow = []
     correctTrueRow = []
     correctFalseRow = []
@@ -831,7 +831,7 @@ def get_stats_of_run_set(runResults, rows):
         if column.title == 'status':
             countCorrectTrue, countCorrectFalse, countWrongTrue, countWrongFalse, countMissing = get_category_count(statusList)
 
-            sum     = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
+            total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
             correct = StatValue(countCorrectTrue + countCorrectFalse)
             correctTrue = StatValue(countCorrectTrue)
             correctFalse = StatValue(countCorrectFalse)
@@ -845,13 +845,13 @@ def get_stats_of_run_set(runResults, rows):
             score = StatValue(score)
 
         else:
-            sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
+            total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
             score = ''
 
-        if (sum.sum, correct.sum, correctTrue.sum, correctFalse.sum, incorrect.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0,0,0,0):
-            (sum, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse) = (None, None, None, None, None, None, None)
+        if (total.sum, correct.sum, correctTrue.sum, correctFalse.sum, incorrect.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0,0,0,0):
+            (total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse) = (None, None, None, None, None, None, None)
 
-        sumRow.append(sum)
+        totalRow.append(total)
         correctRow.append(correct)
         correctTrueRow.append(correctTrue)
         correctFalseRow.append(correctFalse)
@@ -868,7 +868,7 @@ def get_stats_of_run_set(runResults, rows):
             for i in range(1, len(row)):
                 row[i] = None
 
-    replace_irrelevant(sumRow)
+    replace_irrelevant(totalRow)
     replace_irrelevant(correctRow)
     replace_irrelevant(correctTrueRow)
     replace_irrelevant(correctFalseRow)
@@ -877,7 +877,7 @@ def get_stats_of_run_set(runResults, rows):
     replace_irrelevant(wrongFalseRow)
     replace_irrelevant(scoreRow)
 
-    return (sumRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
+    return (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
 
 
 class StatValue:
