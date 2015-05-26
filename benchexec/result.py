@@ -42,6 +42,7 @@ _PROP_FREE =         'valid-free'
 _PROP_MEMTRACK =     'valid-memtrack'
 _PROP_ASSERT =       'assert'
 _PROP_AUTOMATON =    'observer-automaton'
+_PROP_SAT =          'sat'
 
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
@@ -53,12 +54,16 @@ RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
 RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
 RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
+RESULT_SAT =                'sat'
+RESULT_UNSAT =              'unsat'
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
-               RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK]
+               RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
+               RESULT_SAT, RESULT_UNSAT,
+               ]
 
 # Classification of results
 RESULT_CLASS_TRUE    = 'true'
@@ -74,6 +79,7 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'LTL(G valid-deref)':                _PROP_DEREF,
                    'LTL(G valid-memtrack)':             _PROP_MEMTRACK,
                    'OBSERVER AUTOMATON':                _PROP_AUTOMATON,
+                   'SATISFIABLE':                       _PROP_SAT,
                   }
 
 # This maps a possible result substring of a file name
@@ -95,7 +101,10 @@ _FILE_RESULTS = {
               '_false-termination':    (RESULT_FALSE_TERMINATION, {_PROP_TERMINATION}),
               '_false-valid-deref':    (RESULT_FALSE_DEREF,       {_PROP_DEREF}),
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
-              '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK})
+              '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK}),
+
+              '_sat':                  (RESULT_SAT,   {_PROP_SAT}),
+              '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
               }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
@@ -136,6 +145,7 @@ def properties_of_file(propertyfile):
         content = f.read().strip()
     if not( 'CHECK' in content
             or content == 'OBSERVER AUTOMATON'
+            or content == 'SATISFIABLE'
             ):
         sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
 
@@ -174,6 +184,8 @@ def score_for_task(filename, properties, category):
     """
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
+    if _PROP_SAT in properties:
+        return 0
     correct = (category == CATEGORY_CORRECT)
     expected = satisfies_file_property(filename, properties) 
     if expected is None:
@@ -203,7 +215,7 @@ def get_result_classification(result):
     if result == RESULT_UNKNOWN:
         return RESULT_CLASS_UNKNOWN
 
-    if result == RESULT_TRUE_PROP:
+    if result == RESULT_TRUE_PROP or result == RESULT_SAT:
         return RESULT_CLASS_TRUE
     else:
         return RESULT_CLASS_FALSE
