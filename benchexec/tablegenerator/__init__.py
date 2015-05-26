@@ -522,7 +522,6 @@ def merge_tasks(runset_results):
     If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C]
     and add dummy elements to the results.
     It also ensures the same order of tasks.
-    Returns a list of task ids.
     """
     task_list = []
     task_set = set()
@@ -542,7 +541,6 @@ def merge_tasks(runset_results):
                     index = task_list.index(task)
 
     merge_task_lists(runset_results, task_list)
-    return task_list
 
 def merge_task_lists(runset_results, tasks):
     """
@@ -577,8 +575,6 @@ def find_common_tasks(runset_results):
     else:
         task_list = [task for task in tasks_in_first_runset if task in task_set]
         merge_task_lists(runset_results, task_list)
-
-    return task_list
 
 
 class RunResult:
@@ -649,15 +645,13 @@ class Row:
     (such as the property).
     It corresponds to one complete row in the final tables.
     """
-    def __init__(self, task_id):
-        self.id = task_id
-        self.filename = task_id[0]
-        self.properties = task_id[1] if len(task_id) > 1 else None
-        self.results = []
-
-    def add_run_result(self, runresult):
-        assert self.id == runresult.task_id
-        self.results.append(runresult)
+    def __init__(self, results):
+        assert results
+        self.results = results
+        self.id = results[0].task_id
+        assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
+        self.filename = self.id[0]
+        self.properties = self.id[1] if len(self.id) > 1 else None
 
     def set_relative_path(self, common_prefix, base_dir):
         """
@@ -676,17 +670,13 @@ def rows_to_columns(rows):
     return zip(*[row.results for row in rows])
 
 
-def get_rows(runSetResults, task_ids):
+def get_rows(runSetResults):
     """
     Create list of rows with all data. Each row consists of several RunResults.
     """
-    rows = [Row(task_id) for task_id in task_ids]
-
-    # get values for each run set
-    for runset in runSetResults:
-        # get values for each task in a run set
-        for run_result, row in zip(runset.results, rows):
-            row.add_run_result(run_result)
+    rows = []
+    for task_results in zip(*[runset.results for runset in runSetResults]):
+        rows.append(Row(task_results))
 
     return rows
 
@@ -1295,15 +1285,15 @@ def main(args=None):
 
     logging.info('Merging results...')
     if options.common:
-        task_ids = find_common_tasks(runSetResults)
+        find_common_tasks(runSetResults)
     else:
         # merge list of run sets, so that all run sets contain the same tasks
-        task_ids = merge_tasks(runSetResults)
-    if not task_ids:
+        merge_tasks(runSetResults)
+
+    rows     = get_rows(runSetResults)
+    if not rows:
         logging.warning('No results found, no tables produced.')
         exit()
-
-    rows     = get_rows(runSetResults, task_ids)
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info('Generating table...')
