@@ -557,7 +557,7 @@ def merge_task_lists(runset_results, tasks):
             if run_result is None:
                 logging.info("    no result for task '%s'", task[0])
                 # create an empty dummy element
-                run_result = RunResult(task, None, result.CATEGORY_MISSING, None,
+                run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
                                        runset.columns, [None]*len(runset.columns))
             runset.results.append(run_result)
 
@@ -581,7 +581,7 @@ class RunResult:
     """
     The class RunResult contains the results of a single verification run.
     """
-    def __init__(self, task_id, status, category, log_file, columns, values):
+    def __init__(self, task_id, status, category, score, log_file, columns, values):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -589,6 +589,7 @@ class RunResult:
         self.columns = columns
         self.values = values
         self.category = category
+        self.score = score
 
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only):
@@ -637,7 +638,7 @@ class RunResult:
 
             values.append(value)
 
-        return RunResult(get_task_id(sourcefileTag), status, category, sourcefileTag.get('logfile'), listOfColumns, values)
+        return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
 
 
 class Row:
@@ -764,7 +765,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
 
 
 def get_stats(rows):
-    stats = [get_stats_of_run_set(runResults, rows) for runResults in rows_to_columns(rows)] # column-wise
+    stats = [get_stats_of_run_set(runResults) for runResults in rows_to_columns(rows)] # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
@@ -802,12 +803,12 @@ def get_stats(rows):
             ] + ([score_row] if max_score else [])
 
 
-def get_stats_of_run_set(runResults, rows):
+def get_stats_of_run_set(runResults):
     """
     This function returns the numbers of the statistics.
     @param runResults: All the results of the execution of one run set (as list of RunResult objects)
     """
-    assert len(runResults) == len(rows)
+
     # convert:
     # [['TRUE', 0,1], ['FALSE', 0,2]] -->  [['TRUE', 'FALSE'], [0,1, 0,2]]
     # in python2 this is a list, in python3 this is the iterator of the list
@@ -839,10 +840,7 @@ def get_stats_of_run_set(runResults, rows):
             wrongTrue   = StatValue(countWrongTrue)
             wrongFalse = StatValue(countWrongFalse)
 
-            score = 0
-            for row, run_result in zip(rows, runResults):
-                score += result.score_for_task(row.filename, row.properties, run_result.category)
-            score = StatValue(score)
+            score = StatValue(sum(run_result.score for run_result in runResults))
 
         else:
             total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
