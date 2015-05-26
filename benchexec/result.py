@@ -156,6 +156,17 @@ def satisfies_file_property(filename, properties):
     return None
 
 
+def score_for_task(filename, properties, correct):
+    """
+    Return the possible score of task, depending on whether the result is correct or not.
+    """
+    #TODO The following code does not support different scores per property
+    if satisfies_file_property(filename, properties):
+        return SCORE_CORRECT_TRUE if correct else SCORE_WRONG_FALSE
+    else:
+        return SCORE_CORRECT_FALSE if correct else SCORE_WRONG_TRUE
+
+
 def _file_is_java(filename):
     # Java benchmarks have as filename their main class, so we cannot check for '.java'
     return '_assert' in filename

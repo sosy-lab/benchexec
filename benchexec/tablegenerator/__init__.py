@@ -750,7 +750,7 @@ def get_stats(rows):
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
-    count_true = count_false = 0
+    count_true = count_false = max_score = 0
     for row in rows:
         if not row.properties:
             # properties missing for at least one task, result would be wrong
@@ -762,7 +762,7 @@ def get_stats(rows):
             count_true += 1
         elif correct_result is False:
             count_false += 1
-    max_score = count_true * result.SCORE_CORRECT_TRUE + count_false * result.SCORE_CORRECT_FALSE
+        max_score += result.score_for_task(row.filename, row.properties.split(), correct=True)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
