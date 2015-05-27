@@ -340,3 +340,11 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             formats=['csv', 'html'],
             )
+
+    def test_smt_results(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'smt.xml'),
+            ],
+            table_prefix='smt.table',
+            diff_prefix='smt.diff',
+            )

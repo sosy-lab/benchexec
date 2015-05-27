@@ -1,0 +1,11 @@
+<table>
+  <result filename="results/mathsat.2015-05-27_1004.results.xml"/>
+  <result filename="results/smtinterpol.2015-05-27_1004.results.xml"/>
+
+  <column title="status"/>
+  <column title="category"/>
+  <column title="score"/>
+  <column title="cputime"/>
+  <column title="walltime"/>
+  <column title="memUsage"/>
+</table>
