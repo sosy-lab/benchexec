@@ -294,17 +294,12 @@ class RunSet:
         self.propertyfile = util.text_or_none(util.get_single_child_from_xml(rundefinitionTag, PROPERTY_TAG)) or benchmark.propertyfile
 
         # get run-set specific required files
-        required_files = set()
-        for required_files_tag in rundefinitionTag.findall('requiredfiles'):
-            thisRequiredFiles = util.expand_filename_pattern(required_files_tag.text, benchmark.base_dir)
-            if not thisRequiredFiles:
-                logging.warning('Pattern {0} in requiredfiles tag did not match any file.'.format(required_files_tag.text))
-            required_files = required_files.union(thisRequiredFiles)
+        required_files_pattern = set(tag.text for tag in rundefinitionTag.findall('requiredfiles'))
 
         # get all runs, a run contains one sourcefile with options
         self.blocks = self.extract_runs_from_xml(
             globalSourcefilesTags + rundefinitionTag.findall("tasks") + rundefinitionTag.findall("sourcefiles"),
-            required_files)
+            required_files_pattern)
         self.runs = [run for block in self.blocks for run in block.runs]
 
         names = [self.real_name]
@@ -337,7 +332,7 @@ class RunSet:
             or self.real_name in self.benchmark.config.selected_run_definitions
 
 
-    def extract_runs_from_xml(self, sourcefilesTagList, globalRequiredFiles):
+    def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern):
         '''
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
@@ -352,12 +347,7 @@ class RunSet:
                 and matchName not in self.benchmark.config.selected_sourcefile_sets:
                     continue
 
-            required_files = set()
-            for required_files_tag in sourcefilesTag.findall('requiredfiles'):
-                thisRequiredFiles = util.expand_filename_pattern(required_files_tag.text, self.benchmark.base_dir)
-                if not thisRequiredFiles:
-                    logging.warning('Pattern {0} in requiredfiles tag did not match any file.'.format(required_files_tag.text))
-                required_files = required_files.union(thisRequiredFiles)
+            required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
 
             # get lists of filenames
             sourcefiles = self.get_sourcefiles_from_xml(sourcefilesTag, self.benchmark.base_dir)
@@ -369,7 +359,7 @@ class RunSet:
             currentRuns = []
             for sourcefile in sourcefiles:
                 currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile,
-                                       list(globalRequiredFiles.union(required_files))))
+                                       global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
         return blocks
@@ -497,7 +487,7 @@ class Run():
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, required_files=[]):
+    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -505,7 +495,15 @@ class Run():
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
-        self.required_files = required_files
+
+        self.required_files = set()
+        rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
+        for pattern in required_files_patterns:
+            this_required_files = runSet.expand_filename_pattern(pattern, runSet.benchmark.base_dir, rel_sourcefile)
+            if not this_required_files:
+                logging.warning('Pattern {0} in requiredfiles tag did not match any file.'.format(pattern))
+            self.required_files.update(this_required_files)
+        self.required_files = list(self.required_files)
 
         # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
         self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
