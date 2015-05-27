@@ -133,8 +133,10 @@ def properties_of_file(propertyfile):
     assert os.path.isfile(propertyfile)
 
     with open(propertyfile) as f:
-        content = f.read()
-    if not( 'CHECK' in content or 'OBSERVER' in content):
+        content = f.read().strip()
+    if not( 'CHECK' in content
+            or content == 'OBSERVER AUTOMATON'
+            ):
         sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
 
     properties = []
