@@ -166,11 +166,15 @@ def score_for_task(filename, properties, category):
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     correct = (category == CATEGORY_CORRECT)
-    if satisfies_file_property(filename, properties):
+    expected = satisfies_file_property(filename, properties) 
+    if expected is None:
+        return 0
+    elif expected == True:
         return _SCORE_CORRECT_TRUE if correct else _SCORE_WRONG_FALSE
-    else:
+    elif expected == False:
         return _SCORE_CORRECT_FALSE if correct else _SCORE_WRONG_TRUE
-
+    else:
+        assert False, "unexpected return value from satisfies_file_property: " + expected
 
 def _file_is_java(filename):
     # Java benchmarks have as filename their main class, so we cannot check for '.java'
