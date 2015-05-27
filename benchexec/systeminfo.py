@@ -91,6 +91,7 @@ class SystemInfo(object):
             memInfoFile.close()
         self.memory = memInfo.get('MemTotal', 'unknown').strip()
 
+        self.environment = os.environ.copy()
 
 def is_turbo_boost_enabled():
     try:

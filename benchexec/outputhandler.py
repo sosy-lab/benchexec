@@ -102,11 +102,12 @@ class OutputHandler:
             # store systemInfo in XML
             self.store_system_info(sysinfo.os, sysinfo.cpu_model,
                                  sysinfo.cpu_number_of_cores, sysinfo.cpu_max_frequency,
-                                 sysinfo.memory, sysinfo.hostname)
+                                 sysinfo.memory, sysinfo.hostname,
+                                 environment=sysinfo.environment)
         self.xml_file_names = []
 
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
-                          runSet=None):
+                          runSet=None, environment={}):
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
                         return
@@ -118,7 +119,11 @@ class OutputHandler:
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
-            
+        if environment:
+            env = ET.SubElement(systemInfo, "environment")
+            for var, value in sorted(environment.items()):
+                ET.SubElement(env, "var", name=var).text = value
+
         self.xml_header.append(systemInfo)
         if runSet:
             runSet.xml.append(systemInfo)
