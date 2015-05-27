@@ -55,10 +55,16 @@ RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
 RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
 
 # List of all possible results.
-# If a result is not in this list, it is handled as CATEGORY_ERROR.
+# If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK]
+
+# Classification of results
+RESULT_CLASS_TRUE    = 'true'
+RESULT_CLASS_FALSE   = 'false'
+RESULT_CLASS_UNKNOWN = 'unknown'
+RESULT_CLASS_ERROR   = 'error'
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
@@ -152,9 +158,10 @@ def satisfies_file_property(filename, properties):
     expected_result = _expected_result(filename, properties)
     if not expected_result:
         return None
-    if expected_result.startswith('true'):
+    expected_result_class = get_result_classification(expected_result)
+    if expected_result_class == RESULT_CLASS_TRUE:
         return True
-    if expected_result.startswith('false'):
+    if expected_result_class == RESULT_CLASS_FALSE:
         return False
     return None
 
@@ -179,6 +186,25 @@ def score_for_task(filename, properties, category):
 def _file_is_java(filename):
     # Java benchmarks have as filename their main class, so we cannot check for '.java'
     return '_assert' in filename
+
+
+def get_result_classification(result):
+    '''
+    Classify the given result into "true" (property holds),
+    "false" (property does not hold), "unknown", and "error".
+    @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
+    @return One of RESULT_CLASS_* strings
+    '''
+    if result not in RESULT_LIST:
+        return RESULT_CLASS_ERROR
+
+    if result == RESULT_UNKNOWN:
+        return RESULT_CLASS_UNKNOWN
+
+    if result == RESULT_TRUE_PROP:
+        return RESULT_CLASS_TRUE
+    else:
+        return RESULT_CLASS_FALSE
 
 
 def get_result_category(filename, result, properties):

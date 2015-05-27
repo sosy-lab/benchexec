@@ -905,34 +905,22 @@ class StatValue:
 def get_category_count(categoryList):
     # count different elems in statusList
     counts = collections.defaultdict(int)
-    for category in categoryList:
-        counts[category] += 1
+    for category, status in categoryList:
+        counts[(category, result.get_result_classification(status))] += 1
 
     # warning: read next lines carefully, there are some brackets and commas!
     return (
         # correctTrue, correctFalse
-            counts[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP],
-            counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_REACH] \
-          + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_DEREF] \
-          + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_FREE] \
-          + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_MEMTRACK] \
-          + counts[result.CATEGORY_CORRECT, result.RESULT_FALSE_TERMINATION],
+            counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE],
+            counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE],
 
         # wrongTrue, wrongFalse
-            counts[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP],
-            counts[result.CATEGORY_WRONG, result.RESULT_FALSE_REACH] \
-          + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_DEREF] \
-          + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_FREE] \
-          + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_MEMTRACK] \
-          + counts[result.CATEGORY_WRONG, result.RESULT_FALSE_TERMINATION],
+            counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE],
+            counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE],
 
         # missing
-            counts[result.CATEGORY_MISSING, result.RESULT_TRUE_PROP] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_REACH] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_DEREF] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_FREE] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_MEMTRACK] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_FALSE_TERMINATION] \
+            counts[result.CATEGORY_MISSING, result.RESULT_CLASS_TRUE] \
+          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_FALSE] \
             )
 
 
@@ -950,19 +938,17 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
         category, status = catStat
         if status is None:
             continue
-        if status.startswith(result.STR_FALSE):
-            status = result.STR_FALSE # ignore exact status, we do not need it
-        valuesPerCategory[category, status].append(value)
+        valuesPerCategory[category, result.get_result_classification(status)].append(value)
 
     return (StatValue.from_list(valueList),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP]
-                              + valuesPerCategory[result.CATEGORY_CORRECT, result.STR_FALSE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.STR_FALSE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP]
-                              + valuesPerCategory[result.CATEGORY_WRONG, result.STR_FALSE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_TRUE_PROP]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.STR_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
+                              + valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
+                              + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
             )
 
 

@@ -617,17 +617,17 @@ class Statistics:
     def add_result(self, run):
         self.counter += 1
         self.dic[run.category] += 1
-        self.dic[(run.category, run.status)] += 1
+        self.dic[(run.category, result.get_result_classification(run.status))] += 1
         self.score += result.score_for_task(run.identifier, run.properties, run.category)
         #if run.properties:
         self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]
-        correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_TRUE_PROP)]
+        correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)]
         correct_false = correct - correct_true
         incorrect = self.dic[result.CATEGORY_WRONG]
-        incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_TRUE_PROP)]
+        incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE)]
         incorrect_false = incorrect - incorrect_true
 
         width = 6
