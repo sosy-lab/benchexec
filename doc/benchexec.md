@@ -35,10 +35,10 @@ putting multiple arguments separated by spaces into a single tag will not have t
 
 BenchExec allows to check whether the output of the tool matches the expected result
 for a given task, and to categorize the results accordingly.
-This is currently only available for the domain of software verification,
-where `benchexec` uses a
-[property file as defined by the International Competition on Software Verification](http://sv-comp.sosy-lab.org/2015/rules.php).
-Such files can be specified with the tag `<propertyfile>`.
+To do so, it needs to be given a [property file](properties/INDEX.md)
+with the tag `<propertyfile>`
+and the name of the input file needs to encode the expected result
+for the given property.
 
 Inside the `<option>` tag and other tags some variables can be used
 that will be expanded by BenchExec. The following variables are supported:
