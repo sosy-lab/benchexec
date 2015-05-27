@@ -612,12 +612,15 @@ class Statistics:
         self.dic = collections.defaultdict(int)
         self.counter = 0
         self.score = 0
+        self.max_score = 0
 
     def add_result(self, run):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, run.status)] += 1
         self.score += result.score_for_task(run.identifier, run.properties, run.category)
+        #if run.properties:
+        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]
@@ -628,7 +631,8 @@ class Statistics:
         incorrect_false = incorrect - incorrect_true
 
         width = 6
-        util.printOut('\n'.join(['\nStatistics:' + str(self.counter).rjust(width + 9) + ' Files',
+        output = ['',
+                 'Statistics:' + str(self.counter).rjust(width + 9) + ' Files',
                  '  correct:          ' + str(correct).rjust(width),
                  '    correct true:   ' + str(correct_true).rjust(width),
                  '    correct false:  ' + str(correct_false).rjust(width),
@@ -636,5 +640,9 @@ class Statistics:
                  '    incorrect true: ' + str(incorrect_true).rjust(width),
                  '    incorrect false:' + str(incorrect_false).rjust(width),
                  '  unknown:          ' + str(self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]).rjust(width),
-                 '  Score:            ' + str(self.score).rjust(width),
-                 '']))
+                 ]
+        if self.max_score:
+            output.append(
+                 '  Score:            ' + str(self.score).rjust(width) + ' (max: ' + str(self.max_score) + ')'
+                 )
+        util.printOut('\n'.join(output)+'\n')
