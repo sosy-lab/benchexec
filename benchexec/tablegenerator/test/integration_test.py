@@ -248,6 +248,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             expected_counts='REGRESSIONS 1\nSTATS\n2 0 2\n3 1 0',
             )
 
+    def test_dump_count2(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'smt.xml'), '--dump',
+            ],
+            table_prefix='smt.table',
+            diff_prefix='smt.diff',
+            expected_counts='REGRESSIONS 2\nSTATS\n1 0 2\n2 0 1',
+            )
+
     def test_multi_table_xml(self):
         self.generate_tables_and_compare_csv(
             ['-x', os.path.join(here, 'multi-table.xml')],
