@@ -245,6 +245,37 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_input_is_redirected_from_stdin(self):
+        if not os.path.exists('/bin/cat'):
+            self.skipTest('missing /bin/cat')
+
+        (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
+        try:
+            runexec_output = subprocess.check_output(
+                    args=[runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat'],
+                    input=b'TEST_TOKEN',
+                    stderr=subprocess.DEVNULL,
+                    ).decode()
+            output = os.read(output_fd, 4096).decode().splitlines()
+        except subprocess.CalledProcessError as e:
+            print(e.output.decode())
+            raise e
+        finally:
+            os.close(output_fd)
+            os.remove(output_filename)
+
+        result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of process is not 0')
+        self.assertAlmostEqual(float(result['walltime'].rstrip('s')), 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
+        self.assertAlmostEqual(float(result['cputime'].rstrip('s')), 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
+        for key in result.keys():
+            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'returnvalue'}, 'unexpected result value ' + key)
+
+        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
+        for line in output[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
     def test_stop_run(self):
         if not os.path.exists('/bin/sleep'):
             self.skipTest('missing /bin/sleep')

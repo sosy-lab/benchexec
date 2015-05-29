@@ -69,7 +69,7 @@ def main(argv=None):
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
     parser.add_argument("--input", metavar="FILE",
-                        help="name of file used as stdin for command (default: /dev/null)")
+                        help="name of file used as stdin for command (default: /dev/null; use - for stdin passthrough)")
     parser.add_argument("--output", default="output.log", metavar="FILE",
                         help="name of file where command output is written")
     parser.add_argument("--maxOutputSize", type=int, metavar="BYTES",
@@ -119,7 +119,9 @@ def main(argv=None):
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                         level=logLevel)
 
-    if options.input is not None:
+    if options.input == '-':
+        stdin = sys.stdin
+    elif options.input is not None:
         if options.input == options.output:
             sys.exit("Input and output files cannot be the same.")
         try:
