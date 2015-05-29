@@ -69,7 +69,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
         status = None
 
-        assertionHoldsFound         = False
         verificationSuccessfulFound = False
         verificationFailedFound     = False
 
@@ -80,8 +79,6 @@ class Tool(benchexec.tools.template.BaseTool):
                 verificationSuccessfulFound = True
             elif 'VERIFICATION FAILED' in line:
                 verificationFailedFound = True
-            elif 'ASSERTION(S) HOLD(S)' in line:
-                assertionHoldsFound = True
             elif 'The program models are identical' in line:
                 status = self.previousStatus
             elif 'Assertion(s) hold trivially.' in line:

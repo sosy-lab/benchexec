@@ -444,9 +444,6 @@ class RunSet:
         If base_dir is given and pattern is not absolute, base_dir and pattern are joined.
         """
 
-        # store pattern for fallback
-        shortFileFallback = pattern
-
         # replace vars like ${benchmark_path},
         # with converting to list and back, we can use the function 'substitute_vars()'
         expandedPattern = substitute_vars([pattern], self, sourcefile)

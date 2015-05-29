@@ -41,7 +41,7 @@ from .model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
 from . import cgroups
 from .resources import *
 from .runexecutor import RunExecutor
-from .systeminfo import *
+from .systeminfo import *  # @UnusedWildImport
 from . import util as util
 
 

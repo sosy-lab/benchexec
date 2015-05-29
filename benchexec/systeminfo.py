@@ -45,7 +45,7 @@ class SystemInfo(object):
         This function finds some information about the computer.
         """
         # get info about OS
-        (sysname, self.hostname, kernel, version, machine) = os.uname()
+        (sysname, self.hostname, kernel, version, machine) = os.uname()  # @UnusedVariable
         self.os = sysname + " " + kernel + " " + machine
 
         # get info about CPU

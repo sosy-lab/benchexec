@@ -329,7 +329,7 @@ class RunExecutor():
                     if failure:
                         pass
                         #print('Could not register process to cgrulesndg, error {}. Probably the daemon will mess up our cgroups.'.format(success))
-            except OSError as e:
+            except OSError:
                 pass
                 #print('libcgroup is not available: {}'.format(e.strerror))
 

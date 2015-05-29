@@ -93,7 +93,7 @@ class KillProcessOnOomThread(threading.Thread):
     def run(self):
         try:
             # In an eventfd, there are always 8 bytes
-            eventNumber = os.read(self._efd, 8) # blocks
+            _ = os.read(self._efd, 8) # blocks and returns event number (we do not need it)
             # If read returned, this means the kernel sent us an event.
             # It does so either on OOM or if the cgroup is removed.
             if not self._finished.is_set():

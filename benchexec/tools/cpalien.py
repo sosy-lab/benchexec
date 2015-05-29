@@ -20,10 +20,7 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-import subprocess
 import sys
-import string
 import os
 import re
 import benchexec.result as result
@@ -33,7 +30,6 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 if __name__ == "__main__":
     sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
 
-import benchexec.util as util
 import benchexec.tools.cpachecker
 
 class Tool(benchexec.tools.cpachecker.Tool):
@@ -75,9 +71,6 @@ class Tool(benchexec.tools.cpachecker.Tool):
         else:
             status = ''
 
-        bad_free = False
-        memory_leak = False
-        bad_deref = False
         undef = False
         for line in output:
             if 'java.lang.OutOfMemoryError' in line:
@@ -105,14 +98,6 @@ class Tool(benchexec.tools.cpachecker.Tool):
                     status = 'ERROR (parsing failed)'
                 elif 'Unknown function' in line:
                     status = 'ERROR (unknown function)'
-            elif line.startswith("Invalid free found"):
-                bad_free = True
-            elif line.startswith("Memory leak found"):
-                memory_leak = True
-            elif line.startswith("Invalid read found"):
-                bad_deref = True
-            elif line.startswith("Invalid write found"):
-                bad_deref = True
             elif line.startswith("Non-target undefined behavior detected."):
                 status = "ERROR (undefined behavior)"
                 undef = True;
