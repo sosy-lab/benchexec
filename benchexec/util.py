@@ -81,8 +81,8 @@ def is_comment(line):
     return not line or line.startswith("#") or line.startswith("//")
 
 
-def remove_all(list, elemToRemove):
-    return [elem for elem in list if elem != elemToRemove]
+def remove_all(list_, elemToRemove):
+    return [elem for elem in list_ if elem != elemToRemove]
 
 
 def flatten(iterable, exclude=[]):
@@ -226,8 +226,8 @@ def find_executable(program, fallback=None, exitOnError=True):
     dirs = os.environ['PATH'].split(os.path.pathsep)
     dirs.append(os.path.curdir)
 
-    for dir in dirs:
-        name = os.path.join(dir, program)
+    for dir_ in dirs:
+        name = os.path.join(dir_, program)
         if is_executable(name):
             return name
 

@@ -84,7 +84,7 @@ class SystemInfo(object):
         memInfoFilename = '/proc/meminfo'
         if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
             memInfoFile = open(memInfoFilename, 'rt')
-            memInfo = dict(tuple(str.split(': ')) for str in
+            memInfo = dict(tuple(s.split(': ')) for s in
                             memInfoFile.read()
                             .replace('\t', '')
                             .strip('\n').split('\n'))

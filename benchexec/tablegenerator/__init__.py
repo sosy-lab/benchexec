@@ -181,22 +181,22 @@ class Util:
         return default
 
     @staticmethod
-    def flatten(list):
-        return [value for sublist in list for value in sublist]
+    def flatten(list_):
+        return [value for sublist in list_ for value in sublist]
 
     @staticmethod
     def json(obj):
         return tempita.html(json.dumps(obj, sort_keys=True))
 
     @staticmethod
-    def prettylist(list):
-        if not list:
+    def prettylist(list_):
+        if not list_:
             return ''
 
         # Filter out duplicate values while keeping order
         values = set()
         uniqueList = []
-        for entry in list:
+        for entry in list_:
             if not entry in values:
                 values.add(entry)
                 uniqueList.append(entry)
@@ -725,12 +725,12 @@ def get_table_head(runSetResults, commonFileNamePrefix):
         for key in runSetResult.attributes:
             runSetResult.attributes[key] = Util.prettylist(runSetResult.attributes[key])
 
-    def get_row(rowName, format, collapse=False, onlyIf=None, default='Unknown'):
+    def get_row(rowName, format_string, collapse=False, onlyIf=None, default='Unknown'):
         def format_cell(attributes):
             if onlyIf and not onlyIf in attributes:
                 formatStr = default
             else:
-                formatStr = format
+                formatStr = format_string
             return formatStr.format(**attributes)
 
         values = [format_cell(runSetResult.attributes) for runSetResult in runSetResults]
@@ -879,7 +879,7 @@ def get_stats_of_run_set(runResults):
 
 
 class StatValue:
-    def __init__(self, sum, min=None, max=None, avg=None, median=None):
+    def __init__(self, sum, min=None, max=None, avg=None, median=None):  # @ReservedAssignment
         self.sum = sum
         self.min = min
         self.max = max
@@ -1041,23 +1041,23 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                        'remove_unit': Util.remove_unit,
                        }
 
-    def write_table(type, title, rows):
+    def write_table(table_type, title, rows):
         stats = get_stats(rows)
 
         summary = get_summary(runSetResults)
-        if summary and type != 'diff' and not options.correct_only and not options.common:
+        if summary and table_type != 'diff' and not options.correct_only and not options.common:
             stats.insert(1, summary)
 
-        for format in (options.format or TEMPLATE_FORMATS):
+        for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
-                logging.info('Writing %s to stdout...', format.upper().ljust(4))
+                logging.info('Writing %s to stdout...', template_format.upper().ljust(4))
             else:
-                outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=type, ext=format))
-                logging.info('Writing %s into %s ...', format.upper().ljust(4), outfile)
+                outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=table_type, ext=template_format))
+                logging.info('Writing %s into %s ...', template_format.upper().ljust(4), outfile)
 
             # read template
-            Template = tempita.HTMLTemplate if format == 'html' else tempita.Template
-            template_file = TEMPLATE_FILE_NAME.format(format=format)
+            Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
+            template_file = TEMPLATE_FILE_NAME.format(format=template_format)
             try:
                 template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
             except NameError:
@@ -1084,7 +1084,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                 with open(outfile, 'w') as file:
                     file.write(result)
 
-            if options.show_table and format == 'html':
+            if options.show_table and template_format == 'html':
                 try:
                     with open(os.devnull, 'w') as devnull:
                         subprocess.Popen(['xdg-open', outfile],
@@ -1240,9 +1240,9 @@ def main(args=None):
                 name = NAME_START + "." + time.strftime("%Y-%m-%d_%H%M", time.localtime())
 
         if inputFiles and not outputPath:
-            dir = os.path.dirname(inputFiles[0])
-            if all(dir == os.path.dirname(file) for file in inputFiles):
-                outputPath = dir
+            path = os.path.dirname(inputFiles[0])
+            if all(path == os.path.dirname(file) for file in inputFiles):
+                outputPath = path
             else:
                 outputPath = DEFAULT_OUTPUT_PATH
 

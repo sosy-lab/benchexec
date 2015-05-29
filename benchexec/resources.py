@@ -204,12 +204,12 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
         sys.exit("Could not read memory information from kernel: {0}".format(e))
 
 
-def _get_memory_banks_listed_in_dir(dir):
+def _get_memory_banks_listed_in_dir(path):
     """Get all memory banks the kernel lists in a given directory.
     Such a directory can be /sys/devices/system/node/ (contains all memory banks)
     or /sys/devices/system/cpu/cpu*/ (contains all memory banks on the same NUMA node as that core)."""
     # Such directories contain entries named "node<id>" for each memory bank
-    return [int(entry[4:]) for entry in os.listdir(dir) if entry.startswith('node')]
+    return [int(entry[4:]) for entry in os.listdir(path) if entry.startswith('node')]
 
 
 def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
