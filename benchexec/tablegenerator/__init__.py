@@ -830,9 +830,15 @@ def get_stats_of_run_set(runResults):
 
     for column, values in zip(columns, listsOfValues):
         if column.title == 'status':
-            countCorrectTrue, countCorrectFalse, countWrongTrue, countWrongFalse, countMissing = get_category_count(statusList)
-
             total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
+
+            counts = collections.Counter((category, result.get_result_classification(status))
+                                         for category, status in statusList)
+            countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
+            countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
+            countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
+            countWrongFalse   = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
+
             correct = StatValue(countCorrectTrue + countCorrectFalse)
             correctTrue = StatValue(countCorrectTrue)
             correctFalse = StatValue(countCorrectFalse)
@@ -902,30 +908,6 @@ class StatValue:
                          )
 
 
-def get_category_count(categoryList):
-    # count different elems in statusList
-    counts = collections.defaultdict(int)
-    for category, status in categoryList:
-        counts[(category, result.get_result_classification(status))] += 1
-
-    # warning: read next lines carefully, there are some brackets and commas!
-    return (
-        # correctTrue, correctFalse
-            counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE],
-            counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE],
-
-        # wrongTrue, wrongFalse
-            counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE],
-            counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE],
-
-        # missing
-            counts[result.CATEGORY_MISSING, result.RESULT_CLASS_TRUE] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_FALSE] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_UNKNOWN] \
-          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_ERROR] \
-            )
-
-
 def get_stats_of_number_column(values, categoryList, columnTitle):
     assert len(values) == len(categoryList)
     try:
@@ -988,14 +970,13 @@ def get_counts(rows): # for options.dump_counts
     countsList = []
 
     for runResults in rows_to_columns(rows):
-        statusList = [(runResult.category, runResult.status) for runResult in runResults]
-        correctTrue, correctFalse, wrongTrue, wrongFalse, missing = get_category_count(statusList)
-
-        correct = correctTrue + correctFalse
-        wrong = wrongTrue + wrongFalse
-        unknown = len(statusList) - correct - wrong - missing
-
-        countsList.append((correct, wrong, unknown))
+        counts = collections.Counter(runResult.category for runResult in runResults)
+        countsList.append((counts[result.CATEGORY_CORRECT],
+                           counts[result.CATEGORY_WRONG],
+                           counts[result.CATEGORY_UNKNOWN]
+                           + counts[result.CATEGORY_ERROR]
+                           + counts[None], # for rows without a result
+                          ))
 
     return countsList
 
