@@ -921,6 +921,8 @@ def get_category_count(categoryList):
         # missing
             counts[result.CATEGORY_MISSING, result.RESULT_CLASS_TRUE] \
           + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_FALSE] \
+          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_UNKNOWN] \
+          + counts[result.CATEGORY_MISSING, result.RESULT_CLASS_ERROR] \
             )
 
 

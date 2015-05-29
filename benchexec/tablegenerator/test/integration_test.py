@@ -234,7 +234,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ],
             table_prefix='test.2015-03-03_1613.table',
             diff_prefix='test.2015-03-03_1613.diff',
-            expected_counts='REGRESSIONS 2\nSTATS\n3 1 0\n2 0 2',
+            expected_counts='REGRESSIONS 2\nSTATS\n3 1 0\n2 0 1',
             )
 
     def test_dump_count_multi_table_reverse(self):
@@ -245,7 +245,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ],
             table_prefix='test.2015-03-03_1613-reverse.table',
             diff_prefix='test.2015-03-03_1613-reverse.diff',
-            expected_counts='REGRESSIONS 1\nSTATS\n2 0 2\n3 1 0',
+            expected_counts='REGRESSIONS 1\nSTATS\n2 0 1\n3 1 0',
             )
 
     def test_dump_count2(self):
