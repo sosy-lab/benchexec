@@ -336,12 +336,22 @@ class RunExecutor():
             cgroups.add_task(pid)
 
 
-        # copy parent-environment and set needed values, either override or append
-        runningEnv = os.environ.copy()
+        # Setup environment:
+        # If keepEnv is set, start from a fresh environment, otherwise with the current one.
+        # keepEnv specifies variables to copy from the current environment,
+        # newEnv specifies variables to set to a new value,
+        # additionalEnv specifies variables where some value should be appended, and
+        # clearEnv specifies variables to delete.
+        runningEnv = os.environ.copy() if not environments.get("keepEnv", {}) else {}
+        for key, value in environments.get("keepEnv", {}).items():
+            if key in os.environ:
+                runningEnv[key] = os.environ[key]
         for key, value in environments.get("newEnv", {}).items():
             runningEnv[key] = value
         for key, value in environments.get("additionalEnv", {}).items():
-            runningEnv[key] = runningEnv.get(key, "") + value
+            runningEnv[key] = os.environ.get(key, "") + value
+        for key in environments.get("clearEnv", {}).items():
+            runningEnv.pop(key, None)
 
         logging.debug("Using additional environment {0}.".format(str(environments)))
 
