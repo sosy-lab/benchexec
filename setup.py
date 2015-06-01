@@ -44,8 +44,8 @@ try:
     import pypandoc
     long_description = pypandoc.convert(readme, 'rst', format='markdown_github-hard_line_breaks')
 except (IOError, ImportError):
-    with open(readme, encoding='utf-8') as f:
-        long_description = f.read()
+    with open(readme, 'rb') as f:
+        long_description = f.read().decode('utf-8')
 
 setup(
     name = 'BenchExec',
