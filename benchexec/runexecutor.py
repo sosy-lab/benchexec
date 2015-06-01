@@ -364,6 +364,7 @@ class RunExecutor():
                                  stdin=DEVNULL,
                                  stdout=outputFile, stderr=outputFile,
                                  env=runningEnv, cwd=workingDir,
+                                 close_fds=True,
                                  preexec_fn=preSubprocess)
 
         except OSError as e:
