@@ -21,6 +21,7 @@ limitations under the License.
 
 import os
 import re
+import sys
 from setuptools import setup
 
 # Links for documentation on how to build and use Python packages:
@@ -78,6 +79,6 @@ setup(
         },
     install_requires = ['tempita==0.5.2'],
     setup_requires=['nose>=1.0'],
-    test_suite = 'nose.collector',
+    test_suite = 'nose.collector' if sys.version_info[0] != 2 else 'benchexec.test_python2.Python2Tests',
     zip_safe = True,
 )
