@@ -40,6 +40,8 @@ class TestRunExecutor(unittest.TestCase):
         cls.longMessage = True
         cls.maxDiff = None
         logging.disable(logging.CRITICAL)
+        if not hasattr(cls, 'assertRegex'):
+            cls.assertRegex = cls.assertRegexpMatches
 
     def setUp(self):
         self.runexecutor = RunExecutor()

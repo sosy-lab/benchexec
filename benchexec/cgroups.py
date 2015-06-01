@@ -164,7 +164,7 @@ def remove_cgroup(cgroup):
 
 class Cgroup(object):
     def __init__(self, cgroupsPerSubsystem):
-        assert cgroupsPerSubsystem.keys() <= ALL_KNOWN_SUBSYSTEMS
+        assert set(cgroupsPerSubsystem.keys()) <= ALL_KNOWN_SUBSYSTEMS
         assert all(cgroupsPerSubsystem.values())
         self.per_subsystem = cgroupsPerSubsystem # update self.paths on every update to this
         self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
