@@ -23,6 +23,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import threading
@@ -30,8 +31,19 @@ import time
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+try:
+    from subprocess import DEVNULL
+except ImportError:
+    DEVNULL = open(os.devnull, 'wb')
+
 from benchexec.runexecutor import RunExecutor
 from benchexec.runexecutor import _reduce_file_size_if_necessary
+
+here = os.path.dirname(__file__)
+base_dir = os.path.join(here, '..')
+bin_dir = os.path.join(base_dir, 'bin')
+runexec = os.path.join(bin_dir, 'runexec')
+python = 'python2' if sys.version_info[0] == 2 else 'python3'
 
 class TestRunExecutor(unittest.TestCase):
 
@@ -55,6 +67,26 @@ class TestRunExecutor(unittest.TestCase):
         finally:
             os.close(output_fd)
             os.remove(output_filename)
+
+    def execute_run_extern(self, *args, **kwargs):
+        (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
+        try:
+            runexec_output = subprocess.check_output(
+                    args=[python, runexec] + list(args) + ['--output', output_filename],
+                    stderr=DEVNULL,
+                    **kwargs
+                    ).decode()
+            output_lines = os.read(output_fd, 4096).decode().splitlines()
+        except subprocess.CalledProcessError as e:
+            print(e.output.decode())
+            raise e
+        finally:
+            os.close(output_fd)
+            os.remove(output_filename)
+
+        result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
+        return (result, output_lines)
+
 
     def test_command_output(self):
         if not os.path.exists('/bin/echo'):
@@ -256,6 +288,19 @@ class TestRunExecutor(unittest.TestCase):
                 new_content = tmp2.read()
         self.assertIn(self.REDUCE_WARNING_MSG, new_content)
         self.assertTrue(new_content.startswith(line))
+
+    def test_integration(self):
+        if not os.path.exists('/bin/echo'):
+            self.skipTest('missing /bin/echo')
+        (result, output) = self.execute_run_extern('/bin/echo', 'TEST_TOKEN')
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
+        for key in result.keys():
+            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'returnvalue'}, 'unexpected result value ' + key)
+
+        self.assertEqual(output[0], '/bin/echo TEST_TOKEN', 'run output misses executed command')
+        self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
+        for line in output[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
 
 class _StopRunThread(threading.Thread):
