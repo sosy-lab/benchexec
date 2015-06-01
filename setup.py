@@ -48,6 +48,8 @@ except (IOError, ImportError):
     with open(readme, 'rb') as f:
         long_description = f.read().decode('utf-8')
 
+PY2 = sys.version_info[0] == 2
+
 setup(
     name = 'BenchExec',
     version = version,
@@ -72,13 +74,14 @@ setup(
     package_data = {'benchexec.tablegenerator': ['template.*']},
     entry_points = {
         "console_scripts": [
-            'benchexec = benchexec:main',
             'runexec = benchexec.runexecutor:main',
+            ] + ([
+            'benchexec = benchexec:main',
             'table-generator = benchexec.tablegenerator:main',
-            ]
+            ] if not PY2 else []),
         },
     install_requires = ['tempita==0.5.2'],
     setup_requires=['nose>=1.0'],
-    test_suite = 'nose.collector' if sys.version_info[0] != 2 else 'benchexec.test_python2.Python2Tests',
+    test_suite = 'nose.collector' if not PY2 else 'benchexec.test_python2.Python2Tests',
     zip_safe = True,
 )
