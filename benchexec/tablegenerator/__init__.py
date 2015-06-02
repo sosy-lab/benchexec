@@ -1187,7 +1187,7 @@ def main(args=None):
     if outputPath == '-':
         # write to stdout
         outputFilePattern = '-'
-        outputPath = None
+        outputPath = '.'
     else:
         outputFilePattern = "{name}.{type}.{ext}"
 
