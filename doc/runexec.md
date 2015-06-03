@@ -64,3 +64,11 @@ Further parameters for `execute_run` can be used to specify resource limits
 (c.f. [runexecutor.py](../benchexec/runexecutor.py)).
 The result is a dictionary with the same information about the run
 that is printed to stdout by the `runexec` command-line tool.
+
+## Python 2 Compatibility
+
+While BenchExec in general requires at least Python 3.2,
+`runexec` should also work with Python 2.7,
+both when run as a stand-alone tool and when used as a Python module.
+This is also true for the `benchexc.check_cgroups` command
+that can be used to verify the [cgroups setup](INSTALL.md#setting-up-cgroups).
