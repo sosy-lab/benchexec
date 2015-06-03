@@ -29,5 +29,6 @@ class Python2Tests(unittest.TestSuite):
     def __init__(self):
         loader = unittest.TestLoader()
         super(Python2Tests, self).__init__([
+            loader.loadTestsFromName('benchexec.test_cgroups'),
             loader.loadTestsFromName('benchexec.test_runexecutor'),
             ])
