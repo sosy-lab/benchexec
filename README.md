@@ -40,5 +40,5 @@ BenchExec is developed at the [Software Systems Lab](http://www.sosy-lab.org) at
 - [Documentation](https://github.com/dbeyer/benchexec/tree/master/doc/INDEX.md)
 - [Changelog](https://github.com/dbeyer/benchexec/tree/master/doc/CHANGELOG.md)
 - [BenchExec GitHub Repository](https://github.com/dbeyer/benchexec),
-  use this for reporting [issues](https://github.com/dbeyer/benchexec/issues)
+  use this for [reporting issues and asking questions](https://github.com/dbeyer/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
