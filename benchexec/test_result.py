@@ -178,6 +178,7 @@ class TestResult(unittest.TestCase):
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_MEMTRACK))
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_TERMINATION))
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_UNSAT))
+        self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_WITNESS_CONFIRMED))
 
         self.assertEqual(RESULT_CLASS_UNKNOWN, get_result_classification(RESULT_UNKNOWN))
 

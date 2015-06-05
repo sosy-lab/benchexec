@@ -54,6 +54,7 @@ RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
 RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
 RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
+RESULT_WITNESS_CONFIRMED =  'witness confirmed'
 RESULT_SAT =                'sat'
 RESULT_UNSAT =              'unsat'
 
@@ -62,6 +63,7 @@ RESULT_UNSAT =              'unsat'
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
+               RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
                ]
 
