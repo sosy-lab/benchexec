@@ -59,10 +59,32 @@ class TestCheckCgroups(unittest.TestCase):
 
     def test_extern_command(self):
         self.execute_run_extern()
-        
+
     def test_simple(self):
         try:
-            check_cgroups.main('')
+            check_cgroups.main(['--no-thread'])
         except SystemExit:
             # expected if cgroups are not available
             pass
+
+    def test_threaded(self):
+        try:
+            check_cgroups.main([])
+        except SystemExit:
+            # expected if cgroups are not available
+            pass
+
+    def test_thread_result_is_returned(self):
+        """
+        Test that an error raised by check_cgroup_availability is correctly
+        re-raised in the main thread by replacing this function temporarily.
+        """
+        tmp = check_cgroups.check_cgroup_availability
+        try:
+            check_cgroups.check_cgroup_availability = lambda wait : exit(1)
+
+            with self.assertRaises(SystemExit):
+                check_cgroups.main([])
+
+        finally:
+            check_cgroups.check_cgroup_availability = tmp

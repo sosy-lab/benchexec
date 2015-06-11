@@ -26,6 +26,7 @@ import logging
 import os
 import sys
 import tempfile
+import threading
 
 from .cgroups import *
 from .runexecutor import RunExecutor
@@ -77,6 +78,35 @@ def check_cgroup_availability(wait=1):
         sys.exit(1)
 
 
+def check_cgroup_availability_in_thread(options):
+    """
+    Run check_cgroup_availability() in a separate thread to detect the following problem:
+    If "cgexec --sticky" is used to tell cgrulesengd to not interfere
+    with our child processes, the sticky flag unfortunately works only
+    for processes spawned by the main thread, not those spawned by other threads
+    (and this will happen if "benchexec -N" is used).
+    """
+    thread = _CheckCgroupsThread(options)
+    thread.start()
+    thread.join()
+    if thread.error:
+        raise thread.error
+
+class _CheckCgroupsThread(threading.Thread):
+
+    error = None
+
+    def __init__(self, options):
+        super(_CheckCgroupsThread, self).__init__()
+        self.options = options
+
+    def run(self):
+        try:
+            check_cgroup_availability(self.options.wait)
+        except BaseException as e:
+            self.error = e
+
+
 def main(argv=None):
     """
     A simple command-line interface for the cgroups check of BenchExec.
@@ -91,9 +121,16 @@ def main(argv=None):
            Part of BenchExec: https://github.com/dbeyer/benchexec/""")
     parser.add_argument("--wait", type=int, default=1, metavar="SECONDS",
                         help='wait some time to ensure no process interferes with cgroups in the meantime (default: 1s)')
+    parser.add_argument("--no-thread", action="store_true",
+                        help='run check on the main thread instead of a separate thread'
+                            + '(behavior of cgrulesengd differs depending on this)')
 
     options = parser.parse_args(argv[1:])
-    check_cgroup_availability(options.wait)
+
+    if options.no_thread:
+        check_cgroup_availability(options.wait)
+    else:
+        check_cgroup_availability_in_thread(options)
 
 if __name__ == '__main__':
     main()

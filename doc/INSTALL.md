@@ -82,6 +82,7 @@ All the above requirements can be checked easily by running
 
 after BenchExec has been installed.
 It will report warnings and exit with code 1 if something is missing.
+We recommend running this check to ensure benchmarks will get executed reliably.
 
 It may be that your Linux distribution already mounts the cgroup file system
 and creates a cgroup hierarchy for you.
