@@ -91,6 +91,12 @@ class KillProcessOnOomThread(threading.Thread):
             os.close(ofd)
 
     def run(self):
+        # os.close gets called in finally,
+        # which sometimes is executed while the process is shutting down already.
+        # It happens that the Python interpreter has already cleaned up at this point
+        # and "os" resolves to None, leading to an AttributeError.
+        # Thus we keep our own reference to this function.
+        close = os.close
         try:
             # In an eventfd, there are always 8 bytes
             _ = os.read(self._efd, 8) # blocks and returns event number (we do not need it)
@@ -111,10 +117,7 @@ class KillProcessOnOomThread(threading.Thread):
                 self._reset_memory_limit('memory.limit_in_bytes')
 
         finally:
-            try:
-                os.close(self._efd)
-            except AttributeError:
-                pass # when the Python process is shutting down, "os" is sometimes already missing
+            close(self._efd)
 
     def _reset_memory_limit(self, limitFile):
         if self._cgroups.has_value(MEMORY, limitFile):
