@@ -250,21 +250,27 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/cat')
 
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
+        cmd = [runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
         try:
-            runexec_output = subprocess.check_output(
-                    args=[runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat'],
-                    input=b'TEST_TOKEN',
-                    stderr=DEVNULL,
-                    ).decode()
+            with subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE, stderr=DEVNULL) as process:
+                try:
+                    runexec_output, unused_err = process.communicate(b'TEST_TOKEN')
+                except:
+                    process.kill()
+                    process.wait()
+                    raise
+                retcode = process.poll()
+                if retcode:
+                    print(runexec_output.decode())
+                    raise subprocess.CalledProcessError(retcode, process.args, output=runexec_output)
+
             output = os.read(output_fd, 4096).decode().splitlines()
-        except subprocess.CalledProcessError as e:
-            print(e.output.decode())
-            raise e
         finally:
             os.close(output_fd)
             os.remove(output_filename)
 
-        result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
+        result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.decode().splitlines())}
         self.assertEqual(int(result['exitcode']), 0, 'exit code of process is not 0')
         self.assertAlmostEqual(float(result['walltime'].rstrip('s')), 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(float(result['cputime'].rstrip('s')), 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
