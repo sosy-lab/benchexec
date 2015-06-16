@@ -254,7 +254,7 @@ class TestRunExecutor(unittest.TestCase):
             runexec_output = subprocess.check_output(
                     args=[runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat'],
                     input=b'TEST_TOKEN',
-                    stderr=subprocess.DEVNULL,
+                    stderr=DEVNULL,
                     ).decode()
             output = os.read(output_fd, 4096).decode().splitlines()
         except subprocess.CalledProcessError as e:
