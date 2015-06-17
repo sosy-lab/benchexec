@@ -252,18 +252,18 @@ class TestRunExecutor(unittest.TestCase):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
         cmd = [runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
         try:
-            with subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE, stderr=DEVNULL) as process:
-                try:
-                    runexec_output, unused_err = process.communicate(b'TEST_TOKEN')
-                except:
-                    process.kill()
-                    process.wait()
-                    raise
-                retcode = process.poll()
-                if retcode:
-                    print(runexec_output.decode())
-                    raise subprocess.CalledProcessError(retcode, process.args, output=runexec_output)
+            process = subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE, stderr=DEVNULL)
+            try:
+                runexec_output, unused_err = process.communicate(b'TEST_TOKEN')
+            except:
+                process.kill()
+                process.wait()
+                raise
+            retcode = process.poll()
+            if retcode:
+                print(runexec_output.decode())
+                raise subprocess.CalledProcessError(retcode, process.args, output=runexec_output)
 
             output = os.read(output_fd, 4096).decode().splitlines()
         finally:
