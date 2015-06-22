@@ -517,8 +517,8 @@ class RunExecutor():
         # For large values, a difference may also indicate a problem with cgroups,
         # for example another process moving our benchmarked process between cgroups,
         # thus we warn if the difference is substantial and take the larger ulimit value.
-        if cputime2 is not None and cputime > 0.5:
-            if (cputime * 0.95) > cputime2:
+        if cputime2 is not None:
+            if cputime > 0.5 and (cputime * 0.95) > cputime2:
                 logging.warning('Cputime measured by wait was {0}, cputime measured by cgroup was only {1}, perhaps measurement is flawed.'.format(cputime, cputime2))
             else:
                 cputime = cputime2
