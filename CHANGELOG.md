@@ -1,5 +1,13 @@
 # BenchExec Changelog
 
+## BenchExec 0.5
+
+- Allow to redirect stdin of the benchmarked tool in runexec / RunExecutor
+- Fix bug in measurement of CPU time
+  (only occurred in special cases and produced a wrong value below 0.5s)
+- Improve utility command for checking cgroups to work around a problem
+  with cgrulesngd not handlings threads correctly.
+
 ## BenchExec 0.4
 
 - Support for integrating SMTLib 2 compliant SMT solvers and checking the expected output.
