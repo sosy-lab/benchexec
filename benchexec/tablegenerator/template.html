@@ -1337,33 +1337,6 @@ function getSelectorForQuantile() {
 
     return select;
 }
-// this function collects the indices of columns with target as cell above the column
-function getColumnIndicesForTarget(target) {
-  var columnIndizes = [];
-  var cells = document.getElementById('columnTitles').cells;
-
-  if (graphData.isRunSet) {
-    var index = $(target).index(); // index of runset relative to table-row
-    for (i = 1; i < cells.length; i++) { // skip first cell
-      if ($(cells[i]).is(":visible")) {
-        if ("status" != cells[i].textContent
-            && run_sets[index-1] === columnsToRunset[i-1]) {
-          columnIndizes.push(i);
-        }
-      }
-    }
-  } else {
-    for (i = 1; i < cells.length; i++) { // skip first cell
-      if ($(cells[i]).is(":visible")) {
-        if (target.textContent == cells[i].textContent) {
-          columnIndizes.push(i);
-        }
-      }
-    }
-  }
-
-  return columnIndizes;
-};
 
 function showPlot() {
   $('#contentPaneBackground').trigger('click'); // cleanup
