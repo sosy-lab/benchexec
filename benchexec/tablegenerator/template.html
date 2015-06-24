@@ -901,9 +901,11 @@ function collectTableData() {
       var index = graphData.indices[j];
       var currentCell = $(currentRow.cells[index + dataColumnsOffset]);
       var value = getValue(currentCell, graphData.target.textContent);
+      var filename = currentRow.cells[0].textContent;
 
       // each array is of the form: [[id1, value1], [id2, value2], ...]
-      data[j].push([i, value]);
+      // the third entry is additional info and is used for the highlighter,
+      data[j].push([i, value, filename]);
     }
   }
 
@@ -931,7 +933,7 @@ function sortData(data) {
     // create new indizes
     var newLine = [];
     for (j = 0; j < line.length; j++) {
-      newLine.push([j, line[j][1]]);
+      newLine.push([j].concat(line[j].slice(1)));
     }
 
     newData.push(newLine);
@@ -1105,30 +1107,26 @@ function addLegendActions() {
 }
 
 
-function highlightFormatter(str, seriesIndex, pointIndex) {
-    var numberOfFile = graphData.originalData[seriesIndex][pointIndex][0];
-    var filename = graphData.filenames[numberOfFile];
-    if (graphData.target.textContent == "status") {
-      if (str == 1)       str = "correct";
-      else if (str == 0)  str = "unknown";
-      else                str = "wrong";
-    }
-    return filename + "<br>" + str;
+function highlightFormatValue(value, isStatusColumn) {
+  if (isStatusColumn) {
+    if (value == 1)       return "correct";
+    else if (value == 0)  return "unknown";
+    else                  return "wrong";
+  }
+  return value;
 }
 
+function highlightFormatterForQuantile(str, seriesIndex, pointIndex, plot) {
+    var point = plot.series[seriesIndex].data[pointIndex]; // POINT=[x,y,filename]
+    return point[2]
+        + "<br>" + highlightFormatValue(str, graphData.target.textContent === "status");
+}
 
 function highlightFormatterForScatter(str, seriesIndex, pointIndex, plot) {
     var point = plot.series[seriesIndex].data[pointIndex]; // POINT=[x,y,filename]
-    function getPointLabel(value, index) {
-      if (columnTitleCells[graphData.target[index]].textContent == "status") {
-        if (str == 1)       return "correct";
-        else if (str == 0)  return "unknown";
-        else                return "wrong";
-      }
-      return value;
-    }
-
-    return point[2] + "<br>X: " + getPointLabel(point[0], 0) + "<br>Y: " + getPointLabel(point[1], 1);
+    return point[2]
+        + "<br>X: " + highlightFormatValue(point[0], columnTitleCells[graphData.target[0]].textContent == "status")
+        + "<br>Y: " + highlightFormatValue(point[1], columnTitleCells[graphData.target[1]].textContent == "status");
 }
 
 
@@ -1359,7 +1357,7 @@ function showPlot() {
       showMarker: true,
       tooltipAxes: 'y',
       tooltipLocation: 'n',
-      tooltipContentEditor: highlightFormatter, // functionPointer!
+      tooltipContentEditor: highlightFormatterForQuantile, // functionPointer!
       tooltipFormatString: '%s',
       useAxesFormatters: false,
       bringSeriesToFront: true,
