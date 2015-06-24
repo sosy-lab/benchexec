@@ -849,7 +849,7 @@ var graphData = {
 };
 
 // this function collects the indices of columns with target as cell above the column
-function getColumnIndicesForTarget(target) {
+function getColumnIndicesForQuantile(target) {
   var columnIndizes = [];
 
   if (graphData.isRunSet) {
@@ -875,12 +875,12 @@ function getColumnIndicesForTarget(target) {
   return columnIndizes;
 };
 
-// collectTableData collects some data for the graphData,
+// collectTableDataForQuantile collects some data for the graphData,
 // this function must be called as first function for working with the plot
-function collectTableData() {
+function collectTableDataForQuantile() {
   var data = [];
 
-  graphData.indices = getColumnIndicesForTarget(graphData.target);
+  graphData.indices = getColumnIndicesForQuantile(graphData.target);
   for (j = 0; j < graphData.indices.length; j++) {
     data.push([]);
   }
@@ -907,12 +907,12 @@ function collectTableData() {
   }
 
   graphData.originalData = data;
-  graphData.data = graphData.isQuantile ? sortData(data) : data;
+  graphData.data = graphData.isQuantile ? sortDataForQuantile(data) : data;
 };
 
 
 // this method returns sorted data for showQuantile().
-function sortData(data) {
+function sortDataForQuantile(data) {
   var newData = [];
   for (i = 0; i < data.length; i++) {
     var line = data[i];
@@ -975,8 +975,6 @@ function getValue(cell, title) {
 
 // this functions collects a list of pairs (a,b) where a and b are the entires for the scatterplot.
 // this function must be called as first function for working with the plot.
-// collectTableData collects some data for the graphData,
-// this function must be called as first function for working with the plot
 function collectTableDataForScatter(index1, title1, index2, title2) {
   var data = [[]];
 
@@ -1013,7 +1011,7 @@ function collectTableDataForScatter(index1, title1, index2, title2) {
 
 // Create a list which indicates at which ticks to draw grid lines
 // and which labels to put at the x-axis.
-function getXTicks() {
+function getXTicksForQuantile() {
   var xTicks = [];
   var maxLength = 40;
 
@@ -1057,7 +1055,7 @@ function getValueAxisTicks(isStatusColumn) {
 }
 
 // returns label of a runset: 'tool+runset+date'.
-function getLabels() {
+function getLabelsForQuantile() {
   var labels = [];
   if (graphData.isRunSet) {
       for (i = 0; i < graphData.indices.length; i++) {
@@ -1074,7 +1072,7 @@ function getLabels() {
 };
 
 
-function addLegendActions() {
+function addLegendActionsForQuantile() {
   var legendButtons = $('tr.jqplot-table-legend');
   var seriesLines = $('canvas.jqplot-series-canvas');
 
@@ -1326,19 +1324,19 @@ function getSelectorForQuantile() {
         } else {
           return;
         }
-        showPlot();
+        showQuantilePlot();
     });
 
     return select;
 }
 
-function showPlot() {
+function showQuantilePlot() {
   $('#contentPaneBackground').trigger('click'); // cleanup
   $('#contentPane').append('<div id="chart"></div>');
-  addButtons($('#contentPane'), showPlot, true);
+  addButtons($('#contentPane'), showQuantilePlot, true);
   showContentPane();
   var selector = getSelectorForQuantile();
-  collectTableData();
+  collectTableDataForQuantile();
 
   var plot = $.jqplot('chart', graphData.data, {
     title: graphData.target.textContent,
@@ -1346,7 +1344,7 @@ function showPlot() {
       show:true,
       placement: 'outsideGrid',
       renderer: $.jqplot.EnhancedLegendRenderer,
-      labels: getLabels(),
+      labels: getLabelsForQuantile(),
       location: 's',
       rowSpacing: "0px",
       showSwatches: true,
@@ -1372,7 +1370,7 @@ function showPlot() {
     },
     axes:{
       xaxis:{
-        ticks: getXTicks(),
+        ticks: getXTicksForQuantile(),
         tickRenderer: $.jqplot.CanvasAxisTickRenderer,
         tickOptions: {
           fontSize: '9px',
@@ -1392,7 +1390,7 @@ function showPlot() {
 
   $('.jqplot-title').empty().append(selector);
 
-  addLegendActions();
+  addLegendActionsForQuantile();
 
   $('#contentPaneBackground').click(function(event) {
     plot.destroy();
@@ -1407,7 +1405,7 @@ function createQuantilePlotView(event) {
     graphData.target = event.target;
   }
   graphData.isRunSet = false;
-  showPlot();
+  showQuantilePlot();
 };
 
 function createScatterPlotView() {
@@ -1431,7 +1429,7 @@ $(document).ready(function() {
         .click(function (event) {
               graphData.target = event.target;
               graphData.isRunSet = true;
-              showPlot();
+              showQuantilePlot();
         });
   }
 
