@@ -283,11 +283,10 @@ def get_task_id(task):
     @param task: the XML element that represents a task
     @return a tuple with filename of task as first element
     """
-    task_id = [task.get('name')]
-    if 'properties' in task.keys():
-        task_id.append(task.get('properties'))
-    if 'runset' in task.keys():
-        task_id.append(task.get('runset'))
+    task_id = [task.get('name'),
+               task.get('properties'),
+               task.get('runset'),
+               ]
     return tuple(task_id)
 
 
@@ -654,7 +653,7 @@ class Row:
         self.id = results[0].task_id
         assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
         self.filename = self.id[0]
-        self.properties = self.id[1].split() if len(self.id) > 1 else []
+        self.properties = self.id[1].split() if self.id[1] else []
 
     def set_relative_path(self, common_prefix, base_dir):
         """
@@ -762,6 +761,22 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             'options': get_row('Options', '{options}'),
             'property':get_row('Propertyfile', '{propertyfiles}', collapse=True, onlyIf='propertyfiles', default=''),
             'title':   titleRow}
+
+
+def select_relevant_id_columns(rows):
+    """
+    Find out which of the entries in Row.id are equal for all given rows.
+    @return: A list of True/False values according to whether the i-th part of the id is always equal.
+    """
+    relevant_id_columns = [True] # first column (file name) is always relevant
+    if rows:
+        prototype_id = rows[0].id
+        for column in range(1, len(prototype_id)):
+            def id_equal_to_prototype(row):
+                return row.id[column] == prototype_id[column]
+
+            relevant_id_columns.append(not all(map(id_equal_to_prototype, rows)))
+    return relevant_id_columns
 
 
 def get_stats(rows):
@@ -1016,6 +1031,9 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     run_sets_columns = [[column for column in runSet.columns] for runSet in runSetResults]
     run_sets_column_titles = [[column.title for column in runSet.columns] for runSet in runSetResults]
 
+    relevant_id_columns = select_relevant_id_columns(rows)
+    count_id_columns = relevant_id_columns.count(True)
+
     templateNamespace={'flatten': Util.flatten,
                        'json': Util.json,
                        'relpath': os.path.relpath,
@@ -1056,6 +1074,8 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                         run_sets=run_sets_data,
                         columns=run_sets_columns,
                         columnTitles=run_sets_column_titles,
+                        relevant_id_columns=relevant_id_columns,
+                        count_id_columns=count_id_columns,
                         lib_url=options.lib_url,
                         base_dir=outputPath,
                         )

@@ -184,7 +184,7 @@ def format_options(str):
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
 <tr id="{{line.id}}" class="{{line.id}}">
-<td>{{line.name}}</td>
+<td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
     {{endfor}}
@@ -196,6 +196,11 @@ def format_options(str):
 <tbody>
 {{for line in body}}
 <tr><td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a></td>
+  {{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}
+    {{if show}}
+<td>{{id}}</td>
+    {{endif}}
+  {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
   {{if column.title == 'status'}}
@@ -224,14 +229,14 @@ def format_stat_title(stat, column, format_value):
 }}
 {{py:line = head['title']}}
 <tr class="{{line.id}}">
-<td>{{line.name}}</td>
+<td colspan="{{count_id_columns}}">{{line.name}}</td>
   {{for cell, width in line.content}}
 <td colspan="{{width}}">{{cell}}</td>
   {{endfor}}
 </tr>
 {{for line in foot}}
 <tr class="statistics">
-<td {{attr(title=line.description)}}>{{line.title | html}}</td>
+<td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
     {{for cell, column in zip(line.content, flatten(columns))}}
 <td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column)}}</td>
     {{endfor}}
@@ -239,7 +244,7 @@ def format_stat_title(stat, column, format_value):
 {{endfor}}
 {{py:line = head['runset']}}
 <tr class="{{line.id}}">
-<td>{{line.name}}</td>
+<td colspan="{{count_id_columns}}">{{line.name}}</td>
   {{for cell, width in line.content}}
 <td colspan="{{width}}">{{cell}}</td>
   {{endfor}}
@@ -260,7 +265,7 @@ $('.scriptonly').show();
 // All the data from the table head in nice JS data structures.
 var run_sets = {{run_sets|json}};   // list with the attributes of all run sets
 var columns = {{columnTitles|json}}; // nested list with all the columns headings
-var dataColumnsOffset = 1;        // index of first column in table with data
+var dataColumnsOffset = {{count_id_columns}}; // index of first column in table with data
 var headerColumnsOffset = 1;      // index of first column in header that belongs to data column
 var columnsToRunset = [];         // for each data column of the table the runSet it belongs to (first column is 0)
 var columnTitleCells = $('#columnTitles').children().slice(headerColumnsOffset); // all cells with column headers of data columns (first column is 0)
