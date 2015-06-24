@@ -1045,9 +1045,9 @@ function getXTicks() {
 }
 
 
-// get labels for y-direction
-function getYTicks() {
-  if (graphData.target.textContent == "status") {
+// get labels for y-direction (and x-direction on scatter plots, too)
+function getValueAxisTicks(isStatusColumn) {
+  if (isStatusColumn) {
     return [[-1.5, " "], [-1, "wrong"], [0, "unknown"], [1, "correct"], [1.5, " "]];
   } else {
     return [];
@@ -1119,13 +1119,16 @@ function highlightFormatter(str, seriesIndex, pointIndex) {
 
 function highlightFormatterForScatter(str, seriesIndex, pointIndex, plot) {
     var point = plot.series[seriesIndex].data[pointIndex]; // POINT=[x,y,filename]
-    // console.log(point);
-    if (graphData.target.textContent == "status") { // TODO not working, we have 2 independent values
-      if (str == 1)       str = "correct";
-      else if (str == 0)  str = "unknown";
-      else                str = "wrong";
+    function getPointLabel(value, index) {
+      if (columnTitleCells[graphData.target[index]].textContent == "status") {
+        if (str == 1)       return "correct";
+        else if (str == 0)  return "unknown";
+        else                return "wrong";
+      }
+      return value;
     }
-    return point[2] + "<br>X: " + point[0] + "<br>Y: " + point[1]; // + "<br>STR: " + str;
+
+    return point[2] + "<br>X: " + getPointLabel(point[0], 0) + "<br>Y: " + getPointLabel(point[1], 1);
 }
 
 
@@ -1237,6 +1240,7 @@ function showScatterPlot() {
     },
     axes:{
       xaxis:{
+        ticks: getValueAxisTicks(title0 === "status"),
         label:label0,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         labelOptions:{ textColor:'Black' },
@@ -1247,6 +1251,7 @@ function showScatterPlot() {
         }
       },
       yaxis:{
+        ticks: getValueAxisTicks(title1 === "status"),
         label:label1,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         labelOptions:{ textColor:'Black' },
@@ -1377,7 +1382,7 @@ function showPlot() {
         }
       },
       yaxis:{
-        ticks: getYTicks(),
+        ticks: getValueAxisTicks(graphData.target.textContent == "status"),
         renderer: (graphData.isLogScale && graphData.target.textContent !== 'status') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
         pad: 1.2,
         tickOptions:{
