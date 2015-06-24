@@ -1415,19 +1415,22 @@ function createScatterPlotView() {
 
 // this function adds the listeners to the table
 $(document).ready(function() {
-  $('.columnTitles > td:not(:first-child)') // do not use first column
+  $(columnTitleCells)
       .addClass("clickable")
       .attr("title", "Click here to show a graph of this column")
       .click(createQuantilePlotView);
 
-  $('.run > td:not(:first-child)') // do not use first column
-      .addClass("clickable")
-      .attr("title", "Click here to show a graph of this run-set")
-      .click(function (event) {
-            graphData.target = event.target;
-            graphData.isRunSet = true;
-            showPlot();
-      });
+  var runSetRows = $('.run')
+  for (var i = 0; i < runSetRows.length; i++) {
+    $(runSetRows[i]).children().slice(headerColumnsOffset)
+        .addClass("clickable")
+        .attr("title", "Click here to show a graph of this run-set")
+        .click(function (event) {
+              graphData.target = event.target;
+              graphData.isRunSet = true;
+              showPlot();
+        });
+  }
 
   $('.run > td:first-child')
       .addClass("clickable")
