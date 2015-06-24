@@ -837,7 +837,6 @@ $(document).ready(function(){
 var graphData = {
   target : null, // for quantile plot: target element (cell with runset name or column name); for scatter plot: list with two column indices to show
   isRunSet : null,
-  filenames : null,
   indices : null, // columns from table
   data : null, // values are sorted if quantilePlot else not sorted, indizes always from 0 to N
   originalData : null, // values are equal to data, but indizes are not sorted
@@ -887,7 +886,6 @@ function collectTableData() {
   }
 
   // reset graphData
-  graphData.filenames = [];
   graphData.integerOnly = true;
   graphData.minValue = Number.POSITIVE_INFINITY;
   graphData.maxValue = Number.NEGATIVE_INFINITY;
@@ -895,7 +893,6 @@ function collectTableData() {
   var rows = $('#dataTable > tbody > tr:visible');
   for (i = 0; i < rows.length; i++) {
     var currentRow = rows[i];
-    graphData.filenames.push(currentRow.cells[0].textContent);
 
     for (j = 0; j < graphData.indices.length; j++) {
       var index = graphData.indices[j];
@@ -985,7 +982,6 @@ function collectTableDataForScatter(index1, title1, index2, title2) {
 
   // reset graphData
   graphData.indices = [];
-  graphData.filenames = [];
   graphData.integerOnly = true;
   graphData.minValue = Number.POSITIVE_INFINITY;
   graphData.maxValue = Number.NEGATIVE_INFINITY;
@@ -1021,7 +1017,7 @@ function getXTicks() {
   var xTicks = [];
   var maxLength = 40;
 
-  var numRows = graphData.filenames.length;
+  var numRows = graphData.data[0].length;
   var labelStep = 1;
   var gridStep = 1;
   if (numRows > 30) { labelStep = 5; }
@@ -1039,7 +1035,8 @@ function getXTicks() {
 
   for (i = 0; i < numRows; i++) {
     if (!(i%gridStep)) {
-        xTicks.push([i, ((i%labelStep)?" ":getLabel(graphData.filenames[i], i))]);
+        // third value of each data point is filename
+        xTicks.push([i, ((i%labelStep)?" ":getLabel(graphData.data[0][i][2], i))]);
     }
   }
 
