@@ -263,6 +263,7 @@ var columns = {{columnTitles|json}}; // nested list with all the columns heading
 var dataColumnsOffset = 1;        // index of first column in table with data
 var headerColumnsOffset = 1;      // index of first column in header that belongs to data column
 var columnsToRunset = [];         // for each data column of the table the runSet it belongs to (first column is 0)
+var columnTitleCells = $('#columnTitles').children().slice(headerColumnsOffset); // all cells with column headers of data columns (first column is 0)
 
 for (var i = 0; i < columns.length; i++) {
   run_sets[i].columns = columns[i];
@@ -443,11 +444,9 @@ function decColspan(col) {
 // @param index: index of a column in row "columnTitle"
 function toggleColumn (shouldBeVisible, index) {
     if (headerAndFooterArray == null) { createHeaderAndFooterArray(); }
-    var columnTitles = $('#columnTitles > td');
-    var headerCellIndex = index + headerColumnsOffset;
     var dataCellIndex   = index + dataColumnsOffset;
     // if column is hidden (or visible), we do not hide (or show) it again
-    if ($(columnTitles[headerCellIndex]).is(":visible") != shouldBeVisible) {
+    if ($(columnTitleCells[index]).is(":visible") != shouldBeVisible) {
         for (var i=0; i<headerAndFooterArray.length; i++) {
             var cell = headerAndFooterArray[i][dataCellIndex]; // dataCellIndex because colspan is expanded
             shouldBeVisible ? incColspan(cell) : decColspan(cell);
@@ -566,7 +565,7 @@ function createColumnToggleView() {
             var index = runSet.indexToColumn[j];
             indexToCell[index] = cell;
             var cellIndex = index + headerColumnsOffset;
-            var checked = $('#columnTitles > td:nth-child(' + (cellIndex+1) + ')').is(':visible');
+            var checked = $(columnTitleCells[index]).is(':visible');
             cell.isChecked = checked;
             cell.addClass(checked ? 'visibleCell' : 'hiddenCell')
                 .click( {index: [index]},
@@ -701,7 +700,7 @@ function fillRowFilterField(columnIndex) {
 
     // determinate options
     var options = [];
-    var columnName = $('#columnTitles')[0].cells[columnIndex + headerColumnsOffset].textContent;
+    var columnName = columnTitleCells[columnIndex].textContent;
     if (columnName == 'status') {
         options = options.concat(['correct', 'wrong', 'unknown']);
     }
@@ -758,7 +757,7 @@ function removeFilterButtons() {
 /* this function hides all rows,
 in which the column with the columnIndex does not match one of the values. */
 function hideRows(values, columnIndex) {
-    var columnName = $('#columnTitles')[0].cells[columnIndex + headerColumnsOffset].textContent;
+    var columnName = columnTitleCells[columnIndex].textContent;
 
     var dataRows = $('#dataTable > tbody')[0].rows;
     for (var i = 0; i < dataRows.length; i++) {
@@ -853,22 +852,21 @@ var graphData = {
 // this function collects the indices of columns with target as cell above the column
 function getColumnIndicesForTarget(target) {
   var columnIndizes = [];
-  var cells = document.getElementById('columnTitles').cells;
 
   if (graphData.isRunSet) {
     var runSetIndex = $(target).index() - headerColumnsOffset;
-    for (i = 0; i < cells.length-headerColumnsOffset; i++) {
-      if ($(cells[i + headerColumnsOffset]).is(":visible")) {
-        if ("status" != cells[i + headerColumnsOffset].textContent
+    for (i = 0; i < columnTitleCells.length; i++) {
+      if ($(columnTitleCells[i]).is(":visible")) {
+        if ("status" != columnTitleCells[i].textContent
             && run_sets[runSetIndex] === columnsToRunset[i]) {
           columnIndizes.push(i);
         }
       }
     }
   } else {
-    for (i = 0; i < cells.length-headerColumnsOffset; i++) {
-      if ($(cells[i + headerColumnsOffset]).is(":visible")) {
-        if (target.textContent == cells[i + headerColumnsOffset].textContent) {
+    for (i = 0; i < columnTitleCells.length; i++) {
+      if ($(columnTitleCells[i]).is(":visible")) {
+        if (target.textContent == columnTitleCells[i].textContent) {
           columnIndizes.push(i);
         }
       }
@@ -1060,10 +1058,9 @@ function getYTicks() {
 function getLabels() {
   var labels = [];
   if (graphData.isRunSet) {
-      var cells = document.getElementById('columnTitles').cells;
       for (i = 0; i < graphData.indices.length; i++) {
         var index = graphData.indices[i];
-        labels.push(cells[index + headerColumnsOffset].textContent);
+        labels.push(columnTitleCells[index].textContent);
       }
   } else {
       for (i = 0; i < graphData.indices.length; i++) {
@@ -1163,13 +1160,12 @@ function addButtons(target, callback, showQuantileButton) {
 function getSelectorForScatter(identifier) {
     var select = $('<select>', {class:'plot-selector'});
     var columnIndex = 0;
-    var cells = document.getElementById('columnTitles').cells;
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
         var group = $('<optgroup>', {label:getNameOfTestDirect(runSet)})
                 .appendTo(select);
         for (var j = 0; j < runSet.columns.length; j++, columnIndex++) {
-            if ($(cells[columnIndex + headerColumnsOffset]).is(':visible')) {
+            if ($(columnTitleCells[columnIndex]).is(':visible')) {
                 var column = runSet.columns[j];
                 var option = $('<option>', {
                                 value:columnIndex,
@@ -1200,9 +1196,8 @@ function showScatterPlot() {
   var selector1 = getSelectorForScatter(1);
   var index0 = graphData.target[0];
   var index1 = graphData.target[1];
-  var titles = $('#columnTitles').children();
-  var title0 = titles[index0 + headerColumnsOffset].textContent;
-  var title1 = titles[index1 + headerColumnsOffset].textContent;
+  var title0 = columnTitleCells[index0].textContent;
+  var title1 = columnTitleCells[index1].textContent;
   var label0 = getNameOfTest(index0) + " " + title0;
   var label1 = getNameOfTest(index1) + " " + title1;
 
@@ -1304,12 +1299,11 @@ function getSelectorForQuantile() {
             .appendTo(select);
     var columns = []
     var columnIndex = 0;
-    var cells = document.getElementById('columnTitles').cells;
     for (var i = 0; i < run_sets.length; i++) {
         var run_set = run_sets[i];
         for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
             var column = run_set.columns[j];
-            if (columns[column] == null && $(cells[columnIndex + headerColumnsOffset]).is(':visible')) {
+            if (columns[column] == null && $(columnTitleCells[columnIndex]).is(':visible')) {
               $('<option>', { value:'column' + columnIndex, selected:(!graphData.isRunSet && graphData.target.textContent == column) })
                   .text(column).appendTo(group);
               columns[column] = column;
@@ -1321,15 +1315,14 @@ function getSelectorForQuantile() {
         var selection = select.find(':selected')[0].value;
         var selectedValue = Number(selection.substring(6));
         if (selection.substring(0, 6) == 'runset') {
-          var cells = document.getElementById('run').cells;
+          graphData.target = document.getElementById('run').cells[selectedValue + headerColumnsOffset];
           graphData.isRunSet = true;
         } else if (selection.substring(0, 6) == 'column') {
-          var cells = document.getElementById('columnTitles').cells;
+          graphData.target = columnTitleCells[selectedValue]
           graphData.isRunSet = false;
         } else {
           return;
         }
-        graphData.target = cells[selectedValue + headerColumnsOffset];
         showPlot();
     });
 
@@ -1406,7 +1399,7 @@ function showPlot() {
 
 function createQuantilePlotView(event) {
   if (event == undefined) {
-    graphData.target = document.getElementById('columnTitles').cells[1 + headerColumnsOffset]; // second column is default
+    graphData.target = columnTitleCells[1]; // second column is default
   } else {
     graphData.target = event.target;
   }
