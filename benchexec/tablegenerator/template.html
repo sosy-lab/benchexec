@@ -1024,19 +1024,22 @@ function getXTicks() {
   if (numRows > 200) { labelStep = 10; gridStep = 5; }
   if (numRows > 1000) { labelStep = 20; gridStep = 10; }
 
-  function getLabel(name, index) {
-    if (graphData.isQuantile) {
-      return index.toString();
-    } else {
-      if (name.length > maxLength) { name = name.substring(0, maxLength) + "..."; }
-      return name;
-    }
-  }
-
   for (i = 0; i < numRows; i++) {
     if (!(i%gridStep)) {
-        // third value of each data point is filename
-        xTicks.push([i, ((i%labelStep)?" ":getLabel(graphData.data[0][i][2], i))]);
+      var label;
+      if (!(i % labelStep)) {
+        if (graphData.isQuantile) {
+          label = i.toString();
+        } else {
+          // third value of each data point is filename
+          var name = graphData.data[0][i][2];
+          label = (name.length > maxLength) ? name.substring(0, maxLength) + "..." : name;
+        }
+      } else {
+        label = " ";
+      }
+
+      xTicks.push([i, label]);
     }
   }
 
