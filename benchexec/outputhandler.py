@@ -632,7 +632,7 @@ class Statistics:
         correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)]
         correct_false = correct - correct_true
         incorrect = self.dic[result.CATEGORY_WRONG]
-        incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE)]
+        incorrect_true = self.dic[(result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE)]
         incorrect_false = incorrect - incorrect_true
 
         width = 6
