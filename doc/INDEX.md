@@ -13,6 +13,8 @@ The documentation for BenchExec is available in the following files:
 - [table-generator](table-generator.md)
 - [runexec](runexec.md)
 
+More on the background of BenchExec can also be found in our paper
+[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
 
 ## Glossary
 

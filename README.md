@@ -3,6 +3,13 @@
 
 [![Build Status](https://travis-ci.org/dbeyer/benchexec.svg?branch=master)](https://travis-ci.org/dbeyer/benchexec)
 
+**News**: We have published a paper titled
+[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf)
+on BenchExec and its background
+at [SPIN 2015](http://www.spin2015.org/).
+It also contains a list of rules that you should always follow when doing benchmarking
+(and which BenchExec handles for you).
+
 BenchExec provides three major features:
 
 - execution of arbitrary commands with precise and reliable measurement
@@ -40,6 +47,7 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
 - [BenchExec GitHub Repository](https://github.com/dbeyer/benchexec),
   use this for [reporting issues and asking questions](https://github.com/dbeyer/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
+- Paper [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf) about BenchExec ([supplementary webpage](http://www.sosy-lab.org/~dbeyer/benchmarking/))
 
 ### Users of BenchExec
 
