@@ -76,7 +76,8 @@ def main(args=None):
     options = parser.parse_args(args[1:])
 
     # load results
-    run_set_result = tablegenerator.RunSetResult.create_from_xml(options.result, tablegenerator.parse_results_file(options.result))
+    run_set_result = tablegenerator.RunSetResult.create_from_xml(
+            options.result, tablegenerator.parse_results_file(options.result))
     run_set_result.collect_data(options.correct_only)
 
     # select appropriate results
@@ -86,11 +87,16 @@ def main(args=None):
         results = []
         for run_result in run_set_result.results:
             if run_result.score is None:
-                sys.exit('No score available for task {0}, cannot produce score-based quantile data.'.format(run_result.task_id[0]))
+                sys.exit('No score available for task {0}, '
+                         + 'cannot produce score-based quantile data.'
+                         .format(run_result.task_id[0]))
+
             if run_result.category == result.CATEGORY_WRONG:
                 start_index += run_result.score
             elif run_result.category == result.CATEGORY_MISSING:
-                sys.exit('Property missing for task {0}, cannot produce score-based quantile data.'.format(run_result.task_id[0]))
+                sys.exit('Property missing for task {0}, ',
+                         + 'cannot produce score-based quantile data.'
+                         .format(run_result.task_id[0]))
             elif run_result.category == result.CATEGORY_CORRECT:
                 results.append(run_result)
             else:
@@ -99,7 +105,8 @@ def main(args=None):
         start_index = 0
         index_increment = lambda run_result: 1
         if options.correct_only:
-            results = [run_result for run_result in run_set_result.results if run_result.category == result.CATEGORY_CORRECT]
+            results = [run_result for run_result in run_set_result.results
+                       if run_result.category == result.CATEGORY_CORRECT]
         else:
             results = run_set_result.results
 
