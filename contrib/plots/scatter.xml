@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<table>
+  <result filename="config1.results.xml"/>
+  <result filename="config2.results.xml"/>
+
+  <column title="status"/>
+  <column title="cputime"/>
+  <column title="walltime"/>
+  <column title="memUsage"/>
+</table>
