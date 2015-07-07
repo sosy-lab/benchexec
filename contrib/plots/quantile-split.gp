@@ -28,8 +28,8 @@ unset xtics
 
 # plot with data points from prepared CSV files (more lines can be added here)
 plot \
-     "config1.results.quantile.csv" title "Configuration 1", \
-     "config2.results.quantile.csv" title "Configuration 2"
+     "config1.results.quantile.csv" using 1:4 title "Configuration 1", \
+     "config2.results.quantile.csv" using 1:4 title "Configuration 2"
 
 # configure lower plot and x-axis
 set yrange [0:1]
@@ -47,5 +47,5 @@ unset logscale
 
 # same plot definition as above
 plot \
-     "config1.results.quantile.csv" title "Configuration 1", \
-     "config2.results.quantile.csv" title "Configuration 2"
+     "config1.results.quantile.csv" using 1:4 title "Configuration 1", \
+     "config2.results.quantile.csv" using 1:4 title "Configuration 2"

@@ -22,5 +22,5 @@ set style data linespoints
 
 # plot with data points from prepared CSV files (more lines can be added here)
 plot \
-     "config1.results.quantile.csv" title "Configuration 1" with linespoints pointinterval -50, \
-     "config2.results.quantile.csv" title "Configuration 2" with linespoints pointinterval -50
+     "config1.results.quantile.csv" using 1:4 title "Configuration 1" with linespoints pointinterval -50, \
+     "config2.results.quantile.csv" using 1:4 title "Configuration 2" with linespoints pointinterval -50

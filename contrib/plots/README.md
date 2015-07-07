@@ -31,7 +31,8 @@ where the color of each data point indicates the number of its occurrences
 (best for discrete data).
 
 For using these Gnuplot files, appropriate CSV files need to be generated,
-which can be done with `table-generator`.
+which can be done with `table-generator` for scatter plots
+and with the script `quantile-generator` in this directory for quantile plots.
 The script [generate-plots.sh](generate-plots.sh) shows the necessary commands.
 For scatter plots, an XML file with a table definition needs to be written
 that contains the two data columns that should be shown in the plot,
