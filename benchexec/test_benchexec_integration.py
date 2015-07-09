@@ -34,6 +34,8 @@ here = os.path.dirname(__file__)
 base_dir = os.path.join(here, '..')
 bin_dir = os.path.join(base_dir, 'bin')
 benchexec = os.path.join(bin_dir, 'benchexec')
+result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
+result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.0//EN'
 
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
@@ -91,3 +93,25 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
     def test_simple_parallel(self):
         self.run_benchexec_and_compare_expected_files('--numOfThreads', '12')
+
+    def test_validate_result_xml(self):
+        self.run_cmd(benchexec, benchmark_test_file,
+                     '--outputpath', self.tmp,
+                     '--startTime', '2015-01-01 00:00',
+                     )
+        basename = 'benchmark-example-rand.2015-01-01_0000.'
+        xml_files = ['results.xml'] + ['results.'+files+'.xml' for files in benchmark_test_tasks]
+        xml_files = map(lambda x : os.path.join(self.tmp, basename + x), xml_files)
+
+        # setup parser with DTD validation
+        from lxml import etree
+        class DTDResolver(etree.Resolver):
+            def resolve(self, url, public_id, context):
+                if public_id == result_dtd_public_id:
+                    return self.resolve_filename(result_dtd, context)
+                return None
+        parser = etree.XMLParser(dtd_validation=True)
+        parser.resolvers.add(DTDResolver())
+
+        for xml_file in xml_files:
+            etree.parse(xml_file, parser=parser)
