@@ -1,6 +1,7 @@
-<!ELEMENT result (systeminfo, columns, run+, column*)>
+<!ELEMENT result (columns, systeminfo+, run*, column*)>
 <!ATTLIST result name CDATA #IMPLIED
                benchmarkname CDATA #REQUIRED
+               block CDATA #IMPLIED
                date CDATA #REQUIRED
                tool CDATA #REQUIRED
                toolmodule CDATA #REQUIRED
@@ -10,7 +11,7 @@
                timelimit CDATA #IMPLIED
                cpuCores CDATA #IMPLIED>
 
-<!ELEMENT systeminfo (os, cpu, ram)>
+<!ELEMENT systeminfo (os, cpu, ram, environment)>
 <!ATTLIST systeminfo hostname CDATA #IMPLIED>
 <!ELEMENT os EMPTY>
 <!ATTLIST os name CDATA #REQUIRED>
@@ -20,6 +21,9 @@
               model CDATA #REQUIRED>
 <!ELEMENT ram EMPTY>
 <!ATTLIST ram size CDATA #REQUIRED>
+<!ELEMENT environment (var*)>
+<!ELEMENT var (#PCDATA)>
+<!ATTLIST var name CDATA #REQUIRED>
 
 <!ELEMENT columns (column*)>
 <!ELEMENT column EMPTY>
@@ -29,4 +33,6 @@
 
 <!ELEMENT run (column*)>
 <!ATTLIST run name CDATA #REQUIRED
+              files CDATA #IMPLIED
+              properties CDATA #IMPLIED
               options CDATA #IMPLIED>
