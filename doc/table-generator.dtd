@@ -4,7 +4,8 @@
 <!ATTLIST result id CDATA #IMPLIED
                  filename CDATA #REQUIRED>
 
-<!ELEMENT union ((result, column)*)>
+<!ELEMENT union ((result | column)*)>
+<!ATTLIST union title CDATA #IMPLIED>
 
 <!ELEMENT column (#PCDATA)>
 <!ATTLIST column title CDATA #IMPLIED
