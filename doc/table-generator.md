@@ -26,6 +26,10 @@ Such table-definition files are also in XML format
 and a complete definition can be found in the file
 [doc/table-generator.xml](table-generator.xml),
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
+The document type of these files should be
+
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.0//EN" "http://www.sosy-lab.org/benchexec/table-1.0.dtd">
+
 A document-type definition with a formal specification of such files can be found in
 [doc/table-generator.dtd](table-generator.dtd).
 To use such files pass them with the parameter `-x` to `table-generator`:

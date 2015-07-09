@@ -33,6 +33,9 @@ from . import filewriter
 from . import result
 from . import util as util
 
+RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.0//EN'
+RESULT_XML_SYSTEM_ID = 'http://www.sosy-lab.org/benchexec/result-1.0.dtd'
+
 # colors for column status in terminal
 USE_COLORS = True
 COLOR_GREEN   = "\033[32;1m{0}\033[m"
@@ -271,7 +274,7 @@ class OutputHandler:
         self.txt_file.append(self.run_set_to_text(runSet), False)
         xml_file_name = self.get_filename(runSet.name, "xml")
         runSet.xml_file = filewriter.FileWriter(xml_file_name,
-                       util.xml_to_string(runSet.xml))
+                       self._result_xml_to_string(runSet.xml))
         runSet.xml_file.lastModifiedTime = time.time()
         self.all_created_files.append(xml_file_name)
         self.xml_file_names.append(xml_file_name)
@@ -407,7 +410,7 @@ class OutputHandler:
             # so we wait at least 10 seconds between two write-actions
             currentTime = time.time()
             if currentTime - run.runSet.xml_file.lastModifiedTime > 60:
-                run.runSet.xml_file.replace(util.xml_to_string(run.runSet.xml))
+                run.runSet.xml_file.replace(self._result_xml_to_string(run.runSet.xml))
                 run.runSet.xml_file.lastModifiedTime = time.time()
 
         finally:
@@ -423,13 +426,13 @@ class OutputHandler:
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        runSet.xml_file.replace(util.xml_to_string(runSet.xml))
+        runSet.xml_file.replace(self._result_xml_to_string(runSet.xml))
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
                 util.write_file(
-                    util.xml_to_string(self.runs_to_xml(runSet, block.runs, block.name)),
+                    self._result_xml_to_string(self.runs_to_xml(runSet, block.runs, block.name)),
                     blockFileName
                 )
                 self.all_created_files.append(blockFileName)
@@ -620,6 +623,10 @@ class OutputHandler:
         if fileName.startswith(runSet.common_prefix):
             fileName = fileName[len(runSet.common_prefix):]
         return fileName.ljust(runSet.max_length_of_filename + 4)
+
+
+    def _result_xml_to_string(self, xml):
+        return util.xml_to_string(xml, 'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
 
 
 class Statistics:

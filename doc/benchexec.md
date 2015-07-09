@@ -11,9 +11,13 @@ A complete definition of the input format can be found in the file
 [doc/benchmark.xml](benchmark.xml),
 and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml)
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
-A document-type definition with a formal specification of such files can be found in
+The document type of these files should be
+
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
+
+A document-type definition with a formal specification of input files can be found in
 [doc/benchmark.dtd](benchmark.dtd).
-Such benchmark-definition files consist of a root tag `<benchmark>`
+The benchmark-definition files consist of a root tag `<benchmark>`
 that has attributes for the tool to use and the resource limits.
 Nested `<rundefinition>` tags allow to specify multiple different configurations of the tool,
 each of which is executed with the tasks.
