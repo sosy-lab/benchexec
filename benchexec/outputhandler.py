@@ -54,9 +54,9 @@ LEN_OF_STATUS = 22
 TERMINAL_TITLE=''
 _term = os.environ.get('TERM', '')
 if _term.startswith(('xterm', 'rxvt')):
-    TERMINAL_TITLE = "\033]0;Benchmark {0}\007"
+    TERMINAL_TITLE = "\033]0;Task {0}\007"
 elif _term.startswith('screen'):
-    TERMINAL_TITLE = "\033kBenchmark {0}\033\\"
+    TERMINAL_TITLE = "\033kTask {0}\033\\"
 
 # the number of digits after the decimal separator for text output of time columns with times
 TIME_PRECISION = 2
@@ -328,8 +328,13 @@ class OutputHandler:
         try:
             OutputHandler.print_lock.acquire()
 
+            try:
+                runSet.started_runs += 1
+            except AttributeError:
+                runSet.started_runs = 1
+
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
-            progressIndicator = " ({0}/{1})".format(runSet.runs.index(run), len(runSet.runs))
+            progressIndicator = " ({0}/{1})".format(runSet.started_runs, len(runSet.runs))
             terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator) if USE_COLORS and sys.stdout.isatty() else ""
             if self.benchmark.num_of_threads == 1:
                 util.printOut(terminalTitle + timeStr + self.format_sourcefile_name(run.identifier, runSet), '')
