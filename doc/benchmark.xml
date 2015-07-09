@@ -31,8 +31,10 @@
     <!-- <option> may be used here, too. -->
   </tasks>
 
-  <!-- <column> tags may be used to define columns in the result tables with data from the tool output. -->
-  <column title="*column title*">*pattern for extract data for this column from tool output*</column>
+  <columns>
+    <!-- <column> tags may be used to define columns in the result tables with data from the tool output. -->
+    <column title="*column title*">*pattern for extract data for this column from tool output*</column>
+  </columns>
 
   <!-- <option> may be used here, too. -->
   <!-- <propertyfile> may be used here, too. -->
