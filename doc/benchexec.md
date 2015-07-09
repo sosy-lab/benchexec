@@ -123,7 +123,7 @@ There is one file per run definition/tool configuration,
 and additional files for each subset of tasks
 (all by default in directory `./result/`).
 A document-type definition with a formal specification of such result files can be found in
-[doc/benchmark-result.dtd](benchmark-result.dtd).
+[doc/result.dtd](result.dtd).
 The output of the tool executions is stored in additional files in a sub-directory.
 If the target directory for the output files (specified with `--outputpath`)
 is a git repository without uncommitted changes and the option `--commit`
