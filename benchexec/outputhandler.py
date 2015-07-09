@@ -119,10 +119,9 @@ class OutputHandler:
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
-        if environment:
-            env = ET.SubElement(systemInfo, "environment")
-            for var, value in sorted(environment.items()):
-                ET.SubElement(env, "var", name=var).text = value
+        env = ET.SubElement(systemInfo, "environment")
+        for var, value in sorted(environment.items()):
+            ET.SubElement(env, "var", name=var).text = value
 
         self.xml_header.append(systemInfo)
         if runSet:
