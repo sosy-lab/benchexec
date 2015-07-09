@@ -125,8 +125,15 @@ class OutputHandler:
 
         self.xml_header.append(systemInfo)
         if runSet:
-            runSet.xml.append(systemInfo)
-
+            # insert before <run> tags to conform with DTD
+            i = None
+            for i, elem in enumerate(runSet.xml):
+                if elem.tag == "run":
+                    break
+            if i is None:
+                runSet.xml.append(systemInfo)
+            else:
+                runSet.xml.insert(i, systemInfo)
 
     def set_error(self, msg, runSet=None):
         """
