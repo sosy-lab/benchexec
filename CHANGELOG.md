@@ -1,5 +1,13 @@
 # BenchExec Changelog
 
+## BenchExec 1.0
+
+- Multiple runs for the same file can now be shown in the table in different rows
+  if they have different properties or ids.
+- Helper files for generating scatter and quantile plots with Gnuplot added.
+- Doctype declarations are now used in all XML files.
+- Statistics output at end of benchexec run was wrong.
+
 ## BenchExec 0.5
 
 - Allow to redirect stdin of the benchmarked tool in runexec / RunExecutor

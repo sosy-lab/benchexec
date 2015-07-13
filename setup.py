@@ -60,7 +60,7 @@ setup(
     license = 'Apache 2.0 License',
     keywords = 'benchmarking resource measurement',
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
