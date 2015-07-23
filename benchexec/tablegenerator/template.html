@@ -716,10 +716,14 @@ function fillRowFilterField(columnIndex) {
         }
     });
 
-    // sort options, in most cases we have numbers
+    // sort options, in most cases we have plain numbers or seconds (like '123s')
     options.sort( function(a, b) {
-        if (a == null || isNaN(a)) return 1;
-        if (b == null || isNaN(b)) return -1;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        if (a.endsWith('s')) a = a.substring(0,a.length-1);
+        if (b.endsWith('s')) b = b.substring(0,b.length-1);
+        if (isNaN(a)) return 1;
+        if (isNaN(b)) return -1;
         return a - b;
     } );
 
