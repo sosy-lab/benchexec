@@ -434,7 +434,8 @@ class RunSetResult():
             attributes[attrib] = [value]
 
         # Add system information if present
-        for systemTag in resultTag.findall('systeminfo'):
+        for systemTag in sorted(resultTag.findall('systeminfo'),
+                                key=lambda systemTag: systemTag.get('hostname', 'unknown')):
             cpuTag = systemTag.find('cpu')
             attributes['os'   ].append(systemTag.find('os').get('name'))
             attributes['cpu'  ].append(cpuTag.get('model'))
