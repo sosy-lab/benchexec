@@ -115,7 +115,13 @@ class Benchmark:
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
 
         # parse XML
-        rootTag = ET.ElementTree().parse(benchmark_file)
+        try:
+            rootTag = ET.ElementTree().parse(benchmark_file)
+        except ET.ParseError as e:
+            sys.exit('Benchmark file {} is invalid: {}'.format(benchmark_file, e))
+        if 'benchmark' != rootTag.tag:
+            sys.exit("Benchmark file {} is invalid: "
+                + "It's root element is not named 'benchmark'.".format(benchmark_file))
 
         # get tool
         tool_name = rootTag.get('tool')

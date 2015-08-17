@@ -228,10 +228,13 @@ def parse_table_definition_file(file, all_columns):
                 for c in xmltag.findall('column')]
 
     runSetResults = []
-    tableGenFile = ET.ElementTree().parse(file)
+    try:
+        tableGenFile = ET.ElementTree().parse(file)
+    except ET.ParseError as e:
+        logging.error('Table file {} is invalid: {}'.format(file, e))
+        exit(1)
     if 'table' != tableGenFile.tag:
-        logging.error("The XML file seems to be invalid.\n" \
-            + "The rootelement of table-definition-file is not named 'table'.")
+        logging.error("Table file {} is invalid: It's root element is not named 'table'.".format(file))
         exit(1)
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
@@ -476,7 +479,11 @@ def parse_results_file(resultFile, run_set_id=None):
 
     logging.info('    %s', resultFile)
 
-    resultElem = ET.ElementTree().parse(resultFile)
+    try:
+        resultElem = ET.ElementTree().parse(resultFile)
+    except ET.ParseError as e:
+        logging.error('Result file {} is invalid: {}'.format(resultFile, e))
+        exit(1)
 
     if resultElem.tag not in ['result', 'test']:
         logging.error(
