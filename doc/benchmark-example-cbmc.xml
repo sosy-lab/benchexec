@@ -33,5 +33,5 @@
 
   <!-- Use an SV-COMP property file as specification
     (file ALL.prp in the same directory as each source file). -->
-  <propertyfile>${sourcefile_path}/ALL.prp</propertyfile>
+  <propertyfile>${inputfile_path}/ALL.prp</propertyfile>
 </benchmark>
