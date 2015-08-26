@@ -44,7 +44,10 @@
   table#dataTable {
     margin: 6px; margin-top: 2em;
   }
-  thead { text-align:center}
+  thead {
+      text-align:center;
+      background: white;
+  }
   tbody { text-align:right; white-space: nowrap}
   tfoot { text-align:center}
   tr:hover { background-color:yellow}
@@ -80,6 +83,7 @@
     opacity:1;
     display:none;
     overflow:auto;
+    z-index:5;
   }
 
   .scriptonly {
@@ -159,6 +163,7 @@
     <a href="javascript:createRowFilterButtons()">Filter Rows</a>
     <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
+    <a href="javascript:toggleFloatThead()">Toggle Floating Header</a>
   </span>
   <span class="noscript">
     Please enable JavaScript for advanced features.
@@ -256,6 +261,7 @@ def format_stat_title(stat, column, format_value):
 <!-- ################## Base JS ################## -->
 
 <script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.13/jquery.floatThead.js"></script>
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
@@ -346,8 +352,17 @@ function getNameOfTestDirect(runSet) {
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
 }
 
+function floatTheadOn() {
+    $("#dataTable").floatThead({scrollingTop:'1.6em', useAbsolutePositioning:false, zIndex:3});
+}
+
+function floatTheadOff() {
+    $("#dataTable").floatThead('destroy');
+}
+
 $(document).ready(function() {
   $('body').keydown(hideContentPane);
+  floatTheadOn();
 });
 
 </script>
@@ -1422,6 +1437,14 @@ function createScatterPlotView() {
   graphData.isRunSet = false;
   showScatterPlot();
 };
+
+function toggleFloatThead() {
+    if ($(".floatThead-container").size() > 0) {
+        floatTheadOff();
+    } else {
+        floatTheadOn();
+    }
+}
 
 // this function adds the listeners to the table
 $(document).ready(function() {
