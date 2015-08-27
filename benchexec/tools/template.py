@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import logging
 import subprocess
 
 import benchexec.util as util
@@ -55,8 +56,22 @@ class BaseTool(object):
         Get version of a tool by executing it with argument "--version"
         and returning stdout.
         """
-        stdout = subprocess.Popen([executable, arg],
-                                  stdout=subprocess.PIPE).communicate()[0]
+        try:
+            process = subprocess.Popen([executable, arg],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = process.communicate()
+        except OSError as e:
+            logging.warning('Cannot run {0} to determine version: {1}'.
+                            format(executable, e.strerror))
+            return ''
+        if stderr:
+            logging.warning('Cannot determine {0} version, error output: {1}'.
+                            format(executable, util.decode_to_string(stderr)))
+            return ''
+        if process.returncode:
+            logging.warning('Cannot determine {0} version, exit code {1}'.
+                            format(executable, process.returncode))
+            return ''
         return util.decode_to_string(stdout).strip()
 
 

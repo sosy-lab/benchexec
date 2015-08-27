@@ -84,19 +84,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        try:
-            process = subprocess.Popen([executable, '-help'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            (stdout, stderr) = process.communicate()
-        except OSError as e:
-            logging.warning('Cannot run CPAchecker to determine version: {0}'.format(e.strerror))
-            return ''
-        if stderr:
-            logging.warning('Cannot determine CPAchecker version, error output: {0}'.format(util.decode_to_string(stderr)))
-            return ''
-        if process.returncode:
-            logging.warning('Cannot determine CPAchecker version, exit code {0}'.format(process.returncode))
-            return ''
-        stdout = util.decode_to_string(stdout)
+        stdout = self._version_from_tool(executable, '-help')
         line = next(l for l in stdout.splitlines() if l.startswith('CPAchecker'))
         line = line.replace('CPAchecker' , '')
         line = line.split('(')[0]
