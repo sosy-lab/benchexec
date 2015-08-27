@@ -188,7 +188,7 @@ def format_options(str):
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-<tr id="{{line.id}}" class="{{line.id}}">
+  <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
@@ -261,7 +261,12 @@ def format_stat_title(stat, column, format_value):
 <!-- ################## Base JS ################## -->
 
 <script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
+
+{{if offline_lib_url}}
+<script type="text/javascript" src="floatthead/1.2.13/jquery.floatThead.js"></script>
+{{else}}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.13/jquery.floatThead.js"></script>
+{{endif}}
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
@@ -352,17 +357,9 @@ function getNameOfTestDirect(runSet) {
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
 }
 
-function floatTheadOn() {
-    $("#dataTable").floatThead({scrollingTop:'1.6em', useAbsolutePositioning:false, zIndex:3});
-}
-
-function floatTheadOff() {
-    $("#dataTable").floatThead('destroy');
-}
-
 $(document).ready(function() {
   $('body').keydown(hideContentPane);
-  floatTheadOn();
+  $("#dataTable").floatThead({scrollingTop:'1.6em', useAbsolutePositioning:false, zIndex:3});
 });
 
 </script>
@@ -1439,11 +1436,8 @@ function createScatterPlotView() {
 };
 
 function toggleFloatThead() {
-    if ($(".floatThead-container").size() > 0) {
-        floatTheadOff();
-    } else {
-        floatTheadOn();
-    }
+    $(".collapsable-header").toggle();
+    $("#dataTable").floatThead('reflow');
 }
 
 // this function adds the listeners to the table

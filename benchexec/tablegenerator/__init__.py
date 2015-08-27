@@ -1086,6 +1086,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                         count_id_columns=count_id_columns,
                         lib_url=options.lib_url,
                         base_dir=outputPath,
+                        offline_lib_url=(options.lib_url==LIB_URL_OFFLINE),
                         )
 
             # write file
