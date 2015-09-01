@@ -261,12 +261,7 @@ def format_stat_title(stat, column, format_value):
 <!-- ################## Base JS ################## -->
 
 <script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
-
-{{if offline_lib_url}}
-<script type="text/javascript" src="floatthead/1.2.13/jquery.floatThead.js"></script>
-{{else}}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.13/jquery.floatThead.js"></script>
-{{endif}}
+<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.2.13/jquery.floatThead.min.js"></script>
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
