@@ -163,7 +163,6 @@
     <a href="javascript:createRowFilterButtons()">Filter Rows</a>
     <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
-    <a href="javascript:toggleFloatThead()">Toggle Floating Header</a>
   </span>
   <span class="noscript">
     Please enable JavaScript for advanced features.
@@ -188,7 +187,7 @@ def format_options(str):
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-  <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
+  <tr id="{{line.id}}" class="{{line.id}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
@@ -354,7 +353,13 @@ function getNameOfTestDirect(runSet) {
 
 $(document).ready(function() {
   $('body').keydown(hideContentPane);
-  $("#dataTable").floatThead({scrollingTop:'1.6em', useAbsolutePositioning:false, zIndex:3});
+  $("#dataTable").floatThead({
+
+    // Offset after the floating header.
+    scrollingTop:$("#header").outerHeight(true),
+    useAbsolutePositioning:false,
+    zIndex:3
+  });
 });
 
 </script>
@@ -1429,11 +1434,6 @@ function createScatterPlotView() {
   graphData.isRunSet = false;
   showScatterPlot();
 };
-
-function toggleFloatThead() {
-    $(".collapsable-header").toggle();
-    $("#dataTable").floatThead('reflow');
-}
 
 // this function adds the listeners to the table
 $(document).ready(function() {
