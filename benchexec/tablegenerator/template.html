@@ -322,6 +322,12 @@ function hideContentPane(event) {
     $('#contentPaneBackground').hide();
     $('#contentPane').hide().empty();
   }
+
+  // On closing the dialog, turn on the scrollable header, if it's not on
+  // already.
+  if ($('#floatThead-container').size() == 0) {
+      useFloatThead();
+  }
 }
 
 function escKeyPressed(event) {
@@ -351,8 +357,7 @@ function getNameOfTestDirect(runSet) {
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
 }
 
-$(document).ready(function() {
-  $('body').keydown(hideContentPane);
+function useFloatThead() {
   $("#dataTable").floatThead({
 
     // Offset after the floating header.
@@ -360,6 +365,11 @@ $(document).ready(function() {
     useAbsolutePositioning:false,
     zIndex:3
   });
+}
+
+$(document).ready(function() {
+  $('body').keydown(hideContentPane);
+  useFloatThead();
 });
 
 </script>
@@ -530,6 +540,8 @@ function range(start, end) {
 
 
 function createColumnToggleView() {
+    // Turn the float-thead on and off.
+    $("#dataTable").floatThead('destroy');
 
     // collect all columns
     var columnTitles = [];
