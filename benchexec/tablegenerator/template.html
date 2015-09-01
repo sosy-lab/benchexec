@@ -908,6 +908,11 @@ function collectTableDataForQuantile() {
       var currentCell = $(currentRow.cells[index + dataColumnsOffset]);
       var value = getValue(currentCell, graphData.target.textContent);
       var filename = currentRow.cells[0].textContent;
+      if (!graphData.isQuantile && i == 0 && j == 0 && isNaN(value)) {
+        // Having NaN as the first value of the first data set is a problem for Jqplot.
+        // We replace it with an invalid fake value (depending on scale).
+        value = graphData.isLogScale ? 0 : Number.NEGATIVE_INFINITY;
+      }
 
       // each array is of the form: [[id1, value1], [id2, value2], ...]
       // the third entry is additional info and is used for the highlighter,
@@ -1387,6 +1392,7 @@ function showQuantilePlot() {
         }
       },
       yaxis:{
+        min: graphData.isLogScale ? null : Math.min(0, graphData.minValue),
         ticks: getValueAxisTicks(graphData.target.textContent == "status"),
         renderer: (graphData.isLogScale && graphData.target.textContent !== 'status') ? $.jqplot.LogAxisRenderer : $.jqplot.LinearAxisRenderer,
         pad: 1.2,
