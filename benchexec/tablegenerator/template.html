@@ -44,7 +44,10 @@
   table#dataTable {
     margin: 6px; margin-top: 2em;
   }
-  thead { text-align:center}
+  thead {
+      text-align:center;
+      background: white;
+  }
   tbody { text-align:right; white-space: nowrap}
   tfoot { text-align:center}
   tr:hover { background-color:yellow}
@@ -54,7 +57,7 @@
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
                                    font-family: monospace; vertical-align: top; }
   .columnTitles td:first-child { font-family: monospace; font-size: x-small; }
-  tbody tr:first-child td { border-top:3px solid black}
+  thead tr:last-child td { border-bottom:3px solid black}
   tfoot tr:first-child td { border-top:3px solid black}
   .status { text-align: center; }
   .status.correct { color:green}
@@ -67,10 +70,17 @@
   #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
 
-  #contentPaneBackground { height: 100%; width: 100%;
-           position:fixed; top:0px; left:0px;
-           background-color:green;
-           opacity:0.2; display:none }
+  #contentPaneBackground {
+    height: 100%;
+    width: 100%;
+    position:fixed;
+    top:0px;
+    left:0px;
+    background-color:green;
+    opacity:0.2;
+    display:none;
+    z-index:4;
+  }
   #contentPane {
     height:90%; width:90%;
     position:fixed;
@@ -80,6 +90,7 @@
     opacity:1;
     display:none;
     overflow:auto;
+    z-index:5;
   }
 
   .scriptonly {
@@ -183,7 +194,7 @@ def format_options(str):
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-<tr id="{{line.id}}" class="{{line.id}}">
+  <tr id="{{line.id}}" class="{{line.id}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
@@ -256,6 +267,7 @@ def format_stat_title(stat, column, format_value):
 <!-- ################## Base JS ################## -->
 
 <script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.2.13/jquery.floatThead.min.js"></script>
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
@@ -317,6 +329,12 @@ function hideContentPane(event) {
     $('#contentPaneBackground').hide();
     $('#contentPane').hide().empty();
   }
+
+  // On closing the dialog, turn on the scrollable header, if it's not on
+  // already.
+  if (!isFloatTheadActive()) {
+      activateFloatThead();
+  }
 }
 
 function escKeyPressed(event) {
@@ -346,8 +364,47 @@ function getNameOfTestDirect(runSet) {
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
 }
 
+function activateFloatThead() {
+  $("#dataTable").floatThead({
+
+    // Offset after the floating header.
+    scrollingTop:$("#header").outerHeight(true),
+    useAbsolutePositioning:false,
+    zIndex:3
+  });
+}
+
+function isFloatTheadActive() {
+    return $('#floatThead-container').size() != 0;
+}
+
 $(document).ready(function() {
   $('body').keydown(hideContentPane);
+  activateFloatThead();
+
+  // Turn off float-thead before printing, turn it back on after.
+  var beforePrint = function() {
+      $("#dataTable").floatThead('destroy');
+  };
+
+  var afterPrint = function() {
+      activateFloatThead();
+  };
+
+  // Solution works on IE, FF and Chrome.
+  if (window.matchMedia) {
+      var mediaQueryList = window.matchMedia('print');
+      mediaQueryList.addListener(function(mql) {
+          if (mql.matches) {
+              beforePrint();
+          } else {
+              afterPrint();
+          }
+      });
+  }
+
+  window.onbeforeprint = beforePrint;
+  window.onafterprint = afterPrint;
 });
 
 </script>
@@ -518,6 +575,8 @@ function range(start, end) {
 
 
 function createColumnToggleView() {
+    // Turn the float-thead on and off.
+    $("#dataTable").floatThead('destroy');
 
     // collect all columns
     var columnTitles = [];
