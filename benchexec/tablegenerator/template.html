@@ -57,7 +57,7 @@
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
                                    font-family: monospace; vertical-align: top; }
   .columnTitles td:first-child { font-family: monospace; font-size: x-small; }
-  tbody tr:first-child td { border-top:3px solid black}
+  thead tr:last-child td { border-bottom:3px solid black}
   tfoot tr:first-child td { border-top:3px solid black}
   .status { text-align: center; }
   .status.correct { color:green}
@@ -326,7 +326,7 @@ function hideContentPane(event) {
   // On closing the dialog, turn on the scrollable header, if it's not on
   // already.
   if ($('#floatThead-container').size() == 0) {
-      useFloatThead();
+      activateFloatThead();
   }
 }
 
@@ -357,7 +357,7 @@ function getNameOfTestDirect(runSet) {
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
 }
 
-function useFloatThead() {
+function activateFloatThead() {
   $("#dataTable").floatThead({
 
     // Offset after the floating header.
@@ -367,9 +367,37 @@ function useFloatThead() {
   });
 }
 
+function isFloatTheadActive() {
+    return $('#floatThead-container').size() != 0;
+}
+
 $(document).ready(function() {
   $('body').keydown(hideContentPane);
-  useFloatThead();
+  activateFloatThead();
+
+  // Turn off float-thead before printing, turn it back on after.
+  var beforePrint = function() {
+      $("#dataTable").floatThead('destroy');
+  };
+
+  var afterPrint = function() {
+      activateFloatThead();
+  };
+
+  // Solution works on IE, FF and Chrome.
+  if (window.matchMedia) {
+      var mediaQueryList = window.matchMedia('print');
+      mediaQueryList.addListener(function(mql) {
+          if (mql.matches) {
+              beforePrint();
+          } else {
+              afterPrint();
+          }
+      });
+  }
+
+  window.onbeforeprint = beforePrint;
+  window.onafterprint = afterPrint;
 });
 
 </script>
