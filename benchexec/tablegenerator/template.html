@@ -70,10 +70,17 @@
   #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
 
-  #contentPaneBackground { height: 100%; width: 100%;
-           position:fixed; top:0px; left:0px;
-           background-color:green;
-           opacity:0.2; display:none }
+  #contentPaneBackground {
+    height: 100%;
+    width: 100%;
+    position:fixed;
+    top:0px;
+    left:0px;
+    background-color:green;
+    opacity:0.2;
+    display:none;
+    z-index:4;
+  }
   #contentPane {
     height:90%; width:90%;
     position:fixed;
