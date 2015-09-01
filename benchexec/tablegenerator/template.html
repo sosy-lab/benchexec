@@ -332,7 +332,7 @@ function hideContentPane(event) {
 
   // On closing the dialog, turn on the scrollable header, if it's not on
   // already.
-  if ($('#floatThead-container').size() == 0) {
+  if (!isFloatTheadActive()) {
       activateFloatThead();
   }
 }
