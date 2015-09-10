@@ -171,6 +171,7 @@
     <a href="javascript:createRowFilterButtons()">Filter Rows</a>
     <a href="javascript:createQuantilePlotView()">Quantile Plot</a>
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
+    <a href="javascript:toggleHeader()" id="toggleHeaderButton" data-shown-text="Shrink Header" data-hidden-text="Expand Header">Shrink Header</a>
   </span>
   <span class="noscript">
     Please enable JavaScript for advanced features.
@@ -195,7 +196,7 @@ def format_options(str):
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-  <tr id="{{line.id}}" class="{{line.id}}">
+  <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
@@ -363,6 +364,14 @@ function getNameOfTestDirect(runSet) {
        + (runSet.date ? runSet.date + ' ' : '')
        + runSet.name
        + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
+}
+
+function toggleHeader() {
+  var target = $(".collapsable-header");
+  target.toggle();
+  var button = $("#toggleHeaderButton");
+  button[0].innerHTML = target.is(":visible") ? button.attr('data-shown-text') : button.attr('data-hidden-text');
+  $("#dataTable").floatThead('reflow');
 }
 
 function activateFloatThead() {
