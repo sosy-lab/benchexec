@@ -1,0 +1,36 @@
+Source: benchexec
+Section: utils
+Priority: optional
+Maintainer: Philipp Wendler <debian@philippwendler.de>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               python3 (>= 3.2),
+               python3-setuptools,
+               python3-lxml,
+               python3-nose,
+               python3-tempita
+Standards-Version: 3.9.6.1
+X-Python3-Version: >= 3.2
+Homepage: https://github.com/dbeyer/benchexec
+Vcs-Git: https://github.com/dbeyer/benchexec.git
+Vcs-Browser: https://github.com/dbeyer/benchexec
+
+Package: benchexec
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: Framework for Reliable Benchmarking and Resource Measurement
+ BenchExec allows benchmarking non-interactive tools on Linux systems.
+ It measures CPU time, wall time, and memory usage of a tool,
+ and allows one to specify limits for these resources.
+ It also allows one to limit the CPU cores and (on NUMA systems) memory regions.
+ In addition to measuring resource usage, BenchExec can verify
+ that the result of the tool was as expected, and extract
+ further statistical data from the output. Results from multiple runs
+ can be combined into CSV and interactive HTML tables,
+ of which the latter provide scatter and quantile plots.
+ .
+ Contrary to other benchmarking frameworks,
+ it is able to reliably measure and limit resource usage of the benchmarked tool
+ even if it spawns subprocesses. In order to achieve this,
+ it uses the cgroups feature of the Linux kernel
+ to correctly handle groups of processes.

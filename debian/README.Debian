@@ -1,0 +1,8 @@
+benchexec for Debian
+--------------------
+
+This package does not configure the Linux kernel cgroups
+as necessary for BenchExec.
+Please refer to the original documentation on how to configure them.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Sep 2015 10:29:29 +0200
