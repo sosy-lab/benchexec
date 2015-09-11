@@ -19,6 +19,9 @@ More on the background of BenchExec can also be found in our paper
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),
 for example [files for generating plots](../contrib/plots/README.md).
 
+Information for developers and maintainers of BenchExec is available
+in the [development documentation](DEVELOPMENT.md).
+
 ## Glossary
 
 In BenchExec, we use the following definitions:

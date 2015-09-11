@@ -43,6 +43,7 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
 ### Links
 
 - [Documentation](https://github.com/dbeyer/benchexec/tree/master/doc/INDEX.md)
+- [Downloads](https://github.com/dbeyer/benchexec/releases)
 - [Changelog](https://github.com/dbeyer/benchexec/tree/master/CHANGELOG.md)
 - [BenchExec GitHub Repository](https://github.com/dbeyer/benchexec),
   use this for [reporting issues and asking questions](https://github.com/dbeyer/benchexec/issues)

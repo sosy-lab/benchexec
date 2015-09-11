@@ -1,5 +1,5 @@
-benchexec (1.1~dev0-1) unstable; urgency=low
+benchexec (1.1-1) unstable; urgency=medium
 
   * Initial release.
 
- -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Sep 2015 10:29:29 +0200
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Sep 2015 16:35:58 +0200
