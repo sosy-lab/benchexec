@@ -1,5 +1,12 @@
 # BenchExec Changelog
 
+## BenchExec 1.1
+
+- HTML tables produced by table-generator now have a header that stays
+  always visible, even when scrolling through the table.
+- A Debian package is now created for releases and made available on GitHub.
+- Small bug fixes.
+
 ## BenchExec 1.0
 
 - Multiple runs for the same file can now be shown in the table in different rows
