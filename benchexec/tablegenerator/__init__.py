@@ -444,6 +444,7 @@ class RunSetResult():
             attributes['cpu'  ].append(cpuTag.get('model'))
             attributes['cores'].append( cpuTag.get('cores'))
             attributes['freq' ].append(cpuTag.get('frequency'))
+            attributes['turbo'].append(cpuTag.get('turboboostActive'))
             attributes['ram'  ].append(systemTag.find('ram').get('size'))
             attributes['host' ].append(systemTag.get('hostname', 'unknown'))
 
@@ -730,7 +731,19 @@ def get_table_head(runSetResults, commonFileNamePrefix):
         # Ugly because this overwrites the entries in the map,
         # but we don't need them anymore and this is the easiest way
         for key in runSetResult.attributes:
-            runSetResult.attributes[key] = Util.prettylist(runSetResult.attributes[key])
+            if key == 'turbo':
+                turbo_values = list(set(runSetResult.attributes['turbo']))
+                if len(turbo_values) > 1:
+                    turbo = 'mixed'
+                elif turbo_values[0] == 'true':
+                    turbo = 'enabled'
+                elif turbo_values[0] == 'false':
+                    turbo = 'disabled'
+                else:
+                    turbo = None
+                runSetResult.attributes['turbo'] = ', Turbo Boost {}'.format(turbo) if turbo else ''
+            else:
+                runSetResult.attributes[key] = Util.prettylist(runSetResult.attributes[key])
 
     def get_row(rowName, format_string, collapse=False, onlyIf=None, default='Unknown'):
         def format_cell(attributes):
@@ -762,7 +775,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             'limit':   get_row('Limits', 'timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}', collapse=True),
             'host':    get_row('Host', '{host}', collapse=True, onlyIf='host'),
             'os':      get_row('OS', '{os}', collapse=True, onlyIf='os'),
-            'system':  get_row('System', 'CPU: {cpu} with {cores} cores, frequency: {freq}; RAM: {ram}', collapse=True, onlyIf='cpu'),
+            'system':  get_row('System', 'CPU: {cpu} with {cores} cores, frequency: {freq}{turbo}; RAM: {ram}', collapse=True, onlyIf='cpu'),
             'date':    get_row('Date of execution', '{date}', collapse=True),
             'runset':  get_row('Run set', '{name}' if allBenchmarkNamesEqual else '{benchmarkname}.{name}'),
             'branch':  get_row('Branch', '{branch}'),
