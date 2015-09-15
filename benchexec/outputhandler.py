@@ -106,17 +106,21 @@ class OutputHandler:
             self.store_system_info(sysinfo.os, sysinfo.cpu_model,
                                  sysinfo.cpu_number_of_cores, sysinfo.cpu_max_frequency,
                                  sysinfo.memory, sysinfo.hostname,
-                                 environment=sysinfo.environment)
+                                 environment=sysinfo.environment,
+                                 cpu_turboboost=sysinfo.cpu_turboboost)
         self.xml_file_names = []
 
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
-                          runSet=None, environment={}):
+                          runSet=None, environment={},
+                          cpu_turboboost=None):
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
                         return
 
         osElem = ET.Element("os", {"name":opSystem})
         cpuElem = ET.Element("cpu", {"model":cpu_model, "cores":cpu_number_of_cores, "frequency":cpu_max_frequency})
+        if cpu_turboboost is not None:
+            cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
         ramElem = ET.Element("ram", {"size":memory})
         systemInfo = ET.Element("systeminfo", {"hostname":hostname})
         systemInfo.append(osElem)

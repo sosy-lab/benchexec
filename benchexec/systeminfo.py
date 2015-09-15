@@ -79,6 +79,8 @@ class SystemInfo(object):
             frequencyInfoFile.close()
             self.cpu_max_frequency = str(int(cpu_max_frequency) // 1000) + ' MHz'
 
+        self.cpu_turboboost = is_turbo_boost_enabled()
+
         # get info about memory
         memInfo = dict()
         memInfoFilename = '/proc/meminfo'
@@ -94,6 +96,11 @@ class SystemInfo(object):
         self.environment = os.environ.copy()
 
 def is_turbo_boost_enabled():
+    """
+    Check whether Turbo Boost (scaling CPU frequency beyond nominal frequency)
+    is active on this system.
+    @return: A bool, or None if Turbo Boost is not supported.
+    """
     try:
         if os.path.exists(_TURBO_BOOST_FILE):
             boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
