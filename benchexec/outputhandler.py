@@ -524,6 +524,9 @@ class OutputHandler:
                 self.add_column_to_xml(xml, key, value, prefix=common_prefix)
             return
 
+        if hasattr(value, '__getitem__') and not isinstance(value, (str, bytes)):
+            value = ','.join(map(str, value))
+
         # default case: add columns
         if prefix:
             if prefix.startswith('@'):

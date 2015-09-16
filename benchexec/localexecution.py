@@ -236,6 +236,11 @@ class _Worker(threading.Thread):
             else:
                 run.values['@' + key] = value
 
+        if self.my_cpus:
+            run.values['@cpuCores'] = self.my_cpus
+        if self.my_memory_nodes:
+            run.values['@memoryNodes'] = self.my_memory_nodes
+
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.
             run.walltime = 0
