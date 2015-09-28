@@ -116,8 +116,8 @@ _FILE_RESULTS = {
 _SCORE_CORRECT_TRUE = 2
 _SCORE_CORRECT_FALSE = 1
 _SCORE_UNKNOWN = 0
-_SCORE_WRONG_FALSE = -6
-_SCORE_WRONG_TRUE = -12
+_SCORE_WRONG_FALSE = -16
+_SCORE_WRONG_TRUE = -32
 
 
 def _expected_result(filename, checked_properties):
