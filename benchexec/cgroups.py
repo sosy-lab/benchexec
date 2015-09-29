@@ -47,7 +47,7 @@ MEMORY = 'memory'
 ALL_KNOWN_SUBSYSTEMS = set([CPUACCT, CPUSET, FREEZER, MEMORY])
 
 
-def find_my_cgroups(cgroup_paths=None):
+def find_my_cgroups(cgroup_paths=None, cgparent=None):
     """
     Return a Cgroup object with the cgroups of the current process.
     Note that it is not guaranteed that all subsystems are available
@@ -56,12 +56,13 @@ def find_my_cgroups(cgroup_paths=None):
     A subsystem may also be present but we do not have the rights to create
     child cgroups, this can be checked with require_subsystem().
     @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
+    @param cgparent: If given, use this instead of parent mount path.
     """
     logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
     if cgroup_paths is None:
-        my_cgroups = dict(_find_own_cgroups())
+        my_cgroups = dict(_find_own_cgroups(cgparent))
     else:
-        my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_paths))
+        my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_paths, cgparent))
 
     cgroupsParents = {}
     for subsystem, mount in _find_cgroup_mounts():
@@ -89,30 +90,35 @@ def _find_cgroup_mounts():
         logging.exception('Cannot read /proc/mounts')
 
 
-def _find_own_cgroups():
+def _find_own_cgroups(cgparent):
     """
     For all subsystems, return the information in which (sub-)cgroup this process is in.
     (Each process is in exactly cgroup in each hierarchy.)
+    @param cgparent: If given, use this instead of parent mount path.
     @return a generator of tuples (subsystem, cgroup)
     """
     try:
         with open('/proc/self/cgroup', 'rt') as ownCgroupsFile:
-            for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
+            for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile, cgparent):
                 yield cgroup
     except IOError:
         logging.exception('Cannot read /proc/self/cgroup')
 
 
-def _parse_proc_pid_cgroup(content):
+def _parse_proc_pid_cgroup(content, cgparent):
     """
     Parse a /proc/*/cgroup file into tuples of (subsystem,cgroup).
     @param content: An iterable over the lines of the file.
+    @param cgparent: If given, use this instead of parent mount path.
     @return: a generator of tuples
     """
     for ownCgroup in content:
         #each line is "id:subsystem,subsystem:path"
         ownCgroup = ownCgroup.strip().split(':')
-        path = ownCgroup[2][1:] # remove leading /
+        if cgparent is not None:
+            path = cgparent
+        else:
+            path = ownCgroup[2][1:] # remove leading /
         for subsystem in ownCgroup[1].split(','):
             yield (subsystem, path)
 

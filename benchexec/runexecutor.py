@@ -89,6 +89,8 @@ def main(argv=None):
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+    parser.add_argument("--cgparent", default=None, metavar="PATH",
+                        help="use custom path for cgroups instead of actual parent")
 
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument("--debug", action="store_true",
@@ -131,7 +133,7 @@ def main(argv=None):
     else:
         stdin = None
 
-    executor = RunExecutor()
+    executor = RunExecutor(options.cgparent)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -189,11 +191,12 @@ def main(argv=None):
 
 class RunExecutor():
 
-    def __init__(self):
+    def __init__(self, cgroup_parent=None):
         self.PROCESS_KILLED = False
         self.SUB_PROCESSES_LOCK = threading.Lock() # needed, because we kill the process asynchronous
         self.SUB_PROCESSES = set()
         self._termination_reason = None
+        self._cgroup_parent = cgroup_parent
 
         self._init_cgroups()
 
@@ -202,7 +205,7 @@ class RunExecutor():
         """
         This function initializes the cgroups for the limitations and measurements.
         """
-        self.cgroups = find_my_cgroups()
+        self.cgroups = find_my_cgroups(cgparent=self._cgroup_parent)
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
