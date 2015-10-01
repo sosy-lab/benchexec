@@ -69,8 +69,6 @@ if configured to do so via `cgrules.conf`.
 This can invalidate the measurements.
 BenchExec will try to prevent such interference automatically,
 but for this it needs write access to `/run/cgred.socket`.
-Alternatively, start BenchExec with `cgexec --sticky` to tell `cgrulesengd`
-that it should not interfere with BenchExec and its child processes.
 
 If your machine has swap, cgroups should be configured to also track swap memory.
 If the file `memory.memsw.usage_in_bytes` does not exist in the directory
@@ -97,6 +95,14 @@ should be mounted and usable,
 i.e., they should be listed in `/proc/self/cgroups` and the current user
 should have at least the permission to create sub-cgroups of the current cgroup(s)
 listed in this file for these controllers.
+
+### Setting up Cgroups in a Docker container
+
+If you want to run benchmarks within a Docker container,
+please use the following command line argument
+to mount the cgroup hierarchy within the container when starting it:
+
+    docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
 
 
 ## Installation for Development
