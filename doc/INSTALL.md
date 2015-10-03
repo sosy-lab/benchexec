@@ -110,6 +110,75 @@ i.e., they should be listed in `/proc/self/cgroups` and the current user
 should have at least the permission to create sub-cgroups of the current cgroup(s)
 listed in this file for these controllers.
 
+### Setting up Cgroups on Systems with systemd
+
+This affects most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
+and potentially other distributions.
+systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
+Thus it may interfere with the cgroups usage of BenchExec.
+
+By using a fake service we can let systemd create an appropriate cgroup for BenchExec
+and prevent interference.
+The following steps are necessary:
+
+ * Add `JoinControllers=cpuset,cpuacct,memory,freezer` to `/etc/systemd/system.conf`
+   to ensure systemd creates a cgroup for all of these controllers for us.
+   This setting needs a reboot to take effect,
+   and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
+
+ * Put the following into a file `/usr/local/sbin/benchexec-cgroup.sh`.
+   By default, this gives permissions to use the BenchExec cgroup
+   to users of the group `benchexec`, please adjust this as necessary.
+   Do not forget to make the file executable.
+```
+#!/bin/bash
+# Fill in set of allowed CPUs and memory regions (default is empty).
+cp /sys/fs/cgroup/cpuset/cpuset.cpus /sys/fs/cgroup/cpuset/system.slice/
+cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/
+cp /sys/fs/cgroup/cpuset/cpuset.cpus /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
+cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
+
+# Adjust permissions of cgroup (change as appropriate for you).
+chgrp -vR benchexec /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
+chmod -vR g+w /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
+
+# Sleep for 10 years.
+exec sleep $(( 10 * 365 * 24 * 3600 ))
+```
+
+ * Put the following into a file `/etc/systemd/system/benchexec-cgroup.service`
+   and enable the service with `systemctl daemon-reload; systemctl enable benchexec-cgroup`:
+```
+[Unit]
+Description=Cgroup for BenchExec
+Documentation=https://github.com/dbeyer/benchexec/blob/master/doc/INSTALL.md
+Documentation=https://github.com/dbeyer/benchexec/blob/master/doc/INDEX.md
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/benchexec-cgroup.sh
+Restart=always
+Delegate=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Before running BenchExec, you now need to ensure it runs in the correct cgroup
+by executing the following commands once per terminal session:
+```
+echo $$ > /sys/fs/cgroup/cpuset/system.slice/vcloud-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/system.slice/vcloud-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/memory/system.slice/vcloud-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/freezer/system.slice/vcloud-cgroup.service/tasks
+```
+
+Please check the correct cgroup setup with `python3 -m benchexec.check_cgroups` as described above.
+
+Note that using systemd with BenchExec is still experimental.
+Please report back your experience and whether you have found a better solution than the above.
+
+
 ### Setting up Cgroups in a Docker container
 
 If you want to run benchmarks within a Docker container,
