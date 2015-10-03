@@ -36,8 +36,7 @@ To install the latest development version from the
 
     pip3 install --user git+https://github.com/dbeyer/benchexec.git
 
-
-## Setting up Cgroups
+## System Requirements
 
 To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
@@ -47,6 +46,21 @@ Any Linux kernel version of the last years is
 acceptable, though there have been performance improvements for the memory
 controller in version 3.3, and cgroups in general are still getting improved, thus,
 using a recent kernel is a good idea.
+
+### Note for Users of Ubuntu 14.04
+
+There are appears to be a problem in the Linux kernel 3.13 used by Ubuntu 14.04.
+On some machines the kernel sporadically crashes
+with the message `BUG: soft lockup` in `/var/log/kern.org`
+and needs to be rebooted
+when the benchmarked process hits its memory limit.
+
+If you are affected by this problem, please upgrade to kernel 3.16 or newer, which is not affected,
+using the officially supported
+[Ubuntu LTS Hardware Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
+
+
+## Setting up Cgroups
 
 The cgroup virtual file system is typically mounted at `/sys/fs/cgroup`.
 If it is not, you can mount it with
