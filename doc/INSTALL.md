@@ -147,7 +147,7 @@ exec sleep $(( 10 * 365 * 24 * 3600 ))
 ```
 
  * Put the following into a file `/etc/systemd/system/benchexec-cgroup.service`
-   and enable the service with `systemctl daemon-reload; systemctl enable benchexec-cgroup`:
+   and enable the service with `systemctl daemon-reload; systemctl enable benchexec-cgroup; systemctl start benchexec-cgroup`:
 ```
 [Unit]
 Description=Cgroup for BenchExec
@@ -167,10 +167,10 @@ WantedBy=multi-user.target
 Before running BenchExec, you now need to ensure it runs in the correct cgroup
 by executing the following commands once per terminal session:
 ```
-echo $$ > /sys/fs/cgroup/cpuset/system.slice/vcloud-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/cpuacct/system.slice/vcloud-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/memory/system.slice/vcloud-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/freezer/system.slice/vcloud-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
 ```
 
 Please check the correct cgroup setup with `python3 -m benchexec.check_cgroups` as described above.
