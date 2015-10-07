@@ -453,7 +453,8 @@ function loadContent(url) {
     error: function() {
       contentPane.html("error while loading content.<br>" +
         "this could be a problem of the 'same-origin-policy' of your browser.<br><br>" +
-        "only firefox seems to be able to access files from local directories<br>" +
+        "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
+        "Firefox can access files from local directories by default,<br>" +
         "and this works only if the file is in the same directory as this website.<br><br>" +
         "you can try to download the file: <a href=" + url + ">" + url + "</a>");
     },
