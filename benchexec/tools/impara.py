@@ -26,7 +26,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for Impara (https://github.com/bjowac/impara).
+    Tool wrapper for impara (https://github.com/bjowac/impara).
     It always adds --xml-ui to the command-line arguments for easier parsing of the output.
     """
 
@@ -39,12 +39,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def name(self):
-        return 'Impara'
+        return 'impara'
 
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if ("--xml-ui" not in options):
             options = options + ["--xml-ui"]
+        if ("--eager" not in options):
+            options = options + ["--eager"]
 
         self.options = options
 
@@ -91,7 +93,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
                 elif status == "SUCCESS":
                     assert returncode == 0
-                    status = result.RESULT_TRUE_PROP
+                    if "--no-unwinding-assertions" in self.options:
+                        status = result.RESULT_UNKNOWN
+                    else:
+                        status = result.RESULT_TRUE_PROP
 
             except Exception:
                 if isTimeout:
@@ -101,7 +106,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = 'OUT OF MEMORY'
                 else:
                     status = 'INVALID OUTPUT'
-                    logging.exception("Error parsing Impara output for returncode %d" % (returncode))
+                    logging.exception("Error parsing impara output for returncode %d" % (returncode))
 
         elif returncode == 6:
             # parser error or something similar
