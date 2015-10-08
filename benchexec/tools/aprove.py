@@ -19,6 +19,7 @@ limitations under the License.
 """
 import benchexec.util as util
 import benchexec.tools.template
+import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
 
@@ -32,21 +33,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        if returnsignal == 9 or returnsignal == (128+9):
-            if isTimeout:
-                status = "TIMEOUT"
-            else:
-                status = "KILLED BY SIGNAL 9"
-        elif "YES" in output:
-            status = "TRUE"
+        if "YES" in output:
+            return result.RESULT_TRUE_PROP
         elif "TRUE" in output:
-            status = "TRUE"
+            return result.RESULT_TRUE_PROP
         elif "FALSE" in output:
-            status = "FALSE"
+            return result.RESULT_FALSE_TERMINATION
         elif "NO" in output:
-            status = "FALSE"
-        elif returncode != 0:
-            status = "ERROR ({0})".format(returncode)
+            return result.RESULT_FALSE_TERMINATION
         else:
-            status = "UNKNOWN"
+            return result.RESULT_UNKNOWN
         return status
