@@ -54,16 +54,15 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return 'SMACK'
 
-    def getCmdline(self, executable, options, sourcefiles, propertyfile=None, rlimits={}):
-        return [self.getExecutable()] + options + sourcefiles
-
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
         Allows us to define special actions to be taken or command line argument
         modifications to make just before calling SMACK.
         """
         assert len(tasks) == 1
-        return [executable] + options + tasks
+        assert propertyfile is not None
+        prop = ['--svcomp-property', propertyfile]
+        return [executable] + options + prop + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
