@@ -57,14 +57,14 @@ class Tool(benchexec.tools.template.BaseTool):
         assert len(tasks) == 1, "only one sourcefile supported"
         sourcefile = tasks[0]
         workingDir = self.working_directory(executable)
-        return [os.path.relpath(executable, start=workingDir)] + options + [os.path.relpath(sourcefile, start=workingDir)]
+        return [os.path.relpath(executable, start=workingDir)] + options + ['-c', propertyfile, os.path.relpath(sourcefile, start=workingDir)]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         if len(output) <= 0:
           return
 
-        output = output[-1].strip()
+        output = output[-1].strip()
         status = ""
         
         if "TRUE" in output:
