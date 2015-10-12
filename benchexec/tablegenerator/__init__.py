@@ -763,8 +763,10 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                              name=rowName,
                              content=valuesAndWidths)
 
-    benchmarkNames = [runSetResult.attributes['benchmarkname'] for runSetResult in runSetResults]
-    allBenchmarkNamesEqual = benchmarkNames.count(benchmarkNames[0]) == len(benchmarkNames)
+    firstBenchmarkName = runSetResults[0].attributes['benchmarkname']
+    allBenchmarkNamesEqual = \
+        all(r.attributes['benchmarkname'] == firstBenchmarkName   for r in runSetResults) or \
+        all(r.attributes['benchmarkname'] == r.attributes['name'] for r in runSetResults)
 
     titles      = [column.title for runSetResult in runSetResults for column in runSetResult.columns]
     runSetWidths1 = [1]*sum(runSetWidths)
