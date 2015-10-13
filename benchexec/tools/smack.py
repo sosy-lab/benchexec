@@ -18,9 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import benchmark.result as result
-import benchmark.util as util
-import benchmark.tools.template
+import benchexec.result as result
+import benchexec.util as util
+import benchexec.tools.template
 
 import subprocess
 import sys
