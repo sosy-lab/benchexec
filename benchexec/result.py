@@ -139,7 +139,7 @@ def properties_of_file(propertyfile):
     """
     Return a list of property names that should be checked according to the given property file.
     @param propertyfile: None or a file name of a property file.
-    @return: A possibly empty list of property names. 
+    @return: A possibly empty list of property names.
     """
     assert os.path.isfile(propertyfile)
 
@@ -189,7 +189,7 @@ def score_for_task(filename, properties, category):
     if _PROP_SAT in properties:
         return 0
     correct = (category == CATEGORY_CORRECT)
-    expected = satisfies_file_property(filename, properties) 
+    expected = satisfies_file_property(filename, properties)
     if expected is None:
         return 0
     elif expected == True:

@@ -449,7 +449,7 @@ class RunSetResult():
             attributes['host' ].append(systemTag.get('hostname', 'unknown'))
 
         return attributes
-    
+
     @staticmethod
     def _extract_summary_from_result(resultTag, columns):
         summary = collections.defaultdict(list)
@@ -1032,7 +1032,7 @@ def get_summary(runSetResults):
             summaryStats.append(StatValue(value))
 
     if available:
-        return tempita.bunch(default=None, title='local summary', 
+        return tempita.bunch(default=None, title='local summary',
             description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
             content=summaryStats)
     else:

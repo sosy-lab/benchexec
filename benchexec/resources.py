@@ -115,14 +115,14 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         if package_size is None:
             package_size = len(cores)
         elif package_size != len(cores):
-            sys.exit("Assymetric machine architecture not supported: CPU package {0} has {1} cores, but other package has {2} cores.".format(package, len(cores), package_size)) 
+            sys.exit("Assymetric machine architecture not supported: CPU package {0} has {1} cores, but other package has {2} cores.".format(package, len(cores), package_size))
 
     core_size = None # Number of threads per core
     for core, siblings in siblings_of_core.items():
         if core_size is None:
             core_size = len(siblings)
         elif core_size != len(siblings):
-            sys.exit("Assymetric machine architecture not supported: CPU core {0} has {1} siblings, but other core has {2} siblings.".format(core, len(siblings), core_size)) 
+            sys.exit("Assymetric machine architecture not supported: CPU core {0} has {1} siblings, but other core has {2} siblings.".format(core, len(siblings), core_size))
 
     # Second, compute some values we will need.
     package_count = len(cores_of_package)

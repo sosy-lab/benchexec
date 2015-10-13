@@ -276,7 +276,7 @@ class TestResult(unittest.TestCase):
                          get_result_category('test_sat.c',                  RESULT_SAT, []))
         self.assertEqual(CATEGORY_MISSING,
                          get_result_category('test_unsat.c',                RESULT_SAT, []))
-        
+
         self.assertEqual(CATEGORY_MISSING,
                          get_result_category('test_true-unreach-call.c',    RESULT_TRUE_PROP, [_PROP_TERMINATION]))
         self.assertEqual(CATEGORY_MISSING,

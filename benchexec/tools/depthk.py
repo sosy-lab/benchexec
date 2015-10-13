@@ -66,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         output = output[-1].strip()
         status = ""
-        
+
         if "TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif "FALSE" in output:
@@ -92,15 +92,15 @@ class Tool(benchexec.tools.template.BaseTool):
             # search for the text in output and get its value,
             column.value = "-" # default value
             if column.text == 'k':
-                for line in output:                    
+                for line in output:
                     matchbound = re.search(r'Bound k:(.*)', line)
                     if matchbound:
-                        column.value = matchbound.group(1).strip()                        
+                        column.value = matchbound.group(1).strip()
                         break
-                    
+
             if column.text == 'Step':
-                for line in output:                 
+                for line in output:
                     matchstep = re.search(r'Solution by:(.*)', line)
                     if matchstep:
-                        column.value = matchstep.group(1).strip()                        
+                        column.value = matchstep.group(1).strip()
                         break
