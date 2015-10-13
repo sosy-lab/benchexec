@@ -316,7 +316,7 @@ def load_tool(result):
                     Util.prettylist(result.attributes['name']))
             return None
         try:
-            print('Loading %s' % tool_module)
+            logging.debug('Loading %s' % tool_module)
             return __import__(tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
             logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
