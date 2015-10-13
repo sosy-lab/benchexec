@@ -44,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         process = subprocess.Popen([executable, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = process.communicate()
-        version = stderr.split(' ')[2]
+        version = util.decode_to_string(stderr).split(' ')[2]
         return version
 
     def name(self):
