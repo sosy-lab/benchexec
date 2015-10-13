@@ -28,6 +28,10 @@ import string
 import os
 import re
 
+REQUIRED_PATHS = [
+                  "cde-package"
+                  ]
+
 class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
@@ -36,6 +40,13 @@ class Tool(benchexec.tools.template.BaseTool):
         called when running SMACK.
         """
         return util.find_executable('smack.sh')
+
+    def program_files(self, executable):
+        """
+        Returns a list of files or directories that are necessary to run the tool.
+        """
+        installDir = os.path.dirname(executable)
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
 
     def version(self, executable):
         """
