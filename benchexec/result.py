@@ -43,7 +43,7 @@ _PROP_MEMTRACK =     'valid-memtrack'
 _PROP_ASSERT =       'assert'
 _PROP_AUTOMATON =    'observer-automaton'
 _PROP_SAT =          'sat'
-_PROP_OVERFLOW =     'signed-integer-overflow'
+_PROP_OVERFLOW =     'no-overflow'
 
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
