@@ -151,9 +151,9 @@ class BaseTool(object):
         that needs special environment variable.
         Returns a map, that contains identifiers for several submaps.
         All keys and values have to be Strings!
-        
+
         Currently we support 2 identifiers:
-        
+
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.

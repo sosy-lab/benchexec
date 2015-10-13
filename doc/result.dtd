@@ -18,6 +18,7 @@
 <!ELEMENT cpu EMPTY>
 <!ATTLIST cpu cores CDATA #REQUIRED
               frequency CDATA #REQUIRED
+              turboboostActive CDATA #IMPLIED
               model CDATA #REQUIRED>
 <!ELEMENT ram EMPTY>
 <!ATTLIST ram size CDATA #REQUIRED>

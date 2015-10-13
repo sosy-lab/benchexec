@@ -23,7 +23,7 @@ import unittest
 class Python2Tests(unittest.TestSuite):
     """
     Test suite aggregating all tests that should be executed when using Python 2
-    (runexecutor supports Python 2, the rest does not).  
+    (runexecutor supports Python 2, the rest does not).
     """
 
     def __init__(self):

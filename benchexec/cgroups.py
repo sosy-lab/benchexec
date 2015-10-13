@@ -205,7 +205,7 @@ class Cgroup(object):
     def create_fresh_child_cgroup(self, *subsystems):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
-        @return: A Cgroup instance representing the new child cgroup(s). 
+        @return: A Cgroup instance representing the new child cgroup(s).
         """
         assert set(subsystems).issubset(self.per_subsystem.keys())
         createdCgroupsPerSubsystem = {}
@@ -272,7 +272,7 @@ class Cgroup(object):
         Check whether the given value exists in the given subsystem.
         Does not make a difference whether the value is readable, writable, or both.
         Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.  
+        Only call this method if the given subsystem is available.
         """
         assert subsystem in self
         return os.path.isfile(os.path.join(self.per_subsystem[subsystem], subsystem + '.' + option))
@@ -281,7 +281,7 @@ class Cgroup(object):
         """
         Read the given value from the given subsystem.
         Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.  
+        Only call this method if the given subsystem is available.
         """
         assert subsystem in self
         return util.read_file(self.per_subsystem[subsystem], subsystem + '.' + option)
@@ -311,7 +311,7 @@ class Cgroup(object):
         """
         Write the given value for the given subsystem.
         Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.  
+        Only call this method if the given subsystem is available.
         """
         assert subsystem in self
         util.write_file(str(value), self.per_subsystem[subsystem], subsystem + '.' + option)

@@ -326,7 +326,7 @@ class RunSet:
             for run in self.runs:
                 base = os.path.basename(run.identifier)
                 if base in sourcefilesSet:
-                    logging.warning("sourcefile with basename '" + base + 
+                    logging.warning("sourcefile with basename '" + base +
                     "' appears twice in runset. This could cause problems with equal logfile-names.")
                 else:
                     sourcefilesSet.add(base)
@@ -429,7 +429,7 @@ class RunSet:
         for run in sourcefilesTag.findall("withoutfile"):
             sourcefiles.append(run.text)
 
-        # some runs need more than one sourcefile, 
+        # some runs need more than one sourcefile,
         # the first sourcefile is a normal 'include'-file, we use its name as identifier for logfile and result-category
         # all other files are 'append'ed.
         sourcefilesLists = []
@@ -439,7 +439,7 @@ class RunSet:
             for appendFile in appendFileTags:
                 files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
             sourcefilesLists.append(files)
-        
+
         return sourcefilesLists
 
 
@@ -529,7 +529,7 @@ class Run():
             expandedPropertyFiles = util.expand_filename_pattern(self.propertyfile, self.runSet.benchmark.base_dir)
             substitutedPropertyfiles = substitute_vars([self.propertyfile], runSet, self.identifier)
             assert len(substitutedPropertyfiles) == 1
-            
+
             if expandedPropertyFiles:
                 if len(expandedPropertyFiles) > 1:
                     log_property_file_once('Pattern {0} for sourcefile {1} in propertyfile tag matches more than one file. Only {2} will be used.'
@@ -669,13 +669,13 @@ class Requirements:
     If the user gives a cpu_model in the config, it overrides the previous cpu_model.
     '''
     def __init__(self, tags, rlimits, config):
-        
+
         self.cpu_model = None
         self.memory   = None
         self.cpu_cores = None
-        
+
         for requireTag in tags:
-            
+
             cpu_model = requireTag.get('cpuModel', None)
             if self.cpu_model is None:
                 self.cpu_model = cpu_model
@@ -694,7 +694,7 @@ class Requirements:
             else:
                 raise Exception('Double specification of required memory.')
 
-        # TODO check, if we have enough requirements to reach the limits        
+        # TODO check, if we have enough requirements to reach the limits
         # TODO is this really enough? we need some overhead!
         if self.cpu_cores is None:
             self.cpu_cores = rlimits.get(CORELIMIT, None)

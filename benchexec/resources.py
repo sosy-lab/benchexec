@@ -60,11 +60,11 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
     with two 16-core CPUs (this would have unfair core assignment
     and thus undesirable performance characteristics anyway).
 
-    The list of available cores is read from the cgroup filesystem,
+    The list of available cores is read from the cgroup file system,
     such that the assigned cores are a subset of the cores
     that the current process is allowed to use.
     This script does currently not support situations
-    where the available cores are assymetrically split over CPUs,
+    where the available cores are asymmetrically split over CPUs,
     e.g. 3 cores on one CPU and 5 on another.
 
     @param coreLimit: the number of cores for each run
@@ -96,7 +96,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
 
 def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core):
     """This method does the actual work of _get_cpu_cores_per_run
-    without reading the machine architecture from the filesystem
+    without reading the machine architecture from the file system
     in order to be testable. For description, c.f. above.
     Note that this method might change the input parameters!
     Do not call it directly, call getCpuCoresPerRun()!
@@ -115,14 +115,20 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         if package_size is None:
             package_size = len(cores)
         elif package_size != len(cores):
-            sys.exit("Assymetric machine architecture not supported: CPU package {0} has {1} cores, but other package has {2} cores.".format(package, len(cores), package_size)) 
+            sys.exit("Asymmetric machine architecture not supported: CPU package {0} has {1} cores, but other package has {2} cores.".format(package, len(cores), package_size))
 
     core_size = None # Number of threads per core
     for core, siblings in siblings_of_core.items():
         if core_size is None:
             core_size = len(siblings)
         elif core_size != len(siblings):
-            sys.exit("Assymetric machine architecture not supported: CPU core {0} has {1} siblings, but other core has {2} siblings.".format(core, len(siblings), core_size)) 
+            sys.exit("Asymmetric machine architecture not supported: CPU core {0} has {1} siblings, but other core has {2} siblings.".format(core, len(siblings), core_size))
+
+    all_cpus_set = set(allCpus)
+    for core, siblings in siblings_of_core.items():
+        siblings_set = set(siblings)
+        if not siblings_set.issubset(all_cpus_set):
+            sys.exit("Core assignment is unsupported because siblings {0} of core {1} are not usable. Please always make all virtual cores of a physical core available.".format(siblings_set.difference(all_cpus_set), core))
 
     # Second, compute some values we will need.
     package_count = len(cores_of_package)

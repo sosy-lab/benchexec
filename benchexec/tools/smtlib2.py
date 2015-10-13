@@ -32,7 +32,7 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
     """
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        
+
         if returnsignal == 0 and returncode == 0:
             status = None
             for line in output:
@@ -58,5 +58,5 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
             status = "KILLED"
         else:
             status = "ERROR ({0})".format(returncode)
- 
+
         return status

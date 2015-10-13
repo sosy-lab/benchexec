@@ -34,7 +34,7 @@ except ImportError:
     DEVNULL = open(os.devnull, 'wb')
 
 from . import check_cgroups
-    
+
 python = 'python2' if sys.version_info[0] == 2 else 'python3'
 
 class TestCheckCgroups(unittest.TestCase):

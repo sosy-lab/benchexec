@@ -316,7 +316,7 @@ def load_tool(result):
                     Util.prettylist(result.attributes['name']))
             return None
         try:
-            print('Loading %s' % tool_module)
+            logging.debug('Loading %s' % tool_module)
             return __import__(tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
             logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
@@ -449,7 +449,7 @@ class RunSetResult():
             attributes['host' ].append(systemTag.get('hostname', 'unknown'))
 
         return attributes
-    
+
     @staticmethod
     def _extract_summary_from_result(resultTag, columns):
         summary = collections.defaultdict(list)
@@ -763,8 +763,10 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                              name=rowName,
                              content=valuesAndWidths)
 
-    benchmarkNames = [runSetResult.attributes['benchmarkname'] for runSetResult in runSetResults]
-    allBenchmarkNamesEqual = benchmarkNames.count(benchmarkNames[0]) == len(benchmarkNames)
+    firstBenchmarkName = runSetResults[0].attributes['benchmarkname']
+    allBenchmarkNamesEqual = \
+        all(r.attributes['benchmarkname'] == firstBenchmarkName   for r in runSetResults) or \
+        all(r.attributes['benchmarkname'] == r.attributes['name'] for r in runSetResults)
 
     titles      = [column.title for runSetResult in runSetResults for column in runSetResult.columns]
     runSetWidths1 = [1]*sum(runSetWidths)
@@ -1030,7 +1032,7 @@ def get_summary(runSetResults):
             summaryStats.append(StatValue(value))
 
     if available:
-        return tempita.bunch(default=None, title='local summary', 
+        return tempita.bunch(default=None, title='local summary',
             description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
             content=summaryStats)
     else:

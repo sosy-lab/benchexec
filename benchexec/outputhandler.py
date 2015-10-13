@@ -386,7 +386,7 @@ class OutputHandler:
 
         # store information in run
         run.resultline = self.create_output_line(run.runSet, run.identifier, run.status,
-                cputime_str, walltime_str, run.values.get('host'), 
+                cputime_str, walltime_str, run.values.get('host'),
                 run.columns)
         self.add_values_to_run_xml(run)
 
@@ -426,7 +426,7 @@ class OutputHandler:
         The method output_after_run_set() stores the times of a run set in XML.
         @params cputime, walltime: accumulated times of the run set
         """
-        
+
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files

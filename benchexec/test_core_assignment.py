@@ -163,6 +163,9 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
     threeCore_assignment = [[0, 1, 4], [2, 3, 6]]
     fourCore_assignment  = [[0, 1, 4, 5], [2, 3, 6, 7]]
 
+    def test_halfPhysicalCore(self):
+        # Cannot run if we have only half of one physical core
+        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, 1, 1, [0], {0: [0,1]}, {0: [0,1]})
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     cpus = 2

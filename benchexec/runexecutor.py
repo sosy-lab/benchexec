@@ -245,7 +245,7 @@ class RunExecutor():
         @return cgroups: a map of all the necessary cgroups for the following execution.
                          Please add the process of the following execution to all those cgroups!
         """
-      
+
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
         subsystems = [CPUACCT, FREEZER, MEMORY]
         if my_cpus is not None:
@@ -313,7 +313,7 @@ class RunExecutor():
 
     def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
         """
-        This method executes the command line and waits for the termination of it. 
+        This method executes the command line and waits for the termination of it.
         """
 
         def preSubprocess():
@@ -407,7 +407,7 @@ class RunExecutor():
 
             # hard time limit with cgroups is optional (additionally enforce by ulimit)
             cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
-            
+
             if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
                 # Start a timer to periodically check timelimit
                 timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
@@ -437,7 +437,7 @@ class RunExecutor():
 
         finally:
             walltime_after = time.time()
-            
+
 
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.discard(p)
@@ -466,7 +466,7 @@ class RunExecutor():
         """
         This method tries to extract better measures from cgroups.
         """
-    
+
         cputime2 = None
         if CPUACCT in cgroups:
             # We want to read the value from the cgroup.
@@ -731,7 +731,7 @@ def _copy_all_lines_from_to(inputFile, outputFile):
 
 def _get_debug_output_after_crash(output_filename):
     """
-    Segmentation faults and some memory failures reference a file 
+    Segmentation faults and some memory failures reference a file
     with more information (hs_err_pid_*). We append this file to the log.
     The format that we expect is a line
     "# An error report file with more information is saved as:"

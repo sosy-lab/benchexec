@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
         inputfile = tasks[0]
-        
+
         # create tmp-files for feaver, feaver needs special error-labels
         self.prepInputfile = self._prepareInputfile(inputfile)
 

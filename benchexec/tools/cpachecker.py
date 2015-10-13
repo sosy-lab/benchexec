@@ -75,8 +75,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def program_files(self, executable):
-        executableDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, executableDir) for path in REQUIRED_PATHS)
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
 
 
     def working_directory(self, executable):
