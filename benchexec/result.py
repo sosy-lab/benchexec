@@ -43,6 +43,7 @@ _PROP_MEMTRACK =     'valid-memtrack'
 _PROP_ASSERT =       'assert'
 _PROP_AUTOMATON =    'observer-automaton'
 _PROP_SAT =          'sat'
+_PROP_OVERFLOW =     'no-overflow'
 
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
@@ -57,6 +58,7 @@ RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
 RESULT_WITNESS_CONFIRMED =  'witness confirmed'
 RESULT_SAT =                'sat'
 RESULT_UNSAT =              'unsat'
+RESULT_FALSE_OVERFLOW =     STR_FALSE + '(' + _PROP_OVERFLOW    + ')'
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
@@ -65,6 +67,7 @@ RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
+               RESULT_FALSE_OVERFLOW
                ]
 
 # Classification of results
@@ -82,6 +85,7 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'LTL(G valid-memtrack)':             _PROP_MEMTRACK,
                    'OBSERVER AUTOMATON':                _PROP_AUTOMATON,
                    'SATISFIABLE':                       _PROP_SAT,
+                   'LTL(G ! overflow)':                 _PROP_OVERFLOW,
                   }
 
 # This maps a possible result substring of a file name
@@ -96,6 +100,7 @@ _FILE_RESULTS = {
               '_true-valid-free':      (RESULT_TRUE_PROP, {_PROP_FREE}),
               '_true-valid-memtrack':  (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
               '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
+              '_true-no-overflow':     (RESULT_TRUE_PROP, {_PROP_OVERFLOW}),
 
               '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
               '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
@@ -104,6 +109,7 @@ _FILE_RESULTS = {
               '_false-valid-deref':    (RESULT_FALSE_DEREF,       {_PROP_DEREF}),
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
               '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK}),
+              '_false-no-overflow':    (RESULT_FALSE_OVERFLOW,    {_PROP_OVERFLOW}),
 
               '_sat':                  (RESULT_SAT,   {_PROP_SAT}),
               '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
