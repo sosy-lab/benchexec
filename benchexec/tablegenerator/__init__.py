@@ -241,27 +241,26 @@ def parse_table_definition_file(file, all_columns):
 
     base_dir = os.path.dirname(file)
 
+    def get_file_list(result_tag):
+        if not 'filename' in result_tag.attrib:
+            logging.warning("Result tag without filename attribute in file '%s'.", file)
+            return []
+        return Util.get_file_list(os.path.join(base_dir, result_tag.get('filename'))) # expand wildcards
+
     for tag in tableGenFile:
         if tag.tag == 'result':
-            if not 'filename' in tag.attrib:
-                logging.warning("Result tag without filename attribute in file '%s'.", file)
-                continue
             columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
-            filelist = Util.get_file_list(os.path.join(base_dir, tag.get('filename'))) # expand wildcards
             run_set_id = tag.get('id')
-            runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns) for resultsFile in filelist]
+            for resultsFile in get_file_list(tag):
+                runSetResults.append(RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns))
 
         elif tag.tag == 'union':
             columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
             result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
             for resultTag in tag.findall('result'):
-                if not 'filename' in resultTag.attrib:
-                    logging.warning("Result tag without filename attribute in file '%s'.", file)
-                    continue
-                filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
                 run_set_id = resultTag.get('id')
-                for resultsFile in filelist:
+                for resultsFile in get_file_list(resultTag):
                     result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
 
             if result._xml_results:
