@@ -185,7 +185,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif line.startswith('FALSE'):
                     newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack']:
+                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow']:
                         newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
                 else:
                     newStatus = result.RESULT_UNKNOWN
