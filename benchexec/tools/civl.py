@@ -31,9 +31,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'CIVL'
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if '__VERIFIER_error() is called.' in output:
+        if any('__VERIFIER_error() is called.' in s for s in output):
             status = result.RESULT_FALSE_REACH
-        elif 'The standard properties hold for all executions.' in output:
+        elif any('The standard properties hold for all executions.' in s for s in output):
             status = result.RESULT_TRUE_PROP
         else:
             status = result.RESULT_UNKNOWN
