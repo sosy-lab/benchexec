@@ -241,33 +241,34 @@ def parse_table_definition_file(file, all_columns):
 
     base_dir = os.path.dirname(file)
 
-    for resultTag in tableGenFile.findall('result'):
-        if not 'filename' in resultTag.attrib:
-            logging.warning("Result tag without filename attribute in file '%s'.", file)
-            continue
-        columnsToShow = extract_columns_from_table_definition_file(resultTag) or defaultColumnsToShow
-        filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
-        run_set_id = resultTag.get('id')
-        runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns) for resultsFile in filelist]
-
-    for unionTag in tableGenFile.findall('union'):
-        columnsToShow = extract_columns_from_table_definition_file(unionTag) or defaultColumnsToShow
-        result = RunSetResult([], collections.defaultdict(list), columnsToShow)
-
-        for resultTag in unionTag.findall('result'):
-            if not 'filename' in resultTag.attrib:
+    for tag in tableGenFile:
+        if tag.tag == 'result':
+            if not 'filename' in tag.attrib:
                 logging.warning("Result tag without filename attribute in file '%s'.", file)
                 continue
-            filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
-            run_set_id = resultTag.get('id')
-            for resultsFile in filelist:
-                result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
+            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+            filelist = Util.get_file_list(os.path.join(base_dir, tag.get('filename'))) # expand wildcards
+            run_set_id = tag.get('id')
+            runSetResults += [RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns) for resultsFile in filelist]
 
-        if result._xml_results:
-            name = unionTag.get('title', unionTag.get('name'))
-            if name:
-                result.attributes['name'] = [name]
-            runSetResults.append(result)
+        elif tag.tag == 'union':
+            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+            result = RunSetResult([], collections.defaultdict(list), columnsToShow)
+
+            for resultTag in tag.findall('result'):
+                if not 'filename' in resultTag.attrib:
+                    logging.warning("Result tag without filename attribute in file '%s'.", file)
+                    continue
+                filelist = Util.get_file_list(os.path.join(base_dir, resultTag.get('filename'))) # expand wildcards
+                run_set_id = resultTag.get('id')
+                for resultsFile in filelist:
+                    result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
+
+            if result._xml_results:
+                name = tag.get('title', tag.get('name'))
+                if name:
+                    result.attributes['name'] = [name]
+                runSetResults.append(result)
 
     return runSetResults
 
