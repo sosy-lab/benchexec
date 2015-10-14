@@ -241,15 +241,7 @@ def parse_table_definition_file(file, all_columns):
 
     base_dir = os.path.dirname(file)
 
-    def getResultTags(rootTag):
-        tags = rootTag.findall('result')
-        if not tags:
-            tags = rootTag.findall('test')
-            if tags:
-                logging.warning("File '%s' contains deprecated 'test' tags, rename them to 'result'", file)
-        return tags
-
-    for resultTag in getResultTags(tableGenFile):
+    for resultTag in tableGenFile.findall('result'):
         if not 'filename' in resultTag.attrib:
             logging.warning("Result tag without filename attribute in file '%s'.", file)
             continue
@@ -262,7 +254,7 @@ def parse_table_definition_file(file, all_columns):
         columnsToShow = extract_columns_from_table_definition_file(unionTag) or defaultColumnsToShow
         result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
-        for resultTag in getResultTags(unionTag):
+        for resultTag in unionTag.findall('result'):
             if not 'filename' in resultTag.attrib:
                 logging.warning("Result tag without filename attribute in file '%s'.", file)
                 continue
