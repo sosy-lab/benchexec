@@ -96,7 +96,7 @@ class OutputHandler:
             corelimit = str(self.benchmark.rlimits[CORELIMIT])
 
         # create folder for file-specific log-files.
-        os.makedirs(benchmark.log_folder)
+        os.makedirs(benchmark.log_folder, exist_ok=True)
 
         self.store_header_in_xml(version, memlimit, timelimit, corelimit)
         self.write_header_to_log(version, memlimit, timelimit, corelimit, sysinfo)
