@@ -1,5 +1,13 @@
 # BenchExec Changelog
 
+## BenchExec 1.2
+
+- BenchExec now records whether TurboBoost was enabled during benchmarking.
+- Updated SV-COMP scoring scheme to SV-COMP 2016.
+- Support new property 'no-overflow' for SV-COMP 2016.
+- Several new modules for integration of various software verifiers.
+- Some improvements to CPU-core assignment.
+
 ## BenchExec 1.1
 
 - HTML tables produced by table-generator now have a header that stays

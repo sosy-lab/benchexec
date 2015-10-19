@@ -60,7 +60,7 @@ Variables ending with "file" contain filenames.
 Variables ending with "tag" contain references to XML tag objects created by the XML parser.
 """
 
-__version__ = '1.2-dev'
+__version__ = '1.2'
 
 class BenchExec(object):
     """
