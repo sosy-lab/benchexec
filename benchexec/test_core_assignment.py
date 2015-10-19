@@ -210,6 +210,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     def test_threeCPU_invalid(self):
         self.assertInvalid(6, 2)
 
+
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     cpus = 3
     cores = 10
@@ -223,6 +224,16 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
 
     def test_threeCPU_HT_invalid(self):
         self.assertInvalid(11, 2)
+
+    def test_threeCPU_HT_noncontiguousId(self):
+        """3 CPUs with one core (plus HT) and non-contiguous core and package numbers.
+        This may happen on systems with administrative core restrictions,
+        because the ordering of core and package numbers is not always consistent."""
+        result = _get_cpu_cores_per_run0(2, 3,
+            [0, 1, 2, 3, 6, 7], {0: [0, 1], 2: [2, 3], 3: [6, 7]},
+            {0: [0, 1], 1: [0, 1], 2: [2, 3], 3: [2, 3], 6: [6, 7], 7: [6,7]})
+        self.assertEqual([[0, 1], [2, 3], [6, 7]], result, "Incorrect result for {} cores and {} threads.".format(2, 3))
+
 
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     cpus = 4

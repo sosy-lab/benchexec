@@ -132,6 +132,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
 
     # Second, compute some values we will need.
     package_count = len(cores_of_package)
+    packages = sorted(cores_of_package.keys())
 
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
     assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
@@ -157,7 +158,11 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         # this calculation ensures that runs are split evenly across packages
         start_package = (run * packages_per_run) % package_count
         cores = []
-        for package in range(start_package, start_package + packages_per_run):
+        for package_nr in range(start_package, start_package + packages_per_run):
+            # Some systems have non-contiguous package numbers,
+            # so we take the i'th package out of the list of available packages.
+            # On normal system this is the identity mapping.
+            package = packages[package_nr]
             for core in cores_of_package[package]:
                 if core not in cores:
                     cores.extend(c for c in siblings_of_core[core] if not c in used_cores)
