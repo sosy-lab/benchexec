@@ -33,28 +33,28 @@ and place appropriate start scripts on the PATH.
 
  * Create a Git tag:
 
-    git tag -s -v <VERSION>
+        git tag -s <VERSION>
 
  * In a clean checkout and in a virtual environment with Python 3 (as described above),
    create the release archives:
 
-    python3 setup.py sdist bdist_egg bdist_wheel
+        python3 setup.py sdist bdist_egg bdist_wheel
 
  * In a clean checkout and in a virtual environment with Python **2**,
    create the release archive with only runexec for Python 2:
 
-    python2 setup.py bdist_egg
+        python2 setup.py bdist_egg
 
  * Copy the `dist/*.egg` file created with Python 2 into the `dist` directory
    of the Python 3 build.
 
  * Sign the files and upload them to PyPi inside the Python 3 build directory:
 
-    twine upload -s dist/*
+        twine upload -s dist/*
 
  * Push commits and tag to GitHub:
 
-    git push --tags
+        git push --tags
 
  * On GitHub, create a release from the tag with a description of the changes
    (from `CHANGELOG.md`), and upload all files from `dist/`.
@@ -79,18 +79,18 @@ and place appropriate start scripts on the PATH.
    (`<DEB_VERSION>` needs to be the defined package version,
    and `<TAR_ARCHIVE>` is the archive from which the directory was extracted.):
 
-    dh_make -p benchexec_<DEB_VERSION> --createorig -f ../<TAR_ARCHIVE> -i -c apache
+        dh_make -p benchexec_<DEB_VERSION> --createorig -f ../<TAR_ARCHIVE> -i -c apache
 
  * Set the version of the Debian package to the defined one by adding
    a changelog entry for the new version
    (Description can usually be `New upstream version.`,
    `UNRELEASED` in the first line should be changed to `unstable`.):
 
-    DEBFULLNAME="<YOUR_NAME>" DEBEMAIL="<YOUR_EMAIL>" dch -v <DEB_VERSION>-1
+        DEBFULLNAME="<YOUR_NAME>" DEBEMAIL="<YOUR_EMAIL>" dch -v <DEB_VERSION>-1
 
  * Build the package:
 
-    dpkg-buildpackage -us -uc
+        dpkg-buildpackage -us -uc
 
  * Sign the package with GPG and upload it to GitHub as part of the release.
 
