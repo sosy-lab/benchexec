@@ -59,18 +59,18 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
 
+
     def executable(self):
         return util.find_executable('sea_svcomp')
 
-
     def name(self):
-        return 'SeaHorn-F16'
+        return 'SeaHorn'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        assert len(tasks) == 1, "only one inputfile supported"
-        cexfile = "--cex="+tasks[0]+".xml"
-        options = options + [cexfile, "-p", "inline:no_inline"]
         return [executable] + options + tasks
+
+    def version(self, executable):
+        return self._version_from_tool(executable)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
