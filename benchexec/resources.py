@@ -133,12 +133,8 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
     # Second, compute some values we will need.
     package_count = len(cores_of_package)
     packages = sorted(cores_of_package.keys())
-
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
     assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
-    #assert coreLimit_rounded_up <= package_size
-    if coreLimit_rounded_up * num_of_threads > len(allCpus):
-        logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format(len(allCpus) // coreLimit_rounded_up))
 
     packages_per_run = int(math.ceil(coreLimit_rounded_up / package_size))
     if packages_per_run > 1 and packages_per_run * num_of_threads > package_count:
@@ -148,6 +144,20 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
     assert packages_per_run == 1 or runs_per_package == 1
     if packages_per_run == 1 and runs_per_package * coreLimit > package_size:
         sys.exit("Cannot run {} benchmarks with {} cores on {} CPUs with {} cores, because runs would need to be split across multiple CPUs. Please reduce the number of threads.".format(num_of_threads, coreLimit, package_count, package_size))
+
+    # Warn on misuse of hyper-threading
+    if packages_per_run == 1:
+        # Checking whether the total amount of usable physical cores is not enough,
+        # there might be some cores we cannot use, e.g. when scheduling with coreLimit=3 on quad-core machines.
+        # Thus we check per package.
+        assert coreLimit * runs_per_package <= package_size
+        if coreLimit_rounded_up * runs_per_package > package_size:
+            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format((package_size // coreLimit_rounded_up) * package_count))
+
+    else:
+        if coreLimit_rounded_up * num_of_threads > len(allCpus):
+            assert coreLimit_rounded_up * runs_per_package > package_size
+            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format(len(allCpus) // coreLimit_rounded_up))
 
     logging.debug("Going to assign at most {0} runs per package, each one using {1} cores and blocking {2} cores on {3} packages.".format(runs_per_package, coreLimit, coreLimit_rounded_up, packages_per_run))
 
