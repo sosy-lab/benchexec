@@ -64,10 +64,13 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('sea_svcomp')
 
     def name(self):
-        return 'SeaHorn'
+        return 'SeaHorn-F16'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + options + tasks
+        assert len(tasks) == 1
+        assert propertyfile is not None
+        spec = ['--spec', propertyfile]
+        return [executable] + options + spec + tasks
 
     def version(self, executable):
         return self._version_from_tool(executable)
