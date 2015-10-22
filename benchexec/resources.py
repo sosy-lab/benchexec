@@ -146,17 +146,20 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         sys.exit("Cannot run {} benchmarks with {} cores on {} CPUs with {} cores, because runs would need to be split across multiple CPUs. Please reduce the number of threads.".format(num_of_threads, coreLimit, package_count, package_size))
 
     # Warn on misuse of hyper-threading
+    need_HT = False
     if packages_per_run == 1:
         # Checking whether the total amount of usable physical cores is not enough,
         # there might be some cores we cannot use, e.g. when scheduling with coreLimit=3 on quad-core machines.
         # Thus we check per package.
         assert coreLimit * runs_per_package <= package_size
         if coreLimit_rounded_up * runs_per_package > package_size:
+            need_HT = True
             logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format((package_size // coreLimit_rounded_up) * package_count))
 
     else:
         if coreLimit_rounded_up * num_of_threads > len(allCpus):
             assert coreLimit_rounded_up * runs_per_package > package_size
+            need_HT = True
             logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format(len(allCpus) // coreLimit_rounded_up))
 
     logging.debug("Going to assign at most {0} runs per package, each one using {1} cores and blocking {2} cores on {3} packages.".format(runs_per_package, coreLimit, coreLimit_rounded_up, packages_per_run))
@@ -168,7 +171,9 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         # this calculation ensures that runs are split evenly across packages
         start_package = (run * packages_per_run) % package_count
         cores = []
+        cores_with_siblings = set()
         for package_nr in range(start_package, start_package + packages_per_run):
+            assert len(cores) < coreLimit
             # Some systems have non-contiguous package numbers,
             # so we take the i'th package out of the list of available packages.
             # On normal system this is the identity mapping.
@@ -178,12 +183,15 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
                     cores.extend(c for c in siblings_of_core[core] if not c in used_cores)
                 if len(cores) >= coreLimit:
                     break
+            cores_with_siblings.update(cores)
             cores = cores[:coreLimit] # shrink if we got more cores than necessary
             # remove used cores such that we do not try to use them again
             cores_of_package[package] = [core for core in cores_of_package[package] if core not in cores]
 
-        assert len(cores) == coreLimit, "Wrong number of cores for run {} - previous results: {}, remaining cores per package: {}, current cores: {}".format(run, result, cores_of_package, cores)
-        used_cores.update(cores)
+        assert len(cores) == coreLimit, "Wrong number of cores for run {} of {} - previous results: {}, remaining cores per package: {}, current cores: {}".format(run+1, num_of_threads, result, cores_of_package, cores)
+        blocked_cores = cores if need_HT else cores_with_siblings
+        assert not used_cores.intersection(blocked_cores)
+        used_cores.update(blocked_cores)
         result.append(sorted(cores))
 
     assert len(result) == num_of_threads

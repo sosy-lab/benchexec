@@ -240,6 +240,19 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     cores = 16
     ht = True
 
+    def test_quadCPU_HT_noncontiguousId(self):
+        """4 CPUs with 8 cores (plus HT) and non-contiguous core and package numbers.
+        This may happen on systems with administrative core restrictions,
+        because the ordering of core and package numbers is not always consistent.
+        Furthermore, sibling cores have numbers next to each other (occurs on AMD Opteron machines with shared L1/L2 caches)
+        and are not split as far as possible from each other (as it occurs on hyper-threading machines).
+        """
+        result = _get_cpu_cores_per_run0(1, 8,
+            [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57],
+            {0: [0, 1, 8, 9], 1: [32, 33, 40, 41], 2: [48, 49, 56, 57], 3: [16, 17, 24, 25]},
+            {0: [0, 1], 1: [0, 1], 48: [48, 49], 33: [32, 33], 32: [32, 33], 40: [40, 41], 9: [8, 9], 16: [16, 17], 17: [16, 17], 56: [56, 57], 57: [56, 57], 8: [8, 9], 41: [40, 41], 24: [24, 25], 25: [24, 25], 49: [48, 49]})
+        self.assertEqual([[0], [32], [48], [16], [8], [40], [56], [24]], result, "Incorrect result for {} cores and {} threads.".format(1, 8))
+
     def test_quadCPU_HT(self):
         self.assertValid(16, 4, [lrange(0, 8) + lrange(32, 40), lrange(8, 16) + lrange(40, 48), lrange(16, 24) + lrange(48, 56), lrange(24, 32) + lrange(56, 64)])
 
