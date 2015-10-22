@@ -494,7 +494,6 @@ class Run():
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
-        logging.debug("Creating Run with identifier '{0}' and files {1}".format(self.identifier, self.sourcefiles))
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
