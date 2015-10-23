@@ -91,7 +91,10 @@ class TestRunExecutor(unittest.TestCase):
         expected_keys = {'cputime', 'walltime', 'memory', 'exitcode'}
         expected_keys.update(additional_keys)
         for key in result.keys():
-            self.assertIn(key, expected_keys, 'unexpected result value ' + key)
+            if key.startswith('cputime-cpu'):
+                self.assertRegex(key, '^cputime-cpu[0-9]+$', 'unexpected result value ' + key)
+            else:
+                self.assertIn(key, expected_keys, 'unexpected result value ' + key)
 
 
     def test_command_output(self):

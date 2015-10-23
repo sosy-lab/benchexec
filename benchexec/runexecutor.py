@@ -182,6 +182,9 @@ def main(argv=None):
         print("exitsignal=" + str(exitSignal))
     print("walltime=" + str(result['walltime']) + "s")
     print("cputime=" + str(result['cputime']) + "s")
+    for key in sorted(result.keys()):
+        if key.startswith('cputime-'):
+            print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
     if 'energy' in result:
         for key, value in result['energy'].items():
@@ -525,6 +528,14 @@ class RunExecutor():
             else:
                 cputime = cputime2
         result['cputime'] = cputime
+
+        for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
+            try:
+                coretime = int(coretime)
+                if coretime != 0:
+                    result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
+            except (OSError, ValueError) as e:
+                logging.debug("Could not read CPU time for core {} from kernel: {}".format(core, e))
 
         return result
 
