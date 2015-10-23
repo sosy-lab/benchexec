@@ -466,6 +466,7 @@ class RunExecutor():
         """
         This method tries to extract better measures from cgroups.
         """
+        result = {}
 
         cputime2 = None
         if CPUACCT in cgroups:
@@ -502,6 +503,7 @@ class RunExecutor():
                               + "Please set swapaccount=1 on your kernel command line.")
                     else:
                         raise e
+        result['memory'] = memUsage
 
         logging.debug('Run exited with code {0}, walltime={1}, cputime={2}, cgroup-cputime={3}, memory={4}'
                       .format(returnvalue, walltime, cputime, cputime2, memUsage))
@@ -522,8 +524,9 @@ class RunExecutor():
                 logging.warning('Cputime measured by wait was {0}, cputime measured by cgroup was only {1}, perhaps measurement is flawed.'.format(cputime, cputime2))
             else:
                 cputime = cputime2
+        result['cputime'] = cputime
 
-        return (cputime, memUsage)
+        return result
 
 
     def execute_run(self, args, output_filename, stdin=None,
@@ -626,13 +629,20 @@ class RunExecutor():
                               environments, workingDir)
 
             logging.debug("execute_run: getting exact measures.")
-            (cputime, memUsage) = self._get_exact_measures(cgroups, exitcode, walltime, cputime)
+            result = self._get_exact_measures(cgroups, exitcode, walltime, cputime)
 
         finally: # always try to cleanup cgroups, even on sys.exit()
             logging.debug("execute_run: cleaning up CGroups.")
             cgroups.remove()
 
         # if exception is thrown, skip the rest, otherwise perform normally
+
+        result['walltime'] = walltime
+        result['exitcode'] = exitcode
+        if self._termination_reason:
+            result['terminationreason'] = self._termination_reason
+        if energy:
+            result['energy'] = energy
 
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. Benchmark results are unreliable!')
@@ -645,19 +655,6 @@ class RunExecutor():
             logging.debug("execute_run: analysing output for crash-info.")
             _get_debug_output_after_crash(output_filename)
 
-        logging.debug("execute_run: Run execution returns with code {0}, walltime={1}, cputime={2}, memory={3}, energy={4}"
-                      .format(exitcode, walltime, cputime, memUsage, energy))
-
-        result = {'walltime': walltime,
-                  'cputime':  cputime,
-                  'exitcode': exitcode,
-                  }
-        if memUsage:
-            result['memory'] = memUsage
-        if self._termination_reason:
-            result['terminationreason'] = self._termination_reason
-        if energy:
-            result['energy'] = energy
         return result
 
     def _set_termination_reason(self, reason):
