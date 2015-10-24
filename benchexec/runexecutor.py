@@ -529,13 +529,14 @@ class RunExecutor():
                 cputime = cputime2
         result['cputime'] = cputime
 
-        for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
-            try:
-                coretime = int(coretime)
-                if coretime != 0:
-                    result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
-            except (OSError, ValueError) as e:
-                logging.debug("Could not read CPU time for core {} from kernel: {}".format(core, e))
+        if CPUACCT in cgroups:
+            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
+                try:
+                    coretime = int(coretime)
+                    if coretime != 0:
+                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
+                except (OSError, ValueError) as e:
+                    logging.debug("Could not read CPU time for core {} from kernel: {}".format(core, e))
 
         return result
 
