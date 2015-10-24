@@ -46,10 +46,10 @@ def check_cgroup_availability(wait=1):
     runexecutor = RunExecutor()
     my_cgroups = runexecutor.cgroups
 
-    if (not CPUACCT in my_cgroups and
-            not CPUSET in my_cgroups and
-            # not FREEZER in my_cgroups and # For now, we do not require freezer
-            not MEMORY in my_cgroups):
+    if not (CPUACCT in my_cgroups and
+            CPUSET in my_cgroups and
+            # FREEZER in my_cgroups and # For now, we do not require freezer
+            MEMORY in my_cgroups):
         sys.exit(1)
 
     with tempfile.NamedTemporaryFile(mode='rt') as tmp:
