@@ -63,16 +63,16 @@ class TestCheckCgroups(unittest.TestCase):
     def test_simple(self):
         try:
             check_cgroups.main(['--no-thread'])
-        except SystemExit:
+        except SystemExit as e:
             # expected if cgroups are not available
-            pass
+            self.skipTest(e)
 
     def test_threaded(self):
         try:
             check_cgroups.main([])
-        except SystemExit:
+        except SystemExit as e:
             # expected if cgroups are not available
-            pass
+            self.skipTest(e)
 
     def test_thread_result_is_returned(self):
         """
