@@ -87,6 +87,12 @@ class TestRunExecutor(unittest.TestCase):
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
         return (result, output_lines)
 
+    def check_result_keys(self, result, *additional_keys):
+        expected_keys = {'cputime', 'walltime', 'memory', 'exitcode'}
+        expected_keys.update(additional_keys)
+        for key in result.keys():
+            self.assertIn(key, expected_keys, 'unexpected result value ' + key)
+
 
     def test_command_output(self):
         if not os.path.exists('/bin/echo'):
@@ -104,8 +110,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['exitcode'], 0, 'exit code of /bin/echo is not zero')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of /bin/echo not as expected')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/echo not as expected')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode'}, 'unexpected result value ' + key)
+        self.check_result_keys(result)
 
     def test_cputime_hardlimit(self):
         if not os.path.exists('/bin/sh'):
@@ -118,8 +123,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -138,8 +142,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 4, delta=3, msg='cputime is not approximately the time after which the process should have been killed')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -157,8 +160,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'walltime', 'termination reason is not "walltime"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         self.assertEqual(output[0], '/bin/sleep 10', 'run output misses executed command')
         for line in output[1:]:
@@ -176,8 +178,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -196,8 +197,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -214,8 +214,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode'}, 'unexpected result value ' + key)
+        self.check_result_keys(result)
 
         self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
         for line in output[1:]:
@@ -237,8 +236,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode'}, 'unexpected result value ' + key)
+        self.check_result_keys(result)
 
         self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
@@ -274,8 +272,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(int(result['exitcode']), 0, 'exit code of process is not 0')
         self.assertAlmostEqual(float(result['walltime'].rstrip('s')), 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(float(result['cputime'].rstrip('s')), 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'returnvalue'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'returnvalue')
 
         self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
@@ -294,8 +291,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'killed', 'termination reason is not "killed"')
         self.assertAlmostEqual(result['walltime'], 1, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'terminationreason'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'terminationreason')
 
         self.assertEqual(output[0], '/bin/sleep 10', 'run output misses executed command')
         for line in output[1:]:
@@ -355,8 +351,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/echo')
         (result, output) = self.execute_run_extern('/bin/echo', 'TEST_TOKEN')
         self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
-        for key in result.keys():
-            self.assertIn(key, {'cputime', 'walltime', 'memory', 'exitcode', 'returnvalue'}, 'unexpected result value ' + key)
+        self.check_result_keys(result, 'returnvalue')
 
         self.assertEqual(output[0], '/bin/echo TEST_TOKEN', 'run output misses executed command')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
