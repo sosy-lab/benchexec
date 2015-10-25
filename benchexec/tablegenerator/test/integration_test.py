@@ -36,6 +36,11 @@ base_dir = os.path.join(here, '..', '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
 tablegenerator = os.path.join(bin_dir, 'table-generator')
 
+# Set to True to let tests overwrite the expected result with the actual result
+# instead of letting them fail.
+# Use this to update expected files if necessary. Do not commit this flag set to True!
+OVERWRITE_MODE = False
+
 def result_file(name):
     return os.path.join(here, 'results', name)
 
@@ -92,13 +97,19 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             self.generate_tables_and_check_produced_files(args, table_prefix, diff_prefix)
 
         generated = util.read_file(csv_file)
-        expected = util.read_file(here, 'expected', (result_prefix or table_prefix) + '.csv')
-        self.assertMultiLineEqual(generated, expected)
+        expected_file = [here, 'expected', (result_prefix or table_prefix) + '.csv']
+        if OVERWRITE_MODE:
+            util.write_file(generated, *expected_file)
+        else:
+            self.assertMultiLineEqual(generated, util.read_file(*expected_file))
 
         if diff_prefix:
             generated_diff = util.read_file(csv_diff_file)
-            expected_diff = util.read_file(here, 'expected', (result_diff_prefix or diff_prefix) + '.csv')
-            self.assertMultiLineEqual(generated_diff, expected_diff)
+            expected_diff_file = [here, 'expected', (result_diff_prefix or diff_prefix) + '.csv']
+            if OVERWRITE_MODE:
+                util.write_file(generated_diff, *expected_diff_file)
+            else:
+                self.assertMultiLineEqual(generated_diff, util.read_file(*expected_diff_file))
 
         if expected_counts:
             # output of table-generator should end with statistics about regressions
