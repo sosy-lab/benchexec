@@ -624,8 +624,7 @@ function createColumnToggleView() {
         var runSet = run_sets[i];
 
         // get indices of row and create rowTitle-cell
-        var rowTitle = runSet.tool + ' ' + (runSet.date ? runSet.date + ' ' : '') + runSet.name;
-        $('<td>').append(rowTitle)
+        $('<td>').append(getNameOfTestDirect(runSet))
             .click( {indices: runSet.indices},
                     function(event) { toggleCells(event.data.indices); } )
             .addClass('clickable')
@@ -695,8 +694,7 @@ function createStatsView(statistics, currentIndex) {
         var runSet = run_sets[i];
 
         // get indices of row and create rowTitle-cell
-        var rowTitle = runSet.tool + ' ' + (runSet.date ? runSet.date + ' ' : '') + runSet.name;
-        $('<td>').append(rowTitle)
+        $('<td>').append(getNameOfTestDirect(runSet))
             .appendTo(rowHTML);
 
         // get cells of row
