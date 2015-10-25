@@ -362,8 +362,7 @@ function getNameOfTest(column) {
 function getNameOfTestDirect(runSet) {
   return runSet.tool + ' '
        + (runSet.date ? runSet.date + ' ' : '')
-       + runSet.name
-       + (runSet.benchmarkname ? '.' + runSet.benchmarkname : '');
+       + runSet.niceName;
 }
 
 function toggleHeader() {

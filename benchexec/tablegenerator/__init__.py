@@ -421,7 +421,6 @@ class RunSetResult():
         attributes = collections.defaultdict(list)
 
         # Defaults
-        attributes['name'  ] = [resultTag.get('benchmarkname')]
         attributes['branch'] = [os.path.basename(resultFile).split('#')[0] if '#' in resultFile else '']
 
         # Update with real values
@@ -755,11 +754,6 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                              name=rowName,
                              content=valuesAndWidths)
 
-    firstBenchmarkName = runSetResults[0].attributes['benchmarkname']
-    allBenchmarkNamesEqual = \
-        all(r.attributes['benchmarkname'] == firstBenchmarkName   for r in runSetResults) or \
-        all(r.attributes['benchmarkname'] == r.attributes['name'] for r in runSetResults)
-
     titles      = [column.title for runSetResult in runSetResults for column in runSetResult.columns]
     runSetWidths1 = [1]*sum(runSetWidths)
     titleRow    = tempita.bunch(id='columnTitles', name=commonFileNamePrefix,
@@ -771,7 +765,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             'os':      get_row('OS', '{os}', collapse=True, onlyIf='os'),
             'system':  get_row('System', 'CPU: {cpu} with {cores} cores, frequency: {freq}{turbo}; RAM: {ram}', collapse=True, onlyIf='cpu'),
             'date':    get_row('Date of execution', '{date}', collapse=True),
-            'runset':  get_row('Run set', '{name}' if allBenchmarkNamesEqual else '{benchmarkname}.{name}'),
+            'runset':  get_row('Run set', '{niceName}'),
             'branch':  get_row('Branch', '{branch}'),
             'options': get_row('Options', '{options}'),
             'property':get_row('Propertyfile', '{propertyfiles}', collapse=True, onlyIf='propertyfiles', default=''),
@@ -1040,6 +1034,17 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     common_prefix = os.path.commonprefix(list(map(lambda r : r.filename, rows))) # maybe with parts of filename
     common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
     list(map(lambda row: Row.set_relative_path(row, common_prefix, outputPath), rows))
+
+    # compute nice name of each run set for displaying
+    firstBenchmarkName = Util.prettylist(runSetResults[0].attributes['benchmarkname'])
+    allBenchmarkNamesEqual = all(Util.prettylist(r.attributes['benchmarkname']) == firstBenchmarkName for r in runSetResults)
+    for r in runSetResults:
+        if not r.attributes['name']:
+            r.attributes['niceName'] = r.attributes['benchmarkname']
+        elif allBenchmarkNamesEqual:
+            r.attributes['niceName'] = r.attributes['name']
+        else:
+            r.attributes['niceName'] = [Util.prettylist(r.attributes['benchmarkname']) + '.' + Util.prettylist(r.attributes['name'])]
 
     head = get_table_head(runSetResults, common_prefix)
     run_sets_data = [runSetResult.attributes for runSetResult in runSetResults]
