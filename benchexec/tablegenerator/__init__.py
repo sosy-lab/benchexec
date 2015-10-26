@@ -924,17 +924,20 @@ class StatValue:
         if not values:
             return StatValue(0)
 
+        values_len = len(values)
+        values_sum = sum(values)
         values = sorted(values)
-        half, len_is_odd = divmod(len(values), 2)
+
+        half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
             median = values[half]
         else:
             median = (values[half-1] + values[half]) / Decimal(2)
 
-        return StatValue(sum(values),
-                         min    = min(values),
-                         max    = max(values),
-                         avg    = sum(values) / len(values),
+        return StatValue(values_sum,
+                         min    = values[0],
+                         max    = values[-1],
+                         avg    = values_sum / values_len,
                          median = median,
                          )
 
