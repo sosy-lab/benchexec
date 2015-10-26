@@ -1062,12 +1062,16 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                        'remove_unit': Util.remove_unit,
                        }
 
-    def write_table(table_type, title, rows):
-        stats = get_stats(rows)
-
-        summary = get_summary(runSetResults)
-        if summary and table_type != 'diff' and not options.correct_only and not options.common:
-            stats.insert(1, summary)
+    def write_table(table_type, title, rows, use_local_summary):
+        # calculate statistics if necessary
+        if not options.format == ['csv']:
+            stats = get_stats(rows)
+            if use_local_summary:
+                summary = get_summary(runSetResults)
+                if summary:
+                    stats.insert(1, summary)
+        else:
+            stats = None
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
@@ -1116,11 +1120,12 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                     pass
 
     # write normal tables
-    write_table("table", name, rows)
+    write_table("table", name, rows,
+                use_local_summary=(not options.correct_only and not options.common))
 
     # write difference tables
     if rowsDiff:
-        write_table("diff", name + " differences", rowsDiff)
+        write_table("diff", name + " differences", rowsDiff, use_local_summary=False)
 
 def basename_without_ending(file):
     name = os.path.basename(file)
