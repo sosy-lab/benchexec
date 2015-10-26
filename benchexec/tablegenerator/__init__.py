@@ -934,7 +934,7 @@ class StatValue:
         return StatValue(sum(values),
                          min    = min(values),
                          max    = max(values),
-                         avg    = float("{:.3f}".format(sum(values) / len(values))),
+                         avg    = sum(values) / len(values),
                          median = median,
                          )
 
