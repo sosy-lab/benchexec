@@ -676,22 +676,25 @@ class Requirements:
         for requireTag in tags:
 
             cpu_model = requireTag.get('cpuModel', None)
-            if self.cpu_model is None:
-                self.cpu_model = cpu_model
-            else:
-                raise Exception('Double specification of required CPU model.')
+            if cpu_model:
+                if self.cpu_model is None:
+                    self.cpu_model = cpu_model
+                else:
+                    raise Exception('Double specification of required CPU model.')
 
             cpu_cores = requireTag.get('cpuCores', None)
-            if self.cpu_cores is None:
-                if cpu_cores is not None: self.cpu_cores = int(cpu_cores)
-            else:
-                raise Exception('Double specification of required CPU cores.')
+            if cpu_cores:
+                if self.cpu_cores is None:
+                    if cpu_cores is not None: self.cpu_cores = int(cpu_cores)
+                else:
+                    raise Exception('Double specification of required CPU cores.')
 
             memory = requireTag.get('memory',   None)
-            if self.memory is None:
-                if memory is not None: self.memory = int(memory)
-            else:
-                raise Exception('Double specification of required memory.')
+            if memory:
+                if self.memory is None:
+                    if memory is not None: self.memory = int(memory)
+                else:
+                    raise Exception('Double specification of required memory.')
 
         # TODO check, if we have enough requirements to reach the limits
         # TODO is this really enough? we need some overhead!
