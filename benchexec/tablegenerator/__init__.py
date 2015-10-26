@@ -924,11 +924,18 @@ class StatValue:
         if not values:
             return StatValue(0)
 
+        values = sorted(values)
+        half, len_is_odd = divmod(len(values), 2)
+        if len_is_odd:
+            median = values[half]
+        else:
+            median = (values[half-1] + values[half]) / Decimal(2)
+
         return StatValue(sum(values),
                          min    = min(values),
                          max    = max(values),
                          avg    = float("{:.3f}".format(sum(values) / len(values))),
-                         median = sorted(values)[len(values)//2],
+                         median = median,
                          )
 
 
