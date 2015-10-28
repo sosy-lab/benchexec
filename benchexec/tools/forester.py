@@ -44,11 +44,9 @@ class Tool(benchexec.tools.template.BaseTool):
         # Note, that the order in list matters. FALSE cannot be in
         # front of the other FALSE(<property>)
         possible_outputs = ["TRUE", "UNKNOWN", "FALSE(valid-memtrack)", "FALSE(valid-deref)", "FALSE(valid-free)", "FALSE"]
-        results = {"TRUE" : result.RESULT_TRUE_PROP, "UNKNOWN" : result.RESULT_UNKNOWN,
-                "FALSE" : result.RESULT_FALSE_REACH,
-                "FALSE(valid-memtrack)" : result.RESULT_FALSE_MEMTRACK,
-                "FALSE(valid-deref)" : result.RESULT_FALSE_DEREF,
-                "FALSE(valid-free)" : result.RESULT_FALSE_FREE}
+        results = {"TRUE" : result.RESULT_TRUE_PROP, "UNKNOWN" : result.RESULT_UNKNOWN, "FALSE" : result.RESULT_FALSE_REACH,
+                   "FALSE(valid-memtrack)" : result.RESULT_FALSE_MEMTRACK, "FALSE(valid-deref)" : result.RESULT_FALSE_DEREF,
+                   "FALSE(valid-free)" : result.RESULT_FALSE_FREE}
 
         for p in possible_outputs:
             for o in output:
