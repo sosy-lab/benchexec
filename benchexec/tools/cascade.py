@@ -20,7 +20,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'Cascade'
 
     def version(self, executable):
-        return '2.0'
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one sourcefile supported"
@@ -31,9 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        if "TRUE" in output:
-            status = result.RESULT_TRUE_PROP
-        elif "FALSE" in output:
+        if "FALSE" in output:
             if "FALSE(valid-deref)" in output:
                 status = result.RESULT_FALSE_DEREF
             elif "FALSE(valid-free)" in output:
@@ -42,6 +40,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_FALSE_MEMTRACK
             else:
                 status = result.RESULT_FALSE_REACH
+        elif "TRUE" in output:
+            status = result.RESULT_TRUE_PROP
         else:
             status = result.RESULT_UNKNOWN
 
