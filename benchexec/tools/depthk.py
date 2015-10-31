@@ -10,7 +10,9 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     """
-    This class serves as tool adaptor for DepthK (https://github.com/hbgit/depthk)
+    This class serves as tool adaptor for DepthK (www.esbmc.org)
+    Autor: Williame Rocha - williame.rocha10@gmail.com
+    	   Herbert Rocha - herberthb12@gmail.com
     """
 
     def executable(self):
