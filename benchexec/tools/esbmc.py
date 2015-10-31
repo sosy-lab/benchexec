@@ -56,7 +56,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
         inputfile = tasks[0]
-        return [executable] + options + [inputfile]
+        return [executable] + ['-c', propertyfile] + options + [inputfile]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
