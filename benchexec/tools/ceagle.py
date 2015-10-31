@@ -24,36 +24,21 @@ import benchexec.util as util
 import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
-    """
-    Tool wrapper for Ceagle.
-    It has additional features such as building CPAchecker before running it
-    if executed within a source checkout.
-    It also supports extracting data from the statistics output of CPAchecker
-    for adding it to the result tables.
-    """
 
     def executable(self):
         return util.find_executable('ceagle.sh')
 
-
     def version(self, executable):
-        return '1.0'
+        return self._version_from_tool(executable)
 
     def name(self):
         return 'Ceagle'
 
-
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + tasks
-
+        return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        """
-        @param returncode: code returned by Ceagle
-        @param returnsignal: signal, which terminated Ceagle
-        @param output: the output of Ceagle
-        @return: status of Ceagle after executing a run
-        """
+
         status = result.RESULT_UNKNOWN
         stroutput = str(output)
 
@@ -66,6 +51,6 @@ class Tool(benchexec.tools.template.BaseTool):
         elif 'UNKNOWN' in stroutput:
             status = result.RESULT_UNKNOWN
         else:
-            assert(False)
+            status = result.RESULT_UNKNOWN
 
         return status
