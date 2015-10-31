@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        return util.find_executable('esbmc')
+        return util.find_executable('esbmc.sh')
 
 
     def program_files(self, executable):
@@ -47,7 +47,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, '-v')
 
     def name(self):
         return 'ESBMC'
@@ -58,38 +58,21 @@ class Tool(benchexec.tools.template.BaseTool):
         inputfile = tasks[0]
         return [executable] + options + [inputfile]
 
-
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
         status = result.RESULT_UNKNOWN
 
-        if self.allInText(['Violated property:',
-                      'dereference failure: dynamic object lower bound',
-                      'VERIFICATION FAILED'],
-                      output):
+        if self.allInText(['FALSE_DEREF'], output):
             status = result.RESULT_FALSE_DEREF
-        elif self.allInText(['Violated property:',
-                      'Operand of free must have zero pointer offset',
-                      'VERIFICATION FAILED'],
-                      output):
+        elif self.allInText(['FALSE_FREE'], output):
             status = result.RESULT_FALSE_FREE
-        elif self.allInText(['Violated property:',
-                      'error label',
-                      'VERIFICATION FAILED'],
-                      output):
-            status = result.RESULT_FALSE_REACH
-        elif self.allInText(['Violated property:',
-                      'assertion',
-                      'VERIFICATION FAILED'],
-                      output):
-            status = result.RESULT_FALSE_REACH
-        elif self.allInText(['Violated property:',
-                      'dereference failure: forgotten memory',
-                      'VERIFICATION FAILED'],
-                      output):
+        elif self.allInText(['FALSE_MEMTRACK'], output):
             status = result.RESULT_FALSE_MEMTRACK
-        elif 'VERIFICATION SUCCESSFUL' in output:
+        elif self.allInText(['FALSE_OVERFLOW'], output):
+            status = result.RESULT_FALSE_OVERFLOW
+        elif self.allInText(['FALSE'], output):
+            status = result.RESULT_FALSE_REACH
+        elif 'TRUE' in output:
             status = result.RESULT_TRUE_PROP
 
         if status == result.RESULT_UNKNOWN:
