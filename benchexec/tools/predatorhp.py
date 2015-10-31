@@ -57,3 +57,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return [executable]
         
+        
+    def working_directory(self, executable):
+        return os.path.dirname(executable)
+        
