@@ -31,26 +31,19 @@ class Tool(benchexec.tools.template.BaseTool):
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def cmdline(self, bin, options, tasks, propertyfile, rlimits):
-        return [bin] + spec + tasks + options 
+    def cmdline(self, bin, options, tasks, spec, rlimits):
+        return [bin] + [spec] + tasks + options 
 
     def name(self):
         return 'ULTIMATE Automizer'
 
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
         for line in output:
-            if line.startswith('Error found! The system is unsafe :-('):
+            if line.startswith('FALSE'):
                 status = result.RESULT_FALSE_REACH
-            elif line.startswith('No error found.  The system is safe :-)'):
+            elif line.startswith('TRUE'):
                 status = result.RESULT_TRUE_PROP
-            elif line.startswith('Fatal error: exception Out_of_memory'):
-                status = 'OUT OF MEMORY'
-            elif line.startswith('Error: label \'ERROR\' appears multiple times'):
-                status = 'ERROR'
             elif (returnsignal == 9):
                 status = 'TIMEOUT'
-            elif 'Ack! The gremlins again!' in line:
-                status = 'EXCEPTION (Gremlins)'
         return status
