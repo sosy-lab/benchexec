@@ -56,6 +56,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + spec + inputfile
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
+        output = '\n'.join(output)
         status = result.RESULT_UNKNOWN
         if "FALSE" in output:
             status = result.RESULT_FALSE_REACH
