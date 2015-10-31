@@ -1,21 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
-Copyright (C) 2007-2015  Dirk Beyer
-All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
 
 import subprocess
 import os
@@ -28,9 +10,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     """
-    This class serves as tool adaptor for DepthK (https://www.esbmc.org)
-    Autor: Williame Rocha - williame.rocha10@gmail.com
-	   Herbert Rocha -  herberthb12@gmail.com
+    This class serves as tool adaptor for DepthK (https://github.com/hbgit/depthk)
     """
 
     def executable(self):
@@ -51,7 +31,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return {'additionalEnv': {'PATH': ':.'}}
 
     def version(self, executable):
-        return 'ESBMC+DepthK Version 2.1'
+        workingDir = self.working_directory(executable)
+        return subprocess.Popen([workingDir + '/depthk.py', '--version'],
+                                stdout=subprocess.PIPE).communicate()[0].strip()
 
     def name(self):
         return 'DepthK'
@@ -104,4 +86,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
         return status
 
-   
+    
+
+			
