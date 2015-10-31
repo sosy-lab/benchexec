@@ -23,6 +23,11 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+REQUIRED_PATHS = [
+                  "etv",
+                  "bin",
+                  ]
+
 class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
@@ -30,8 +35,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def program_files(self, executable):
-        executableDir = os.path.dirname(executable)
-        return [executableDir]
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
 
 
     def working_directory(self, executable):
@@ -51,7 +56,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, blastExe, options, tasks, propertyfile, rlimits):
         workingDir = self.working_directory(blastExe)
         ocamlExe = util.find_executable('ocamltune')
-        return [os.path.relpath(ocamlExe, start=workingDir), blastExe] + options + tasks
+        spec = ["-propertyfile", propertyfile] if propertyfile is not None else []
+        svcompExe = util.find_executable('svcomprunner')
+        return [os.path.relpath(svcompExe, start=workingDir)] + [os.path.relpath(ocamlExe, start=workingDir), blastExe] + options + spec + tasks
 
 
     def name(self):
