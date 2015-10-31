@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         #Relative path to map2check wrapper
-        return Util.find_executable('wrapper_script_map2check.sh')
+        return Util.find_executable('map2check-wrapper.sh')
 
     def program_files(self, executable):
         executableDir = os.path.dirname(executable)
