@@ -21,14 +21,14 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for Lazy-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool wrapper for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
     def executable(self):
-        return util.find_executable('lazy-cseq.py')
+        return util.find_executable('ul-cseq.py')
 
     def name(self):
-        return 'Lazy-CSeq'
+        return 'UL-CSeq'
 
     def version(self, executable):
         return self._version_from_tool(executable)
