@@ -55,6 +55,9 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith('FALSE(TERM)'):
                 status = result.RESULT_FALSE_TERMINATION
                 break
+            elif line.startswith('FALSE(OVERFLOW)'):
+                status = result.RESULT_FALSE_OVERFLOW
+                break            
             elif line.startswith('FALSE'):
                 status = result.RESULT_FALSE_REACH
                 break
