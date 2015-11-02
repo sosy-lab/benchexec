@@ -31,6 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1
+        assert len(options) == 0
         return [executable] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
