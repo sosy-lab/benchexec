@@ -44,5 +44,7 @@ In BenchExec, we use the following definitions:
 
 - **tool**: A program that should be benchmarked with BenchExec.
 
+- **tool wrapper**: A Python module that tells BenchExec how to execute a specific tool.
+
 To avoid confusion with the term *run*, we never use the verb *to run*,
 instead we use *execute*.

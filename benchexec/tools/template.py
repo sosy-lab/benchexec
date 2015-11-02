@@ -25,14 +25,14 @@ import benchexec.util as util
 
 class BaseTool(object):
     """
-    This class serves both as a template for tool adaptor implementations,
+    This class serves both as a template for tool-wrapper implementations,
     and as an abstract super class for them.
-    For writing a new tool adaptor, inherit from this class and override
-    the necessary methods (usually only executable(), name(), and determine_result(),
-    maybe version() and cmdline(), too).
-    The classes for each specific tool need to be named "Tool"
-    and be located in a module named "benchmark.tools.<tool>",
-    where "<tool>" is the string specified by the user in the benchmark definition.
+    For writing a new tool wrapper, inherit from this class and override
+    the necessary methods (always executable(), name(), and determine_result(),
+    maybe version(), cmdline(), working_directory(), and get_value_from_output(), too).
+    The class for each specific tool need to be named "Tool".
+    For more information, please refer to
+    https://github.com/dbeyer/benchexec/blob/master/doc/tool-integration.md
     """
 
     def executable(self):
@@ -48,6 +48,11 @@ class BaseTool(object):
     def version(self, executable):
         """
         Determine a version string for this tool, if available.
+        Do not hard-code a version in this function, either extract the version
+        from the tool or do not return a version at all.
+        There is a helper function `self._version_from_tool`
+        that should work with most tools, you only need to extract the version number
+        from the returned tool output.
         """
         return ''
 

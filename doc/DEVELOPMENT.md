@@ -3,6 +3,10 @@
 This file contains documentation that is only relevant for developers
 and maintainers of BenchExec.
 
+For writing a tool wrapper, please refer to the documentation on
+[Tool Integration](tool-integration.md).
+
+
 ## Installation for Development
 
 After cloning the [GitHub repository](https://github.com/dbeyer/benchexec),
