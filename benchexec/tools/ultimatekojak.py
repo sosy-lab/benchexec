@@ -31,19 +31,41 @@ class Tool(benchexec.tools.template.BaseTool):
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def cmdline(self, bin, options, tasks, spec, rlimits):
-        return [bin] + [spec] + tasks + options 
+    def cmdline(self, executable, options, tasks, spec, rlimits):
+        return [executable] + [spec] + tasks + options + ['--full-output'] 
 
     def name(self):
         return 'ULTIMATE Kojak'
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
+        if (returnsignal == 9):
+            return 'TIMEOUT'
+        
         status = result.RESULT_UNKNOWN
         for line in output:
-            if line.startswith('FALSE'):
+            if line.startswith('FALSE(valid-free)'):
+                status = result.RESULT_FALSE_FREE
+                break
+            elif line.startswith('FALSE(valid-deref)'):
+                status = result.RESULT_FALSE_DEREF
+                break
+            elif line.startswith('FALSE(valid-memtrack)'):
+                status = result.RESULT_FALSE_MEMTRACK
+                break
+            elif line.startswith('FALSE(TERM)'):
+                status = result.RESULT_FALSE_TERMINATION
+                break
+            elif line.startswith('FALSE(OVERFLOW)'):
+                status = result.RESULT_FALSE_OVERFLOW
+                break            
+            elif line.startswith('FALSE'):
                 status = result.RESULT_FALSE_REACH
+                break
             elif line.startswith('TRUE'):
                 status = result.RESULT_TRUE_PROP
-            elif (returnsignal == 9):
-                status = 'TIMEOUT'
+                break 
+            elif line.startswith('UNKNOWN'):
+                status = result.RESULT_UNKNOWN
+                break                                                                           
+
         return status
