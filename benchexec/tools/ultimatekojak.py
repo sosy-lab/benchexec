@@ -17,55 +17,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import os
 
-import benchexec.util as util
-import benchexec.tools.template
-import benchexec.result as result
+from . import ultimate
 
-class Tool(benchexec.tools.template.BaseTool):
-
-    def executable(self):
-        return util.find_executable('Ultimate.py')
-
-    def version(self, executable):
-        return self._version_from_tool(executable)
-
-    def cmdline(self, executable, options, tasks, spec, rlimits):
-        return [executable] + [spec] + tasks + options + ['--full-output'] 
+class Tool(ultimate.UltimateTool):
 
     def name(self):
         return 'ULTIMATE Kojak'
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if (returnsignal == 9):
-            return 'TIMEOUT'
-        
-        status = result.RESULT_UNKNOWN
-        for line in output:
-            if line.startswith('FALSE(valid-free)'):
-                status = result.RESULT_FALSE_FREE
-                break
-            elif line.startswith('FALSE(valid-deref)'):
-                status = result.RESULT_FALSE_DEREF
-                break
-            elif line.startswith('FALSE(valid-memtrack)'):
-                status = result.RESULT_FALSE_MEMTRACK
-                break
-            elif line.startswith('FALSE(TERM)'):
-                status = result.RESULT_FALSE_TERMINATION
-                break
-            elif line.startswith('FALSE(OVERFLOW)'):
-                status = result.RESULT_FALSE_OVERFLOW
-                break            
-            elif line.startswith('FALSE'):
-                status = result.RESULT_FALSE_REACH
-                break
-            elif line.startswith('TRUE'):
-                status = result.RESULT_TRUE_PROP
-                break 
-            elif line.startswith('UNKNOWN'):
-                status = result.RESULT_UNKNOWN
-                break                                                                           
-
-        return status
