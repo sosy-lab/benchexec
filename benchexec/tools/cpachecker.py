@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
@@ -27,11 +26,6 @@ import subprocess
 import sys
 import os
 import re
-
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
-if __name__ == "__main__":
-    sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
 
 import benchexec.result as result
 import benchexec.util as util
@@ -212,10 +206,3 @@ class Tool(benchexec.tools.template.BaseTool):
                 else:
                     return line[startPosition: endPosition].strip()
         return None
-
-
-if __name__ == "__main__":
-    tool = Tool()
-    executable = tool.executable()
-    print('Executable: {0}'.format(os.path.abspath(executable)))
-    print('Version: {0}'.format(tool.version(executable)))

@@ -20,15 +20,8 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
-import os
 import re
 import benchexec.result as result
-
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
-if __name__ == "__main__":
-    sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
 
 import benchexec.tools.cpachecker
 
@@ -122,10 +115,3 @@ class Tool(benchexec.tools.cpachecker.Tool):
         if not status or undef:
             status = result.RESULT_UNKNOWN
         return status
-
-
-if __name__ == "__main__":
-    tool = Tool()
-    executable = tool.executable()
-    print('Executable: {0}'.format(os.path.abspath(executable)))
-    print('Version: {0}'.format(tool.version(executable)))

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
