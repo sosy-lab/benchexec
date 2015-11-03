@@ -22,9 +22,6 @@ import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 
-import subprocess
-import sys
-import string
 import os
 import re
 
@@ -53,10 +50,7 @@ class Tool(benchexec.tools.template.BaseTool):
         Sets the version number for SMACK, which gets displayed in the "Tool" row
         in BenchExec table headers.
         """
-        process = subprocess.Popen([executable, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, stderr) = process.communicate()
-        version = util.decode_to_string(stderr).split(' ')[2]
-        return version
+        return self._version_from_tool(executable, use_stderr=True).split(' ')[2]
 
     def name(self):
         """

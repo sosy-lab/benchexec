@@ -17,7 +17,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import subprocess
 
 import benchexec.util as util
 import benchexec.tools.template
@@ -30,8 +29,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return subprocess.Popen([executable, '--version'],
-                                stdout=subprocess.PIPE).communicate()[0].strip()
+        return self._version_from_tool(executable)
 
 
     def name(self):
