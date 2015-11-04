@@ -16,6 +16,9 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+This file contains tool support for DIVINE (divine.fi.muni.cz)
+SV-COMP 2016 papaer: DIVINE: Explicit-State LTL Model Checker
 """
 import benchexec.util as util
 import benchexec.tools.template
