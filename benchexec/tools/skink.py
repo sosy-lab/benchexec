@@ -30,9 +30,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        if "Program is correct" in output:
+        if "TRUE" in output:
             status = result.RESULT_TRUE_PROP
-        elif "Program is incorrect" in output:
+        elif "FALSE" in output:
             status = result.RESULT_FALSE_REACH
         else:
             status = result.RESULT_UNKNOWN
