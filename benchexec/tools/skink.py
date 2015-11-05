@@ -22,9 +22,6 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('skink.sh')
 
-    def version(self, executable):
-        return "0.314"
-
     def name(self):
         return 'skink'
 
