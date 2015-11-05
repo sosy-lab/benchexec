@@ -57,7 +57,7 @@ class Tool(benchexec.tools.template.BaseTool):
         Sets the name for SMACK, which gets displayed in the "Tool" row in
         BenchExec table headers.
         """
-        return 'SMACK'
+        return 'SMACK+Corral'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
