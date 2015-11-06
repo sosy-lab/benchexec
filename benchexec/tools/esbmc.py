@@ -28,13 +28,18 @@ class Tool(benchexec.tools.template.BaseTool):
     This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
     """
 
+    REQUIRED_PATHS = [
+                  "boolector",
+                  "lingeling",
+                  "z3",
+                  "graphml",
+                  "tokenizer",
+                  "modules",
+                  "depthk"
+                  ]
+
     def executable(self):
         return util.find_executable('esbmc.sh')
-
-
-    def program_files(self, executable):
-        executableDir = os.path.dirname(executable)
-        return [executableDir]
 
 
     def working_directory(self, executable):

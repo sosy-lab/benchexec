@@ -25,14 +25,19 @@ class Tool(benchexec.tools.template.BaseTool):
     This class serves as tool adaptor for DepthK (https://github.com/hbgit/depthk)
     """
 
+    REQUIRED_PATHS = [
+                  "boolector",
+                  "lingeling",
+                  "z3",
+                  "graphml",
+                  "tokenizer",
+                  "modules",
+                  "depthk"
+                  ]
+
     def executable(self):
         #Relative path to depthk wrapper
         return Util.find_executable('depthk-wrapper.sh')
-
-
-    def program_files(self, executable):
-        executableDir = os.path.dirname(executable)
-        return [executableDir]
 
 
     def working_directory(self, executable):
