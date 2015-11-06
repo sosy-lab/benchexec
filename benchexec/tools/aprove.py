@@ -23,6 +23,11 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
 
+    REQUIRED_PATHS = [
+                  "aprove.jar",
+                  "AProVE.sh"
+                  ]
+
     def executable(self):
         return util.find_executable('AProVE.sh')
 
