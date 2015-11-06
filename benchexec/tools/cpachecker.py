@@ -38,15 +38,6 @@ import benchexec.util as util
 import benchexec.tools.template
 from benchexec.model import SOFTTIMELIMIT
 
-REQUIRED_PATHS = [
-                  "lib/java/runtime",
-                  "lib/*.jar",
-                  "lib/native/x86_64-linux",
-                  "scripts",
-                  "cpachecker.jar",
-                  "config",
-                  ]
-
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool wrapper for CPAchecker.
@@ -55,6 +46,15 @@ class Tool(benchexec.tools.template.BaseTool):
     It also supports extracting data from the statistics output of CPAchecker
     for adding it to the result tables.
     """
+
+    REQUIRED_PATHS = [
+                  "lib/java/runtime",
+                  "lib/*.jar",
+                  "lib/native/x86_64-linux",
+                  "scripts",
+                  "cpachecker.jar",
+                  "config",
+                  ]
 
     def executable(self):
         executable = util.find_executable('cpa.sh', 'scripts/cpa.sh')
@@ -66,17 +66,17 @@ class Tool(benchexec.tools.template.BaseTool):
         return executable
 
 
+    def program_files(self, executable):
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
+
+
     def _buildCPAchecker(self, executableDir):
         logging.debug('Building CPAchecker in directory {0}.'.format(executableDir))
         ant = subprocess.Popen(['ant', '-lib', 'lib/java/build', '-q', 'jar'], cwd=executableDir, shell=util.is_windows())
         ant.communicate()
         if ant.returncode:
             sys.exit('Failed to build CPAchecker, please fix the build first.')
-
-
-    def program_files(self, executable):
-        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
 
 
     def working_directory(self, executable):

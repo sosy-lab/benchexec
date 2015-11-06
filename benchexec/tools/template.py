@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 import logging
 import subprocess
 
@@ -35,6 +36,8 @@ class BaseTool(object):
     https://github.com/dbeyer/benchexec/blob/master/doc/tool-integration.md
     """
 
+    REQUIRED_PATHS = []
+
     def executable(self):
         """
         Find the path to the executable file that will get executed.
@@ -43,6 +46,17 @@ class BaseTool(object):
         The path returned should be relative to the current directory.
         """
         return util.find_executable('tool')
+
+
+    def program_files(self, executable):
+        """
+        OPTIONAL, this method is only necessary for situations when the benchmark environment
+        needs to know all files belonging to a tool
+        (to transport them to a cloud service, for example).
+        Returns a list of files or directories that are necessary to run the tool.
+        """
+        installDir = os.path.dirname(executable)
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
 
     def version(self, executable):
@@ -130,16 +144,6 @@ class BaseTool(object):
         @param lines The output of the tool as list of lines.
         @param identifier The user-specified identifier for the statistic item.
         """
-
-
-    def program_files(self, executable):
-        """
-        OPTIONAL, this method is only necessary for situations when the benchmark environment
-        needs to know all files belonging to a tool
-        (to transport them to a cloud service, for example).
-        Returns a list of files or directories that are necessary to run the tool.
-        """
-        return [executable]
 
 
     def working_directory(self, executable):
