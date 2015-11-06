@@ -28,9 +28,12 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'Forest'
 
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
-        return [executable] + ["-propertyfile", propertyfile] + ["-svcomp", "-svcomp_only_output"] + [ tasks[0] ] + ["2>/dev/null"]
+        return [executable] + ["-propertyfile", propertyfile] + options + ["-svcomp_only_output"] + [ tasks[0] ] + ["2>/dev/null"]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
