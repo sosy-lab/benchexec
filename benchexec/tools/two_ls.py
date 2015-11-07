@@ -48,6 +48,8 @@ class Tool(benchexec.tools.template.BaseTool):
             status = 'TIMEOUT'
         elif returnsignal == 9:
             status = "KILLED BY SIGNAL 9"
+        elif returnsignal != 0:
+            status = "ERROR(SIGNAL "+str(returnsignal)+")"
         elif returncode == 0:
             status = result.RESULT_TRUE_PROP
         elif returncode == 10:
