@@ -33,7 +33,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
-        return [executable] + ["-propertyfile", propertyfile] + options + ["-svcomp_only_output"] + [ tasks[0] ] + ["2>/dev/null"]
+        return [executable] + ["-propertyfile", propertyfile] + options + ["-svcomp_only_output"] + [ tasks[0] ]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
