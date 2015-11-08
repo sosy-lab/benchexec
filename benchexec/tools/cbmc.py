@@ -27,7 +27,9 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool wrapper for CBMC (http://www.cprover.org/cbmc/).
-    It always adds --xml-ui to the command-line arguments for easier parsing of the output.
+    It always adds --xml-ui to the command-line arguments for easier parsing of
+    the output, unless a propertyfile is passed -- in which case running under
+    SV-COMP conditions is assumed.
     """
 
     def executable(self):
@@ -43,7 +45,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        if ("--xml-ui" not in options):
+        if propertyfile:
+            options += ['--propertyfile', propertyfile]
+        elif ("--xml-ui" not in options):
             options = options + ["--xml-ui"]
 
         self.options = options
@@ -51,60 +55,89 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + tasks
 
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def parse_XML(self, output):
         #an empty tag cannot be parsed into a tree
         def sanitizeXML(s):
             return s.replace("<>", "<emptyTag>") \
                     .replace("</>", "</emptyTag>")
 
-        if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
-            try:
-                tree = ET.fromstringlist(map(sanitizeXML, output))
-                status = tree.findtext('cprover-status')
+        try:
+            tree = ET.fromstringlist(map(sanitizeXML, output))
+            status = tree.findtext('cprover-status')
 
-                if status is None:
-                    def isErrorMessage(msg):
-                        return msg.get('type', None) == 'ERROR'
+            if status is None:
+                def isErrorMessage(msg):
+                    return msg.get('type', None) == 'ERROR'
 
-                    messages = list(filter(isErrorMessage, tree.getiterator('message')))
-                    if messages:
-                        # for now, use only the first error message if there are several
-                        msg = messages[0].findtext('text')
-                        if msg == 'Out of memory':
-                            status = 'OUT OF MEMORY'
-                        elif msg:
-                            status = 'ERROR (%s)'.format(msg)
-                        else:
-                            status = 'ERROR'
+                messages = list(filter(isErrorMessage, tree.getiterator('message')))
+                if messages:
+                    # for now, use only the first error message if there are several
+                    msg = messages[0].findtext('text')
+                    if msg == 'Out of memory':
+                        status = 'OUT OF MEMORY'
+                    elif msg:
+                        status = 'ERROR (%s)'.format(msg)
                     else:
-                        status = 'INVALID OUTPUT'
-
-                elif status == "FAILURE":
-                    assert returncode == 10
-                    reason = tree.find('goto_trace').find('failure').findtext('reason')
-                    if not reason:
-                        reason = tree.find('goto_trace').find('failure').get('reason')
-                    if 'unwinding assertion' in reason:
-                        status = result.RESULT_UNKNOWN
-                    else:
-                        status = result.RESULT_FALSE_REACH
-
-                elif status == "SUCCESS":
-                    assert returncode == 0
-                    if "--no-unwinding-assertions" in self.options:
-                        status = result.RESULT_UNKNOWN
-                    else:
-                        status = result.RESULT_TRUE_PROP
-
-            except Exception:
-                if isTimeout:
-                    # in this case an exception is expected as the XML is invalid
-                    status = 'TIMEOUT'
-                elif 'Minisat::OutOfMemoryException' in output:
-                    status = 'OUT OF MEMORY'
+                        status = 'ERROR'
                 else:
                     status = 'INVALID OUTPUT'
-                    logging.exception("Error parsing CBMC output for returncode %d" % (returncode))
+
+            elif status == "FAILURE":
+                assert returncode == 10
+                reason = tree.find('goto_trace').find('failure').findtext('reason')
+                if not reason:
+                    reason = tree.find('goto_trace').find('failure').get('reason')
+                if 'unwinding assertion' in reason:
+                    status = result.RESULT_UNKNOWN
+                else:
+                    status = result.RESULT_FALSE_REACH
+
+            elif status == "SUCCESS":
+                assert returncode == 0
+                if "--no-unwinding-assertions" in self.options:
+                    status = result.RESULT_UNKNOWN
+                else:
+                    status = result.RESULT_TRUE_PROP
+
+        except Exception:
+            if isTimeout:
+                # in this case an exception is expected as the XML is invalid
+                status = 'TIMEOUT'
+            elif 'Minisat::OutOfMemoryException' in output:
+                status = 'OUT OF MEMORY'
+            else:
+                status = 'INVALID OUTPUT'
+                logging.exception("Error parsing CBMC output for returncode %d" % (returncode))
+
+        return status
+
+
+
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        status = 'ERROR'
+
+        if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
+            if ('--xml-ui' in self.options):
+                status = self.parse_XML(output)
+            elif len(output) > 0:
+                # SV-COMP mode
+                result_str = output[-1].strip()
+
+                if result_str == 'TRUE' :
+                    status = result.RESULT_TRUE_PROP
+                elif 'FALSE' in result_str:
+                    if result_str == 'FALSE(valid-memtrack)':
+                        status = result.RESULT_FALSE_MEMTRACK
+                    elif result_str == 'FALSE(valid-deref)':
+                        status = result.RESULT_FALSE_DEREF
+                    elif result_str == 'FALSE(valid-free)':
+                        status = result.RESULT_FALSE_FREE
+                    elif result_str == 'FALSE(no-overflow)':
+                        status = result.RESULT_FALSE_OVERFLOW
+                    else:
+                        status = result.RESULT_FALSE_REACH
+                elif 'UNKNOWN' in output:
+                    status = result.RESULT_UNKNOWN
 
         elif returncode == 6:
             # parser error or something similar
