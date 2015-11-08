@@ -44,6 +44,7 @@ class BaseTool(object):
         This method always needs to be overridden,
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
+        @return a string pointing to an executable file
         """
         return util.find_executable('tool')
 
@@ -53,7 +54,9 @@ class BaseTool(object):
         OPTIONAL, this method is only necessary for situations when the benchmark environment
         needs to know all files belonging to a tool
         (to transport them to a cloud service, for example).
-        Returns a list of files or directories that are necessary to run the tool.
+        Returns a list of files or directories that are necessary to run the tool,
+        relative to the current directory.
+        @return a list of paths as strings
         """
         installDir = os.path.dirname(executable)
         return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
@@ -67,6 +70,7 @@ class BaseTool(object):
         There is a helper function `self._version_from_tool`
         that should work with most tools, you only need to extract the version number
         from the returned tool output.
+        @return a (possibly empty) string
         """
         return ''
 
@@ -74,6 +78,10 @@ class BaseTool(object):
         """
         Get version of a tool by executing it with argument "--version"
         and returning stdout.
+        @param executable: the path to the executable of the tool (typically the result of executable())
+        @param arg: an argument to pass to the tool to let it print its version
+        @param use_stderr: True if the tool prints version on stderr, False for stdout
+        @return a (possibly empty) string of output of the tool
         """
         try:
             process = subprocess.Popen([executable, arg],
@@ -97,6 +105,8 @@ class BaseTool(object):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
+        This function should always be overriden.
+        @return a non-empty string
         """
         return 'UNKOWN'
 
@@ -114,11 +124,12 @@ class BaseTool(object):
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
         @param tasks: a list of tasks, that should be analysed with the tool in one run.
-                            In most cases we we have only _one_ inputfile.
-        @param propertyfile: contains a specification for the verifier.
+                            A typical run has only one input file, but there can be more than one.
+        @param propertyfile: contains a specification for the verifier (optional, not always present).
         @param rlimits: This dictionary contains resource-limits for a run,
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
                         All entries in rlimits are optional, so check for existence before usage!
+        @return a list of strings that represent the command line to execute
         """
         return [executable] + options + tasks
 
@@ -132,6 +143,12 @@ class BaseTool(object):
         Otherwise an arbitrary string can be returned that will be shown to the user
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
+        @param returncode: the exit code of the program, 0 if the program was killed
+        @param returnsignal: the signal that killed the program, 0 if program exited itself
+        @param output: a list of strings of output lines of the tool (both stdout and stderr)
+        @param isTimeout: whether the result is a timeout
+        (useful to distinguish between program killed because of error and timeout)
+        @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
         return 'UNKNOWN'
 
@@ -141,8 +158,9 @@ class BaseTool(object):
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
         It may contain HTML code, which will be rendered appropriately in the HTML tables.
-        @param lines The output of the tool as list of lines.
-        @param identifier The user-specified identifier for the statistic item.
+        @param lines: The output of the tool as list of lines.
+        @param identifier: The user-specified identifier for the statistic item.
+        @return a (possibly empty) string, optional with HTML tags
         """
 
 
@@ -150,6 +168,8 @@ class BaseTool(object):
         """
         OPTIONAL, this method is only necessary for situations
         when the tool needs a separate working directory.
+        @param executable: the path to the executable of the tool (typically the result of executable())
+        @return a string pointing to a directory
         """
         return "."
 
@@ -169,5 +189,7 @@ class BaseTool(object):
                   The seperator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
+        @param executable: the path to the executable of the tool (typically the result of executable())
+        @return a possibly empty dict with two possibly empty dicts with environment variables in them        
         """
         return {}
