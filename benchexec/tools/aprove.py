@@ -48,4 +48,3 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_FALSE_TERMINATION
         else:
             return result.RESULT_UNKNOWN
-        return status

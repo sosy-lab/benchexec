@@ -55,7 +55,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + tasks
 
 
-    def parse_XML(self, output):
+    def parse_XML(self, output, returncode, isTimeout):
         #an empty tag cannot be parsed into a tree
         def sanitizeXML(s):
             return s.replace("<>", "<emptyTag>") \
@@ -118,7 +118,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             if ('--xml-ui' in self.options):
-                status = self.parse_XML(output)
+                status = self.parse_XML(output, returncode, isTimeout)
             elif len(output) > 0:
                 # SV-COMP mode
                 result_str = output[-1].strip()

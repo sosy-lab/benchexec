@@ -17,9 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-import subprocess
-
+import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 

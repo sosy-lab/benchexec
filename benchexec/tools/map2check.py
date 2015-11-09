@@ -17,9 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import subprocess
 import os
-import re
 import benchexec.util as Util
 import benchexec.tools.template
 import benchexec.result as result
@@ -59,8 +57,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if len(output) <= 0:
-          return        
+        if not output:
+            return result.RESULT_UNKNOWN
         output = output[-1].strip()                
         status = result.RESULT_UNKNOWN
                 

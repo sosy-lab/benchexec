@@ -26,7 +26,6 @@ class Tool(BaseTool):
             return 'TIMEOUT'
         if returncode != 0:
             return 'CRASH'
-        status = result.RESULT_UNKNOWN
         output = str(output)
         if 'TRUE' in output:
             return result.RESULT_TRUE_PROP

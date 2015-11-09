@@ -48,6 +48,6 @@ class Tool(benchexec.tools.template.BaseTool):
         if "FALSE_DEREF" in output:
             status = result.RESULT_FALSE_DEREF
         if "FALSE_FREE" in output:
-            status = result.RESULT_FALSE_FREEE
+            status = result.RESULT_FALSE_FREE
 
         return status

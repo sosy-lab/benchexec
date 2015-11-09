@@ -20,7 +20,6 @@ limitations under the License.
 
 import subprocess
 import os
-import re
 import benchexec.util as Util
 import benchexec.tools.template
 import benchexec.result as result
