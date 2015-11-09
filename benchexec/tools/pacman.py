@@ -64,7 +64,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
-        return executableDir 
+        return executableDir
 
 
     def environment(self, executable):

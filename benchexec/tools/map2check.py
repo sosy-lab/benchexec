@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
         assert len(sourcefiles) == 1, "only one sourcefile supported"
         sourcefile = sourcefiles[0]
-        workingDir = self.working_directory(executable)        
+        workingDir = self.working_directory(executable)
         return [os.path.relpath(executable, start=workingDir)] + options + ['-c', propertyfile, os.path.relpath(sourcefile, start=workingDir)]
 
 
@@ -59,9 +59,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if not output:
             return result.RESULT_UNKNOWN
-        output = output[-1].strip()                
+        output = output[-1].strip()
         status = result.RESULT_UNKNOWN
-                
+
         if output.endswith('TRUE'):
             status = result.RESULT_TRUE_PROP
         elif 'FALSE' in output:

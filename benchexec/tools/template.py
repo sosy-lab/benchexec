@@ -190,6 +190,6 @@ class BaseTool(object):
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())
-        @return a possibly empty dict with two possibly empty dicts with environment variables in them        
+        @return a possibly empty dict with two possibly empty dicts with environment variables in them
         """
         return {}
