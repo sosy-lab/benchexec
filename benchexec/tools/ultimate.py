@@ -66,5 +66,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             elif line.startswith('UNKNOWN'):
                 status = result.RESULT_UNKNOWN
                 break
+            elif line.startswith('ERROR'):
+                status = line
+                break
 
         return status
