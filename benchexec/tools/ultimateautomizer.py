@@ -66,6 +66,9 @@ class Tool(benchexec.tools.template.BaseTool):
                 break 
             elif line.startswith('UNKNOWN'):
                 status = result.RESULT_UNKNOWN
-                break                                                                           
+                break
+            elif line.startswith('UNSUPPORTED'):
+                status = line
+                break			
 
         return status
