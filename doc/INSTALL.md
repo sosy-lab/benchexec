@@ -138,6 +138,8 @@ cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/
 cp /sys/fs/cgroup/cpuset/cpuset.cpus /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
 cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
 
+echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
+
 # Adjust permissions of cgroup (change as appropriate for you).
 chgrp -vR benchexec /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
 chmod -vR g+w /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
@@ -159,6 +161,8 @@ Type=simple
 ExecStart=/usr/local/sbin/benchexec-cgroup.sh
 Restart=always
 Delegate=true
+CPUAccounting=true
+MemoryAccounting=true
 
 [Install]
 WantedBy=multi-user.target
