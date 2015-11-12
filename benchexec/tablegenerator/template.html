@@ -751,6 +751,20 @@ function createRowFilterButtons() {
       $('<li>').append(button).append(label).appendTo(sublist);
     }
   }
+  var fileFilter = $('<ul>').text("Filter benchmark files by Name (wildcards * and . allowed)").appendTo(buttonList);
+  var inputField = $('<input>', {type:'text', name:'filter', id:target});
+  var button = $('<button>').text("apply file filter")
+                            .click(function(){
+                                 if ($.trim(inputField.val()).length > 0) {
+                                    alert($.trim(inputField.val()));
+                                    hideFiles(new RegExp($.trim(inputField.val())));
+                                    // clean and hide contentPane
+                                    $('#contentPaneBackground').hide();
+                                    $('#contentPane').hide().empty();
+                                 }
+                            });
+  $('<li>').append(inputField).appendTo(fileFilter);
+  $('<li>').append(button).appendTo(fileFilter);
 
   $('<button>').text('reset filter').attr('id', 'button-filter-reset')
         .attr('title', 'Click here to restore the complete table')
@@ -766,6 +780,13 @@ function createRowFilterButtons() {
         .appendTo($("#contentPane"));
 
   showContentPane();
+}
+
+function hideFiles(regexp) {
+    var dataRows = $('#dataTable > tbody')[0].rows;
+    for (var i = 0; i < dataRows.length; i++) {
+        if (!dataRows[i].cells[0].textContent.match(regexp)) $(dataRows[i]).hide();
+    }
 }
 
 function fillRowFilterField(columnIndex) {
