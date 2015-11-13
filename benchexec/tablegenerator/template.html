@@ -327,7 +327,7 @@ function showContentPane() {
 function hideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
   // or when pressing the "Esc" or "c" key with the content pane focused
-  if (event.type == "click" || escKeyPressed(event) || cKeyPressed(event)) {
+  if (event.type == "click" || escKeyPressed(event)) {
     $('#contentPaneBackground').hide();
     $('#contentPane').hide().empty();
   }
@@ -341,11 +341,6 @@ function hideContentPane(event) {
 
 function escKeyPressed(event) {
   return event.keyCode == 27;
-}
-
-function cKeyPressed(event) {
-  // only "c" is pressed, not in combination with Ctrl-key
-  return (event.keyCode == 67 && event.ctrlKey == false);
 }
 
 function fKeyPressed(event) {
