@@ -320,16 +320,15 @@ function debug(logInfo) {
 
 function showContentPane() {
   // add function for cleanup, first unbind any old function
-  $('#contentPaneBackground').unbind().click(hideContentPane).show();
+  $('#contentPaneBackground').unbind().click(catchHideContentPane).show();
   $('#contentPane').show().focus();
 }
 
-function hideContentPane(event) {
+function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
-  // or when pressing the "Esc" or "c" key with the content pane focused
-  if (event.type == "click" || escKeyPressed(event) || cKeyPressed(event)) {
-    $('#contentPaneBackground').hide();
-    $('#contentPane').hide().empty();
+  // or when pressing the "Esc" key with the content pane focused
+  if (event.type == "click" || escKeyPressed(event)) {
+
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -339,13 +338,14 @@ function hideContentPane(event) {
   }
 }
 
-function escKeyPressed(event) {
-  return event.keyCode == 27;
+function hideContentPane() {
+  $('#contentPaneBackground').hide();
+  $('#contentPane').hide().empty();
+  areRowFilterButtonsActive = false;
 }
 
-function cKeyPressed(event) {
-  // only "c" is pressed, not in combination with Ctrl-key
-  return (event.keyCode == 67 && event.ctrlKey == false);
+function escKeyPressed(event) {
+  return event.keyCode == 27;
 }
 
 function fKeyPressed(event) {
@@ -388,7 +388,7 @@ function isFloatTheadActive() {
 }
 
 $(document).ready(function() {
-  $('body').keydown(hideContentPane);
+  $('body').keydown(catchHideContentPane);
   activateFloatThead();
 
   // Turn off float-thead before printing, turn it back on after.
@@ -733,6 +733,11 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
+  if (areRowFilterButtonsActive) {
+    return;
+  }
+  areRowFilterButtonsActive = true;
+
   $("#contentPane").empty();
 
   var buttonList = $('<form>', {id:'rowFilterButtons', onsubmit:'return false'})
@@ -751,6 +756,17 @@ function createRowFilterButtons() {
       $('<li>').append(button).append(label).appendTo(sublist);
     }
   }
+  var taskFilter = $('<ul>').text("Task filter regexp").appendTo(buttonList);
+  var inputField = $('<input>', {type:'text', name:'filter', id:target});
+  var button = $('<button>').text("apply task filter")
+                            .click(function(){
+                                 if ($.trim(inputField.val()).length > 0) {
+                                    hideTasks(new RegExp($.trim(inputField.val())));
+                                    hideContentPane();
+                                 }
+                            });
+  $('<li>').append(inputField).appendTo(taskFilter);
+  $('<li>').append(button).appendTo(taskFilter);
 
   $('<button>').text('reset filter').attr('id', 'button-filter-reset')
         .attr('title', 'Click here to restore the complete table')
@@ -766,6 +782,13 @@ function createRowFilterButtons() {
         .appendTo($("#contentPane"));
 
   showContentPane();
+}
+
+function hideTasks(regexp) {
+    var dataRows = $('#dataTable > tbody')[0].rows;
+    for (var i = 0; i < dataRows.length; i++) {
+        if (!dataRows[i].cells[0].textContent.match(regexp)) $(dataRows[i]).hide();
+    }
 }
 
 function fillRowFilterField(columnIndex) {
@@ -819,9 +842,7 @@ function fillRowFilterField(columnIndex) {
                        'If you select multiple values, a row is shown, if any value matches')
         .click(function(){
                         hideRows(rowFilter.val() || [], columnIndex);
-                        // clean and hide contentPane
-                        $('#contentPaneBackground').hide();
-                        $('#contentPane').hide().empty();
+                        hideContentPane();
                     })
         .appendTo($('#contentPane'));
 }
