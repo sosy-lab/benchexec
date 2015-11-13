@@ -320,16 +320,15 @@ function debug(logInfo) {
 
 function showContentPane() {
   // add function for cleanup, first unbind any old function
-  $('#contentPaneBackground').unbind().click(hideContentPane).show();
+  $('#contentPaneBackground').unbind().click(catchHideContentPane).show();
   $('#contentPane').show().focus();
 }
 
-function hideContentPane(event) {
+function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
-  // or when pressing the "Esc" or "c" key with the content pane focused
+  // or when pressing the "Esc" key with the content pane focused
   if (event.type == "click" || escKeyPressed(event)) {
-    $('#contentPaneBackground').hide();
-    $('#contentPane').hide().empty();
+
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -337,6 +336,12 @@ function hideContentPane(event) {
   if (!isFloatTheadActive()) {
       activateFloatThead();
   }
+}
+
+function hideContentPane() {
+  $('#contentPaneBackground').hide();
+  $('#contentPane').hide().empty();
+  areRowFilterButtonsActive = false;
 }
 
 function escKeyPressed(event) {
@@ -383,7 +388,7 @@ function isFloatTheadActive() {
 }
 
 $(document).ready(function() {
-  $('body').keydown(hideContentPane);
+  $('body').keydown(catchHideContentPane);
   activateFloatThead();
 
   // Turn off float-thead before printing, turn it back on after.
@@ -728,6 +733,11 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
+  if (areRowFilterButtonsActive) {
+    return;
+  }
+  areRowFilterButtonsActive = true;
+
   $("#contentPane").empty();
 
   var buttonList = $('<form>', {id:'rowFilterButtons', onsubmit:'return false'})
@@ -752,9 +762,7 @@ function createRowFilterButtons() {
                             .click(function(){
                                  if ($.trim(inputField.val()).length > 0) {
                                     hideTasks(new RegExp($.trim(inputField.val())));
-                                    // clean and hide contentPane
-                                    $('#contentPaneBackground').hide();
-                                    $('#contentPane').hide().empty();
+                                    hideContentPane();
                                  }
                             });
   $('<li>').append(inputField).appendTo(taskFilter);
@@ -834,9 +842,7 @@ function fillRowFilterField(columnIndex) {
                        'If you select multiple values, a row is shown, if any value matches')
         .click(function(){
                         hideRows(rowFilter.val() || [], columnIndex);
-                        // clean and hide contentPane
-                        $('#contentPaneBackground').hide();
-                        $('#contentPane').hide().empty();
+                        hideContentPane();
                     })
         .appendTo($('#contentPane'));
 }
