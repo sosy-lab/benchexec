@@ -751,19 +751,19 @@ function createRowFilterButtons() {
       $('<li>').append(button).append(label).appendTo(sublist);
     }
   }
-  var fileFilter = $('<ul>').text("Task filter regexp").appendTo(buttonList);
+  var taskFilter = $('<ul>').text("Task filter regexp").appendTo(buttonList);
   var inputField = $('<input>', {type:'text', name:'filter', id:target});
   var button = $('<button>').text("apply task filter")
                             .click(function(){
                                  if ($.trim(inputField.val()).length > 0) {
-                                    hideFiles(new RegExp($.trim(inputField.val())));
+                                    hideTasks(new RegExp($.trim(inputField.val())));
                                     // clean and hide contentPane
                                     $('#contentPaneBackground').hide();
                                     $('#contentPane').hide().empty();
                                  }
                             });
-  $('<li>').append(inputField).appendTo(fileFilter);
-  $('<li>').append(button).appendTo(fileFilter);
+  $('<li>').append(inputField).appendTo(taskFilter);
+  $('<li>').append(button).appendTo(taskFilter);
 
   $('<button>').text('reset filter').attr('id', 'button-filter-reset')
         .attr('title', 'Click here to restore the complete table')
@@ -781,7 +781,7 @@ function createRowFilterButtons() {
   showContentPane();
 }
 
-function hideFiles(regexp) {
+function hideTasks(regexp) {
     var dataRows = $('#dataTable > tbody')[0].rows;
     for (var i = 0; i < dataRows.length; i++) {
         if (!dataRows[i].cells[0].textContent.match(regexp)) $(dataRows[i]).hide();
