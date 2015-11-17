@@ -32,6 +32,7 @@ import subprocess
 import sys
 import threading
 import time
+import platform
 
 from . import __version__
 from . import util as util
@@ -198,7 +199,13 @@ class RunExecutor():
         self.SUB_PROCESSES = set()
         self._termination_reason = None
 
-        self._init_cgroups()
+        self._is_darwin = False
+        if platform.system() == 'Darwin':
+            logging.warning("cgroups are not available in Darwin")
+            self._is_darwin = True
+
+        if not self._is_darwin:
+            self._init_cgroups()
 
 
     def _init_cgroups(self):
@@ -325,7 +332,7 @@ class RunExecutor():
 
             if hardtimelimit is not None:
                 # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
-                if CPUACCT in cgroups:
+                if not self._is_darwin and CPUACCT in cgroups:
                     # Use a slightly higher limit to ensure cgroups get used
                     # (otherwise we cannot detect the timeout properly).
                     ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
@@ -355,7 +362,8 @@ class RunExecutor():
                 pass
                 #print('libcgroup is not available: {}'.format(e.strerror))
 
-            cgroups.add_task(pid)
+            if not self._is_darwin:
+                cgroups.add_task(pid)
 
 
         # Setup environment:
@@ -409,14 +417,14 @@ class RunExecutor():
                 self.SUB_PROCESSES.add(p)
 
             # hard time limit with cgroups is optional (additionally enforce by ulimit)
-            cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
+            cgroup_hardtimelimit = hardtimelimit if not self._is_darwin and CPUACCT in cgroups else None
 
             if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
                 # Start a timer to periodically check timelimit
                 timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
                 timelimitThread.start()
 
-            if memlimit is not None:
+            if not self._is_darwin and memlimit is not None:
                 try:
                     oomThread = oomhandler.KillProcessOnOomThread(cgroups, p,
                                                                   self._set_termination_reason)
@@ -456,7 +464,8 @@ class RunExecutor():
             logging.debug("size of logfile '{0}': {1}".format(output_filename, str(os.path.getsize(output_filename))))
 
             # kill all remaining processes if some managed to survive
-            cgroups.kill_all_tasks()
+            if not self._is_darwin:
+                cgroups.kill_all_tasks()
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
@@ -472,7 +481,7 @@ class RunExecutor():
         result = {}
 
         cputime2 = None
-        if CPUACCT in cgroups:
+        if not self._is_darwin and CPUACCT in cgroups:
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
             # So we read twice with 0.1s time difference,
@@ -488,7 +497,7 @@ class RunExecutor():
             cputime2 = tmp
 
         memUsage = None
-        if MEMORY in cgroups:
+        if not self._is_darwin and MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
             # For more details, c.f. the kernel documentation:
             # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
@@ -529,7 +538,7 @@ class RunExecutor():
                 cputime = cputime2
         result['cputime'] = cputime
 
-        if CPUACCT in cgroups:
+        if not self._is_darwin and CPUACCT in cgroups:
             for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
                 try:
                     coretime = int(coretime)
@@ -576,7 +585,7 @@ class RunExecutor():
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
-            if not CPUACCT in self.cgroups:
+            if self._is_darwin or not CPUACCT in self.cgroups:
                 sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
 
         if walltimelimit is None:
@@ -605,7 +614,7 @@ class RunExecutor():
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
-            if not MEMORY in self.cgroups:
+            if self._is_darwin or not MEMORY in self.cgroups:
                 sys.exit("Memory limit specified, but cannot be implemented without cgroup support.")
 
         if memory_nodes is not None:
@@ -627,10 +636,15 @@ class RunExecutor():
         self._termination_reason = None
 
         logging.debug("execute_run: setting up Cgroups.")
-        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
+        cgroups = None
+        if not self._is_darwin:
+            cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
+        else:
+            logging.debug("execute_run: cgroups are not supported in Darwin")
 
         throttle_check = _CPUThrottleCheck(cores)
-        swap_check = _SwapCheck()
+        if not self._is_darwin:
+            swap_check = _SwapCheck()
 
         try:
             logging.debug("execute_run: executing tool.")
@@ -645,7 +659,8 @@ class RunExecutor():
 
         finally: # always try to cleanup cgroups, even on sys.exit()
             logging.debug("execute_run: cleaning up CGroups.")
-            cgroups.remove()
+            if not self._is_darwin:
+                cgroups.remove()
 
         # if exception is thrown, skip the rest, otherwise perform normally
 
@@ -658,7 +673,7 @@ class RunExecutor():
 
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. Benchmark results are unreliable!')
-        if swap_check.has_swapped():
+        if not self._is_darwin and swap_check.has_swapped():
             logging.warning('System has swapped during benchmarking. Benchmark results are unreliable!')
 
         _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
@@ -786,6 +801,7 @@ class _TimelimitThread(threading.Thread):
         self.process = process
         self.callback = callbackFn
         self.finished = threading.Event()
+        self._is_darwin = platform.system() == 'Darwin'
 
     def read_cputime(self):
         while True:
@@ -798,12 +814,17 @@ class _TimelimitThread(threading.Thread):
 
     def run(self):
         while not self.finished.is_set():
-            usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
+            usedCpuTime = self.read_cputime() if not self._is_darwin and CPUACCT in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.time()
-            logging.debug("TimelimitThread for process {0}: used CPU time: {1}, remaining CPU time: {2}, remaining soft CPU time: {3}, remaining wall time: {4}."
+            if not self._is_darwin:
+                logging.debug("TimelimitThread for process {0}: used CPU time: {1}, remaining CPU time: {2}, remaining soft CPU time: {3}, remaining wall time: {4}."
                           .format(self.process.pid, usedCpuTime, remainingCpuTime, remainingSoftCpuTime, remainingWallTime))
+            else:
+                logging.debug("TimelimitThread for process {0}: remaining wall time: {4}."
+                          .format(self.process.pid, usedCpuTime, remainingCpuTime, remainingSoftCpuTime, remainingWallTime))
+
             if remainingCpuTime <= 0:
                 self.callback('cputime')
                 logging.debug('Killing process {0} due to CPU time timeout.'.format(self.process.pid))

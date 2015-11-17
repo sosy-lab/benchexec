@@ -36,6 +36,7 @@ import resource
 import subprocess
 import threading
 import time
+import platform
 
 from .model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
 from . import cgroups
@@ -76,17 +77,24 @@ def execute_benchmark(benchmark, output_handler):
             or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None):
         logging.warning("Ignoring specified resource requirements in local-execution mode, only resource limits are used.")
 
-    my_cgroups = cgroups.find_my_cgroups()
+    is_darwin = False;
+
+    if platform.system() == 'Darwin':
+        logging.warning("Ignoring resources limit since Darwin does not support cgroups")
+        is_darwin = True
+
+    if not is_darwin:
+        my_cgroups = cgroups.find_my_cgroups()
 
     coreAssignment = None # cores per run
     memoryAssignment = None # memory banks per run
-    if CORELIMIT in benchmark.rlimits:
+    if not is_darwin and CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit("Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes.")
         coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
 
-    if MEMLIMIT in benchmark.rlimits:
+    if not is_darwin and MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
         memLimit = benchmark.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
         check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, my_cgroups)
