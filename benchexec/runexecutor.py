@@ -427,13 +427,18 @@ class RunExecutor():
 
             if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
                 # Start a timer to periodically check timelimit
-                timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit, softtimelimit, walltimelimit, p, myCpuCount, self._set_termination_reason)
+                timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit,
+                                                   softtimelimit, walltimelimit,
+                                                   p, myCpuCount,
+                                                   self._set_termination_reason,
+                                                   kill_process_fn=self._kill_process)
                 timelimitThread.start()
 
             if memlimit is not None:
                 try:
                     oomThread = oomhandler.KillProcessOnOomThread(cgroups, p,
-                                                                  self._set_termination_reason)
+                                                                  self._set_termination_reason,
+                                                                  kill_process_fn=self._kill_process)
                     oomThread.start()
                 except OSError as e:
                     logging.critical("OSError {0} during setup of OomEventListenerThread: {1}.".format(e.errno, e.strerror))
@@ -470,7 +475,7 @@ class RunExecutor():
             logging.debug("size of logfile '{0}': {1}".format(output_filename, str(os.path.getsize(output_filename))))
 
             # kill all remaining processes if some managed to survive
-            cgroups.kill_all_tasks()
+            cgroups.kill_all_tasks(self._kill_process)
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before

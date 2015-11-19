@@ -117,7 +117,7 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup):
+def kill_all_tasks_in_cgroup(cgroup, kill_process_fn=util.kill_process):
     tasksFile = os.path.join(cgroup, 'tasks')
     freezer_file = os.path.join(cgroup, 'freezer.state')
 
@@ -138,7 +138,7 @@ def kill_all_tasks_in_cgroup(cgroup):
                     task = task.strip()
                     if i > 1:
                         logging.warning('Run has left-over process with pid {0} in cgroup {1}, sending signal {2} (try {3}).'.format(task, cgroup, sig, i))
-                    util.kill_process(int(task), sig)
+                    kill_process_fn(int(task), sig)
 
                 if task is None:
                     return # No process was hanging, exit
@@ -242,14 +242,14 @@ class Cgroup(object):
             with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
                 tasksFile.write(str(pid))
 
-    def kill_all_tasks(self):
+    def kill_all_tasks(self, kill_process_fn=util.kill_process):
         """
         Kill all tasks in this cgroup forcefully.
         """
         for cgroup in self.paths:
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, kill_process_fn)
 
-    def kill_all_tasks_recursively(self):
+    def kill_all_tasks_recursively(self, kill_process_fn=util.kill_process):
         """
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
@@ -262,7 +262,7 @@ class Cgroup(object):
                 kill_all_tasks_in_cgroup_recursively(subCgroup)
                 remove_cgroup(subCgroup)
 
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, kill_process_fn)
 
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup_recursively(cgroup)
