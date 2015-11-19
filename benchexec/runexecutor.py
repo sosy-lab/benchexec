@@ -46,6 +46,8 @@ _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
+_SUDO_ARGS = ['sudo', '--non-interactive', '-u']
+
 try:
     from subprocess import DEVNULL
 except ImportError:
@@ -192,14 +194,26 @@ def main(argv=None):
 
 class RunExecutor():
 
-    def __init__(self):
+    def __init__(self, user=None):
+        """
+        Create an instance of of RunExecutor.
+        @param user None or an OS user as which the benchmarked process should be executed (via sudo).
+        """
         self.PROCESS_KILLED = False
         self.SUB_PROCESSES_LOCK = threading.Lock() # needed, because we kill the process asynchronous
         self.SUB_PROCESSES = set()
         self._termination_reason = None
+        self._user = user
+
+        if user is not None:
+            self._kill_process = self._kill_process_with_sudo
+        else:
+            self._kill_process = util.kill_process
 
         self._init_cgroups()
 
+    def _kill_process_with_sudo(self, pid, sig=signal.SIGKILL):
+        subprocess.Popen(args=_SUDO_ARGS + [self._user] + ['kill', '-'+str(sig), str(pid)])
 
     def _init_cgroups(self):
         """
@@ -678,7 +692,7 @@ class RunExecutor():
         with self.SUB_PROCESSES_LOCK:
             for process in self.SUB_PROCESSES:
                 logging.warning('Killing process {0} forcefully.'.format(process.pid))
-                util.kill_process(process.pid)
+                self._kill_process(process.pid)
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
@@ -770,7 +784,7 @@ class _TimelimitThread(threading.Thread):
     reached its timelimit. After this happens, the process is terminated.
     """
     def __init__(self, cgroups, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
-                 callbackFn=lambda reason: None):
+                 callbackFn=lambda reason: None, kill_process_fn=util.kill_process):
         super(_TimelimitThread, self).__init__()
 
         if hardtimelimit or softtimelimit:
@@ -785,6 +799,7 @@ class _TimelimitThread(threading.Thread):
         self.cpuCount = cpuCount
         self.process = process
         self.callback = callbackFn
+        self.kill_process = kill_process_fn
         self.finished = threading.Event()
 
     def read_cputime(self):
@@ -807,20 +822,20 @@ class _TimelimitThread(threading.Thread):
             if remainingCpuTime <= 0:
                 self.callback('cputime')
                 logging.debug('Killing process {0} due to CPU time timeout.'.format(self.process.pid))
-                util.kill_process(self.process.pid)
+                self.kill_process(self.process.pid)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
                 self.callback('walltime')
                 logging.warning('Killing process {0} due to wall time timeout.'.format(self.process.pid))
-                util.kill_process(self.process.pid)
+                self.kill_process(self.process.pid)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
                 self.callback('cputime-soft')
                 # soft time limit violated, ask process to terminate
-                util.kill_process(self.process.pid, signal.SIGTERM)
+                self.kill_process(self.process.pid, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
             remainingTime = min(remainingCpuTime/self.cpuCount,
