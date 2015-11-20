@@ -42,6 +42,7 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.max, None)
         self.assertEqual(s.min, None)
         self.assertEqual(s.median, None)
+        self.assertEqual(s.stdev, None)
 
     def test_single_value(self):
         v = Decimal(1.23)
@@ -51,6 +52,7 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.max, v)
         self.assertEqual(s.min, v)
         self.assertEqual(s.median, v)
+        self.assertEqual(s.stdev, Decimal(0))
 
     def test_two_values(self):
         v1 = Decimal(1.23)
@@ -62,6 +64,7 @@ class TestStatValue(unittest.TestCase):
             self.assertEqual(s.max, v2)
             self.assertEqual(s.min, v1)
             self.assertAlmostEqual(s.median, (v1+v2)/Decimal(2))
+            self.assertAlmostEqual(s.stdev, Decimal(1.665))
 
     def test_three_values(self):
         v1 = Decimal(0.123)
@@ -74,3 +77,4 @@ class TestStatValue(unittest.TestCase):
             self.assertEqual(s.max, v3)
             self.assertEqual(s.min, v1)
             self.assertEqual(s.median, v2)
+            self.assertAlmostEqual(s.stdev, Decimal(370.84))

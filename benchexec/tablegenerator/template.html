@@ -238,7 +238,7 @@ def format_stat_title(stat, column, format_value):
     if not stat or not stat.avg:
         return None
     values = {k: format_value(v, column) for k, v in stat.__dict__.items()}
-    return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}'.format(**values)
+    return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}
 {{py:line = head['title']}}
 <tr class="{{line.id}}">

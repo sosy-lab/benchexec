@@ -909,12 +909,13 @@ def get_stats_of_run_set(runResults):
 
 
 class StatValue:
-    def __init__(self, sum, min=None, max=None, avg=None, median=None):  # @ReservedAssignment
+    def __init__(self, sum, min=None, max=None, avg=None, median=None, stdev=None):  # @ReservedAssignment
         self.sum = sum
         self.min = min
         self.max = max
         self.avg = avg
         self.median = median
+        self.stdev = stdev
 
     def __str__(self):
         return str(self.sum)
@@ -928,17 +929,26 @@ class StatValue:
         values_len = len(values)
         values_sum = sum(values)
 
+        mean = values_sum / values_len
+
         half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
             median = values[half]
         else:
             median = (values[half-1] + values[half]) / Decimal(2)
 
+        stdev = Decimal(0)
+        for v in values:
+            diff = v - mean
+            stdev += diff*diff
+        stdev = (stdev / values_len).sqrt()
+
         return StatValue(values_sum,
                          min    = values[0],
                          max    = values[-1],
-                         avg    = values_sum / values_len,
+                         avg    = mean,
                          median = median,
+                         stdev = stdev,
                          )
 
 
