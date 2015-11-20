@@ -152,7 +152,7 @@ class Util:
     def to_decimal(s):
         # remove whitespaces and trailing units (e.g., in '1.23s')
         s, _ = Util.split_number_and_unit((s or '').strip())
-        return Decimal(s) if s else Decimal()
+        return Decimal(s) if s else None
 
 
     @staticmethod
@@ -921,12 +921,12 @@ class StatValue:
 
     @classmethod
     def from_list(cls, values):
+        values = sorted(v for v in values if v is not None)
         if not values:
             return StatValue(0)
 
         values_len = len(values)
         values_sum = sum(values)
-        values = sorted(values)
 
         half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
