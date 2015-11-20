@@ -283,6 +283,8 @@ var dataColumnsOffset = {{count_id_columns}}; // index of first column in table 
 var headerColumnsOffset = 1;      // index of first column in header that belongs to data column
 var columnsToRunset = [];         // for each data column of the table the runSet it belongs to (first column is 0)
 var columnTitleCells = $('#columnTitles').children().slice(headerColumnsOffset); // all cells with column headers of data columns (first column is 0)
+var isRowFilterPaneActive = false; // global variable for all scripts coming below, it is necessary to disable the binding
+                                   // of the f-key while the filter-pane is open
 
 for (var i = 0; i < columns.length; i++) {
   run_sets[i].columns = columns[i];
@@ -328,7 +330,7 @@ function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
   // or when pressing the "Esc" key with the content pane focused
   if (event.type == "click" || escKeyPressed(event)) {
-
+    hideContentPane();
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -341,7 +343,7 @@ function catchHideContentPane(event) {
 function hideContentPane() {
   $('#contentPaneBackground').hide();
   $('#contentPane').hide().empty();
-  areRowFilterButtonsActive = false;
+  isRowFilterPaneActive = false;
 }
 
 function escKeyPressed(event) {
@@ -733,10 +735,10 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
-  if (areRowFilterButtonsActive) {
+  if (isRowFilterPaneActive) {
     return;
   }
-  areRowFilterButtonsActive = true;
+  isRowFilterPaneActive = true;
 
   $("#contentPane").empty();
 
