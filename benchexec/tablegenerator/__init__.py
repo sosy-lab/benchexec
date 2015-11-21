@@ -25,6 +25,7 @@ import xml.etree.ElementTree as ET
 import collections
 import os.path
 import glob
+import itertools
 import json
 import logging
 import argparse
@@ -210,7 +211,7 @@ class Util:
         return uniqueList[0] if len(uniqueList) == 1 \
             else '[' + '; '.join(uniqueList) + ']'
 
-def parse_table_definition_file(file, all_columns):
+def parse_table_definition_file(file, options):
     '''
     This function parses the input to get run sets and columns.
     The param 'file' is an XML file defining the result files and columns.
@@ -226,14 +227,6 @@ def parse_table_definition_file(file, all_columns):
         logging.error("File '%s' does not exist.", file)
         exit(1)
 
-    def extract_columns_from_table_definition_file(xmltag):
-        """
-        Extract all columns mentioned in the result tag of a table definition file.
-        """
-        return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
-                for c in xmltag.findall('column')]
-
-    runSetResults = []
     try:
         tableGenFile = ET.ElementTree().parse(file)
     except ET.ParseError as e:
@@ -245,37 +238,50 @@ def parse_table_definition_file(file, all_columns):
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
 
-    base_dir = os.path.dirname(file)
+    return parallel.map(handle_tag_in_table_definition_file,
+                        tableGenFile,
+                        itertools.repeat(file),
+                        itertools.repeat(defaultColumnsToShow),
+                        itertools.repeat(options))
 
+def extract_columns_from_table_definition_file(xmltag):
+    """
+    Extract all columns mentioned in the result tag of a table definition file.
+    """
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
+            for c in xmltag.findall('column')]
+
+def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
-            logging.warning("Result tag without filename attribute in file '%s'.", file)
+            logging.warning("Result tag without filename attribute in file '%s'.", table_file)
             return []
-        return Util.get_file_list(os.path.join(base_dir, result_tag.get('filename'))) # expand wildcards
+        return Util.get_file_list(os.path.join(os.path.dirname(table_file), result_tag.get('filename'))) # expand wildcards
 
-    for tag in tableGenFile:
-        if tag.tag == 'result':
-            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
-            run_set_id = tag.get('id')
-            for resultsFile in get_file_list(tag):
-                runSetResults.append(RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns))
+    if tag.tag == 'result':
+        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        run_set_id = tag.get('id')
+        for resultsFile in get_file_list(tag):
+            return load_result(resultsFile, options, run_set_id, columnsToShow)
 
-        elif tag.tag == 'union':
-            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
-            result = RunSetResult([], collections.defaultdict(list), columnsToShow)
+    elif tag.tag == 'union':
+        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
-            for resultTag in tag.findall('result'):
-                run_set_id = resultTag.get('id')
-                for resultsFile in get_file_list(resultTag):
-                    result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
+        for resultTag in tag.findall('result'):
+            run_set_id = resultTag.get('id')
+            for resultsFile in get_file_list(resultTag):
+                result_xml = parse_results_file(resultsFile, run_set_id)
+                if result_xml is not None:
+                    result.append(resultsFile, result_xml, options.all_columns)
 
-            if result._xml_results:
-                name = tag.get('title', tag.get('name'))
-                if name:
-                    result.attributes['name'] = [name]
-                runSetResults.append(result)
-
-    return runSetResults
+        if result._xml_results:
+            name = tag.get('title', tag.get('name'))
+            if name:
+                result.attributes['name'] = [name]
+            result.collect_data(options.correct_only)
+            return result
+        return None
 
 
 def get_task_id(task):
@@ -464,7 +470,22 @@ def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
 
-def parse_results_file(resultFile, run_set_id=None):
+def load_result(result_file, options, run_set_id=None, columns=None):
+    """
+    Completely handle loading a single result file.
+    @param result_file the file to parse
+    @return a fully ready RunSetResult instance or None
+    """
+    xml = parse_results_file(result_file, run_set_id=run_set_id, ignore_errors=options.ignore_errors)
+    if xml is None:
+        return None
+
+    result = RunSetResult.create_from_xml(result_file, xml, columns=columns, all_columns=options.all_columns)
+    result.collect_data(options.correct_only)
+    return result
+
+
+def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     '''
     This function parses a XML file with the results of the execution of a run set.
     It returns the "result" XML tag.
@@ -490,6 +511,12 @@ def parse_results_file(resultFile, run_set_id=None):
             + "If you want to run a table-definition file,\n"\
             + "you should use the option '-x' or '--xml'.")
         exit(1)
+
+    if ignore_errors and 'error' in resultElem.attributes:
+        logging.warning('Ignoring benchmark %s because of error: %s',
+                        ", ".join(set(resultElem.attributes['name'])),
+                        ", ".join(set(resultElem.attributes['error'])))
+        return None
 
     if run_set_id is not None:
         for sourcefile in _get_run_tags_from_xml(resultElem):
@@ -1275,7 +1302,7 @@ def main(args=None):
         if options.tables:
             logging.error("Invalid additional arguments '%s'.", " ".join(options.tables))
             exit(1)
-        runSetResults = parse_table_definition_file(options.xmltablefile, options.all_columns)
+        runSetResults = parse_table_definition_file(options.xmltablefile, options)
         if not name:
             name = basename_without_ending(options.xmltablefile)
 
@@ -1291,7 +1318,8 @@ def main(args=None):
             inputFiles = [os.path.join(searchDir, '*.results*.xml')]
 
         inputFiles = Util.extend_file_list(inputFiles) # expand wildcards
-        runSetResults = [RunSetResult.create_from_xml(file, parse_results_file(file), all_columns=options.all_columns) for file in inputFiles]
+        runSetResults = parallel.map(load_result,
+                                     inputFiles, itertools.repeat(options))
 
         if len(inputFiles) == 1:
             if not name:
@@ -1312,25 +1340,10 @@ def main(args=None):
     if not outputPath:
         outputPath = '.'
 
-    if options.ignore_errors:
-        filteredRunSets = []
-        for runSet in runSetResults:
-            if 'error' in runSet.attributes:
-                logging.warning('Ignoring benchmark %s because of error: %s',
-                                ", ".join(set(runSet.attributes['name'])),
-                                ", ".join(set(runSet.attributes['error'])))
-            else:
-                filteredRunSets.append(runSet)
-        runSetResults = filteredRunSets
-
+    runSetResults = [r for r in runSetResults if r is not None]
     if not runSetResults:
         logging.error('No benchmark results found.')
         exit(1)
-
-    # collect data
-    logging.info('Collecting data...')
-    for result in runSetResults:
-        result.collect_data(options.correct_only)
 
     logging.info('Merging results...')
     if options.common:
