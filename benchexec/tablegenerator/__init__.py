@@ -809,7 +809,7 @@ def get_stats(rows):
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
-        score_row = tempita.bunch(default=None, id='score',
+        score_row = tempita.bunch(id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
                                   description=task_counts,
                                   content=rowsForStats[7])
@@ -817,13 +817,13 @@ def get_stats(rows):
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(default=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
-            tempita.bunch(default=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
-            tempita.bunch(default=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
-            tempita.bunch(default=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
-            tempita.bunch(default=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
-            tempita.bunch(default=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
-            tempita.bunch(default=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
+    return [tempita.bunch(id=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
+            tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
+            tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
+            tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
+            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
             ] + ([score_row] if max_score else [])
 
 
@@ -1038,7 +1038,7 @@ def get_summary(runSetResults):
             summaryStats.append(StatValue(value))
 
     if available:
-        return tempita.bunch(default=None, title='local summary',
+        return tempita.bunch(id=None, title='local summary',
             description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
             content=summaryStats)
     else:
