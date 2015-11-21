@@ -1159,11 +1159,8 @@ def basename_without_ending(file):
         name = name[:-4]
     return name
 
-def main(args=None):
 
-    if args is None:
-        args = sys.argv
-
+def create_argument_parser():
     parser = argparse.ArgumentParser(
         fromfile_prefix_chars='@',
         description=
@@ -1247,8 +1244,10 @@ def main(args=None):
     parser.add_argument("--version",
         action="version", version="%(prog)s " + __version__
     )
+    return parser
 
-    options = parser.parse_args(args[1:])
+def main(args=None):
+    options = create_argument_parser().parse_args((args or sys.argv)[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",
                         level=logging.WARNING if options.quiet else logging.INFO)
