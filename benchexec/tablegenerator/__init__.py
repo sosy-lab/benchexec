@@ -979,42 +979,17 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
+                outfile = None
                 logging.info('Writing %s to stdout...', template_format.upper().ljust(4))
             else:
                 outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=table_type, ext=template_format))
                 logging.info('Writing %s into %s ...', template_format.upper().ljust(4), outfile)
 
-            # read template
-            Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
-            template_file = TEMPLATE_FILE_NAME.format(format=template_format)
-            try:
-                template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
-            except NameError:
-                with open(template_file, mode='r') as f:
-                    template_content = f.read()
-            template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
+            this_template_values = dict(title=title, body=rows, foot=stats)
+            this_template_values.update(template_values.__dict__)
 
-            result = template.substitute(
-                        title=title,
-                        body=rows,
-                        foot=stats,
-                        **template_values.__dict__
-                        )
-
-            # write file
-            if outputFilePattern == '-':
-                print(result, end='')
-            else:
-                with open(outfile, 'w') as file:
-                    file.write(result)
-
-            if options.show_table and template_format == 'html':
-                try:
-                    with open(os.devnull, 'w') as devnull:
-                        subprocess.Popen(['xdg-open', outfile],
-                                         stdout=devnull, stderr=devnull)
-                except OSError:
-                    pass
+            write_table_in_format(template_format, outfile, this_template_values,
+                                  options.show_table and template_format == 'html')
 
     # write normal tables
     write_table("table", name, rows,
@@ -1023,6 +998,36 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     # write difference tables
     if rowsDiff:
         write_table("diff", name + " differences", rowsDiff, use_local_summary=False)
+
+
+def write_table_in_format(template_format, outfile, template_values, show_table):
+    # read template
+    Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
+    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
+    try:
+        template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
+    except NameError:
+        with open(template_file, mode='r') as f:
+            template_content = f.read()
+    template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
+
+    result = template.substitute(**template_values)
+
+    # write file
+    if not outfile:
+        print(result, end='')
+    else:
+        with open(outfile, 'w') as file:
+            file.write(result)
+
+        if show_table:
+            try:
+                with open(os.devnull, 'w') as devnull:
+                    subprocess.Popen(['xdg-open', outfile],
+                                     stdout=devnull, stderr=devnull)
+            except OSError:
+                pass
+
 
 def basename_without_ending(file):
     name = os.path.basename(file)
