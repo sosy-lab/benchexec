@@ -36,6 +36,12 @@ import tempita
 
 from decimal import *
 
+# Process pool for parallel work.
+# Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
+# processes, not threads.
+# Initialized only in main() because we cannot do so in the worker processes.
+parallel = None
+
 from .. import __version__
 import benchexec.result as result
 
@@ -789,7 +795,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats(rows):
-    stats = [get_stats_of_run_set(runResults) for runResults in rows_to_columns(rows)] # column-wise
+    stats = parallel.map(get_stats_of_run_set, rows_to_columns(rows)) # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
@@ -1247,6 +1253,16 @@ def main(args=None):
     logging.basicConfig(format="%(levelname)s: %(message)s",
                         level=logging.WARNING if options.quiet else logging.INFO)
 
+    global parallel
+    import concurrent.futures
+    cpu_count = 1
+    try:
+        cpu_count = os.cpu_count() or 1
+    except AttributeError:
+        pass
+    # Use up to cpu_count*2 workers because some tasks are I/O bound.
+    parallel = concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count*2)
+
     name = options.output_name
     outputPath = options.outputPath
     if outputPath == '-':
@@ -1343,6 +1359,8 @@ def main(args=None):
         print ("STATS")
         for counts in countsList:
             print (" ".join(str(e) for e in counts))
+
+    parallel.shutdown(wait=True)
 
 
 if __name__ == '__main__':
