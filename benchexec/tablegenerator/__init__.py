@@ -56,6 +56,14 @@ LIB_URL_OFFLINE = "lib/javascript"
 TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), 'template.{format}')
 TEMPLATE_FORMATS = ['html', 'csv']
 TEMPLATE_ENCODING = 'UTF-8'
+TEMPLATE_NAMESPACE={
+   'flatten': Util.flatten,
+   'json': Util.to_json,
+   'relpath': os.path.relpath,
+   'format_value': Util.format_value,
+   'split_number_and_unit': Util.split_number_and_unit,
+   'remove_unit': Util.remove_unit,
+   }
 
 
 def parse_table_definition_file(file, options):
@@ -946,21 +954,17 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
         else:
             r.attributes['niceName'] = [Util.prettylist(r.attributes['benchmarkname']) + '.' + Util.prettylist(r.attributes['name'])]
 
-    head = get_table_head(runSetResults, common_prefix)
-    run_sets_data = [runSetResult.attributes for runSetResult in runSetResults]
-    run_sets_columns = [[column for column in runSet.columns] for runSet in runSetResults]
-    run_sets_column_titles = [[column.title for column in runSet.columns] for runSet in runSetResults]
+    template_values = lambda: None # dummy object as dict replacement for simpler syntax
+    template_values.head = get_table_head(runSetResults, common_prefix)
+    template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
+    template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]
+    template_values.columnTitles = [[column.title for column in runSet.columns] for runSet in runSetResults]
 
-    relevant_id_columns = select_relevant_id_columns(rows)
-    count_id_columns = relevant_id_columns.count(True)
+    template_values.relevant_id_columns = select_relevant_id_columns(rows)
+    template_values.count_id_columns = template_values.relevant_id_columns.count(True)
 
-    templateNamespace={'flatten': Util.flatten,
-                       'json': Util.to_json,
-                       'relpath': os.path.relpath,
-                       'format_value': Util.format_value,
-                       'split_number_and_unit': Util.split_number_and_unit,
-                       'remove_unit': Util.remove_unit,
-                       }
+    template_values.lib_url = options.lib_url
+    template_values.base_dir = outputPath
 
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
@@ -988,20 +992,13 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
             except NameError:
                 with open(template_file, mode='r') as f:
                     template_content = f.read()
-            template = Template(template_content, namespace=templateNamespace)
+            template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
 
             result = template.substitute(
                         title=title,
-                        head=head,
                         body=rows,
                         foot=stats,
-                        run_sets=run_sets_data,
-                        columns=run_sets_columns,
-                        columnTitles=run_sets_column_titles,
-                        relevant_id_columns=relevant_id_columns,
-                        count_id_columns=count_id_columns,
-                        lib_url=options.lib_url,
-                        base_dir=outputPath,
+                        **template_values.__dict__
                         )
 
             # write file
