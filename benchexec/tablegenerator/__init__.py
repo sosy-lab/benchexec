@@ -935,7 +935,8 @@ def get_summary(runSetResults):
 
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
     '''
-    create tables and write them to files
+    Create tables and write them to files.
+    @return a list of futures to allow waiting for completion
     '''
 
     # get common folder of sourcefiles
@@ -966,6 +967,8 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     template_values.lib_url = options.lib_url
     template_values.base_dir = outputPath
 
+    futures = []
+
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
         if not options.format == ['csv']:
@@ -988,8 +991,11 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
             this_template_values = dict(title=title, body=rows, foot=stats)
             this_template_values.update(template_values.__dict__)
 
-            write_table_in_format(template_format, outfile, this_template_values,
-                                  options.show_table and template_format == 'html')
+            futures.append(parallel.submit(
+                write_table_in_format,
+                template_format, outfile, this_template_values,
+                options.show_table and template_format == 'html',
+                ))
 
     # write normal tables
     write_table("table", name, rows,
@@ -999,6 +1005,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     if rowsDiff:
         write_table("diff", name + " differences", rowsDiff, use_local_summary=False)
 
+    return futures
 
 def write_table_in_format(template_format, outfile, template_values, show_table):
     # read template
@@ -1210,9 +1217,7 @@ def main(args=None):
     logging.info('Generating table...')
     if not os.path.isdir(outputPath) and not outputFilePattern == '-':
         os.makedirs(outputPath)
-    create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options)
-
-    logging.info('done')
+    futures = create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options)
 
     if options.dump_counts: # print some stats for Buildbot
         print ("REGRESSIONS {}".format(get_regression_count(rows, options.ignoreFlappingTimeouts)))
@@ -1220,6 +1225,10 @@ def main(args=None):
         print ("STATS")
         for counts in countsList:
             print (" ".join(str(e) for e in counts))
+
+    for f in futures:
+        f.result() # to get any exceptions that may have occurred
+    logging.info('done')
 
     parallel.shutdown(wait=True)
 
