@@ -32,6 +32,10 @@ class Tool(benchexec.tools.template.BaseTool):
     SV-COMP conditions is assumed.
     """
 
+    REQUIRED_PATHS = [
+                  "cbmc",
+                  "cbmc-binary"
+                  ]
     def executable(self):
         return util.find_executable('cbmc')
 
