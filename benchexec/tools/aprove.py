@@ -25,7 +25,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
                   "aprove.jar",
-                  "AProVE.sh"
+                  "AProVE.sh",
+                  "bin",
+                  "newstrategy.strategy"
                   ]
 
     def executable(self):
