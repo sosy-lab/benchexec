@@ -7,10 +7,11 @@ python:
   - "3.5"
 install:
   - pip install .
-  - pip install coverage
-  - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
+    # Coverage >= 4.0 doesn't support Python 3.2
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; else travis_retry pip install coverage; fi
+  - travis_retry pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
 before_script:
-  - printf 'import coverage\ncoverage.process_startup()' > sitecustomize.py
+  - printf 'import coverage\ncoverage.process_startup()\n' > "/home/travis/virtualenv/python${TRAVIS_PYTHON_VERSION}/lib/python${TRAVIS_PYTHON_VERSION}/sitecustomize.py"
 env:
   - COVERAGE_PROCESS_START=.coveragerc
 script:
@@ -19,7 +20,8 @@ after_success:
   - coverage combine
   - coverage report
   - coverage xml
-  - ./.report-coverage.sh
+    # Only report test coverage to Codacy for one of the builds (with Python 3.4)
+  - [ ! -z "$CODACY_PROJECT_TOKEN" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.4" ] && python-codacy-coverage -r coverage.xml
 notifications:
   email:
     - benchexec-dev@googlegroups.com
