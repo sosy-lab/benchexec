@@ -305,7 +305,13 @@ class RunExecutor(object):
         Use _kill_process() because of this.
         """
         if self._user is None:
-            util.kill_process(pid, sig)
+            try:
+                os.kill(pid, sig)
+            except OSError as e:
+                if e.errno == errno.ESRCH: # process itself returned and exited before killing
+                    logging.debug("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
+                else:
+                    logging.warning("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
         else:
             self._kill_process_with_sudo(pid, sig)
 
@@ -493,17 +499,21 @@ class RunExecutor(object):
 
             if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
                 # Start a timer to periodically check timelimit
-                timelimitThread = _TimelimitThread(cgroups, cgroup_hardtimelimit,
-                                                   softtimelimit, walltimelimit,
-                                                   p, myCpuCount,
-                                                   self._set_termination_reason,
+                timelimitThread = _TimelimitThread(cgroups=cgroups,
+                                                   hardtimelimit=cgroup_hardtimelimit,
+                                                   softtimelimit=softtimelimit,
+                                                   walltimelimit=walltimelimit,
+                                                   process=p,
+                                                   cpuCount=myCpuCount,
+                                                   callbackFn=self._set_termination_reason,
                                                    kill_process_fn=self._kill_process)
                 timelimitThread.start()
 
             if memlimit is not None:
                 try:
-                    oomThread = oomhandler.KillProcessOnOomThread(cgroups, p,
-                                                                  self._set_termination_reason,
+                    oomThread = oomhandler.KillProcessOnOomThread(cgroups=cgroups,
+                                                                  process=p,
+                                                                  callbackFn=self._set_termination_reason,
                                                                   kill_process_fn=self._kill_process)
                     oomThread.start()
                 except OSError as e:
@@ -861,8 +871,8 @@ class _TimelimitThread(threading.Thread):
     Thread that periodically checks whether the given process has already
     reached its timelimit. After this happens, the process is terminated.
     """
-    def __init__(self, cgroups, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
-                 callbackFn=lambda reason: None, kill_process_fn=util.kill_process):
+    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
+                 callbackFn=lambda reason: None):
         super(_TimelimitThread, self).__init__()
 
         if hardtimelimit or softtimelimit:

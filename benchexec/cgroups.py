@@ -125,7 +125,7 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup, kill_process_fn=util.kill_process):
+def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
     tasksFile = os.path.join(cgroup, 'tasks')
     freezer_file = os.path.join(cgroup, 'freezer.state')
 
@@ -258,14 +258,14 @@ class Cgroup(object):
             for line in tasksFile:
                 yield int(line)
 
-    def kill_all_tasks(self, kill_process_fn=util.kill_process):
+    def kill_all_tasks(self, kill_process_fn):
         """
         Kill all tasks in this cgroup forcefully.
         """
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup(cgroup, kill_process_fn)
 
-    def kill_all_tasks_recursively(self, kill_process_fn=util.kill_process):
+    def kill_all_tasks_recursively(self, kill_process_fn):
         """
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.

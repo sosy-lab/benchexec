@@ -58,8 +58,7 @@ class KillProcessOnOomThread(threading.Thread):
     @param process: The process instance to kill
     @param callbackFn: A one-argument function that is called in case of OOM with a string for the reason as argument
     """
-    def __init__(self, cgroups, process, callbackFn=lambda reason: None,
-                 kill_process_fn=util.kill_process):
+    def __init__(self, cgroups, kill_process_fn, process, callbackFn=lambda reason: None):
         super(KillProcessOnOomThread, self).__init__()
         self.daemon = True
         self._finished = threading.Event()
