@@ -24,7 +24,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from . import util
 
-class FileWriter:
+class FileWriter(object):
     """
     The class FileWriter is a wrapper for writing content into a file.
     """

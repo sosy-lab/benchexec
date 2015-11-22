@@ -190,7 +190,7 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor():
+class RunExecutor(object):
 
     def __init__(self):
         self.PROCESS_KILLED = False

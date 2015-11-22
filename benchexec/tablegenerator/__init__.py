@@ -152,7 +152,7 @@ def get_task_id(task):
     return tuple(task_id)
 
 
-class Column:
+class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
     and number_of_digits of a column.
@@ -192,7 +192,7 @@ def load_tool(result):
         return result
 
 
-class RunSetResult():
+class RunSetResult(object):
     """
     The Class RunSetResult contains all the results of one execution of a run set:
     the sourcefiles tags (with sourcefiles + values), the columns to show
@@ -464,7 +464,7 @@ def find_common_tasks(runset_results):
         merge_task_lists(runset_results, task_list)
 
 
-class RunResult:
+class RunResult(object):
     """
     The class RunResult contains the results of a single verification run.
     """
@@ -529,7 +529,7 @@ class RunResult:
         return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
 
 
-class Row:
+class Row(object):
     """
     The class Row contains all the results for one sourcefile (a list of RunResult instances).
     It is identified by the name of the source file and optional additional data
@@ -798,7 +798,7 @@ def get_stats_of_run_set(runResults):
     return (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
 
 
-class StatValue:
+class StatValue(object):
     def __init__(self, sum, min=None, max=None, avg=None, median=None, stdev=None):  # @ReservedAssignment
         self.sum = sum
         self.min = min

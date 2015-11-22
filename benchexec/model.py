@@ -101,7 +101,7 @@ def load_tool_wrapper(tool_name):
     return (tool_module, tool)
 
 
-class Benchmark:
+class Benchmark(object):
     """
     The class Benchmark manages the import of source files, options, columns and
     the tool from a benchmark_file.
@@ -279,7 +279,7 @@ class Benchmark:
         return columns
 
 
-class RunSet:
+class RunSet(object):
     """
     The class RunSet manages the import of files and options of a run set.
     """
@@ -481,7 +481,7 @@ class RunSet:
         return fileList
 
 
-class SourcefileSet():
+class SourcefileSet(object):
     """
     A SourcefileSet contains a list of runs and a name.
     """
@@ -494,7 +494,7 @@ class SourcefileSet():
 _logged_missing_property_files = set()
 
 
-class Run():
+class Run(object):
     """
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
@@ -658,7 +658,7 @@ class Run():
         return self.cputime > limit
 
 
-class Column:
+class Column(object):
     """
     The class Column contains text, title and number_of_digits of a column.
     """
@@ -670,7 +670,7 @@ class Column:
         self.value = ""
 
 
-class Requirements:
+class Requirements(object):
     '''
     This class wrappes the values for the requirements.
     It parses the tags from XML to get those values.

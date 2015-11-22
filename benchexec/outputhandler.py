@@ -65,7 +65,7 @@ elif _term.startswith('screen'):
 TIME_PRECISION = 2
 
 
-class OutputHandler:
+class OutputHandler(object):
     """
     The class OutputHandler manages all outputs to the terminal and to files.
     """
@@ -638,7 +638,7 @@ class OutputHandler:
         return util.xml_to_string(xml, 'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
 
 
-class Statistics:
+class Statistics(object):
 
     def __init__(self):
         self.dic = collections.defaultdict(int)
