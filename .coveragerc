@@ -1,7 +1,9 @@
 [run]
 branch = True
 parallel = True
+source = benchexec
 include = benchexec/*
+omit = benchexec/tools/*
 
 [report]
 # Regexes for lines to exclude from consideration

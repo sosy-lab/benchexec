@@ -7,8 +7,19 @@ python:
   - "3.5"
 install:
   - pip install .
+  - pip install coverage
+  - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
+before_script:
+  - printf 'import coverage\ncoverage.process_startup()' > sitecustomize.py
+env:
+  - COVERAGE_PROCESS_START=.coveragerc
 script:
-  - python setup.py test
+  - coverage run setup.py test
+after_success:
+  - coverage combine
+  - coverage report
+  - coverage xml
+  - ./.report-coverage.sh
 notifications:
   email:
     - benchexec-dev@googlegroups.com
