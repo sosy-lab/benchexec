@@ -209,6 +209,15 @@ class RunExecutor(object):
 
         if user is not None:
             self._kill_process = self._kill_process_with_sudo
+            # Check if we are allowed to execute 'kill' with dummy signal.
+            sudo_check = _SUDO_ARGS + [user, 'kill', '-0', '0']
+            with subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+                if p.wait():
+                    logging.error('Calling "{}" failed with error code {} and the following output: {}\n{}'
+                        .format(' '.join(sudo_check), p.returncode,
+                                p.stdout.read().decode().strip(),
+                                p.stderr.read().decode().strip()))
+                    sys.exit('Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(user))
         else:
             self._kill_process = util.kill_process
 
