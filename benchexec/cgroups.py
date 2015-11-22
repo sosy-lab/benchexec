@@ -138,7 +138,10 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
     i = 0
     while True:
         i += 1
-        for sig in [signal.SIGINT, signal.SIGTERM, signal.SIGKILL]:
+        # TODO We can probably remove this loop over signals and just send
+        # SIGKILL. We added this loop when killing sub-processes was not reliable
+        # and we did not know why, but now it is reliable.
+        for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
             try_write_to_freezer('FROZEN')
             with open(tasksFile, 'rt') as tasks:
                 task = None
