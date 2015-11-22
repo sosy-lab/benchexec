@@ -210,7 +210,8 @@ class RunExecutor(object):
         if user is not None:
             self._kill_process = self._kill_process_with_sudo
             # Check if we are allowed to execute 'kill' with dummy signal.
-            sudo_check = _SUDO_ARGS + [user, 'kill', '-0', '0']
+            sudo_check = self._build_cmdline(['kill', '-0', '0'])
+            logging.debug('Checking for capability to run with sudo as user {}.'.format(user))
             with subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
                 if p.wait():
                     logging.error('Calling "{}" failed with error code {} and the following output: {}\n{}'
@@ -224,7 +225,7 @@ class RunExecutor(object):
         self._init_cgroups()
 
     def _kill_process_with_sudo(self, pid, sig=signal.SIGKILL):
-        subprocess.Popen(args=_SUDO_ARGS + [self._user] + ['kill', '-'+str(sig), str(pid)])
+        subprocess.Popen(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
 
     def _init_cgroups(self):
         """
@@ -338,6 +339,12 @@ class RunExecutor(object):
 
         return cgroups
 
+    def _build_cmdline(self, args):
+        """
+        Build the final command line for executing the given command,
+        using sudo if necessary.
+        """
+        return _SUDO_ARGS + [self._user, '--'] + args if self._user is not None else args
 
     def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
         """
@@ -402,9 +409,7 @@ class RunExecutor(object):
 
         logging.debug("Using additional environment {0}.".format(str(environments)))
 
-        if self._user is not None:
-            args = _SUDO_ARGS + [self._user] + args
-            logging.debug("Executing as user {0}.".format(self._user))
+        args = self._build_cmdline(args)
 
         # write command line into outputFile
         try:
