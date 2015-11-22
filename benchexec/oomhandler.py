@@ -24,12 +24,16 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import os
 import threading
+import platform
 
 from .cgroups import MEMORY
 from . import util
 
 from ctypes import cdll
-_libc = cdll.LoadLibrary('libc.so.6')
+if platform.system() == 'Darwin':
+    _libc = cdll.LoadLibrary('libc.dylib')
+else:
+    _libc = cdll.LoadLibrary('libc.so.6')
 _EFD_CLOEXEC = 0x80000 # from <sys/eventfd.h>: mark eventfd as close-on-exec
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
