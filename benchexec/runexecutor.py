@@ -211,13 +211,17 @@ class RunExecutor(object):
             # Check if we are allowed to execute 'kill' with dummy signal.
             sudo_check = self._build_cmdline(['kill', '-0', '0'])
             logging.debug('Checking for capability to run with sudo as user {}.'.format(user))
-            with subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+            p = subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
                 if p.wait():
                     logging.error('Calling "{}" failed with error code {} and the following output: {}\n{}'
                         .format(' '.join(sudo_check), p.returncode,
                                 p.stdout.read().decode().strip(),
                                 p.stderr.read().decode().strip()))
                     sys.exit('Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(user))
+            finally:
+                p.stdout.close()
+                p.stderr.close()
 
         self._init_cgroups()
 
