@@ -61,7 +61,7 @@ class TestRunExecutor(unittest.TestCase):
     def execute_run(self, *args, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
         try:
-            result = self.runexecutor.execute_run(args, output_filename, **kwargs)
+            result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
             output_lines = os.read(output_fd, 4096).decode().splitlines()
             return (result, output_lines)
         finally:
@@ -87,6 +87,9 @@ class TestRunExecutor(unittest.TestCase):
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
         return (result, output_lines)
 
+    def check_command_in_output(self, output, cmd):
+        self.assertEqual(output[0], cmd, 'run output misses executed command')
+
     def check_result_keys(self, result, *additional_keys):
         expected_keys = {'cputime', 'walltime', 'memory', 'exitcode'}
         expected_keys.update(additional_keys)
@@ -101,7 +104,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')
         (_, output) = self.execute_run('/bin/echo', 'TEST_TOKEN')
-        self.assertEqual(output[0], '/bin/echo TEST_TOKEN', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/echo TEST_TOKEN')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -165,7 +168,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
         self.check_result_keys(result, 'terminationreason')
 
-        self.assertEqual(output[0], '/bin/sleep 10', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
@@ -219,7 +222,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result)
 
-        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/cat')
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
@@ -241,7 +244,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result)
 
-        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/cat')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -277,7 +280,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(float(result['cputime'].rstrip('s')), 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result, 'returnvalue')
 
-        self.assertEqual(output[0], '/bin/cat', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/cat')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -296,7 +299,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
         self.check_result_keys(result, 'terminationreason')
 
-        self.assertEqual(output[0], '/bin/sleep 10', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
@@ -356,10 +359,60 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
         self.check_result_keys(result, 'returnvalue')
 
-        self.assertEqual(output[0], '/bin/echo TEST_TOKEN', 'run output misses executed command')
+        self.check_command_in_output(output, '/bin/echo TEST_TOKEN')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+
+class TestRunExecutorWithSudo(TestRunExecutor):
+    """
+    Run tests using the sudo mode of RunExecutor, if possible.
+    sudo is typically set up to allow executing as our own user,
+    so we try that. Note that this will not catch all problems,
+    for example if we forget to use "sudo kill" to send a signal
+    and instead send it directly, but requiring a second user for tests
+    would not be good, either.
+    """
+
+    # sudo allows refering to numerical uids with '#'
+    user = '#' + str(os.getuid())
+
+    def setUp(self):
+        try:
+            self.runexecutor = RunExecutor(user=self.user)
+        except SystemExit as e:
+            # sudo seems not to be available
+            self.skipTest(e)
+
+    def execute_run(self, *args, **kwargs):
+        result, output = super(TestRunExecutorWithSudo, self).execute_run(*args, **kwargs)
+        self.fix_exitcode(result)
+        return (result, output)
+
+    def execute_run_extern(self, *args, **kwargs):
+        result, output = super(TestRunExecutorWithSudo, self) \
+            .execute_run_extern('--user', self.user, *args, **kwargs)
+        self.fix_exitcode(result)
+        return (result, output)
+
+    def fix_exitcode(self, result):
+        # Using sudo may affect the exit code:
+        # what was the returnsignal is now the returnvalue.
+        # The distinction between returnsignal and returnvalue of the actual
+        # process is lost.
+        # If the returnsignal (of the sudo process) is 0,
+        # we replace the exit code with the mixed returnsignal/returnvalue of
+        # the actual process (with bit for core dump cleared).
+        exitcode = int(result['exitcode'])
+        returnsignal = exitcode & 0x7F
+        returnvalue = (exitcode >> 8) & 0x7F
+        if returnsignal == 0:
+            result['exitcode'] = returnvalue
+
+    def check_command_in_output(self, output, cmd):
+        self.assertTrue(output[0].endswith(cmd), 'run output misses executed command')
+
 
 
 class _StopRunThread(threading.Thread):
