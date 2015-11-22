@@ -52,7 +52,7 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.max, v)
         self.assertEqual(s.min, v)
         self.assertEqual(s.median, v)
-        self.assertEqual(s.stdev, Decimal(0))
+        self.assertAlmostEqual(s.stdev, Decimal(0))
 
     def test_two_values(self):
         v1 = Decimal(1.23)
@@ -77,4 +77,4 @@ class TestStatValue(unittest.TestCase):
             self.assertEqual(s.max, v3)
             self.assertEqual(s.min, v1)
             self.assertEqual(s.median, v2)
-            self.assertAlmostEqual(s.stdev, Decimal(370.84))
+            self.assertAlmostEqual(s.stdev, Decimal(370.83879721))
