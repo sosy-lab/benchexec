@@ -97,7 +97,8 @@ def execute_benchmark(benchmark, output_handler):
     # iterate over run sets
     for runSet in benchmark.run_sets:
 
-        if STOPPED_BY_INTERRUPT: break
+        if STOPPED_BY_INTERRUPT:
+            break
 
         if not runSet.should_be_executed():
             output_handler.output_for_skipping_run_set(runSet)

@@ -519,7 +519,8 @@ class Run():
         # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
         self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
         substitutedOptions = substitute_vars(self.options, runSet, self.identifier)
-        if substitutedOptions != self.options: self.options = substitutedOptions # for less memory again
+        if substitutedOptions != self.options:
+            self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
 
@@ -694,14 +695,16 @@ class Requirements:
             cpu_cores = requireTag.get('cpuCores', None)
             if cpu_cores:
                 if self.cpu_cores is None:
-                    if cpu_cores is not None: self.cpu_cores = int(cpu_cores)
+                    if cpu_cores is not None:
+                        self.cpu_cores = int(cpu_cores)
                 else:
                     raise Exception('Double specification of required CPU cores.')
 
             memory = requireTag.get('memory',   None)
             if memory:
                 if self.memory is None:
-                    if memory is not None: self.memory = int(memory)
+                    if memory is not None:
+                        self.memory = int(memory)
                 else:
                     raise Exception('Double specification of required memory.')
 

@@ -486,7 +486,8 @@ class RunResult:
         '''
 
         def read_logfile_lines(logfilename):
-            if not logfilename: return []
+            if not logfilename:
+                return []
             try:
                 with open(logfilename, 'rt') as logfile:
                     return logfile.readlines()
@@ -633,7 +634,8 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             return formatStr.format(**attributes)
 
         values = [format_cell(runSetResult.attributes) for runSetResult in runSetResults]
-        if not any(values): return None # skip row without values completely
+        if not any(values):
+            return None # skip row without values completely
 
         valuesAndWidths = list(Util.collapse_equal_values(values, runSetWidths)) \
                           if collapse else list(zip(values, runSetWidths))

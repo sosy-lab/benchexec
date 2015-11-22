@@ -97,7 +97,8 @@ class BenchExec(object):
 
         returnCode = 0
         for arg in self.config.files:
-            if self.stopped_by_interrupt: break
+            if self.stopped_by_interrupt:
+                break
             logging.debug("Benchmark {0} is started.".format(repr(arg)))
             rc = self.execute_benchmark(arg)
             returnCode = returnCode or rc

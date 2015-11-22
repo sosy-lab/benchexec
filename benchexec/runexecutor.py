@@ -687,10 +687,12 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
-    if maxSize is None: return # disabled, nothing to do
+    if maxSize is None:
+        return # disabled, nothing to do
 
     fileSize = os.path.getsize(fileName)
-    if fileSize < (maxSize + 500): return # not necessary
+    if fileSize < (maxSize + 500):
+        return # not necessary
 
     logging.warning("Logfile '{0}' is too big (size {1} bytes). Removing lines.".format(fileName, fileSize))
 

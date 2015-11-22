@@ -448,7 +448,8 @@ class OutputHandler:
         lines = []
 
         # store values of each run
-        for run in runSet.runs: lines.append(run.resultline)
+        for run in runSet.runs:
+            lines.append(run.resultline)
 
         lines.append(runSet.simpleLine)
 
@@ -478,7 +479,8 @@ class OutputHandler:
             runsElem.set("name", runSet.real_name)
 
         # collect XMLelements from all runs
-        for run in runs: runsElem.append(run.xml)
+        for run in runs:
+            runsElem.append(run.xml)
 
         return runsElem
 
