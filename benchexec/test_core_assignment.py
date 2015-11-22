@@ -144,7 +144,7 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     cores = 8
     ht = False
 
-    oneCore_assignment   = list(map(lambda x: [x], range(8)))
+    oneCore_assignment   = [[x] for x in range(8)]
     twoCore_assignment   = [[0, 1], [2, 3], [4, 5], [6, 7]]
     threeCore_assignment = [[0, 1, 2], [3, 4, 5]]
     fourCore_assignment  = [[0, 1, 2, 3], [4, 5, 6, 7]]
@@ -172,7 +172,7 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     cores = 16
     ht = True
 
-    oneCore_assignment = list(map(lambda x: [x], [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30, 23, 31]))
+    oneCore_assignment = [[x] for x in [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20, 28, 21, 29, 22, 30, 23, 31]]
 
     twoCore_assignment = [[0, 16], [8, 24], [1, 17], [9, 25], [2, 18], [10, 26], [3, 19], [11, 27], [4, 20], [12, 28], [5, 21], [13, 29], [6, 22], [14, 30], [7, 23], [15, 31]]
 
@@ -202,7 +202,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     cores = 5
     ht = False
 
-    oneCore_assignment = list(map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]))
+    oneCore_assignment = [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]]
     twoCore_assignment = [[0, 1], [5, 6], [10, 11], [2, 3], [7, 8], [12, 13]]
     threeCore_assignment = [[0, 1, 2], [5, 6, 7], [10, 11, 12]]
     fourCore_assignment = [[0, 1, 2, 3], [5, 6, 7, 8], [10, 11, 12, 13]]
@@ -216,7 +216,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     cores = 10
     ht = True
 
-    oneCore_assignment = list(map(lambda x: [x], [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14, 15, 20, 25, 16, 21, 26, 17, 22, 27, 18, 23, 28, 19, 24, 29]))
+    oneCore_assignment = [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14, 15, 20, 25, 16, 21, 26, 17, 22, 27, 18, 23, 28, 19, 24, 29]]
     twoCore_assignment = [[0, 15], [5, 20], [10, 25], [1, 16], [6, 21], [11, 26], [2, 17], [7, 22], [12, 27], [3, 18], [8, 23], [13, 28], [4, 19], [9, 24], [14, 29]]
     threeCore_assignment = [[0, 1, 15], [5, 6, 20], [10, 11, 25], [2, 3, 17], [7, 8, 22], [12, 13, 27], [4, 16, 19], [9, 21, 24], [14, 26, 29]]
     fourCore_assignment = [[0, 1, 15, 16], [5, 6, 20, 21], [10, 11, 25, 26], [2, 3, 17, 18], [7, 8, 22, 23], [12, 13, 27, 28]]

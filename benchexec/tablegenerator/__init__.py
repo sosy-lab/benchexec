@@ -209,7 +209,7 @@ class RunSetResult():
         Return the list of task ids for these results.
         May be called only after collect_data()
         """
-        return list(map(lambda r : r.task_id, self.results))
+        return [r.task_id for r in self.results]
 
     def append(self, resultFile, resultElem, all_columns=False):
         """
@@ -940,9 +940,10 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     '''
 
     # get common folder of sourcefiles
-    common_prefix = os.path.commonprefix(list(map(lambda r : r.filename, rows))) # maybe with parts of filename
+    common_prefix = os.path.commonprefix([r.filename for r in rows]) # maybe with parts of filename
     common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
-    list(map(lambda row: Row.set_relative_path(row, common_prefix, outputPath), rows))
+    for row in rows:
+        Row.set_relative_path(row, common_prefix, outputPath)
 
     # compute nice name of each run set for displaying
     firstBenchmarkName = Util.prettylist(runSetResults[0].attributes['benchmarkname'])

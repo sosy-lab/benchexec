@@ -77,7 +77,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
         logging.debug("List of available CPU cores is {0}.".format(allCpus))
 
         # read mapping of core to CPU ("physical package")
-        physical_packages = map(lambda core : int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))), allCpus)
+        physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))) for core in allCpus]
         cores_of_package = collections.defaultdict(list)
         for core, package in zip(allCpus, physical_packages):
             cores_of_package[package].append(core)

@@ -74,7 +74,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                                                  formats=['html', 'csv'],
                                                  output_path=None):
         output = self.run_cmd(*[tablegenerator] + list(args) + ['--outputpath', output_path or self.tmp])
-        generated_files = set(map(lambda x : os.path.join(self.tmp, x), os.listdir(self.tmp)))
+        generated_files = set(os.path.join(self.tmp, x) for x in os.listdir(self.tmp))
 
         csv_file = os.path.join(self.tmp, table_prefix + '.csv') if 'csv' in formats else None
         html_file = os.path.join(self.tmp, table_prefix + '.html') if 'html' in formats else None
