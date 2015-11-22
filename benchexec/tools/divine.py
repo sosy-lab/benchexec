@@ -112,4 +112,4 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a list of files or directories that are necessary to run the tool.
         """
         directory = os.path.dirname(executable)
-        return map(lambda x: os.path.join('.', directory, x), self.BINS)
+        return [os.path.join('.', directory, f) for f in self.BINS]

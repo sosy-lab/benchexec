@@ -25,6 +25,12 @@ and to install BenchExec in development mode within this environment:
 This will automatically install all dependencies
 and place appropriate start scripts on the PATH.
 
+Some tests of BenchExec require the `lxml` Python module.
+To install this, the system packages `libxml2-dev` and `libxslt1-dev` need to be installed.
+Alternatively, if you have the package `python3-lxml` installed on your system,
+you can skip building the `lxml` module inside the virtual environment
+by passing the parameter `--system-site-packages` to `virtualenv`.
+
 
 ## Releasing a new Version
 

@@ -65,7 +65,7 @@ elif _term.startswith('screen'):
 TIME_PRECISION = 2
 
 
-class OutputHandler:
+class OutputHandler(object):
     """
     The class OutputHandler manages all outputs to the terminal and to files.
     """
@@ -448,7 +448,8 @@ class OutputHandler:
         lines = []
 
         # store values of each run
-        for run in runSet.runs: lines.append(run.resultline)
+        for run in runSet.runs:
+            lines.append(run.resultline)
 
         lines.append(runSet.simpleLine)
 
@@ -478,7 +479,8 @@ class OutputHandler:
             runsElem.set("name", runSet.real_name)
 
         # collect XMLelements from all runs
-        for run in runs: runsElem.append(run.xml)
+        for run in runs:
+            runsElem.append(run.xml)
 
         return runsElem
 
@@ -636,7 +638,7 @@ class OutputHandler:
         return util.xml_to_string(xml, 'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
 
 
-class Statistics:
+class Statistics(object):
 
     def __init__(self):
         self.dic = collections.defaultdict(int)

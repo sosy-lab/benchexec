@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 import collections
 import os.path
 import glob
-import json
+import itertools
 import logging
 import argparse
 import re
@@ -34,10 +34,17 @@ import sys
 import time
 import tempita
 
-from decimal import *
+from decimal import Decimal, InvalidOperation
+
+# Process pool for parallel work.
+# Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
+# processes, not threads.
+# Initialized only in main() because we cannot do so in the worker processes.
+parallel = None
 
 from .. import __version__
 import benchexec.result as result
+from . import util as Util
 
 NAME_START = "results" # first part of filename of table
 
@@ -49,162 +56,17 @@ LIB_URL_OFFLINE = "lib/javascript"
 TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), 'template.{format}')
 TEMPLATE_FORMATS = ['html', 'csv']
 TEMPLATE_ENCODING = 'UTF-8'
-
-DEFAULT_TIME_PRECISION = 3
-
-class Util:
-    """
-    This Class contains some useful functions for Strings, Files and Lists.
-    """
-
-    @staticmethod
-    def get_file_list(shortFile):
-        """
-        The function get_file_list expands a short filename to a sorted list
-        of filenames. The short filename can contain variables and wildcards.
-        """
-
-        # expand tilde and variables
-        expandedFile = os.path.expandvars(os.path.expanduser(shortFile))
-
-        # expand wildcards
-        fileList = glob.glob(expandedFile)
-
-        # sort alphabetical,
-        # if list is emtpy, sorting returns None, so better do not sort
-        if len(fileList) != 0:
-            fileList.sort()
-        else:
-            logging.warning("No file matches '%s'.", shortFile)
-
-        return fileList
+TEMPLATE_NAMESPACE={
+   'flatten': Util.flatten,
+   'json': Util.to_json,
+   'relpath': os.path.relpath,
+   'format_value': Util.format_value,
+   'split_number_and_unit': Util.split_number_and_unit,
+   'remove_unit': Util.remove_unit,
+   }
 
 
-    @staticmethod
-    def extend_file_list(filelist):
-        '''
-        This function takes a list of files, expands wildcards
-        and returns a new list of files.
-        '''
-        return [file for wildcardFile in filelist for file in Util.get_file_list(wildcardFile)]
-
-
-    @staticmethod
-    def split_number_and_unit(s):
-        """
-        Split a string into two parts: a number prefix and an arbitrary suffix.
-        Splitting is done from the end, so the split is where the last digit
-        in the string is (that means the prefix may include non-digit characters,
-        if they are followed by at least one digit).
-        """
-        if not s:
-            return (s, '')
-        pos = len(s)
-        while pos and not s[pos-1].isdigit():
-            pos -= 1
-        return (s[:pos], s[pos:])
-
-    @staticmethod
-    def remove_unit(s):
-        """
-        Remove a unit from a number string, or return the full string if it is not a number.
-        """
-        (prefix, suffix) = Util.split_number_and_unit(s)
-        return suffix if prefix == '' else prefix
-
-    @staticmethod
-    def format_number(s, number_of_digits):
-        """
-        If the value is a number (or number plus one char),
-        this function returns a string-representation of the number
-        with a number of digits after the decimal separator.
-        If the number has more digits, it is rounded, else zeros are added.
-
-        If the value is no number, it is returned unchanged.
-        """
-        # if the number ends with "s" or another unit, remove it
-        value, suffix = Util.split_number_and_unit((str(s) or '').strip())
-        try:
-            floatValue = float(value)
-            return "{value:.{width}f}{suffix}".format(width=number_of_digits, value=floatValue, suffix=suffix)
-        except ValueError: # if value is no float, don't format it
-            return s
-
-
-    @staticmethod
-    def format_value(value, column):
-        """
-        Format a value nicely for human-readable output (including rounding).
-        """
-        if not value:
-            return '-'
-
-        number_of_digits = column.number_of_digits
-        if number_of_digits is None and column.title.lower().endswith('time'):
-            number_of_digits = DEFAULT_TIME_PRECISION
-
-        if number_of_digits is None:
-            return value
-        return Util.format_number(value, number_of_digits)
-
-
-    @staticmethod
-    def to_decimal(s):
-        # remove whitespaces and trailing units (e.g., in '1.23s')
-        s, _ = Util.split_number_and_unit((s or '').strip())
-        return Decimal(s) if s else Decimal()
-
-
-    @staticmethod
-    def collapse_equal_values(values, counts):
-        """
-        Take a tuple (values, counts), remove consecutive values and increment their count instead.
-        """
-        assert len(values) == len(counts)
-        previousValue = values[0]
-        previousCount = 0
-
-        for value, count in zip(values, counts):
-            if value != previousValue:
-                yield (previousValue, previousCount)
-                previousCount = 0
-                previousValue = value
-            previousCount += count
-
-        yield (previousValue, previousCount)
-
-    @staticmethod
-    def get_column_value(sourcefileTag, columnTitle, default=None):
-        for column in sourcefileTag.findall('column'):
-            if column.get('title') == columnTitle:
-                    return column.get('value')
-        return default
-
-    @staticmethod
-    def flatten(list_):
-        return [value for sublist in list_ for value in sublist]
-
-    @staticmethod
-    def json(obj):
-        return tempita.html(json.dumps(obj, sort_keys=True))
-
-    @staticmethod
-    def prettylist(list_):
-        if not list_:
-            return ''
-
-        # Filter out duplicate values while keeping order
-        values = set()
-        uniqueList = []
-        for entry in list_:
-            if not entry in values:
-                values.add(entry)
-                uniqueList.append(entry)
-
-        return uniqueList[0] if len(uniqueList) == 1 \
-            else '[' + '; '.join(uniqueList) + ']'
-
-def parse_table_definition_file(file, all_columns):
+def parse_table_definition_file(file, options):
     '''
     This function parses the input to get run sets and columns.
     The param 'file' is an XML file defining the result files and columns.
@@ -220,14 +82,6 @@ def parse_table_definition_file(file, all_columns):
         logging.error("File '%s' does not exist.", file)
         exit(1)
 
-    def extract_columns_from_table_definition_file(xmltag):
-        """
-        Extract all columns mentioned in the result tag of a table definition file.
-        """
-        return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
-                for c in xmltag.findall('column')]
-
-    runSetResults = []
     try:
         tableGenFile = ET.ElementTree().parse(file)
     except ET.ParseError as e:
@@ -239,37 +93,50 @@ def parse_table_definition_file(file, all_columns):
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
 
-    base_dir = os.path.dirname(file)
+    return parallel.map(handle_tag_in_table_definition_file,
+                        tableGenFile,
+                        itertools.repeat(file),
+                        itertools.repeat(defaultColumnsToShow),
+                        itertools.repeat(options))
 
+def extract_columns_from_table_definition_file(xmltag):
+    """
+    Extract all columns mentioned in the result tag of a table definition file.
+    """
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
+            for c in xmltag.findall('column')]
+
+def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
-            logging.warning("Result tag without filename attribute in file '%s'.", file)
+            logging.warning("Result tag without filename attribute in file '%s'.", table_file)
             return []
-        return Util.get_file_list(os.path.join(base_dir, result_tag.get('filename'))) # expand wildcards
+        return Util.get_file_list(os.path.join(os.path.dirname(table_file), result_tag.get('filename'))) # expand wildcards
 
-    for tag in tableGenFile:
-        if tag.tag == 'result':
-            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
-            run_set_id = tag.get('id')
-            for resultsFile in get_file_list(tag):
-                runSetResults.append(RunSetResult.create_from_xml(resultsFile, parse_results_file(resultsFile, run_set_id), columnsToShow, all_columns))
+    if tag.tag == 'result':
+        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        run_set_id = tag.get('id')
+        for resultsFile in get_file_list(tag):
+            return load_result(resultsFile, options, run_set_id, columnsToShow)
 
-        elif tag.tag == 'union':
-            columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
-            result = RunSetResult([], collections.defaultdict(list), columnsToShow)
+    elif tag.tag == 'union':
+        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
-            for resultTag in tag.findall('result'):
-                run_set_id = resultTag.get('id')
-                for resultsFile in get_file_list(resultTag):
-                    result.append(resultsFile, parse_results_file(resultsFile, run_set_id), all_columns)
+        for resultTag in tag.findall('result'):
+            run_set_id = resultTag.get('id')
+            for resultsFile in get_file_list(resultTag):
+                result_xml = parse_results_file(resultsFile, run_set_id)
+                if result_xml is not None:
+                    result.append(resultsFile, result_xml, options.all_columns)
 
-            if result._xml_results:
-                name = tag.get('title', tag.get('name'))
-                if name:
-                    result.attributes['name'] = [name]
-                runSetResults.append(result)
-
-    return runSetResults
+        if result._xml_results:
+            name = tag.get('title', tag.get('name'))
+            if name:
+                result.attributes['name'] = [name]
+            result.collect_data(options.correct_only)
+            return result
+        return None
 
 
 def get_task_id(task):
@@ -285,7 +152,7 @@ def get_task_id(task):
     return tuple(task_id)
 
 
-class Column:
+class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
     and number_of_digits of a column.
@@ -325,7 +192,7 @@ def load_tool(result):
         return result
 
 
-class RunSetResult():
+class RunSetResult(object):
     """
     The Class RunSetResult contains all the results of one execution of a run set:
     the sourcefiles tags (with sourcefiles + values), the columns to show
@@ -342,7 +209,7 @@ class RunSetResult():
         Return the list of task ids for these results.
         May be called only after collect_data()
         """
-        return list(map(lambda r : r.task_id, self.results))
+        return [r.task_id for r in self.results]
 
     def append(self, resultFile, resultElem, all_columns=False):
         """
@@ -458,7 +325,22 @@ def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
 
-def parse_results_file(resultFile, run_set_id=None):
+def load_result(result_file, options, run_set_id=None, columns=None):
+    """
+    Completely handle loading a single result file.
+    @param result_file the file to parse
+    @return a fully ready RunSetResult instance or None
+    """
+    xml = parse_results_file(result_file, run_set_id=run_set_id, ignore_errors=options.ignore_errors)
+    if xml is None:
+        return None
+
+    result = RunSetResult.create_from_xml(result_file, xml, columns=columns, all_columns=options.all_columns)
+    result.collect_data(options.correct_only)
+    return result
+
+
+def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     '''
     This function parses a XML file with the results of the execution of a run set.
     It returns the "result" XML tag.
@@ -484,6 +366,12 @@ def parse_results_file(resultFile, run_set_id=None):
             + "If you want to run a table-definition file,\n"\
             + "you should use the option '-x' or '--xml'.")
         exit(1)
+
+    if ignore_errors and 'error' in resultElem.attributes:
+        logging.warning('Ignoring benchmark %s because of error: %s',
+                        ", ".join(set(resultElem.attributes['name'])),
+                        ", ".join(set(resultElem.attributes['error'])))
+        return None
 
     if run_set_id is not None:
         for sourcefile in _get_run_tags_from_xml(resultElem):
@@ -576,7 +464,7 @@ def find_common_tasks(runset_results):
         merge_task_lists(runset_results, task_list)
 
 
-class RunResult:
+class RunResult(object):
     """
     The class RunResult contains the results of a single verification run.
     """
@@ -598,7 +486,8 @@ class RunResult:
         '''
 
         def read_logfile_lines(logfilename):
-            if not logfilename: return []
+            if not logfilename:
+                return []
             try:
                 with open(logfilename, 'rt') as logfile:
                     return logfile.readlines()
@@ -640,7 +529,7 @@ class RunResult:
         return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
 
 
-class Row:
+class Row(object):
     """
     The class Row contains all the results for one sourcefile (a list of RunResult instances).
     It is identified by the name of the source file and optional additional data
@@ -745,7 +634,8 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             return formatStr.format(**attributes)
 
         values = [format_cell(runSetResult.attributes) for runSetResult in runSetResults]
-        if not any(values): return None # skip row without values completely
+        if not any(values):
+            return None # skip row without values completely
 
         valuesAndWidths = list(Util.collapse_equal_values(values, runSetWidths)) \
                           if collapse else list(zip(values, runSetWidths))
@@ -789,7 +679,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats(rows):
-    stats = [get_stats_of_run_set(runResults) for runResults in rows_to_columns(rows)] # column-wise
+    stats = parallel.map(get_stats_of_run_set, rows_to_columns(rows)) # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
@@ -809,7 +699,7 @@ def get_stats(rows):
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
-        score_row = tempita.bunch(default=None, id='score',
+        score_row = tempita.bunch(id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
                                   description=task_counts,
                                   content=rowsForStats[7])
@@ -817,13 +707,13 @@ def get_stats(rows):
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(default=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
-            tempita.bunch(default=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
-            tempita.bunch(default=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
-            tempita.bunch(default=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
-            tempita.bunch(default=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
-            tempita.bunch(default=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
-            tempita.bunch(default=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
+    return [tempita.bunch(id=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
+            tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
+            tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
+            tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
+            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
             ] + ([score_row] if max_score else [])
 
 
@@ -908,25 +798,28 @@ def get_stats_of_run_set(runResults):
     return (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
 
 
-class StatValue:
-    def __init__(self, sum, min=None, max=None, avg=None, median=None):  # @ReservedAssignment
+class StatValue(object):
+    def __init__(self, sum, min=None, max=None, avg=None, median=None, stdev=None):  # @ReservedAssignment
         self.sum = sum
         self.min = min
         self.max = max
         self.avg = avg
         self.median = median
+        self.stdev = stdev
 
     def __str__(self):
         return str(self.sum)
 
     @classmethod
     def from_list(cls, values):
+        values = sorted(v for v in values if v is not None)
         if not values:
             return StatValue(0)
 
         values_len = len(values)
         values_sum = sum(values)
-        values = sorted(values)
+
+        mean = values_sum / values_len
 
         half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
@@ -934,11 +827,18 @@ class StatValue:
         else:
             median = (values[half-1] + values[half]) / Decimal(2)
 
+        stdev = Decimal(0)
+        for v in values:
+            diff = v - mean
+            stdev += diff*diff
+        stdev = (stdev / values_len).sqrt()
+
         return StatValue(values_sum,
                          min    = values[0],
                          max    = values[-1],
-                         avg    = values_sum / values_len,
+                         avg    = mean,
                          median = median,
+                         stdev = stdev,
                          )
 
 
@@ -1028,7 +928,7 @@ def get_summary(runSetResults):
             summaryStats.append(StatValue(value))
 
     if available:
-        return tempita.bunch(default=None, title='local summary',
+        return tempita.bunch(id=None, title='local summary',
             description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
             content=summaryStats)
     else:
@@ -1037,13 +937,15 @@ def get_summary(runSetResults):
 
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
     '''
-    create tables and write them to files
+    Create tables and write them to files.
+    @return a list of futures to allow waiting for completion
     '''
 
     # get common folder of sourcefiles
-    common_prefix = os.path.commonprefix(list(map(lambda r : r.filename, rows))) # maybe with parts of filename
+    common_prefix = os.path.commonprefix([r.filename for r in rows]) # maybe with parts of filename
     common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
-    list(map(lambda row: Row.set_relative_path(row, common_prefix, outputPath), rows))
+    for row in rows:
+        Row.set_relative_path(row, common_prefix, outputPath)
 
     # compute nice name of each run set for displaying
     firstBenchmarkName = Util.prettylist(runSetResults[0].attributes['benchmarkname'])
@@ -1056,21 +958,19 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
         else:
             r.attributes['niceName'] = [Util.prettylist(r.attributes['benchmarkname']) + '.' + Util.prettylist(r.attributes['name'])]
 
-    head = get_table_head(runSetResults, common_prefix)
-    run_sets_data = [runSetResult.attributes for runSetResult in runSetResults]
-    run_sets_columns = [[column for column in runSet.columns] for runSet in runSetResults]
-    run_sets_column_titles = [[column.title for column in runSet.columns] for runSet in runSetResults]
+    template_values = lambda: None # dummy object as dict replacement for simpler syntax
+    template_values.head = get_table_head(runSetResults, common_prefix)
+    template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
+    template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]
+    template_values.columnTitles = [[column.title for column in runSet.columns] for runSet in runSetResults]
 
-    relevant_id_columns = select_relevant_id_columns(rows)
-    count_id_columns = relevant_id_columns.count(True)
+    template_values.relevant_id_columns = select_relevant_id_columns(rows)
+    template_values.count_id_columns = template_values.relevant_id_columns.count(True)
 
-    templateNamespace={'flatten': Util.flatten,
-                       'json': Util.json,
-                       'relpath': os.path.relpath,
-                       'format_value': Util.format_value,
-                       'split_number_and_unit': Util.split_number_and_unit,
-                       'remove_unit': Util.remove_unit,
-                       }
+    template_values.lib_url = options.lib_url
+    template_values.base_dir = outputPath
+
+    futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
@@ -1085,49 +985,20 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
+                outfile = None
                 logging.info('Writing %s to stdout...', template_format.upper().ljust(4))
             else:
                 outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=table_type, ext=template_format))
                 logging.info('Writing %s into %s ...', template_format.upper().ljust(4), outfile)
 
-            # read template
-            Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
-            template_file = TEMPLATE_FILE_NAME.format(format=template_format)
-            try:
-                template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
-            except NameError:
-                with open(template_file, mode='r') as f:
-                    template_content = f.read()
-            template = Template(template_content, namespace=templateNamespace)
+            this_template_values = dict(title=title, body=rows, foot=stats)
+            this_template_values.update(template_values.__dict__)
 
-            result = template.substitute(
-                        title=title,
-                        head=head,
-                        body=rows,
-                        foot=stats,
-                        run_sets=run_sets_data,
-                        columns=run_sets_columns,
-                        columnTitles=run_sets_column_titles,
-                        relevant_id_columns=relevant_id_columns,
-                        count_id_columns=count_id_columns,
-                        lib_url=options.lib_url,
-                        base_dir=outputPath,
-                        )
-
-            # write file
-            if outputFilePattern == '-':
-                print(result, end='')
-            else:
-                with open(outfile, 'w') as file:
-                    file.write(result)
-
-            if options.show_table and template_format == 'html':
-                try:
-                    with open(os.devnull, 'w') as devnull:
-                        subprocess.Popen(['xdg-open', outfile],
-                                         stdout=devnull, stderr=devnull)
-                except OSError:
-                    pass
+            futures.append(parallel.submit(
+                write_table_in_format,
+                template_format, outfile, this_template_values,
+                options.show_table and template_format == 'html',
+                ))
 
     # write normal tables
     write_table("table", name, rows,
@@ -1137,17 +1008,45 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     if rowsDiff:
         write_table("diff", name + " differences", rowsDiff, use_local_summary=False)
 
+    return futures
+
+def write_table_in_format(template_format, outfile, template_values, show_table):
+    # read template
+    Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
+    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
+    try:
+        template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
+    except NameError:
+        with open(template_file, mode='r') as f:
+            template_content = f.read()
+    template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
+
+    result = template.substitute(**template_values)
+
+    # write file
+    if not outfile:
+        print(result, end='')
+    else:
+        with open(outfile, 'w') as file:
+            file.write(result)
+
+        if show_table:
+            try:
+                with open(os.devnull, 'w') as devnull:
+                    subprocess.Popen(['xdg-open', outfile],
+                                     stdout=devnull, stderr=devnull)
+            except OSError:
+                pass
+
+
 def basename_without_ending(file):
     name = os.path.basename(file)
     if name.endswith(".xml"):
         name = name[:-4]
     return name
 
-def main(args=None):
 
-    if args is None:
-        args = sys.argv
-
+def create_argument_parser():
     parser = argparse.ArgumentParser(
         fromfile_prefix_chars='@',
         description=
@@ -1231,11 +1130,23 @@ def main(args=None):
     parser.add_argument("--version",
         action="version", version="%(prog)s " + __version__
     )
+    return parser
 
-    options = parser.parse_args(args[1:])
+def main(args=None):
+    options = create_argument_parser().parse_args((args or sys.argv)[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",
                         level=logging.WARNING if options.quiet else logging.INFO)
+
+    global parallel
+    import concurrent.futures
+    cpu_count = 1
+    try:
+        cpu_count = os.cpu_count() or 1
+    except AttributeError:
+        pass
+    # Use up to cpu_count*2 workers because some tasks are I/O bound.
+    parallel = concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count*2)
 
     name = options.output_name
     outputPath = options.outputPath
@@ -1250,7 +1161,7 @@ def main(args=None):
         if options.tables:
             logging.error("Invalid additional arguments '%s'.", " ".join(options.tables))
             exit(1)
-        runSetResults = parse_table_definition_file(options.xmltablefile, options.all_columns)
+        runSetResults = parse_table_definition_file(options.xmltablefile, options)
         if not name:
             name = basename_without_ending(options.xmltablefile)
 
@@ -1266,7 +1177,8 @@ def main(args=None):
             inputFiles = [os.path.join(searchDir, '*.results*.xml')]
 
         inputFiles = Util.extend_file_list(inputFiles) # expand wildcards
-        runSetResults = [RunSetResult.create_from_xml(file, parse_results_file(file), all_columns=options.all_columns) for file in inputFiles]
+        runSetResults = parallel.map(load_result,
+                                     inputFiles, itertools.repeat(options))
 
         if len(inputFiles) == 1:
             if not name:
@@ -1287,25 +1199,10 @@ def main(args=None):
     if not outputPath:
         outputPath = '.'
 
-    if options.ignore_errors:
-        filteredRunSets = []
-        for runSet in runSetResults:
-            if 'error' in runSet.attributes:
-                logging.warning('Ignoring benchmark %s because of error: %s',
-                                ", ".join(set(runSet.attributes['name'])),
-                                ", ".join(set(runSet.attributes['error'])))
-            else:
-                filteredRunSets.append(runSet)
-        runSetResults = filteredRunSets
-
+    runSetResults = [r for r in runSetResults if r is not None]
     if not runSetResults:
         logging.error('No benchmark results found.')
         exit(1)
-
-    # collect data
-    logging.info('Collecting data...')
-    for result in runSetResults:
-        result.collect_data(options.correct_only)
 
     logging.info('Merging results...')
     if options.common:
@@ -1323,9 +1220,7 @@ def main(args=None):
     logging.info('Generating table...')
     if not os.path.isdir(outputPath) and not outputFilePattern == '-':
         os.makedirs(outputPath)
-    create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options)
-
-    logging.info('done')
+    futures = create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options)
 
     if options.dump_counts: # print some stats for Buildbot
         print ("REGRESSIONS {}".format(get_regression_count(rows, options.ignoreFlappingTimeouts)))
@@ -1334,10 +1229,15 @@ def main(args=None):
         for counts in countsList:
             print (" ".join(str(e) for e in counts))
 
+    for f in futures:
+        f.result() # to get any exceptions that may have occurred
+    logging.info('done')
+
+    parallel.shutdown(wait=True)
+
 
 if __name__ == '__main__':
     try:
         sys.exit(main())
     except KeyboardInterrupt:
         logging.info('Script was interrupted by user.')
-        pass

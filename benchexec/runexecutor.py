@@ -192,7 +192,7 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor():
+class RunExecutor(object):
 
     def __init__(self, user=None):
         """
@@ -706,10 +706,12 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
-    if maxSize is None: return # disabled, nothing to do
+    if maxSize is None:
+        return # disabled, nothing to do
 
     fileSize = os.path.getsize(fileName)
-    if fileSize < (maxSize + 500): return # not necessary
+    if fileSize < (maxSize + 500):
+        return # not necessary
 
     logging.warning("Logfile '{0}' is too big (size {1} bytes). Removing lines.".format(fileName, fileSize))
 
@@ -814,7 +816,6 @@ class _TimelimitThread(threading.Thread):
             except ValueError:
                 # Sometimes the kernel produces strange values with linebreaks in them
                 time.sleep(1)
-                pass
 
     def run(self):
         while not self.finished.is_set():

@@ -101,7 +101,7 @@ def load_tool_wrapper(tool_name):
     return (tool_module, tool)
 
 
-class Benchmark:
+class Benchmark(object):
     """
     The class Benchmark manages the import of source files, options, columns and
     the tool from a benchmark_file.
@@ -279,7 +279,7 @@ class Benchmark:
         return columns
 
 
-class RunSet:
+class RunSet(object):
     """
     The class RunSet manages the import of files and options of a run set.
     """
@@ -481,7 +481,7 @@ class RunSet:
         return fileList
 
 
-class SourcefileSet():
+class SourcefileSet(object):
     """
     A SourcefileSet contains a list of runs and a name.
     """
@@ -494,7 +494,7 @@ class SourcefileSet():
 _logged_missing_property_files = set()
 
 
-class Run():
+class Run(object):
     """
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
@@ -519,7 +519,8 @@ class Run():
         # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
         self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
         substitutedOptions = substitute_vars(self.options, runSet, self.identifier)
-        if substitutedOptions != self.options: self.options = substitutedOptions # for less memory again
+        if substitutedOptions != self.options:
+            self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
 
@@ -657,7 +658,7 @@ class Run():
         return self.cputime > limit
 
 
-class Column:
+class Column(object):
     """
     The class Column contains text, title and number_of_digits of a column.
     """
@@ -669,7 +670,7 @@ class Column:
         self.value = ""
 
 
-class Requirements:
+class Requirements(object):
     '''
     This class wrappes the values for the requirements.
     It parses the tags from XML to get those values.
@@ -694,14 +695,16 @@ class Requirements:
             cpu_cores = requireTag.get('cpuCores', None)
             if cpu_cores:
                 if self.cpu_cores is None:
-                    if cpu_cores is not None: self.cpu_cores = int(cpu_cores)
+                    if cpu_cores is not None:
+                        self.cpu_cores = int(cpu_cores)
                 else:
                     raise Exception('Double specification of required CPU cores.')
 
             memory = requireTag.get('memory',   None)
             if memory:
                 if self.memory is None:
-                    if memory is not None: self.memory = int(memory)
+                    if memory is not None:
+                        self.memory = int(memory)
                 else:
                     raise Exception('Double specification of required memory.')
 
