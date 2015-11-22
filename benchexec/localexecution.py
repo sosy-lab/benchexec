@@ -181,7 +181,7 @@ class _Worker(threading.Thread):
         self.my_cpus = my_cpus
         self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
-        self.run_executor = RunExecutor()
+        self.run_executor = RunExecutor(user=benchmark.config.user)
         self.setDaemon(True)
 
         self.start()
