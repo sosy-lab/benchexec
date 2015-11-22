@@ -66,7 +66,7 @@ class KillProcessOnOomThread(threading.Thread):
         self._process = process
         self._cgroups = cgroups
         self._callback = callbackFn
-        self.kill_process = kill_process_fn
+        self._kill_process = kill_process_fn
 
         cgroup = cgroups[MEMORY] #for raw access
         ofd = os.open(os.path.join(cgroup, 'memory.oom_control'), os.O_WRONLY)
