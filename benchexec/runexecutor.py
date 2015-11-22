@@ -90,6 +90,8 @@ def main(argv=None):
                         help="list of memory nodes to use")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
+    parser.add_argument("--user", metavar="USER",
+                        help="execute tool under given user account (needs password-less sudo setup)")
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     verbosity = parser.add_mutually_exclusive_group()
@@ -133,7 +135,7 @@ def main(argv=None):
     else:
         stdin = None
 
-    executor = RunExecutor()
+    executor = RunExecutor(user=options.user)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -390,6 +392,10 @@ class RunExecutor(object):
             runningEnv.pop(key, None)
 
         logging.debug("Using additional environment {0}.".format(str(environments)))
+
+        if self._user is not None:
+            args = _SUDO_ARGS + [self._user] + args
+            logging.debug("Executing as user {0}.".format(self._user))
 
         # write command line into outputFile
         try:
