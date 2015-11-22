@@ -221,14 +221,6 @@ class RunExecutor(object):
 
         self._init_cgroups()
 
-    def _kill_process_with_sudo(self, pid, sig=signal.SIGKILL):
-        logging.debug('Sending signal {} to {} with sudo.'.format(sig, pid))
-        try:
-            subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
-        except subprocess.CalledProcessError as e:
-            # may happen for example if process no longer exists
-            logging.debug(e)
-
     def _init_cgroups(self):
         """
         This function initializes the cgroups for the limitations and measurements.
@@ -313,7 +305,12 @@ class RunExecutor(object):
                 else:
                     logging.warning("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
         else:
-            self._kill_process_with_sudo(pid, sig)
+            logging.debug('Sending signal {} to {} with sudo.'.format(sig, pid))
+            try:
+                subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
+            except subprocess.CalledProcessError as e:
+                # may happen for example if process no longer exists
+                logging.debug(e)
 
 
     def _setup_cgroups(self, args, my_cpus, memlimit, memory_nodes):
