@@ -353,7 +353,6 @@ def measure_energy(oldEnergy=None):
             newEnergy[energyType] = int(stdout)
         except ValueError:
             logging.debug('Invalid value while reading {0} energy measurement: {1}'.format(energyType, stdout, stderr, energysh.returncode))
-            pass # do nothing
 
     logging.debug('Finished reading energy measurements.')
 

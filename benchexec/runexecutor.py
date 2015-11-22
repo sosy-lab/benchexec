@@ -794,7 +794,6 @@ class _TimelimitThread(threading.Thread):
             except ValueError:
                 # Sometimes the kernel produces strange values with linebreaks in them
                 time.sleep(1)
-                pass
 
     def run(self):
         while not self.finished.is_set():

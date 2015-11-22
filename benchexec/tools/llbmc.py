@@ -83,6 +83,5 @@ class Tool(benchexec.tools.template.BaseTool):
             os.remove(self.prepInputfile)
         except OSError:
             print("Could not remove file " + self.prepInputfile + "! Maybe clang call failed")
-            pass
 
         return status

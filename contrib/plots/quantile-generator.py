@@ -134,4 +134,3 @@ if __name__ == '__main__':
         sys.exit(main())
     except KeyboardInterrupt:
         sys.exit('Script was interrupted by user.')
-        pass
