@@ -225,7 +225,12 @@ class RunExecutor(object):
         self._init_cgroups()
 
     def _kill_process_with_sudo(self, pid, sig=signal.SIGKILL):
-        subprocess.Popen(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
+        logging.debug('Sending signal {} to {} with sudo.'.format(sig, pid))
+        try:
+            subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
+        except subprocess.CalledProcessError as e:
+            # may happen for example if process no longer exists
+            logging.debug(e)
 
     def _init_cgroups(self):
         """
