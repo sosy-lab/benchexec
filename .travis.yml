@@ -21,7 +21,7 @@ after_success:
   - coverage report
   - coverage xml
     # Only report test coverage to Codacy for one of the builds (with Python 3.4)
-  - [ ! -z "$CODACY_PROJECT_TOKEN" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.4" ] && python-codacy-coverage -r coverage.xml
+  - if [ ! -z "$CODACY_PROJECT_TOKEN" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.4" ]; then python-codacy-coverage -r coverage.xml; fi
 notifications:
   email:
     - benchexec-dev@googlegroups.com
