@@ -208,7 +208,6 @@ class RunExecutor(object):
         self._user = user
 
         if user is not None:
-            self._kill_process = self._kill_process_with_sudo
             # Check if we are allowed to execute 'kill' with dummy signal.
             sudo_check = self._build_cmdline(['kill', '-0', '0'])
             logging.debug('Checking for capability to run with sudo as user {}.'.format(user))
@@ -219,8 +218,6 @@ class RunExecutor(object):
                                 p.stdout.read().decode().strip(),
                                 p.stderr.read().decode().strip()))
                     sys.exit('Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(user))
-        else:
-            self._kill_process = util.kill_process
 
         self._init_cgroups()
 
@@ -244,7 +241,14 @@ class RunExecutor(object):
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups:
-            logging.warning('Cannot reliably kill sub-processes without freezer cgroup.')
+            if self._user is not None:
+                # In sudo mode, we absolutely need at least one cgroup subsystem
+                # to be able to find the process where we need to send signals to
+                sys.exit('Cannot reliably kill sub-processes without freezer cgroup,'
+                         + ' this is necessary if --user is specified.'
+                         + ' Please enable this cgroup or do not specify --user.')
+            else:
+                logging.warning('Cannot reliably kill sub-processes without freezer cgroup.')
 
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
@@ -267,6 +271,43 @@ class RunExecutor(object):
             except ValueError as e:
                 logging.warning("Could not read available memory nodes from kernel: {0}".format(e.strerror))
             logging.debug("List of available memory nodes is {0}.".format(self.memory_nodes))
+
+
+    def _kill_process(self, pid, cgroups, sig=signal.SIGKILL):
+        """
+        Try to send signal to given process, either directly of with sudo.
+        Because we cannot send signals to the sudo process itself,
+        this method checks whether the target is the sudo process
+        and redirects the signal to sudo's child in this case.
+        """
+        if self._user is not None:
+            # In case we started a tool with sudo, we cannot kill the started
+            # process itself, because sudo always runs as root.
+            # So if we are asked to kill the started process itself (the first
+            # process in the cgroup), we instead kill the child of sudo
+            # (the second process in the cgroup).
+            pids = cgroups.get_all_tasks(FREEZER)
+            try:
+                if pid == next(pids):
+                    pid = next(pids)
+            except StopIteration:
+                # pids seems to not have enough values
+                pass
+            finally:
+                pids.close()
+        self._kill_process0(pid, sig)
+
+    def _kill_process0(self, pid, sig=signal.SIGKILL):
+        """
+        Send signal to given process, either directly or with sudo.
+        If the target is the sudo process itself, the signal will be lost,
+        because we do not have the rights to send signals to sudo.
+        Use _kill_process() because of this.
+        """
+        if self._user is None:
+            util.kill_process(pid, sig)
+        else:
+            self._kill_process_with_sudo(pid, sig)
 
 
     def _setup_cgroups(self, args, my_cpus, memlimit, memory_nodes):
@@ -499,8 +540,10 @@ class RunExecutor(object):
 
             logging.debug("size of logfile '{0}': {1}".format(output_filename, str(os.path.getsize(output_filename))))
 
-            # kill all remaining processes if some managed to survive
-            cgroups.kill_all_tasks(self._kill_process)
+            # Kill all remaining processes if some managed to survive.
+            # Because we send signals to all processes anyway we use the
+            # internal function.
+            cgroups.kill_all_tasks(self._kill_process0)
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
@@ -722,8 +765,11 @@ class RunExecutor(object):
         with self.SUB_PROCESSES_LOCK:
             for process in self.SUB_PROCESSES:
                 logging.warning('Killing process {0} forcefully.'.format(process.pid))
-                self._kill_process(process.pid)
-
+                try:
+                    self._kill_process(process.pid, find_cgroups_of_process(process.pid))
+                except OSError as e:
+                    # May fail due to race conditions
+                    logging.debug(e)
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
     """
@@ -853,20 +899,20 @@ class _TimelimitThread(threading.Thread):
             if remainingCpuTime <= 0:
                 self.callback('cputime')
                 logging.debug('Killing process {0} due to CPU time timeout.'.format(self.process.pid))
-                self.kill_process(self.process.pid)
+                self.kill_process(self.process.pid, self.cgroups)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
                 self.callback('walltime')
                 logging.warning('Killing process {0} due to wall time timeout.'.format(self.process.pid))
-                self.kill_process(self.process.pid)
+                self.kill_process(self.process.pid, self.cgroups)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
                 self.callback('cputime-soft')
                 # soft time limit violated, ask process to terminate
-                self.kill_process(self.process.pid, signal.SIGTERM)
+                self.kill_process(self.process.pid, self.cgroups, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
             remainingTime = min(remainingCpuTime/self.cpuCount,

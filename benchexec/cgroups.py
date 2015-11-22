@@ -32,6 +32,7 @@ from . import util as util
 
 __all__ = [
            'find_my_cgroups',
+           'find_cgroups_of_process',
            'CPUACCT',
            'CPUSET',
            'FREEZER',
@@ -68,6 +69,13 @@ def find_my_cgroups(cgroup_paths=None):
         cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
 
     return Cgroup(cgroupsParents)
+
+def find_cgroups_of_process(pid):
+    """
+    Return a Cgroup object that represents the cgroups of a given process.
+    """
+    with open('/proc/{}/cgroup'.format(pid), 'rt') as cgroups_file:
+        return find_my_cgroups(cgroups_file)
 
 
 def _find_cgroup_mounts():
@@ -241,6 +249,14 @@ class Cgroup(object):
         for cgroup in self.paths:
             with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
                 tasksFile.write(str(pid))
+
+    def get_all_tasks(self, subsystem):
+        """
+        Return a generator of all PIDs currently in this cgroup for the given subsystem.
+        """
+        with open(os.path.join(self.per_subsystem[subsystem], 'tasks'), 'r') as tasksFile:
+            for line in tasksFile:
+                yield int(line)
 
     def kill_all_tasks(self, kill_process_fn=util.kill_process):
         """

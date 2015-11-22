@@ -107,7 +107,7 @@ class KillProcessOnOomThread(threading.Thread):
             if not self._finished.is_set():
                 self._callback('memory')
                 logging.debug('Killing process {0} due to out-of-memory event from kernel.'.format(self._process.pid))
-                self._kill_process(self._process.pid)
+                self._kill_process(self._process.pid, self._cgroups)
                 # Also kill all children of subprocesses directly.
                 with open(os.path.join(self._cgroups[MEMORY], 'tasks'), 'rt') as tasks:
                     for task in tasks:
