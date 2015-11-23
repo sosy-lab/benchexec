@@ -87,6 +87,9 @@ Example:
     benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
+For executing benchmarks under a different user account with the parameter `--user`,
+please check the [respective documentation](separate-user.md).
+
 Command-line arguments can additionally be read from a file,
 if the file name prefixed with `@` is given as argument.
 The file needs to contain one argument per line.
