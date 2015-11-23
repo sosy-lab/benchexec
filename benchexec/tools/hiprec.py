@@ -28,20 +28,15 @@ import sys
 import os
 import re
 
+import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
-import benchexec.result as result
-
+from benchexec.model import SOFTTIMELIMIT
 
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 if __name__ == "__main__":
     sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
-
-import benchexec.result as result
-import benchexec.util as util
-import benchexec.tools.template
-from benchexec.model import SOFTTIMELIMIT
 
 REQUIRED_PATHS = [
                   "hiprec",
@@ -62,7 +57,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def name(self):
-        return 'hiprec'
+        return 'HIPrec'
 
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
@@ -70,28 +65,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        """
-        @param returncode: code returned by CPAchecker
-        @param returnsignal: signal, which terminated CPAchecker
-        @param output: the output of CPAchecker
-        @return: status of CPAchecker after executing a run
-        """
-
-        for line in output:
-            if line.startswith('Verification result: '):
-                line = line[22:].strip()
-                if line.startswith('TRUE'):
-                    newStatus = result.RESULT_TRUE_PROP
-                elif line.startswith('FALSE'):
-                    newStatus = result.RESULT_FALSE_REACH
-                else:
-                    newStatus = result.RESULT_UNKNOWN
-
-                if not status:
-                    status = newStatus
-                elif newStatus != result.RESULT_UNKNOWN:
-                    status = "{0} ({1})".format(status, newStatus)
-
-        if not status:
-            status = result.RESULT_UNKNOWN
-        return status
+        output = '\n'.join(output)
+        if "TRUE" in output:
+            return result.RESULT_TRUE_PROP
+        elif "FALSE" in output:
+            return result.RESULT_FALSE_REACH
+        else:
+            return result.RESULT_UNKNOWN
