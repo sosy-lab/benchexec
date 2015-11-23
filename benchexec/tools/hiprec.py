@@ -19,28 +19,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
-import subprocess
-import sys
-import os
-import re
-
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
-from benchexec.model import SOFTTIMELIMIT
 
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
-if __name__ == "__main__":
-    sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
-
-REQUIRED_PATHS = [
-                  "hiprec",
-                 ]
 
 class Tool(benchexec.tools.template.BaseTool):
     """
@@ -52,10 +34,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return executable
 
 
-    def working_directory(self, executable):
-        return os.curdir
-
-
     def name(self):
         return 'HIPrec'
 
@@ -65,10 +43,15 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
-        if "TRUE" in output:
-            return result.RESULT_TRUE_PROP
-        elif "FALSE" in output:
-            return result.RESULT_FALSE_REACH
-        else:
-            return result.RESULT_UNKNOWN
+        status = result.RESULT_UNKNOWN
+        for line in output:
+            if line.startswith('Verification result:('):
+                line = line[21:].strip()
+                if line.startswith('TRUE'):
+                    status = result.RESULT_TRUE_PROP
+                elif line.startswith('FALSE'):
+                    status = result.RESULT_FALSE_REACH
+                else:
+                    status = result.RESULT_UNKNOWN
+
+        return status
