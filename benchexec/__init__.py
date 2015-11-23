@@ -174,8 +174,10 @@ class BenchExec(object):
                           help="Limit each run of the tool to N CPU cores (-1 to disable).")
 
         parser.add_argument("--user",
+                            dest="users",
+                            action="append",
                             metavar="USER",
-                            help="Execute benchmarks under given user account (needs password-less sudo setup).")
+                            help="Execute benchmarks under given user account(s) (needs password-less sudo setup).")
 
         parser.add_argument("--maxLogfileSize",
                           dest="maxLogfileSize", type=int, default=20,
