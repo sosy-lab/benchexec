@@ -25,7 +25,6 @@ import errno
 import glob
 import logging
 import os
-import signal
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -43,18 +42,6 @@ def force_linux_path(path):
     if is_windows():
         return path.replace('\\', '/')
     return path
-
-def kill_process(pid, sig=signal.SIGKILL):
-    '''
-    This function kills the process and the children in its process group.
-    '''
-    try:
-        os.kill(pid, sig)
-    except OSError as e:
-        if e.errno == errno.ESRCH: # process itself returned and exited before killing
-            logging.debug("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
-        else:
-            logging.warning("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
 
 def printOut(value, end='\n'):
     """

@@ -36,6 +36,10 @@ To install the latest development version from the
 
     pip3 install --user git+https://github.com/dbeyer/benchexec.git
 
+If you want to run benchmarks under different user account than your own,
+please check the [respective documentation](separate-user.md) for how to setup sudo.
+
+
 ## System Requirements
 
 To execute benchmarks and reliably measure and limit their resource consumption,

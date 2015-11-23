@@ -32,6 +32,7 @@ from . import util as util
 
 __all__ = [
            'find_my_cgroups',
+           'find_cgroups_of_process',
            'CPUACCT',
            'CPUSET',
            'FREEZER',
@@ -68,6 +69,13 @@ def find_my_cgroups(cgroup_paths=None):
         cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
 
     return Cgroup(cgroupsParents)
+
+def find_cgroups_of_process(pid):
+    """
+    Return a Cgroup object that represents the cgroups of a given process.
+    """
+    with open('/proc/{}/cgroup'.format(pid), 'rt') as cgroups_file:
+        return find_my_cgroups(cgroups_file)
 
 
 def _find_cgroup_mounts():
@@ -117,7 +125,7 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup):
+def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
     tasksFile = os.path.join(cgroup, 'tasks')
     freezer_file = os.path.join(cgroup, 'freezer.state')
 
@@ -130,7 +138,10 @@ def kill_all_tasks_in_cgroup(cgroup):
     i = 0
     while True:
         i += 1
-        for sig in [signal.SIGINT, signal.SIGTERM, signal.SIGKILL]:
+        # TODO We can probably remove this loop over signals and just send
+        # SIGKILL. We added this loop when killing sub-processes was not reliable
+        # and we did not know why, but now it is reliable.
+        for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
             try_write_to_freezer('FROZEN')
             with open(tasksFile, 'rt') as tasks:
                 task = None
@@ -138,7 +149,7 @@ def kill_all_tasks_in_cgroup(cgroup):
                     task = task.strip()
                     if i > 1:
                         logging.warning('Run has left-over process with pid {0} in cgroup {1}, sending signal {2} (try {3}).'.format(task, cgroup, sig, i))
-                    util.kill_process(int(task), sig)
+                    kill_process_fn(int(task), sig)
 
                 if task is None:
                     return # No process was hanging, exit
@@ -242,14 +253,22 @@ class Cgroup(object):
             with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
                 tasksFile.write(str(pid))
 
-    def kill_all_tasks(self):
+    def get_all_tasks(self, subsystem):
+        """
+        Return a generator of all PIDs currently in this cgroup for the given subsystem.
+        """
+        with open(os.path.join(self.per_subsystem[subsystem], 'tasks'), 'r') as tasksFile:
+            for line in tasksFile:
+                yield int(line)
+
+    def kill_all_tasks(self, kill_process_fn):
         """
         Kill all tasks in this cgroup forcefully.
         """
         for cgroup in self.paths:
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, kill_process_fn)
 
-    def kill_all_tasks_recursively(self):
+    def kill_all_tasks_recursively(self, kill_process_fn):
         """
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
@@ -262,7 +281,7 @@ class Cgroup(object):
                 kill_all_tasks_in_cgroup_recursively(subCgroup)
                 remove_cgroup(subCgroup)
 
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, kill_process_fn)
 
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup_recursively(cgroup)

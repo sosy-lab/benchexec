@@ -29,6 +29,7 @@ of the benchmarked tool even if it spawns subprocesses.
 In order to achieve this,
 it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroups/cgroups.txt)
 of the Linux kernel to correctly handle groups of processes.
+Optionally, it can execute benchmarks under a separate user account.
 BenchExec is intended for benchmarking non-interactive tools on Linux systems.
 It measures CPU time, wall time, and memory usage of a tool,
 and allows to specify limits for these resources.
@@ -38,6 +39,9 @@ BenchExec can verify that the result of the tool was as expected,
 and extract further statistical data from the output.
 Results from multiple runs can be combined into CSV and interactive HTML tables,
 of which the latter provide scatter and quantile plots.
+
+BenchExec works only on Linux and needs a one-time setup of cgroups by the machine's administrator.
+The actual benchmarking can be done by any user and does not need root access.
 
 BenchExec was originally developed for use with the software verification framework
 [CPAchecker](http://cpachecker.sosy-lab.org)
