@@ -69,7 +69,7 @@ def execute_benchmark(benchmark, output_handler):
 
     run_sets_executed = 0
 
-    logging.debug("I will use {0} threads.".format(benchmark.num_of_threads))
+    logging.debug("I will use %s threads.", benchmark.num_of_threads)
 
     if benchmark.requirements.cpu_model \
             or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None) \

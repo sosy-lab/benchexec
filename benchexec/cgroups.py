@@ -148,7 +148,7 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
                 for task in tasks:
                     task = task.strip()
                     if i > 1:
-                        logging.warning('Run has left-over process with pid {0} in cgroup {1}, sending signal {2} (try {3}).'.format(task, cgroup, sig, i))
+                        logging.warning('Run has left-over process with pid %s in cgroup %s, sending signal %s (try %s).', task, cgroup, sig, i)
                     kill_process_fn(int(task), sig)
 
                 if task is None:
@@ -159,7 +159,7 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
 
 def remove_cgroup(cgroup):
     if not os.path.exists(cgroup):
-        logging.warning('Cannot remove CGroup {0}, because it does not exist.'.format(cgroup))
+        logging.warning('Cannot remove CGroup %s, because it does not exist.', cgroup)
         return
     assert os.path.getsize(os.path.join(cgroup, 'tasks')) == 0
     try:
@@ -169,8 +169,8 @@ def remove_cgroup(cgroup):
         try:
             os.rmdir(cgroup)
         except OSError as e:
-            logging.warning("Failed to remove cgroup {0}: error {1} ({2})"
-                            .format(cgroup, e.errno, e.strerror))
+            logging.warning("Failed to remove cgroup %s: error %s (%s)",
+                            cgroup, e.errno, e.strerror)
 
 
 class Cgroup(object):
@@ -199,7 +199,7 @@ class Cgroup(object):
         @return A boolean value.
         """
         if not subsystem in self:
-            logging.warning('Cgroup subsystem {0} is not enabled. Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".'.format(subsystem))
+            logging.warning('Cgroup subsystem %s is not enabled. Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".', subsystem)
             return False
 
         try:

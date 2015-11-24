@@ -70,9 +70,10 @@ def check_cgroup_availability(wait=1):
     for subsystem in CPUACCT, CPUSET, MEMORY, FREEZER:
         if subsystem in my_cgroups:
             if not task_cgroups[subsystem].startswith(os.path.join(my_cgroups[subsystem], 'benchmark_')):
-                logging.warning(('Task was in cgroup {} for subsystem {}, which is not the expected sub-cgroup of {}.'
-                         + ' Maybe some other program is interfering with cgroup management?'
-                         ).format(task_cgroups[subsystem], subsystem, my_cgroups[subsystem]))
+                logging.warning('Task was in cgroup %s for subsystem %s, '
+                                'which is not the expected sub-cgroup of %s. '
+                                'Maybe some other program is interfering with cgroup management?',
+                                task_cgroups[subsystem], subsystem, my_cgroups[subsystem])
                 fail = True
     if fail:
         sys.exit(1)

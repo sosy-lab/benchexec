@@ -143,8 +143,8 @@ def main(argv=None):
     signal.signal(signal.SIGTERM, signal_handler_kill)
     signal.signal(signal.SIGINT,  signal_handler_kill)
 
-    logging.info('Starting command ' + ' '.join(options.args))
-    logging.info('Writing output to ' + options.output)
+    logging.info('Starting command %s', ' '.join(options.args))
+    logging.info('Writing output to %s', options.output)
 
     # actual run execution
     try:
@@ -210,14 +210,16 @@ class RunExecutor(object):
         if user is not None:
             # Check if we are allowed to execute 'kill' with dummy signal.
             sudo_check = self._build_cmdline(['kill', '-0', '0'])
-            logging.debug('Checking for capability to run with sudo as user {}.'.format(user))
+            logging.debug('Checking for capability to run with sudo as user %s.', user)
             p = subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             try:
                 if p.wait():
-                    logging.error('Calling "{}" failed with error code {} and the following output: {}\n{}'
-                        .format(' '.join(sudo_check), p.returncode,
-                                p.stdout.read().decode().strip(),
-                                p.stderr.read().decode().strip()))
+                    logging.error(
+                        'Calling "%s" failed with error code %s and the following output: %s\n%s',
+                        ' '.join(sudo_check),
+                        p.returncode,
+                        p.stdout.read().decode().strip(),
+                        p.stderr.read().decode().strip())
                     sys.exit('Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(user))
             finally:
                 p.stdout.close()
@@ -259,14 +261,14 @@ class RunExecutor(object):
             try:
                 self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, 'cpus'))
             except ValueError as e:
-                logging.warning("Could not read available CPU cores from kernel: {0}".format(e.strerror))
-            logging.debug("List of available CPU cores is {0}.".format(self.cpus))
+                logging.warning("Could not read available CPU cores from kernel: %s", e.strerror)
+            logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
                 self.memory_nodes = util.parse_int_list(self.cgroups.get_value(CPUSET, 'mems'))
             except ValueError as e:
-                logging.warning("Could not read available memory nodes from kernel: {0}".format(e.strerror))
-            logging.debug("List of available memory nodes is {0}.".format(self.memory_nodes))
+                logging.warning("Could not read available memory nodes from kernel: %s", e.strerror)
+            logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
 
     def _kill_process(self, pid, cgroups, sig=signal.SIGKILL):
@@ -305,11 +307,11 @@ class RunExecutor(object):
                 os.kill(pid, sig)
             except OSError as e:
                 if e.errno == errno.ESRCH: # process itself returned and exited before killing
-                    logging.debug("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
+                    logging.debug("Failure %s while killing process %s with signal %s: %s", e.errno, pid, sig, e.strerror)
                 else:
-                    logging.warning("Failure {0} while killing process {1} with signal {2}: {3}".format(e.errno, pid, sig, e.strerror))
+                    logging.warning("Failure %s while killing process %s with signal %s: %s", e.errno, pid, sig, e.strerror)
         else:
-            logging.debug('Sending signal {} to {} with sudo.'.format(sig, pid))
+            logging.debug('Sending signal %s to %s with sudo.', sig, pid)
             try:
                 subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
             except subprocess.CalledProcessError as e:
@@ -336,19 +338,19 @@ class RunExecutor(object):
 
         cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
 
-        logging.debug("Executing {0} in cgroups {1}.".format(args, cgroups))
+        logging.debug("Executing %s in cgroups %s.", args, cgroups)
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
             my_cpus_str = ','.join(map(str, my_cpus))
             cgroups.set_value(CPUSET, 'cpus', my_cpus_str)
             my_cpus_str = cgroups.get_value(CPUSET, 'cpus')
-            logging.debug('Executing {0} with cpu cores [{1}].'.format(args, my_cpus_str))
+            logging.debug('Executing %s with cpu cores [%s].', args, my_cpus_str)
 
         if memory_nodes is not None:
             cgroups.set_value(CPUSET, 'mems', ','.join(map(str, memory_nodes)))
             memory_nodesStr = cgroups.get_value(CPUSET, 'mems')
-            logging.debug('Executing {0} with memory nodes [{1}].'.format(args, memory_nodesStr))
+            logging.debug('Executing %s with memory nodes [%s].', args, memory_nodesStr)
 
 
         # Setup memory limit
@@ -373,7 +375,7 @@ class RunExecutor(object):
                     raise e
 
             memlimit = cgroups.get_value(MEMORY, limit)
-            logging.debug('Executing {0} with memory limit {1} bytes.'.format(args, memlimit))
+            logging.debug('Executing %s with memory limit %s bytes.', args, memlimit)
 
         if MEMORY in cgroups \
                 and not cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes') \
@@ -388,7 +390,7 @@ class RunExecutor(object):
                 # Our process might get killed because of this.
                 cgroups.set_value(MEMORY, 'swappiness', '0')
             except IOError as e:
-                logging.warning('Could not disable swapping for benchmarked process: ' + str(e))
+                logging.warning('Could not disable swapping for benchmarked process: %s', e)
 
         return cgroups
 
@@ -460,7 +462,7 @@ class RunExecutor(object):
         for key in environments.get("clearEnv", {}).items():
             runningEnv.pop(key, None)
 
-        logging.debug("Using additional environment {0}.".format(str(environments)))
+        logging.debug("Using additional environment %s.", environments)
 
         args = self._build_cmdline(args)
 
@@ -487,8 +489,8 @@ class RunExecutor(object):
                                  preexec_fn=preSubprocess)
 
         except OSError as e:
-            logging.critical("OSError {0} while starting '{1}' in '{2}': {3}."
-                             .format(e.errno, args[0], workingDir or '.', e.strerror))
+            logging.critical("OSError %s while starting '%s' in '%s': %s.",
+                             e.errno, args[0], workingDir or '.', e.strerror)
             return (0, 0, 0, None)
 
         try:
@@ -518,21 +520,21 @@ class RunExecutor(object):
                                                                   kill_process_fn=self._kill_process)
                     oomThread.start()
                 except OSError as e:
-                    logging.critical("OSError {0} during setup of OomEventListenerThread: {1}.".format(e.errno, e.strerror))
+                    logging.critical("OSError %s during setup of OomEventListenerThread: %s.", e.errno, e.strerror)
 
             try:
-                logging.debug("waiting for: pid:{0}".format(p.pid))
+                logging.debug("waiting for pid: %s", p.pid)
                 pid, returnvalue, ru_child = os.wait4(p.pid, 0)
-                logging.debug("waiting finished: pid:{0}, retVal:{1}".format(pid, returnvalue))
+                logging.debug("waiting finished: pid:%s, retVal:%s", pid, returnvalue)
 
             except OSError as e:
                 returnvalue = 0
                 ru_child = None
                 if self.PROCESS_KILLED:
                     # OSError 4 (interrupted system call) seems always to happen if we killed the process ourselves after Ctrl+C was pressed
-                    logging.debug("OSError {0} while waiting for termination of {1} ({2}): {3}.".format(e.errno, args[0], p.pid, e.strerror))
+                    logging.debug("OSError %s while waiting for termination of %s (%s): %s.", e.errno, args[0], p.pid, e.strerror)
                 else:
-                    logging.critical("OSError {0} while waiting for termination of {1} ({2}): {3}.".format(e.errno, args[0], p.pid, e.strerror))
+                    logging.critical("OSError %s while waiting for termination of %s (%s): %s.", e.errno, args[0], p.pid, e.strerror)
 
         finally:
             walltime_after = time.time()
@@ -549,7 +551,7 @@ class RunExecutor(object):
 
             outputFile.close() # normally subprocess closes file, we do this again
 
-            logging.debug("size of logfile '{0}': {1}".format(output_filename, str(os.path.getsize(output_filename))))
+            logging.debug("size of logfile '%s': %s", output_filename, os.path.getsize(output_filename))
 
             # Kill all remaining processes if some managed to survive.
             # Because we send signals to all processes anyway we use the
@@ -600,14 +602,16 @@ class RunExecutor(object):
                     memUsage = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
                     if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
-                        logging.critical("Kernel does not track swap memory usage, cannot measure memory usage. "
-                              + "Please set swapaccount=1 on your kernel command line.")
+                        logging.critical(
+                            "Kernel does not track swap memory usage, cannot measure memory usage."
+                            " Please set swapaccount=1 on your kernel command line.")
                     else:
                         raise e
         result['memory'] = memUsage
 
-        logging.debug('Run exited with code {0}, walltime={1}, cputime={2}, cgroup-cputime={3}, memory={4}'
-                      .format(returnvalue, walltime, cputime, cputime2, memUsage))
+        logging.debug(
+            'Run exited with code %s, walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
+            returnvalue, walltime, cputime, cputime2, memUsage)
 
         # Usually cputime2 (measured with cgroups) seems to be 0.01s greater
         # than cputime (measured with ulimit).
@@ -622,7 +626,7 @@ class RunExecutor(object):
         # thus we warn if the difference is substantial and take the larger ulimit value.
         if cputime2 is not None:
             if cputime > 0.5 and (cputime * 0.95) > cputime2:
-                logging.warning('Cputime measured by wait was {0}, cputime measured by cgroup was only {1}, perhaps measurement is flawed.'.format(cputime, cputime2))
+                logging.warning('Cputime measured by wait was %s, cputime measured by cgroup was only %s, perhaps measurement is flawed.', cputime, cputime2)
             else:
                 cputime = cputime2
         result['cputime'] = cputime
@@ -634,7 +638,7 @@ class RunExecutor(object):
                     if coretime != 0:
                         result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
                 except (OSError, ValueError) as e:
-                    logging.debug("Could not read CPU time for core {} from kernel: {}".format(core, e))
+                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
 
         return result
 
@@ -775,7 +779,7 @@ class RunExecutor(object):
         self.PROCESS_KILLED = True
         with self.SUB_PROCESSES_LOCK:
             for process in self.SUB_PROCESSES:
-                logging.warning('Killing process {0} forcefully.'.format(process.pid))
+                logging.warning('Killing process %s forcefully.', process.pid)
                 try:
                     self._kill_process(process.pid, find_cgroups_of_process(process.pid))
                 except OSError as e:
@@ -795,7 +799,7 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     if fileSize < (maxSize + 500):
         return # not necessary
 
-    logging.warning("Logfile '{0}' is too big (size {1} bytes). Removing lines.".format(fileName, fileSize))
+    logging.warning("Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize)
 
     # We partition the file into 3 parts:
     # A) start: maxSize/2 bytes we want to keep
@@ -860,7 +864,7 @@ def _get_debug_output_after_crash(output_filename):
                         _copy_all_lines_from_to(dumpFile, outputFile)
                     os.remove(dumpFileName)
                 except IOError as e:
-                    logging.warning('Could not append additional segmentation fault information from {0} ({1})'.format(dumpFile, e.strerror))
+                    logging.warning('Could not append additional segmentation fault information from %s (%s)', dumpFile, e.strerror)
                 break
             if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
                 logging.debug('Going to append error report file')
@@ -905,17 +909,20 @@ class _TimelimitThread(threading.Thread):
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.time()
-            logging.debug("TimelimitThread for process {0}: used CPU time: {1}, remaining CPU time: {2}, remaining soft CPU time: {3}, remaining wall time: {4}."
-                          .format(self.process.pid, usedCpuTime, remainingCpuTime, remainingSoftCpuTime, remainingWallTime))
+            logging.debug(
+                "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
+                "remaining soft CPU time: %s, remaining wall time: %s.",
+                self.process.pid, usedCpuTime, remainingCpuTime,
+                remainingSoftCpuTime, remainingWallTime)
             if remainingCpuTime <= 0:
                 self.callback('cputime')
-                logging.debug('Killing process {0} due to CPU time timeout.'.format(self.process.pid))
+                logging.debug('Killing process %s due to CPU time timeout.', self.process.pid)
                 self.kill_process(self.process.pid, self.cgroups)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
                 self.callback('walltime')
-                logging.warning('Killing process {0} due to wall time timeout.'.format(self.process.pid))
+                logging.warning('Killing process %s due to wall time timeout.', self.process.pid)
                 self.kill_process(self.process.pid, self.cgroups)
                 self.finished.set()
                 return
@@ -949,7 +956,7 @@ class _CPUThrottleCheck(object):
             try:
                 self.cpu_throttle_count[file] = int(util.read_file(file))
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: ' + str(e))
+                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
 
     def has_throttled(self):
         """
@@ -963,7 +970,7 @@ class _CPUThrottleCheck(object):
                 if new_value > value:
                     return True
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: ' + str(e))
+                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
         return False
 
 
@@ -980,7 +987,7 @@ class _SwapCheck(object):
                                     in util.read_key_value_pairs_from_file('/proc/vmstat')
                                     if k in ['pswpin', 'pswpout'])
         except Exception as e:
-                logging.warning('Cannot read swap count from kernel: ' + str(e))
+                logging.warning('Cannot read swap count from kernel: %s', e)
 
     def has_swapped(self):
         """

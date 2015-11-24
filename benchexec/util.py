@@ -91,7 +91,7 @@ def get_single_child_from_xml(elem, tag):
     if not children:
         return None
     if len(children) > 1:
-        logging.warning('Tag "{0}" has more than one child tags with name "{1}" in input file, ignoring all but the first.'.format(elem.tag, tag))
+        logging.warning('Tag "%s" has more than one child tags with name "%s" in input file, ignoring all but the first.', elem.tag, tag)
     return children[0]
 
 def text_or_none(elem):
@@ -331,15 +331,15 @@ def measure_energy(oldEnergy=None):
         return newEnergy
 
     for energyType in ENERGY_TYPES:
-        logging.debug('Reading {0} energy measurement for value.'.format(energyType))
+        logging.debug('Reading %s energy measurement for value.', energyType)
         energysh = subprocess.Popen([executable, energyType], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = energysh.communicate()
         if energysh.returncode or stderr:
-            logging.debug('Error while reading {0} energy measurement: retval={3}, out={1}, err={2}'.format(energyType, stdout, stderr, energysh.returncode))
+            logging.debug('Error while reading %s energy measurement: retval=%s, out=%s, err=%s', energyType, energysh.returncode, stdout, stderr)
         try:
             newEnergy[energyType] = int(stdout)
         except ValueError:
-            logging.debug('Invalid value while reading {0} energy measurement: {1}'.format(energyType, stdout, stderr, energysh.returncode))
+            logging.debug('Invalid value while reading %s energy measurement: %s', energyType, stdout)
 
     logging.debug('Finished reading energy measurements.')
 

@@ -78,7 +78,7 @@ def substitute_vars(oldList, runSet, sourcefile=None):
         for (key, value) in keyValueList:
             newStr = newStr.replace(key, value)
         if '${' in newStr:
-            logging.warning("a variable was not replaced in '{0}'".format(newStr))
+            logging.warning("A variable was not replaced in '%s'.", newStr)
         newList.append(newStr)
 
     return newList
@@ -113,7 +113,7 @@ class Benchmark(object):
         The constructor of Benchmark reads the source files, options, columns and the tool
         from the XML in the benchmark_file..
         """
-        logging.debug("I'm loading the benchmark {0}.".format(benchmark_file))
+        logging.debug("I'm loading the benchmark %s.", benchmark_file)
 
         self.config = config
         self.benchmark_file = benchmark_file
@@ -149,7 +149,7 @@ class Benchmark(object):
         self.tool_version = None
         self.executable = None
 
-        logging.debug("The tool to be benchmarked is {0}.".format(str(self.tool_name)))
+        logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
         self.rlimits = {}
         keys = list(rootTag.keys())
@@ -175,8 +175,9 @@ class Benchmark(object):
             hardtimelimit = int(rootTag.get(HARDTIMELIMIT))
             if TIMELIMIT in self.rlimits:
                 if hardtimelimit < self.rlimits[TIMELIMIT]:
-                    logging.warning('Hard timelimit %d is smaller than timelimit %d, ignoring the former.'
-                                    % (hardtimelimit, self.rlimits[TIMELIMIT]))
+                    logging.warning(
+                        'Hard timelimit %d is smaller than timelimit %d, ignoring the former.',
+                        hardtimelimit, self.rlimits[TIMELIMIT])
                 else:
                     self.rlimits[SOFTTIMELIMIT] = self.rlimits[TIMELIMIT]
                     self.rlimits[TIMELIMIT] = hardtimelimit
@@ -206,7 +207,7 @@ class Benchmark(object):
         for required_files_tag in rootTag.findall('requiredfiles'):
             required_files = util.expand_filename_pattern(required_files_tag.text, self.base_dir)
             if not required_files:
-                logging.warning('Pattern {0} in requiredfiles tag did not match any file.'.format(required_files_tag.text))
+                logging.warning('Pattern %s in requiredfiles tag did not match any file.', required_files_tag.text)
             self._required_files = self._required_files.union(required_files)
 
         # get requirements
@@ -216,7 +217,8 @@ class Benchmark(object):
         resultFilesTags = rootTag.findall("resultfiles")
         if resultFilesTags:
             if len(resultFilesTags) > 1:
-                logging.warning("Benchmark file {0} has multiple <resultfiles> tags, ignoring all but the first.")
+                logging.warning("Benchmark file has multiple <resultfiles> tags, "
+                                "ignoring all but the first.")
             self.result_files_pattern = resultFilesTags[0].text
 
         # get benchmarks
@@ -228,17 +230,16 @@ class Benchmark(object):
             for (i, rundefinitionTag) in enumerate(rootTag.findall("test")):
                 self.run_sets.append(RunSet(rundefinitionTag, self, i+1, globalSourcefilesTags))
             if self.run_sets:
-                logging.warning("Benchmark file {0} uses deprecated <test> tags. Please rename them to <rundefinition>.".format(benchmark_file))
+                logging.warning("Benchmark file %s uses deprecated <test> tags. Please rename them to <rundefinition>.", benchmark_file)
             else:
-                logging.warning("Benchmark file {0} specifies no runs to execute (no <rundefinition> tags found).".format(benchmark_file))
+                logging.warning("Benchmark file %s specifies no runs to execute (no <rundefinition> tags found).", benchmark_file)
 
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
-            logging.warning("No runSet selected, nothing will be executed.")
+            logging.warning("No <rundefinition> tag selected, nothing will be executed.")
             if config.selected_run_definitions:
-                logging.warning("The selection {0} does not match any runSet of {1}".format(
-                    str(config.selected_run_definitions),
-                    str([runSet.real_name for runSet in self.run_sets])
-                    ))
+                logging.warning("The selection %s does not match any runSet of %s",
+                                config.selected_run_definitions,
+                                [runSet.real_name for runSet in self.run_sets])
 
 
     def required_files(self):
@@ -274,8 +275,8 @@ class Benchmark(object):
                 number_of_digits = columnTag.get("numberOfDigits") # digits behind comma
                 column = Column(pattern, title, number_of_digits)
                 columns.append(column)
-                logging.debug('Column "{0}" with title "{1}" loaded from XML file.'
-                          .format(column.text, column.title))
+                logging.debug('Column "%s" with title "%s" loaded from XML file.',
+                              column.text, column.title)
         return columns
 
 
@@ -335,8 +336,9 @@ class RunSet(object):
             for run in self.runs:
                 base = os.path.basename(run.identifier)
                 if base in sourcefilesSet:
-                    logging.warning("sourcefile with basename '" + base +
-                    "' appears twice in runset. This could cause problems with equal logfile-names.")
+                    logging.warning("Input file with name '%s' appears twice in runset. "
+                                    "This could cause problems with equal logfile-names.",
+                                    base)
                 else:
                     sourcefilesSet.add(base)
             del sourcefilesSet
@@ -394,8 +396,11 @@ class RunSet(object):
 
                 # check for code (if somebody confuses 'include' and 'includesfile')
                 if util.is_code(file):
-                    logging.error("'" + file + "' seems to contain code instead of a set of source file names.\n" + \
-                        "Please check your benchmark definition file or remove bracket '{' from this file.")
+                    logging.error(
+                        "'%s' seems to contain code instead of a set of source file names.\n"
+                        "Please check your benchmark definition file "
+                        "or remove bracket '{' from this file.",
+                        file)
                     sys.exit()
 
                 # read files from list
@@ -466,8 +471,8 @@ class RunSet(object):
         expandedPattern = expandedPattern[0]
 
         if expandedPattern != pattern:
-            logging.debug("Expanded variables in expression {0} to {1}."
-                .format(repr(pattern), repr(expandedPattern)))
+            logging.debug("Expanded variables in expression %r to %r.",
+                          pattern, expandedPattern)
 
         fileList = util.expand_filename_pattern(expandedPattern, base_dir)
 
@@ -475,8 +480,7 @@ class RunSet(object):
         fileList.sort()
 
         if not fileList:
-                logging.warning("No files found matching {0}."
-                            .format(repr(pattern)))
+            logging.warning("No files found matching %r.", pattern)
 
         return fileList
 
@@ -512,7 +516,7 @@ class Run(object):
         for pattern in required_files_patterns:
             this_required_files = runSet.expand_filename_pattern(pattern, runSet.benchmark.base_dir, rel_sourcefile)
             if not this_required_files:
-                logging.warning('Pattern {0} in requiredfiles tag did not match any file.'.format(pattern))
+                logging.warning('Pattern %s in requiredfiles tag did not match any file.', pattern)
             self.required_files.update(this_required_files)
         self.required_files = list(self.required_files)
 
@@ -605,7 +609,7 @@ class Run(object):
                 # first 6 lines are for logging, rest is output of subprocess, see runexecutor.py for details
                 output = output[6:]
         except IOError as e:
-            logging.warning("Cannot read log file: " + e.strerror)
+            logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 
         if returnvalue is not None:
@@ -613,7 +617,8 @@ class Run(object):
             # highest bit of returnsignal shows only whether a core file was produced, we clear it
             returnsignal = returnvalue & 0x7F
             returncode = returnvalue >> 8
-            logging.debug("My subprocess returned {0}, code {1}, signal {2}.".format(returnvalue, returncode, returnsignal))
+            logging.debug("My subprocess returned %s, code %s, signal %s.",
+                          returnvalue, returncode, returnsignal)
             self.status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
         self.category = result.get_result_category(self.identifier, self.status, self.properties)
         for column in self.columns:

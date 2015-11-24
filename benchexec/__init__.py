@@ -99,10 +99,10 @@ class BenchExec(object):
         for arg in self.config.files:
             if self.stopped_by_interrupt:
                 break
-            logging.debug("Benchmark {0} is started.".format(repr(arg)))
+            logging.debug("Benchmark %r is started.", arg)
             rc = self.execute_benchmark(arg)
             returnCode = returnCode or rc
-            logging.debug("Benchmark {0} is done.".format(repr(arg)))
+            logging.debug("Benchmark %r is done.", arg)
 
         logging.debug("I think my job is done. Have a nice day!")
         return returnCode
@@ -244,8 +244,8 @@ class BenchExec(object):
         self.executor.init(self.config, benchmark)
         output_handler = OutputHandler(benchmark, self.executor.get_system_info())
 
-        logging.debug("I'm benchmarking {0} consisting of {1} run sets.".format(
-                repr(benchmark_file), len(benchmark.run_sets)))
+        logging.debug("I'm benchmarking %r consisting of %s run sets.",
+                      benchmark_file, len(benchmark.run_sets))
 
         try:
             result = self.executor.execute_benchmark(benchmark, output_handler)
@@ -262,7 +262,7 @@ class BenchExec(object):
                         output_handler.all_created_files,
                         self.config.commit_message+'\n\n'+output_handler.description)
             except OSError as e:
-                logging.warning('Could not add files to git repository: ' + str(e))
+                logging.warning('Could not add files to git repository: %s', e)
         return result
 
 
@@ -303,7 +303,7 @@ def signal_handler_ignore(signum, frame):
     """
     Log and ignore all signals.
     """
-    logging.warning('Received signal %d, ignoring it' % signum)
+    logging.warning('Received signal %d, ignoring it.', signum)
 
 def main(benchexec=None, argv=None):
     """

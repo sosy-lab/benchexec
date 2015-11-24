@@ -84,7 +84,7 @@ class KillProcessOnOomThread(threading.Thread):
                 try:
                     os.write(ofd, '1'.encode('ascii'))
                 except OSError as e:
-                    logging.debug("Failed to disable kernel-side OOM killer: error {0} ({1})".format(e.errno, e.strerror))
+                    logging.debug("Failed to disable kernel-side OOM killer: error %s (%s)", e.errno, e.strerror)
             except EnvironmentError as e:
                 os.close(self._efd)
                 raise e
@@ -105,7 +105,7 @@ class KillProcessOnOomThread(threading.Thread):
             # It does so either on OOM or if the cgroup is removed.
             if not self._finished.is_set():
                 self._callback('memory')
-                logging.debug('Killing process {0} due to out-of-memory event from kernel.'.format(self._process.pid))
+                logging.debug('Killing process %s due to out-of-memory event from kernel.', self._process.pid)
                 self._kill_process(self._process.pid, self._cgroups)
                 # Also kill all children of subprocesses directly.
                 with open(os.path.join(self._cgroups[MEMORY], 'tasks'), 'rt') as tasks:
@@ -127,7 +127,7 @@ class KillProcessOnOomThread(threading.Thread):
                 self._cgroups.set_value(MEMORY, limitFile,
                                         str(1 * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR))
             except IOError as e:
-                logging.warning('Failed to increase {0} after OOM: error {1} ({2})'.format(limitFile, e.errno, e.strerror))
+                logging.warning('Failed to increase %s after OOM: error %s (%s).', limitFile, e.errno, e.strerror)
 
 
     def cancel(self):

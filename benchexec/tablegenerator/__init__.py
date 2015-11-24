@@ -85,10 +85,10 @@ def parse_table_definition_file(file, options):
     try:
         tableGenFile = ET.ElementTree().parse(file)
     except ET.ParseError as e:
-        logging.error('Table file {} is invalid: {}'.format(file, e))
+        logging.error('Table file %s is invalid: %s', file, e)
         exit(1)
     if 'table' != tableGenFile.tag:
-        logging.error("Table file {} is invalid: It's root element is not named 'table'.".format(file))
+        logging.error("Table file %s is invalid: It's root element is not named 'table'.", file)
         exit(1)
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
@@ -175,7 +175,7 @@ def load_tool(result):
                     Util.prettylist(result.attributes['name']))
             return None
         try:
-            logging.debug('Loading %s' % tool_module)
+            logging.debug('Loading %s', tool_module)
             return __import__(tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
             logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
@@ -356,15 +356,14 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     try:
         resultElem = ET.ElementTree().parse(resultFile)
     except ET.ParseError as e:
-        logging.error('Result file {} is invalid: {}'.format(resultFile, e))
+        logging.error('Result file %s is invalid: %s', resultFile, e)
         exit(1)
 
     if resultElem.tag not in ['result', 'test']:
-        logging.error(
-            "XML file with benchmark results seems to be invalid.\n"
-            + "The root element of the file is not named 'result' or 'test'.\n" \
-            + "If you want to run a table-definition file,\n"\
-            + "you should use the option '-x' or '--xml'.")
+        logging.error("XML file with benchmark results seems to be invalid.\n"
+                      "The root element of the file is not named 'result' or 'test'.\n"
+                      "If you want to run a table-definition file,\n"
+                      "you should use the option '-x' or '--xml'.")
         exit(1)
 
     if ignore_errors and 'error' in resultElem.attributes:

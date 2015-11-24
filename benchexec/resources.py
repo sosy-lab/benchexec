@@ -74,21 +74,21 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
     try:
         # read list of available CPU cores
         allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
-        logging.debug("List of available CPU cores is {0}.".format(allCpus))
+        logging.debug("List of available CPU cores is %s.", allCpus)
 
         # read mapping of core to CPU ("physical package")
         physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))) for core in allCpus]
         cores_of_package = collections.defaultdict(list)
         for core, package in zip(allCpus, physical_packages):
             cores_of_package[package].append(core)
-        logging.debug("Physical packages of cores are {0}.".format(str(cores_of_package)))
+        logging.debug("Physical packages of cores are %s.", cores_of_package)
 
         # read hyper-threading information (sibling cores sharing the same physical core)
         siblings_of_core = {}
         for core in allCpus:
             siblings = util.parse_int_list(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/thread_siblings_list'.format(core)))
             siblings_of_core[core] = siblings
-        logging.debug("Siblings of cores are {0}.".format(str(siblings_of_core)))
+        logging.debug("Siblings of cores are s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
 
@@ -154,15 +154,15 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         assert coreLimit * runs_per_package <= package_size
         if coreLimit_rounded_up * runs_per_package > package_size:
             need_HT = True
-            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format((package_size // coreLimit_rounded_up) * package_count))
+            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to %s.", (package_size // coreLimit_rounded_up) * package_count)
 
     else:
         if coreLimit_rounded_up * num_of_threads > len(allCpus):
             assert coreLimit_rounded_up * runs_per_package > package_size
             need_HT = True
-            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to {0}.".format(len(allCpus) // coreLimit_rounded_up))
+            logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to %s.", len(allCpus) // coreLimit_rounded_up)
 
-    logging.debug("Going to assign at most {0} runs per package, each one using {1} cores and blocking {2} cores on {3} packages.".format(runs_per_package, coreLimit, coreLimit_rounded_up, packages_per_run))
+    logging.debug("Going to assign at most %s runs per package, each one using %s cores and blocking %s cores on %s packages.", runs_per_package, coreLimit, coreLimit_rounded_up, packages_per_run)
 
     # Third, do the actual core assignment.
     result = []
@@ -198,7 +198,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
     assert all(len(cores) == coreLimit for cores in result)
     assert len(set(itertools.chain(*result))) == num_of_threads * coreLimit, "Cores are not uniquely assigned to runs: " + result
 
-    logging.debug("Final core assignment: {0}.".format(str(result)))
+    logging.debug("Final core assignment: %s.", result)
     return result
 
 
@@ -217,7 +217,7 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
                 coreDir = '/sys/devices/system/cpu/cpu{0}/'.format(core)
                 mems.update(_get_memory_banks_listed_in_dir(coreDir))
             allowedMems = sorted(mems.intersection(allMems))
-            logging.debug("Memory banks for cores {} are {}, of which we can use {}.".format(cores, list(mems), allowedMems))
+            logging.debug("Memory banks for cores %s are %s, of which we can use %s.", cores, list(mems), allowedMems)
 
             result.append(allowedMems)
 
@@ -307,6 +307,6 @@ def _get_memory_bank_size(memBank):
                 if size[-3:] != ' kB':
                     raise ValueError('"{}" in file {} is not a memory size.'.format(size, fileName))
                 size = int(size[:-3]) * 1024 # kB to Byte
-                logging.debug("Memory bank {} has size {} bytes.".format(memBank, size))
+                logging.debug("Memory bank %s has size %s bytes.", memBank, size)
                 return size
     raise ValueError('Failed to read total memory from {}.'.format(fileName))
