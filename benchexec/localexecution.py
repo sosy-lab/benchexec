@@ -57,8 +57,8 @@ def init(config, benchmark):
     try:
         processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]
         if len(re.findall("python.*benchmark\.py", util.decode_to_string(processes))) > 1:
-            logging.warning("Already running instance of this script detected. " + \
-                         "Please make sure to not interfere with somebody else's benchmarks.")
+            logging.warning("Already running instance of this script detected. "
+                            "Please make sure to not interfere with somebody else's benchmarks.")
     except OSError:
         pass # this does not work on Windows
 
@@ -74,7 +74,8 @@ def execute_benchmark(benchmark, output_handler):
     if benchmark.requirements.cpu_model \
             or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None) \
             or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None):
-        logging.warning("Ignoring specified resource requirements in local-execution mode, only resource limits are used.")
+        logging.warning("Ignoring specified resource requirements in local-execution mode, "
+                        "only resource limits are used.")
 
     my_cgroups = cgroups.find_my_cgroups()
 
@@ -92,11 +93,15 @@ def execute_benchmark(benchmark, output_handler):
         check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, my_cgroups)
 
     if benchmark.num_of_threads > 1 and is_turbo_boost_enabled():
-        logging.warning("Turbo boost of CPU is enabled. Starting more than one benchmark in parallel affects the CPU frequency and thus makes the performance unreliable.")
+        logging.warning("Turbo boost of CPU is enabled. "
+                        "Starting more than one benchmark in parallel affects the CPU frequency "
+                        "and thus makes the performance unreliable.")
 
     if benchmark.num_of_threads > 1 and benchmark.config.users:
         if len(benchmark.config.users) == 1:
-            logging.warning('Executing multiple parallel benchmarks under same user account. Consider specifying multiple user accounts for increased separation of runs.')
+            logging.warning(
+                'Executing multiple parallel benchmarks under same user account. '
+                'Consider specifying multiple user accounts for increased separation of runs.')
             benchmark.config.users = [benchmark.config.users[0] for i in range(benchmark.num_of_threads)]
         elif len(benchmark.config.users) < benchmark.num_of_threads:
             sys.exit('Distributing parallel runs to different user accounts was requested, but not enough accounts were given. Please specify {} user accounts, or only one account.'.format(benchmark.num_of_threads))

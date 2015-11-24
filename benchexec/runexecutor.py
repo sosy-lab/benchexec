@@ -235,7 +235,8 @@ class RunExecutor(object):
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
-            logging.warning('Without cpuacct cgroups, cputime measurement and limit might not work correctly if subprocesses are started.')
+            logging.warning('Without cpuacct cgroups, cputime measurement and limit '
+                            'might not work correctly if subprocesses are started.')
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups:
@@ -267,7 +268,8 @@ class RunExecutor(object):
             try:
                 self.memory_nodes = util.parse_int_list(self.cgroups.get_value(CPUSET, 'mems'))
             except ValueError as e:
-                logging.warning("Could not read available memory nodes from kernel: %s", e.strerror)
+                logging.warning("Could not read available memory nodes from kernel: %s",
+                                e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
 
@@ -307,9 +309,11 @@ class RunExecutor(object):
                 os.kill(pid, sig)
             except OSError as e:
                 if e.errno == errno.ESRCH: # process itself returned and exited before killing
-                    logging.debug("Failure %s while killing process %s with signal %s: %s", e.errno, pid, sig, e.strerror)
+                    logging.debug("Failure %s while killing process %s with signal %s: %s",
+                                  e.errno, pid, sig, e.strerror)
                 else:
-                    logging.warning("Failure %s while killing process %s with signal %s: %s", e.errno, pid, sig, e.strerror)
+                    logging.warning("Failure %s while killing process %s with signal %s: %s",
+                                    e.errno, pid, sig, e.strerror)
         else:
             logging.debug('Sending signal %s to %s with sudo.', sig, pid)
             try:
@@ -380,7 +384,11 @@ class RunExecutor(object):
         if MEMORY in cgroups \
                 and not cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes') \
                 and systeminfo.has_swap():
-            logging.warning('Kernel misses feature for accounting swap memory, but machine has swap. Memory usage may be measured inaccurately. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
+            logging.warning(
+                'Kernel misses feature for accounting swap memory, but machine has swap. '
+                'Memory usage may be measured inaccurately. '
+                'Please set swapaccount=1 on your kernel command line or disable swap with '
+                '"sudo swapoff -a".')
 
         if MEMORY in cgroups:
             try:
@@ -520,7 +528,8 @@ class RunExecutor(object):
                                                                   kill_process_fn=self._kill_process)
                     oomThread.start()
                 except OSError as e:
-                    logging.critical("OSError %s during setup of OomEventListenerThread: %s.", e.errno, e.strerror)
+                    logging.critical("OSError %s during setup of OomEventListenerThread: %s.",
+                                     e.errno, e.strerror)
 
             try:
                 logging.debug("waiting for pid: %s", p.pid)
@@ -532,9 +541,11 @@ class RunExecutor(object):
                 ru_child = None
                 if self.PROCESS_KILLED:
                     # OSError 4 (interrupted system call) seems always to happen if we killed the process ourselves after Ctrl+C was pressed
-                    logging.debug("OSError %s while waiting for termination of %s (%s): %s.", e.errno, args[0], p.pid, e.strerror)
+                    logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
+                                  e.errno, args[0], p.pid, e.strerror)
                 else:
-                    logging.critical("OSError %s while waiting for termination of %s (%s): %s.", e.errno, args[0], p.pid, e.strerror)
+                    logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
+                                     e.errno, args[0], p.pid, e.strerror)
 
         finally:
             walltime_after = time.time()
@@ -551,7 +562,8 @@ class RunExecutor(object):
 
             outputFile.close() # normally subprocess closes file, we do this again
 
-            logging.debug("size of logfile '%s': %s", output_filename, os.path.getsize(output_filename))
+            logging.debug("size of logfile '%s': %s",
+                          output_filename, os.path.getsize(output_filename))
 
             # Kill all remaining processes if some managed to survive.
             # Because we send signals to all processes anyway we use the
@@ -626,7 +638,10 @@ class RunExecutor(object):
         # thus we warn if the difference is substantial and take the larger ulimit value.
         if cputime2 is not None:
             if cputime > 0.5 and (cputime * 0.95) > cputime2:
-                logging.warning('Cputime measured by wait was %s, cputime measured by cgroup was only %s, perhaps measurement is flawed.', cputime, cputime2)
+                logging.warning(
+                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
+                    'perhaps measurement is flawed.',
+                    cputime, cputime2)
             else:
                 cputime = cputime2
         result['cputime'] = cputime
@@ -759,9 +774,11 @@ class RunExecutor(object):
             result['energy'] = energy
 
         if throttle_check.has_throttled():
-            logging.warning('CPU throttled itself during benchmarking due to overheating. Benchmark results are unreliable!')
+            logging.warning('CPU throttled itself during benchmarking due to overheating. '
+                            'Benchmark results are unreliable!')
         if swap_check.has_swapped():
-            logging.warning('System has swapped during benchmarking. Benchmark results are unreliable!')
+            logging.warning('System has swapped during benchmarking. '
+                            'Benchmark results are unreliable!')
 
         _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
 
@@ -864,7 +881,9 @@ def _get_debug_output_after_crash(output_filename):
                         _copy_all_lines_from_to(dumpFile, outputFile)
                     os.remove(dumpFileName)
                 except IOError as e:
-                    logging.warning('Could not append additional segmentation fault information from %s (%s)', dumpFile, e.strerror)
+                    logging.warning('Could not append additional segmentation fault information '
+                                    'from %s (%s)',
+                                    dumpFile, e.strerror)
                 break
             if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
                 logging.debug('Going to append error report file')

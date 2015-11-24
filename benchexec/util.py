@@ -91,7 +91,9 @@ def get_single_child_from_xml(elem, tag):
     if not children:
         return None
     if len(children) > 1:
-        logging.warning('Tag "%s" has more than one child tags with name "%s" in input file, ignoring all but the first.', elem.tag, tag)
+        logging.warning('Tag "%s" has more than one child tags with name "%s" in input file, '
+                        'ignoring all but the first.',
+                        elem.tag, tag)
     return children[0]
 
 def text_or_none(elem):
@@ -327,7 +329,8 @@ def measure_energy(oldEnergy=None):
 
     executable = find_executable('read-energy.sh', exitOnError=False)
     if executable is None: # not available on current system
-        logging.debug('Energy measurement not available because read-energy.sh could not be found.')
+        logging.debug(
+            'Energy measurement not available because read-energy.sh could not be found.')
         return newEnergy
 
     for energyType in ENERGY_TYPES:
@@ -335,11 +338,13 @@ def measure_energy(oldEnergy=None):
         energysh = subprocess.Popen([executable, energyType], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = energysh.communicate()
         if energysh.returncode or stderr:
-            logging.debug('Error while reading %s energy measurement: retval=%s, out=%s, err=%s', energyType, energysh.returncode, stdout, stderr)
+            logging.debug('Error while reading %s energy measurement: retval=%s, out=%s, err=%s',
+                          energyType, energysh.returncode, stdout, stderr)
         try:
             newEnergy[energyType] = int(stdout)
         except ValueError:
-            logging.debug('Invalid value while reading %s energy measurement: %s', energyType, stdout)
+            logging.debug('Invalid value while reading %s energy measurement: %s',
+                          energyType, stdout)
 
     logging.debug('Finished reading energy measurements.')
 

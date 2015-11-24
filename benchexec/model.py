@@ -207,7 +207,8 @@ class Benchmark(object):
         for required_files_tag in rootTag.findall('requiredfiles'):
             required_files = util.expand_filename_pattern(required_files_tag.text, self.base_dir)
             if not required_files:
-                logging.warning('Pattern %s in requiredfiles tag did not match any file.', required_files_tag.text)
+                logging.warning('Pattern %s in requiredfiles tag did not match any file.',
+                                required_files_tag.text)
             self._required_files = self._required_files.union(required_files)
 
         # get requirements
@@ -230,9 +231,13 @@ class Benchmark(object):
             for (i, rundefinitionTag) in enumerate(rootTag.findall("test")):
                 self.run_sets.append(RunSet(rundefinitionTag, self, i+1, globalSourcefilesTags))
             if self.run_sets:
-                logging.warning("Benchmark file %s uses deprecated <test> tags. Please rename them to <rundefinition>.", benchmark_file)
+                logging.warning("Benchmark file %s uses deprecated <test> tags. "
+                                "Please rename them to <rundefinition>.",
+                                benchmark_file)
             else:
-                logging.warning("Benchmark file %s specifies no runs to execute (no <rundefinition> tags found).", benchmark_file)
+                logging.warning("Benchmark file %s specifies no runs to execute "
+                                "(no <rundefinition> tags found).",
+                                benchmark_file)
 
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
             logging.warning("No <rundefinition> tag selected, nothing will be executed.")

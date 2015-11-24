@@ -93,7 +93,9 @@ def print_tool_wrapper_info(name):
         print_multiline_list('Appended environment variables',
                           ('{}=${{{}}}{}'.format(variable, variable, value) for (variable, value) in append_environment.items()))
     if environment:
-        logging.warning('Tool module returned invalid entries for environment, these will be ignored: “%s”', environment)
+        logging.warning(
+            'Tool module returned invalid entries for environment, these will be ignored: “%s”',
+            environment)
 
     try:
         cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], None, {}))
@@ -101,7 +103,9 @@ def print_tool_wrapper_info(name):
         if not 'INPUT.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores input file.')
     except:
-        logging.warning('Tool module does not support tasks without options, property file, and resource limits:', exc_info=1)
+        logging.warning('Tool module does not support tasks without options, '
+                        'property file, and resource limits:',
+                        exc_info=1)
 
     try:
         cmdline = list(tool.cmdline(executable, ['-SOME_OPTION'], ['INPUT.FILE'], None, {}))
@@ -109,7 +113,8 @@ def print_tool_wrapper_info(name):
         if not '-SOME_OPTION' in cmdline:
             logging.warning('Tool module ignores command-line options.')
     except:
-        logging.warning('Tool module does not support tasks with command-line options:', exc_info=1)
+        logging.warning('Tool module does not support tasks with command-line options:',
+                        exc_info=1)
 
     try:
         cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], 'PROPERTY.PRP', {}))
@@ -125,7 +130,8 @@ def print_tool_wrapper_info(name):
         if 'INPUT1.FILE' in ' '.join(cmdline) and not 'INPUT2.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores all but first input file.')
     except:
-        logging.warning('Tool module does not support tasks with multiple input files:', exc_info=1)
+        logging.warning('Tool module does not support tasks with multiple input files:',
+                        exc_info=1)
 
     try:
         cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], None, {model.SOFTTIMELIMIT: 123}))

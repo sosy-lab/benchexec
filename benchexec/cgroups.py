@@ -148,7 +148,9 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
                 for task in tasks:
                     task = task.strip()
                     if i > 1:
-                        logging.warning('Run has left-over process with pid %s in cgroup %s, sending signal %s (try %s).', task, cgroup, sig, i)
+                        logging.warning('Run has left-over process with pid %s '
+                                        'in cgroup %s, sending signal %s (try %s).',
+                                        task, cgroup, sig, i)
                     kill_process_fn(int(task), sig)
 
                 if task is None:
@@ -199,7 +201,9 @@ class Cgroup(object):
         @return A boolean value.
         """
         if not subsystem in self:
-            logging.warning('Cgroup subsystem %s is not enabled. Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".', subsystem)
+            logging.warning('Cgroup subsystem %s is not enabled. Please enable it with '
+                            '"sudo mount -t cgroup none /sys/fs/cgroup".',
+                            subsystem)
             return False
 
         try:
@@ -207,7 +211,10 @@ class Cgroup(object):
             test_cgroup.remove()
         except OSError as e:
             self.paths = set(self.per_subsystem.values())
-            logging.warning('Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'.format(self.per_subsystem[subsystem], subsystem, e.strerror))
+            logging.warning('Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, '
+                            'reason: {2}. '
+                            'If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'
+                            .format(self.per_subsystem[subsystem], subsystem, e.strerror))
             del self.per_subsystem[subsystem]
             return False
 

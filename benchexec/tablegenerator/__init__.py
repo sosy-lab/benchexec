@@ -171,16 +171,22 @@ def load_tool(result):
     """
     def load_tool_module(tool_module):
         if not tool_module:
-            logging.warning('Cannot extract values from log files for benchmark results %s (missing attribute "toolmodule" on tag "result").',
-                    Util.prettylist(result.attributes['name']))
+            logging.warning('Cannot extract values from log files for benchmark results %s '
+                            '(missing attribute "toolmodule" on tag "result").',
+                            Util.prettylist(result.attributes['name']))
             return None
         try:
             logging.debug('Loading %s', tool_module)
             return __import__(tool_module, fromlist=['Tool']).Tool()
         except ImportError as ie:
-            logging.warning('Missing module "%s", cannot extract values from log files (ImportError: %s).', tool_module, ie)
+            logging.warning(
+                'Missing module "%s", cannot extract values from log files (ImportError: %s).',
+                tool_module, ie)
         except AttributeError:
-            logging.warning('The module "%s" does not define the necessary class Tool, cannot extract values from log files.', tool_module)
+            logging.warning(
+                'The module "%s" does not define the necessary class Tool, '
+                'cannot extract values from log files.',
+                tool_module)
         return None
 
     tool_module = result.attributes['toolmodule'][0] if 'toolmodule' in result.attributes else None
