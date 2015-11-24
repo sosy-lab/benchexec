@@ -584,8 +584,7 @@ def filter_rows_with_differences(rows):
         return []
 
     def all_equal_result(listOfResults):
-        allStatus = set([result.status for result in listOfResults if result.status])
-        allStatus.discard(None)
+        allStatus = set(result.status for result in listOfResults)
         return len(allStatus) <= 1
 
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
