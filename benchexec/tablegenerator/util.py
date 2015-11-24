@@ -16,6 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+This module contains some useful functions for Strings, Files and Lists.
+"""
+
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -29,9 +33,6 @@ import tempita
 
 DEFAULT_TIME_PRECISION = 3
 
-"""
-This module contains some useful functions for Strings, Files and Lists.
-"""
 
 def get_file_list(shortFile):
     """

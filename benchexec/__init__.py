@@ -16,21 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import argparse
-import logging
-import os
-import signal
-import sys
-import time
-
-from benchexec.model import Benchmark
-from benchexec.outputhandler import OutputHandler
-from benchexec import util
-
-
 """
 Main module of BenchExec for executing a whole benchmark (suite).
 To use it, instantiate the benchexec.BenchExec class
@@ -57,6 +42,21 @@ A benchmark or a run set can also be executed, which means to execute all contai
 Variables ending with "file" contain filenames.
 Variables ending with "tag" contain references to XML tag objects created by the XML parser.
 """
+
+# prepare for Python 3
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import argparse
+import logging
+import os
+import signal
+import sys
+import time
+
+from benchexec.model import Benchmark
+from benchexec.outputhandler import OutputHandler
+from benchexec import util
+
 
 __version__ = '1.3-dev'
 

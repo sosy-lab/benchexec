@@ -16,6 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+This module contains some useful functions for Strings, XML or Lists.
+"""
+
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -25,10 +29,6 @@ import os
 import subprocess
 import sys
 from xml.etree import ElementTree
-
-"""
-This module contains some useful functions for Strings, XML or Lists.
-"""
 
 ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
 
