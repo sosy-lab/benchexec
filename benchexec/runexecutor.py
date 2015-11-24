@@ -22,6 +22,7 @@ limitations under the License.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import errno
 import glob
 import logging
 import multiprocessing
@@ -32,15 +33,13 @@ import subprocess
 import sys
 import threading
 import time
+sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-from . import __version__
-from . import util as util
-from .cgroups import *
-from . import oomhandler
+from benchexec import __version__
+from benchexec.cgroups import *
+from benchexec import oomhandler
 from benchexec import systeminfo
-
-read_file = util.read_file
-write_file = util.write_file
+from benchexec import util
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit

@@ -31,13 +31,13 @@ import time
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec.runexecutor import RunExecutor
+from benchexec.runexecutor import _reduce_file_size_if_necessary
+
 try:
     from subprocess import DEVNULL
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
-
-from benchexec.runexecutor import RunExecutor
-from benchexec.runexecutor import _reduce_file_size_if_necessary
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, '..')

@@ -21,14 +21,13 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
 import sys
+import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-import logging
-import unittest
-
-from .result import *  # @UnusedWildImport
-from .result import _PROP_CALL, _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK,\
+from benchexec.result import *  # @UnusedWildImport
+from benchexec.result import _PROP_CALL, _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK,\
     _PROP_TERMINATION, _PROP_SAT, _SCORE_CORRECT_FALSE, _SCORE_CORRECT_TRUE,\
     _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW
 

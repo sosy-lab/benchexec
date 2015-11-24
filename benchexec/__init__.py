@@ -21,16 +21,16 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
 import argparse
+import logging
 import os
 import signal
 import sys
 import time
 
-from .model import Benchmark
-from . import util as util
-from .outputhandler import OutputHandler
+from benchexec.model import Benchmark
+from benchexec.outputhandler import OutputHandler
+from benchexec import util
 
 
 """

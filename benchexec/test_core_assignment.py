@@ -21,12 +21,11 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
 import itertools
 import logging
+import sys
 import unittest
+sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.resources import _get_cpu_cores_per_run0
 

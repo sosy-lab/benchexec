@@ -21,13 +21,12 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import errno
 import glob
 import logging
 import os
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 
 """
 This module contains some useful functions for Strings, XML or Lists.
@@ -109,7 +108,7 @@ def copy_of_xml_element(elem):
     In Python 2.7 you can use  'copyElem = elem.copy()'  instead.
     """
 
-    copyElem = ET.Element(elem.tag, elem.attrib)
+    copyElem = ElementTree.Element(elem.tag, elem.attrib)
     for child in elem:
         copyElem.append(child)
     return copyElem
@@ -121,7 +120,7 @@ def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
     Also allows setting a document type.
     """
     from xml.dom import minidom
-    rough_string = ET.tostring(elem, 'utf-8')
+    rough_string = ElementTree.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     if qualified_name:
         doctype = minidom.DOMImplementation().createDocumentType(

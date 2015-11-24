@@ -27,7 +27,6 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from subprocess import CalledProcessError
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
@@ -56,7 +55,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(args=args, stderr=subprocess.STDOUT).decode()
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             print(e.output.decode())
             raise e
         print(output)

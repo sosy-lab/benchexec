@@ -22,7 +22,9 @@ limitations under the License.
 import os
 import re
 import sys
-from setuptools import setup
+sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+import setuptools
 
 # Links for documentation on how to build and use Python packages:
 # http://python-packaging-user-guide.readthedocs.org/en/latest/
@@ -50,7 +52,7 @@ except (IOError, ImportError):
 
 PY2 = sys.version_info[0] == 2
 
-setup(
+setuptools.setup(
     name = 'BenchExec',
     version = version,
     author = 'Dirk Beyer',

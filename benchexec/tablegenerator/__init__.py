@@ -21,30 +21,30 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import xml.etree.ElementTree as ET
+import argparse
 import collections
-import os.path
+from decimal import Decimal, InvalidOperation
 import glob
 import itertools
 import logging
-import argparse
+import os.path
 import re
 import subprocess
 import sys
 import time
+from xml.etree import ElementTree
+
 import tempita
 
-from decimal import Decimal, InvalidOperation
+from benchexec import __version__
+import benchexec.result as result
+from benchexec.tablegenerator import util as Util
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
 # Initialized only in main() because we cannot do so in the worker processes.
 parallel = None
-
-from .. import __version__
-import benchexec.result as result
-from . import util as Util
 
 NAME_START = "results" # first part of filename of table
 
@@ -83,8 +83,8 @@ def parse_table_definition_file(file, options):
         exit(1)
 
     try:
-        tableGenFile = ET.ElementTree().parse(file)
-    except ET.ParseError as e:
+        tableGenFile = ElementTree.ElementTree().parse(file)
+    except ElementTree.ParseError as e:
         logging.error('Table file %s is invalid: %s', file, e)
         exit(1)
     if 'table' != tableGenFile.tag:
@@ -360,8 +360,8 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     logging.info('    %s', resultFile)
 
     try:
-        resultElem = ET.ElementTree().parse(resultFile)
-    except ET.ParseError as e:
+        resultElem = ElementTree.ElementTree().parse(resultFile)
+    except ElementTree.ParseError as e:
         logging.error('Result file %s is invalid: %s', resultFile, e)
         exit(1)
 

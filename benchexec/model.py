@@ -24,11 +24,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import os
 import time
-import xml.etree.ElementTree as ET
 import sys
+from xml.etree import ElementTree
 
-from . import result
-from . import util as util
+from benchexec import result
+from benchexec import util
 
 MEMLIMIT = "memlimit"
 TIMELIMIT = "timelimit"
@@ -132,8 +132,8 @@ class Benchmark(object):
 
         # parse XML
         try:
-            rootTag = ET.ElementTree().parse(benchmark_file)
-        except ET.ParseError as e:
+            rootTag = ElementTree.ElementTree().parse(benchmark_file)
+        except ElementTree.ParseError as e:
             sys.exit('Benchmark file {} is invalid: {}'.format(benchmark_file, e))
         if 'benchmark' != rootTag.tag:
             sys.exit("Benchmark file {} is invalid: "

@@ -25,8 +25,8 @@ import logging
 import os
 import threading
 
-from .cgroups import MEMORY
-from . import util
+from benchexec.cgroups import MEMORY
+from benchexec import util
 
 from ctypes import cdll
 _libc = cdll.LoadLibrary('libc.so.6')

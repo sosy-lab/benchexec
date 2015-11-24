@@ -27,10 +27,11 @@ import os
 import sys
 import tempfile
 import threading
+sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-from .cgroups import *
-from .runexecutor import RunExecutor
-from . import util
+from benchexec.cgroups import *  # @UnusedWildImport
+from benchexec.runexecutor import RunExecutor
+from benchexec import util
 
 def check_cgroup_availability(wait=1):
     """

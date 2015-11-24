@@ -20,9 +20,9 @@ limitations under the License.
 
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 import sys
-
 
 # CONSTANTS
 

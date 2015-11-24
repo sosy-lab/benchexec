@@ -22,16 +22,16 @@ limitations under the License.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
+import os
 import threading
 import time
 import sys
-import os
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree as ET
 
-from .model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
-from . import filewriter
-from . import result
-from . import util as util
+from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
+from benchexec import filewriter
+from benchexec import result
+from benchexec import util
 
 RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.2//EN'
 RESULT_XML_SYSTEM_ID = 'http://www.sosy-lab.org/benchexec/result-1.2.dtd'

@@ -28,7 +28,7 @@ import signal
 import tempfile
 import time
 
-from . import util as util
+from benchexec import util
 
 __all__ = [
            'find_my_cgroups',

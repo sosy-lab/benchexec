@@ -21,12 +21,12 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from decimal import Decimal
 import sys
 import unittest
-from decimal import Decimal
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-from .. import StatValue
+from benchexec.tablegenerator import StatValue
 
 class TestStatValue(unittest.TestCase):
 

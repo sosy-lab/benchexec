@@ -25,8 +25,9 @@ import argparse
 import logging
 import os
 import sys
+sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-from . import model
+from benchexec import model
 
 COLOR_RED     = "\033[31;1m"
 COLOR_GREEN   = "\033[32;1m"

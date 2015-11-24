@@ -18,7 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import sys
 import unittest
+sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 class Python2Tests(unittest.TestSuite):
     """

@@ -21,28 +21,22 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
-try:
-    import Queue
-except ImportError: # Queue was renamed to queue in Python 3
-    import queue as Queue
-
 import logging
 import os
 import re
 import resource
 import subprocess
+import sys
 import threading
 import time
+from queue import Queue
 
-from .model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
-from . import cgroups
-from .resources import *
-from .runexecutor import RunExecutor
-from .systeminfo import *  # @UnusedWildImport
-from . import util as util
+from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
+from benchexec import cgroups
+from benchexec.resources import *
+from benchexec.runexecutor import RunExecutor
+from benchexec import systeminfo
+from benchexec import util
 
 
 WORKER_THREADS = []
@@ -63,7 +57,7 @@ def init(config, benchmark):
         pass # this does not work on Windows
 
 def get_system_info():
-    return SystemInfo()
+    return systeminfo.SystemInfo()
 
 def execute_benchmark(benchmark, output_handler):
 
@@ -92,7 +86,7 @@ def execute_benchmark(benchmark, output_handler):
         memLimit = benchmark.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
         check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, my_cgroups)
 
-    if benchmark.num_of_threads > 1 and is_turbo_boost_enabled():
+    if benchmark.num_of_threads > 1 and systeminfo.is_turbo_boost_enabled():
         logging.warning("Turbo boost of CPU is enabled. "
                         "Starting more than one benchmark in parallel affects the CPU frequency "
                         "and thus makes the performance unreliable.")
@@ -188,7 +182,7 @@ class _Worker(threading.Thread):
     """
     A Worker is a deamonic thread, that takes jobs from the working_queue and runs them.
     """
-    working_queue = Queue.Queue()
+    working_queue = Queue()
 
     def __init__(self, benchmark, my_cpus, my_memory_nodes, my_user, output_handler):
         threading.Thread.__init__(self) # constuctor of superclass

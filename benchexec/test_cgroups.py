@@ -28,12 +28,12 @@ import sys
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec import check_cgroups
+
 try:
     from subprocess import DEVNULL
 except ImportError:
     DEVNULL = open(os.devnull, 'wb')
-
-from . import check_cgroups
 
 python = 'python2' if sys.version_info[0] == 2 else 'python3'
 

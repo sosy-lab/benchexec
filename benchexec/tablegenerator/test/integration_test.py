@@ -27,9 +27,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
-import benchexec.util as util
-from subprocess import CalledProcessError
 sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+from benchexec import util
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, '..', '..', '..')
@@ -63,7 +63,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(args=args, stderr=subprocess.STDOUT).decode()
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             print(e.output.decode())
             raise e
         print(output)

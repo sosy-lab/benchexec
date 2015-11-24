@@ -28,7 +28,7 @@ This module allows to retrieve information about the current system.
 import os
 import sys
 
-from . import util
+from benchexec import util
 
 __all__ = [
            'has_swap',
