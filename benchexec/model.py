@@ -246,6 +246,7 @@ class Benchmark(object):
 
 
     def required_files(self):
+        assert self.executable is not None, "executor needs to set tool executable"
         return self._required_files.union(self.tool.program_files(self.executable))
 
 
@@ -255,10 +256,12 @@ class Benchmark(object):
 
 
     def working_directory(self):
+        assert self.executable is not None, "executor needs to set tool executable"
         return self.tool.working_directory(self.executable)
 
 
     def environment(self):
+        assert self.executable is not None, "executor needs to set tool executable"
         return self.tool.environment(self.executable)
 
 
@@ -580,6 +583,7 @@ class Run(object):
 
 
     def cmdline(self):
+        assert self.runSet.benchmark.executable is not None, "executor needs to set tool executable"
         working_directory = self.runSet.benchmark.tool.working_directory(self.runSet.benchmark.executable)
         def relpath(path):
             return path if os.path.isabs(path) \
