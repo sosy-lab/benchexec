@@ -28,10 +28,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 Main script of BenchExec for executing a whole benchmark (suite).
 
 This script can be called from the command line.
-For integrating from within Python instantiate the benchexec.BenchExec class
-and either call "instance.start()" or "benchexec.main(instance)".
+For integrating from within Python instantiate the benchexec.benchexec.BenchExec class
+and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 """
 
-import benchexec
+import benchexec.benchexec
 
-benchexec.main()
+sys.exit(benchexec.benchexec.main())

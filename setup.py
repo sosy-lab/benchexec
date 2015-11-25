@@ -79,7 +79,7 @@ setuptools.setup(
         "console_scripts": [
             'runexec = benchexec.runexecutor:main',
             ] + ([
-            'benchexec = benchexec:main',
+            'benchexec = benchexec.benchexec:main',
             'table-generator = benchexec.tablegenerator:main',
             ] if not PY2 else []),
         },
