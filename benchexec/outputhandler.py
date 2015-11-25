@@ -26,6 +26,7 @@ import time
 import sys
 from xml.etree import ElementTree as ET
 
+import benchexec
 from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
 from benchexec import filewriter
 from benchexec import result
@@ -157,7 +158,9 @@ class OutputHandler(object):
                     {"benchmarkname": self.benchmark.name,
                      "date":  time.strftime("%Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time),
                      "tool": self.benchmark.tool_name, "version": version,
-                     "toolmodule": self.benchmark.tool_module})
+                     "toolmodule": self.benchmark.tool_module,
+                     "generator": "BenchExec " + benchexec.__version__
+                     })
 
         self.xml_header.set(MEMLIMIT, memlimit if memlimit else '-')
         self.xml_header.set(TIMELIMIT, timelimit if timelimit else '-')

@@ -9,7 +9,9 @@
                options CDATA #IMPLIED
                memlimit CDATA #IMPLIED
                timelimit CDATA #IMPLIED
-               cpuCores CDATA #IMPLIED>
+               cpuCores CDATA #IMPLIED
+               generator CDATA #REQUIRED
+               error CDATA #IMPLIED>
 
 <!ELEMENT systeminfo (os, cpu, ram, environment)>
 <!ATTLIST systeminfo hostname CDATA #IMPLIED>
