@@ -331,6 +331,26 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             )
 
+    def test_error_result(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613',
+             result_file('test-error.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.table',
+            diff_prefix='test.2015-03-03_1613.diff',
+            )
+
+    def test_error_result_ignored(self):
+        self.generate_tables_and_compare_csv(
+            ['--name', 'test.2015-03-03_1613.results.valueAnalysis',
+             '--ignore-erroneous-benchmarks',
+             result_file('test-error.2015-03-03_1613.results.predicateAnalysis.xml'),
+             result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+            ],
+            table_prefix='test.2015-03-03_1613.results.valueAnalysis.table',
+            )
+
     def test_output_stdout(self):
         output, _, _ = self.generate_tables_and_check_produced_files(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),

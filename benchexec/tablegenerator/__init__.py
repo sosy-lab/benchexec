@@ -370,10 +370,10 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
                       "you should use the option '-x' or '--xml'.")
         exit(1)
 
-    if ignore_errors and 'error' in resultElem.attributes:
+    if ignore_errors and 'error' in resultElem.attrib:
         logging.warning('Ignoring benchmark %s because of error: %s',
-                        ", ".join(set(resultElem.attributes['name'])),
-                        ", ".join(set(resultElem.attributes['error'])))
+                        resultElem.attrib['name'],
+                        resultElem.attrib['error'])
         return None
 
     if run_set_id is not None:
