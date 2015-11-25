@@ -86,7 +86,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
         for core in allCpus:
             siblings = util.parse_int_list(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/thread_siblings_list'.format(core)))
             siblings_of_core[core] = siblings
-        logging.debug("Siblings of cores are s.", siblings_of_core)
+        logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
 
