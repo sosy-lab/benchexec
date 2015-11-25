@@ -1135,6 +1135,9 @@ def create_argument_parser():
     return parser
 
 def main(args=None):
+    if sys.version_info < (3,):
+        sys.exit('table-generator needs Python 3 to run.')
+
     options = create_argument_parser().parse_args((args or sys.argv)[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",

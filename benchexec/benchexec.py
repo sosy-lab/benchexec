@@ -289,6 +289,8 @@ def main(benchexec=None, argv=None):
     @param benchexec: An instance of BenchExec for executing benchmarks.
     @param argv: optionally the list of command-line options to use
     """
+    if sys.version_info < (3,):
+        sys.exit('benchexec needs Python 3 to run.')
     # ignore SIGTERM
     signal.signal(signal.SIGTERM, signal_handler_ignore)
     try:
@@ -298,3 +300,6 @@ def main(benchexec=None, argv=None):
     except KeyboardInterrupt: # this block is reached, when interrupt is thrown before or after a run set execution
         benchexec.stop()
         util.printOut("\n\nScript was interrupted by user, some runs may not be done.")
+
+if __name__ == '__main__':
+    main()

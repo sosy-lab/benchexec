@@ -143,6 +143,8 @@ def main(argv=None):
     """
     A simple command-line interface to print information provided by a tool wrapper.
     """
+    if sys.version_info < (3,):
+        sys.exit('benchexec.test_tool_wrapper needs Python 3 to run.')
     if argv is None:
         argv = sys.argv
 

@@ -19,6 +19,8 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+
 import logging
 import os
 import shutil
