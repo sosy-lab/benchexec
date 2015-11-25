@@ -1,5 +1,21 @@
 # BenchExec Changelog
 
+## BenchExec 1.3
+- Fix core assignment on AMD Bulldozer/Piledriver Opterons.
+- Measure and report CPU time usage per core
+  (hidden by default in tables, use `table-generator --all-columns` to show).
+- Parameter `--user` allows executing benchmarks under a different user
+  (cf. https://github.com/dbeyer/benchexec/blob/master/doc/separate-user.md).
+- Performance improvements for table-generator,
+  including parallel processing of input and output files and statistics.
+- HTML Tables support filtering rows by task name.
+- Improved statistics in HTML tables: median is now the arithmetic median,
+  unnecessary rounding removed, standard deviation added,
+  and missing results are not counted as "0" but ignored in calculation.
+- New utility for testing tool wrappers, making it easier to add support
+  for new tools.
+- Several new modules for integration of various software verifiers.
+
 ## BenchExec 1.2
 
 - BenchExec now records whether TurboBoost was enabled during benchmarking.

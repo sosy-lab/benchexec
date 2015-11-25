@@ -32,7 +32,7 @@ base_dir = os.path.join(here, '..')
 bin_dir = os.path.join(base_dir, 'bin')
 benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
-result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.2//EN'
+result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.3//EN'
 
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
