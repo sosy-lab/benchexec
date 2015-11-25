@@ -41,6 +41,9 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
  * Update version number in field `__version__` of `benchexec/__init__.py`,
    e.g., from `1.1-dev` to `1.1`. Update `CHANGELOG.md` and commit.
 
+ * The remaining steps can also be automated with the script
+   [release.sh](https://github.com/dbeyer/benchexec/blob/master/release.sh).
+
  * Create a Git tag:
 
         git tag -s <VERSION>
