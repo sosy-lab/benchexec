@@ -160,6 +160,7 @@ def execute_benchmark(benchmark, output_handler):
             output_handler.output_after_run_set(runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy)
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
+    return 0
 
 
 def stop():
@@ -265,7 +266,7 @@ class _Worker(threading.Thread):
                     os.remove(run.log_file)
             except OSError:
                 pass
-            return
+            return 1
 
         run.after_execution(result['exitcode'], termination_reason=result.get('terminationreason', None))
         self.output_handler.output_after_run(run)
