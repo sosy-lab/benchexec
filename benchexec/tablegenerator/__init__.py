@@ -82,6 +82,9 @@ def parse_table_definition_file(file, options):
 
     try:
         tableGenFile = ElementTree.ElementTree().parse(file)
+    except IOError as e:
+        logging.error('Could not read result file %s: %s', file, e)
+        exit(1)
     except ElementTree.ParseError as e:
         logging.error('Table file %s is invalid: %s', file, e)
         exit(1)
@@ -359,6 +362,9 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
 
     try:
         resultElem = ElementTree.ElementTree().parse(resultFile)
+    except IOError as e:
+        logging.error('Could not read result file %s: %s', resultFile, e)
+        exit(1)
     except ElementTree.ParseError as e:
         logging.error('Result file %s is invalid: %s', resultFile, e)
         exit(1)
