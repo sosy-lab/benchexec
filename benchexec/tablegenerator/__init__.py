@@ -369,10 +369,10 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
             try:
                 with gzip.open(resultFile) as f:
                     resultElem = parse(f)
-            except OSError:
+            except IOError:
                 with bz2.open(resultFile) as f:
                     resultElem = parse(f)
-        except OSError:
+        except IOError:
             resultElem = parse(resultFile)
 
     except IOError as e:
