@@ -370,7 +370,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
                 with gzip.open(resultFile) as f:
                     resultElem = parse(f)
             except IOError:
-                with bz2.open(resultFile) as f:
+                with bz2.BZ2File(resultFile) as f:
                     resultElem = parse(f)
         except IOError:
             resultElem = parse(resultFile)
