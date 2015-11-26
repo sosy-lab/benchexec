@@ -29,6 +29,7 @@ import itertools
 import logging
 import os.path
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -1158,9 +1159,15 @@ def create_argument_parser():
     )
     return parser
 
+
+def sigint_handler(*args, **kwargs):
+    # Use SystemExit instead of KeyboardInterrupt to avoid ugly stack traces for each worker
+    sys.exit(1)
+
 def main(args=None):
     if sys.version_info < (3,):
         sys.exit('table-generator needs Python 3 to run.')
+    signal.signal(signal.SIGINT, sigint_handler)
 
     options = create_argument_parser().parse_args((args or sys.argv)[1:])
 
@@ -1266,7 +1273,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    try:
-        sys.exit(main())
-    except KeyboardInterrupt:
-        logging.info('Script was interrupted by user.')
+    sys.exit(main())

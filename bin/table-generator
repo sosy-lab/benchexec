@@ -31,7 +31,4 @@ except ImportError:
 
 import benchexec.tablegenerator
 
-try:
-    sys.exit(benchexec.tablegenerator.main())
-except KeyboardInterrupt:
-    print ('Interrupted')
+sys.exit(benchexec.tablegenerator.main())
