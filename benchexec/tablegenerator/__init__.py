@@ -20,9 +20,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import bz2
 import collections
 from decimal import Decimal, InvalidOperation
 import glob
+import gzip
 import itertools
 import logging
 import os.path
@@ -360,8 +362,19 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
 
     logging.info('    %s', resultFile)
 
+    parse = ElementTree.ElementTree().parse
+
     try:
-        resultElem = ElementTree.ElementTree().parse(resultFile)
+        try:
+            try:
+                with gzip.open(resultFile) as f:
+                    resultElem = parse(f)
+            except OSError:
+                with bz2.open(resultFile) as f:
+                    resultElem = parse(f)
+        except OSError:
+            resultElem = parse(resultFile)
+
     except IOError as e:
         logging.error('Could not read result file %s: %s', resultFile, e)
         exit(1)
@@ -1052,6 +1065,10 @@ def basename_without_ending(file):
     name = os.path.basename(file)
     if name.endswith(".xml"):
         name = name[:-4]
+    elif name.endswith(".xml.gz"):
+        name = name[:-7]
+    elif name.endswith(".xml.bz2"):
+        name = name[:-8]
     return name
 
 

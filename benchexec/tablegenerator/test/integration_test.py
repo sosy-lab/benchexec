@@ -351,6 +351,18 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             table_prefix='test.2015-03-03_1613.results.valueAnalysis.table',
             )
 
+    def test_compressed_table_gzip(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml.gz')],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            )
+
+    def test_compressed_table_bzip2(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml.bz2')],
+            table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
+            )
+
     def test_output_stdout(self):
         output, _, _ = self.generate_tables_and_check_produced_files(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
