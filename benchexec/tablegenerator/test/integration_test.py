@@ -280,6 +280,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='multi-table-with-columns.diff',
             )
 
+    def test_multi_table_xml_with_wildcards(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'multi-table-with-wildcards.xml')],
+            table_prefix='multi-table-with-wildcards.table',
+            diff_prefix='multi-table-with-wildcards.diff',
+            )
+
     def test_union_table(self):
         self.generate_tables_and_compare_csv(
             ['-x', os.path.join(here, 'union-table-predicateAnalysis.xml')],

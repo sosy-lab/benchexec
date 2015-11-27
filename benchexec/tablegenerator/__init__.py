@@ -97,11 +97,13 @@ def parse_table_definition_file(file, options):
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
 
-    return parallel.map(handle_tag_in_table_definition_file,
-                        tableGenFile,
-                        itertools.repeat(file),
-                        itertools.repeat(defaultColumnsToShow),
-                        itertools.repeat(options))
+    return Util.flatten(
+        parallel.map(
+            handle_tag_in_table_definition_file,
+            tableGenFile,
+            itertools.repeat(file),
+            itertools.repeat(defaultColumnsToShow),
+            itertools.repeat(options)))
 
 def extract_columns_from_table_definition_file(xmltag):
     """
@@ -120,8 +122,10 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
     if tag.tag == 'result':
         columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
         run_set_id = tag.get('id')
+        results = []
         for resultsFile in get_file_list(tag):
-            return load_result(resultsFile, options, run_set_id, columnsToShow)
+            results.append(load_result(resultsFile, options, run_set_id, columnsToShow))
+        return results
 
     elif tag.tag == 'union':
         columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
@@ -139,9 +143,9 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
             if name:
                 result.attributes['name'] = [name]
             result.collect_data(options.correct_only)
-            return result
-        return None
-
+            return [result]
+        return []
+    return []
 
 def get_task_id(task):
     """
