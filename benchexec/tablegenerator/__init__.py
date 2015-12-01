@@ -897,34 +897,47 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
 
 
 def get_regression_count(rows, ignoreFlappingTimeouts): # for options.dump_counts
+    """Count the number of regressions, i.e., differences in status of the two right-most results
+    where the new one is not "better" than the old one.
+    Any change in status between error, unknown, and wrong result is a regression.
+    Different kind of errors or wrong results are also a regression.
+    """
+
     def status_is(run_result, status):
+        # startswith is used because status can be "TIMEOUT (TRUE)" etc., which count as "TIMEOUT"
         return run_result.status and run_result.status.startswith(status)
 
-    columns = list(rows_to_columns(rows))
-    if len(columns) < 2:
-        return 0 # no regressions with only one run
-
-    timeouts = set()
-    for runResults in columns[:-1]:
-        timeouts |= set(index for (index, runResult) in enumerate(runResults) if status_is(runResult, 'TIMEOUT'))
-
-    def is_flapping_timeout(index, oldResult, newResult):
-        return index in timeouts \
-            and not oldResult.status.startswith('TIMEOUT') \
-            and newResult.status.startswith('TIMEOUT')
-
-    def ignore_regression(oldResult, newResult):
-        return status_is(oldResult, 'TIMEOUT') and status_is(newResult, 'OUT OF MEMORY') \
-            or status_is(oldResult, 'OUT OF MEMORY') and status_is(newResult, 'TIMEOUT')
+    def any_status_is(run_results, status):
+        for run_result in run_results:
+            if status_is(run_result, status):
+                return True
+        return False
 
     regressions = 0
-    for index, (oldResult, newResult) in enumerate(zip(columns[-2], columns[-1])):
-        # regression can be only if result is different and new result is not correct
-        if oldResult.status != newResult.status and newResult.category != result.CATEGORY_CORRECT:
+    for row in rows:
+        if len(row.results) < 2:
+            return 0 # no regressions at all with only one run
 
-            if not (ignoreFlappingTimeouts and is_flapping_timeout(index, oldResult, newResult)) \
-                    and not ignore_regression(oldResult, newResult):
-                regressions += 1
+        # "new" and "old" are the latest two results
+        new = row.results[-1]
+        old = row.results[-2]
+
+        if new.category == result.CATEGORY_CORRECT:
+            continue # no regression if result is correct
+
+        if new.status == old.status:
+            continue # no regression if result is the same as before
+        if status_is(new, 'TIMEOUT') and status_is(old, 'TIMEOUT'):
+            continue # no regression if both are some form of timeout
+        if status_is(new, 'OUT OF MEMORY') and status_is(old, 'OUT OF MEMORY'):
+            continue # same for OOM
+
+        if (ignoreFlappingTimeouts and
+                status_is(new, 'TIMEOUT') and any_status_is(row.results[:-2], 'TIMEOUT')):
+            continue # flapping timeout because any of the older results is also a timeout
+
+        regressions += 1
+
     return regressions
 
 
