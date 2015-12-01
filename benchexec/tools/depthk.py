@@ -109,9 +109,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_FALSE_REACH
         elif 'UNKNOWN' in output:
             status = result.RESULT_UNKNOWN
-        elif isTimeout:
-            status = 'TIMEOUT'
+
         else:
-            status = 'ERROR'
+            status = result.RESULT_ERROR
 
         return status

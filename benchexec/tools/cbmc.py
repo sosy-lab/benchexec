@@ -118,9 +118,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        status = 'ERROR'
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
+            status = result.RESULT_ERROR
             if ('--xml-ui' in self.options):
                 status = self.parse_XML(output, returncode, isTimeout)
             elif len(output) > 0:
@@ -143,22 +143,10 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif 'UNKNOWN' in output:
                     status = result.RESULT_UNKNOWN
 
-        elif returncode == 6:
-            # parser error or something similar
-            status = 'ERROR'
-
-        elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
-            status = 'TIMEOUT'
-
-        elif returnsignal == 9:
-            status = "KILLED BY SIGNAL 9"
-        elif returnsignal == 6:
-            status = "ABORTED"
-        elif returnsignal == 15:
-            status = "KILLED"
         elif returncode == 64 and 'Usage error!' in output:
             status = 'INVALID ARGUMENTS'
+
         else:
-            status = "ERROR ({0})".format(returncode)
+            status = result.RESULT_ERROR
 
         return status

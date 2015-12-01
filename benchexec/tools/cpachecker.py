@@ -122,27 +122,7 @@ class Tool(benchexec.tools.template.BaseTool):
                  or line.startswith('out of memory')     # CuDD
                  )
 
-        if returnsignal == 0 and returncode > 128:
-            # shells sets return code to 128+signal when a signal is received
-            returnsignal = returncode - 128
-
-        if returnsignal != 0:
-            if returnsignal == 6:
-                status = 'ABORTED'
-            elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
-                status = 'TIMEOUT'
-            elif returnsignal == 11:
-                status = 'SEGMENTATION FAULT'
-            elif returnsignal == 15:
-                status = 'KILLED'
-            else:
-                status = 'KILLED BY SIGNAL '+str(returnsignal)
-
-        elif returncode != 0:
-            status = 'ERROR ({0})'.format(returncode)
-
-        else:
-            status = ''
+        status = None
 
         for line in output:
             if 'java.lang.OutOfMemoryError' in line:
@@ -161,15 +141,15 @@ class Tool(benchexec.tools.template.BaseTool):
             elif 'Could not reserve enough space for object heap' in line:
                 status = 'JAVA HEAP ERROR'
             elif line.startswith('Error: ') and not status:
-                status = 'ERROR'
+                status = result.RESULT_ERROR
                 if 'Unsupported' in line:
                     if 'recursion' in line:
-                        status = 'ERROR (recursion)'
+                        status += ' (recursion)'
                     elif 'threads' in line:
-                        status = 'ERROR (threads)'
+                        status += ' (threads)'
                 elif 'Parsing failed' in line:
-                    status = 'ERROR (parsing failed)'
-            elif line.startswith('For your information: CPAchecker is currently hanging at') and status == 'ERROR (1)' and isTimeout:
+                    status += ' (parsing failed)'
+            elif line.startswith('For your information: CPAchecker is currently hanging at') and not status and isTimeout:
                 status = 'TIMEOUT'
 
             elif line.startswith('Verification result: '):
@@ -190,7 +170,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = "{0} ({1})".format(status, newStatus)
 
         if not status:
-            status = result.RESULT_UNKNOWN
+            status = result.RESULT_ERROR
         return status
 
 

@@ -76,11 +76,8 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_UNKNOWN
         elif output == 'FALSE':
             return result.RESULT_FALSE_REACH
-        if returncode != 0:
-            return 'Failed with returncode: '\
-                   '{0} (signal: {1})'.format(returncode, returnsignal)
         else:
-            return 'error (unknown)'
+            return result.RESULT_ERROR
 
     def program_files(self, executable):
         folder = dirname(executable)
