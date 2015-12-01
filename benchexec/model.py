@@ -604,7 +604,8 @@ class Run(object):
 
     def after_execution(self, returnvalue, forceTimeout=False, termination_reason=None):
 
-        rlimits = self.runSet.benchmark.rlimits
+        # termination reason is not fully precise for timeouts, so we guess "timeouts"
+        # if time is too high
         isTimeout = forceTimeout \
                 or termination_reason in ['cputime', 'cputime-soft', 'walltime'] \
                 or self._is_timeout()
@@ -619,6 +620,18 @@ class Run(object):
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 
+        self.status = self._analyse_result(returnvalue, output, isTimeout, termination_reason)
+        self.category = result.get_result_category(self.identifier, self.status, self.properties)
+
+        for column in self.columns:
+            substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
+            column.value = self.runSet.benchmark.tool.get_value_from_output(output, substitutedColumnText)
+
+    def _analyse_result(self, returnvalue, output, isTimeout, termination_reason):
+        """Return status according to result and output of tool."""
+        status = ""
+
+        # Ask tool wrapper.
         if returnvalue is not None:
             # calculation: returnvalue == (returncode * 256) + returnsignal
             # highest bit of returnsignal shows only whether a core file was produced, we clear it
@@ -626,23 +639,18 @@ class Run(object):
             returncode = returnvalue >> 8
             logging.debug("My subprocess returned %s, code %s, signal %s.",
                           returnvalue, returncode, returnsignal)
-            self.status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
-        self.category = result.get_result_category(self.identifier, self.status, self.properties)
-        for column in self.columns:
-            substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
-            column.value = self.runSet.benchmark.tool.get_value_from_output(output, substitutedColumnText)
-
+            status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
 
         # Tools sometimes produce a result even after a timeout.
         # This should not be counted, so we overwrite the result with TIMEOUT
         # here. if this is the case.
         # However, we don't want to forget more specific results like SEGFAULT,
         # so we do this only if the result is a "normal" one like TRUE.
-        if self.status in result.RESULT_LIST and isTimeout:
-            self.status = "TIMEOUT"
-            self.category = result.CATEGORY_ERROR
+        if status in result.RESULT_LIST and isTimeout:
+            status = "TIMEOUT"
 
         # TODO probably this is not necessary anymore
+        rlimits = self.runSet.benchmark.rlimits
         guessed_OOM = returnvalue is not None \
                 and returnsignal == 9 \
                 and MEMLIMIT in rlimits \
@@ -651,9 +659,9 @@ class Run(object):
                 and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99)
 
         if termination_reason == 'memory' or guessed_OOM:
-            self.status = 'OUT OF MEMORY'
-            self.category = result.CATEGORY_ERROR
+            status = 'OUT OF MEMORY'
 
+        return status
 
     def _is_timeout(self):
         ''' try to find out whether the tool terminated because of a timeout '''
