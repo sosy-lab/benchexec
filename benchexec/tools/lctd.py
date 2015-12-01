@@ -40,5 +40,5 @@ class Tool(benchexec.tools.template.BaseTool):
         elif "FALSE\n" in output:
             status = result.RESULT_FALSE_REACH
         else:
-            status = "UNKNOWN"
+            status = result.RESULT_UNKNOWN
         return status

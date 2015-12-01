@@ -603,7 +603,6 @@ class Run(object):
 
 
     def after_execution(self, returnvalue, forceTimeout=False, termination_reason=None):
-
         # termination reason is not fully precise for timeouts, so we guess "timeouts"
         # if time is too high
         isTimeout = forceTimeout \
@@ -641,25 +640,48 @@ class Run(object):
                           returnvalue, returncode, returnsignal)
             status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
 
-        # Tools sometimes produce a result even after a timeout.
-        # This should not be counted, so we overwrite the result with TIMEOUT
-        # here. if this is the case.
+        # Tools sometimes produce a result even after violating a resource limit.
+        # This should not be counted, so we overwrite the result with TIMEOUT/OOM
+        # here, if this is the case.
         # However, we don't want to forget more specific results like SEGFAULT,
-        # so we do this only if the result is a "normal" one like TRUE.
-        if status in result.RESULT_LIST and isTimeout:
-            status = "TIMEOUT"
+        # so we do this only if the result is a "normal" one like TRUE/FALSE
+        # or an unspecific one like UNKNOWN/ERROR.
+        if status in result.RESULT_LIST or status in [result.RESULT_ERROR, result.RESULT_UNKNOWN]:
+            tool_status = status
+            if isTimeout:
+                status = "TIMEOUT"
+            elif termination_reason == 'memory':
+                status = 'OUT OF MEMORY'
+            else:
+                # TODO probably this is not necessary anymore
+                rlimits = self.runSet.benchmark.rlimits
+                guessed_OOM = returnvalue is not None \
+                        and returnsignal == 9 \
+                        and MEMLIMIT in rlimits \
+                        and 'memUsage' in self.values \
+                        and not self.values['memUsage'] is None \
+                        and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99)
+                if guessed_OOM:
+                    # Set status to a special marker.
+                    # If we see this in the results, we know that we need to do more work to set
+                    # termination_reason properly.
+                    status = 'PROBABLY OUT OF _MEMORY'
+            if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
+                status = '{} ({})'.format(status, tool_status)
 
-        # TODO probably this is not necessary anymore
-        rlimits = self.runSet.benchmark.rlimits
-        guessed_OOM = returnvalue is not None \
-                and returnsignal == 9 \
-                and MEMLIMIT in rlimits \
-                and 'memUsage' in self.values \
-                and not self.values['memUsage'] is None \
-                and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99)
+        if status == result.RESULT_UNKNOWN and returnvalue is not None:
+            # provide some more information if possible
+            if returnsignal == 6:
+                status = 'ABORTED'
+            elif returnsignal == 11:
+                status = 'SEGMENTATION FAULT'
+            elif returnsignal == 15:
+                status = 'KILLED'
+            elif returnsignal != 0:
+                status = 'KILLED BY SIGNAL '+str(returnsignal)
 
-        if termination_reason == 'memory' or guessed_OOM:
-            status = 'OUT OF MEMORY'
+            elif returncode != 0:
+                status = '{} ({})'.format(result.RESULT_ERROR, returncode)
 
         return status
 

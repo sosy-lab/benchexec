@@ -47,6 +47,7 @@ STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, b
 
 # possible run results (output of a tool)
 RESULT_UNKNOWN =            'unknown'
+RESULT_ERROR =              'ERROR' # or any other value not listed here
 RESULT_TRUE_PROP =          'true'
 RESULT_FALSE_REACH =        STR_FALSE + '(reach)'
 RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'

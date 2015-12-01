@@ -20,6 +20,7 @@ import os
 import logging
 import subprocess
 
+import benchexec.result as result
 import benchexec.util as util
 
 class BaseTool(object):
@@ -148,7 +149,7 @@ class BaseTool(object):
         (useful to distinguish between program killed because of error and timeout)
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
-        return 'UNKNOWN'
+        return result.RESULT_UNKNOWN
 
 
     def get_value_from_output(self, lines, identifier):
