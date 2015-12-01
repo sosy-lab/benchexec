@@ -54,7 +54,7 @@ class TestResult(unittest.TestCase):
         def determine_result(self, returncode, returnsignal, output, isTimeout=False):
             return wrapper_result
         runSet.benchmark.tool.determine_result = determine_result
-        
+
         return Run(sourcefiles=['test.c'], fileOptions=[], runSet=runSet)
 
     def test_simple(self):
@@ -76,7 +76,7 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(wrapper_result=RESULT_FALSE_REACH)
         self.assertEquals('TIMEOUT (false(reach))', run._analyse_result(0, '', True, None))
-        
+
         run = self.create_run(wrapper_result='SOME OTHER RESULT')
         self.assertEquals('SOME OTHER RESULT', run._analyse_result(0, '', True, None))
 
@@ -89,7 +89,7 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(wrapper_result=RESULT_FALSE_REACH)
         self.assertEquals('OUT OF MEMORY (false(reach))', run._analyse_result(0, '', False, 'memory'))
-        
+
         run = self.create_run(wrapper_result='SOME OTHER RESULT')
         self.assertEquals('SOME OTHER RESULT', run._analyse_result(0, '', False, 'memory'))
 
@@ -102,7 +102,7 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(wrapper_result=RESULT_FALSE_REACH)
         self.assertEquals('TIMEOUT (false(reach))', run._analyse_result(0, '', True, 'memory'))
-        
+
         run = self.create_run(wrapper_result='SOME OTHER RESULT')
         self.assertEquals('SOME OTHER RESULT', run._analyse_result(0, '', False, 'memory'))
 
