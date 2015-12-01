@@ -217,6 +217,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='test.2015-03-03_1613-correct-only.diff',
             )
 
+    def test_big_table(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
+             '-n', 'big-table'],
+            table_prefix='big-table.table',
+            diff_prefix='big-table.diff',
+            )
+
     def test_dump_count_single_table(self):
         self.generate_tables_and_compare_csv(
             ['--dump',
@@ -264,6 +274,28 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             table_prefix='smt.table',
             diff_prefix='smt.diff',
             expected_counts='REGRESSIONS 2\nSTATS\n1 0 2\n2 0 1',
+            )
+
+    def test_dump_count_big_table(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
+             '-n', 'big-table', '--dump'],
+            table_prefix='big-table.table',
+            diff_prefix='big-table.diff',
+            expected_counts="REGRESSIONS 4\nSTATS\n338 8 136\n315 8 161\n321 8 155",
+            )
+
+    def test_dump_count_big_table_ignore_flapping_timeout_regressions(self):
+        self.generate_tables_and_compare_csv(
+            [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
+             result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
+             '-n', 'big-table', '--dump', '--ignore-flapping-timeout-regressions'],
+            table_prefix='big-table.table',
+            diff_prefix='big-table.diff',
+            expected_counts="REGRESSIONS 3\nSTATS\n338 8 136\n315 8 161\n321 8 155",
             )
 
     def test_multi_table_xml(self):
