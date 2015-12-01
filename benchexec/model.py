@@ -665,7 +665,7 @@ class Run(object):
                     # Set status to a special marker.
                     # If we see this in the results, we know that we need to do more work to set
                     # termination_reason properly.
-                    status = 'PROBABLY OUT OF _MEMORY'
+                    status = 'PROBABLY OUT OF MEMORY'
             if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
                 status = '{} ({})'.format(status, tool_status)
 

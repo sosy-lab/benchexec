@@ -904,16 +904,16 @@ def get_regression_count(rows, ignoreFlappingTimeouts): # for options.dump_count
 
     timeouts = set()
     for runResults in columns[:-1]:
-        timeouts |= set(index for (index, runResult) in enumerate(runResults) if runResult.status == 'TIMEOUT')
+        timeouts |= set(index for (index, runResult) in enumerate(runResults) if runResult.status.startswith('TIMEOUT'))
 
     def is_flapping_timeout(index, oldResult, newResult):
         return index in timeouts \
-            and oldResult.status != 'TIMEOUT' \
-            and newResult.status == 'TIMEOUT'
+            and not oldResult.status.startswith('TIMEOUT') \
+            and newResult.status.startswith('TIMEOUT')
 
     def ignore_regression(oldResult, newResult):
-        return oldResult.status == 'TIMEOUT' and newResult.status == 'OUT OF MEMORY' \
-            or oldResult.status == 'OUT OF MEMORY' and newResult.status == 'TIMEOUT'
+        return oldResult.status.startswith('TIMEOUT') and newResult.status.startswith('OUT OF MEMORY') \
+            or oldResult.status.startswith('OUT OF MEMORY') and newResult.status.startswith('TIMEOUT')
 
     regressions = 0
     for index, (oldResult, newResult) in enumerate(zip(columns[-2], columns[-1])):
