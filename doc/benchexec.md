@@ -26,7 +26,7 @@ either with `<include>` tags (which directly specify patterns of input files)
 or with `<includesfile>` tags (which specify text files with file-name patterns on each line).
 Relative file names in these tags are interpreted as relative to the directory of the XML file. 
 A task that does not directly correspond to an input file can be defined
-with a `<withoutfiles>` tag within a `<tasks>` tag,
+with a `<withoutfile>` tag within a `<tasks>` tag,
 giving the identifier of the task as tag content.
 This can be used for example to declare multiple tasks for the same input file
 but with different entry points.

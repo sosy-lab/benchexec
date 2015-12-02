@@ -23,11 +23,11 @@
     <include>*.xml</include>
   </tasks>
 
-  <!-- <tasks> with <withoutfiles> allows to define tasks without input files,
+  <!-- <tasks> with <withoutfile> allows to define tasks without input files,
        if the tool supports this. -->
   <tasks name="Dummy tasks">
-    <withoutfiles>dummy task 1</withoutfiles>
-    <withoutfiles>dummy task 2</withoutfiles>
-    <withoutfiles>dummy task 3</withoutfiles>
+    <withoutfile>dummy task 1</withoutfile>
+    <withoutfile>dummy task 2</withoutfile>
+    <withoutfile>dummy task 3</withoutfile>
   </tasks>
 </benchmark>

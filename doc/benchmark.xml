@@ -22,9 +22,9 @@
     <exclude>*file-name pattern for exclusion from input files*</exclude>
     <excludesfile>*file-name pattern for exclude files (text files with a pattern on each line)*</excludesfile>
 
-    <!-- <withoutfiles> allows to define a task that does not directly correspond to an input file.
+    <!-- <withoutfile> allows to define a task that does not directly correspond to an input file.
          This can be used for example to define multiple tasks for the same input file but with different entry points. -->
-    <withoutfiles>*identifier of task*</withoutfiles>
+    <withoutfile>*identifier of task*</withoutfile>
 
     <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
     <!-- <propertyfile>*file.prp*</propertyfile> -->

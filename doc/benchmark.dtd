@@ -6,7 +6,7 @@
 <!ELEMENT includesfile (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
 <!ELEMENT excludesfile (#PCDATA)>
-<!ELEMENT withoutfiles (#PCDATA)>
+<!ELEMENT withoutfile (#PCDATA)>
 <!ELEMENT append (#PCDATA)>
 
 <!ELEMENT requiredfiles (#PCDATA)>
