@@ -32,6 +32,11 @@ import subprocess
 import sys
 from xml.etree import ElementTree
 
+try:
+    from shlex import quote as escape_string_shell
+except ImportError:
+    from pipes import quote as escape_string_shell  # @UnusedImport for export
+
 ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
 
 def is_windows():

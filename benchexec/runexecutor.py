@@ -511,7 +511,8 @@ class RunExecutor(object):
             outputFile = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        outputFile.write(' '.join(self._build_cmdline(args)) + '\n\n\n' + '-' * 80 + '\n\n\n')
+        outputFile.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+                         + '\n\n\n' + '-' * 80 + '\n\n\n')
         outputFile.flush()
 
         args = self._build_cmdline(args, env=runningEnv)
