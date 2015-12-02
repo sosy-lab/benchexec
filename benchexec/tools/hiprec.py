@@ -26,7 +26,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for HIPrec.
+    Tool info for HIPrec.
     """
 
     def executable(self):

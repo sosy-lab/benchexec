@@ -82,12 +82,12 @@ def substitute_vars(oldList, runSet, sourcefile=None):
     return newList
 
 
-def load_tool_wrapper(tool_name):
+def load_tool_info(tool_name):
     """
-    Load the tool-wrapper class.
-    @param tool_name: The name of the tool-wrapper module.
+    Load the tool-info class.
+    @param tool_name: The name of the tool-info module.
     Either a full Python package name or a name within the benchexec.tools package.
-    @return: A tuple of the full name of the used tool-wrapper module and an instance of the tool-wrapper class.
+    @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
     tool_module = tool_name if '.' in tool_name else ("benchexec.tools." + tool_name)
     try:
@@ -95,7 +95,8 @@ def load_tool_wrapper(tool_name):
     except ImportError as ie:
         sys.exit('Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie))
     except AttributeError:
-        sys.exit('The module for "{0}" does not define the necessary class.'.format(tool_name))
+        sys.exit('The module "{0}" does not define the necessary class "Tool", '
+                 'it cannot be used as tool info for BenchExec.'.format(tool_module))
     return (tool_module, tool)
 
 
@@ -141,7 +142,7 @@ class Benchmark(object):
         tool_name = rootTag.get('tool')
         if not tool_name:
             sys.exit('A tool needs to be specified in the benchmark definition file.')
-        (self.tool_module, self.tool) = load_tool_wrapper(tool_name)
+        (self.tool_module, self.tool) = load_tool_info(tool_name)
         self.tool_name = self.tool.name()
         # will be set from the outside if necessary (may not be the case in SaaS environments)
         self.tool_version = None
@@ -630,7 +631,7 @@ class Run(object):
         """Return status according to result and output of tool."""
         status = ""
 
-        # Ask tool wrapper.
+        # Ask tool info.
         if returnvalue is not None:
             # calculation: returnvalue == (returncode * 256) + returnsignal
             # highest bit of returnsignal shows only whether a core file was produced, we clear it

@@ -25,9 +25,9 @@ import benchexec.util as util
 
 class BaseTool(object):
     """
-    This class serves both as a template for tool-wrapper implementations,
+    This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
-    For writing a new tool wrapper, inherit from this class and override
+    For writing a new tool info, inherit from this class and override
     the necessary methods (always executable(), name(), and determine_result(),
     maybe version(), cmdline(), working_directory(), and get_value_from_output(), too).
     The class for each specific tool need to be named "Tool".

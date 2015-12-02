@@ -22,7 +22,7 @@ The following modules are the public entry points:
 - benchexec: for executing benchmark suites
 - runexec: for executing single runs
 - check_cgroups: for checking the availability of cgroups
-- test_tool_wrapper: for testing a tool-wrapper module
+- test_tool_info: for testing a tool-info module
 
 Naming conventions used within BenchExec:
 

@@ -23,7 +23,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool wrapper for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
     def executable(self):

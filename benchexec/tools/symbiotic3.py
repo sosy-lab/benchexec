@@ -26,7 +26,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Symbiotic tool wrapper object
+    Symbiotic tool info object
     """
 
     def executable(self):

@@ -28,7 +28,7 @@ import benchexec.tools.smtlib2
 
 class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
     """
-    Tool wrapper for SMTInterpol.
+    Tool info for SMTInterpol.
     """
 
     def executable(self):

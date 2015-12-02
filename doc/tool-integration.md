@@ -4,11 +4,11 @@
 In order to know how to execute a tool and how to interpret its output,
 `benchexec` needs a tool-specific Python module
 with functions for creating the appropriate command-line arguments for a run etc.
-(called a "tool wrapper").
+(called "tool info").
 
 BenchExec already provides such [ready-to-use modules for some common tools](../benchexec/tools/).
 If your tool is in that list, you do not need to do anything special.
-Simply use the name of the tool wrapper (without `.py` suffix)
+Simply use the name of the tool-info module (without `.py` suffix)
 as the value of the `tool` attribute of the `<benchmark>` tag.
 
 Note that BenchExec needs to be able to find the executable of the tool, of course.
@@ -22,23 +22,23 @@ To debug problems if BenchExec cannot find your tool, use our test utility
 described below.
 
 
-### Writing a Tool Wrapper
+### Writing a Tool-Info Module
 
 For tools that are not supported out-of-the-box by BenchExec,
-a small tool wrapper needs to be written.
+the tool info needs to be defined.
 This is typically just a few lines of Python code.
-If you write such a wrapper, please consider sending us
+If you write such a module, please consider sending us
 a [pull request](https://github.com/dbeyer/benchexec/pulls) with it
 such that we can include it in BenchExec.
 
-Tool-wrapper modules need to define a class named `Tool`
+Tool-info modules need to define a class named `Tool`
 that inherits from `benchexec.tools.template.BaseTool`.
 This base class also contains the [documentation](../benchexec/tools/template.py)
-on how to write such a tool wrapper.
+on how to write such a tool-info module.
 You can also look at the other files in this directory to see examples
-of existing tool wrapeprs.
+of existing tool infos.
 
-A minimal tool wrapper needs to overwrite the functions `executable`, `name`,
+A minimal tool info needs to overwrite the functions `executable`, `name`,
 and `determine_result`.
 It is recommended to also overwrite the function `version` if the tool has a version
 that can be automatically extracted.
@@ -51,35 +51,35 @@ Overwriting the function `get_value_from_output` will allow you to add
 and `table-generator` will extract the respective values from the output of
 your tool using this function.
 
-#### Specifying a Tool Wrapper
-The name of the tool wrapper needs to be given to `benchexec` as the value
+#### Specifying a Tool for BenchExec
+The name of the tool-info module needs to be given to `benchexec` as the value
 of the attribute `tool` of the tag `<benchmark>` of a benchmark-definition file
-(note that `runexec` does not use tool wrappers).
+(note that `runexec` does not use tool infos).
 
-Any of the [supplied tool wrappers](../benchexec/tools/) can be referenced
+Any of the [supplied tool infos](../benchexec/tools/) can be referenced
 with its simple name (file name without `.py` suffix).
 
-If you have checked out BenchExec from source and added your tool wrapper
+If you have checked out BenchExec from source and added your tool info
 to the `benchexec/tools/` directory, also use the simple name.
-If you have put your tool wrapper as a module somewhere else on the Python search path,
+If you have put your tool info as a module somewhere else on the Python search path,
 you must specify the full name of the Python module including its package(s).
-Note that tool-wrapper modules that are not in a package are not supported.
+Note that tool-info modules that are not in a package are not supported.
 
 
 ### Testing the Tool Integration
 
-In order to allow testing a tool wrapper (either self-written or supplied with BenchExec)
+In order to allow testing a tool info (either self-written or supplied with BenchExec)
 and your installation (i.e., whether BenchExec can find your tool),
-we provide a small utility that uses a given tool wrapper just like it would be done
-during benchmarking, and prints all the information provided by the tool wrapper,
+we provide a small utility that uses a given tool info just like it would be done
+during benchmarking, and prints all the information provided by the tool info,
 for example which executable is used and in which path it lies,
 how the command line is constructed etc.
 
 To execute this utility, run
 
-    python3 -m benchexec.test_tool_wrapper <TOOL>
+    python3 -m benchexec.test_tool_info <TOOL>
 
-`<TOOL>` is the name of a tool-wrapper module
+`<TOOL>` is the name of a tool-info module
 as it would be given in the `tool` attribute of the `<benchmark>` tag.
 If necessary, change to the appropriate directory or adjust `PATH` as described above.
 
@@ -91,16 +91,16 @@ then BenchExec should also be able to successfully run the tool.
 If you have installed BenchExec successfully, the following command
 should always work and print information about the fake tool `rand` supplied with BenchExec:
 
-    python3 -m benchexec.test_tool_wrapper rand
+    python3 -m benchexec.test_tool_info rand
 
 (Note that there are some warnings are expected in this case
-because the simplistic tool wrapper for `rand` ignores some irrelevant details.)
+because the simplistic tool info for `rand` ignores some irrelevant details.)
 
-If you have written your own wrapper for a tool `foobar` as a Python module named `tools.foobar`
+If you have written your own info for a tool `foobar` as a Python module named `tools.foobar`
 (this means you have created a directory `tools` with an empty file `__init__.py`
-and a file `foobar.py` with the tool wrapper), the following command tests it:
+and a file `foobar.py` with the tool info), the following command tests it:
 
-    python3 -m benchexec.test_tool_wrapper tools.foobar
+    python3 -m benchexec.test_tool_info tools.foobar
 
 This assumes that the package `tools` is already in your Python search path,
 for example because it is inside the current directory.

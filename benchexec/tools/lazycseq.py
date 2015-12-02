@@ -23,7 +23,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool wrapper for Lazy-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for Lazy-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
     def executable(self):

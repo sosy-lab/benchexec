@@ -24,7 +24,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for Forest
+    Tool info for Forest
     """
     def executable(self):
         return util.find_executable('forest')

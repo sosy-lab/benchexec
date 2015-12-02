@@ -39,7 +39,7 @@ putting multiple arguments separated by spaces into a single tag will not have t
 
 Which tool should be benchmarked by BenchExec is indicated by
 the attribute `tool` of the tag `<benchmark>`.
-It's value is the name of a so-called *tool-wrapper module*
+It's value is the name of a so-called *tool-info module*
 described in more detail under [Tool Integration](tool-integration.md).
 
 BenchExec allows to check whether the output of the tool matches the expected result

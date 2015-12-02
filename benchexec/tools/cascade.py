@@ -22,7 +22,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for Cascade (http://cascade.cims.nyu.edu/).
+    Tool info for Cascade (http://cascade.cims.nyu.edu/).
     """
 
     def executable(self):

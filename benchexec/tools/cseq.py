@@ -23,7 +23,7 @@ import benchexec.result as result
 
 class CSeqTool(benchexec.tools.template.BaseTool):
     """
-    Abstract tool wrapper for CSeq-based tools (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Abstract tool info for CSeq-based tools (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
     def version(self, executable):

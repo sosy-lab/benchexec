@@ -34,7 +34,7 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for CPAchecker.
+    Tool info for CPAchecker.
     It has additional features such as building CPAchecker before running it
     if executed within a source checkout.
     It also supports extracting data from the statistics output of CPAchecker

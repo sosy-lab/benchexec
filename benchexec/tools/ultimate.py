@@ -24,7 +24,7 @@ import benchexec.result as result
 
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
-    Abstract tool wrapper for Ultimate-based tools.
+    Abstract tool info for Ultimate-based tools.
     """
 
     def executable(self):

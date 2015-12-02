@@ -23,7 +23,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for KLEE (https://klee.github.io).
+    Tool info for KLEE (https://klee.github.io).
     """
 
     def executable(self):

@@ -25,7 +25,7 @@ import os
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    SymDIVINE wrapper object
+    SymDIVINE info object
     """
 
     BINS = ['symdivine', 'run_symdivine.py', 'compile_benchmark.py', 'lart', 'libz3.so']

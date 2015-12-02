@@ -26,7 +26,7 @@ import benchexec.tools.template
 
 class Smtlib2Tool(benchexec.tools.template.BaseTool):
     """
-    Abstract base class for tool wrappers for SMTLib2-compatible solvers.
+    Abstract base class for tool infos for SMTLib2-compatible solvers.
     These tools share a common output format, which is implemented here.
     """
 

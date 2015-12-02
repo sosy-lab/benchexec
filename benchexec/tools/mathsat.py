@@ -26,7 +26,7 @@ import benchexec.tools.smtlib2
 
 class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
     """
-    Tool wrapper for MathSAT.
+    Tool info for MathSAT.
     """
 
     def executable(self):

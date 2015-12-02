@@ -28,7 +28,7 @@ import os
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    DIVINE wrapper object
+    DIVINE info object
     """
 
     BINS = ['divine', 'rundivine', 'lart', 'libdivinert.bc']

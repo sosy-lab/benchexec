@@ -26,7 +26,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for impara (https://github.com/bjowac/impara).
+    Tool info for impara (https://github.com/bjowac/impara).
     It always adds --xml-ui to the command-line arguments for easier parsing of the output.
     """
 
