@@ -33,6 +33,8 @@ import subprocess
 import sys
 import threading
 import time
+import tempfile
+import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import __version__
@@ -451,14 +453,37 @@ class RunExecutor(object):
 
             cgroups.add_task(pid)
 
+        if self._user is None:
+            base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        else:
+            create_temp_dir = self._build_cmdline([
+                'python', '-c',
+                'import tempfile;'
+                'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
+                ])
+            base_dir = subprocess.check_output(create_temp_dir).decode().strip()
+        temp_dir = os.path.join(base_dir, "tmp")
+        home_dir = os.path.join(base_dir, "home")
+        if self._user is None:
+            os.mkdir(temp_dir)
+            os.mkdir(home_dir)
+        else:
+            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700", temp_dir, home_dir]))
+        logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
 
         # Setup environment:
         # If keepEnv is set, start from a fresh environment, otherwise with the current one.
+        # Set HOME and TMPDIR to the temporary directories create above.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
         runningEnv = os.environ.copy() if not environments.get("keepEnv", {}) else {}
+        runningEnv["HOME"] = home_dir
+        runningEnv["TMPDIR"] = temp_dir
+        runningEnv["TMP"] = temp_dir
+        runningEnv["TEMPDIR"] = temp_dir
+        runningEnv["TEMP"] = temp_dir
         for key, value in environments.get("keepEnv", {}).items():
             if key in os.environ:
                 runningEnv[key] = os.environ[key]
@@ -568,6 +593,16 @@ class RunExecutor(object):
             # Because we send signals to all processes anyway we use the
             # internal function.
             cgroups.kill_all_tasks(self._kill_process0)
+
+            # Clean up temp dir
+            if self._user is None:
+                shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
+            else:
+                rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
+                                      stderr=subprocess.PIPE)
+                if rm.wait() != 0:
+                    logging.warning("Failed to clean up temp directory %s: %s.",
+                                    base_dir, rm.stderr.read().decode())
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before

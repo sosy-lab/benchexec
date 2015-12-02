@@ -94,6 +94,12 @@ class SystemInfo(object):
         self.memory = memInfo.get('MemTotal', 'unknown').strip()
 
         self.environment = os.environ.copy()
+        # The following variables are overridden by runexec anyway.
+        self.environment.pop("HOME", None)
+        self.environment.pop("TMPDIR", None)
+        self.environment.pop("TMP", None)
+        self.environment.pop("TEMPDIR", None)
+        self.environment.pop("TEMP", None)
 
 def is_turbo_boost_enabled():
     """

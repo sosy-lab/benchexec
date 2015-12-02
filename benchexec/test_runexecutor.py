@@ -362,6 +362,26 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_home_and_tmp_is_separate(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'echo $HOME $TMPDIR')
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        self.assertRegex(output[-1], '/BenchExec_run_[^/]*/home .*/BenchExec_run_[^/]*/tmp',
+                         'HOME or TMPDIR variable does not contain expected temporary directory')
+
+    def test_temp_dirs_are_removed(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'echo $HOME $TMPDIR')
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        home_dir = output[-1].split(' ')[0]
+        temp_dir = output[-1].split(' ')[1]
+        self.assertFalse(os.path.exists(home_dir),
+                         'temporary home directory {} was not cleaned up'.format(home_dir))
+        self.assertFalse(os.path.exists(temp_dir),
+                         'temporary temp directory {} was not cleaned up'.format(temp_dir))
+
 
 class TestRunExecutorWithSudo(TestRunExecutor):
     """

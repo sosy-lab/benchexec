@@ -177,11 +177,20 @@ class BaseTool(object):
         """
         OPTIONAL, this method is only necessary for tools
         that needs special environment variable.
-        Returns a map, that contains identifiers for several submaps.
+        Returns a dict, that contains several further dicts.
         All keys and values have to be Strings!
 
-        Currently we support 2 identifiers:
+        Note that runexec usually overrides the environment variable $HOME and sets it to a fresh
+        directory. If your tool relies on $HOME pointing to the real home directory,
+        you can use the result of this function to overwrite the value specified by runexec.
+        This is not recommended, however, because it means that runs may be influenced
+        by files in the home directory, which hinders reproducibility.
 
+        Currently we support 3 identifiers in the outer dict:
+
+        "keepEnv": If specified, the run gets initialized with a fresh environment and only
+                  variables listed in this dict are copied from the system environment
+                  (the values in this dict are ignored).
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
@@ -189,6 +198,6 @@ class BaseTool(object):
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())
-        @return a possibly empty dict with two possibly empty dicts with environment variables in them
+        @return a possibly empty dict with three possibly empty dicts with environment variables in them
         """
         return {}

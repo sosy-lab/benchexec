@@ -237,6 +237,9 @@ def common_base_dir(l):
     # os.path.commonprefix returns the common prefix, not the common directory
     return os.path.dirname(os.path.commonprefix(l))
 
+def log_shutil_rmtree_error(func, arg, exc_info):
+    """Suited as onerror handler for shutil.rmtree() that logs a warning."""
+    logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])
 
 def write_file(content, *path):
     """
