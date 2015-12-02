@@ -403,12 +403,17 @@ class RunExecutor(object):
 
         return cgroups
 
-    def _build_cmdline(self, args):
+    def _build_cmdline(self, args, env={}):
         """
         Build the final command line for executing the given command,
         using sudo if necessary.
         """
-        return _SUDO_ARGS + [self._user, '--'] + args if self._user is not None else args
+        if self._user is None:
+            return args
+        result = _SUDO_ARGS + [self._user]
+        for var, value in env.items():
+            result.append(var + '=' + value)
+        return result + ['--'] + args
 
     def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
         """
@@ -472,13 +477,17 @@ class RunExecutor(object):
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
 
         # Setup environment:
-        # If keepEnv is set, start from a fresh environment, otherwise with the current one.
+        # If keepEnv is set or sudo is used, start from a fresh environment,
+        # otherwise with the current one.
         # Set HOME and TMPDIR to the temporary directories create above.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
-        runningEnv = os.environ.copy() if not environments.get("keepEnv", {}) else {}
+        if self._user is not None or environments.get("keepEnv", None) is not None:
+            runningEnv = {}
+        else :
+            runningEnv = os.environ.copy()
         runningEnv["HOME"] = home_dir
         runningEnv["TMPDIR"] = temp_dir
         runningEnv["TMP"] = temp_dir
@@ -496,15 +505,16 @@ class RunExecutor(object):
 
         logging.debug("Using additional environment %s.", environments)
 
-        args = self._build_cmdline(args)
-
         # write command line into outputFile
+        # (without environment variables, they are documented by benchexec)
         try:
             outputFile = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        outputFile.write(' '.join(args) + '\n\n\n' + '-' * 80 + '\n\n\n')
+        outputFile.write(' '.join(self._build_cmdline(args)) + '\n\n\n' + '-' * 80 + '\n\n\n')
         outputFile.flush()
+
+        args = self._build_cmdline(args, env=runningEnv)
 
         timelimitThread = None
         oomThread = None
