@@ -318,7 +318,8 @@ class RunExecutor(object):
         else:
             logging.debug('Sending signal %s to %s with sudo.', sig, pid)
             try:
-                subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(sig), str(pid)]))
+                # Cast sig to int, under Python 3.5 the signal.SIG* constants are nums, not ints.
+                subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(int(sig)), str(pid)]))
             except subprocess.CalledProcessError as e:
                 # may happen for example if process no longer exists
                 logging.debug(e)
