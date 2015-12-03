@@ -611,9 +611,11 @@ class RunExecutor(object):
             else:
                 rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
                                       stderr=subprocess.PIPE)
-                if rm.wait() != 0:
+                rm_output = rm.stderr.read().decode()
+                rm.stderr.close()
+                if rm.wait() != 0 or rm_output:
                     logging.warning("Failed to clean up temp directory %s: %s.",
-                                    base_dir, rm.stderr.read().decode())
+                                    base_dir, rm_output)
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
