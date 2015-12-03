@@ -62,7 +62,7 @@ def check_cgroup_availability(wait=1):
         lines = []
         for line in tmp:
             line = line.strip()
-            if line and not line == 'sh -c sleep {0}; cat /proc/self/cgroup'.format(wait) \
+            if line and not line == "sh -c 'sleep {0}; cat /proc/self/cgroup'".format(wait) \
                     and not all(c == '-' for c in line):
                 lines.append(line)
     task_cgroups = find_my_cgroups(lines)
