@@ -21,10 +21,11 @@ limitations under the License.
 
 import os
 import re
-import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-
 import setuptools
+import sys
+import warnings
+sys.dont_write_bytecode = True # prevent creation of .pyc files
+warnings.filterwarnings('default', module="^benchexec\..*")
 
 # Links for documentation on how to build and use Python packages:
 # http://python-packaging-user-guide.readthedocs.org/en/latest/
