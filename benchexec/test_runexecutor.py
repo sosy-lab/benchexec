@@ -393,8 +393,10 @@ class TestRunExecutorWithSudo(TestRunExecutor):
     would not be good, either.
     """
 
-    # sudo allows refering to numerical uids with '#'
-    user = '#' + str(os.getuid())
+    # Use user name defined in environment variable if present,
+    # or fall back to current user (sudo always allows this).
+    # sudo allows refering to numerical uids with '#'.
+    user = os.environ.get('BENCHEXEC_TEST_USER', '#' + str(os.getuid()))
 
     def setUp(self):
         try:

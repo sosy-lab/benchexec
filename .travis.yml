@@ -13,10 +13,10 @@ install:
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; else travis_retry pip install coverage; fi
   - travis_retry pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
 before_script:
-  - sudo ./.travis-setup.sh "$USER" benchmarks
+  - sudo ./.travis-setup.sh "$USER" "$BENCHEXEC_TEST_USER"
   - printf 'import coverage\ncoverage.process_startup()\n' > "/home/travis/virtualenv/python${TRAVIS_PYTHON_VERSION}/lib/python${TRAVIS_PYTHON_VERSION}/sitecustomize.py"
 env:
-  - COVERAGE_PROCESS_START=.coveragerc
+  - BENCHEXEC_TEST_USER=benchmarks COVERAGE_PROCESS_START=.coveragerc
 script:
   - coverage run setup.py test
 after_success:
