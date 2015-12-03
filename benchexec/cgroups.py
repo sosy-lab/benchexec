@@ -120,7 +120,10 @@ def _parse_proc_pid_cgroup(content):
     for ownCgroup in content:
         #each line is "id:subsystem,subsystem:path"
         ownCgroup = ownCgroup.strip().split(':')
-        path = ownCgroup[2][1:] # remove leading /
+        try:
+            path = ownCgroup[2][1:] # remove leading /
+        except IndexError:
+            raise IndexError("index out of range for " + str(ownCgroup))
         for subsystem in ownCgroup[1].split(','):
             yield (subsystem, path)
 
