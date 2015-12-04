@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 
 <html>
 <head>
@@ -270,7 +270,7 @@ def format_stat_title(stat, column, format_value):
 <!-- ################## Base JS ################## -->
 
 <script type="text/javascript" src="{{lib_url}}/jquery/1.11.2/jquery.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.2.13/jquery.floatThead.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.3.2/jquery.floatThead.min.js"></script>
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
@@ -380,8 +380,8 @@ function activateFloatThead() {
   $("#dataTable").floatThead({
 
     // Offset after the floating header.
-    scrollingTop:$("#header").outerHeight(true),
-    useAbsolutePositioning:false,
+    top: $("#header").outerHeight(true),
+    position: 'fixed',
     zIndex:3
   });
 }
