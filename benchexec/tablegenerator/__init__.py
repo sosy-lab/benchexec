@@ -395,8 +395,8 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
         exit(1)
 
     if ignore_errors and 'error' in resultElem.attrib:
-        logging.warning('Ignoring benchmark %s because of error: %s',
-                        resultElem.attrib['name'],
+        logging.warning('Ignoring file "%s" because of error: %s',
+                        resultFile,
                         resultElem.attrib['error'])
         return None
 
