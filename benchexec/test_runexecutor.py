@@ -27,6 +27,7 @@ import tempfile
 import threading
 import time
 import unittest
+import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.runexecutor import RunExecutor
@@ -53,8 +54,8 @@ class TestRunExecutor(unittest.TestCase):
         if not hasattr(cls, 'assertRegex'):
             cls.assertRegex = cls.assertRegexpMatches
 
-    def setUp(self):
-        self.runexecutor = RunExecutor()
+    def setUp(self, *args, **kwargs):
+        self.runexecutor = RunExecutor(*args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
@@ -382,6 +383,21 @@ class TestRunExecutor(unittest.TestCase):
         self.assertFalse(os.path.exists(temp_dir),
                          'temporary temp directory {} was not cleaned up'.format(temp_dir))
 
+    def test_no_cleanup_temp(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        self.setUp(cleanup_temp_dir=False)  # create RunExecutor with desired parameter
+        (result, output) = self.execute_run('/bin/sh', '-c', 'echo "$TMPDIR"; echo "" > "$TMPDIR/test"')
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        temp_dir = output[-1]
+        test_file = os.path.join(temp_dir, 'test')
+        self.assertTrue(
+            os.path.isfile(test_file),
+            'expected file {} that should be produced by run does not exist'.format(test_file))
+        self.assertEqual('tmp', os.path.basename(temp_dir), 'unexpected name of temp dir')
+        self.assertNotEqual('/tmp', temp_dir, 'temp dir should not be the global temp dir')
+        shutil.rmtree(os.path.dirname(temp_dir))
+
 
 class TestRunExecutorWithSudo(TestRunExecutor):
     """
@@ -398,9 +414,9 @@ class TestRunExecutorWithSudo(TestRunExecutor):
     # sudo allows refering to numerical uids with '#'.
     user = os.environ.get('BENCHEXEC_TEST_USER', '#' + str(os.getuid()))
 
-    def setUp(self):
+    def setUp(self, *args, **kwargs):
         try:
-            self.runexecutor = RunExecutor(user=self.user)
+            self.runexecutor = RunExecutor(user=self.user, *args, **kwargs)
         except SystemExit as e:
             # sudo seems not to be available
             self.skipTest(e)

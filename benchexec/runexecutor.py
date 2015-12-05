@@ -93,6 +93,8 @@ def main(argv=None):
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--user", metavar="USER",
                         help="execute tool under given user account (needs password-less sudo setup)")
+    parser.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
+                        help="do not delete files created by the tool in temp directory")
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     verbosity = parser.add_mutually_exclusive_group()
@@ -136,7 +138,7 @@ def main(argv=None):
     else:
         stdin = None
 
-    executor = RunExecutor(user=options.user)
+    executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -197,16 +199,18 @@ def main(argv=None):
 
 class RunExecutor(object):
 
-    def __init__(self, user=None):
+    def __init__(self, user=None, cleanup_temp_dir=True):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
+        @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         """
         self.PROCESS_KILLED = False
         self.SUB_PROCESSES_LOCK = threading.Lock() # needed, because we kill the process asynchronous
         self.SUB_PROCESSES = set()
         self._termination_reason = None
         self._user = user
+        self._cleanup_temp_dir = cleanup_temp_dir
 
         if user is not None:
             # Check if we are allowed to execute 'kill' with dummy signal.
@@ -607,16 +611,19 @@ class RunExecutor(object):
             cgroups.kill_all_tasks(self._kill_process0)
 
             # Clean up temp dir
-            if self._user is None:
-                shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
+            if self._cleanup_temp_dir:
+                if self._user is None:
+                    shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
+                else:
+                    rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
+                                          stderr=subprocess.PIPE)
+                    rm_output = rm.stderr.read().decode()
+                    rm.stderr.close()
+                    if rm.wait() != 0 or rm_output:
+                        logging.warning("Failed to clean up temp directory %s: %s.",
+                                        base_dir, rm_output)
             else:
-                rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
-                                      stderr=subprocess.PIPE)
-                rm_output = rm.stderr.read().decode()
-                rm.stderr.close()
-                if rm.wait() != 0 or rm_output:
-                    logging.warning("Failed to clean up temp directory %s: %s.",
-                                    base_dir, rm_output)
+                logging.info("Skipping cleanup of temporary directory %s.", base_dir)
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
