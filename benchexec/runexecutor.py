@@ -579,14 +579,20 @@ class RunExecutor(object):
             unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
             return exitcode, ru_child
         except OSError as e:
-            if self.PROCESS_KILLED:
+            if self.PROCESS_KILLED and e.errno == 4:
                 # OSError 4 (interrupted system call) seems always to happen
                 # if we killed the process ourselves after Ctrl+C was pressed
+                # We can try again to get exitcode and resource usage.
                 logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
                               e.errno, args[0], p.pid, e.strerror)
-            else:
-                logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                                 e.errno, args[0], p.pid, e.strerror)
+                try:
+                    unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+                    return exitcode, ru_child
+                except OSError:
+                    pass # original error will be handled and this ignored
+
+            logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
+                             e.errno, args[0], p.pid, e.strerror)
             return (0, None)
 
 
