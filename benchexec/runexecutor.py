@@ -583,6 +583,9 @@ class RunExecutor(object):
         p = None
         ru_child = None
 
+        throttle_check = _CPUThrottleCheck(cores)
+        swap_check = _SwapCheck()
+
         # start measurements (last step before calling Popen)
         energyBefore = util.measure_energy()
         walltime_before = time.time()
@@ -674,6 +677,13 @@ class RunExecutor(object):
             self._cleanup_temp_dir(base_dir)
 
         # cleanup steps that are only relevant in case of success
+        if throttle_check.has_throttled():
+            logging.warning('CPU throttled itself during benchmarking due to overheating. '
+                            'Benchmark results are unreliable!')
+        if swap_check.has_swapped():
+            logging.warning('System has swapped during benchmarking. '
+                            'Benchmark results are unreliable!')
+
         result['exitcode'] = returnvalue
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
@@ -844,9 +854,6 @@ class RunExecutor(object):
 
         self._termination_reason = None
 
-        throttle_check = _CPUThrottleCheck(cores)
-        swap_check = _SwapCheck()
-
         try:
             logging.debug("execute_run: executing tool.")
             (exitcode, result) = \
@@ -862,13 +869,6 @@ class RunExecutor(object):
                     'cputime': 0, 'walltime': 0, 'memory': None}
 
         # if exception is thrown, skip the rest, otherwise perform normally
-
-        if throttle_check.has_throttled():
-            logging.warning('CPU throttled itself during benchmarking due to overheating. '
-                            'Benchmark results are unreliable!')
-        if swap_check.has_swapped():
-            logging.warning('System has swapped during benchmarking. '
-                            'Benchmark results are unreliable!')
 
         _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
 
