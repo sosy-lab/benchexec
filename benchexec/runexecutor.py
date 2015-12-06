@@ -529,6 +529,67 @@ class RunExecutor(object):
         output_file.flush()
         return output_file
 
+
+    def _setup_cgroup_time_limit(self, hardtimelimit, softtimelimit, walltimelimit,
+                                 cgroups, cores, process):
+        """Start time-limit handler.
+        @return None or the time-limit handler for calling cancel()
+        """
+        # hard time limit with cgroups is optional (additionally enforce by ulimit)
+        cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
+
+        if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
+            # Start a timer to periodically check timelimit
+            timelimitThread = _TimelimitThread(cgroups=cgroups,
+                                               hardtimelimit=cgroup_hardtimelimit,
+                                               softtimelimit=softtimelimit,
+                                               walltimelimit=walltimelimit,
+                                               process=process,
+                                               cores=cores,
+                                               callbackFn=self._set_termination_reason,
+                                               kill_process_fn=self._kill_process)
+            timelimitThread.start()
+            return timelimitThread
+        return None
+
+    def _setup_cgroup_memory_limit(self, memlimit, cgroups, process):
+        """Start memory-limit handler.
+        @return None or the memory-limit handler for calling cancel()
+        """
+        if memlimit is not None:
+            try:
+                oomThread = oomhandler.KillProcessOnOomThread(
+                    cgroups=cgroups, process=process,
+                    callbackFn=self._set_termination_reason,
+                    kill_process_fn=self._kill_process)
+                oomThread.start()
+                return oomThread
+            except OSError as e:
+                logging.critical("OSError %s during setup of OomEventListenerThread: %s.",
+                                 e.errno, e.strerror)
+        return None
+
+
+    def _wait_for_process(self, p, args):
+        """Wait for the given process to terminate.
+        @return tuple of exit code and resource usage
+        """
+        try:
+            logging.debug("Waiting for process %s with pid %s", args[0], p.pid)
+            unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+            return exitcode, ru_child
+        except OSError as e:
+            if self.PROCESS_KILLED:
+                # OSError 4 (interrupted system call) seems always to happen
+                # if we killed the process ourselves after Ctrl+C was pressed
+                logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
+                              e.errno, args[0], p.pid, e.strerror)
+            else:
+                logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
+                                 e.errno, args[0], p.pid, e.strerror)
+            return (0, None)
+
+
     def _execute(self, args, output_filename, stdin,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
@@ -586,6 +647,7 @@ class RunExecutor(object):
         timelimitThread = None
         oomThread = None
         p = None
+        returnvalue = 0
         ru_child = None
         self._termination_reason = None
 
@@ -609,45 +671,11 @@ class RunExecutor(object):
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.add(p)
 
-            # hard time limit with cgroups is optional (additionally enforce by ulimit)
-            cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
+            timelimitThread = self._setup_cgroup_time_limit(
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p)
+            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p)
 
-            if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
-                # Start a timer to periodically check timelimit
-                timelimitThread = _TimelimitThread(cgroups=cgroups,
-                                                   hardtimelimit=cgroup_hardtimelimit,
-                                                   softtimelimit=softtimelimit,
-                                                   walltimelimit=walltimelimit,
-                                                   process=p,
-                                                   cores=cores,
-                                                   callbackFn=self._set_termination_reason,
-                                                   kill_process_fn=self._kill_process)
-                timelimitThread.start()
-
-            if memlimit is not None:
-                try:
-                    oomThread = oomhandler.KillProcessOnOomThread(cgroups=cgroups,
-                                                                  process=p,
-                                                                  callbackFn=self._set_termination_reason,
-                                                                  kill_process_fn=self._kill_process)
-                    oomThread.start()
-                except OSError as e:
-                    logging.critical("OSError %s during setup of OomEventListenerThread: %s.",
-                                     e.errno, e.strerror)
-
-            try:
-                logging.debug("waiting for pid: %s", p.pid)
-                unused_pid, returnvalue, ru_child = os.wait4(p.pid, 0)
-
-            except OSError as e:
-                returnvalue = 0
-                if self.PROCESS_KILLED:
-                    # OSError 4 (interrupted system call) seems always to happen if we killed the process ourselves after Ctrl+C was pressed
-                    logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
-                                  e.errno, args[0], p.pid, e.strerror)
-                else:
-                    logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                                     e.errno, args[0], p.pid, e.strerror)
+            returnvalue, ru_child = self._wait_for_process(p, args)
 
         finally:
             # stop measurements first
