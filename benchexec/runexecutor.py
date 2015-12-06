@@ -469,6 +469,7 @@ class RunExecutor(object):
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
+            logging.debug('Cleaning up temporary directory.')
             if self._user is None:
                 shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
             else:
@@ -528,9 +529,13 @@ class RunExecutor(object):
         output_file.flush()
         return output_file
 
-    def _execute(self, args, output_filename, stdin, hardtimelimit, softtimelimit, walltimelimit, memlimit, cores, memory_nodes, environments, workingDir):
+    def _execute(self, args, output_filename, stdin,
+                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
+                 cores, memory_nodes,
+                 environments, workingDir, max_output_size):
         """
-        This method executes the command line and waits for the termination of it.
+        This method executes the command line and waits for the termination of it,
+        handling all setup and cleanup, but does not check whether arguments are valid.
         """
 
         def preSubprocess():
@@ -582,9 +587,12 @@ class RunExecutor(object):
         oomThread = None
         p = None
         ru_child = None
+        self._termination_reason = None
 
         throttle_check = _CPUThrottleCheck(cores)
         swap_check = _SwapCheck()
+
+        logging.debug('Starting process.')
 
         # start measurements (last step before calling Popen)
         energyBefore = util.measure_energy()
@@ -629,8 +637,7 @@ class RunExecutor(object):
 
             try:
                 logging.debug("waiting for pid: %s", p.pid)
-                pid, returnvalue, ru_child = os.wait4(p.pid, 0)
-                logging.debug("waiting finished: pid:%s, retVal:%s", pid, returnvalue)
+                unused_pid, returnvalue, ru_child = os.wait4(p.pid, 0)
 
             except OSError as e:
                 returnvalue = 0
@@ -648,6 +655,8 @@ class RunExecutor(object):
             energy = util.measure_energy(energyBefore)
 
             # cleanup steps that not time critical but need to get executed even in case of failure
+            logging.debug('Process terminated, exit code %s.', returnvalue)
+
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.discard(p)
 
@@ -656,9 +665,6 @@ class RunExecutor(object):
 
             if oomThread:
                 oomThread.cancel()
-
-            logging.debug("size of logfile '%s': %s",
-                          output_filename, os.path.getsize(output_filename))
 
             # Kill all remaining processes if some managed to survive.
             # Because we send signals to all processes anyway we use the
@@ -671,7 +677,7 @@ class RunExecutor(object):
             # needs to come before cgroups.remove()
             result = self._get_exact_measures(cgroups, ru_child, walltime)
 
-            logging.debug("execute_run: cleaning up CGroups.")
+            logging.debug("Cleaning up cgroups.")
             cgroups.remove()
 
             self._cleanup_temp_dir(base_dir)
@@ -684,13 +690,18 @@ class RunExecutor(object):
             logging.warning('System has swapped during benchmarking. '
                             'Benchmark results are unreliable!')
 
+        _reduce_file_size_if_necessary(output_filename, max_output_size)
+
+        if returnvalue not in [0,1]:
+            _get_debug_output_after_crash(output_filename)
+
         result['exitcode'] = returnvalue
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
         if energy:
             result['energy'] = energy
 
-        return (returnvalue, result)
+        return result
 
 
     def _get_exact_measures(self, cgroups, ru_child, walltime):
@@ -698,7 +709,7 @@ class RunExecutor(object):
         This method calculates the exact results for time and memory measurements.
         It is not important to call this method as soon as possible after the run.
         """
-        logging.debug("execute_run: getting exact measures.")
+        logging.debug("Getting cgroup measurements.")
         result = {}
         result['walltime'] = walltime
 
@@ -796,6 +807,7 @@ class RunExecutor(object):
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @return: a tuple with walltime in seconds, cputime in seconds, memory usage in bytes, returnvalue, and process output
         """
+        # Check argument values and call the actual method _execute()
 
         if stdin == subprocess.PIPE:
             sys.exit('Illegal value subprocess.PIPE for stdin')
@@ -852,15 +864,11 @@ class RunExecutor(object):
             if not os.access(workingDir, os.X_OK):
                 sys.exit("Permission denied for working directory {0}.".format(workingDir))
 
-        self._termination_reason = None
-
         try:
-            logging.debug("execute_run: executing tool.")
-            (exitcode, result) = \
-                self._execute(args, output_filename, stdin,
-                              hardtimelimit, softtimelimit, walltimelimit, memlimit,
-                              cores, memory_nodes,
-                              environments, workingDir)
+            return self._execute(args, output_filename, stdin,
+                                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
+                                 cores, memory_nodes,
+                                 environments, workingDir, maxLogfileSize)
 
         except OSError as e:
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
@@ -868,15 +876,6 @@ class RunExecutor(object):
             return {'terminationreason': 'failed', 'exitcode': 0,
                     'cputime': 0, 'walltime': 0, 'memory': None}
 
-        # if exception is thrown, skip the rest, otherwise perform normally
-
-        _reduce_file_size_if_necessary(output_filename, maxLogfileSize)
-
-        if exitcode not in [0,1]:
-            logging.debug("execute_run: analysing output for crash-info.")
-            _get_debug_output_after_crash(output_filename)
-
-        return result
 
     def _set_termination_reason(self, reason):
         self._termination_reason = reason
@@ -929,12 +928,15 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
+    fileSize = os.path.getsize(fileName)
+
     if maxSize is None:
+        logging.debug("Size of logfile '%s' is %s, size limit disabled.", fileName, fileSize)
         return # disabled, nothing to do
 
-    fileSize = os.path.getsize(fileName)
     if fileSize < (maxSize + 500):
-        return # not necessary
+        logging.debug("Size of logfile '%s' is %s, nothing to do.", fileName, fileSize)
+        return
 
     logging.warning("Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize)
 
@@ -990,6 +992,7 @@ def _get_debug_output_after_crash(output_filename):
     "# An error report file with more information is saved as:"
     and the file name of the dump file on the next line.
     """
+    logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     with open(output_filename, 'r+') as outputFile:
         for line in outputFile:
