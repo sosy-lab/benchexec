@@ -271,9 +271,16 @@ class RunExecutor(object):
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
             logging.warning('Cannot measure memory consumption without memory cgroup.')
+        else:
+            if systeminfo.has_swap() and (
+                    not self.cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes')):
+                logging.warning(
+                    'Kernel misses feature for accounting swap memory, but machine has swap. '
+                    'Memory usage may be measured inaccurately. '
+                    'Please set swapaccount=1 on your kernel command line or disable swap with '
+                    '"sudo swapoff -a".')
 
         self.cgroups.require_subsystem(CPUSET)
-
         self.cpus = None # to indicate that we cannot limit cores
         self.memory_nodes = None # to indicate that we cannot limit cores
         if CPUSET in self.cgroups:
@@ -408,15 +415,6 @@ class RunExecutor(object):
 
             memlimit = cgroups.get_value(MEMORY, limit)
             logging.debug('Executing %s with memory limit %s bytes.', args, memlimit)
-
-        if MEMORY in cgroups \
-                and not cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes') \
-                and systeminfo.has_swap():
-            logging.warning(
-                'Kernel misses feature for accounting swap memory, but machine has swap. '
-                'Memory usage may be measured inaccurately. '
-                'Please set swapaccount=1 on your kernel command line or disable swap with '
-                '"sudo swapoff -a".')
 
         if MEMORY in cgroups:
             try:
