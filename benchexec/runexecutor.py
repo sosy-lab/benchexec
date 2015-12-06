@@ -776,7 +776,6 @@ class RunExecutor(object):
                 except (OSError, ValueError) as e:
                     logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
 
-        memUsage = None
         if MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
             # For more details, c.f. the kernel documentation:
@@ -788,7 +787,7 @@ class RunExecutor(object):
                 logging.warning('Memory-usage is not available due to missing files.')
             else:
                 try:
-                    memUsage = int(cgroups.get_value(MEMORY, memUsageFile))
+                    result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
                     if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
                         logging.critical(
@@ -796,11 +795,10 @@ class RunExecutor(object):
                             " Please set swapaccount=1 on your kernel command line.")
                     else:
                         raise e
-        result['memory'] = memUsage
 
         logging.debug(
             'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            walltime, cputime_wait, cputime_cgroups, memUsage)
+            walltime, cputime_wait, cputime_cgroups, result.get('memory', None))
 
         return result
 
@@ -893,7 +891,7 @@ class RunExecutor(object):
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
                              e.errno, args[0], workingDir or '.', e.strerror)
             return {'terminationreason': 'failed', 'exitcode': 0,
-                    'cputime': 0, 'walltime': 0, 'memory': None}
+                    'cputime': 0, 'walltime': 0}
 
 
     def _set_termination_reason(self, reason):
