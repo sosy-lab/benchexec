@@ -31,7 +31,7 @@ import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.runexecutor import RunExecutor
-from benchexec.runexecutor import _reduce_file_size_if_necessary
+from benchexec import runexecutor
 
 try:
     from subprocess import DEVNULL
@@ -305,12 +305,12 @@ class TestRunExecutor(unittest.TestCase):
 
     def test_reduce_file_size_empty_file(self):
         with tempfile.NamedTemporaryFile() as tmp:
-            _reduce_file_size_if_necessary(tmp.name, 0)
+            runexecutor._reduce_file_size_if_necessary(tmp.name, 0)
             self.assertEqual(os.path.getsize(tmp.name), 0)
 
     def test_reduce_file_size_empty_file2(self):
         with tempfile.NamedTemporaryFile() as tmp:
-            _reduce_file_size_if_necessary(tmp.name, 500)
+            runexecutor._reduce_file_size_if_necessary(tmp.name, 500)
             self.assertEqual(os.path.getsize(tmp.name), 0)
 
     def test_reduce_file_size_long_line_not_truncated(self):
@@ -318,7 +318,7 @@ class TestRunExecutor(unittest.TestCase):
             content = 'Long line ' * 500
             tmp.write(content)
             tmp.flush()
-            _reduce_file_size_if_necessary(tmp.name, 500)
+            runexecutor._reduce_file_size_if_necessary(tmp.name, 500)
             with open(tmp.name, 'rt') as tmp2:
                 self.assertMultiLineEqual(tmp2.read(), content)
 
@@ -331,7 +331,7 @@ class TestRunExecutor(unittest.TestCase):
             tmp.write(line * 500)
             tmp.flush()
             limit = 500
-            _reduce_file_size_if_necessary(tmp.name, limit)
+            runexecutor._reduce_file_size_if_necessary(tmp.name, limit)
             self.assertLessEqual(os.path.getsize(tmp.name), limit + self.REDUCE_OVERHEAD)
             with open(tmp.name, 'rt') as tmp2:
                 new_content = tmp2.read()
@@ -344,7 +344,7 @@ class TestRunExecutor(unittest.TestCase):
             line = 'Some text\n'
             tmp.write(line * 500)
             tmp.flush()
-            _reduce_file_size_if_necessary(tmp.name, 0)
+            runexecutor._reduce_file_size_if_necessary(tmp.name, 0)
             self.assertLessEqual(os.path.getsize(tmp.name), self.REDUCE_OVERHEAD)
             with open(tmp.name, 'rt') as tmp2:
                 new_content = tmp2.read()
@@ -398,7 +398,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertNotEqual('/tmp', temp_dir, 'temp dir should not be the global temp dir')
         shutil.rmtree(os.path.dirname(temp_dir))
 
-
 class TestRunExecutorWithSudo(TestRunExecutor):
     """
     Run tests using the sudo mode of RunExecutor, if possible.
@@ -449,6 +448,19 @@ class TestRunExecutorWithSudo(TestRunExecutor):
     def check_command_in_output(self, output, cmd):
         self.assertTrue(output[0].endswith(cmd), 'run output misses executed command')
 
+    def test_detect_new_files_in_home(self):
+        if not os.path.exists('/usr/bin/mktemp'):
+            self.skipTest('missing /usr/bin/mktemp')
+        home_dir = runexecutor._get_user_account_info(self.user).pw_dir
+        (result, output) = self.execute_run(
+            '/usr/bin/mktemp', '--tmpdir=' + home_dir, '.BenchExec_test_runexecutor_XXXXXXXXXX')
+        try:
+            self.assertEqual(int(result['exitcode']), 0, 'exit code of /usr/bin/mktemp is not zero')
+            tmp_file = output[-1]
+            self.assertIn(tmp_file, self.runexecutor.check_for_new_files_in_home(),
+                          'runexecutor failed to detect new temporary file in home directory')
+        finally:
+            subprocess.check_call(self.runexecutor._build_cmdline('rm', tmp_file))
 
 
 class _StopRunThread(threading.Thread):

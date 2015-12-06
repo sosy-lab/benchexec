@@ -159,6 +159,9 @@ def execute_benchmark(benchmark, output_handler):
                 output_handler.set_error('interrupted', runSet)
             output_handler.output_after_run_set(runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy)
 
+            for worker in WORKER_THREADS:
+                worker.cleanup()
+
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
     return 0
 
@@ -276,3 +279,6 @@ class _Worker(threading.Thread):
         # asynchronous call to runexecutor,
         # the worker will stop asap, but not within this method.
         self.run_executor.stop()
+
+    def cleanup(self):
+        self.run_executor.check_for_new_files_in_home()

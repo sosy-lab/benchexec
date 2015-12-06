@@ -168,6 +168,8 @@ def main(argv=None):
         if stdin:
             stdin.close()
 
+    executor.check_for_new_files_in_home()
+
     # exit_code is a special number:
     # It is a 16bit int of which the lowest 7 bit are the signal number,
     # and the high byte is the real exit code of the process (here 0).
@@ -229,6 +231,18 @@ class RunExecutor(object):
             finally:
                 p.stdout.close()
                 p.stderr.close()
+
+            # Check home directory of user
+            try:
+                self._home_dir = _get_user_account_info(user).pw_dir
+            except (KeyError, ValueError) as e:
+                sys.exit('Unknown user {}: {}'.format(user, e))
+            self._home_dir_content = set(self._listdir(self._home_dir))
+            if self._home_dir_content:
+                logging.warning(
+                    'Home directory %s of user %s contains files and/or directories, it is '
+                    'recommended to do benchmarks with empty home to prevent undesired influences.',
+                    self._home_dir, user)
 
         self._init_cgroups()
 
@@ -327,6 +341,14 @@ class RunExecutor(object):
             except subprocess.CalledProcessError as e:
                 # may happen for example if process no longer exists
                 logging.debug(e)
+
+    def _listdir(self, path):
+        """Return the list of files in a directory, assuming that our user can read it."""
+        if self._user is None:
+            return os.listdir(path)
+        else:
+            args = self._build_cmdline(['/bin/ls', '-1', path])
+            return subprocess.check_output(args).decode().split('\n')
 
 
     def _setup_cgroups(self, args, my_cpus, memlimit, memory_nodes):
@@ -857,6 +879,36 @@ class RunExecutor(object):
                 except OSError as e:
                     # May fail due to race conditions
                     logging.debug(e)
+
+    def check_for_new_files_in_home(self):
+        """Check that the user account's home directory now does not contain more files than
+        when this instance was created, and warn otherwise.
+        Does nothing if no user account was given to RunExecutor.
+        @return set of newly created files
+        """
+        if not self._user:
+            return None
+        created_files = set(self._listdir(self._home_dir)).difference(self._home_dir_content)
+        if created_files:
+            logging.warning('The tool created the following files in %s, '
+                            'this may influence later runs:\n\t%s',
+                            self._home_dir, '\n\t'.join(created_files))
+        return created_files
+
+
+def _get_user_account_info(user):
+    """Get the user account info from the passwd database. Only works on Linux.
+    @param user The name of a user account or a numeric uid prefixed with '#'
+    @return a tuple that corresponds to the members of the passwd structure
+    @raise KeyError: If user account is unknown
+    @raise ValueError: If uid is not a valid number
+    """
+    import pwd # Import here to avoid problems on other platforms
+    if user[0] == '#':
+        return pwd.getpwuid(int(user[1:]))
+    else:
+        return pwd.getpwnam(user)
+
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
     """
