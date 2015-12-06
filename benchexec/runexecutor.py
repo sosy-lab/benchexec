@@ -212,7 +212,7 @@ class RunExecutor(object):
         self.SUB_PROCESSES = set()
         self._termination_reason = None
         self._user = user
-        self._cleanup_temp_dir = cleanup_temp_dir
+        self._should_cleanup_temp_dir = cleanup_temp_dir
 
         if user is not None:
             # Check if we are allowed to execute 'kill' with dummy signal.
@@ -298,6 +298,17 @@ class RunExecutor(object):
                                 e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
+    def _build_cmdline(self, args, env={}):
+        """
+        Build the final command line for executing the given command,
+        using sudo if necessary.
+        """
+        if self._user is None:
+            return args
+        result = _SUDO_ARGS + [self._user]
+        for var, value in env.items():
+            result.append(var + '=' + value)
+        return result + ['--'] + args
 
     def _kill_process(self, pid, cgroups, sig=signal.SIGKILL):
         """
@@ -428,17 +439,93 @@ class RunExecutor(object):
 
         return cgroups
 
-    def _build_cmdline(self, args, env={}):
-        """
-        Build the final command line for executing the given command,
-        using sudo if necessary.
+
+    def _setup_temp_dir(self):
+        """Setup the temporary directories for the run.
+        @return a triple of base directory, home directory, and temp directory
+            (all can be removed after the run)
         """
         if self._user is None:
-            return args
-        result = _SUDO_ARGS + [self._user]
-        for var, value in env.items():
-            result.append(var + '=' + value)
-        return result + ['--'] + args
+            base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        else:
+            create_temp_dir = self._build_cmdline([
+                'python', '-c',
+                'import tempfile;'
+                'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
+                ])
+            base_dir = subprocess.check_output(create_temp_dir).decode().strip()
+        temp_dir = os.path.join(base_dir, "tmp")
+        home_dir = os.path.join(base_dir, "home")
+        if self._user is None:
+            os.mkdir(temp_dir)
+            os.mkdir(home_dir)
+        else:
+            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700", temp_dir, home_dir]))
+
+        logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
+        return base_dir, home_dir, temp_dir
+
+    def _cleanup_temp_dir(self, base_dir):
+        """Delete given temporary directory and all its contents."""
+        if self._should_cleanup_temp_dir:
+            if self._user is None:
+                shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
+            else:
+                rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
+                                      stderr=subprocess.PIPE)
+                rm_output = rm.stderr.read().decode()
+                rm.stderr.close()
+                if rm.wait() != 0 or rm_output:
+                    logging.warning("Failed to clean up temp directory %s: %s.",
+                                    base_dir, rm_output)
+        else:
+            logging.info("Skipping cleanup of temporary directory %s.", base_dir)
+
+
+    def _setup_environment(self, environments, home_dir, temp_dir):
+        """Return map with desired environment variables for run."""
+        # If keepEnv is set or sudo is used, start from a fresh environment,
+        # otherwise with the current one.
+        # Set HOME and TMPDIR to the temporary directories create above.
+        # keepEnv specifies variables to copy from the current environment,
+        # newEnv specifies variables to set to a new value,
+        # additionalEnv specifies variables where some value should be appended, and
+        # clearEnv specifies variables to delete.
+        if self._user is not None or environments.get("keepEnv", None) is not None:
+            run_environment = {}
+        else :
+            run_environment = os.environ.copy()
+        run_environment["HOME"] = home_dir
+        run_environment["TMPDIR"] = temp_dir
+        run_environment["TMP"] = temp_dir
+        run_environment["TEMPDIR"] = temp_dir
+        run_environment["TEMP"] = temp_dir
+        for key, value in environments.get("keepEnv", {}).items():
+            if key in os.environ:
+                run_environment[key] = os.environ[key]
+        for key, value in environments.get("newEnv", {}).items():
+            run_environment[key] = value
+        for key, value in environments.get("additionalEnv", {}).items():
+            run_environment[key] = os.environ.get(key, "") + value
+        for key in environments.get("clearEnv", {}).items():
+            run_environment.pop(key, None)
+
+        logging.debug("Using additional environment %s.", environments)
+        return run_environment
+
+
+    def _setup_output_file(self, output_filename, args):
+        """Open and prepare output file."""
+        # write command line into outputFile
+        # (without environment variables, they are documented by benchexec)
+        try:
+            output_file = open(output_filename, 'w') # override existing file
+        except IOError as e:
+            sys.exit(e)
+        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+                          + '\n\n\n' + '-' * 80 + '\n\n\n')
+        output_file.flush()
+        return output_file
 
     def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
         """
@@ -483,76 +570,25 @@ class RunExecutor(object):
 
             cgroups.add_task(pid)
 
-        if self._user is None:
-            base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
-        else:
-            create_temp_dir = self._build_cmdline([
-                'python', '-c',
-                'import tempfile;'
-                'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
-                ])
-            base_dir = subprocess.check_output(create_temp_dir).decode().strip()
-        temp_dir = os.path.join(base_dir, "tmp")
-        home_dir = os.path.join(base_dir, "home")
-        if self._user is None:
-            os.mkdir(temp_dir)
-            os.mkdir(home_dir)
-        else:
-            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700", temp_dir, home_dir]))
-        logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
-
-        # Setup environment:
-        # If keepEnv is set or sudo is used, start from a fresh environment,
-        # otherwise with the current one.
-        # Set HOME and TMPDIR to the temporary directories create above.
-        # keepEnv specifies variables to copy from the current environment,
-        # newEnv specifies variables to set to a new value,
-        # additionalEnv specifies variables where some value should be appended, and
-        # clearEnv specifies variables to delete.
-        if self._user is not None or environments.get("keepEnv", None) is not None:
-            runningEnv = {}
-        else :
-            runningEnv = os.environ.copy()
-        runningEnv["HOME"] = home_dir
-        runningEnv["TMPDIR"] = temp_dir
-        runningEnv["TMP"] = temp_dir
-        runningEnv["TEMPDIR"] = temp_dir
-        runningEnv["TEMP"] = temp_dir
-        for key, value in environments.get("keepEnv", {}).items():
-            if key in os.environ:
-                runningEnv[key] = os.environ[key]
-        for key, value in environments.get("newEnv", {}).items():
-            runningEnv[key] = value
-        for key, value in environments.get("additionalEnv", {}).items():
-            runningEnv[key] = os.environ.get(key, "") + value
-        for key in environments.get("clearEnv", {}).items():
-            runningEnv.pop(key, None)
-
-        logging.debug("Using additional environment %s.", environments)
-
-        # write command line into outputFile
-        # (without environment variables, they are documented by benchexec)
-        try:
-            outputFile = open(output_filename, 'w') # override existing file
-        except IOError as e:
-            sys.exit(e)
-        outputFile.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
-                         + '\n\n\n' + '-' * 80 + '\n\n\n')
-        outputFile.flush()
-
-        args = self._build_cmdline(args, env=runningEnv)
+        # preparations that are not time critical
+        base_dir, home_dir, temp_dir = self._setup_temp_dir()
+        run_environment = self._setup_environment(environments, home_dir, temp_dir)
+        outputFile = self._setup_output_file(output_filename, args)
+        args = self._build_cmdline(args, env=run_environment)
 
         timelimitThread = None
         oomThread = None
+        p = None
+
+        # start measurements (last step before calling Popen)
         energyBefore = util.measure_energy()
         walltime_before = time.time()
 
-        p = None
         try:
             p = subprocess.Popen(args,
                                  stdin=stdin,
                                  stdout=outputFile, stderr=outputFile,
-                                 env=runningEnv, cwd=workingDir,
+                                 env=run_environment, cwd=workingDir,
                                  close_fds=True,
                                  preexec_fn=preSubprocess)
 
@@ -610,7 +646,6 @@ class RunExecutor(object):
         finally:
             walltime_after = time.time()
 
-
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.discard(p)
 
@@ -630,20 +665,7 @@ class RunExecutor(object):
             # internal function.
             cgroups.kill_all_tasks(self._kill_process0)
 
-            # Clean up temp dir
-            if self._cleanup_temp_dir:
-                if self._user is None:
-                    shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
-                else:
-                    rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
-                                          stderr=subprocess.PIPE)
-                    rm_output = rm.stderr.read().decode()
-                    rm.stderr.close()
-                    if rm.wait() != 0 or rm_output:
-                        logging.warning("Failed to clean up temp directory %s: %s.",
-                                        base_dir, rm_output)
-            else:
-                logging.info("Skipping cleanup of temporary directory %s.", base_dir)
+            self._cleanup_temp_dir(base_dir)
 
         energy = util.measure_energy(energyBefore)
         walltime = walltime_after - walltime_before
