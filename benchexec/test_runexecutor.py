@@ -27,7 +27,6 @@ import tempfile
 import threading
 import time
 import unittest
-import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.runexecutor import RunExecutor
@@ -391,12 +390,11 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
         temp_dir = output[-1]
         test_file = os.path.join(temp_dir, 'test')
-        self.assertTrue(
-            os.path.isfile(test_file),
-            'expected file {} that should be produced by run does not exist'.format(test_file))
+        subprocess.check_call(self.runexecutor._build_cmdline(['test', '-f', test_file]))
         self.assertEqual('tmp', os.path.basename(temp_dir), 'unexpected name of temp dir')
         self.assertNotEqual('/tmp', temp_dir, 'temp dir should not be the global temp dir')
-        shutil.rmtree(os.path.dirname(temp_dir))
+        subprocess.check_call(self.runexecutor._build_cmdline(['rm', '-r', os.path.dirname(temp_dir)]))
+
 
 class TestRunExecutorWithSudo(TestRunExecutor):
     """
