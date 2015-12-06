@@ -201,6 +201,8 @@ def main(argv=None):
 
 class RunExecutor(object):
 
+    # --- object initialization ---
+
     def __init__(self, user=None, cleanup_temp_dir=True):
         """
         Create an instance of of RunExecutor.
@@ -298,6 +300,9 @@ class RunExecutor(object):
                                 e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
+
+    # --- utility functions ---
+
     def _build_cmdline(self, args, env={}):
         """
         Build the final command line for executing the given command,
@@ -368,6 +373,11 @@ class RunExecutor(object):
             args = self._build_cmdline(['/bin/ls', '-1', path])
             return subprocess.check_output(args).decode().split('\n')
 
+    def _set_termination_reason(self, reason):
+        self._termination_reason = reason
+
+
+    # --- setup and cleanup for a single run ---
 
     def _setup_cgroups(self, args, my_cpus, memlimit, memory_nodes):
         """
@@ -582,226 +592,7 @@ class RunExecutor(object):
             resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
 
-    def _wait_for_process(self, p, args):
-        """Wait for the given process to terminate.
-        @return tuple of exit code and resource usage
-        """
-        try:
-            logging.debug("Waiting for process %s with pid %s", args[0], p.pid)
-            unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
-            return exitcode, ru_child
-        except OSError as e:
-            if self.PROCESS_KILLED and e.errno == 4:
-                # OSError 4 (interrupted system call) seems always to happen
-                # if we killed the process ourselves after Ctrl+C was pressed
-                # We can try again to get exitcode and resource usage.
-                logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
-                              e.errno, args[0], p.pid, e.strerror)
-                try:
-                    unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
-                    return exitcode, ru_child
-                except OSError:
-                    pass # original error will be handled and this ignored
-
-            logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                             e.errno, args[0], p.pid, e.strerror)
-            return (0, None)
-
-
-    def _execute(self, args, output_filename, stdin,
-                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
-                 cores, memory_nodes,
-                 environments, workingDir, max_output_size):
-        """
-        This method executes the command line and waits for the termination of it,
-        handling all setup and cleanup, but does not check whether arguments are valid.
-        """
-
-        def preSubprocess():
-            """Setup that is executed in the forked process before the actual tool is started."""
-            os.setpgrp() # make subprocess to group-leader
-            os.nice(5) # increase niceness of subprocess
-            self._setup_ulimit_time_limit(hardtimelimit, cgroups)
-
-            # put us into the cgroup(s)
-            pid = os.getpid()
-            _register_process_with_cgrulesengd(pid)
-            cgroups.add_task(pid)
-
-        # preparations that are not time critical
-        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
-        base_dir, home_dir, temp_dir = self._setup_temp_dir()
-        run_environment = self._setup_environment(environments, home_dir, temp_dir)
-        outputFile = self._setup_output_file(output_filename, args)
-        args = self._build_cmdline(args, env=run_environment)
-
-        timelimitThread = None
-        oomThread = None
-        p = None
-        returnvalue = 0
-        ru_child = None
-        self._termination_reason = None
-
-        throttle_check = _CPUThrottleCheck(cores)
-        swap_check = _SwapCheck()
-
-        logging.debug('Starting process.')
-
-        # start measurements (last step before calling Popen)
-        energyBefore = util.measure_energy()
-        walltime_before = time.time()
-
-        try:
-            p = subprocess.Popen(args,
-                                 stdin=stdin,
-                                 stdout=outputFile, stderr=outputFile,
-                                 env=run_environment, cwd=workingDir,
-                                 close_fds=True,
-                                 preexec_fn=preSubprocess)
-
-            with self.SUB_PROCESSES_LOCK:
-                self.SUB_PROCESSES.add(p)
-
-            timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p)
-            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p)
-
-            returnvalue, ru_child = self._wait_for_process(p, args)
-
-        finally:
-            # stop measurements first
-            walltime = time.time() - walltime_before
-            energy = util.measure_energy(energyBefore)
-
-            # cleanup steps that not time critical but need to get executed even in case of failure
-            logging.debug('Process terminated, exit code %s.', returnvalue)
-
-            with self.SUB_PROCESSES_LOCK:
-                self.SUB_PROCESSES.discard(p)
-
-            if timelimitThread:
-                timelimitThread.cancel()
-
-            if oomThread:
-                oomThread.cancel()
-
-            # Kill all remaining processes if some managed to survive.
-            # Because we send signals to all processes anyway we use the
-            # internal function.
-            cgroups.kill_all_tasks(self._kill_process0)
-
-            # normally subprocess closes file, we do this again after all tasks terminated
-            outputFile.close()
-
-            # needs to come before cgroups.remove()
-            result = self._get_exact_measures(cgroups, ru_child, walltime)
-
-            logging.debug("Cleaning up cgroups.")
-            cgroups.remove()
-
-            self._cleanup_temp_dir(base_dir)
-
-        # cleanup steps that are only relevant in case of success
-        if throttle_check.has_throttled():
-            logging.warning('CPU throttled itself during benchmarking due to overheating. '
-                            'Benchmark results are unreliable!')
-        if swap_check.has_swapped():
-            logging.warning('System has swapped during benchmarking. '
-                            'Benchmark results are unreliable!')
-
-        _reduce_file_size_if_necessary(output_filename, max_output_size)
-
-        if returnvalue not in [0,1]:
-            _get_debug_output_after_crash(output_filename)
-
-        result['exitcode'] = returnvalue
-        if self._termination_reason:
-            result['terminationreason'] = self._termination_reason
-        if energy:
-            result['energy'] = energy
-
-        return result
-
-
-    def _get_exact_measures(self, cgroups, ru_child, walltime):
-        """
-        This method calculates the exact results for time and memory measurements.
-        It is not important to call this method as soon as possible after the run.
-        """
-        logging.debug("Getting cgroup measurements.")
-        result = {}
-        result['walltime'] = walltime
-
-        cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
-        cputime_cgroups = None
-        if CPUACCT in cgroups:
-            # We want to read the value from the cgroup.
-            # The documentation warns about outdated values.
-            # So we read twice with 0.1s time difference,
-            # and continue reading as long as the values differ.
-            # This has never happened except when interrupting the script with Ctrl+C,
-            # but just try to be on the safe side here.
-            tmp = cgroups.read_cputime()
-            tmp2 = None
-            while tmp != tmp2:
-                time.sleep(0.1)
-                tmp2 = tmp
-                tmp = cgroups.read_cputime()
-            cputime_cgroups = tmp
-
-            # Usually cputime_cgroups seems to be 0.01s greater than cputime_wait.
-            # Furthermore, cputime_wait might miss some subprocesses,
-            # therefore we expect cputime_cgroups to be always greater (and more correct).
-            # However, sometimes cputime_wait is a little bit bigger than cputime2.
-            # For small values, this is probably because cputime_wait counts since fork,
-            # whereas cputime_cgroups counts only after cgroups.add_task()
-            # (so overhead from runexecutor is correctly excluded in cputime_cgroups).
-            # For large values, a difference may also indicate a problem with cgroups,
-            # for example another process moving our benchmarked process between cgroups,
-            # thus we warn if the difference is substantial and take the larger cputime_wait value.
-            if cputime_wait > 0.5 and (cputime_wait * 0.95) > cputime_cgroups:
-                logging.warning(
-                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
-                    'perhaps measurement is flawed.',
-                    cputime_wait, cputime_cgroups)
-                result['cputime'] = cputime_wait
-            else:
-                result['cputime'] = cputime_cgroups
-
-            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
-                try:
-                    coretime = int(coretime)
-                    if coretime != 0:
-                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
-                except (OSError, ValueError) as e:
-                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
-
-        if MEMORY in cgroups:
-            # This measurement reads the maximum number of bytes of RAM+Swap the process used.
-            # For more details, c.f. the kernel documentation:
-            # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-            memUsageFile = 'memsw.max_usage_in_bytes'
-            if not cgroups.has_value(MEMORY, memUsageFile):
-                memUsageFile = 'max_usage_in_bytes'
-            if not cgroups.has_value(MEMORY, memUsageFile):
-                logging.warning('Memory-usage is not available due to missing files.')
-            else:
-                try:
-                    result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
-                except IOError as e:
-                    if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
-                        logging.critical(
-                            "Kernel does not track swap memory usage, cannot measure memory usage."
-                            " Please set swapaccount=1 on your kernel command line.")
-                    else:
-                        raise e
-
-        logging.debug(
-            'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            walltime, cputime_wait, cputime_cgroups, result.get('memory', None))
-
-        return result
-
+    # --- run execution ---
 
     def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
@@ -894,8 +685,228 @@ class RunExecutor(object):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _set_termination_reason(self, reason):
-        self._termination_reason = reason
+    def _execute(self, args, output_filename, stdin,
+                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
+                 cores, memory_nodes,
+                 environments, workingDir, max_output_size):
+        """
+        This method executes the command line and waits for the termination of it,
+        handling all setup and cleanup, but does not check whether arguments are valid.
+        """
+
+        def preSubprocess():
+            """Setup that is executed in the forked process before the actual tool is started."""
+            os.setpgrp() # make subprocess to group-leader
+            os.nice(5) # increase niceness of subprocess
+            self._setup_ulimit_time_limit(hardtimelimit, cgroups)
+
+            # put us into the cgroup(s)
+            pid = os.getpid()
+            _register_process_with_cgrulesengd(pid)
+            cgroups.add_task(pid)
+
+        # preparations that are not time critical
+        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
+        base_dir, home_dir, temp_dir = self._setup_temp_dir()
+        run_environment = self._setup_environment(environments, home_dir, temp_dir)
+        outputFile = self._setup_output_file(output_filename, args)
+        args = self._build_cmdline(args, env=run_environment)
+
+        timelimitThread = None
+        oomThread = None
+        p = None
+        returnvalue = 0
+        ru_child = None
+        self._termination_reason = None
+
+        throttle_check = _CPUThrottleCheck(cores)
+        swap_check = _SwapCheck()
+
+        logging.debug('Starting process.')
+
+        # start measurements (last step before calling Popen)
+        energyBefore = util.measure_energy()
+        walltime_before = time.time()
+
+        try:
+            p = subprocess.Popen(args,
+                                 stdin=stdin,
+                                 stdout=outputFile, stderr=outputFile,
+                                 env=run_environment, cwd=workingDir,
+                                 close_fds=True,
+                                 preexec_fn=preSubprocess)
+
+            with self.SUB_PROCESSES_LOCK:
+                self.SUB_PROCESSES.add(p)
+
+            timelimitThread = self._setup_cgroup_time_limit(
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p)
+            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p)
+
+            returnvalue, ru_child = self._wait_for_process(p, args)
+
+        finally:
+            # stop measurements first
+            walltime = time.time() - walltime_before
+            energy = util.measure_energy(energyBefore)
+
+            # cleanup steps that not time critical but need to get executed even in case of failure
+            logging.debug('Process terminated, exit code %s.', returnvalue)
+
+            with self.SUB_PROCESSES_LOCK:
+                self.SUB_PROCESSES.discard(p)
+
+            if timelimitThread:
+                timelimitThread.cancel()
+
+            if oomThread:
+                oomThread.cancel()
+
+            # Kill all remaining processes if some managed to survive.
+            # Because we send signals to all processes anyway we use the
+            # internal function.
+            cgroups.kill_all_tasks(self._kill_process0)
+
+            # normally subprocess closes file, we do this again after all tasks terminated
+            outputFile.close()
+
+            # needs to come before cgroups.remove()
+            result = self._get_cgroup_measurements(cgroups, ru_child, walltime)
+
+            logging.debug("Cleaning up cgroups.")
+            cgroups.remove()
+
+            self._cleanup_temp_dir(base_dir)
+
+        # cleanup steps that are only relevant in case of success
+        if throttle_check.has_throttled():
+            logging.warning('CPU throttled itself during benchmarking due to overheating. '
+                            'Benchmark results are unreliable!')
+        if swap_check.has_swapped():
+            logging.warning('System has swapped during benchmarking. '
+                            'Benchmark results are unreliable!')
+
+        _reduce_file_size_if_necessary(output_filename, max_output_size)
+
+        if returnvalue not in [0,1]:
+            _get_debug_output_after_crash(output_filename)
+
+        result['exitcode'] = returnvalue
+        if self._termination_reason:
+            result['terminationreason'] = self._termination_reason
+        if energy:
+            result['energy'] = energy
+
+        return result
+
+
+    def _wait_for_process(self, p, args):
+        """Wait for the given process to terminate.
+        @return tuple of exit code and resource usage
+        """
+        try:
+            logging.debug("Waiting for process %s with pid %s", args[0], p.pid)
+            unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+            return exitcode, ru_child
+        except OSError as e:
+            if self.PROCESS_KILLED and e.errno == 4:
+                # OSError 4 (interrupted system call) seems always to happen
+                # if we killed the process ourselves after Ctrl+C was pressed
+                # We can try again to get exitcode and resource usage.
+                logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
+                              e.errno, args[0], p.pid, e.strerror)
+                try:
+                    unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+                    return exitcode, ru_child
+                except OSError:
+                    pass # original error will be handled and this ignored
+
+            logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
+                             e.errno, args[0], p.pid, e.strerror)
+            return (0, None)
+
+
+    def _get_cgroup_measurements(self, cgroups, ru_child, walltime):
+        """
+        This method calculates the exact results for time and memory measurements.
+        It is not important to call this method as soon as possible after the run.
+        """
+        logging.debug("Getting cgroup measurements.")
+        result = {}
+        result['walltime'] = walltime
+
+        cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
+        cputime_cgroups = None
+        if CPUACCT in cgroups:
+            # We want to read the value from the cgroup.
+            # The documentation warns about outdated values.
+            # So we read twice with 0.1s time difference,
+            # and continue reading as long as the values differ.
+            # This has never happened except when interrupting the script with Ctrl+C,
+            # but just try to be on the safe side here.
+            tmp = cgroups.read_cputime()
+            tmp2 = None
+            while tmp != tmp2:
+                time.sleep(0.1)
+                tmp2 = tmp
+                tmp = cgroups.read_cputime()
+            cputime_cgroups = tmp
+
+            # Usually cputime_cgroups seems to be 0.01s greater than cputime_wait.
+            # Furthermore, cputime_wait might miss some subprocesses,
+            # therefore we expect cputime_cgroups to be always greater (and more correct).
+            # However, sometimes cputime_wait is a little bit bigger than cputime2.
+            # For small values, this is probably because cputime_wait counts since fork,
+            # whereas cputime_cgroups counts only after cgroups.add_task()
+            # (so overhead from runexecutor is correctly excluded in cputime_cgroups).
+            # For large values, a difference may also indicate a problem with cgroups,
+            # for example another process moving our benchmarked process between cgroups,
+            # thus we warn if the difference is substantial and take the larger cputime_wait value.
+            if cputime_wait > 0.5 and (cputime_wait * 0.95) > cputime_cgroups:
+                logging.warning(
+                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
+                    'perhaps measurement is flawed.',
+                    cputime_wait, cputime_cgroups)
+                result['cputime'] = cputime_wait
+            else:
+                result['cputime'] = cputime_cgroups
+
+            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
+                try:
+                    coretime = int(coretime)
+                    if coretime != 0:
+                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
+                except (OSError, ValueError) as e:
+                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
+
+        if MEMORY in cgroups:
+            # This measurement reads the maximum number of bytes of RAM+Swap the process used.
+            # For more details, c.f. the kernel documentation:
+            # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
+            memUsageFile = 'memsw.max_usage_in_bytes'
+            if not cgroups.has_value(MEMORY, memUsageFile):
+                memUsageFile = 'max_usage_in_bytes'
+            if not cgroups.has_value(MEMORY, memUsageFile):
+                logging.warning('Memory-usage is not available due to missing files.')
+            else:
+                try:
+                    result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
+                except IOError as e:
+                    if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
+                        logging.critical(
+                            "Kernel does not track swap memory usage, cannot measure memory usage."
+                            " Please set swapaccount=1 on your kernel command line.")
+                    else:
+                        raise e
+
+        logging.debug(
+            'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
+            walltime, cputime_wait, cputime_cgroups, result.get('memory', None))
+
+        return result
+
+
+    # --- other public functions ---
 
     def stop(self):
         self._set_termination_reason('killed')
