@@ -379,6 +379,7 @@ class RunExecutor(object):
         @return cgroups: a map of all the necessary cgroups for the following execution.
                          Please add the process of the following execution to all those cgroups!
         """
+        logging.debug("Setting up cgroups for run.")
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
         subsystems = [CPUACCT, FREEZER, MEMORY]
@@ -527,7 +528,7 @@ class RunExecutor(object):
         output_file.flush()
         return output_file
 
-    def _execute(self, args, output_filename, stdin, cgroups, hardtimelimit, softtimelimit, walltimelimit, myCpuCount, memlimit, environments, workingDir):
+    def _execute(self, args, output_filename, stdin, hardtimelimit, softtimelimit, walltimelimit, memlimit, cores, memory_nodes, environments, workingDir):
         """
         This method executes the command line and waits for the termination of it.
         """
@@ -571,6 +572,7 @@ class RunExecutor(object):
             cgroups.add_task(pid)
 
         # preparations that are not time critical
+        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
         base_dir, home_dir, temp_dir = self._setup_temp_dir()
         run_environment = self._setup_environment(environments, home_dir, temp_dir)
         outputFile = self._setup_output_file(output_filename, args)
@@ -579,6 +581,7 @@ class RunExecutor(object):
         timelimitThread = None
         oomThread = None
         p = None
+        ru_child = None
 
         # start measurements (last step before calling Popen)
         energyBefore = util.measure_energy()
@@ -592,12 +595,6 @@ class RunExecutor(object):
                                  close_fds=True,
                                  preexec_fn=preSubprocess)
 
-        except OSError as e:
-            logging.critical("OSError %s while starting '%s' in '%s': %s.",
-                             e.errno, args[0], workingDir or '.', e.strerror)
-            return (0, 0, 0, None)
-
-        try:
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.add(p)
 
@@ -611,7 +608,7 @@ class RunExecutor(object):
                                                    softtimelimit=softtimelimit,
                                                    walltimelimit=walltimelimit,
                                                    process=p,
-                                                   cpuCount=myCpuCount,
+                                                   cores=cores,
                                                    callbackFn=self._set_termination_reason,
                                                    kill_process_fn=self._kill_process)
                 timelimitThread.start()
@@ -634,7 +631,6 @@ class RunExecutor(object):
 
             except OSError as e:
                 returnvalue = 0
-                ru_child = None
                 if self.PROCESS_KILLED:
                     # OSError 4 (interrupted system call) seems always to happen if we killed the process ourselves after Ctrl+C was pressed
                     logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
@@ -644,8 +640,11 @@ class RunExecutor(object):
                                      e.errno, args[0], p.pid, e.strerror)
 
         finally:
-            walltime_after = time.time()
+            # stop measurements first
+            walltime = time.time() - walltime_before
+            energy = util.measure_energy(energyBefore)
 
+            # cleanup steps that not time critical but need to get executed even in case of failure
             with self.SUB_PROCESSES_LOCK:
                 self.SUB_PROCESSES.discard(p)
 
@@ -655,8 +654,6 @@ class RunExecutor(object):
             if oomThread:
                 oomThread.cancel()
 
-            outputFile.close() # normally subprocess closes file, we do this again
-
             logging.debug("size of logfile '%s': %s",
                           output_filename, os.path.getsize(output_filename))
 
@@ -665,22 +662,38 @@ class RunExecutor(object):
             # internal function.
             cgroups.kill_all_tasks(self._kill_process0)
 
+            # normally subprocess closes file, we do this again after all tasks terminated
+            outputFile.close()
+
+            # needs to come before cgroups.remove()
+            result = self._get_exact_measures(cgroups, ru_child, walltime)
+
+            logging.debug("execute_run: cleaning up CGroups.")
+            cgroups.remove()
+
             self._cleanup_temp_dir(base_dir)
 
-        energy = util.measure_energy(energyBefore)
-        walltime = walltime_after - walltime_before
-        cputime = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
-        return (returnvalue, walltime, cputime, energy)
+        # cleanup steps that are only relevant in case of success
+        result['exitcode'] = returnvalue
+        if self._termination_reason:
+            result['terminationreason'] = self._termination_reason
+        if energy:
+            result['energy'] = energy
+
+        return (returnvalue, result)
 
 
-
-    def _get_exact_measures(self, cgroups, returnvalue, walltime, cputime):
+    def _get_exact_measures(self, cgroups, ru_child, walltime):
         """
-        This method tries to extract better measures from cgroups.
+        This method calculates the exact results for time and memory measurements.
+        It is not important to call this method as soon as possible after the run.
         """
+        logging.debug("execute_run: getting exact measures.")
         result = {}
+        result['walltime'] = walltime
 
-        cputime2 = None
+        cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
+        cputime_cgroups = None
         if CPUACCT in cgroups:
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
@@ -694,7 +707,34 @@ class RunExecutor(object):
                 time.sleep(0.1)
                 tmp2 = tmp
                 tmp = cgroups.read_cputime()
-            cputime2 = tmp
+            cputime_cgroups = tmp
+
+            # Usually cputime_cgroups seems to be 0.01s greater than cputime_wait.
+            # Furthermore, cputime_wait might miss some subprocesses,
+            # therefore we expect cputime_cgroups to be always greater (and more correct).
+            # However, sometimes cputime_wait is a little bit bigger than cputime2.
+            # For small values, this is probably because cputime_wait counts since fork,
+            # whereas cputime_cgroups counts only after cgroups.add_task()
+            # (so overhead from runexecutor is correctly excluded in cputime_cgroups).
+            # For large values, a difference may also indicate a problem with cgroups,
+            # for example another process moving our benchmarked process between cgroups,
+            # thus we warn if the difference is substantial and take the larger cputime_wait value.
+            if cputime_wait > 0.5 and (cputime_wait * 0.95) > cputime_cgroups:
+                logging.warning(
+                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
+                    'perhaps measurement is flawed.',
+                    cputime_wait, cputime_cgroups)
+                result['cputime'] = cputime_wait
+            else:
+                result['cputime'] = cputime_cgroups
+
+            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
+                try:
+                    coretime = int(coretime)
+                    if coretime != 0:
+                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
+                except (OSError, ValueError) as e:
+                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
 
         memUsage = None
         if MEMORY in cgroups:
@@ -719,38 +759,8 @@ class RunExecutor(object):
         result['memory'] = memUsage
 
         logging.debug(
-            'Run exited with code %s, walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            returnvalue, walltime, cputime, cputime2, memUsage)
-
-        # Usually cputime2 (measured with cgroups) seems to be 0.01s greater
-        # than cputime (measured with ulimit).
-        # Furthermore, cputime might miss some subprocesses,
-        # therefore we expect cputime2 to be always greater (and more correct).
-        # However, sometimes cputime is a little bit bigger than cputime2.
-        # For small values, this is probably because cputime counts since fork,
-        # whereas cputime2 counts only after cgroups.add_task()
-        # (so overhead from runexecutor is correctly excluded in cputime2).
-        # For large values, a difference may also indicate a problem with cgroups,
-        # for example another process moving our benchmarked process between cgroups,
-        # thus we warn if the difference is substantial and take the larger ulimit value.
-        if cputime2 is not None:
-            if cputime > 0.5 and (cputime * 0.95) > cputime2:
-                logging.warning(
-                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
-                    'perhaps measurement is flawed.',
-                    cputime, cputime2)
-            else:
-                cputime = cputime2
-        result['cputime'] = cputime
-
-        if CPUACCT in cgroups:
-            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
-                try:
-                    coretime = int(coretime)
-                    if coretime != 0:
-                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
-                except (OSError, ValueError) as e:
-                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
+            'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
+            walltime, cputime_wait, cputime_cgroups, memUsage)
 
         return result
 
@@ -805,16 +815,10 @@ class RunExecutor(object):
         if cores is not None:
             if self.cpus is None:
                 sys.exit("Cannot limit CPU cores without cpuset cgroup.")
-            coreCount = len(cores)
-            if coreCount == 0:
+            if not cores:
                 sys.exit("Cannot execute run without any CPU core.")
             if not set(cores).issubset(self.cpus):
                 sys.exit("Cores {0} are not allowed to be used".format(list(set(cores).difference(self.cpus))))
-        else:
-            try:
-                coreCount = multiprocessing.cpu_count()
-            except NotImplementedError:
-                coreCount = 1
 
         if memlimit is not None:
             if memlimit <= 0:
@@ -840,35 +844,24 @@ class RunExecutor(object):
 
         self._termination_reason = None
 
-        logging.debug("execute_run: setting up Cgroups.")
-        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
-
         throttle_check = _CPUThrottleCheck(cores)
         swap_check = _SwapCheck()
 
         try:
             logging.debug("execute_run: executing tool.")
-            (exitcode, walltime, cputime, energy) = \
-                self._execute(args, output_filename, stdin, cgroups,
-                              hardtimelimit, softtimelimit, walltimelimit,
-                              coreCount, memlimit,
+            (exitcode, result) = \
+                self._execute(args, output_filename, stdin,
+                              hardtimelimit, softtimelimit, walltimelimit, memlimit,
+                              cores, memory_nodes,
                               environments, workingDir)
 
-            logging.debug("execute_run: getting exact measures.")
-            result = self._get_exact_measures(cgroups, exitcode, walltime, cputime)
-
-        finally: # always try to cleanup cgroups, even on sys.exit()
-            logging.debug("execute_run: cleaning up CGroups.")
-            cgroups.remove()
+        except OSError as e:
+            logging.critical("OSError %s while starting '%s' in '%s': %s.",
+                             e.errno, args[0], workingDir or '.', e.strerror)
+            return {'terminationreason': 'failed', 'exitcode': 0,
+                    'cputime': 0, 'walltime': 0, 'memory': None}
 
         # if exception is thrown, skip the rest, otherwise perform normally
-
-        result['walltime'] = walltime
-        result['exitcode'] = exitcode
-        if self._termination_reason:
-            result['terminationreason'] = self._termination_reason
-        if energy:
-            result['energy'] = energy
 
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. '
@@ -1022,7 +1015,7 @@ class _TimelimitThread(threading.Thread):
     Thread that periodically checks whether the given process has already
     reached its timelimit. After this happens, the process is terminated.
     """
-    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, process, cpuCount=1,
+    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, process, cores,
                  callbackFn=lambda reason: None):
         super(_TimelimitThread, self).__init__()
 
@@ -1030,12 +1023,19 @@ class _TimelimitThread(threading.Thread):
             assert CPUACCT in cgroups
         assert walltimelimit is not None
 
+        if cores:
+            self.cpuCount = len(cores)
+        else:
+            try:
+                self.cpuCount = multiprocessing.cpu_count()
+            except NotImplementedError:
+                self.cpuCount = 1
+
         self.daemon = True
         self.cgroups = cgroups
         self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
         self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value
         self.latestKillTime = time.time() + walltimelimit
-        self.cpuCount = cpuCount
         self.process = process
         self.callback = callbackFn
         self.kill_process = kill_process_fn
