@@ -25,6 +25,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
+import glob
+import logging
 import os
 import sys
 
@@ -33,7 +35,9 @@ from benchexec import util
 __all__ = [
            'has_swap',
            'is_turbo_boost_enabled',
+           'CPUThrottleCheck',
            'SystemInfo',
+           'SwapCheck',
            ]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
@@ -100,6 +104,67 @@ class SystemInfo(object):
         self.environment.pop("TMP", None)
         self.environment.pop("TEMPDIR", None)
         self.environment.pop("TEMP", None)
+
+
+class CPUThrottleCheck(object):
+    """
+    Class for checking whether the CPU has throttled during some time period.
+    """
+    def __init__(self, cores=None):
+        """
+        Create an instance that monitors the given list of cores (or all CPUs).
+        """
+        self.cpu_throttle_count = {}
+        cpu_pattern = '[{0}]'.format(','.join(map(str, cores))) if cores else '*'
+        for file in glob.glob('/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count'.format(cpu_pattern)):
+            try:
+                self.cpu_throttle_count[file] = int(util.read_file(file))
+            except Exception as e:
+                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
+
+    def has_throttled(self):
+        """
+        Check whether any of the CPU cores monitored by this instance has
+        throttled since this instance was created.
+        @return a boolean value
+        """
+        for file, value in self.cpu_throttle_count.items():
+            try:
+                new_value = int(util.read_file(file))
+                if new_value > value:
+                    return True
+            except Exception as e:
+                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
+        return False
+
+
+class SwapCheck(object):
+    """
+    Class for checking whether the system has swapped during some period.
+    """
+    def __init__(self):
+        self.swap_count = self._read_swap_count()
+
+    def _read_swap_count(self):
+        try:
+            return dict((k, int(v)) for k, v
+                                    in util.read_key_value_pairs_from_file('/proc/vmstat')
+                                    if k in ['pswpin', 'pswpout'])
+        except Exception as e:
+            logging.warning('Cannot read swap count from kernel: %s', e)
+
+    def has_swapped(self):
+        """
+        Check whether any swapping occured on this system since this instance was created.
+        @return a boolean value
+        """
+        new_values = self._read_swap_count()
+        for key, new_value in new_values.items():
+            old_value = self.swap_count.get(key, 0)
+            if new_value > old_value:
+                return True
+        return False
+
 
 def is_turbo_boost_enabled():
     """

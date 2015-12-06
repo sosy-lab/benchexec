@@ -246,12 +246,61 @@ def log_shutil_rmtree_error(func, arg, exc_info):
     """Suited as onerror handler for shutil.rmtree() that logs a warning."""
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])
 
+
+def copy_all_lines_from_to(inputFile, outputFile):
+    """Copy all lines from an input file object to an output file object."""
+    currentLine = inputFile.readline()
+    while currentLine:
+        outputFile.write(currentLine)
+        currentLine = inputFile.readline()
+
 def write_file(content, *path):
     """
     Simply write some content to a file, overriding the file if necessary.
     """
     with open(os.path.join(*path), "w") as file:
         return file.write(content)
+
+def shrink_text_file(filename, max_size, removal_marker=None):
+    """Shrink a text file to approximately maxSize bytes
+    by removing lines from the middle of the file.
+    """
+    file_size = os.path.getsize(filename)
+    assert file_size > max_size
+
+    # We partition the file into 3 parts:
+    # A) start: maxSize/2 bytes we want to keep
+    # B) middle: part we want to remove
+    # C) end: maxSize/2 bytes we want to keep
+
+    # Trick taken from StackOverflow:
+    # https://stackoverflow.com/questions/2329417/fastest-way-to-delete-a-line-from-large-file-in-python
+    # We open the file twice at the same time, once for reading and once for writing.
+    # We position the one file object at the beginning of B
+    # and the other at the beginning of C.
+    # Then we copy the content of C into B, overwriting what is there.
+    # Afterwards we truncate the file after A+C.
+
+    with open(filename, 'r+b') as output_file:
+        with open(filename, 'rb') as input_file:
+            # Position outputFile between A and B
+            output_file.seek(max_size // 2)
+            output_file.readline() # jump to end of current line so that we truncate at line boundaries
+            if output_file.tell() == file_size:
+                # readline jumped to end of file because of a long line
+                return
+
+            if removal_marker:
+                output_file.write(removal_marker.encode())
+
+            # Position inputFile between B and C
+            input_file.seek(-max_size // 2, os.SEEK_END) # jump to beginning of second part we want to keep from end of file
+            input_file.readline() # jump to end of current line so that we truncate at line boundaries
+
+            # Copy C over B
+            copy_all_lines_from_to(input_file, output_file)
+
+            output_file.truncate()
 
 
 def read_file(*path):

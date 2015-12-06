@@ -23,7 +23,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import errno
-import glob
 import logging
 import multiprocessing
 import os
@@ -46,7 +45,7 @@ from benchexec import util
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
-
+_LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
 _SUDO_ARGS = ['sudo', '--non-interactive', '-u']
 
 try:
@@ -719,8 +718,8 @@ class RunExecutor(object):
         ru_child = None
         self._termination_reason = None
 
-        throttle_check = _CPUThrottleCheck(cores)
-        swap_check = _SwapCheck()
+        throttle_check = systeminfo.CPUThrottleCheck(cores)
+        swap_check = systeminfo.SwapCheck()
 
         logging.debug('Starting process.')
 
@@ -992,49 +991,7 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
         return
 
     logging.warning("Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize)
-
-    # We partition the file into 3 parts:
-    # A) start: maxSize/2 bytes we want to keep
-    # B) middle: part we want to remove
-    # C) end: maxSize/2 bytes we want to keep
-
-    # Trick taken from StackOverflow:
-    # https://stackoverflow.com/questions/2329417/fastest-way-to-delete-a-line-from-large-file-in-python
-    # We open the file twice at the same time, once for reading and once for writing.
-    # We position the one file object at the beginning of B
-    # and the other at the beginning of C.
-    # Then we copy the content of C into B, overwriting what is there.
-    # Afterwards we truncate the file after A+C.
-
-    with open(fileName, 'r+b') as outputFile:
-        with open(fileName, 'rb') as inputFile:
-            # Position outputFile between A and B
-            outputFile.seek(maxSize // 2)
-            outputFile.readline() # jump to end of current line so that we truncate at line boundaries
-            if outputFile.tell() == fileSize:
-                # readline jumped to end of file because of a long line
-                return
-
-            outputFile.write("\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n".encode())
-
-            # Position inputFile between B and C
-            inputFile.seek(-maxSize // 2, os.SEEK_END) # jump to beginning of second part we want to keep from end of file
-            inputFile.readline() # jump to end of current line so that we truncate at line boundaries
-
-            # Copy C over B
-            _copy_all_lines_from_to(inputFile, outputFile)
-
-            outputFile.truncate()
-
-
-def _copy_all_lines_from_to(inputFile, outputFile):
-    """
-    Copy all lines from an input file object to an output file object.
-    """
-    currentLine = inputFile.readline()
-    while currentLine:
-        outputFile.write(currentLine)
-        currentLine = inputFile.readline()
+    util.shrink_text_file(fileName, maxSize, _LOG_SHRINK_MARKER)
 
 
 def _get_debug_output_after_crash(output_filename):
@@ -1054,7 +1011,7 @@ def _get_debug_output_after_crash(output_filename):
                     dumpFileName = line.strip(' #\n')
                     outputFile.seek(0, os.SEEK_END) # jump to end of log file
                     with open(dumpFileName, 'r') as dumpFile:
-                        _copy_all_lines_from_to(dumpFile, outputFile)
+                        util.copy_all_lines_from_to(dumpFile, outputFile)
                     os.remove(dumpFileName)
                 except IOError as e:
                     logging.warning('Could not append additional segmentation fault information '
@@ -1142,66 +1099,6 @@ class _TimelimitThread(threading.Thread):
 
     def cancel(self):
         self.finished.set()
-
-
-class _CPUThrottleCheck(object):
-    """
-    Class for checking whether the CPU has throttled during some time period.
-    """
-    def __init__(self, cores=None):
-        """
-        Create an instance that monitors the given list of cores (or all CPUs).
-        """
-        self.cpu_throttle_count = {}
-        cpu_pattern = '[{0}]'.format(','.join(map(str, cores))) if cores else '*'
-        for file in glob.glob('/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count'.format(cpu_pattern)):
-            try:
-                self.cpu_throttle_count[file] = int(util.read_file(file))
-            except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
-
-    def has_throttled(self):
-        """
-        Check whether any of the CPU cores monitored by this instance has
-        throttled since this instance was created.
-        @return a boolean value
-        """
-        for file, value in self.cpu_throttle_count.items():
-            try:
-                new_value = int(util.read_file(file))
-                if new_value > value:
-                    return True
-            except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
-        return False
-
-
-class _SwapCheck(object):
-    """
-    Class for checking whether the system has swapped during some period.
-    """
-    def __init__(self):
-        self.swap_count = self._read_swap_count()
-
-    def _read_swap_count(self):
-        try:
-            return dict((k, int(v)) for k, v
-                                    in util.read_key_value_pairs_from_file('/proc/vmstat')
-                                    if k in ['pswpin', 'pswpout'])
-        except Exception as e:
-                logging.warning('Cannot read swap count from kernel: %s', e)
-
-    def has_swapped(self):
-        """
-        Check whether any swapping occured on this system since this instance was created.
-        @return a boolean value
-        """
-        new_values = self._read_swap_count()
-        for key, new_value in new_values.items():
-            old_value = self.swap_count.get(key, 0)
-            if new_value > old_value:
-                return True
-        return False
 
 
 if __name__ == '__main__':
