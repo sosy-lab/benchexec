@@ -569,6 +569,18 @@ class RunExecutor(object):
                                  e.errno, e.strerror)
         return None
 
+    def _setup_ulimit_time_limit(self, hardtimelimit, cgroups):
+        """Setup time limit with ulimit for the current process."""
+        if hardtimelimit is not None:
+            # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
+            if CPUACCT in cgroups:
+                # Use a slightly higher limit to ensure cgroups get used
+                # (otherwise we cannot detect the timeout properly).
+                ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
+            else:
+                ulimit = hardtimelimit
+            resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
+
 
     def _wait_for_process(self, p, args):
         """Wait for the given process to terminate.
@@ -606,41 +618,14 @@ class RunExecutor(object):
         """
 
         def preSubprocess():
+            """Setup that is executed in the forked process before the actual tool is started."""
             os.setpgrp() # make subprocess to group-leader
             os.nice(5) # increase niceness of subprocess
-
-            if hardtimelimit is not None:
-                # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
-                if CPUACCT in cgroups:
-                    # Use a slightly higher limit to ensure cgroups get used
-                    # (otherwise we cannot detect the timeout properly).
-                    ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
-                else:
-                    ulimit = hardtimelimit
-                resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
+            self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
             # put us into the cgroup(s)
             pid = os.getpid()
-            # On some systems, cgrulesengd would move our process into other cgroups.
-            # We disable this behavior via libcgroup if available.
-            # Unfortunately, logging/printing does not seem to work here.
-            from ctypes import cdll
-            try:
-                libcgroup = cdll.LoadLibrary('libcgroup.so.1')
-                failure = libcgroup.cgroup_init()
-                if failure:
-                    pass
-                    #print('Could not initialize libcgroup, error {}'.format(success))
-                else:
-                    CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
-                    failure = libcgroup.cgroup_register_unchanged_process(pid, CGROUP_DAEMON_UNCHANGE_CHILDREN)
-                    if failure:
-                        pass
-                        #print('Could not register process to cgrulesndg, error {}. Probably the daemon will mess up our cgroups.'.format(success))
-            except OSError:
-                pass
-                #print('libcgroup is not available: {}'.format(e.strerror))
-
+            _register_process_with_cgrulesengd(pid)
             cgroups.add_task(pid)
 
         # preparations that are not time critical
@@ -954,6 +939,31 @@ def _get_user_account_info(user):
         return pwd.getpwuid(int(user[1:]))
     else:
         return pwd.getpwnam(user)
+
+
+def _register_process_with_cgrulesengd(pid):
+    """Tell cgrulesengd daemon to not move the given process into other cgroups,
+    if libcgroup is available.
+    """
+    # Logging/printing from inside preexec_fn would end up in the output file,
+    # not in the correct logger, thus it is disabled here.
+    from ctypes import cdll
+    try:
+        libcgroup = cdll.LoadLibrary('libcgroup.so.1')
+        failure = libcgroup.cgroup_init()
+        if failure:
+            pass
+            #print('Could not initialize libcgroup, error {}'.format(success))
+        else:
+            CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
+            failure = libcgroup.cgroup_register_unchanged_process(pid, CGROUP_DAEMON_UNCHANGE_CHILDREN)
+            if failure:
+                pass
+                #print('Could not register process to cgrulesndg, error {}. '
+                #      'Probably the daemon will mess up our cgroups.'.format(success))
+    except OSError:
+        pass
+        #print('libcgroup is not available: {}'.format(e.strerror))
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
