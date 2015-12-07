@@ -1,6 +1,27 @@
 # BenchExec Changelog
 
+## BenchExec 1.4
+
+- BenchExec moved to https://github.com/sosy-lab/benchexec
+- Fix several bugs in table-generator introduced in version 1.3.
+- BenchExec now creates fresh empty directories for $HOME and $TMPDIR
+  of all runs, and removes them afterwards.
+- table-generator now transparently supports result XML files as input
+  that are compressed with GZip or BZip2.
+- benchexec now reports some more information as status when a tool crashes,
+  e.g. whether it segfaulted or aborted, and what the exit code was
+  (previously this was only done for some tools).
+- If a tool produces a result but still violates a resource limit,
+  this is now shown in the status (but still counted as timeout / out of memory).
+- Added dummy tool "calculatepi" that needs no input files and no installation,
+  but can be used to create some CPU load and test benchmarking
+  (it calculates Pi up some arbitrary number of digits using the tool "bc").
+- Renaming "tool wrapper" to "tool info".
+  This is mostly an internal and documentation change, but the utility
+  `benchexec.test_tool_wrapper` is now named `benchexec.test_tool_info`.
+
 ## BenchExec 1.3
+
 - Fix core assignment on AMD Bulldozer/Piledriver Opterons.
 - Measure and report CPU time usage per core
   (hidden by default in tables, use `table-generator --all-columns` to show).
