@@ -9,7 +9,8 @@ multiple executions of a tool in one go.
 the resource limits, and the tasks for which the command should be run.
 A complete definition of the input format can be found in the file
 [doc/benchmark.xml](benchmark.xml),
-and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml)
+and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml),
+[doc/benchmark-example-calculatepi.xml](benchmark-example-calculatepi.xml),
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 

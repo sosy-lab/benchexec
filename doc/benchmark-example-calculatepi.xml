@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
+<!-- Example file for benchmark definition for BenchExec
+     with dummy tool "calculatepi" that calculates Pi up to some number of digits. -->
+<benchmark tool="calculatepi" timelimit="900" memlimit="100" cpuCores="1">
+  <tasks>
+    <!-- <withoutfile> defines tasks that do not need an input file.
+         calculatepi exects a single int that is the number of desired digits
+         for the output of Pi. -->
+    <withoutfile>1000 </withoutfile>
+    <withoutfile>2000 </withoutfile>
+    <withoutfile>3000 </withoutfile>
+    <withoutfile>4000 </withoutfile>
+    <withoutfile>5000 </withoutfile>
+    <withoutfile>6000 </withoutfile>
+    <withoutfile>7000 </withoutfile>
+    <withoutfile>8000 </withoutfile>
+    <withoutfile>9000 </withoutfile>
+    <withoutfile>10000</withoutfile>
+    <withoutfile>11000</withoutfile>
+    <withoutfile>12000</withoutfile>
+    <withoutfile>13000</withoutfile>
+    <withoutfile>14000</withoutfile>
+    <withoutfile>15000</withoutfile>
+    <withoutfile>16000</withoutfile>
+    <withoutfile>17000</withoutfile>
+    <withoutfile>18000</withoutfile>
+    <withoutfile>19000</withoutfile>
+    <withoutfile>20000</withoutfile>
+  </tasks>
+
+  <rundefinition/>
+</benchmark>

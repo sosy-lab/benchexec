@@ -180,6 +180,10 @@ class BaseTool(object):
         Returns a dict, that contains several further dicts.
         All keys and values have to be Strings!
 
+        Note that when executing benchmarks under a separate user account (with flag --user),
+        the environment of the tool is a fresh almost-empty one.
+        This function can be used to set some variables.
+
         Note that runexec usually overrides the environment variable $HOME and sets it to a fresh
         directory. If your tool relies on $HOME pointing to the real home directory,
         you can use the result of this function to overwrite the value specified by runexec.

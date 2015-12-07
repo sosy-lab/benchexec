@@ -16,6 +16,10 @@ The full set of available parameters can be seen with `table-generator -h`.
 Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
+You can also give compressed XML result files to `table-generator`,
+just specify them in the regular way, they will be transparently decompressed.
+Currently GZip and BZip2 are supported.
+
 `table-generator` also supports using a special file as input
 that defines the layout of the generated tables
 and allows even more customizations,
