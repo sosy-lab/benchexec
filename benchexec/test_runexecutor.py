@@ -451,7 +451,7 @@ class TestRunExecutorWithSudo(TestRunExecutor):
             self.skipTest('missing /usr/bin/mktemp')
         home_dir = runexecutor._get_user_account_info(self.user).pw_dir
         (result, output) = self.execute_run(
-            '/usr/bin/mktemp', '--tmpdir=' + home_dir, '.BenchExec_test_runexecutor_XXXXXXXXXX')
+            '/usr/bin/mktemp', '--tmpdir=' + home_dir, '.BenchExec_test_runexecutor_äöü_XXXXXXXXXX')
         try:
             self.assertEqual(int(result['exitcode']), 0, 'exit code of /usr/bin/mktemp is not zero')
             tmp_file = output[-1]
