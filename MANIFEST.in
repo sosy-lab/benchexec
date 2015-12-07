@@ -4,4 +4,4 @@ include benchexec/tablegenerator/template.*
 recursive-include bin *
 recursive-include contrib *
 recursive-include doc *
-recursive-include benchexec/tablegenerator/test *.py *.xml *.log *.csv
+recursive-include benchexec/tablegenerator/test *.py *.xml *.xml.gz *.xml.bz2 *.log *.csv
