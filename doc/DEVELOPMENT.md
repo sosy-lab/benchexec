@@ -9,7 +9,7 @@ For writing a tool-info module, please refer to the documentation on
 
 ## Installation for Development
 
-After cloning the [GitHub repository](https://github.com/dbeyer/benchexec),
+After cloning the [GitHub repository](https://github.com/sosy-lab/benchexec),
 BenchExec can be used directly from within the working directory.
 Scripts for starting the three programs are available in the `bin` directory.
 For `table-generator`, the [Python package Tempita](https://pypi.python.org/pypi/Tempita)
@@ -42,7 +42,7 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
    e.g., from `1.1-dev` to `1.1`. Update `CHANGELOG.md` and commit.
 
  * The remaining steps can also be automated with the script
-   [release.sh](https://github.com/dbeyer/benchexec/blob/master/release.sh).
+   [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh).
 
  * Create a Git tag:
 

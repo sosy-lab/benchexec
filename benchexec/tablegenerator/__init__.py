@@ -1098,7 +1098,7 @@ def create_argument_parser():
         description=
         """Create tables with the results of one or more benchmark executions.
            Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
-           Part of BenchExec: https://github.com/dbeyer/benchexec/"""
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/"""
     )
 
     parser.add_argument("tables",

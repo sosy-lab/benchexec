@@ -120,7 +120,7 @@ def main(argv=None):
         fromfile_prefix_chars='@',
         description=
         """Check whether cgroups are available and can be used for BenchExec.
-           Part of BenchExec: https://github.com/dbeyer/benchexec/""")
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
     parser.add_argument("--wait", type=int, default=1, metavar="SECONDS",
                         help='wait some time to ensure no process interferes with cgroups in the meantime (default: 1s)')
     parser.add_argument("--no-thread", action="store_true",

@@ -152,7 +152,7 @@ def main(argv=None):
         fromfile_prefix_chars='@',
         description=
         """Test a tool info for BenchExec and print out all relevant information this tool info provides.
-           Part of BenchExec: https://github.com/dbeyer/benchexec/""")
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
     parser.add_argument("tool", metavar="TOOL",
                         help="name of tool info to test")
     options = parser.parse_args(argv[1:])

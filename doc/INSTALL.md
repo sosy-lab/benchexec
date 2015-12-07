@@ -17,7 +17,7 @@ run this command:
     sudo pip3 install benchexec
 
 Users of Debian and related distributions like Ubuntu can also download
-a Debian package from [GitHub](https://github.com/dbeyer/benchexec/releases)
+a Debian package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
 and install it with `dpkg -i` (after installing the package `python3-tempita`).
 
 You can also install BenchExec only for your user with
@@ -32,9 +32,9 @@ to the PATH environment by adding the following line to your `~/.profile` file:
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
 
 To install the latest development version from the
-[GitHub repository](https://github.com/dbeyer/benchexec), run this command:
+[GitHub repository](https://github.com/sosy-lab/benchexec), run this command:
 
-    pip3 install --user git+https://github.com/dbeyer/benchexec.git
+    pip3 install --user git+https://github.com/sosy-lab/benchexec.git
 
 If you want to run benchmarks under different user account than your own,
 please check the [respective documentation](separate-user.md) for how to setup sudo.
@@ -157,8 +157,8 @@ exec sleep $(( 10 * 365 * 24 * 3600 ))
 ```
 [Unit]
 Description=Cgroup for BenchExec
-Documentation=https://github.com/dbeyer/benchexec/blob/master/doc/INSTALL.md
-Documentation=https://github.com/dbeyer/benchexec/blob/master/doc/INDEX.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
 
 [Service]
 Type=simple

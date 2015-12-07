@@ -28,7 +28,7 @@ For tools that are not supported out-of-the-box by BenchExec,
 the tool info needs to be defined.
 This is typically just a few lines of Python code.
 If you write such a module, please consider sending us
-a [pull request](https://github.com/dbeyer/benchexec/pulls) with it
+a [pull request](https://github.com/sosy-lab/benchexec/pulls) with it
 such that we can include it in BenchExec.
 
 Tool-info modules need to define a class named `Tool`

@@ -67,7 +67,7 @@ def main(argv=None):
         description=
         """Execute a command with resource limits and measurements.
            Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
-           Part of BenchExec: https://github.com/dbeyer/benchexec/""")
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
     parser.add_argument("args", nargs="+", metavar="ARG",
                         help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
     parser.add_argument("--input", metavar="FILE",

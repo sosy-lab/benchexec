@@ -91,7 +91,7 @@ twine upload "$DIST_DIR/BenchExec"*
 
 echo
 echo "Please create a release on GitHub and add content from CHANGELOG.md and files from $DIST_DIR/:"
-echo "https://github.com/dbeyer/benchexec/releases"
+echo "https://github.com/sosy-lab/benchexec/releases"
 echo
 echo "Please increment version in benchexec/__init__.py to next development version."
 echo

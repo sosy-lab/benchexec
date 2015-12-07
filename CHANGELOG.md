@@ -5,7 +5,7 @@
 - Measure and report CPU time usage per core
   (hidden by default in tables, use `table-generator --all-columns` to show).
 - Parameter `--user` allows executing benchmarks under a different user
-  (cf. https://github.com/dbeyer/benchexec/blob/master/doc/separate-user.md).
+  (cf. https://github.com/sosy-lab/benchexec/blob/master/doc/separate-user.md).
 - Performance improvements for table-generator,
   including parallel processing of input and output files and statistics.
 - HTML Tables support filtering rows by task name.

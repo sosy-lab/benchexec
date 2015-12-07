@@ -11,9 +11,9 @@ Build-Depends: debhelper (>= 9),
                python3-tempita
 Standards-Version: 3.9.6.1
 X-Python3-Version: >= 3.2
-Homepage: https://github.com/dbeyer/benchexec
-Vcs-Git: https://github.com/dbeyer/benchexec.git
-Vcs-Browser: https://github.com/dbeyer/benchexec
+Homepage: https://github.com/sosy-lab/benchexec
+Vcs-Git: https://github.com/sosy-lab/benchexec.git
+Vcs-Browser: https://github.com/sosy-lab/benchexec
 
 Package: benchexec
 Architecture: all

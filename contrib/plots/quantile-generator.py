@@ -56,7 +56,7 @@ def main(args=None):
            but have an additional first column with the index for the quantile plot,
            and they are sorted.
            The output is written to stdout.
-           Part of BenchExec: https://github.com/dbeyer/benchexec/"""
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/"""
     )
 
     parser.add_argument("result",

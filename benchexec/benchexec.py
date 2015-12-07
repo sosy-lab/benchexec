@@ -96,7 +96,7 @@ class BenchExec(object):
                Benchmarks are defined in an XML file given as input.
                Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
                The tool table-generator can be used to create tables for the results.
-               Part of BenchExec: https://github.com/dbeyer/benchexec/""")
+               Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
 
         parser.add_argument("files", nargs='+', metavar="FILE",
                           help="XML file with benchmark definition")

@@ -32,7 +32,7 @@ class BaseTool(object):
     maybe version(), cmdline(), working_directory(), and get_value_from_output(), too).
     The class for each specific tool need to be named "Tool".
     For more information, please refer to
-    https://github.com/dbeyer/benchexec/blob/master/doc/tool-integration.md
+    https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
     """
 
     REQUIRED_PATHS = []

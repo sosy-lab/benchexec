@@ -1,7 +1,7 @@
 # BenchExec
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
-[![Build Status](https://travis-ci.org/dbeyer/benchexec.svg?branch=master)](https://travis-ci.org/dbeyer/benchexec)
+[![Build Status](https://travis-ci.org/sosy-lab/benchexec.svg?branch=master)](https://travis-ci.org/sosy-lab/benchexec)
 [![Code Quality](https://api.codacy.com/project/badge/grade/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
 [![Test Coverage](https://api.codacy.com/project/badge/coverage/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
 [![PyPI version](https://badge.fury.io/py/benchexec.svg)](https://badge.fury.io/py/benchexec)
@@ -50,11 +50,11 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
 
 ### Links
 
-- [Documentation](https://github.com/dbeyer/benchexec/tree/master/doc/INDEX.md)
-- [Downloads](https://github.com/dbeyer/benchexec/releases)
-- [Changelog](https://github.com/dbeyer/benchexec/tree/master/CHANGELOG.md)
-- [BenchExec GitHub Repository](https://github.com/dbeyer/benchexec),
-  use this for [reporting issues and asking questions](https://github.com/dbeyer/benchexec/issues)
+- [Documentation](https://github.com/sosy-lab/benchexec/tree/master/doc/INDEX.md)
+- [Downloads](https://github.com/sosy-lab/benchexec/releases)
+- [Changelog](https://github.com/sosy-lab/benchexec/tree/master/CHANGELOG.md)
+- [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
+  use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - Paper [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf) about BenchExec ([supplementary webpage](http://www.sosy-lab.org/~dbeyer/benchmarking/))
 
@@ -69,4 +69,4 @@ The developers of the following tools use BenchExec:
 - [CPAchecker](http://cpachecker.sosy-lab.org), also for regression testing
 - [SMACK](https://github.com/smackers/smack)
 
-If you would like to be listed here, [contact us](https://github.com/dbeyer/benchexec/issues/new).
+If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).
