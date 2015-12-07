@@ -34,15 +34,23 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
 
 ## Releasing a new Version
 
- * Make sure to install `pandoc` and `pypandoc` in the virtual environment
-   you use, otherwise the documentation cannot be converted to the correct
-   format that PyPI needs.
+ * Make sure to install `pandoc`, otherwise the documentation cannot be
+   converted to the correct format that PyPI needs.
+   You also need `twine`.
 
- * Update version number in field `__version__` of `benchexec/__init__.py`,
-   e.g., from `1.1-dev` to `1.1`. Update `CHANGELOG.md` and commit.
+ * Define next version number, e.g., from `1.1-dev` to `1.1`.
+   Add an according entry to `CHANGELOG.md` and commit.
+
+ * Check whether any of the DTD files in `doc/` changed since last release.
+   If yes, push a copy of the changed DTD with the new version to
+   `http://www.sosy-lab.org/benchexec/{benchmark,result,table}-<VERSION>.dtd`,
+   and update the version number in all references to this DTD in BenchExec.
 
  * The remaining steps can also be automated with the script
    [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh).
+
+ * Update version number in field `__version__` of `benchexec/__init__.py`,
+   e.g., from `1.1-dev` to `1.1` and commit.
 
  * Create a Git tag:
 

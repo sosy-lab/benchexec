@@ -82,7 +82,7 @@ setuptools.setup(
             ] if not PY2 else []),
         },
     install_requires = ['tempita==0.5.2'],
-    setup_requires=['nose>=1.0', 'lxml'],
+    setup_requires=['nose>=1.0'] + ['lxml'] if not PY2 else [],
     test_suite = 'nose.collector' if not PY2 else 'benchexec.test_python2.Python2Tests',
     zip_safe = True,
 )
