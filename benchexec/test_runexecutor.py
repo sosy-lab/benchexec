@@ -27,7 +27,6 @@ import tempfile
 import threading
 import time
 import unittest
-from lxml.html.clean import unichr
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.runexecutor import RunExecutor
