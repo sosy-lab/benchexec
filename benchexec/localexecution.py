@@ -202,7 +202,9 @@ class _Worker(threading.Thread):
         while not _Worker.working_queue.empty() and not STOPPED_BY_INTERRUPT:
             currentRun = _Worker.working_queue.get_nowait()
             try:
+                logging.debug('Executing run "%s"', currentRun.identifier)
                 self.execute(currentRun)
+                logging.debug('Finished run "%s"', currentRun.identifier)
             except SystemExit as e:
                 logging.critical(e)
             except BaseException as e:
@@ -228,9 +230,11 @@ class _Worker(threading.Thread):
         elif maxLogfileSize == -1:
             maxLogfileSize = None
 
+        args = run.cmdline()
+        logging.debug('Command line of run is %s', args)
         result = \
             self.run_executor.execute_run(
-                run.cmdline(), run.log_file,
+                args, run.log_file,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
                 softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
                 cores=self.my_cpus,

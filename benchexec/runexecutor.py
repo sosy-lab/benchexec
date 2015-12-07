@@ -378,10 +378,9 @@ class RunExecutor(object):
 
     # --- setup and cleanup for a single run ---
 
-    def _setup_cgroups(self, args, my_cpus, memlimit, memory_nodes):
+    def _setup_cgroups(self, my_cpus, memlimit, memory_nodes):
         """
         This method creates the CGroups for the following execution.
-        @param args: the command line to run, used only for logging
         @param my_cpus: None or a list of the CPU cores to use
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes of a NUMA system to use
@@ -398,19 +397,19 @@ class RunExecutor(object):
 
         cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
 
-        logging.debug("Executing %s in cgroups %s.", args, cgroups)
+        logging.debug("Created cgroups %s.", cgroups)
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
             my_cpus_str = ','.join(map(str, my_cpus))
             cgroups.set_value(CPUSET, 'cpus', my_cpus_str)
             my_cpus_str = cgroups.get_value(CPUSET, 'cpus')
-            logging.debug('Executing %s with cpu cores [%s].', args, my_cpus_str)
+            logging.debug('Using cpu cores [%s].', my_cpus_str)
 
         if memory_nodes is not None:
             cgroups.set_value(CPUSET, 'mems', ','.join(map(str, memory_nodes)))
             memory_nodesStr = cgroups.get_value(CPUSET, 'mems')
-            logging.debug('Executing %s with memory nodes [%s].', args, memory_nodesStr)
+            logging.debug('Using memory nodes [%s].', memory_nodesStr)
 
 
         # Setup memory limit
@@ -435,7 +434,7 @@ class RunExecutor(object):
                     raise e
 
             memlimit = cgroups.get_value(MEMORY, limit)
-            logging.debug('Executing %s with memory limit %s bytes.', args, memlimit)
+            logging.debug('Effective memory limit is %s bytes.', memlimit)
 
         if MEMORY in cgroups:
             try:
@@ -705,7 +704,7 @@ class RunExecutor(object):
             cgroups.add_task(pid)
 
         # preparations that are not time critical
-        cgroups = self._setup_cgroups(args, cores, memlimit, memory_nodes)
+        cgroups = self._setup_cgroups(cores, memlimit, memory_nodes)
         base_dir, home_dir, temp_dir = self._setup_temp_dir()
         run_environment = self._setup_environment(environments, home_dir, temp_dir)
         outputFile = self._setup_output_file(output_filename, args)
@@ -983,11 +982,11 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     fileSize = os.path.getsize(fileName)
 
     if maxSize is None:
-        logging.debug("Size of logfile '%s' is %s, size limit disabled.", fileName, fileSize)
+        logging.debug("Size of logfile '%s' is %s bytes, size limit disabled.", fileName, fileSize)
         return # disabled, nothing to do
 
     if fileSize < (maxSize + 500):
-        logging.debug("Size of logfile '%s' is %s, nothing to do.", fileName, fileSize)
+        logging.debug("Size of logfile '%s' is %s bytes, nothing to do.", fileName, fileSize)
         return
 
     logging.warning("Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize)
