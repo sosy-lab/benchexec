@@ -14,7 +14,7 @@ and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml),
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.0//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.0.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.4//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.4.dtd">
 
 A document-type definition with a formal specification of input files can be found in
 [doc/benchmark.dtd](benchmark.dtd).
