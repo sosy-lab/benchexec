@@ -31,7 +31,8 @@ class Tool(benchexec.tools.template.BaseTool):
     DIVINE info object
     """
 
-    BINS = ['divine', 'rundivine', 'lart', 'libdivinert.bc']
+    BINS = ['divine', 'rundivine', 'lart', 'clang', 'opt']
+    LIBS = ['libc++abi.so.1', 'libc.so.6', 'libdl.so.2', 'libm.so.6', 'librt.so.1', 'libunwind.so.1', 'libc++.so.1', 'libdivinert.bc', 'libgcc_s.so.1', 'libpthread.so.0', 'libtinfo.so.5', 'libz.so.1']
 
     def executable(self):
         """
@@ -87,6 +88,9 @@ class Tool(benchexec.tools.template.BaseTool):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
 
+        if not output:
+            return 'ERROR - no output'
+
         last = output[-1]
 
         if isTimeout:
@@ -112,4 +116,4 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a list of files or directories that are necessary to run the tool.
         """
         directory = os.path.dirname(executable)
-        return [os.path.join('.', directory, f) for f in self.BINS]
+        return list( map(lambda x: os.path.join('.', directory, x), self.BINS) ) + list( map(lambda x: os.path.join('.', directory, "..", "lib", x), self.LIBS) )
