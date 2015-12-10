@@ -639,8 +639,9 @@ def get_table_head(runSetResults, commonFileNamePrefix):
         # Ugly because this overwrites the entries in the map,
         # but we don't need them anymore and this is the easiest way
         for key in runSetResult.attributes:
+            values = runSetResult.attributes[key]
             if key == 'turbo':
-                turbo_values = list(set(runSetResult.attributes['turbo']))
+                turbo_values = list(set(values))
                 if len(turbo_values) > 1:
                     turbo = 'mixed'
                 elif turbo_values[0] == 'true':
@@ -650,19 +651,17 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                 else:
                     turbo = None
                 runSetResult.attributes['turbo'] = ', Turbo Boost {}'.format(turbo) if turbo else ''
-            elif key == 'memlimit':
-                values = []
-                for value in runSetResult.attributes['memlimit']:
+
+            elif key == 'memlimit' or key == 'ram':
+                def round_to_MB(value):
                     try:
-                        value = int(value)
+                        return "{:.0f} MB".format(int(value)/_BYTE_FACTOR/_BYTE_FACTOR)
                     except ValueError:
-                        pass
-                    else:
-                        value = "{:.0f} MB".format(value/_BYTE_FACTOR/_BYTE_FACTOR)
-                    values.append(value)
-                runSetResult.attributes['memlimit'] = Util.prettylist(values)
+                        return value
+                runSetResult.attributes[key] = Util.prettylist(map(round_to_MB, values))
+
             else:
-                runSetResult.attributes[key] = Util.prettylist(runSetResult.attributes[key])
+                runSetResult.attributes[key] = Util.prettylist(values)
 
     def get_row(rowName, format_string, collapse=False, onlyIf=None, default='Unknown'):
         def format_cell(attributes):

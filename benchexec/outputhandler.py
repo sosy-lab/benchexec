@@ -120,7 +120,7 @@ class OutputHandler(object):
         cpuElem = ET.Element("cpu", {"model":cpu_model, "cores":cpu_number_of_cores, "frequency":cpu_max_frequency})
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ET.Element("ram", {"size":memory})
+        ramElem = ET.Element("ram", {"size":str(memory)})
         systemInfo = ET.Element("systeminfo", {"hostname":hostname})
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
@@ -215,7 +215,7 @@ class OutputHandler(object):
                     + "cpu:".ljust(columnWidth) + sysinfo.cpu_model + "\n"\
                     + "- cores:".ljust(columnWidth) + sysinfo.cpu_number_of_cores + "\n"\
                     + "- max frequency:".ljust(columnWidth) + sysinfo.cpu_max_frequency + "\n"\
-                    + "ram:".ljust(columnWidth) + sysinfo.memory + "\n"\
+                    + "ram:".ljust(columnWidth) + str(sysinfo.memory) + "\n"\
                     + simpleLine
 
         self.description = header
