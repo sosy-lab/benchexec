@@ -781,9 +781,6 @@ class Requirements(object):
 
         if self.memory is None:
             self.memory = rlimits.get(MEMLIMIT, None)
-        else:
-            # Convert MiB to bytes
-            self.memory = self.memory * _BYTE_FACTOR * _BYTE_FACTOR
 
         if hasattr(config, 'cpu_model') and config.cpu_model is not None:
             # user-given model -> override value
