@@ -66,6 +66,8 @@ TEMPLATE_NAMESPACE={
    'remove_unit': Util.remove_unit,
    }
 
+_BYTE_FACTOR = 1000 # bytes in a kilobyte
+
 
 def parse_table_definition_file(file, options):
     '''
@@ -648,6 +650,18 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                 else:
                     turbo = None
                 runSetResult.attributes['turbo'] = ', Turbo Boost {}'.format(turbo) if turbo else ''
+            elif key == 'memlimit':
+                values = []
+                for value in runSetResult.attributes['memlimit']:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        # BenchExec 1.4 and previous has a bug, it reports "MiB" as "MB"
+                        value = value[:-3] + " MiB" if value.endswith(" MB") else value
+                    else:
+                        value = "{:.0f} MiB".format(value/_BYTE_FACTOR/_BYTE_FACTOR)
+                    values.append(value)
+                runSetResult.attributes['memlimit'] = Util.prettylist(values)
             else:
                 runSetResult.attributes[key] = Util.prettylist(runSetResult.attributes[key])
 
