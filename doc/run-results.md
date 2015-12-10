@@ -9,8 +9,12 @@ and `RunExecutor.execute_run()` returns these in a dictionary.
 
 General rules:
 - Any result value may be missing if the value is not present.
-- We may add other possible result keys in the future.
+- Other possible result keys may be added at any time in the future.
 - Seconds are used as unit for time values, and bytes are used for memory values.
+- Values are reported as measured without rounding,
+  thus the number of digits does not indicate significance.
+  This is to prevent to prevent the proliferation of rounding errors
+  when using the data in calculations.
 
 The meanings of the current possible result values are as follows:
 
@@ -20,15 +24,18 @@ The meanings of the current possible result values are as follows:
   - `cputime`: CPU-time limit was violated and run was killed.
   - `cputime-soft`: Soft CPU-time limit was violated and run stopped itself afterwards.
   - `walltime`: Wall-time limit was violated and run was killed.
+  - `memory`: Memory limit was violated and run was killed.
   - `killed`: Run execution was interrupted with Ctrl+C or call to `RunExecutor.stop()`
      and run was killed.
   - `failed`: Run could not be started (e.g., because tool executable was not found).
+     No other result values contain meaningful data in this case.
 
-  We may add other possible values in the future.
-- **cputime**: CPU time of run in seconds, as decimal number with suffix "s"
+  Other possible values may be added in the future,
+  but successful runs will never have this value set.
+- **cputime**: CPU time of run in seconds, as decimal number with suffix "s".
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
-- **walltime**: Wall time of run in seconds, as decimal number with suffix "s"
+- **walltime**: Wall time of run in seconds, as decimal number with suffix "s".
 - **memory** (from `runexec`) / **memUsage** (from `benchexec`):
     Peak memory consumption of run in bytes.
 - **exitcode**: A number indicating how the process exited,
@@ -40,6 +47,12 @@ The meanings of the current possible result values are as follows:
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
+
+In the result dictionary of a call to `RunExecutor.execute_run()`,
+integer values are stored as `int`,
+decimal numbers as an instance of some arithmetic Python type,
+and other values as strings.
+
 
 ### Additional Results of benchexec
 `benchexec` additionally uses the following result values:
@@ -65,9 +78,16 @@ by defining them with a `<column>` tag in the benchmark-definition file.
 The values of these will be extracted from the tool output by the tool-info module
 and stored together with the result values that are determined by BenchExec.
 
+Because the value for memory usage is named `memUsage` in `benchexec` result files
+only for backwards compatibility, we may change its name to `memory`
+in a future version (e.g., version 2.0) of BenchExec.
+Tools that read such files and want to be future-proof may use both names for value lookup.
+
 If `benchexec` is interrupted during the execution,
 result values may also be the empty string instead of missing completely
 for runs that were not yet executed.
+However, this is not guaranteed and may change in the future
+such that the values would not be present at all in this case.
 
 `benchexec` also reports the CPU time and wall time that was used for executing all runs
 (as measured by the operating system, not as aggregation of the individual values).
