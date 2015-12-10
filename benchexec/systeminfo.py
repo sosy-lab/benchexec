@@ -72,7 +72,7 @@ class SystemInfo(object):
                                .replace("(TM)", "") \
                                .replace("(tm)", "")
         if 'cpu MHz' in cpuInfo:
-            self.cpu_max_frequency = cpuInfo['cpu MHz'].split('.')[0].strip() + ' MHz'
+            self.cpu_max_frequency = int(float(cpuInfo['cpu MHz'])) * 1000 * 1000 # convert to Hz
 
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above
@@ -81,7 +81,7 @@ class SystemInfo(object):
             frequencyInfoFile = open(freqInfoFilename, 'rt')
             cpu_max_frequency = frequencyInfoFile.read().strip('\n')
             frequencyInfoFile.close()
-            self.cpu_max_frequency = str(int(cpu_max_frequency) // 1000) + ' MHz'
+            self.cpu_max_frequency = int(cpu_max_frequency) * 1000 # convert to Hz
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 

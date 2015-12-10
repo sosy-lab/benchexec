@@ -660,6 +660,14 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                         return value
                 runSetResult.attributes[key] = Util.prettylist(map(round_to_MB, values))
 
+            elif key == 'freq':
+                def round_to_MHz(value):
+                    try:
+                        return "{:.0f} MHz".format(int(value)/1000/1000)
+                    except ValueError:
+                        return value
+                runSetResult.attributes[key] = Util.prettylist(map(round_to_MHz, values))
+
             else:
                 runSetResult.attributes[key] = Util.prettylist(values)
 
