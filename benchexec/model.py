@@ -183,6 +183,18 @@ class Benchmark(object):
             else:
                 self.rlimits[TIMELIMIT] = hardtimelimit
 
+        # Check allowed values of limits
+        def check_limit_is_positive(key, name):
+            if key in self.rlimits and self.rlimits[key] <= 0:
+                sys.exit('{} limit {} is invalid, it needs to be a positive number '
+                         'or -1 for disabling it.'.format(name, self.rlimits[key]))
+
+        check_limit_is_positive(TIMELIMIT, 'Time')
+        check_limit_is_positive(SOFTTIMELIMIT, 'Soft time')
+        check_limit_is_positive(MEMLIMIT, 'Memory')
+        check_limit_is_positive(CORELIMIT, 'Core')
+
+
         # get number of threads, default value is 1
         self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
         if config.num_of_threads != None:
