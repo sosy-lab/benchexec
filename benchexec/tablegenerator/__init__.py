@@ -977,7 +977,10 @@ def get_summary(runSetResults):
         for column in runSetResult.columns:
             if column.title in runSetResult.summary and runSetResult.summary[column.title] != '':
                 available = True
-                value = runSetResult.summary[column.title]
+                try:
+                    value = Util.to_decimal(runSetResult.summary[column.title])
+                except InvalidOperation:
+                    value = ''
             else:
                 value = ''
             summaryStats.append(StatValue(value))

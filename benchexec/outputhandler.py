@@ -494,16 +494,13 @@ class OutputHandler(object):
         for elem in list(runElem):
             runElem.remove(elem)
         self.add_column_to_xml(runElem, 'status',    run.status)
-        if run.cputime is not None:
-            self.add_column_to_xml(runElem, 'cputime',   str(run.cputime) + 's')
-        if run.walltime is not None:
-            self.add_column_to_xml(runElem, 'walltime',  str(run.walltime) + 's')
+        self.add_column_to_xml(runElem, 'cputime', run.cputime)
+        self.add_column_to_xml(runElem, 'walltime', run.walltime)
         self.add_column_to_xml(runElem, '@category', run.category) # hidden
         self.add_column_to_xml(runElem, '',          run.values)
 
         for column in run.columns:
             self.add_column_to_xml(runElem, column.title, column.value)
-
 
     def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy):
         """
@@ -514,7 +511,7 @@ class OutputHandler(object):
         self.add_column_to_xml(runSet.xml, 'energy', energy)
 
 
-    def add_column_to_xml(self, xml, title, value, prefix=""):
+    def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:
             return
 
@@ -530,17 +527,24 @@ class OutputHandler(object):
         if hasattr(value, '__getitem__') and not isinstance(value, (str, bytes)):
             value = ','.join(map(str, value))
 
-        # default case: add columns
         if prefix:
-            if prefix.startswith('@'):
-                attributes = {"title": prefix[1:] + '_' + title, "value": str(value), "hidden": "true"}
-            else:
-                attributes = {"title": prefix + '_' + title, "value": str(value)}
+            title = prefix + '_' + title
+        if title[0] == '@':
+            hidden = True
+            title = title[1:]
         else:
-            if title.startswith('@'):
-                attributes = {"title": title[1:], "value": str(value), "hidden": "true"}
-            else:
-                attributes = {"title": title, "value": str(value)}
+            hidden = False
+
+        if title.startswith('cputime') or title.startswith('walltime'):
+            if not value_suffix and not isinstance(value, (str, bytes)):
+                value_suffix = 's'
+
+        value = "{}{}".format(value, value_suffix)
+
+        if hidden:
+            attributes = {"title": title, "value": value, "hidden": "true"}
+        else:
+            attributes = {"title": title, "value": value}
         xml.append(ET.Element("column", attributes))
 
 
