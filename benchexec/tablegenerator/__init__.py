@@ -305,6 +305,9 @@ class RunSetResult(object):
 
         # Defaults
         attributes['branch'] = [os.path.basename(resultFile).split('#')[0] if '#' in resultFile else '']
+        attributes['timelimit'] = ['-']
+        attributes['memlimit'] = ['-']
+        attributes['cpuCores'] = ['-']
 
         # Update with real values
         for attrib, value in resultTag.attrib.items():

@@ -163,9 +163,12 @@ class OutputHandler(object):
                      "generator": "BenchExec " + benchexec.__version__
                      })
 
-        self.xml_header.set(MEMLIMIT, str(memlimit) if memlimit else '-')
-        self.xml_header.set(TIMELIMIT, timelimit if timelimit else '-')
-        self.xml_header.set(CORELIMIT, corelimit if corelimit else '-')
+        if memlimit is not None:
+            self.xml_header.set(MEMLIMIT, str(memlimit))
+        if timelimit is not None:
+            self.xml_header.set(TIMELIMIT, timelimit)
+        if corelimit is not None:
+            self.xml_header.set(CORELIMIT, corelimit)
 
         # store columnTitles in XML, this are the default columns, that are shown in a default html-table from table-generator
         columntitlesElem = ET.Element("columns")
