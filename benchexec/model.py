@@ -150,47 +150,44 @@ class Benchmark(object):
 
         logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
-        self.rlimits = {}
-        keys = list(rootTag.keys())
-        for limit in [MEMLIMIT, TIMELIMIT, CORELIMIT]:
-            if limit in keys:
-                self.rlimits[limit] = rootTag.get(limit)
-
-        # override limits from XML with values from command line
-        def override_limit(val, limit):
-            if val != None:
-                if val.strip() == "-1": # infinity
-                    if limit in self.rlimits:
-                        self.rlimits.pop(limit)
-                else:
-                    self.rlimits[limit] = val
-
-        override_limit(config.memorylimit, MEMLIMIT)
-        override_limit(config.timelimit, TIMELIMIT)
-        override_limit(config.corelimit, CORELIMIT)
-
-        if MEMLIMIT in self.rlimits:
-            value = self.rlimits[MEMLIMIT]
+        def parse_memory_limit(value):
             try:
-                self.rlimits[MEMLIMIT] = int(value) * _BYTE_FACTOR * _BYTE_FACTOR
-            except ValueError:
-                try:
-                    self.rlimits[MEMLIMIT] = util.parse_memory_value(value)
-                except ValueError as e:
-                    sys.exit('Invalid memory limit: {}'.format(e))
-            else:
+                value = int(value) * _BYTE_FACTOR * _BYTE_FACTOR
                 logging.warning(
                     'Value "%s" for memory limit interpreted as MiB for backwards compatibility, '
                     'specify a unit to make this unambiguous.',
                     value)
+                return value
+            except ValueError:
+                return util.parse_memory_value(value)
 
-        if TIMELIMIT in self.rlimits:
-            self.rlimits[TIMELIMIT] = int(self.rlimits[TIMELIMIT])
-        if CORELIMIT in self.rlimits:
-            self.rlimits[CORELIMIT] = int(self.rlimits[CORELIMIT])
+        def handle_limit_value(name, key, cmdline_value, parse_fn):
+            value = rootTag.get(key, None)
+            # override limit from XML with values from command line
+            if cmdline_value is not None:
+                if cmdline_value.strip() == "-1": # infinity
+                    value = None
+                else:
+                    value = cmdline_value
 
-        if HARDTIMELIMIT in keys:
-            hardtimelimit = int(rootTag.get(HARDTIMELIMIT))
+            if value is not None:
+                try:
+                    self.rlimits[key] = parse_fn(value)
+                except ValueError as e:
+                    sys.exit('Invalid value for {} limit: {}'.format(name.lower(), e))
+                if self.rlimits[key] <= 0:
+                    sys.exit('{} limit "{}" is invalid, it needs to be a positive number '
+                         '(or -1 on the command line for disabling it).'.format(name, value))
+
+        self.rlimits = {}
+        keys = list(rootTag.keys())
+        handle_limit_value("Time", TIMELIMIT, config.timelimit, int)
+        handle_limit_value("Hard time", HARDTIMELIMIT, None, int)
+        handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
+        handle_limit_value("Core", CORELIMIT, config.corelimit, int)
+
+        if HARDTIMELIMIT in self.rlimits:
+            hardtimelimit = self.rlimits.pop(HARDTIMELIMIT)
             if TIMELIMIT in self.rlimits:
                 if hardtimelimit < self.rlimits[TIMELIMIT]:
                     logging.warning(
@@ -201,18 +198,6 @@ class Benchmark(object):
                     self.rlimits[TIMELIMIT] = hardtimelimit
             else:
                 self.rlimits[TIMELIMIT] = hardtimelimit
-
-        # Check allowed values of limits
-        def check_limit_is_positive(key, name):
-            if key in self.rlimits and self.rlimits[key] <= 0:
-                sys.exit('{} limit {} is invalid, it needs to be a positive number '
-                         'or -1 for disabling it.'.format(name, self.rlimits[key]))
-
-        check_limit_is_positive(TIMELIMIT, 'Time')
-        check_limit_is_positive(SOFTTIMELIMIT, 'Soft time')
-        check_limit_is_positive(MEMLIMIT, 'Memory')
-        check_limit_is_positive(CORELIMIT, 'Core')
-
 
         # get number of threads, default value is 1
         self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
