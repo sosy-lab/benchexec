@@ -198,22 +198,22 @@ def split_number_and_unit(s):
     return (number, unit)
 
 def parse_memory_value(s):
-    """Parse a string that contains a number of bytes, optionally with a unit like MiB.
+    """Parse a string that contains a number of bytes, optionally with a unit like MB.
     @return the number of bytes encoded by the string
     """
     number, unit = split_number_and_unit(s)
     if not unit or unit == 'B':
         return number
-    elif unit == 'KiB':
+    elif unit == 'kB':
         return number * _BYTE_FACTOR
-    elif unit == 'MiB':
+    elif unit == 'MB':
         return number * _BYTE_FACTOR * _BYTE_FACTOR
-    elif unit == 'GiB':
+    elif unit == 'GB':
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
-    elif unit == 'TiB':
+    elif unit == 'TB':
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     else:
-        raise ValueError('unknown unit: {} (allowed are B, KiB, MiB, GiB, and TiB)'.format(unit))
+        raise ValueError('unknown unit: {} (allowed are B, kB, MB, GB, and TB)'.format(unit))
 
 def parse_timespan_value(s):
     """Parse a string that contains a time span, optionally with a unit like s.
@@ -229,7 +229,7 @@ def parse_timespan_value(s):
     elif unit == "d":
         return number * 24 * 60 * 60
     else:
-        raise ValueError('unknown unit: {} (allowed are B, KiB, MiB, GiB, and TiB)'.format(unit))
+        raise ValueError('unknown unit: {} (allowed are s, min, h, and d)'.format(unit))
 
 
 def expand_filename_pattern(pattern, base_dir):

@@ -53,10 +53,10 @@ class TestParse(unittest.TestCase):
     def test_parse_memory_value(self):
         self.assertEqual(util.parse_memory_value("1"), 1)
         self.assertEqual(util.parse_memory_value("1B"), 1)
-        self.assertEqual(util.parse_memory_value("1KiB"), 1000)
-        self.assertEqual(util.parse_memory_value("1MiB"), 1000*1000)
-        self.assertEqual(util.parse_memory_value("1GiB"), 1000*1000*1000)
-        self.assertEqual(util.parse_memory_value("1TiB"), 1000*1000*1000*1000)
+        self.assertEqual(util.parse_memory_value("1kB"), 1000)
+        self.assertEqual(util.parse_memory_value("1MB"), 1000*1000)
+        self.assertEqual(util.parse_memory_value("1GB"), 1000*1000*1000)
+        self.assertEqual(util.parse_memory_value("1TB"), 1000*1000*1000*1000)
 
 
     def test_parse_timespan_value(self):

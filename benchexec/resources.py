@@ -304,7 +304,7 @@ def _get_memory_bank_size(memBank):
                 size = line.split(':')[1].strip()
                 if size[-3:] != ' kB':
                     raise ValueError('"{}" in file {} is not a memory size.'.format(size, fileName))
-                size = int(size[:-3]) * 1024 # kB to Byte
+                size = int(size[:-3]) * 1024 # kernel uses KiB but names them kB, convert to Byte
                 logging.debug("Memory bank %s has size %s bytes.", memBank, size)
                 return size
     raise ValueError('Failed to read total memory from {}.'.format(fileName))

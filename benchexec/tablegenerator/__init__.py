@@ -656,10 +656,9 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     try:
                         value = int(value)
                     except ValueError:
-                        # BenchExec 1.4 and previous has a bug, it reports "MiB" as "MB"
-                        value = value[:-3] + " MiB" if value.endswith(" MB") else value
+                        pass
                     else:
-                        value = "{:.0f} MiB".format(value/_BYTE_FACTOR/_BYTE_FACTOR)
+                        value = "{:.0f} MB".format(value/_BYTE_FACTOR/_BYTE_FACTOR)
                     values.append(value)
                 runSetResult.attributes['memlimit'] = Util.prettylist(values)
             else:

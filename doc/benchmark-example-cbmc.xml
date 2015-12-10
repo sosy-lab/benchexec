@@ -2,14 +2,14 @@
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.4//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.4.dtd">
 <!-- Example file for benchmark definition for BenchExec,
      using tool "cbmc" with a CPU time limit of 60s,
-     1000 MiB of RAM, and 1 CPU core.
+     1000 MB of RAM, and 1 CPU core.
      To use this file, CBMC needs to be on PATH
      and C programs from SV-COMP need to be available in directory programs/
      (or input files need to be changed). -->
 <benchmark tool="cbmc"
            timelimit="60s"
            hardtimelimit="90s"
-           memlimit="1000 MiB"
+           memlimit="1000 MB"
            cpuCores="1">
 
   <!-- <rundefinition> defines tool configurations to benchmark. -->

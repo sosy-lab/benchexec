@@ -154,7 +154,7 @@ class Benchmark(object):
             try:
                 value = int(value) * _BYTE_FACTOR * _BYTE_FACTOR
                 logging.warning(
-                    'Value "%s" for memory limit interpreted as MiB for backwards compatibility, '
+                    'Value "%s" for memory limit interpreted as MB for backwards compatibility, '
                     'specify a unit to make this unambiguous.',
                     value)
                 return value
@@ -766,7 +766,7 @@ class Requirements(object):
                         try:
                             self.memory = int(memory) * _BYTE_FACTOR * _BYTE_FACTOR
                             logging.warning(
-                                'Value "%s" for memory requirement interpreted as MiB for backwards compatibility, '
+                                'Value "%s" for memory requirement interpreted as MB for backwards compatibility, '
                                 'specify a unit to make this unambiguous.',
                                 memory)
                         except ValueError:
