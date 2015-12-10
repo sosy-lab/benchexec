@@ -373,7 +373,8 @@ class RunExecutor(object):
             return subprocess.check_output(args).decode('utf-8', errors='ignore').split('\n')
 
     def _set_termination_reason(self, reason):
-        self._termination_reason = reason
+        if not self._termination_reason:
+            self._termination_reason = reason
 
 
     # --- setup and cleanup for a single run ---
