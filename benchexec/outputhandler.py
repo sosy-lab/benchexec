@@ -86,11 +86,11 @@ class OutputHandler(object):
         timelimit = None
         corelimit = None
         if MEMLIMIT in self.benchmark.rlimits:
-            memlimit = str(self.benchmark.rlimits[MEMLIMIT]) + " MB"
+            memlimit = str(self.benchmark.rlimits[MEMLIMIT]) + "MiB"
         if SOFTTIMELIMIT in self.benchmark.rlimits:
-            timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + " s"
+            timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + "s"
         elif TIMELIMIT in self.benchmark.rlimits:
-            timelimit = str(self.benchmark.rlimits[TIMELIMIT]) + " s"
+            timelimit = str(self.benchmark.rlimits[TIMELIMIT]) + "s"
         if CORELIMIT in self.benchmark.rlimits:
             corelimit = str(self.benchmark.rlimits[CORELIMIT])
 
