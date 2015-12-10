@@ -154,13 +154,12 @@ class Benchmark(object):
         keys = list(rootTag.keys())
         for limit in [MEMLIMIT, TIMELIMIT, CORELIMIT]:
             if limit in keys:
-                self.rlimits[limit] = int(rootTag.get(limit))
+                self.rlimits[limit] = rootTag.get(limit)
 
         # override limits from XML with values from command line
-        def override_limit(configVal, limit):
-            if configVal != None:
-                val = int(configVal)
-                if val == -1: # infinity
+        def override_limit(val, limit):
+            if val != None:
+                if val.strip() == "-1": # infinity
                     if limit in self.rlimits:
                         self.rlimits.pop(limit)
                 else:
@@ -171,8 +170,24 @@ class Benchmark(object):
         override_limit(config.corelimit, CORELIMIT)
 
         if MEMLIMIT in self.rlimits:
-            # Convert MiB to Bytes
-            self.rlimits[MEMLIMIT] = self.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR
+            value = self.rlimits[MEMLIMIT]
+            try:
+                self.rlimits[MEMLIMIT] = int(value) * _BYTE_FACTOR * _BYTE_FACTOR
+            except ValueError:
+                try:
+                    self.rlimits[MEMLIMIT] = util.parse_memory_value(value)
+                except ValueError as e:
+                    sys.exit('Invalid memory limit: {}'.format(e))
+            else:
+                logging.warning(
+                    'Value "%s" for memory limit interpreted as MiB for backwards compatibility, '
+                    'specify a unit to make this unambiguous.',
+                    value)
+
+        if TIMELIMIT in self.rlimits:
+            self.rlimits[TIMELIMIT] = int(self.rlimits[TIMELIMIT])
+        if CORELIMIT in self.rlimits:
+            self.rlimits[CORELIMIT] = int(self.rlimits[CORELIMIT])
 
         if HARDTIMELIMIT in keys:
             hardtimelimit = int(rootTag.get(HARDTIMELIMIT))
@@ -763,7 +778,14 @@ class Requirements(object):
             if memory:
                 if self.memory is None:
                     if memory is not None:
-                        self.memory = int(memory)
+                        try:
+                            self.memory = int(memory) * _BYTE_FACTOR * _BYTE_FACTOR
+                            logging.warning(
+                                'Value "%s" for memory requirement interpreted as MiB for backwards compatibility, '
+                                'specify a unit to make this unambiguous.',
+                                memory)
+                        except ValueError:
+                            self.memory = util.parse_memory_value(memory)
                 else:
                     raise Exception('Double specification of required memory.')
 

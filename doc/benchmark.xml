@@ -4,7 +4,7 @@
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
            timelimit="*optional CPU time limit in seconds (default: none)*"
            hardtimelimit="*optional hard CPU time limit in seconds (tool will be forcefully killed, otherwise identical with timelimit)"
-           memlimit="*optional memory limit in MiB (default: none)*"
+           memlimit="*optional memory limit, use unit 'B', 'KiB', 'MiB' etc. (default: none)*"
            cpuCores="*optional CPU core limit (default: none)*"
            threads="*optional number of parallel tool executions (default: 1)*">
 

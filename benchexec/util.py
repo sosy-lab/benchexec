@@ -39,6 +39,9 @@ except ImportError:
 
 ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
 
+_BYTE_FACTOR = 1000 # byte in kilobyte
+
+
 def is_windows():
     return os.name == 'nt'
 
@@ -177,6 +180,32 @@ def parse_int_list(s):
         else:
             raise ValueError("invalid range: '{0}'".format(s))
     return result
+
+
+def parse_memory_value(s):
+    """Parse a string that contains a number of bytes, optionally with a unit like MiB.
+    @return the number of bytes encoded by the string
+    """
+    if not s:
+        raise ValueError('empty value')
+    s = s.strip()
+    pos = len(s)
+    while pos and not s[pos-1].isdigit():
+        pos -= 1
+    number = int(s[:pos])
+    unit = s[pos:].strip()
+    if not unit or unit == 'B':
+        return number
+    elif unit == 'KiB':
+        return number * _BYTE_FACTOR
+    elif unit == 'MiB':
+        return number * _BYTE_FACTOR * _BYTE_FACTOR
+    elif unit == 'GiB':
+        return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
+    elif unit == 'TiB':
+        return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
+    else:
+        raise ValueError('unknown unit: {} (allowed are B, KiB, MiB, GiB, and TiB)'.format(unit))
 
 
 def expand_filename_pattern(pattern, base_dir):
