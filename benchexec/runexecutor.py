@@ -74,15 +74,15 @@ def main(argv=None):
                         help="name of file used as stdin for command (default: /dev/null; use - for stdin passthrough)")
     parser.add_argument("--output", default="output.log", metavar="FILE",
                         help="name of file where command output is written")
-    parser.add_argument("--maxOutputSize", type=int, metavar="BYTES",
+    parser.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
                         help="shrink output file to approximately this size if necessary (by removing lines from the middle of the output)")
-    parser.add_argument("--memlimit", type=int, metavar="BYTES",
+    parser.add_argument("--memlimit", type=util.parse_memory_value, metavar="BYTES",
                         help="memory limit in bytes")
-    parser.add_argument("--timelimit", type=int, metavar="SECONDS",
+    parser.add_argument("--timelimit", type=util.parse_timespan_value, metavar="SECONDS",
                         help="CPU time limit in seconds")
-    parser.add_argument("--softtimelimit", type=int, metavar="SECONDS",
+    parser.add_argument("--softtimelimit", type=util.parse_timespan_value, metavar="SECONDS",
                         help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)')
-    parser.add_argument("--walltimelimit", type=int, metavar="SECONDS",
+    parser.add_argument("--walltimelimit", type=util.parse_timespan_value, metavar="SECONDS",
                         help='wall time limit in seconds (default is CPU time limit plus a few seconds)')
     parser.add_argument("--cores", type=util.parse_int_list, metavar="N,M-K",
                         help="list of CPU cores to use")
