@@ -793,6 +793,10 @@ class RunExecutor(object):
         result['exitcode'] = returnvalue
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
+        elif memlimit and 'memory' in result and result['memory'] >= memlimit:
+            # The kernel does not always issue OOM notifications and thus the OOMHandler
+            # does not always run even in case of OOM. We detect this there and report OOM.
+            result['terminationreason'] = 'memory'
         if energy:
             result['energy'] = energy
 
