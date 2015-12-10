@@ -62,6 +62,7 @@ elif _term.startswith('screen'):
 
 # the number of digits after the decimal separator for text output of time columns with times
 TIME_PRECISION = 2
+_BYTE_FACTOR = 1000 # byte in kilobyte
 
 
 class OutputHandler(object):
@@ -86,7 +87,7 @@ class OutputHandler(object):
         timelimit = None
         corelimit = None
         if MEMLIMIT in self.benchmark.rlimits:
-            memlimit = str(self.benchmark.rlimits[MEMLIMIT])
+            memlimit = self.benchmark.rlimits[MEMLIMIT]
         if SOFTTIMELIMIT in self.benchmark.rlimits:
             timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + "s"
         elif TIMELIMIT in self.benchmark.rlimits:
@@ -162,7 +163,7 @@ class OutputHandler(object):
                      "generator": "BenchExec " + benchexec.__version__
                      })
 
-        self.xml_header.set(MEMLIMIT, memlimit if memlimit else '-')
+        self.xml_header.set(MEMLIMIT, str(memlimit) if memlimit else '-')
         self.xml_header.set(TIMELIMIT, timelimit if timelimit else '-')
         self.xml_header.set(CORELIMIT, corelimit if corelimit else '-')
 
@@ -201,7 +202,7 @@ class OutputHandler(object):
                 + " " + version + "\n"
 
         if memlimit:
-            header += "memlimit:".ljust(columnWidth) + memlimit + "\n"
+            header += "memlimit:".ljust(columnWidth) + str(memlimit/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"
         if timelimit:
             header += "timelimit:".ljust(columnWidth) + timelimit + "\n"
         if corelimit:
@@ -215,7 +216,7 @@ class OutputHandler(object):
                     + "cpu:".ljust(columnWidth) + sysinfo.cpu_model + "\n"\
                     + "- cores:".ljust(columnWidth) + sysinfo.cpu_number_of_cores + "\n"\
                     + "- max frequency:".ljust(columnWidth) + str(sysinfo.cpu_max_frequency/1000/1000) + " MHz\n"\
-                    + "ram:".ljust(columnWidth) + str(sysinfo.memory) + "\n"\
+                    + "ram:".ljust(columnWidth) + str(sysinfo.memory/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"\
                     + simpleLine
 
         self.description = header
