@@ -85,7 +85,7 @@ To start multiple executions of the benchmarked tool in parallel
 use the parameter `--numOfThreads`.
 Example:
 
-    benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10 --numOfThreads 4
+    benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10s --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
 For executing benchmarks under a different user account with the parameter `--user`,
@@ -104,7 +104,7 @@ For example, if the file `benchexec.cfg` has the content
     --limitCores
     1
     --timelimit
-    10
+    10s
     --numOfThreads
     4
 

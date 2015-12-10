@@ -181,8 +181,8 @@ class Benchmark(object):
 
         self.rlimits = {}
         keys = list(rootTag.keys())
-        handle_limit_value("Time", TIMELIMIT, config.timelimit, int)
-        handle_limit_value("Hard time", HARDTIMELIMIT, None, int)
+        handle_limit_value("Time", TIMELIMIT, config.timelimit, util.parse_timespan_value)
+        handle_limit_value("Hard time", HARDTIMELIMIT, None, util.parse_timespan_value)
         handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
         handle_limit_value("Core", CORELIMIT, config.corelimit, int)
 

@@ -2,7 +2,7 @@
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.4//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.4.dtd">
 <!-- Example file for benchmark definition for BenchExec
      with dummy tool "calculatepi" that calculates Pi up to some number of digits. -->
-<benchmark tool="calculatepi" timelimit="900" memlimit="100 MiB" cpuCores="1">
+<benchmark tool="calculatepi" timelimit="900s" memlimit="100 MiB" cpuCores="1">
   <tasks>
     <!-- <withoutfile> defines tasks that do not need an input file.
          calculatepi exects a single int that is the number of desired digits

@@ -182,9 +182,10 @@ def parse_int_list(s):
     return result
 
 
-def parse_memory_value(s):
-    """Parse a string that contains a number of bytes, optionally with a unit like MiB.
-    @return the number of bytes encoded by the string
+def split_number_and_unit(s):
+    """Parse a string that consists of a integer number and an optional unit.
+    @param s a non-empty string that starts with an int and is followed by some letters
+    @return a triple of the number (as int) and the unit
     """
     if not s:
         raise ValueError('empty value')
@@ -194,6 +195,13 @@ def parse_memory_value(s):
         pos -= 1
     number = int(s[:pos])
     unit = s[pos:].strip()
+    return (number, unit)
+
+def parse_memory_value(s):
+    """Parse a string that contains a number of bytes, optionally with a unit like MiB.
+    @return the number of bytes encoded by the string
+    """
+    number, unit = split_number_and_unit(s)
     if not unit or unit == 'B':
         return number
     elif unit == 'KiB':
@@ -204,6 +212,22 @@ def parse_memory_value(s):
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     elif unit == 'TiB':
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
+    else:
+        raise ValueError('unknown unit: {} (allowed are B, KiB, MiB, GiB, and TiB)'.format(unit))
+
+def parse_timespan_value(s):
+    """Parse a string that contains a time span, optionally with a unit like s.
+    @return the number of seconds encoded by the string
+    """
+    number, unit = split_number_and_unit(s)
+    if not unit or unit == "s":
+        return number
+    elif unit == "min":
+        return number * 60
+    elif unit == "h":
+        return number * 60 * 60
+    elif unit == "d":
+        return number * 24 * 60 * 60
     else:
         raise ValueError('unknown unit: {} (allowed are B, KiB, MiB, GiB, and TiB)'.format(unit))
 

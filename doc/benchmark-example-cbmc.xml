@@ -7,8 +7,8 @@
      and C programs from SV-COMP need to be available in directory programs/
      (or input files need to be changed). -->
 <benchmark tool="cbmc"
-           timelimit="60"
-           hardtimelimit="90"
+           timelimit="60s"
+           hardtimelimit="90s"
            memlimit="1000 MiB"
            cpuCores="1">
 
