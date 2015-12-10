@@ -23,6 +23,8 @@ and print resource measurements to stdout. Example:
     cputime=0.001671s
     memory=131072
 
+For further details on the output, cf. [Run Results](run-results.md).
+
 Resource limits can be enabled with additional arguments to `runexec`,
 e.g. for CPU time (`--timelimit`), wall time (`--walltimelimit`),
 or memory consumption (`--memlimit`). If any of the limits is exceeded,
@@ -65,7 +67,7 @@ From within Python, BenchExec can be used to execute a command as in the followi
 Further parameters for `execute_run` can be used to specify resource limits
 (c.f. [runexecutor.py](../benchexec/runexecutor.py)).
 The result is a dictionary with the same information about the run
-that is printed to stdout by the `runexec` command-line tool.
+that is printed to stdout by the `runexec` command-line tool (cf. [Run Results](run-results.md)).
 
 ## Python 2 Compatibility
 
