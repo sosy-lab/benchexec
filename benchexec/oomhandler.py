@@ -112,7 +112,7 @@ class KillProcessOnOomThread(threading.Thread):
                 # Also kill all children of subprocesses directly.
                 with open(os.path.join(self._cgroups[MEMORY], 'tasks'), 'rt') as tasks:
                     for task in tasks:
-                        self._kill_process(int(task))
+                        self._kill_process(int(task), self._cgroups)
 
                 # We now need to increase the memory limit of this cgroup
                 # to give the process a chance to terminate
