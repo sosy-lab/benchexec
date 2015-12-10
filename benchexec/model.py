@@ -170,6 +170,10 @@ class Benchmark(object):
         override_limit(config.timelimit, TIMELIMIT)
         override_limit(config.corelimit, CORELIMIT)
 
+        if MEMLIMIT in self.rlimits:
+            # Convert MiB to Bytes
+            self.rlimits[MEMLIMIT] = self.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR
+
         if HARDTIMELIMIT in keys:
             hardtimelimit = int(rootTag.get(HARDTIMELIMIT))
             if TIMELIMIT in self.rlimits:
@@ -673,7 +677,7 @@ class Run(object):
                         and MEMLIMIT in rlimits \
                         and 'memUsage' in self.values \
                         and not self.values['memUsage'] is None \
-                        and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR * 0.99)
+                        and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * 0.99)
                 if guessed_OOM:
                     # Set status to a special marker.
                     # If we see this in the results, we know that we need to do more work to set
@@ -770,6 +774,9 @@ class Requirements(object):
 
         if self.memory is None:
             self.memory = rlimits.get(MEMLIMIT, None)
+        else:
+            # Convert MiB to bytes
+            self.memory = self.memory * _BYTE_FACTOR * _BYTE_FACTOR
 
         if hasattr(config, 'cpu_model') and config.cpu_model is not None:
             # user-given model -> override value

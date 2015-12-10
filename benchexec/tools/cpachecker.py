@@ -98,7 +98,7 @@ class Tool(benchexec.tools.template.BaseTool):
         # if data.MEMLIMIT in rlimits:
         #     if "-heap" not in options:
         #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
-        #         options = options + ["-heap", str(int(heapsize)) + "MiB"] # benchmark-xml uses MiB as unit
+        #         options = options + ["-heap", str(int(heapsize))]
 
         if ("-stats" not in options):
             options = options + ["-stats"]

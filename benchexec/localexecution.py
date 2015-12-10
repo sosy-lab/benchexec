@@ -81,8 +81,8 @@ def execute_benchmark(benchmark, output_handler):
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
-        memLimit = benchmark.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
-        check_memory_size(memLimit, benchmark.num_of_threads, memoryAssignment, my_cgroups)
+        check_memory_size(benchmark.rlimits[MEMLIMIT], benchmark.num_of_threads,
+                          memoryAssignment, my_cgroups)
 
     if benchmark.num_of_threads > 1 and systeminfo.is_turbo_boost_enabled():
         logging.warning("Turbo boost of CPU is enabled. "
@@ -220,9 +220,7 @@ class _Worker(threading.Thread):
         self.output_handler.output_before_run(run)
         benchmark = self.benchmark
 
-        memlimit = None
-        if MEMLIMIT in benchmark.rlimits:
-            memlimit = benchmark.rlimits[MEMLIMIT] * _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
+        memlimit = benchmark.rlimits.get(MEMLIMIT)
 
         maxLogfileSize = benchmark.config.maxLogfileSize
         if maxLogfileSize:
