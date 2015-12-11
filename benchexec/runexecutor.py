@@ -114,7 +114,10 @@ def main(argv=None):
         env = data.get("env", {})
         options.debug = data.get("debug", options.debug)
         if "maxLogfileSize" in data:
-            options.maxOutputSize = data["maxLogfileSize"] * _BYTE_FACTOR * _BYTE_FACTOR # MB to bytes
+            try:
+                options.maxOutputSize = int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR # MB to bytes
+            except ValueError:
+                options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
 
     # setup logging
     logLevel = logging.INFO

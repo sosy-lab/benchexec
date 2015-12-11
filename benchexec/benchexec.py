@@ -36,6 +36,7 @@ from benchexec.model import Benchmark
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
 
+_BYTE_FACTOR = 1000 # byte in kilobyte
 
 class BenchExec(object):
     """
@@ -154,10 +155,25 @@ class BenchExec(object):
                             metavar="USER",
                             help="Execute benchmarks under given user account(s) (needs password-less sudo setup).")
 
-        parser.add_argument("--maxLogfileSize",
-                          dest="maxLogfileSize", type=int, default=20,
-                          metavar="MB",
-                          help="Shrink logfiles to given size in MB, if they are too big. (-1 to disable, default value: 20 MB).")
+        def parse_filesize_value(value):
+            try:
+                value = int(value)
+                if value == -1:
+                    return None
+                logging.warning(
+                    'Value "%s" for logfile size interpreted as MB for backwards compatibility, '
+                    'specify a unit to make this unambiguous.',
+                    value)
+                value = value * _BYTE_FACTOR * _BYTE_FACTOR
+            except ValueError:
+                value = util.parse_memory_value(value)
+            return value
+
+        parser.add_argument("--maxLogfileSize", dest="maxLogfileSize",
+                            type=parse_filesize_value, default=20*_BYTE_FACTOR*_BYTE_FACTOR,
+                            metavar="SIZE",
+                            help="Shrink logfiles to given size if they are too big. "
+                                 "(-1 to disable, default value: 20 MB).")
 
         parser.add_argument("--commit", dest="commit",
                           action="store_true",

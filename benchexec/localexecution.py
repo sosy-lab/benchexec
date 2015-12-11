@@ -40,7 +40,6 @@ from benchexec import util
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
 
-_BYTE_FACTOR = 1000 # byte in kilobyte
 
 def init(config, benchmark):
     benchmark.executable = benchmark.tool.executable()
@@ -222,12 +221,6 @@ class _Worker(threading.Thread):
 
         memlimit = benchmark.rlimits.get(MEMLIMIT)
 
-        maxLogfileSize = benchmark.config.maxLogfileSize
-        if maxLogfileSize:
-            maxLogfileSize *= _BYTE_FACTOR * _BYTE_FACTOR # MB to Byte
-        elif maxLogfileSize == -1:
-            maxLogfileSize = None
-
         args = run.cmdline()
         logging.debug('Command line of run is %s', args)
         result = \
@@ -240,7 +233,7 @@ class _Worker(threading.Thread):
                 memlimit=memlimit,
                 environments=benchmark.environment(),
                 workingDir=benchmark.working_directory(),
-                maxLogfileSize=maxLogfileSize)
+                maxLogfileSize=benchmark.config.maxLogfileSize)
 
         for key, value in result.items():
             if key == 'walltime':
