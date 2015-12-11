@@ -13,8 +13,7 @@ General rules:
 - Numeric values are reported with the standard [BenchExec units](INDEX.md#units).
 - Values are reported as measured without rounding,
   thus the number of digits does not indicate significance.
-  This is to prevent to prevent the proliferation of rounding errors
-  when using the data in calculations.
+  This is to prevent he proliferation of rounding errors when using the data in calculations.
 
 The meanings of the current possible result values are as follows:
 
@@ -84,6 +83,10 @@ Because the value for memory usage is named `memUsage` in `benchexec` result fil
 only for backwards compatibility, we may change its name to `memory`
 in a future version (e.g., version 2.0) of BenchExec.
 Tools that read such files and want to be future-proof may use both names for value lookup.
+
+The `<column>` tags may have an attribute `hidden` set to `true`.
+This indicates values that are typically not primarily interesting for users,
+and tools for displaying such results may choose to hide such columns by default.
 
 If `benchexec` is interrupted during the execution,
 result values may also be the empty string instead of missing completely
