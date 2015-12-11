@@ -3,7 +3,7 @@
 
 The program `table-generator` allows to generate HTML and CSV tables.
 You can have a look at a
-[demo table](https://github.com/sosy-lab/benchexec/tree/master/doc/example-table/svcomp-simple-cbmc-cpachecker.table.html)
+[demo table](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html)
 to see how the result looks like.
 `table-generator` takes one or more XML files with results from `benchexec`
 and produces tables with columns for each of the files,

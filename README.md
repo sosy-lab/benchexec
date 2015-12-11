@@ -39,7 +39,7 @@ BenchExec can verify that the result of the tool was as expected,
 and extract further statistical data from the output.
 Results from multiple runs can be combined into CSV and interactive HTML tables,
 of which the latter provide scatter and quantile plots
-(have a look at our [demo table](https://github.com/sosy-lab/benchexec/tree/master/doc/example-table/svcomp-simple-cbmc-cpachecker.table.html)).
+(have a look at our [demo table](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html)).
 
 BenchExec works only on Linux and needs a one-time setup of cgroups by the machine's administrator.
 The actual benchmarking can be done by any user and does not need root access.
@@ -52,7 +52,7 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
 ### Links
 
 - [Documentation](https://github.com/sosy-lab/benchexec/tree/master/doc/INDEX.md)
-- [Demo](https://github.com/sosy-lab/benchexec/tree/master/doc/example-table/svcomp-simple-cbmc-cpachecker.table.html) of a result table
+- [Demo](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html) of a result table
 - [Downloads](https://github.com/sosy-lab/benchexec/releases)
 - [Changelog](https://github.com/sosy-lab/benchexec/tree/master/CHANGELOG.md)
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
