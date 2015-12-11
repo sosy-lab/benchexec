@@ -1,0 +1,6 @@
+./cbmc --32 --propertyfile test/programs/benchmarks/ssh/ALL.prp test/programs/benchmarks/ssh/s3_clnt.blast.03_true-unreach-call.i.cil.c
+
+
+--------------------------------------------------------------------------------
+
+

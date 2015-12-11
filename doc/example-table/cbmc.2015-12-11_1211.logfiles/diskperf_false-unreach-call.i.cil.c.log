@@ -1,0 +1,486 @@
+./cbmc --32 --propertyfile test/programs/benchmarks/ntdrivers/ALL.prp test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c
+
+
+--------------------------------------------------------------------------------
+
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <key attr.name="assumption" attr.type="string" for="edge" id="assumption"/>
+  <key attr.name="sourcecode" attr.type="string" for="edge" id="sourcecode"/>
+  <key attr.name="sourcecodeLanguage" attr.type="string" for="graph" id="sourcecodelang"/>
+  <key attr.name="control" attr.type="string" for="edge" id="control"/>
+  <key attr.name="startline" attr.type="int" for="edge" id="startline"/>
+  <key attr.name="originFileName" attr.type="string" for="edge" id="originfile">
+    <default>&lt;command-line&gt;</default>
+  </key>
+  <key attr.name="nodeType" attr.type="string" for="node" id="nodetype">
+    <default>path</default>
+  </key>
+  <key attr.name="isFrontierNode" attr.type="boolean" for="node" id="frontier">
+    <default>false</default>
+  </key>
+  <key attr.name="isViolationNode" attr.type="boolean" for="node" id="violation">
+    <default>false</default>
+  </key>
+  <key attr.name="isEntryNode" attr.type="boolean" for="node" id="entry">
+    <default>false</default>
+  </key>
+  <key attr.name="isSinkNode" attr.type="boolean" for="node" id="sink">
+    <default>false</default>
+  </key>
+  <key attr.name="enterFunction" attr.type="string" for="edge" id="enterFunction"/>
+  <key attr.name="returnFromFunction" attr.type="string" for="edge" id="returnFrom"/>
+  <key attr.name="threadNumber" attr.type="int" for="node" id="thread">
+    <default>0</default>
+  </key>
+  <graph edgedefault="directed">
+    <data key="sourcecodelang">C</data>
+    <node id="sink"/>
+    <node id="2.204">
+      <data key="entry">true</data>
+    </node>
+    <edge source="2.204" target="4.206">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3161</data>
+      <data key="assumption">status = 33554432;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="4.206"/>
+    <edge source="4.206" target="7.209">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3162</data>
+      <data key="assumption">we_should_unload = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="7.209"/>
+    <edge source="7.209" target="9.211">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3164</data>
+      <data key="assumption">__BLAST_NONDET___0 = 2;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="9.211"/>
+    <edge source="9.211" target="13.215">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3165</data>
+      <data key="assumption">irp_choice = 8192;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="13.215"/>
+    <edge source="13.215" target="14.216">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3167</data>
+      <data key="assumption">KeNumberProcessors = ((signed char *)NULL);</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="14.216"/>
+    <edge source="14.216" target="1063.219">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3171</data>
+      <data key="assumption">pirp = &amp;irp.Type;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="1063.219"/>
+    <edge source="1063.219" target="1064.220">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2000</data>
+      <data key="assumption">UNLOADED = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1064.220"/>
+    <edge source="1064.220" target="1065.221">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2001</data>
+      <data key="assumption">NP = 1;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1065.221"/>
+    <edge source="1065.221" target="1066.222">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2002</data>
+      <data key="assumption">DC = 2;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1066.222"/>
+    <edge source="1066.222" target="1067.223">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2003</data>
+      <data key="assumption">SKIP1 = 3;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1067.223"/>
+    <edge source="1067.223" target="1068.224">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2004</data>
+      <data key="assumption">SKIP2 = 4;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1068.224"/>
+    <edge source="1068.224" target="1069.225">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2005</data>
+      <data key="assumption">MPR1 = 5;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1069.225"/>
+    <edge source="1069.225" target="1070.226">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2006</data>
+      <data key="assumption">MPR3 = 6;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1070.226"/>
+    <edge source="1070.226" target="1071.227">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2007</data>
+      <data key="assumption">IPC = 7;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1071.227"/>
+    <edge source="1071.227" target="1072.228">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2008</data>
+      <data key="assumption">s = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1072.228"/>
+    <edge source="1072.228" target="1073.229">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2009</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1073.229"/>
+    <edge source="1073.229" target="1074.230">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2010</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1074.230"/>
+    <edge source="1074.230" target="1075.231">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2011</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1075.231"/>
+    <edge source="1075.231" target="1076.232">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2012</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1076.232"/>
+    <edge source="1076.232" target="1077.233">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2013</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="1077.233"/>
+    <edge source="1077.233" target="16.235">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2014</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="16.235"/>
+    <edge source="16.235" target="17.236">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3174</data>
+      <data key="sourcecode">[!(!(status!0@1#2 &gt;= 0))]</data>
+    </edge>
+    <node id="17.236"/>
+    <edge source="17.236" target="18.237">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3175</data>
+      <data key="assumption">s = 1;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="18.237"/>
+    <edge source="18.237" target="19.238">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3176</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="19.238"/>
+    <edge source="19.238" target="20.239">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3177</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="20.239"/>
+    <edge source="20.239" target="21.240">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3178</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="21.240"/>
+    <edge source="21.240" target="22.241">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3179</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="22.241"/>
+    <edge source="22.241" target="23.242">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3180</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="23.242"/>
+    <edge source="23.242" target="24.243">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3181</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="24.243"/>
+    <edge source="24.243" target="25.244">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3182</data>
+      <data key="assumption">irp.Type = 0; irp.Size = 0; irp.MdlAddress = ((struct _MDL *)NULL); irp.Flags = 0; irp.AssociatedIrp.MasterIrp = ((struct _IRP *)NULL); irp.ThreadListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.ThreadListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.IoStatus.__annonCompField4.Status = 0l; irp.IoStatus.Information = 0ul; irp.RequestorMode = 0; irp.PendingReturned = 0; irp.StackCount = 0; irp.CurrentLocation = 8; irp.Cancel = 0; irp.CancelIrql = 0; irp.ApcEnvironment = 0; irp.AllocationFlags = 0; irp.UserIosb = ((struct _IO_STATUS_BLOCK *)NULL); irp.UserEvent = ((struct _KEVENT *)NULL); irp.Overlay.AsynchronousParameters.UserApcRoutine = ((void (*)(void *, struct _IO_STATUS_BLOCK *, unsigned long int))NULL); irp.Overlay.AsynchronousParameters.UserApcContext = NULL; irp.CancelRoutine = ((void (*)(struct _DEVICE_OBJECT *, struct _IRP *))NULL); irp.UserBuffer = NULL; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.SortKey = 0ul; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.Inserted = 0; irp.Tail.Overlay.Thread = ((struct _ETHREAD *)NULL); irp.Tail.Overlay.AuxiliaryBuffer = ((char *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.__annonCompField16.CurrentStackLocation = INVALID-72; irp.Tail.Overlay.OriginalFileObject = ((struct _FILE_OBJECT *)NULL);</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="25.244"/>
+    <edge source="25.244" target="26.245">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3183</data>
+      <data key="assumption">myStatus = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="26.245"/>
+    <edge source="26.245" target="2555.248">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3184</data>
+      <data key="sourcecode">[!(irp_choice!0@1#2 == 0)]</data>
+    </edge>
+    <node id="2555.248"/>
+    <edge source="2555.248" target="2556.249">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3149</data>
+      <data key="assumption">s = 1;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2556.249"/>
+    <edge source="2556.249" target="2557.250">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3150</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2557.250"/>
+    <edge source="2557.250" target="2558.251">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3151</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2558.251"/>
+    <edge source="2558.251" target="2559.252">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3152</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2559.252"/>
+    <edge source="2559.252" target="2560.253">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3153</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2560.253"/>
+    <edge source="2560.253" target="2561.254">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3154</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="2561.254"/>
+    <edge source="2561.254" target="30.256">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3155</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="30.256"/>
+    <edge source="30.256" target="41.257">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3193</data>
+      <data key="sourcecode">[status!0@1#2 &gt;= 0]</data>
+    </edge>
+    <node id="41.257"/>
+    <edge source="41.257" target="44.258">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3198</data>
+      <data key="sourcecode">[!(__BLAST_NONDET___0!0@1#4 == 0)]</data>
+    </edge>
+    <node id="44.258"/>
+    <edge source="44.258" target="62.262">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3201</data>
+      <data key="sourcecode">[!(!(__BLAST_NONDET___0!0@1#4 == 2))]</data>
+    </edge>
+    <node id="62.262"/>
+    <edge source="62.262" target="1693.274">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3223</data>
+      <data key="assumption">DeviceObject = &amp;devobj.Type;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="62.263"/>
+    <node id="1693.274"/>
+    <edge source="1693.274" target="1694.275">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2545</data>
+      <data key="assumption">deviceExtension = INVALID-28;</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1694.275"/>
+    <edge source="1694.275" target="1695.276">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2546</data>
+      <data key="assumption">currentIrpStack = INVALID-72;</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1695.276"/>
+    <edge source="1695.276" target="1696.277">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2547</data>
+      <data key="sourcecode">[!(!(byte_extract_little_endian(currentIrpStack$object#0.Parameters, 8, unsigned int) == 458784))]</data>
+    </edge>
+    <node id="1696.277"/>
+    <edge source="1696.277" target="1700.278">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2548</data>
+      <data key="sourcecode">[!(byte_extract_little_endian(currentIrpStack$object#0.Parameters, 0, unsigned int) &lt; 88)]</data>
+    </edge>
+    <node id="1700.278"/>
+    <edge source="1700.278" target="1701.279">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2552</data>
+      <data key="assumption">diskCounters = ((struct _DISK_PERFORMANCE *)NULL);</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1701.279"/>
+    <edge source="1701.279" target="1702.280">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2553</data>
+      <data key="sourcecode">[!(!((unsigned int)diskCounters!0@1#2 == 0))]</data>
+    </edge>
+    <node id="1702.280"/>
+    <edge source="1702.280" target="1703.281">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2555</data>
+      <data key="assumption">irp.Type = 0; irp.Size = 0; irp.MdlAddress = ((struct _MDL *)NULL); irp.Flags = 0; irp.AssociatedIrp.MasterIrp = ((struct _IRP *)NULL); irp.ThreadListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.ThreadListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.IoStatus.__annonCompField4.Status = -1073741823l; irp.IoStatus.Information = 0ul; irp.RequestorMode = 0; irp.PendingReturned = 0; irp.StackCount = 0; irp.CurrentLocation = 8; irp.Cancel = 0; irp.CancelIrql = 0; irp.ApcEnvironment = 0; irp.AllocationFlags = 0; irp.UserIosb = ((struct _IO_STATUS_BLOCK *)NULL); irp.UserEvent = ((struct _KEVENT *)NULL); irp.Overlay.AsynchronousParameters.UserApcRoutine = ((void (*)(void *, struct _IO_STATUS_BLOCK *, unsigned long int))NULL); irp.Overlay.AsynchronousParameters.UserApcContext = NULL; irp.CancelRoutine = ((void (*)(struct _DEVICE_OBJECT *, struct _IRP *))NULL); irp.UserBuffer = NULL; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.SortKey = 0ul; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.Inserted = 0; irp.Tail.Overlay.Thread = ((struct _ETHREAD *)NULL); irp.Tail.Overlay.AuxiliaryBuffer = ((char *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.__annonCompField16.CurrentStackLocation = INVALID-72; irp.Tail.Overlay.OriginalFileObject = ((struct _FILE_OBJECT *)NULL);</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1703.281"/>
+    <edge source="1703.281" target="1704.284">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2556</data>
+      <data key="assumption">myStatus = -1073741823;</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1704.284"/>
+    <edge source="1704.284" target="801.287">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">2557</data>
+      <data key="assumption">Irp = &amp;irp.Type;</data>
+      <data key="assumption.scope">DiskPerfDeviceControl</data>
+    </edge>
+    <node id="1704.285"/>
+    <node id="801.287"/>
+    <edge source="801.287" target="63.293">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3884</data>
+      <data key="assumption">s = 2;</data>
+      <data key="assumption.scope">IofCompleteRequest</data>
+    </edge>
+    <node id="63.293"/>
+    <edge source="63.293" target="91.296">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3223</data>
+      <data key="assumption">status = -1073741823;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="91.296"/>
+    <edge source="91.296" target="97.297">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3262</data>
+      <data key="sourcecode">[TRUE]</data>
+    </edge>
+    <node id="97.297"/>
+    <edge source="97.297" target="103.298">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3270</data>
+      <data key="sourcecode">[TRUE]</data>
+    </edge>
+    <node id="103.298"/>
+    <edge source="103.298" target="104.299">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3278</data>
+      <data key="sourcecode">[!(s#147 == 0)]</data>
+    </edge>
+    <node id="104.299"/>
+    <edge source="104.299" target="105.300">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3281</data>
+      <data key="sourcecode">[!(status!0@1#21 == -1)]</data>
+    </edge>
+    <node id="105.300"/>
+    <edge source="105.300" target="106.301">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3284</data>
+      <data key="sourcecode">[!(s#147 == 4)]</data>
+    </edge>
+    <node id="106.301"/>
+    <edge source="106.301" target="107.302">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3285</data>
+      <data key="sourcecode">[!(s#147 == 7)]</data>
+    </edge>
+    <node id="107.302"/>
+    <edge source="107.302" target="114.304">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3286</data>
+      <data key="sourcecode">[s#147 == 2]</data>
+    </edge>
+    <node id="114.304"/>
+    <edge source="114.304" target="118.305">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3298</data>
+      <data key="sourcecode">[TRUE]</data>
+    </edge>
+    <node id="118.305"/>
+    <edge source="118.305" target="1061.308">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">3307</data>
+      <data key="sourcecode">[!(!(s#147 == 2))]</data>
+    </edge>
+    <node id="1061.308">
+      <data key="violation">true</data>
+    </node>
+    <edge source="1061.308" target="sink">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c</data>
+      <data key="startline">1976</data>
+    </edge>
+  </graph>
+</graphml>
+000000000001)
+
+Violated property:
+  file test/programs/benchmarks/ntdrivers/diskperf_false-unreach-call.i.cil.c line 1976 function errorFn
+  assertion
+  FALSE
+
+VERIFICATION FAILED
+EC=10
+FALSE

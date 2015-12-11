@@ -1,0 +1,77 @@
+   BENCHMARK INFORMATION
+benchmark:          predicateAnalysis
+date:               Fri, 2015-12-11 10:59:27 CET
+tool:               CPAchecker 1.4-svn 18912M
+memlimit:           4000.0 MB
+timelimit:          60s
+CPU cores used:     2
+------------------------------------------------------------
+
+   SYSTEM INFORMATION
+host:               tortuga
+os:                 Linux 3.13.0-71-generic x86_64
+cpu:                Intel Core i7-2600 CPU @ 3.40GHz
+- cores:            8
+- max frequency:    3401.0 MHz
+ram:                16782.770175999998 MB
+------------------------------------------------------------
+
+
+
+ABEl.Simple
+Run set 1 of 2 with options '-heap 13000M -noout -disable-java-assertions -setprop cpa.predicate.memoryAllocationsAlwaysSucceed=true -predicateAnalysis-PredAbsRefiner-ABEl' and propertyfile '${sourcefile_path}/ALL.prp'
+
+inputfile                                          status                    cpu time   wall time        host
+-------------------------------------------------------------------------------------------------------------
+ntdrivers/cdaudio_false-unreach-call.i.cil.c       TIMEOUT                      60.66       38.78        None
+ntdrivers/diskperf_false-unreach-call.i.cil.c      false(reach)                 15.76        9.00        None
+ntdrivers/floppy_false-unreach-call.i.cil.c        false(reach)                 21.99       11.90        None
+ntdrivers/kbfiltr_false-unreach-call.i.cil.c       false(reach)                 10.80        6.08        None
+ntdrivers/parport_false-unreach-call.i.cil.c       ERROR (recursion)            10.22        5.94        None
+ntdrivers/cdaudio_true-unreach-call.i.cil.c        true                         16.98        9.18        None
+ntdrivers/diskperf_true-unreach-call.i.cil.c       true                         15.66        8.89        None
+ntdrivers/floppy2_true-unreach-call.i.cil.c        TIMEOUT                      60.92       39.68        None
+ntdrivers/floppy_true-unreach-call.i.cil.c         true                         35.59       20.21        None
+ntdrivers/parport_true-unreach-call.i.cil.c        ERROR (recursion)             9.85        6.13        None
+ssh/s3_clnt.blast.01_false-unreach-call.i.cil.c    false(reach)                 15.23        8.35        None
+ssh/s3_clnt.blast.02_false-unreach-call.i.cil.c    false(reach)                 17.12        9.61        None
+ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c    false(reach)                 16.72        9.32        None
+ssh/s3_clnt.blast.04_false-unreach-call.i.cil.c    false(reach)                 15.79        8.98        None
+ssh/s3_srvr.blast.01_false-unreach-call.i.cil.c    false(reach)                 10.47        6.20        None
+ssh/s3_srvr.blast.02_false-unreach-call.i.cil.c    false(reach)                 10.59        5.98        None
+ssh/s3_srvr.blast.03_false-unreach-call.i.cil.c    false(reach)                  9.79        5.56        None
+ssh/s3_srvr.blast.04_false-unreach-call.i.cil.c    false(reach)                 10.62        6.24        None
+ssh/s3_srvr.blast.06_false-unreach-call.i.cil.c    false(reach)                 16.73        9.38        None
+ssh/s3_srvr.blast.07_false-unreach-call.i.cil.c    false(reach)                 17.01        9.30        None
+ssh/s3_srvr.blast.08_false-unreach-call.i.cil.c    false(reach)                 29.30       16.41        None
+ssh/s3_srvr.blast.09_false-unreach-call.i.cil.c    false(reach)                 15.77        8.87        None
+ssh/s3_srvr.blast.10_false-unreach-call.i.cil.c    false(reach)                 25.00       13.56        None
+ssh/s3_srvr.blast.11_false-unreach-call.i.cil.c    false(reach)                 21.25       11.28        None
+ssh/s3_srvr.blast.12_false-unreach-call.i.cil.c    false(reach)                 13.98        7.67        None
+ssh/s3_srvr.blast.13_false-unreach-call.i.cil.c    false(reach)                 18.93       10.45        None
+ssh/s3_srvr.blast.14_false-unreach-call.i.cil.c    false(reach)                 17.08        9.42        None
+ssh/s3_srvr.blast.15_false-unreach-call.i.cil.c    false(reach)                 21.46       11.90        None
+ssh/s3_srvr.blast.16_false-unreach-call.i.cil.c    false(reach)                 18.75       10.13        None
+ssh/s3_clnt.blast.01_true-unreach-call.i.cil.c     true                         20.57       12.06        None
+ssh/s3_clnt.blast.02_true-unreach-call.i.cil.c     true                         21.05       11.78        None
+ssh/s3_clnt.blast.03_true-unreach-call.i.cil.c     true                         18.39       10.20        None
+ssh/s3_clnt.blast.04_true-unreach-call.i.cil.c     true                         16.79        9.56        None
+ssh/s3_srvr.blast.01_true-unreach-call.i.cil.c     true                         37.06       21.52        None
+ssh/s3_srvr.blast.02_true-unreach-call.i.cil.c     true                         34.26       18.36        None
+ssh/s3_srvr.blast.06_true-unreach-call.i.cil.c     true                         23.61       13.57        None
+ssh/s3_srvr.blast.07_true-unreach-call.i.cil.c     true                         32.86       18.07        None
+ssh/s3_srvr.blast.08_true-unreach-call.i.cil.c     true                         48.06       31.08        None
+ssh/s3_srvr.blast.09_true-unreach-call.i.cil.c     true                         27.63       15.72        None
+ssh/s3_srvr.blast.10_true-unreach-call.i.cil.c     true                         30.26       16.43        None
+ssh/s3_srvr.blast.11_true-unreach-call.i.cil.c     TIMEOUT                      61.22       45.03        None
+ssh/s3_srvr.blast.12_true-unreach-call.i.cil.c     true                         37.97       22.96        None
+ssh/s3_srvr.blast.13_true-unreach-call.i.cil.c     OUT OF MEMORY                51.17       37.88        None
+ssh/s3_srvr.blast.14_true-unreach-call.i.cil.c     true                         54.72       38.02        None
+ssh/s3_srvr.blast.15_true-unreach-call.i.cil.c     true                         34.49       19.87        None
+ssh/s3_srvr.blast.16_true-unreach-call.i.cil.c     true                         26.97       14.77        None
+-------------------------------------------------------------------------------------------------------------
+Run set 1                                          done                       1157.45      696.75           -
+
+
+ABElf.Simple
+Run set 2 of 2: skipped 

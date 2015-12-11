@@ -1,0 +1,1005 @@
+./cbmc --32 --propertyfile test/programs/benchmarks/ssh/ALL.prp test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c
+
+
+--------------------------------------------------------------------------------
+
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <key attr.name="assumption" attr.type="string" for="edge" id="assumption"/>
+  <key attr.name="sourcecode" attr.type="string" for="edge" id="sourcecode"/>
+  <key attr.name="sourcecodeLanguage" attr.type="string" for="graph" id="sourcecodelang"/>
+  <key attr.name="control" attr.type="string" for="edge" id="control"/>
+  <key attr.name="startline" attr.type="int" for="edge" id="startline"/>
+  <key attr.name="originFileName" attr.type="string" for="edge" id="originfile">
+    <default>&lt;command-line&gt;</default>
+  </key>
+  <key attr.name="nodeType" attr.type="string" for="node" id="nodetype">
+    <default>path</default>
+  </key>
+  <key attr.name="isFrontierNode" attr.type="boolean" for="node" id="frontier">
+    <default>false</default>
+  </key>
+  <key attr.name="isViolationNode" attr.type="boolean" for="node" id="violation">
+    <default>false</default>
+  </key>
+  <key attr.name="isEntryNode" attr.type="boolean" for="node" id="entry">
+    <default>false</default>
+  </key>
+  <key attr.name="isSinkNode" attr.type="boolean" for="node" id="sink">
+    <default>false</default>
+  </key>
+  <key attr.name="enterFunction" attr.type="string" for="edge" id="enterFunction"/>
+  <key attr.name="returnFromFunction" attr.type="string" for="edge" id="returnFrom"/>
+  <key attr.name="threadNumber" attr.type="int" for="node" id="thread">
+    <default>0</default>
+  </key>
+  <graph edgedefault="directed">
+    <data key="sourcecodelang">C</data>
+    <node id="sink"/>
+    <node id="30.40">
+      <data key="entry">true</data>
+    </node>
+    <edge source="30.40" target="60.60">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1065</data>
+      <data key="assumption">s = &amp;dynamic_object1.version;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="60.60"/>
+    <edge source="60.60" target="90.80">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1069</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 0; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = ((struct ssl_session_st *)NULL); dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = ((struct ssl_ctx_st *)NULL); dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="90.80"/>
+    <edge source="90.80" target="120.100">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1070</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 0; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = ((struct ssl_session_st *)NULL); dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="120.100"/>
+    <edge source="120.100" target="121.101">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1071</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 0; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="121.101"/>
+    <edge source="121.101" target="122.104">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1072</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 12292; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="122.104"/>
+    <edge source="122.104" target="203.117">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1073</data>
+      <data key="assumption">s = &amp;dynamic_object1.version;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="203.117"/>
+    <edge source="203.117" target="205.119">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1088</data>
+      <data key="assumption">tmp___0 = ((int *)NULL);</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="205.119"/>
+    <edge source="205.119" target="207.121">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1089</data>
+      <data key="assumption">tmp___1 = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="207.121"/>
+    <edge source="207.121" target="209.123">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1090</data>
+      <data key="assumption">tmp___2 = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="209.123"/>
+    <edge source="209.123" target="211.125">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1091</data>
+      <data key="assumption">tmp___3 = 16;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="211.125"/>
+    <edge source="211.125" target="213.127">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1092</data>
+      <data key="assumption">tmp___4 = 2048;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="213.127"/>
+    <edge source="213.127" target="215.129">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1093</data>
+      <data key="assumption">tmp___5 = 4096;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="215.129"/>
+    <edge source="215.129" target="217.131">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1094</data>
+      <data key="assumption">tmp___6 = 4096;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="217.131"/>
+    <edge source="217.131" target="219.133">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1095</data>
+      <data key="assumption">tmp___7 = 1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="219.133"/>
+    <edge source="219.133" target="221.135">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1096</data>
+      <data key="assumption">tmp___8 = 1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="221.135"/>
+    <edge source="221.135" target="223.137">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1097</data>
+      <data key="assumption">tmp___9 = 1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="223.137"/>
+    <edge source="223.137" target="224.138">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1101</data>
+      <data key="assumption">blastFlag = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="224.138"/>
+    <edge source="224.138" target="225.139">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1102</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 12292; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="225.139"/>
+    <edge source="225.139" target="228.142">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1103</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298880; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 12292; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="228.142"/>
+    <edge source="228.142" target="229.143">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1104</data>
+      <data key="assumption">tmp = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="229.143"/>
+    <edge source="229.143" target="230.144">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1105</data>
+      <data key="assumption">cb = ((void (*)())NULL);</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="230.144"/>
+    <edge source="230.144" target="231.145">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1106</data>
+      <data key="assumption">ret = -1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="231.145"/>
+    <edge source="231.145" target="232.146">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1107</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="232.146"/>
+    <edge source="232.146" target="233.147">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1108</data>
+      <data key="assumption">tmp___0$object = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="233.147"/>
+    <edge source="233.147" target="236.148">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1109</data>
+      <data key="sourcecode">[(unsigned int)dynamic_object1#6.info_callback == 0]</data>
+    </edge>
+    <node id="236.148"/>
+    <edge source="236.148" target="237.149">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1112</data>
+      <data key="sourcecode">[!((unsigned int)dynamic_object3#0.info_callback == 0)]</data>
+    </edge>
+    <node id="237.149"/>
+    <edge source="237.149" target="238.150">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1113</data>
+      <data key="assumption">cb = ((void (*)())NULL) + 1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="238.150"/>
+    <edge source="238.150" target="241.153">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1118</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 0; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 12292; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.153"/>
+    <edge source="241.153" target="242.154">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 12292;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.154"/>
+    <edge source="242.154" target="343.156">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(!(dynamic_object1#7.state == 12292))]</data>
+    </edge>
+    <node id="343.156"/>
+    <edge source="343.156" target="344.157">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1235</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 12292; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="344.157"/>
+    <edge source="344.157" target="345.158">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1236</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4096; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="345.158"/>
+    <edge source="345.158" target="349.162">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1237</data>
+      <data key="assumption">dynamic_object3.method = ((struct ssl_method_st *)NULL); dynamic_object3.options = 0; dynamic_object3.mode = 0; dynamic_object3.cipher_list = ((struct stack_st *)NULL); dynamic_object3.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object3.cert_store = ((struct x509_store_st *)NULL); dynamic_object3.sessions = ((struct lhash_st *)NULL); dynamic_object3.session_cache_size = 0; dynamic_object3.session_cache_head = ((struct ssl_session_st *)NULL); dynamic_object3.session_cache_tail = ((struct ssl_session_st *)NULL); dynamic_object3.session_cache_mode = 0; dynamic_object3.session_timeout = 0; dynamic_object3.new_session_cb = ((int (*)(struct ssl_st *, struct ssl_session_st *))NULL); dynamic_object3.remove_session_cb = ((void (*)(struct ssl_ctx_st *, struct ssl_session_st *))NULL); dynamic_object3.get_session_cb = ((struct ssl_session_st * (*)(struct ssl_st *, unsigned char *, int, int *))NULL); dynamic_object3.stats.sess_connect = 195038207; dynamic_object3.stats.sess_connect_renegotiate = 29368323; dynamic_object3.stats.sess_connect_good = 2099455; dynamic_object3.stats.sess_accept = 0; dynamic_object3.stats.sess_accept_renegotiate = 0; dynamic_object3.stats.sess_accept_good = 0; dynamic_object3.stats.sess_miss = 0; dynamic_object3.stats.sess_timeout = 0; dynamic_object3.stats.sess_cache_full = 0; dynamic_object3.stats.sess_hit = 2981895; dynamic_object3.stats.sess_cb_hit = 0; dynamic_object3.references = 0; dynamic_object3.info_callback = ((void (*)())NULL) + 1; dynamic_object3.app_verify_callback = ((int (*)())NULL); dynamic_object3.app_verify_arg = ((signed char *)NULL); dynamic_object3.cert = ((struct cert_st *)NULL); dynamic_object3.read_ahead = 0; dynamic_object3.verify_mode = 0; dynamic_object3.verify_depth = 0; dynamic_object3.sid_ctx_length = 0; dynamic_object3.sid_ctx[0] = 0; dynamic_object3.sid_ctx[1] = 0; dynamic_object3.sid_ctx[2] = 0; dynamic_object3.sid_ctx[3] = 0; dynamic_object3.sid_ctx[4] = 0; dynamic_object3.sid_ctx[5] = 0; dynamic_object3.sid_ctx[6] = 0; dynamic_object3.sid_ctx[7] = 0; dynamic_object3.sid_ctx[8] = 0; dynamic_object3.sid_ctx[9] = 0; dynamic_object3.sid_ctx[10] = 0; dynamic_object3.sid_ctx[11] = 0; dynamic_object3.sid_ctx[12] = 0; dynamic_object3.sid_ctx[13] = 0; dynamic_object3.sid_ctx[14] = 0; dynamic_object3.sid_ctx[15] = 0; dynamic_object3.sid_ctx[16] = 0; dynamic_object3.sid_ctx[17] = 0; dynamic_object3.sid_ctx[18] = 0; dynamic_object3.sid_ctx[19] = 0; dynamic_object3.sid_ctx[20] = 0; dynamic_object3.sid_ctx[21] = 0; dynamic_object3.sid_ctx[22] = 0; dynamic_object3.sid_ctx[23] = 0; dynamic_object3.sid_ctx[24] = 0; dynamic_object3.sid_ctx[25] = 0; dynamic_object3.sid_ctx[26] = 0; dynamic_object3.sid_ctx[27] = 0; dynamic_object3.sid_ctx[28] = 0; dynamic_object3.sid_ctx[29] = 0; dynamic_object3.sid_ctx[30] = 0; dynamic_object3.sid_ctx[31] = 0; dynamic_object3.default_verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object3.purpose = 0; dynamic_object3.trust = 0; dynamic_object3.default_passwd_callback = ((int (*)(signed char *, int, int, void *))NULL); dynamic_object3.default_passwd_callback_userdata = NULL; dynamic_object3.client_cert_cb = ((int (*)())NULL); dynamic_object3.client_CA = ((struct stack_st *)NULL); dynamic_object3.quiet_shutdown = 0; dynamic_object3.ex_data.sk = ((struct stack_st *)NULL); dynamic_object3.ex_data.dummy = 0; dynamic_object3.rsa_md5 = ((struct env_md_st *)NULL); dynamic_object3.md5 = ((struct env_md_st *)NULL); dynamic_object3.sha1 = ((struct env_md_st *)NULL); dynamic_object3.extra_certs = ((struct stack_st *)NULL); dynamic_object3.comp_methods = ((struct stack_st *)NULL);</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="349.162"/>
+    <edge source="349.162" target="350.163">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1242</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 0; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4096; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="350.163"/>
+    <edge source="350.163" target="353.164">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1248</data>
+      <data key="sourcecode">[(65280 &amp; dynamic_object1#14.version) == 768]</data>
+    </edge>
+    <node id="353.164"/>
+    <edge source="353.164" target="354.165">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1254</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4096; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="354.165"/>
+    <edge source="354.165" target="366.166">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1255</data>
+      <data key="sourcecode">[!((unsigned int)dynamic_object1#15.init_buf == 0)]</data>
+    </edge>
+    <node id="366.166"/>
+    <edge source="366.166" target="369.167">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1273</data>
+      <data key="sourcecode">[tmp___4!0@1#2 != 0]</data>
+    </edge>
+    <node id="369.167"/>
+    <edge source="369.167" target="372.168">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1279</data>
+      <data key="sourcecode">[tmp___5!0@1#2 != 0]</data>
+    </edge>
+    <node id="372.168"/>
+    <edge source="372.168" target="373.169">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1285</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4368; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="373.169"/>
+    <edge source="373.169" target="374.170">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1286</data>
+      <data key="assumption">dynamic_object3.method = ((struct ssl_method_st *)NULL); dynamic_object3.options = 0; dynamic_object3.mode = 0; dynamic_object3.cipher_list = ((struct stack_st *)NULL); dynamic_object3.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object3.cert_store = ((struct x509_store_st *)NULL); dynamic_object3.sessions = ((struct lhash_st *)NULL); dynamic_object3.session_cache_size = 0; dynamic_object3.session_cache_head = ((struct ssl_session_st *)NULL); dynamic_object3.session_cache_tail = ((struct ssl_session_st *)NULL); dynamic_object3.session_cache_mode = 0; dynamic_object3.session_timeout = 0; dynamic_object3.new_session_cb = ((int (*)(struct ssl_st *, struct ssl_session_st *))NULL); dynamic_object3.remove_session_cb = ((void (*)(struct ssl_ctx_st *, struct ssl_session_st *))NULL); dynamic_object3.get_session_cb = ((struct ssl_session_st * (*)(struct ssl_st *, unsigned char *, int, int *))NULL); dynamic_object3.stats.sess_connect = 195038208; dynamic_object3.stats.sess_connect_renegotiate = 29368323; dynamic_object3.stats.sess_connect_good = 2099455; dynamic_object3.stats.sess_accept = 0; dynamic_object3.stats.sess_accept_renegotiate = 0; dynamic_object3.stats.sess_accept_good = 0; dynamic_object3.stats.sess_miss = 0; dynamic_object3.stats.sess_timeout = 0; dynamic_object3.stats.sess_cache_full = 0; dynamic_object3.stats.sess_hit = 2981895; dynamic_object3.stats.sess_cb_hit = 0; dynamic_object3.references = 0; dynamic_object3.info_callback = ((void (*)())NULL) + 1; dynamic_object3.app_verify_callback = ((int (*)())NULL); dynamic_object3.app_verify_arg = ((signed char *)NULL); dynamic_object3.cert = ((struct cert_st *)NULL); dynamic_object3.read_ahead = 0; dynamic_object3.verify_mode = 0; dynamic_object3.verify_depth = 0; dynamic_object3.sid_ctx_length = 0; dynamic_object3.sid_ctx[0] = 0; dynamic_object3.sid_ctx[1] = 0; dynamic_object3.sid_ctx[2] = 0; dynamic_object3.sid_ctx[3] = 0; dynamic_object3.sid_ctx[4] = 0; dynamic_object3.sid_ctx[5] = 0; dynamic_object3.sid_ctx[6] = 0; dynamic_object3.sid_ctx[7] = 0; dynamic_object3.sid_ctx[8] = 0; dynamic_object3.sid_ctx[9] = 0; dynamic_object3.sid_ctx[10] = 0; dynamic_object3.sid_ctx[11] = 0; dynamic_object3.sid_ctx[12] = 0; dynamic_object3.sid_ctx[13] = 0; dynamic_object3.sid_ctx[14] = 0; dynamic_object3.sid_ctx[15] = 0; dynamic_object3.sid_ctx[16] = 0; dynamic_object3.sid_ctx[17] = 0; dynamic_object3.sid_ctx[18] = 0; dynamic_object3.sid_ctx[19] = 0; dynamic_object3.sid_ctx[20] = 0; dynamic_object3.sid_ctx[21] = 0; dynamic_object3.sid_ctx[22] = 0; dynamic_object3.sid_ctx[23] = 0; dynamic_object3.sid_ctx[24] = 0; dynamic_object3.sid_ctx[25] = 0; dynamic_object3.sid_ctx[26] = 0; dynamic_object3.sid_ctx[27] = 0; dynamic_object3.sid_ctx[28] = 0; dynamic_object3.sid_ctx[29] = 0; dynamic_object3.sid_ctx[30] = 0; dynamic_object3.sid_ctx[31] = 0; dynamic_object3.default_verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object3.purpose = 0; dynamic_object3.trust = 0; dynamic_object3.default_passwd_callback = ((int (*)(signed char *, int, int, void *))NULL); dynamic_object3.default_passwd_callback_userdata = NULL; dynamic_object3.client_cert_cb = ((int (*)())NULL); dynamic_object3.client_CA = ((struct stack_st *)NULL); dynamic_object3.quiet_shutdown = 0; dynamic_object3.ex_data.sk = ((struct stack_st *)NULL); dynamic_object3.ex_data.dummy = 0; dynamic_object3.rsa_md5 = ((struct env_md_st *)NULL); dynamic_object3.md5 = ((struct env_md_st *)NULL); dynamic_object3.sha1 = ((struct env_md_st *)NULL); dynamic_object3.extra_certs = ((struct stack_st *)NULL); dynamic_object3.comp_methods = ((struct stack_st *)NULL);</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="374.170"/>
+    <edge source="374.170" target="528.173">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1287</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4368; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="528.173"/>
+    <edge source="528.173" target="538.174">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1601</data>
+      <data key="sourcecode">[dynamic_object2#36.tmp.reuse_message != 0]</data>
+    </edge>
+    <node id="538.174"/>
+    <edge source="538.174" target="241.178">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1630</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.178"/>
+    <edge source="241.178" target="242.179">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 4368;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.179"/>
+    <edge source="242.179" target="245.180">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(dynamic_object1#118.state == 12292)]</data>
+    </edge>
+    <node id="245.180"/>
+    <edge source="245.180" target="248.181">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1135</data>
+      <data key="sourcecode">[!(dynamic_object1#118.state == 16384)]</data>
+    </edge>
+    <node id="248.181"/>
+    <edge source="248.181" target="251.182">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1138</data>
+      <data key="sourcecode">[!(dynamic_object1#118.state == 4096)]</data>
+    </edge>
+    <node id="251.182"/>
+    <edge source="251.182" target="254.183">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1141</data>
+      <data key="sourcecode">[!(dynamic_object1#118.state == 20480)]</data>
+    </edge>
+    <node id="254.183"/>
+    <edge source="254.183" target="257.184">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1144</data>
+      <data key="sourcecode">[!(dynamic_object1#118.state == 4099)]</data>
+    </edge>
+    <node id="257.184"/>
+    <edge source="257.184" target="377.187">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1147</data>
+      <data key="sourcecode">[!(!(dynamic_object1#118.state == 4368))]</data>
+    </edge>
+    <node id="377.187"/>
+    <edge source="377.187" target="378.188">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1291</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4368; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="378.188"/>
+    <edge source="378.188" target="379.189">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1292</data>
+      <data key="assumption">ret = 16777216;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="379.189"/>
+    <edge source="379.189" target="380.190">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1293</data>
+      <data key="sourcecode">[!(!(blastFlag!0@1#44 == 0))]</data>
+    </edge>
+    <node id="380.190"/>
+    <edge source="380.190" target="381.191">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1294</data>
+      <data key="assumption">blastFlag = 1;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="381.191"/>
+    <edge source="381.191" target="382.192">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1299</data>
+      <data key="sourcecode">[!(ret!0@1#98 &lt;= 0)]</data>
+    </edge>
+    <node id="382.192"/>
+    <edge source="382.192" target="383.193">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1303</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4384; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="383.193"/>
+    <edge source="383.193" target="528.196">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1304</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4384; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="528.196"/>
+    <edge source="528.196" target="538.197">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1601</data>
+      <data key="sourcecode">[dynamic_object2#72.tmp.reuse_message != 0]</data>
+    </edge>
+    <node id="538.197"/>
+    <edge source="538.197" target="241.201">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1630</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.201"/>
+    <edge source="241.201" target="242.202">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 4384;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.202"/>
+    <edge source="242.202" target="245.203">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 12292)]</data>
+    </edge>
+    <node id="245.203"/>
+    <edge source="245.203" target="248.204">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1135</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 16384)]</data>
+    </edge>
+    <node id="248.204"/>
+    <edge source="248.204" target="251.205">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1138</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 4096)]</data>
+    </edge>
+    <node id="251.205"/>
+    <edge source="251.205" target="254.206">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1141</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 20480)]</data>
+    </edge>
+    <node id="254.206"/>
+    <edge source="254.206" target="257.207">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1144</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 4099)]</data>
+    </edge>
+    <node id="257.207"/>
+    <edge source="257.207" target="260.208">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1147</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 4368)]</data>
+    </edge>
+    <node id="260.208"/>
+    <edge source="260.208" target="263.209">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1150</data>
+      <data key="sourcecode">[!(dynamic_object1#229.state == 4369)]</data>
+    </edge>
+    <node id="263.209"/>
+    <edge source="263.209" target="386.212">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1153</data>
+      <data key="sourcecode">[!(!(dynamic_object1#229.state == 4384))]</data>
+    </edge>
+    <node id="386.212"/>
+    <edge source="386.212" target="387.213">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1313</data>
+      <data key="assumption">ret = 16777216;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="387.213"/>
+    <edge source="387.213" target="388.214">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1314</data>
+      <data key="sourcecode">[!(!(blastFlag!0@1#101 == 1))]</data>
+    </edge>
+    <node id="388.214"/>
+    <edge source="388.214" target="392.216">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1315</data>
+      <data key="assumption">blastFlag = 2;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="392.216"/>
+    <edge source="392.216" target="393.217">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1324</data>
+      <data key="sourcecode">[!(ret!0@1#183 &lt;= 0)]</data>
+    </edge>
+    <node id="393.217"/>
+    <edge source="393.217" target="396.218">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1328</data>
+      <data key="sourcecode">[dynamic_object1#248.hit == 0]</data>
+    </edge>
+    <node id="396.218"/>
+    <edge source="396.218" target="397.219">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1331</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4400; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="397.219"/>
+    <edge source="397.219" target="528.222">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1333</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4400; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="528.222"/>
+    <edge source="528.222" target="538.223">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1601</data>
+      <data key="sourcecode">[dynamic_object2#108.tmp.reuse_message != 0]</data>
+    </edge>
+    <node id="538.223"/>
+    <edge source="538.223" target="241.227">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1630</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.227"/>
+    <edge source="241.227" target="242.228">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 4400;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.228"/>
+    <edge source="242.228" target="245.229">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 12292)]</data>
+    </edge>
+    <node id="245.229"/>
+    <edge source="245.229" target="248.230">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1135</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 16384)]</data>
+    </edge>
+    <node id="248.230"/>
+    <edge source="248.230" target="251.231">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1138</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4096)]</data>
+    </edge>
+    <node id="251.231"/>
+    <edge source="251.231" target="254.232">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1141</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 20480)]</data>
+    </edge>
+    <node id="254.232"/>
+    <edge source="254.232" target="257.233">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1144</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4099)]</data>
+    </edge>
+    <node id="257.233"/>
+    <edge source="257.233" target="260.234">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1147</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4368)]</data>
+    </edge>
+    <node id="260.234"/>
+    <edge source="260.234" target="263.235">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1150</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4369)]</data>
+    </edge>
+    <node id="263.235"/>
+    <edge source="263.235" target="266.236">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1153</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4384)]</data>
+    </edge>
+    <node id="266.236"/>
+    <edge source="266.236" target="269.237">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1156</data>
+      <data key="sourcecode">[!(dynamic_object1#340.state == 4385)]</data>
+    </edge>
+    <node id="269.237"/>
+    <edge source="269.237" target="401.241">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1159</data>
+      <data key="sourcecode">[!(!(dynamic_object1#340.state == 4400))]</data>
+    </edge>
+    <node id="401.241"/>
+    <edge source="401.241" target="404.242">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1337</data>
+      <data key="sourcecode">[(256 &amp; invalid_object9#0.algorithms) == 0]</data>
+    </edge>
+    <node id="404.242"/>
+    <edge source="404.242" target="405.243">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1340</data>
+      <data key="assumption">ret = 1073741824;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="405.243"/>
+    <edge source="405.243" target="406.244">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1341</data>
+      <data key="sourcecode">[!(!(blastFlag!0@1#161 == 2))]</data>
+    </edge>
+    <node id="406.244"/>
+    <edge source="406.244" target="407.245">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1342</data>
+      <data key="assumption">blastFlag = 3;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="407.245"/>
+    <edge source="407.245" target="408.246">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1347</data>
+      <data key="sourcecode">[!(ret!0@1#268 &lt;= 0)]</data>
+    </edge>
+    <node id="408.246"/>
+    <edge source="408.246" target="409.247">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1352</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4416; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="409.247"/>
+    <edge source="409.247" target="528.250">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1353</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4416; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="528.250"/>
+    <edge source="528.250" target="538.251">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1601</data>
+      <data key="sourcecode">[dynamic_object2#144.tmp.reuse_message != 0]</data>
+    </edge>
+    <node id="538.251"/>
+    <edge source="538.251" target="241.255">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1630</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.255"/>
+    <edge source="241.255" target="242.256">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 4416;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.256"/>
+    <edge source="242.256" target="245.257">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 12292)]</data>
+    </edge>
+    <node id="245.257"/>
+    <edge source="245.257" target="248.258">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1135</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 16384)]</data>
+    </edge>
+    <node id="248.258"/>
+    <edge source="248.258" target="251.259">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1138</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4096)]</data>
+    </edge>
+    <node id="251.259"/>
+    <edge source="251.259" target="254.260">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1141</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 20480)]</data>
+    </edge>
+    <node id="254.260"/>
+    <edge source="254.260" target="257.261">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1144</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4099)]</data>
+    </edge>
+    <node id="257.261"/>
+    <edge source="257.261" target="260.262">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1147</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4368)]</data>
+    </edge>
+    <node id="260.262"/>
+    <edge source="260.262" target="263.263">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1150</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4369)]</data>
+    </edge>
+    <node id="263.263"/>
+    <edge source="263.263" target="266.264">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1153</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4384)]</data>
+    </edge>
+    <node id="266.264"/>
+    <edge source="266.264" target="269.265">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1156</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4385)]</data>
+    </edge>
+    <node id="269.265"/>
+    <edge source="269.265" target="272.266">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1159</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4400)]</data>
+    </edge>
+    <node id="272.266"/>
+    <edge source="272.266" target="275.267">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1162</data>
+      <data key="sourcecode">[!(dynamic_object1#451.state == 4401)]</data>
+    </edge>
+    <node id="275.267"/>
+    <edge source="275.267" target="412.270">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1165</data>
+      <data key="sourcecode">[!(!(dynamic_object1#451.state == 4416))]</data>
+    </edge>
+    <node id="412.270"/>
+    <edge source="412.270" target="413.271">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1357</data>
+      <data key="assumption">ret = 8192;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="413.271"/>
+    <edge source="413.271" target="414.272">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1358</data>
+      <data key="sourcecode">[!(!(blastFlag!0@1#219 == 3))]</data>
+    </edge>
+    <node id="414.272"/>
+    <edge source="414.272" target="415.273">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1359</data>
+      <data key="assumption">blastFlag = 4;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="415.273"/>
+    <edge source="415.273" target="416.274">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1364</data>
+      <data key="sourcecode">[!(ret!0@1#354 &lt;= 0)]</data>
+    </edge>
+    <node id="416.274"/>
+    <edge source="416.274" target="417.275">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1368</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4432; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="417.275"/>
+    <edge source="417.275" target="418.276">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1369</data>
+      <data key="assumption">dynamic_object1.version = 768; dynamic_object1.type = 4096; dynamic_object1.method = ((struct ssl_method_st *)NULL); dynamic_object1.rbio = ((struct bio_st *)NULL); dynamic_object1.wbio = ((struct bio_st *)NULL); dynamic_object1.bbio = ((struct bio_st *)NULL); dynamic_object1.rwstate = 1; dynamic_object1.in_handshake = 1080298881; dynamic_object1.handshake_func = ((int (*)())NULL); dynamic_object1.server = 0; dynamic_object1.new_session = 1; dynamic_object1.quiet_shutdown = 0; dynamic_object1.shutdown = 0; dynamic_object1.state = 4432; dynamic_object1.rstate = 0; dynamic_object1.init_buf = ((struct buf_mem_st *)NULL) + 1; dynamic_object1.init_num = 0; dynamic_object1.init_off = 0; dynamic_object1.packet = ((unsigned char *)NULL); dynamic_object1.packet_length = 0; dynamic_object1.s2 = ((struct ssl2_state_st *)NULL); dynamic_object1.s3 = &amp;dynamic_object2.flags; dynamic_object1.read_ahead = 0; dynamic_object1.hit = 0; dynamic_object1.purpose = 0; dynamic_object1.trust = 0; dynamic_object1.cipher_list = ((struct stack_st *)NULL); dynamic_object1.cipher_list_by_id = ((struct stack_st *)NULL); dynamic_object1.enc_read_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.read_hash = ((struct env_md_st *)NULL); dynamic_object1.expand = ((struct comp_ctx_st *)NULL); dynamic_object1.enc_write_ctx = ((struct evp_cipher_ctx_st *)NULL); dynamic_object1.write_hash = ((struct env_md_st *)NULL); dynamic_object1.compress = ((struct comp_ctx_st *)NULL); dynamic_object1.cert = ((struct cert_st *)NULL); dynamic_object1.sid_ctx_length = 0; dynamic_object1.sid_ctx[0] = 0; dynamic_object1.sid_ctx[1] = 0; dynamic_object1.sid_ctx[2] = 0; dynamic_object1.sid_ctx[3] = 0; dynamic_object1.sid_ctx[4] = 0; dynamic_object1.sid_ctx[5] = 0; dynamic_object1.sid_ctx[6] = 0; dynamic_object1.sid_ctx[7] = 0; dynamic_object1.sid_ctx[8] = 0; dynamic_object1.sid_ctx[9] = 0; dynamic_object1.sid_ctx[10] = 0; dynamic_object1.sid_ctx[11] = 0; dynamic_object1.sid_ctx[12] = 0; dynamic_object1.sid_ctx[13] = 0; dynamic_object1.sid_ctx[14] = 0; dynamic_object1.sid_ctx[15] = 0; dynamic_object1.sid_ctx[16] = 0; dynamic_object1.sid_ctx[17] = 0; dynamic_object1.sid_ctx[18] = 0; dynamic_object1.sid_ctx[19] = 0; dynamic_object1.sid_ctx[20] = 0; dynamic_object1.sid_ctx[21] = 0; dynamic_object1.sid_ctx[22] = 0; dynamic_object1.sid_ctx[23] = 0; dynamic_object1.sid_ctx[24] = 0; dynamic_object1.sid_ctx[25] = 0; dynamic_object1.sid_ctx[26] = 0; dynamic_object1.sid_ctx[27] = 0; dynamic_object1.sid_ctx[28] = 0; dynamic_object1.sid_ctx[29] = 0; dynamic_object1.sid_ctx[30] = 0; dynamic_object1.sid_ctx[31] = 0; dynamic_object1.session = &amp;dynamic_object4.ssl_version; dynamic_object1.verify_mode = 0; dynamic_object1.verify_depth = 0; dynamic_object1.verify_callback = ((int (*)(int, struct x509_store_ctx_st *))NULL); dynamic_object1.info_callback = ((void (*)())NULL); dynamic_object1.error = 0; dynamic_object1.error_code = 0; dynamic_object1.ctx = &amp;dynamic_object3.method; dynamic_object1.debug = 1; dynamic_object1.verify_result = 0; dynamic_object1.ex_data.sk = ((struct stack_st *)NULL); dynamic_object1.ex_data.dummy = 0; dynamic_object1.client_CA = ((struct stack_st *)NULL); dynamic_object1.references = 0; dynamic_object1.options = 0; dynamic_object1.mode = 0; dynamic_object1.first_packet = 0; dynamic_object1.client_version = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="418.276"/>
+    <edge source="418.276" target="528.279">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1370</data>
+      <data key="sourcecode">[tmp___6!0@1#2 != 0]</data>
+    </edge>
+    <node id="528.279"/>
+    <edge source="528.279" target="538.280">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1601</data>
+      <data key="sourcecode">[dynamic_object2#180.tmp.reuse_message != 0]</data>
+    </edge>
+    <node id="538.280"/>
+    <edge source="538.280" target="241.284">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1630</data>
+      <data key="assumption">skip = 0;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="241.284"/>
+    <edge source="241.284" target="242.285">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1131</data>
+      <data key="assumption">state = 4432;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="242.285"/>
+    <edge source="242.285" target="245.286">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1132</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 12292)]</data>
+    </edge>
+    <node id="245.286"/>
+    <edge source="245.286" target="248.287">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1135</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 16384)]</data>
+    </edge>
+    <node id="248.287"/>
+    <edge source="248.287" target="251.288">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1138</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4096)]</data>
+    </edge>
+    <node id="251.288"/>
+    <edge source="251.288" target="254.289">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1141</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 20480)]</data>
+    </edge>
+    <node id="254.289"/>
+    <edge source="254.289" target="257.290">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1144</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4099)]</data>
+    </edge>
+    <node id="257.290"/>
+    <edge source="257.290" target="260.291">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1147</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4368)]</data>
+    </edge>
+    <node id="260.291"/>
+    <edge source="260.291" target="263.292">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1150</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4369)]</data>
+    </edge>
+    <node id="263.292"/>
+    <edge source="263.292" target="266.293">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1153</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4384)]</data>
+    </edge>
+    <node id="266.293"/>
+    <edge source="266.293" target="269.294">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1156</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4385)]</data>
+    </edge>
+    <node id="269.294"/>
+    <edge source="269.294" target="272.295">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1159</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4400)]</data>
+    </edge>
+    <node id="272.295"/>
+    <edge source="272.295" target="275.296">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1162</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4401)]</data>
+    </edge>
+    <node id="275.296"/>
+    <edge source="275.296" target="278.297">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1165</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4416)]</data>
+    </edge>
+    <node id="278.297"/>
+    <edge source="278.297" target="281.298">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1168</data>
+      <data key="sourcecode">[!(dynamic_object1#562.state == 4417)]</data>
+    </edge>
+    <node id="281.298"/>
+    <edge source="281.298" target="423.301">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1171</data>
+      <data key="sourcecode">[!(!(dynamic_object1#562.state == 4432))]</data>
+    </edge>
+    <node id="423.301"/>
+    <edge source="423.301" target="424.302">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1379</data>
+      <data key="assumption">ret = 134217728;</data>
+      <data key="assumption.scope">ssl3_connect</data>
+    </edge>
+    <node id="424.302"/>
+    <edge source="424.302" target="566.303">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1381</data>
+      <data key="sourcecode">[blastFlag!0@1#276 == 4]</data>
+    </edge>
+    <node id="566.303">
+      <data key="violation">true</data>
+    </node>
+    <edge source="566.303" target="sink">
+      <data key="originfile">test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c</data>
+      <data key="startline">1642</data>
+    </edge>
+  </graph>
+</graphml>
+init_num=0 (00000000000000000000000000000000)
+
+State 223 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1630 function ssl3_connect thread 0
+----------------------------------------------------
+  skip=0 (00000000000000000000000000000000)
+
+State 227 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1131 function ssl3_connect thread 0
+----------------------------------------------------
+  state=4400 (00000000000000000001000100110000)
+
+State 242 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1340 function ssl3_connect thread 0
+----------------------------------------------------
+  ret=1073741824 (01000000000000000000000000000000)
+
+State 244 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1342 function ssl3_connect thread 0
+----------------------------------------------------
+  blastFlag=3 (00000000000000000000000000000011)
+
+State 246 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1352 function ssl3_connect thread 0
+----------------------------------------------------
+  dynamic_object1.state=4416 (00000000000000000001000101000000)
+
+State 247 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1353 function ssl3_connect thread 0
+----------------------------------------------------
+  dynamic_object1.init_num=0 (00000000000000000000000000000000)
+
+State 251 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1630 function ssl3_connect thread 0
+----------------------------------------------------
+  skip=0 (00000000000000000000000000000000)
+
+State 255 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1131 function ssl3_connect thread 0
+----------------------------------------------------
+  state=4416 (00000000000000000001000101000000)
+
+State 270 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1357 function ssl3_connect thread 0
+----------------------------------------------------
+  ret=8192 (00000000000000000010000000000000)
+
+State 272 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1359 function ssl3_connect thread 0
+----------------------------------------------------
+  blastFlag=4 (00000000000000000000000000000100)
+
+State 274 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1368 function ssl3_connect thread 0
+----------------------------------------------------
+  dynamic_object1.state=4432 (00000000000000000001000101010000)
+
+State 275 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1369 function ssl3_connect thread 0
+----------------------------------------------------
+  dynamic_object1.init_num=0 (00000000000000000000000000000000)
+
+State 280 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1630 function ssl3_connect thread 0
+----------------------------------------------------
+  skip=0 (00000000000000000000000000000000)
+
+State 284 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1131 function ssl3_connect thread 0
+----------------------------------------------------
+  state=4432 (00000000000000000001000101010000)
+
+State 301 file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1379 function ssl3_connect thread 0
+----------------------------------------------------
+  ret=134217728 (00001000000000000000000000000000)
+
+Violated property:
+  file test/programs/benchmarks/ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c line 1642 function ssl3_connect
+  assertion
+  FALSE
+
+VERIFICATION FAILED
+EC=10
+FALSE
