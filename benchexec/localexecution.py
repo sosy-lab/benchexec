@@ -99,6 +99,9 @@ def execute_benchmark(benchmark, output_handler):
         elif len(benchmark.config.users) != len(set(benchmark.config.users)):
             sys.exit('Same user account was specified multiple times, please specify {} separate accounts, or only one account.'.format(benchmark.num_of_threads))
 
+    throttle_check = systeminfo.CPUThrottleCheck()
+    swap_check = systeminfo.SwapCheck()
+
     # iterate over run sets
     for runSet in benchmark.run_sets:
 
@@ -161,7 +164,15 @@ def execute_benchmark(benchmark, output_handler):
             for worker in WORKER_THREADS:
                 worker.cleanup()
 
+    if throttle_check.has_throttled():
+        logging.warning('CPU throttled itself during benchmarking due to overheating. '
+                        'Benchmark results are unreliable!')
+    if swap_check.has_swapped():
+        logging.warning('System has swapped during benchmarking. '
+                        'Benchmark results are unreliable!')
+
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
+
     return 0
 
 
