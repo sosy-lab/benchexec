@@ -152,12 +152,12 @@ class Benchmark(object):
 
         def parse_memory_limit(value):
             try:
-                value = int(value) * _BYTE_FACTOR * _BYTE_FACTOR
+                value = int(value)
                 logging.warning(
                     'Value "%s" for memory limit interpreted as MB for backwards compatibility, '
                     'specify a unit to make this unambiguous.',
                     value)
-                return value
+                return value * _BYTE_FACTOR * _BYTE_FACTOR
             except ValueError:
                 return util.parse_memory_value(value)
 
@@ -800,7 +800,7 @@ class Requirements(object):
         if self.cpu_cores:
             s += " Cores=" + str(self.cpu_cores)
         if self.memory:
-            s += " Memory=" + str(self.memory) + "MB"
+            s += " Memory=" + str(self.memory/_BYTE_FACTOR/_BYTE_FACTOR) + " MB"
 
         return "Requirements:" + (s if s else " None")
 

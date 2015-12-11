@@ -26,10 +26,21 @@ import sys
 
 # categorization of a run result
 CATEGORY_CORRECT = 'correct'
+"""run result given by tool was correct"""
+
 CATEGORY_WRONG   = 'wrong'
+"""run result given by tool was wrong"""
+
 CATEGORY_UNKNOWN = 'unknown'
+"""run result given by tool was "unknown" (i.e., no answer)"""
+
 CATEGORY_ERROR   = 'error'
+"""tool failed, crashed, or hit a resource limit"""
+
 CATEGORY_MISSING = 'missing'
+"""BenchExec could not determine whether run result was correct or wrong
+because no property was defined, and no other categories apply."""
+
 
 # property names used in this module (should not contain spaces)
 _PROP_LABEL =        'unreach-label'

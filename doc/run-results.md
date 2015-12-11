@@ -10,7 +10,7 @@ and `RunExecutor.execute_run()` returns these in a dictionary.
 General rules:
 - Any result value may be missing if the value is not present.
 - Other possible result keys may be added at any time in the future.
-- Seconds are used as unit for time values, and bytes are used for memory values.
+- Numeric values are reported with the standard [BenchExec units](INDEX.md#units).
 - Values are reported as measured without rounding,
   thus the number of digits does not indicate significance.
   This is to prevent to prevent the proliferation of rounding errors
@@ -77,6 +77,8 @@ Furthermore, `benchexec` allows the user to specify arbitrary additional result 
 by defining them with a `<column>` tag in the benchmark-definition file.
 The values of these will be extracted from the tool output by the tool-info module
 and stored together with the result values that are determined by BenchExec.
+The content of these values can be arbitrary, but in most cases will be either a raw number,
+a number with a unit suffix, or plain text.
 
 Because the value for memory usage is named `memUsage` in `benchexec` result files
 only for backwards compatibility, we may change its name to `memory`

@@ -22,9 +22,16 @@ for example [files for generating plots](../contrib/plots/README.md).
 Information for developers and maintainers of BenchExec is available
 in the [development documentation](DEVELOPMENT.md).
 
-## Glossary
+## Definitions
 
-In BenchExec, we use the following definitions:
+### Units
+
+BenchExec always uses the SI standard units:
+- The base unit for time is seconds.
+- The base unit for memory is bytes, and the factor for `Kilo`, `Mega`, etc. is `1000`.
+  Kibibytes, Mebibytes, etc. (with a factor of 1024) are not supported.
+
+### Glossary
 
 - **executable**: The executable file that is used to start a tool.
 

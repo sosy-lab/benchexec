@@ -136,8 +136,8 @@ class BenchExec(object):
 
         parser.add_argument("-M", "--memorylimit",
                           dest="memorylimit", default=None,
-                          help="Memory limit in MB (-1 to disable)",
-                          metavar="MB")
+                          help="Memory limit, if no unit is given MB are assumed (-1 to disable)",
+                          metavar="BYTES")
 
         parser.add_argument("-N", "--numOfThreads",
                           dest="num_of_threads", default=None, type=int,
