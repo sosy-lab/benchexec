@@ -1,0 +1,252 @@
+scripts/cpa.sh -heap 13000M -noout -disable-java-assertions -setprop cpa.predicate.memoryAllocationsAlwaysSucceed=true -predicateAnalysis-PredAbsRefiner-ABEl -setprop cpa.predicate.handlePointerAliasing=false -timelimit 60s -stats -spec test/programs/benchmarks/ntdrivers/ALL.prp test/programs/benchmarks/ntdrivers/parport_true-unreach-call.i.cil.c
+
+
+--------------------------------------------------------------------------------
+
+
+Running CPAchecker with Java heap of size 13000M.
+Running CPAchecker with the following extra VM options:  -Djava.io.tmpdir=/tmp/BenchExec_run_ar6tftx9/tmp
+Using the following resource limits: CPU-time limit of 60s (ResourceLimitChecker.fromConfiguration, INFO)
+
+CPAchecker 1.4-svn 18912M (OpenJDK 64-Bit Server VM 1.7.0_91) started (CPAchecker.run, INFO)
+
+line 6170: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundPort (ASTConverter.convert, WARNING)
+
+line 6171: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundIrq (ASTConverter.convert, WARNING)
+
+line 6172: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundDma (ASTConverter.convert, WARNING)
+
+line 6221: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundPort (ASTConverter.convert, WARNING)
+
+line 6245: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundIrq (ASTConverter.convert, WARNING)
+
+line 6257: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundDma (ASTConverter.convert, WARNING)
+
+line 6698: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundPort (ASTConverter.convert, WARNING)
+
+line 6699: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundIrq (ASTConverter.convert, WARNING)
+
+line 6700: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundDma (ASTConverter.convert, WARNING)
+
+line 6763: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundPort (ASTConverter.convert, WARNING)
+
+line 6843: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundIrq (ASTConverter.convert, WARNING)
+
+line 6855: Dereferencing of non-pointer type PBOOLEAN  in expression *FoundDma (ASTConverter.convert, WARNING)
+
+line 8237: Dereferencing of non-pointer type PULONG  in expression *ParameterValue (ASTConverter.convert, WARNING)
+
+line 8248: Dereferencing of non-pointer type PULONG  in expression *ParameterValue (ASTConverter.convert, WARNING)
+
+line 8558: Dereferencing of non-pointer type PLONG  in expression *(((struct _SYNCHRONIZED_COUNT_CONTEXT *)SyncContext)->Count) (ASTConverter.convert, WARNING)
+
+line 8559: Dereferencing of non-pointer type PLONG  in expression *(((struct _SYNCHRONIZED_COUNT_CONTEXT *)SyncContext)->Count) (ASTConverter.convert, WARNING)
+
+line 8567: Dereferencing of non-pointer type PLONG  in expression *(((struct _SYNCHRONIZED_COUNT_CONTEXT *)SyncContext)->Count) (ASTConverter.convert, WARNING)
+
+line 8568: Dereferencing of non-pointer type PLONG  in expression *(((struct _SYNCHRONIZED_COUNT_CONTEXT *)SyncContext)->Count) (ASTConverter.convert, WARNING)
+
+line 8576: Dereferencing of non-pointer type PLONG  in expression *(((struct _SYNCHRONIZED_COUNT_CONTEXT *)SyncContext)->Count) (ASTConverter.convert, WARNING)
+
+line 9098: Dereferencing of non-pointer type PULONG  in expression *PortNumber (ASTConverter.convert, WARNING)
+
+line 9393: Dereferencing of non-pointer type PULONG  in expression *PRegFlags (ASTConverter.convert, WARNING)
+
+line 9423: Dereferencing of non-pointer type PULONG  in expression *InstanceLengthArray (ASTConverter.convert, WARNING)
+
+Handling of pointer aliasing is disabled, analysis is unsound if aliased pointers exist. (PredicateCPA:PathFormulaManagerImpl.<init>, WARNING)
+
+Using predicate analysis with SMTInterpol 2.1-224-gfd408f2-comp and JFactory 1.21. (PredicateCPA:PredicateCPA.<init>, INFO)
+
+Using refinement for predicate analysis with PredicateAbstractionRefinementStrategy strategy. (PredicateCPA:PredicateCPARefiner.<init>, INFO)
+
+The following configuration options were specified but are not used:
+ cpa.predicate.memoryAllocationsAlwaysSucceed 
+ (CPAchecker.printConfigurationWarnings, WARNING)
+
+Starting analysis ... (CPAchecker.runAlgorithm, INFO)
+
+Program contains array, or pointer (multiple level of indirection), or field (enable handleFieldAccess and handleFieldAliasing) access; analysis is imprecise in case of aliasing. (PredicateCPA:CtoFormulaConverter.makeVariableUnsafe, WARNING)
+
+Assuming external function IoAcquireCancelSpinLock to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function WRITE_PORT_UCHAR to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function KeSynchronizeExecution to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function READ_PORT_UCHAR to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function KeStallExecutionProcessor to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function KeQueryTimeIncrement to be a constant function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+Assuming external function KeQueryTickCount to be a pure function. (PredicateCPA:ExpressionToFormulaVisitor.visit, INFO)
+
+lines 5482-5483: Ignoring function call through function pointer *(Extension->ChipInfo.ParChipClearMode): Status = (*(Extension->ChipInfo.ParChipClearMode))(Extension->ChipInfo.Context, ChipMode); (PredicateCPA:ExpressionToFormulaVisitor.visit, WARNING)
+
+Recursion detected, aborting. To ignore recursion, add -skipRecursion to the command line. (CallstackCPA:CallstackTransferRelation.getAbstractSuccessorsForEdge, INFO)
+
+Error: lines 5482-5483: Unsupported feature (recursion): Status = PptClearChipMode(Extension->ChipInfo.Context, ChipMode); (line was originally pointer call(PptClearChipMode) Status = (*(Extension->ChipInfo.ParChipClearMode))(Extension->ChipInfo.Context,
+                                                       ChipMode);) (CallstackTransferRelation.getAbstractSuccessorsForEdge, SEVERE)
+
+PredicateCPA statistics
+-----------------------
+Number of abstractions:            133 (3% of all post computations)
+  Times abstraction was reused:    0
+  Because of function entry/exit:  0 (0%)
+  Because of loop head:            133 (100%)
+  Because of join nodes:           0 (0%)
+  Because of threshold:            0 (0%)
+  Times precision was empty:       133 (100%)
+  Times precision was {false}:     0 (0%)
+  Times result was cached:         0 (0%)
+  Times cartesian abs was used:    0 (0%)
+  Times boolean abs was used:      0 (0%)
+  Times result was 'false':        0 (0%)
+Number of strengthen sat checks:   8
+  Times result was 'false':        8 (100%)
+Number of strengthening with abstraction reuse:   0
+Number of coverage checks:         951
+  BDD entailment checks:           87
+Number of SMT sat checks:          8
+  trivial:                         0
+  cached:                          2
+
+Max ABE block size:                       108
+Number of predicates discovered:          0
+
+Number of path formula cache hits:   538 (10%)
+
+Time for post operator:                  0.493s
+  Time for path formula creation:        0.457s
+    Actual computation:                  0.441s
+Time for strengthen operator:            0.252s
+  Time for satisfiability checks:        0.241s
+Time for prec operator:                  0.198s
+  Time for abstraction:                  0.185s (Max:     0.013s, Count: 133)
+    Solving time:                        0.000s (Max:     0.000s)
+    Model enumeration time:              0.000s
+    Time for BDD construction:           0.000s (Max:     0.000s)
+Time for merge operator:                 0.142s
+Time for coverage check:                 0.009s
+  Time for BDD entailment checks:        0.009s
+Total time for SMT solver (w/o itp):     0.241s
+
+Number of BDD nodes:                               202
+Size of BDD node table:                            605849
+Size of BDD cache:                                 60589
+Size of BDD node cleanup queue:                           0 (count: 221, min: 0, max: 0, avg: 0,00)
+Time for BDD node cleanup:                             0.000s
+Time for BDD garbage collection:                       0.000s (in 0 runs)
+
+PrecisionBootstrap statistics
+-----------------------------
+Init. function predicates:                         0
+Init. global predicates:                           0
+Init. location predicates:                         0
+
+AutomatonAnalysis (SVCOMP) statistics
+-------------------------------------
+Number of states:                                  1
+Total time for successor computation:                  0.079s
+Automaton transfers with branching:                0
+Automaton transfer successors:                         7933 (count: 7933, min: 1, max: 1, avg: 1,00) [1 x 7933]
+
+CPA algorithm statistics
+------------------------
+Number of iterations:            4595
+Max size of waitlist:            84
+Average size of waitlist:        48
+Number of computed successors:   5165
+Max successors for one state:    2
+Number of times merged:          432
+Number of times stopped:         519
+Number of times breaked:         0
+
+Total time for CPA algorithm:         1.622s (Max:     1.622s)
+  Time for choose from waitlist:      0.021s
+  Time for precision adjustment:      0.268s
+  Time for transfer relation:         0.994s
+  Time for merge operator:            0.171s
+  Time for stop operator:             0.038s
+  Time for adding to reached set:     0.044s
+
+Predicate-Abstraction Refiner statistics
+----------------------------------------
+  Predicate creation:                                  0.000s
+  Precision update:                                    0.000s
+  ARG update:                                          0.000s
+
+Length of refined path (in blocks):                       0 (count: 0, min: 0, max: 0, avg: 0,00)
+Number of affected states:                                0 (count: 0, min: 0, max: 0, avg: 0,00)
+Length (states) of path with itp 'true':                  0 (count: 0, min: 0, max: 0, avg: 0,00)
+Length (states) of path with itp non-trivial itp:         0 (count: 0, min: 0, max: 0, avg: 0,00)
+Length (states) of path with itp 'false':                 0 (count: 0, min: 0, max: 0, avg: 0,00)
+Different non-trivial interpolants along paths:           0 (count: 0, min: 0, max: 0, avg: 0,00)
+Equal non-trivial interpolants along paths:               0 (count: 0, min: 0, max: 0, avg: 0,00)
+Different precisions along paths:                         0 (count: 0, min: 0, max: 0, avg: 0,00)
+Equal precisions along paths:                             0 (count: 0, min: 0, max: 0, avg: 0,00)
+Number of refs with location-based cutoff:                0
+
+CEGAR algorithm statistics
+--------------------------
+Number of refinements:                0
+
+Counterexample-Check Algorithm statistics
+-----------------------------------------
+Number of counterexample checks:    0
+
+Code Coverage
+-----------------------------
+  Function coverage:      0,188
+  Visited lines:          1315
+  Total lines:            4097
+  Line coverage:          0,321
+  Visited conditions:     264
+  Total conditions:       1152
+  Condition coverage:     0,229
+
+CPAchecker general statistics
+-----------------------------
+Number of program locations:     3329
+Number of CFA edges:             4041
+Number of relevant variables:    894
+Number of functions:             181
+Number of loops:                 37
+Size of reached set:             4647
+  Number of reached locations:   816 (25%)
+    Avg states per location:     5
+    Max states per location:     42 (at node N4459)
+  Number of reached functions:   34 (19%)
+  Number of partitions:          4647
+    Avg size of partitions:      1
+    Max size of partitions:      1
+  Number of target states:       0
+  Size of final wait list        52
+
+Time for analysis setup:          3.909s
+  Time for loading CPAs:          0.521s
+  Time for loading parser:        0.505s
+  Time for CFA construction:      2.830s
+    Time for parsing file(s):     0.816s
+    Time for AST to CFA:          0.767s
+    Time for CFA sanity check:    0.000s
+    Time for post-processing:     0.550s
+      Time for var class.:        0.000s
+Time for Analysis:                1.622s
+CPU time for analysis:            2.910s
+Total time for CPAchecker:        5.535s
+Total CPU time for CPAchecker:    8.970s
+Time for statistics:              0.145s
+
+Time for Garbage Collector:       0.121s (in 3 runs)
+Garbage Collector(s) used:    PS MarkSweep, PS Scavenge
+Used heap memory:                149MB (   142 MiB) max;     62MB (    59 MiB) avg;    178MB (   170 MiB) peak
+Used non-heap memory:             23MB (    22 MiB) max;     16MB (    15 MiB) avg;     23MB (    22 MiB) peak
+Used in PS Old Gen pool:          34MB (    33 MiB) max;      5MB (     5 MiB) avg;     34MB (    33 MiB) peak
+Allocated heap memory:           318MB (   303 MiB) max;    281MB (   268 MiB) avg
+Allocated non-heap memory:        24MB (    23 MiB) max;     24MB (    23 MiB) avg
+Total process virtual memory:  15768MB ( 15038 MiB) max;  15768MB ( 15038 MiB) avg
+
+Verification result: UNKNOWN, incomplete analysis.
+More details about the verification run can be found in the directory "./output".

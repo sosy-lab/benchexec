@@ -1,0 +1,500 @@
+./cbmc --32 --propertyfile test/programs/benchmarks/ntdrivers/ALL.prp test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c
+
+
+--------------------------------------------------------------------------------
+
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <key attr.name="assumption" attr.type="string" for="edge" id="assumption"/>
+  <key attr.name="sourcecode" attr.type="string" for="edge" id="sourcecode"/>
+  <key attr.name="sourcecodeLanguage" attr.type="string" for="graph" id="sourcecodelang"/>
+  <key attr.name="control" attr.type="string" for="edge" id="control"/>
+  <key attr.name="startline" attr.type="int" for="edge" id="startline"/>
+  <key attr.name="originFileName" attr.type="string" for="edge" id="originfile">
+    <default>&lt;command-line&gt;</default>
+  </key>
+  <key attr.name="nodeType" attr.type="string" for="node" id="nodetype">
+    <default>path</default>
+  </key>
+  <key attr.name="isFrontierNode" attr.type="boolean" for="node" id="frontier">
+    <default>false</default>
+  </key>
+  <key attr.name="isViolationNode" attr.type="boolean" for="node" id="violation">
+    <default>false</default>
+  </key>
+  <key attr.name="isEntryNode" attr.type="boolean" for="node" id="entry">
+    <default>false</default>
+  </key>
+  <key attr.name="isSinkNode" attr.type="boolean" for="node" id="sink">
+    <default>false</default>
+  </key>
+  <key attr.name="enterFunction" attr.type="string" for="edge" id="enterFunction"/>
+  <key attr.name="returnFromFunction" attr.type="string" for="edge" id="returnFrom"/>
+  <key attr.name="threadNumber" attr.type="int" for="node" id="thread">
+    <default>0</default>
+  </key>
+  <graph edgedefault="directed">
+    <data key="sourcecodelang">C</data>
+    <node id="sink"/>
+    <node id="2.55">
+      <data key="entry">true</data>
+    </node>
+    <edge source="2.55" target="4.57">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9501</data>
+      <data key="assumption">status = 4194304;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="4.57"/>
+    <edge source="4.57" target="7.60">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9502</data>
+      <data key="assumption">we_should_unload = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="7.60"/>
+    <edge source="7.60" target="9.62">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9504</data>
+      <data key="assumption">__BLAST_NONDET = 6;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="9.62"/>
+    <edge source="9.62" target="11.64">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9505</data>
+      <data key="assumption">irp_choice = 1;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="11.64"/>
+    <edge source="11.64" target="12.65">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9507</data>
+      <data key="assumption">s = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="12.65"/>
+    <edge source="12.65" target="7433.68">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9511</data>
+      <data key="assumption">pirp = &amp;irp.Type;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="7433.68"/>
+    <edge source="7433.68" target="7434.69">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9466</data>
+      <data key="assumption">UNLOADED = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7434.69"/>
+    <edge source="7434.69" target="7435.70">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9467</data>
+      <data key="assumption">NP = 1;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7435.70"/>
+    <edge source="7435.70" target="7436.71">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9468</data>
+      <data key="assumption">DC = 2;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7436.71"/>
+    <edge source="7436.71" target="7437.72">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9469</data>
+      <data key="assumption">SKIP1 = 3;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7437.72"/>
+    <edge source="7437.72" target="7438.73">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9470</data>
+      <data key="assumption">SKIP2 = 4;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7438.73"/>
+    <edge source="7438.73" target="7439.74">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9471</data>
+      <data key="assumption">MPR1 = 5;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7439.74"/>
+    <edge source="7439.74" target="7440.75">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9472</data>
+      <data key="assumption">MPR3 = 6;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7440.75"/>
+    <edge source="7440.75" target="7441.76">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9473</data>
+      <data key="assumption">IPC = 7;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7441.76"/>
+    <edge source="7441.76" target="7442.77">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9474</data>
+      <data key="assumption">s = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7442.77"/>
+    <edge source="7442.77" target="7443.78">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9475</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7443.78"/>
+    <edge source="7443.78" target="7444.79">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9476</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7444.79"/>
+    <edge source="7444.79" target="7445.80">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9477</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7445.80"/>
+    <edge source="7445.80" target="7446.81">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9478</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7446.81"/>
+    <edge source="7446.81" target="7447.82">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9479</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="7447.82"/>
+    <edge source="7447.82" target="14.84">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9480</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">_BLAST_init</data>
+    </edge>
+    <node id="14.84"/>
+    <edge source="14.84" target="15.85">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9514</data>
+      <data key="sourcecode">[!(!(status!0@1#2 &gt;= 0))]</data>
+    </edge>
+    <node id="15.85"/>
+    <edge source="15.85" target="16.86">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9515</data>
+      <data key="assumption">s = 1;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="16.86"/>
+    <edge source="16.86" target="17.87">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9516</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="17.87"/>
+    <edge source="17.87" target="18.88">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9517</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="18.88"/>
+    <edge source="18.88" target="19.89">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9518</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="19.89"/>
+    <edge source="19.89" target="20.90">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9519</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="20.90"/>
+    <edge source="20.90" target="21.91">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9520</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="21.91"/>
+    <edge source="21.91" target="22.92">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9521</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="22.92"/>
+    <edge source="22.92" target="23.93">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9522</data>
+      <data key="assumption">irp.Type = 0; irp.Size = 0; irp.MdlAddress = ((struct _MDL *)NULL); irp.Flags = 0; irp.AssociatedIrp.MasterIrp = ((struct _IRP *)NULL); irp.ThreadListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.ThreadListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.IoStatus.__annonCompField4.Status = 0l; irp.IoStatus.Information = 2516582740ul; irp.RequestorMode = 0; irp.PendingReturned = 0; irp.StackCount = 0; irp.CurrentLocation = 31; irp.Cancel = 0; irp.CancelIrql = 0; irp.ApcEnvironment = 0; irp.AllocationFlags = 0; irp.UserIosb = ((struct _IO_STATUS_BLOCK *)NULL); irp.UserEvent = ((struct _KEVENT *)NULL); irp.Overlay.AsynchronousParameters.UserApcRoutine = ((void (*)(void *, struct _IO_STATUS_BLOCK *, unsigned long int))NULL); irp.Overlay.AsynchronousParameters.UserApcContext = NULL; irp.CancelRoutine = ((void (*)(struct _DEVICE_OBJECT *, struct _IRP *))NULL); irp.UserBuffer = NULL; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.DeviceListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.SortKey = 0ul; irp.Tail.Overlay.__annonCompField15.DeviceQueueEntry.Inserted = 0; irp.Tail.Overlay.Thread = ((struct _ETHREAD *)NULL); irp.Tail.Overlay.AuxiliaryBuffer = ((char *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Flink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.ListEntry.Blink = ((struct _LIST_ENTRY *)NULL); irp.Tail.Overlay.__annonCompField17.__annonCompField16.CurrentStackLocation = INVALID-252; irp.Tail.Overlay.OriginalFileObject = ((struct _FILE_OBJECT *)NULL);</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="23.93"/>
+    <edge source="23.93" target="24.94">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9523</data>
+      <data key="assumption">myStatus = 0;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="24.94"/>
+    <edge source="24.94" target="7449.97">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9524</data>
+      <data key="sourcecode">[!(irp_choice!0@1#2 == 0)]</data>
+    </edge>
+    <node id="7449.97"/>
+    <edge source="7449.97" target="7450.98">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9489</data>
+      <data key="assumption">s = 1;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7450.98"/>
+    <edge source="7450.98" target="7451.99">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9490</data>
+      <data key="assumption">customIrp = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7451.99"/>
+    <edge source="7451.99" target="7452.100">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9491</data>
+      <data key="assumption">setEventCalled = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7452.100"/>
+    <edge source="7452.100" target="7453.101">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9492</data>
+      <data key="assumption">lowerDriverReturn = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7453.101"/>
+    <edge source="7453.101" target="7454.102">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9493</data>
+      <data key="assumption">compRegistered = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7454.102"/>
+    <edge source="7454.102" target="7455.103">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9494</data>
+      <data key="assumption">compFptr = ((int (*)(struct _DEVICE_OBJECT *, struct _IRP *, void *))NULL);</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="7455.103"/>
+    <edge source="7455.103" target="28.105">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9495</data>
+      <data key="assumption">pended = 0;</data>
+      <data key="assumption.scope">stub_driver_init</data>
+    </edge>
+    <node id="28.105"/>
+    <edge source="28.105" target="38.106">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9533</data>
+      <data key="sourcecode">[status!0@1#2 &gt;= 0]</data>
+    </edge>
+    <node id="38.106"/>
+    <edge source="38.106" target="41.107">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9538</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#4 == 0)]</data>
+    </edge>
+    <node id="41.107"/>
+    <edge source="41.107" target="44.108">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9541</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#4 == 1)]</data>
+    </edge>
+    <node id="44.108"/>
+    <edge source="44.108" target="47.109">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9544</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#4 == 3)]</data>
+    </edge>
+    <node id="47.109"/>
+    <edge source="47.109" target="50.110">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9547</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#4 == 4)]</data>
+    </edge>
+    <node id="50.110"/>
+    <edge source="50.110" target="53.111">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9550</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#4 == 5)]</data>
+    </edge>
+    <node id="53.111"/>
+    <edge source="53.111" target="84.115">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9553</data>
+      <data key="sourcecode">[!(!(__BLAST_NONDET!0@1#4 == 6))]</data>
+    </edge>
+    <node id="84.115"/>
+    <edge source="84.115" target="1214.120">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9592</data>
+      <data key="assumption">DeviceObject = &amp;devobj.Type;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="84.116"/>
+    <node id="1214.120"/>
+    <edge source="1214.120" target="1215.123">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9318</data>
+      <data key="assumption">pDevExt = &amp;"IRP_MN_READ_CONFIG                  0x0F"[32800];</data>
+      <data key="assumption.scope">PptDispatchSystemControl</data>
+    </edge>
+    <node id="1215.123"/>
+    <edge source="1215.123" target="1165.128">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9319</data>
+      <data key="assumption">WmiLibInfo = &amp;"IRP_MN_READ_CONFIG                  0x0F"[33200];</data>
+      <data key="assumption.scope">PptDispatchSystemControl</data>
+    </edge>
+    <node id="1215.124"/>
+    <node id="1215.125"/>
+    <node id="1215.126"/>
+    <node id="1165.128"/>
+    <edge source="1165.128" target="1166.129">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">10798</data>
+      <data key="assumption">__BLAST_NONDET = 1;</data>
+      <data key="assumption.scope">WmiSystemControl</data>
+    </edge>
+    <node id="1166.129"/>
+    <edge source="1166.129" target="1216.135">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">10801</data>
+      <data key="sourcecode">[!(__BLAST_NONDET!0@1#2 == 0)]</data>
+    </edge>
+    <node id="1216.135"/>
+    <edge source="1216.135" target="1218.136">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9319</data>
+      <data key="assumption">status = -1073741823;</data>
+      <data key="assumption.scope">PptDispatchSystemControl</data>
+    </edge>
+    <node id="1218.136"/>
+    <edge source="1218.136" target="1232.138">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9321</data>
+      <data key="sourcecode">[!(!((int)disposition!0@1#1 == 0))]</data>
+    </edge>
+    <node id="1232.138"/>
+    <edge source="1232.138" target="85.144">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9337</data>
+      <data key="assumption">s = 2;</data>
+      <data key="assumption.scope">PptDispatchSystemControl</data>
+    </edge>
+    <node id="85.144"/>
+    <edge source="85.144" target="108.147">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9592</data>
+      <data key="assumption">status = -1073741823;</data>
+      <data key="assumption.scope">main</data>
+    </edge>
+    <node id="108.147"/>
+    <edge source="108.147" target="110.148">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9619</data>
+      <data key="sourcecode">[we_should_unload!0@1#13 == 0]</data>
+    </edge>
+    <node id="110.148"/>
+    <edge source="110.148" target="116.149">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9629</data>
+      <data key="sourcecode">[!(pended#52 == 1)]</data>
+    </edge>
+    <node id="116.149"/>
+    <edge source="116.149" target="122.150">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9637</data>
+      <data key="sourcecode">[!(pended#52 == 1)]</data>
+    </edge>
+    <node id="122.150"/>
+    <edge source="122.150" target="123.151">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9645</data>
+      <data key="sourcecode">[!(s#352 == 0)]</data>
+    </edge>
+    <node id="123.151"/>
+    <edge source="123.151" target="124.152">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9648</data>
+      <data key="sourcecode">[!(status!0@1#30 == -1)]</data>
+    </edge>
+    <node id="124.152"/>
+    <edge source="124.152" target="125.153">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9651</data>
+      <data key="sourcecode">[!(s#352 == 4)]</data>
+    </edge>
+    <node id="125.153"/>
+    <edge source="125.153" target="126.154">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9652</data>
+      <data key="sourcecode">[!(s#352 == 7)]</data>
+    </edge>
+    <node id="126.154"/>
+    <edge source="126.154" target="133.156">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9653</data>
+      <data key="sourcecode">[s#352 == 2]</data>
+    </edge>
+    <node id="133.156"/>
+    <edge source="133.156" target="137.157">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9665</data>
+      <data key="sourcecode">[!(pended#52 == 1)]</data>
+    </edge>
+    <node id="137.157"/>
+    <edge source="137.157" target="1185.160">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">9674</data>
+      <data key="sourcecode">[!(!(s#352 == 2))]</data>
+    </edge>
+    <node id="1185.160">
+      <data key="violation">true</data>
+    </node>
+    <edge source="1185.160" target="sink">
+      <data key="originfile">test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c</data>
+      <data key="startline">2244</data>
+    </edge>
+  </graph>
+</graphml>
+unreach-call.i.cil.c line 9592 function main thread 0
+----------------------------------------------------
+  status=-1073741823 (11000000000000000000000000000001)
+
+Violated property:
+  file test/programs/benchmarks/ntdrivers/parport_false-unreach-call.i.cil.c line 2244 function errorFn
+  assertion
+  FALSE
+
+VERIFICATION FAILED
+EC=10
+FALSE
