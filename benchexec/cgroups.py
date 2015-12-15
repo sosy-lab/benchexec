@@ -45,7 +45,12 @@ CPUACCT = 'cpuacct'
 CPUSET = 'cpuset'
 FREEZER = 'freezer'
 MEMORY = 'memory'
-ALL_KNOWN_SUBSYSTEMS = set([CPUACCT, CPUSET, FREEZER, MEMORY])
+ALL_KNOWN_SUBSYSTEMS = set([
+    # cgroups for BenchExec
+    CPUACCT, CPUSET, FREEZER, MEMORY,
+    # other cgroups users might want
+    'cpu', 'devices', 'blkio', 'net_cls', 'net_prio', 'hugetlb', 'perf_event', 'pids',
+    ])
 
 
 def find_my_cgroups(cgroup_paths=None):

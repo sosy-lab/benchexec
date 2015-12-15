@@ -88,6 +88,8 @@ def main(argv=None):
                         help="list of CPU cores to use")
     parser.add_argument("--memoryNodes", type=util.parse_int_list, metavar="N,M-K",
                         help="list of memory nodes to use")
+    parser.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
+                        help="additional cgroup system that should be enabled for runs (may be specified multiple times)")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--user", metavar="USER",
@@ -140,7 +142,8 @@ def main(argv=None):
     else:
         stdin = None
 
-    executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup)
+    executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup,
+                           additional_cgroup_subsystems=options.require_cgroup_subsystem)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -205,11 +208,12 @@ class RunExecutor(object):
 
     # --- object initialization ---
 
-    def __init__(self, user=None, cleanup_temp_dir=True):
+    def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[]):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
+        @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
         self.PROCESS_KILLED = False
         self.SUB_PROCESSES_LOCK = threading.Lock() # needed, because we kill the process asynchronous
@@ -217,6 +221,7 @@ class RunExecutor(object):
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
+        self._cgroup_subsystems = additional_cgroup_subsystems
 
         if user is not None:
             # Check if we are allowed to execute 'kill' with dummy signal.
@@ -255,6 +260,11 @@ class RunExecutor(object):
         This function initializes the cgroups for the limitations and measurements.
         """
         self.cgroups = find_my_cgroups()
+
+        for subsystem in self._cgroup_subsystems:
+            self.cgroups.require_subsystem(subsystem)
+            if subsystem not in self.cgroups:
+                sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
@@ -394,7 +404,7 @@ class RunExecutor(object):
         logging.debug("Setting up cgroups for run.")
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
-        subsystems = [CPUACCT, FREEZER, MEMORY]
+        subsystems = [CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
         if my_cpus is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
