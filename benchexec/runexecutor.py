@@ -90,6 +90,8 @@ def main(argv=None):
                         help="list of memory nodes to use")
     parser.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
                         help="additional cgroup system that should be enabled for runs (may be specified multiple times)")
+    parser.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", metavar="SUBSYSTEM.OPTION=VALUE",
+                        help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--user", metavar="USER",
@@ -142,8 +144,22 @@ def main(argv=None):
     else:
         stdin = None
 
+    cgroup_subsystems = set(options.require_cgroup_subsystem)
+    cgroup_values = {}
+    for arg in options.cgroup_values:
+        try:
+            key, value = arg.split("=", 1)
+            subsystem, option = key.split(".", 1)
+            if not subsystem or not option:
+                raise ValueError()
+        except ValueError:
+            sys.exit('Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'
+                     .format(arg))
+        cgroup_values[(subsystem, option)] = value
+        cgroup_subsystems.add(subsystem)
+
     executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup,
-                           additional_cgroup_subsystems=options.require_cgroup_subsystem)
+                           additional_cgroup_subsystems=list(cgroup_subsystems))
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -166,6 +182,7 @@ def main(argv=None):
                             cores=options.cores,
                             memlimit=options.memlimit,
                             memory_nodes=options.memoryNodes,
+                            cgroupValues=cgroup_values,
                             environments=env,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize)
@@ -392,12 +409,13 @@ class RunExecutor(object):
 
     # --- setup and cleanup for a single run ---
 
-    def _setup_cgroups(self, my_cpus, memlimit, memory_nodes):
+    def _setup_cgroups(self, my_cpus, memlimit, memory_nodes, cgroup_values):
         """
         This method creates the CGroups for the following execution.
         @param my_cpus: None or a list of the CPU cores to use
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes of a NUMA system to use
+        @param cgroup_values: dict of additional values to set
         @return cgroups: a map of all the necessary cgroups for the following execution.
                          Please add the process of the following execution to all those cgroups!
         """
@@ -412,6 +430,17 @@ class RunExecutor(object):
         cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
 
         logging.debug("Created cgroups %s.", cgroups)
+
+        # First, set user-specified values such that they get overridden by our settings if necessary.
+        for ((subsystem, option), value) in cgroup_values.items():
+            try:
+                cgroups.set_value(subsystem, option, value)
+            except EnvironmentError as e:
+                cgroups.remove()
+                sys.exit('{} for setting cgroup option {}.{} to "{}" (error code {}).'
+                         .format(e.strerror, subsystem, option, value, e.errno))
+            logging.debug('Cgroup value %s.%s was set to "%s", new value is now "%s".',
+                          subsystem, option, value, cgroups.get_value(subsystem, option))
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
@@ -609,7 +638,8 @@ class RunExecutor(object):
     def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
-                   environments={}, workingDir=None, maxLogfileSize=None):
+                   environments={}, workingDir=None, maxLogfileSize=None,
+                   cgroupValues={}):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -625,6 +655,7 @@ class RunExecutor(object):
         @param environments: special environments for running the command
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
+        @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
         @return: a tuple with walltime in seconds, cputime in seconds, memory usage in bytes, returnvalue, and process output
         """
         # Check argument values and call the actual method _execute()
@@ -684,10 +715,20 @@ class RunExecutor(object):
             if not os.access(workingDir, os.X_OK):
                 sys.exit("Permission denied for working directory {0}.".format(workingDir))
 
+        for ((subsystem, option), _) in cgroupValues.items():
+            if not subsystem in self._cgroup_subsystems:
+                sys.exit('Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
+                         'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
+                            option=option, subsystem=subsystem))
+            if not self.cgroups.has_value(subsystem, option):
+                sys.exit('Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'
+                         .format(option=option, subsystem=subsystem))
+
         try:
             return self._execute(args, output_filename, stdin,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
+                                 cgroupValues,
                                  environments, workingDir, maxLogfileSize)
 
         except OSError as e:
@@ -700,6 +741,7 @@ class RunExecutor(object):
     def _execute(self, args, output_filename, stdin,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
+                 cgroup_values,
                  environments, workingDir, max_output_size):
         """
         This method executes the command line and waits for the termination of it,
@@ -718,7 +760,7 @@ class RunExecutor(object):
             cgroups.add_task(pid)
 
         # preparations that are not time critical
-        cgroups = self._setup_cgroups(cores, memlimit, memory_nodes)
+        cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         base_dir, home_dir, temp_dir = self._setup_temp_dir()
         run_environment = self._setup_environment(environments, home_dir, temp_dir)
         outputFile = self._setup_output_file(output_filename, args)
