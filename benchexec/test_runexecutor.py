@@ -270,7 +270,7 @@ class TestRunExecutor(unittest.TestCase):
             retcode = process.poll()
             if retcode:
                 print(runexec_output.decode())
-                raise subprocess.CalledProcessError(retcode, process.args, output=runexec_output)
+                raise subprocess.CalledProcessError(retcode, cmd, output=runexec_output)
 
             output = os.read(output_fd, 4096).decode().splitlines()
         finally:
