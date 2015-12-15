@@ -90,7 +90,8 @@ def main(argv=None):
                         help="list of memory nodes to use")
     parser.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
                         help="additional cgroup system that should be enabled for runs (may be specified multiple times)")
-    parser.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", metavar="SUBSYSTEM.OPTION=VALUE",
+    parser.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", default=[],
+                        metavar="SUBSYSTEM.OPTION=VALUE",
                         help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')")
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
