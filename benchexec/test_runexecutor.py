@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -399,6 +400,37 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual('tmp', os.path.basename(temp_dir), 'unexpected name of temp dir')
         self.assertNotEqual('/tmp', temp_dir, 'temp dir should not be the global temp dir')
         subprocess.check_call(self.runexecutor._build_cmdline(['rm', '-r', os.path.dirname(temp_dir)]))
+
+    def test_require_cgroup_invalid(self):
+        self.assertRaisesRegex(SystemExit, '.*invalid.*',
+                               lambda: RunExecutor(additional_cgroup_subsystems=['invalid']))
+
+    def test_require_cgroup_cpu(self):
+        try:
+            self.setUp(additional_cgroup_subsystems=['cpu'])
+        except SystemExit as e:
+            self.skipTest(e)
+        if not os.path.exists('/bin/cat'):
+            self.skipTest('missing /bin/cat')
+        (result, output) = self.execute_run('/bin/cat', '/proc/self/cgroup')
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/cat is not zero')
+        for line in output:
+            if re.match('^[0-9]*:cpu:/.*/benchmark_.*$',line):
+                return # Success
+        self.fail('Not in expected cgroup for subsystem cpu:\n' + '\n'.join(output))
+
+    def test_set_cgroup_cpu_shares(self):
+        if not os.path.exists('/bin/echo'):
+            self.skipTest('missing /bin/echo')
+        try:
+            self.setUp(additional_cgroup_subsystems=['cpu'])
+        except SystemExit as e:
+            self.skipTest(e)
+        (result, _) = self.execute_run('/bin/echo',
+                                            cgroupValues={('cpu', 'shares'): 42})
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
+        # Just assert that execution was successful,
+        # testing that the value was actually set is much more difficult.
 
 
 class TestRunExecutorWithSudo(TestRunExecutor):
