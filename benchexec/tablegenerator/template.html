@@ -138,6 +138,7 @@
   #button-filter-all   { position:absolute; top:60px; right:20px; width:100px; height:30px; }
   #button-filter-none  { position:absolute; top:100px; right:20px; width:100px; height:30px; }
   #button-filter-start { position:absolute; top:140px; right:20px; width:100px; height:30px; }
+  #button-inverse-filter-start { position:absolute; top:180px; right:20px; width:100px; height:30px; }
 
   /* plots */
   .jqplot-title { font-size:large; z-index:10 }
@@ -849,7 +850,16 @@ function fillRowFilterField(columnIndex) {
         .attr('title', 'Click here to filter all matching rows in the table. ' +
                        'If you select multiple values, a row is shown, if any value matches')
         .click(function(){
-                        hideRows(rowFilter.val() || [], columnIndex);
+                        hideRows(rowFilter.val() || [], columnIndex, false);
+                        hideContentPane();
+                    })
+        .appendTo($('#contentPane'));
+
+    $('<button>').text('invert filter').attr('id', 'button-inverse-filter-start')
+        .attr('title', 'Click here to filter all non-matching rows in the table. ' +
+                       'If you select multiple values, a row is shown, if none of the values matches')
+        .click(function(){
+                        hideRows(rowFilter.val() || [], columnIndex, true);
                         hideContentPane();
                     })
         .appendTo($('#contentPane'));
@@ -861,7 +871,7 @@ function removeFilterButtons() {
 
 /* this function hides all rows,
 in which the column with the columnIndex does not match one of the values. */
-function hideRows(values, columnIndex) {
+function hideRows(values, columnIndex, invertFilter) {
     var columnName = columnTitleCells[columnIndex].textContent;
 
     var dataRows = $('#dataTable > tbody')[0].rows;
@@ -897,7 +907,7 @@ function hideRows(values, columnIndex) {
                 }
             }
         }
-        if (!isVisible) $(row).hide();
+        if (invertFilter == isVisible) $(row).hide();
     }
 }
 
