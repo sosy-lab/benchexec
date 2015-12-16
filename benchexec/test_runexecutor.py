@@ -58,6 +58,8 @@ class TestRunExecutor(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         if not hasattr(cls, 'assertRegex'):
             cls.assertRegex = cls.assertRegexpMatches
+        if not hasattr(cls, 'assertRaisesRegex'):
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     def setUp(self, *args, **kwargs):
         self.runexecutor = RunExecutor(*args, **kwargs)
