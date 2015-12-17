@@ -34,6 +34,7 @@ import threading
 import time
 import tempfile
 import shutil
+
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import __version__
@@ -568,7 +569,7 @@ class RunExecutor(object):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args):
+    def _setup_output_file(self, output_filename, args, writeArgs=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -576,10 +577,12 @@ class RunExecutor(object):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+        if writeArgs:
+            output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
                           + '\n\n\n' + '-' * 80 + '\n\n\n')
-        output_file.flush()
+            output_file.flush()
         return output_file
+
 
 
     def _setup_cgroup_time_limit(self, hardtimelimit, softtimelimit, walltimelimit,
@@ -636,7 +639,7 @@ class RunExecutor(object):
 
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, stdin=None,
+    def execute_run(self, args, output_filename, stdout_filename=None, stderr_filename=None,stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
@@ -646,6 +649,8 @@ class RunExecutor(object):
         and writes the output to a file.
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
+        @param stdout_filename: dedicated file where the stdout output should be written to
+        @param stderr_filename: dedicated file where the stderr output should be written to
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
@@ -726,7 +731,7 @@ class RunExecutor(object):
                          .format(option=option, subsystem=subsystem))
 
         try:
-            return self._execute(args, output_filename, stdin,
+            return self._execute(args, output_filename, stdin, stdout_filename, stderr_filename,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
@@ -739,7 +744,7 @@ class RunExecutor(object):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _execute(self, args, output_filename, stdin,
+    def _execute(self, args, output_filename, stdin, stdout_filename, stderr_filename,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
@@ -767,6 +772,16 @@ class RunExecutor(object):
         outputFile = self._setup_output_file(output_filename, args)
         args = self._build_cmdline(args, env=run_environment)
 
+        if not stdout_filename == None:
+            stdout_file = self._setup_output_file(stdout_filename, args, False)
+        else:
+            stdout_file = outputFile
+
+        if not stderr_filename == None:
+            stderr_file = self._setup_output_file(stderr_filename, args, False)
+        else:
+            stderr_file = outputFile
+
         timelimitThread = None
         oomThread = None
         p = None
@@ -786,7 +801,7 @@ class RunExecutor(object):
         try:
             p = subprocess.Popen(args,
                                  stdin=stdin,
-                                 stdout=outputFile, stderr=outputFile,
+                                 stdout=stdout_file, stderr=stderr_file,
                                  env=run_environment, cwd=workingDir,
                                  close_fds=True,
                                  preexec_fn=preSubprocess)
