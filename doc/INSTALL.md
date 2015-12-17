@@ -51,15 +51,17 @@ acceptable, though there have been performance improvements for the memory
 controller in version 3.3, and cgroups in general are still getting improved, thus,
 using a recent kernel is a good idea.
 
-### Note for Users of Ubuntu 14.04
+### Warning for Users of Ubuntu 14.04
 
-There are appears to be a problem in the Linux kernel 3.13 used by Ubuntu 14.04.
-On some machines the kernel sporadically crashes
+There is a problem in the Linux kernel 3.13 used by Ubuntu 14.04.
+If the cgroup option `memory.use_hierarchy` is enabled,
+the kernel sporadically crashes
 with the message `BUG: soft lockup` in `/var/log/kern.org`
-and needs to be rebooted
-when the benchmarked process hits its memory limit.
+when the benchmarked process hits its memory limit,
+and needs to be rebooted.
 
-If you are affected by this problem, please upgrade to kernel 3.16 or newer, which is not affected,
+If you use Ubuntu 14.04 with `memory.use_hierarchy`,
+please upgrade to kernel 3.16 or newer, which is not affected,
 using the officially supported
 [Ubuntu LTS Hardware Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
 
