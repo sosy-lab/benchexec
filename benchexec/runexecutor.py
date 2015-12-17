@@ -569,7 +569,7 @@ class RunExecutor(object):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args, writeArgs=True):
+    def _setup_output_file(self, output_filename, args, write_args=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -577,7 +577,7 @@ class RunExecutor(object):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        if writeArgs:
+        if write_args:
             output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
                           + '\n\n\n' + '-' * 80 + '\n\n\n')
             output_file.flush()
@@ -773,12 +773,12 @@ class RunExecutor(object):
         args = self._build_cmdline(args, env=run_environment)
 
         if stdout_filename is not None:
-            stdout_file = self._setup_output_file(stdout_filename, writeArgs=False)
+            stdout_file = self._setup_output_file(stdout_filename, write_args=False)
         else:
             stdout_file = outputFile
 
         if stderr_filename is not None:
-            stderr_file = self._setup_output_file(stderr_filename, writeArgs=False)
+            stderr_file = self._setup_output_file(stderr_filename, write_args=False)
         else:
             stderr_file = outputFile
 
