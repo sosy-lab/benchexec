@@ -649,8 +649,8 @@ class RunExecutor(object):
         and writes the output to a file.
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
-        @param stdout_filename: dedicated file where the stdout output should be written to
-        @param stderr_filename: dedicated file where the stderr output should be written to
+        @param stdout_filename: dedicated file where the stdout output should be written to instead of output_filename
+        @param stderr_filename: dedicated file where the stderr output should be written to instead of output_filename
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
