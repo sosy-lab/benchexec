@@ -772,13 +772,13 @@ class RunExecutor(object):
         outputFile = self._setup_output_file(output_filename, args)
         args = self._build_cmdline(args, env=run_environment)
 
-        if not stdout_filename == None:
-            stdout_file = self._setup_output_file(stdout_filename, args, False)
+        if stdout_filename is not None:
+            stdout_file = self._setup_output_file(stdout_filename, writeArgs=False)
         else:
             stdout_file = outputFile
 
-        if not stderr_filename == None:
-            stderr_file = self._setup_output_file(stderr_filename, args, False)
+        if stderr_filename is not None:
+            stderr_file = self._setup_output_file(stderr_filename, writeArgs=False)
         else:
             stderr_file = outputFile
 
