@@ -655,6 +655,13 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     turbo = None
                 runSetResult.attributes['turbo'] = ', Turbo Boost {}'.format(turbo) if turbo else ''
 
+            elif key == 'timelimit':
+                def fix_unit_display(value):
+                    if len(value) >= 2 and value[-1] == 's' and value[-2] != ' ':
+                        return value[:-2] + ' s'
+                    return value
+                runSetResult.attributes[key] = Util.prettylist(map(fix_unit_display, values))
+
             elif key == 'memlimit' or key == 'ram':
                 def round_to_MB(value):
                     try:
