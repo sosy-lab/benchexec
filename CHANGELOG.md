@@ -1,5 +1,21 @@
 # BenchExec Changelog
 
+## BenchExec 1.5
+
+- Improved definition of time and memory limits:
+  Both can now be specified including units such as "s", "min" / "MB", "GB".
+  to make them easier to read and less ambiguous.
+  The old input format without units is still valid.
+- runexec now allows enabling other cgroup subsystems and setting arbitrary cgroup options.
+- HTML tables gained the possibility for inverting row filters. 
+- Improve detection of out-of-memory situations (were not always reported as OOM).
+- External resources in HTML tables are loaded from HTTPS URLs
+  such that browsers do not complain because of mixed content when viewing tables via HTTPS.
+- Improved warnings for swapping and CPU throttling for benchexec.
+- Various improvements to internal handling of memory values,
+  they are not consistently stored as bytes
+  (this only affects extensions of BenchExec, not regular input and output for users).
+
 ## BenchExec 1.4
 
 - BenchExec moved to https://github.com/sosy-lab/benchexec
