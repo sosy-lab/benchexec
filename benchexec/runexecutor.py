@@ -46,7 +46,8 @@ _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
-_SUDO_ARGS = ['sudo', '--non-interactive', '-u']
+_SUDO_ARGS = ['sudo', '--non-interactive']
+_SUDO_ARGS_2 = ['-u']
 
 try:
     from subprocess import DEVNULL
@@ -333,14 +334,14 @@ class RunExecutor(object):
 
     # --- utility functions ---
 
-    def _build_cmdline(self, args, env={}):
+    def _build_cmdline(self, args, env={}, sudo_args=[]):
         """
         Build the final command line for executing the given command,
         using sudo if necessary.
         """
         if self._user is None:
             return args
-        result = _SUDO_ARGS + [self._user]
+        result = _SUDO_ARGS + sudo_args + _SUDO_ARGS_2 + [self._user]
         for var, value in env.items():
             result.append(var + '=' + value)
         return result + ['--'] + args
@@ -568,7 +569,7 @@ class RunExecutor(object):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args):
+    def _setup_output_file(self, output_filename, args, sudo_args=[]):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -576,7 +577,7 @@ class RunExecutor(object):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args,sudo_args=sudo_args)))
                           + '\n\n\n' + '-' * 80 + '\n\n\n')
         output_file.flush()
         return output_file
@@ -639,7 +640,7 @@ class RunExecutor(object):
     def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
-                   environments={}, workingDir=None, maxLogfileSize=None,
+                   environments={}, sudo_args=[], workingDir=None, maxLogfileSize=None,
                    cgroupValues={}):
         """
         This function executes a given command with resource limits,
@@ -654,6 +655,7 @@ class RunExecutor(object):
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes in a NUMA system to use
         @param environments: special environments for running the command
+        @param sudo_args: None or a list custom arguments supplied to sudo
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
@@ -730,7 +732,7 @@ class RunExecutor(object):
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
-                                 environments, workingDir, maxLogfileSize)
+                                 environments, sudo_args=sudo_args,workingDir, maxLogfileSize)
 
         except OSError as e:
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
@@ -743,7 +745,7 @@ class RunExecutor(object):
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
-                 environments, workingDir, max_output_size):
+                 environments, sudo_args, workingDir, max_output_size):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
@@ -764,8 +766,8 @@ class RunExecutor(object):
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         base_dir, home_dir, temp_dir = self._setup_temp_dir()
         run_environment = self._setup_environment(environments, home_dir, temp_dir)
-        outputFile = self._setup_output_file(output_filename, args)
-        args = self._build_cmdline(args, env=run_environment)
+        outputFile = self._setup_output_file(output_filename, args, sudo_args=sudo_args)
+        args = self._build_cmdline(args, env=run_environment, sudo_args=sudo_args)
 
         timelimitThread = None
         oomThread = None
