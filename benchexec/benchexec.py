@@ -131,7 +131,9 @@ class BenchExec(object):
 
         parser.add_argument("-T", "--timelimit",
                           dest="timelimit", default=None,
-                          help="Time limit in seconds for each run (-1 to disable)",
+                          help='Time limit for each run, e.g. "90s" '
+                               '(overwrites time limit and hard time limit from XML file, '
+                               'use "-1" to disable time limits completely)',
                           metavar="SECONDS")
 
         parser.add_argument("-M", "--memorylimit",
