@@ -182,7 +182,7 @@ class Benchmark(object):
         self.rlimits = {}
         keys = list(rootTag.keys())
         handle_limit_value("Time", TIMELIMIT, config.timelimit, util.parse_timespan_value)
-        handle_limit_value("Hard time", HARDTIMELIMIT, None, util.parse_timespan_value)
+        handle_limit_value("Hard time", HARDTIMELIMIT, config.timelimit, util.parse_timespan_value)
         handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
         handle_limit_value("Core", CORELIMIT, config.corelimit, int)
 
@@ -193,7 +193,7 @@ class Benchmark(object):
                     logging.warning(
                         'Hard timelimit %d is smaller than timelimit %d, ignoring the former.',
                         hardtimelimit, self.rlimits[TIMELIMIT])
-                else:
+                elif hardtimelimit > self.rlimits[TIMELIMIT]:
                     self.rlimits[SOFTTIMELIMIT] = self.rlimits[TIMELIMIT]
                     self.rlimits[TIMELIMIT] = hardtimelimit
             else:
