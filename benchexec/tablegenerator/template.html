@@ -274,9 +274,9 @@ def format_stat_title(stat, column, format_value):
     <script type="text/javascript" src="{{lib_url}}/jquery/1.11.3/jquery.min.js"></script>
 <![endif]-->
 <!--[if gte IE 9]><!-->
-    <script type="text/javascript" src="{{lib_url}}/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="{{lib_url}}/jquery/2.1.4/jquery.min.js" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
 <!--<![endif]-->
-<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.3.2/jquery.floatThead.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.3.2/jquery.floatThead.min.js" integrity="sha384-Mdm3orYgm56x2iwLwcRB8PfUD1l6iKnn+wTW9brTgxSOiHvlG7s1AYTeL1konRwV" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
 // enable content that is only shown if JS is enabled
@@ -928,15 +928,15 @@ $(document).ready(function() {
 
 <!-- ################## Everything related to showing plots of the data ################## -->
 
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.logAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasOverlay.min.js"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.js" integrity="sha384-Cot3a3N4r3N6yp30lGlCz4AsOgpGZ3WBUg9DD2Majz+yHKihiZM6MHVRJhcFfIKi" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.highlighter.min.js" integrity="sha384-UE85H+y7D+rTEtprYLVMyLWQ7Ds3VNnNjMqASQ7hDxY6pqybhmRT4mwUXQuaUpxZ" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.cursor.min.js" integrity="sha384-/68UL5p7BH6UnGcjgfGbymVfV4GLIXdNS4KIi09AuXAFcIcj6la5aHRvIlUNiNLr" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js" integrity="sha384-gzWzw3zuzyvbr7RattOQstuVsCW85k0S8jM5tIrZxHDQxjs1+QRV3Lc1iqfBQljA" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js" integrity="sha384-T19JwedA1njhdPBkCFHbcc8MUFPeYR9kpbLLwm7Lg5cl5xxtTUF2+FSBYI80SdpY" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.min.js" integrity="sha384-0FX6sPZL1VtirdP+aMBU9aHca2BVXpV7zJWE6IRPBNocH0zfQsmSS2TOtcatFz3t" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.logAxisRenderer.min.js" integrity="sha384-1/rMlDir6Jep4M3CoOPHs8Q8iCO0HaT4eK4+QgFcE9QgpljyXA1yIIr41V2vVVI9" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasAxisLabelRenderer.min.js" integrity="sha384-z70jpazZYUFjpwVirGWZdsJ6rV8hKjEF+908tI73NI4xB6k8J7ZqyoSiEJf4fUSh" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{lib_url}}/jqplot/1.0.8/plugins/jqplot.canvasOverlay.min.js" integrity="sha384-/mPWjuZVALjPSyaQu/leRTo+xIvnkHsUTXlji5tfGuqaOsrxtH4IzTBx2QnoUDWQ" crossorigin="anonymous"></script>
 
 <script type="text/javascript">
 // Load JQPlot CSS lazily
@@ -944,7 +944,7 @@ $(document).ready(function(){
   if (document.createStyleSheet){
     document.createStyleSheet('{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.css');
   } else {
-    $("head").append($("<link rel='stylesheet' type='text/css' href='{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.css' media='screen'/>"));
+    $("head").append($("<link rel='stylesheet' type='text/css' href='{{lib_url}}/jqplot/1.0.8/jquery.jqplot.min.css' media='screen integrity='sha384-3WPN6YyZmP0g5boIn2D21/Vaxj8lM4l/HMS3laDXJ+avDefsHv34q2+QL+0MjqQx' crossorigin='anonymous''/>"));
   }
 });
 
