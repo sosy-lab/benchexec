@@ -22,5 +22,25 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
+    REQUIRED_PATHS = [
+                  "artifacts.xml",
+                  "configuration",
+                  "features",
+                  "Kojak.xml",
+                  "p2",
+                  "plugins",
+                  "svcomp-DerefFreeMemtrack-32bit-Kojak_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-32bit-Kojak_Default.epf",
+                  "svcomp-Overflow-64bit-Kojak_Default.epf",
+                  "svcomp-Reach-32bit-Kojak_Bitvector.epf",
+                  "svcomp-Reach-32bit-Kojak_Default.epf",
+                  "svcomp-Reach-64bit-Kojak_Bitvector.epf",
+                  "svcomp-Reach-64bit-Kojak_Default.epf",
+                  "Ultimate",
+                  "Ultimate.ini",
+                  "Ultimate.py",
+                  "z3"
+                  ]
+
     def name(self):
         return 'ULTIMATE Kojak'
