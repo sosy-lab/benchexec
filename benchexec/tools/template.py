@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob
 import os
 import logging
 import subprocess
@@ -59,10 +58,8 @@ class BaseTool(object):
         @return a list of paths as strings
         """
         installDir = os.path.dirname(executable)
-        fileList = util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
-        if not fileList:
-          fileList = glob.glob("*")
-        return [executable] + fileList
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
+
 
     def version(self, executable):
         """
