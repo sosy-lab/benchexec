@@ -12,6 +12,7 @@ The documentation for BenchExec is available in the following files:
 - [benchexec](benchexec.md)
 - [table-generator](table-generator.md)
 - [runexec](runexec.md)
+- [Resource handling](resources.md) for measuring and limiting resources like time and memory
 
 More on the background of BenchExec can also be found in our paper
 [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).

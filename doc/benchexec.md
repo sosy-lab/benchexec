@@ -127,6 +127,15 @@ is specified, `benchexec` will add and commit all created files to the git repos
 One can use this to create a reliable archive of experimental results.
 
 
+### Resource Handling
+`benchexec` automatically tries to allocate the available hardware resources
+in the best possible way.
+More information on what should be considered when allocating hardware resources such as CPU cores
+can be found in our paper
+[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+Some additional technical information is also present in the documentation on [resource handling](resources.md).
+
+
 ### Extending BenchExec
 BenchExec executes all runs on the local machine.
 In some cases, it might be desired to use for example some cloud service

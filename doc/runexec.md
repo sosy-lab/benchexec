@@ -29,6 +29,13 @@ Resource limits can be enabled with additional arguments to `runexec`,
 e.g. for CPU time (`--timelimit`), wall time (`--walltimelimit`),
 or memory consumption (`--memlimit`). If any of the limits is exceeded,
 the started command is killed forcefully (including any child processes it started).
+Additionally, a "soft" limit can be given for CPU time (needs to be smaller than the real limit).
+If given, the tool is sent the `TERM` signal after the soft limit is reached,
+which will allow it to shutdown gracefully
+(e.g., including writing output files and generating statistics)
+before it is killed forcefully when the real time limit is reached.
+For more information on how resources are measured and limited,
+please refer to the general documentation on [resource handling](resources.md).
 
 `runexec` can also restrict the executed command to a set of specific CPU cores
 with the parameters `--cores`,

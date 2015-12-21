@@ -34,9 +34,9 @@ The meanings of the current possible result values are as follows:
 - **cputime**: CPU time of run in seconds, as decimal number with suffix "s".
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
-- **walltime**: Wall time of run in seconds, as decimal number with suffix "s".
+- **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
 - **memory** (from `runexec`) / **memUsage** (from `benchexec`):
-    Peak memory consumption of run in bytes.
+    Peak memory consumption of run in bytes ([more information](resources.md#memory)).
 - **exitcode**: A number indicating how the process exited,
     as returned by the Python function [`os.wait`](https://docs.python.org/3/library/os.html#os.wait).
     It is recommended to use `returnvalue` and `exitsignal` instead (see below).
