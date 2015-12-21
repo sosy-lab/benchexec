@@ -30,12 +30,21 @@ import logging
 import os
 import subprocess
 import sys
+import time
 from xml.etree import ElementTree
 
 try:
     from shlex import quote as escape_string_shell
 except ImportError:
     from pipes import quote as escape_string_shell  # @UnusedImport for export
+
+
+try:
+    read_monotonic_time = time.monotonic
+except AttributeError:
+    # TODO Should probably warn about wall time affected by changing system clock
+    read_monotonic_time = time.time
+
 
 ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
 

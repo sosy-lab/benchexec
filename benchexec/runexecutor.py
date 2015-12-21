@@ -781,7 +781,7 @@ class RunExecutor(object):
 
         # start measurements (last step before calling Popen)
         energyBefore = util.measure_energy()
-        walltime_before = time.time()
+        walltime_before = util.read_monotonic_time()
 
         try:
             p = subprocess.Popen(args,
@@ -802,7 +802,7 @@ class RunExecutor(object):
 
         finally:
             # stop measurements first
-            walltime = time.time() - walltime_before
+            walltime = util.read_monotonic_time() - walltime_before
             energy = util.measure_energy(energyBefore)
 
             # cleanup steps that not time critical but need to get executed even in case of failure
@@ -1108,7 +1108,7 @@ class _TimelimitThread(threading.Thread):
         self.cgroups = cgroups
         self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
         self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value
-        self.latestKillTime = time.time() + walltimelimit
+        self.latestKillTime = util.read_monotonic_time() + walltimelimit
         self.process = process
         self.callback = callbackFn
         self.kill_process = kill_process_fn
@@ -1127,7 +1127,7 @@ class _TimelimitThread(threading.Thread):
             usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
-            remainingWallTime = self.latestKillTime - time.time()
+            remainingWallTime = self.latestKillTime - util.read_monotonic_time()
             logging.debug(
                 "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
                 "remaining soft CPU time: %s, remaining wall time: %s.",

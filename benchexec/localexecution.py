@@ -118,7 +118,7 @@ def execute_benchmark(benchmark, output_handler):
             run_sets_executed += 1
             # get times before runSet
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
-            walltime_before = time.time()
+            walltime_before = util.read_monotonic_time()
             energyBefore = util.measure_energy()
 
             output_handler.output_before_run_set(runSet)
@@ -150,7 +150,7 @@ def execute_benchmark(benchmark, output_handler):
                     stop()
 
             # get times after runSet
-            walltime_after = time.time()
+            walltime_after = util.read_monotonic_time()
             energy = util.measure_energy(energyBefore)
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
