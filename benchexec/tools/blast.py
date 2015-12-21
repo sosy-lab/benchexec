@@ -31,7 +31,7 @@ REQUIRED_PATHS = [
 class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
-        return util.find_executable('pblast.opt')
+        return util.find_executable('pblast.opt', 'bin/pblast.opt')
 
 
     def program_files(self, executable):
@@ -40,13 +40,11 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def working_directory(self, executable):
-        return os.curdir
+        return os.path.dirname(executable)
 
 
     def environment(self, executable):
-        executableDir = os.path.dirname(executable)
-        workingDir = self.working_directory(executable)
-        return {"additionalEnv" : {'PATH' :  ':' + (os.path.relpath(executableDir, start=workingDir))}}
+        return {"additionalEnv" : {'PATH' :  ':.'}}
 
 
     def version(self, executable):
@@ -54,11 +52,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def cmdline(self, blastExe, options, tasks, propertyfile, rlimits):
-        workingDir = self.working_directory(blastExe)
-        ocamlExe = util.find_executable('ocamltune')
         spec = ["-propertyfile", propertyfile] if propertyfile is not None else []
-        svcompExe = util.find_executable('svcomprunner')
-        return [os.path.relpath(svcompExe, start=workingDir)] + [os.path.relpath(ocamlExe, start=workingDir), blastExe] + options + spec + tasks
+        return ['svcomprunner', 'ocamltune', os.path.basename(blastExe)] + options + spec + tasks
 
 
     def name(self):
