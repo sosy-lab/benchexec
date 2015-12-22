@@ -170,7 +170,7 @@ class BaseTool(object):
         @param executable: the path to the executable of the tool (typically the result of executable())
         @return a string pointing to a directory
         """
-        return "."
+        return os.curdir
 
 
     def environment(self, executable):

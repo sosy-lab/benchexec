@@ -73,10 +73,6 @@ class Tool(benchexec.tools.template.BaseTool):
             sys.exit('Failed to build CPAchecker, please fix the build first.')
 
 
-    def working_directory(self, executable):
-        return os.curdir
-
-
     def version(self, executable):
         stdout = self._version_from_tool(executable, '-help')
         line = next(l for l in stdout.splitlines() if l.startswith('CPAchecker'))
