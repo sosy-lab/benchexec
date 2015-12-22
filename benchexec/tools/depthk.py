@@ -76,11 +76,9 @@ class Tool(benchexec.tools.template.BaseTool):
         ):
 
         assert len(tasks) == 1, 'only one sourcefile supported'
+        assert propertyfile, 'property file required'
         sourcefile = tasks[0]
-        workingDir = self.working_directory(executable)
-        return [os.path.relpath(executable, start=workingDir)] \
-            + options + ['-c', propertyfile,
-                         os.path.relpath(sourcefile, start=workingDir)]
+        return [executable] + options + ['-c', propertyfile, sourcefile]
 
     def determine_result(
         self,

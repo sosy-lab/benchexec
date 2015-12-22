@@ -50,9 +50,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, sourcefiles, propertyfile, rlimits):
         assert len(sourcefiles) == 1, "only one sourcefile supported"
+        assert propertyfile, "property file required"
         sourcefile = sourcefiles[0]
-        workingDir = self.working_directory(executable)
-        return [os.path.relpath(executable, start=workingDir)] + options + ['-c', propertyfile, os.path.relpath(sourcefile, start=workingDir)]
+        return [executable] + options + ['-c', propertyfile, sourcefile]
 
 
 
