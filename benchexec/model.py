@@ -100,6 +100,26 @@ def load_tool_info(tool_name):
     return (tool_module, tool)
 
 
+def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
+    working_directory = tool.working_directory(executable)
+    def relpath(path):
+        return path if os.path.isabs(path) \
+            else os.path.relpath(path, working_directory)
+
+    rel_executable = relpath(executable)
+    if os.path.sep not in rel_executable:
+        rel_executable = os.path.join(os.curdir, rel_executable)
+    args = tool.cmdline(
+        rel_executable, options,
+        list(map(relpath, sourcefiles)),
+        relpath(propertyfile) if propertyfile else None,
+        rlimits)
+    assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
+    args = [os.path.expandvars(arg) for arg in args]
+    args = [os.path.expanduser(arg) for arg in args]
+    return args;
+
+
 class Benchmark(object):
     """
     The class Benchmark manages the import of source files, options, columns and
@@ -601,22 +621,12 @@ class Run(object):
 
     def cmdline(self):
         assert self.runSet.benchmark.executable is not None, "executor needs to set tool executable"
-        working_directory = self.runSet.benchmark.tool.working_directory(self.runSet.benchmark.executable)
-        def relpath(path):
-            return path if os.path.isabs(path) \
-                else os.path.relpath(path, working_directory)
-
-        executable = relpath(self.runSet.benchmark.executable)
-        if os.path.sep not in executable:
-            executable = os.path.join(os.curdir, executable)
-        args = self.runSet.benchmark.tool.cmdline(
-            executable, self.options,
-            list(map(relpath, self.sourcefiles)),
-            relpath(self.propertyfile) if self.propertyfile else None,
-            self.runSet.benchmark.rlimits)
-        args = [os.path.expandvars(arg) for arg in args]
-        args = [os.path.expanduser(arg) for arg in args]
-        return args;
+        return cmdline_for_run(self.runSet.benchmark.tool,
+                               self.runSet.benchmark.executable,
+                               self.options,
+                               self.sourcefiles,
+                               self.propertyfile,
+                               self.runSet.benchmark.rlimits)
 
 
     def after_execution(self, returnvalue, forceTimeout=False, termination_reason=None):

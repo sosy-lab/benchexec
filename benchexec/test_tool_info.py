@@ -68,7 +68,10 @@ def print_tool_info(name):
     if not os.path.isabs(executable):
         print_value('Executable (absolute path)', os.path.abspath(executable))
 
-    print_value('Version', tool.version(executable))
+    try:
+        print_value('Version', tool.version(executable))
+    except:
+        logging.warning('Determining version failed:', exc_info=1)
 
     working_directory = tool.working_directory(executable)
     print_value('Working directory', working_directory)
@@ -97,7 +100,7 @@ def print_tool_info(name):
             environment)
 
     try:
-        cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], None, {}))
+        cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], None, {})
         print_list('Minimal command line', cmdline)
         if not 'INPUT.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores input file.')
@@ -107,7 +110,7 @@ def print_tool_info(name):
                         exc_info=1)
 
     try:
-        cmdline = list(tool.cmdline(executable, ['-SOME_OPTION'], ['INPUT.FILE'], None, {}))
+        cmdline = model.cmdline_for_run(tool, executable, ['-SOME_OPTION'], ['INPUT.FILE'], None, {})
         print_list('Command line with parameter', cmdline)
         if not '-SOME_OPTION' in cmdline:
             logging.warning('Tool module ignores command-line options.')
@@ -116,15 +119,15 @@ def print_tool_info(name):
                         exc_info=1)
 
     try:
-        cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], 'PROPERTY.PRP', {}))
+        cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], 'PROPERTY.PRP', {})
         print_list('Command line with property file', cmdline)
         if not 'PROPERTY.PRP' in ' '.join(cmdline):
             logging.warning('Tool module ignores property file.')
     except:
-        logging.warning('Tool module does not support tasks with property file:', exc_info=1)
+        logging.warning('Tool module does not support tasks with property file: %s', exc_info=1)
 
     try:
-        cmdline = list(tool.cmdline(executable, [], ['INPUT1.FILE', 'INPUT2.FILE'], None, {}))
+        cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT1.FILE', 'INPUT2.FILE'], None, {})
         print_list('Command line with multiple input files', cmdline)
         if 'INPUT1.FILE' in ' '.join(cmdline) and not 'INPUT2.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores all but first input file.')
@@ -133,7 +136,7 @@ def print_tool_info(name):
                         exc_info=1)
 
     try:
-        cmdline = list(tool.cmdline(executable, [], ['INPUT.FILE'], None, {model.SOFTTIMELIMIT: 123}))
+        cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], None, {model.SOFTTIMELIMIT: 123})
         print_list('Command line CPU-time limit', cmdline)
     except:
         logging.warning('Tool module does not support tasks with CPU-time limit:', exc_info=1)
