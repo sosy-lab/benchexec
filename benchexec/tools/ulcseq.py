@@ -26,6 +26,13 @@ class Tool(cseq.CSeqTool):
     Tool info for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
+    REQUIRED_PATHS = [
+                  "backends",
+                  "bin",
+                  "include",
+                  "ul-cseq.py"
+                  ]
+
     def executable(self):
         return util.find_executable('ul-cseq.py')
 
