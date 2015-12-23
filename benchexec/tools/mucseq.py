@@ -27,10 +27,34 @@ class Tool(cseq.CSeqTool):
     """
 
     REQUIRED_PATHS = [
+                  "clean.py",
+                  "clean.pyc",
                   "core",
                   "cseq.py",
-                  "lazy-cseq.py",
-                  "modules"
+                  "inlined.i.c",
+                  "lazyseq.py",
+                  "lextab.py",
+                  "merger.py",
+                  "merger.pyc",
+                  "modules",
+                  "mu-cseq-grained.py",
+                  "mu-cseq.py",
+                  "mu-cseq-translation.py",
+                  "my-include",
+                  "my-include-grained",
+                  "parametri.txt",
+                  "parsermu.py",
+                  "parsermu.pyc",
+                  "parser.py",
+                  "parser.pyc",
+                  "translatorgrained.py",
+                  "translatorgrained.pyc",
+                  "translator.py",
+                  "translator.pyc",
+                  "utils.py",
+                  "utils.pyc",
+                  "w-tester-check.py",
+                  "yacctab.py"
                   ]
 
     def executable(self):
