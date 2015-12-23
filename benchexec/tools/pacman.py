@@ -66,8 +66,3 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_TRUE_PROP
         return status
 
-
-
-    def working_directory(self, executable):
-        executableDir = os.path.dirname(executable)
-        return executableDir
