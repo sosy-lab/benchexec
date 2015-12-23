@@ -32,6 +32,14 @@ class Tool(benchexec.tools.template.BaseTool):
     http://www.fit.vutbr.cz/research/groups/verifit/tools/predator-hp/
     """
 
+    REQUIRED_PATHS = [
+                  "predator",
+                  "predator-bfs",
+                  "predator-dfs",
+                  "predatorHP.py",
+                  "predator-repo"
+                  ]
+
     def executable(self):
         executable = util.find_executable('predatorHP.py')
         executableDir = os.path.dirname(executable)

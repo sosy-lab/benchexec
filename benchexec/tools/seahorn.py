@@ -57,11 +57,23 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+import os
+
 class Tool(benchexec.tools.template.BaseTool):
 
 
+    REQUIRED_PATHS = [
+                  "bin",
+                  "include",
+                  "lib",
+                  "share"
+                  ]
+
     def executable(self):
-        return util.find_executable('sea_svcomp')
+        return util.find_executable('sea_svcomp', os.path.join("bin", 'sea_svcomp'))
+
+    def working_directory(self, executable):
+        return os.path.dirname(executable)
 
     def name(self):
         return 'SeaHorn-F16'
