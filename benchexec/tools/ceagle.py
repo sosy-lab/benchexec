@@ -24,6 +24,17 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
 
+    REQUIRED_PATHS = [
+                  "ceagle.sh",
+                  "dfs.py",
+                  "parse2str.py",
+                  "parsece.sh",
+                  "svcore",
+                  "svie",
+                  "verifier.py",
+                  "z3"
+                  ]
+
     def executable(self):
         return util.find_executable('ceagle.sh')
 

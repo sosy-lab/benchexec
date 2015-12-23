@@ -21,6 +21,17 @@ __author__ = 'guangchen'
 
 
 class Tool(BaseTool):
+
+    REQUIRED_PATHS = [
+                  "iabsref.sh",
+                  "beagle-ir2elts",
+                  "llvm-dis",
+                  "llvm-lit",
+                  "llvm-tblgen",
+                  "opt",
+                  "sv_absref"
+                  ]
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if isTimeout:
             return 'TIMEOUT'
