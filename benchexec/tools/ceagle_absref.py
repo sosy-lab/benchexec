@@ -23,7 +23,7 @@ __author__ = 'guangchen'
 class Tool(BaseTool):
 
     REQUIRED_PATHS = [
-                  "iabsref.sh",
+                  "absref.sh",
                   "beagle-ir2elts",
                   "llvm-dis",
                   "llvm-lit",

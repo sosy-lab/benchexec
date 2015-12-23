@@ -31,6 +31,11 @@ class Tool(benchexec.tools.template.BaseTool):
     DIVINE info object
     """
 
+    REQUIRED_PATHS = [
+                  "bin",
+                  "lib"
+                  ]
+
     BINS = ['divine', 'rundivine', 'lart', 'clang', 'opt']
     LIBS = ['libc++abi.so.1', 'libc.so.6', 'libdl.so.2', 'libm.so.6', 'librt.so.1', 'libunwind.so.1', 'libc++.so.1', 'libdivinert.bc', 'libgcc_s.so.1', 'libpthread.so.0', 'libtinfo.so.5', 'libz.so.1']
 
