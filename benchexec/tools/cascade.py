@@ -25,6 +25,13 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for Cascade (http://cascade.cims.nyu.edu/).
     """
 
+    REQUIRED_PATHS = [
+                  "bin",
+                  "cascade.sh",
+                  "lib",
+                  "run_cascade"
+                  ]
+
     def executable(self):
         return util.find_executable('run_cascade')
 
