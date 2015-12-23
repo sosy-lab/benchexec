@@ -28,6 +28,19 @@ class Tool(benchexec.tools.template.BaseTool):
     Wrapper for PAC-MAN
     """
 
+    REQUIRED_PATHS = [
+                  "array",
+                  "build.sh",
+                  "CPAchecker-1.4-svn",
+                  "crest-0.1.2",
+                  "genWitness",
+                  "ocaml",
+                  "pacman.sh",
+                  "releases",
+                  "scripts",
+                  "yices-1.0.40"
+                  ]
+
     def executable(self):
         """
         Find the path to the executable file that will get executed.
@@ -53,13 +66,6 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_TRUE_PROP
         return status
 
-
-
-    def program_files(self, executable):
-        """
-        Returns a list of files or directories that are necessary to run the tool.
-        """
-        return [executable]
 
 
     def working_directory(self, executable):

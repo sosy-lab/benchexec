@@ -27,6 +27,13 @@ class Tool(benchexec.tools.template.BaseTool):
     This class serves as tool adaptor for Map2Check (https://github.com/hbgit/Map2Check)
     """
 
+    REQUIRED_PATHS = [
+                  "__init__.py",
+                  "map2check.py",
+                  "map2check-wrapper.sh",
+                  "modules"
+                  ]
+
     def executable(self):
         #Relative path to map2check wrapper
         return Util.find_executable('map2check-wrapper.sh')
