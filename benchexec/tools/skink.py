@@ -16,6 +16,12 @@ import benchexec.tools.template
 import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
+
+    REQUIRED_PATHS = [
+                  "skink.sh",
+                  "skink-v1.0.jar"
+                  ]
+
     def executable(self):
         return util.find_executable('skink.sh')
 
