@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
-        return util.find_executable(self.BINS[0])
+        return util.find_executable( self.BINS[0], os.path.join( os.getcwd(), "bin", self.BINS[0]) )
 
     def version(self, executable):
         return self._version_from_tool(executable)
