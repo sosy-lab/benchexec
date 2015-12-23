@@ -26,8 +26,14 @@ class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for Forest
     """
+    REQUIRED_PATHS = [
+                  "bin",
+                  "lib",
+                  "tools"
+                  ]
+
     def executable(self):
-        return util.find_executable('forest')
+        return util.find_executable('forest', 'bin/forest')
 
     def name(self):
         return 'Forest'

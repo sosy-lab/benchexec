@@ -33,13 +33,12 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-                  "boolector",
-                  "lingeling",
-                  "z3",
-                  "graphml",
-                  "tokenizer",
+                  "depthk.py",
+                  "depthk-wrapper.sh",
+                  "esbmc",
+                  "__init__.py",
                   "modules",
-                  "depthk"
+                  "tokenizer"
                   ]
 
     def executable(self):
