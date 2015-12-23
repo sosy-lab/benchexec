@@ -29,6 +29,15 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for HIPrec.
     """
 
+    REQUIRED_PATHS = [
+                  "fixcalc",
+                  "hiprec",
+                  "hiprec_run.sh",
+                  "oc",
+                  "prelude.ss",
+                  "z3"
+                  ]
+
     def executable(self):
         executable = util.find_executable('hiprec')
         return executable

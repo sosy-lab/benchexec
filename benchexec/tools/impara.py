@@ -30,6 +30,10 @@ class Tool(benchexec.tools.template.BaseTool):
     It always adds --xml-ui to the command-line arguments for easier parsing of the output.
     """
 
+    REQUIRED_PATHS = [
+                  "impara"
+                  ]
+
     def executable(self):
         return util.find_executable('impara')
 

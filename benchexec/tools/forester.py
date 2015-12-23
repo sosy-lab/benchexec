@@ -24,6 +24,14 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
 
+    REQUIRED_PATHS = [
+                  "build-aux",
+                  "cl",
+                  "fa",
+                  "include",
+                  "switch-host-gcc.sh",
+                  ]
+
     def executable(self):
         return util.find_executable('sv_comp_run.py')
 
