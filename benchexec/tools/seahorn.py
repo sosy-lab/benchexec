@@ -72,8 +72,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('sea_svcomp', os.path.join("bin", 'sea_svcomp'))
 
-    def working_directory(self, executable):
-        return os.path.dirname(executable)
+    def program_files(self, executable):
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
     def name(self):
         return 'SeaHorn-F16'
