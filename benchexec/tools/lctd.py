@@ -24,7 +24,12 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
-                  "lctdsvcomp"
+                  "bin",
+                  "include",
+                  "lctdsvcomp",
+                  "lib",
+                  "llvm",
+                  "server.properties"
                   ]
 
     def executable(self):
