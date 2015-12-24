@@ -28,7 +28,8 @@ class Tool(benchexec.tools.template.BaseTool):
     SymDIVINE info object
     """
 
-    BINS = ['symdivine', 'run_symdivine.py', 'compile_benchmark.py', 'lart', 'libz3.so']
+    BINS = ['symdivine', 'run_symdivine.py', 'compile_to_bitcode.py',
+        'lart', 'libz3.so', 'libc.so.6', 'libgomp.so.1', 'libstdc++.so.6']
 
     def executable(self):
         """
