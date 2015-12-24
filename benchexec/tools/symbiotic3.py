@@ -58,7 +58,7 @@ class Tool(benchexec.tools.template.BaseTool):
         assert len(tasks) == 1
 
         if not propertyfile is None:
-            options.append('--prp={0}'.format(propertyfile))
+            options = options + ['--prp={0}'.format(propertyfile)]
 
         return [executable] + options + tasks
 
