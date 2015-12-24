@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable(self.BINS[0])
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return "0.2"
 
     def name(self):
         """
