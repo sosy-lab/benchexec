@@ -90,7 +90,7 @@ class Tool(benchexec.tools.template.BaseTool):
             return 'TIMEOUT'
 
         if returncode == 2:
-            return 'Pre-run phase failed: ' + join_output
+            return 'ERROR - Pre-run'
 
         if join_output is None:
             return 'ERROR - no output'
