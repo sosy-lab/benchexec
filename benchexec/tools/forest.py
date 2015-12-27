@@ -33,7 +33,7 @@ class Tool(benchexec.tools.template.BaseTool):
                   ]
 
     def executable(self):
-        return util.find_executable('forest', 'bin/forest')
+        return util.find_executable('forest.sh')
 
     def name(self):
         return 'Forest'
