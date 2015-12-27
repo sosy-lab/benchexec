@@ -27,6 +27,7 @@ class Tool(cseq.CSeqTool):
     """
 
     REQUIRED_PATHS = [
+                  "cbmc",
                   "clean.py",
                   "clean.pyc",
                   "core",
