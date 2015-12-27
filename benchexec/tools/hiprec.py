@@ -35,7 +35,7 @@ class Tool(benchexec.tools.template.BaseTool):
                   "hiprec_run.sh",
                   "oc",
                   "prelude.ss",
-                  "z3"
+                  "z3-4.3.2"
                   ]
 
     def executable(self):
@@ -48,7 +48,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-       return [executable] + options + tasks
+       return [executable] + options + tasks + ['--debug']
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
