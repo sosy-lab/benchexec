@@ -50,9 +50,6 @@ class Tool(BaseTool):
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def program_files(self, executable):
-        return [executable, 'beagle-ir2elts', 'sv_absref', 'libz3.so']
-
     def executable(self):
         return util.find_executable('absref.sh')
 
