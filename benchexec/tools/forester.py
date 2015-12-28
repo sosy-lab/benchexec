@@ -25,11 +25,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     REQUIRED_PATHS = [
-                  "build-aux",
-                  "cl",
-                  "fa",
                   "include",
-                  "switch-host-gcc.sh",
+                  "libfa.so",
+                  "sv_comp_run.py",
                   ]
 
     def executable(self):
