@@ -29,6 +29,17 @@ class Tool(benchexec.tools.template.BaseTool):
     Symbiotic tool info object
     """
 
+    REQUIRED_PATHS = [
+                  "bin",
+                  "build-fix.sh",
+                  "include",
+                  "lib",
+                  "lib32",
+                  "lib.c",
+                  "path_to_ml.pl",
+                  "symbiotic"
+                  ]
+
     def executable(self):
         """
         Find the path to the executable file that will get executed.
@@ -78,26 +89,3 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_FALSE_REACH
         else:
             return result.RESULT_ERROR
-
-    def program_files(self, executable):
-        folder = dirname(executable)
-
-        def make_path(f, folder):
-            return joinpath('.', folder, f)
-
-        files = [make_path(executable, ''),
-                 make_path('build-fix.sh',folder),
-                 make_path('path_to_ml.pl', folder),
-                 make_path('bin/klee', folder),
-                 make_path('bin/opt', folder),
-                 make_path('bin/clang', folder),
-                 make_path('bin/llvm-link', folder),
-                 make_path('bin/llvm-slicer', folder),
-                 make_path('lib.c', folder),
-                 make_path('lib/libllvmdg.so', folder),
-                 make_path('lib/LLVMsvc15.so', folder),
-                 make_path('lib/klee/runtime/kleeRuntimeIntrinsic.bc', folder),
-                 make_path('lib32/klee/runtime/kleeRuntimeIntrinsic.bc', folder)]
-
-        return files
-
