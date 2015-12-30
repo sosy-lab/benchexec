@@ -88,26 +88,22 @@ class Tool(benchexec.tools.template.BaseTool):
         ):
 
         if len(output) <= 0:
-            return
+            return result.RESULT_ERROR
 
         output = output[-1].strip()
-        status = ''
 
         if 'TRUE' in output:
-            status = result.RESULT_TRUE_PROP
+            return result.RESULT_TRUE_PROP
         elif 'FALSE' in output:
             if 'FALSE(valid-memtrack)' in output:
-                status = result.RESULT_FALSE_MEMTRACK
+                return result.RESULT_FALSE_MEMTRACK
             elif 'FALSE(valid-deref)' in output:
-                status = result.RESULT_FALSE_DEREF
+                return result.RESULT_FALSE_DEREF
             elif 'FALSE(no-overflow)' in output:
-                status = result.RESULT_FALSE_OVERFLOW
+                return result.RESULT_FALSE_OVERFLOW
             else:
-                status = result.RESULT_FALSE_REACH
+                return result.RESULT_FALSE_REACH
         elif 'UNKNOWN' in output:
-            status = result.RESULT_UNKNOWN
+            return result.RESULT_UNKNOWN
 
-        else:
-            status = result.RESULT_ERROR
-
-        return status
+        return result.RESULT_ERROR
