@@ -77,15 +77,16 @@ class Tool(benchexec.tools.template.BaseTool):
         if isTimeout:
             return 'timeout'
 
-        output = output.strip()
         if output is None:
             return 'error (no output)'
 
-        if output == 'TRUE':
+        for line in output:
+          line = line.strip()
+          if line == 'TRUE':
             return result.RESULT_TRUE_PROP
-        elif output == 'UNKNOWN':
+          elif line == 'UNKNOWN':
             return result.RESULT_UNKNOWN
-        elif output == 'FALSE':
+          elif line == 'FALSE':
             return result.RESULT_FALSE_REACH
-        else:
-            return result.RESULT_ERROR
+
+        return result.RESULT_ERROR
