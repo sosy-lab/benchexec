@@ -38,8 +38,7 @@ class Tool(benchexec.tools.template.BaseTool):
                   "esbmc",
                   "__init__.py",
                   "modules",
-                  "tokenizer",
-                  "graphml"
+                  "tokenizer"
                   ]
 
     def executable(self):
