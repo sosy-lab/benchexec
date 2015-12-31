@@ -38,14 +38,15 @@ class Tool(benchexec.tools.template.BaseTool):
                   "esbmc",
                   "__init__.py",
                   "modules",
-                  "tokenizer"
+                  "tokenizer",
+                  "graphml"
                   ]
 
     def executable(self):
 
         # Relative path to depthk wrapper
 
-        return Util.find_executable('depthk.py')
+        return Util.find_executable('depthk-wrapper.sh')
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
@@ -77,7 +78,7 @@ class Tool(benchexec.tools.template.BaseTool):
         assert len(tasks) == 1, 'only one sourcefile supported'
         assert propertyfile, 'property file required'
         sourcefile = tasks[0]
-        return [executable] + options + [sourcefile]
+        return [executable] + options + ['-c', propertyfile, sourcefile]
 
     def determine_result(
         self,
