@@ -82,7 +82,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1
         assert propertyfile is not None
-        spec = ['--spec', propertyfile]
+        spec = ['--spec=' + propertyfile]
         return [executable] + options + spec + tasks
 
     def version(self, executable):
