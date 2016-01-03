@@ -34,7 +34,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        return [executable] + [spec] + tasks + options + ['--full-output']
+        return [executable] + [spec] + tasks + ['--full-output'] + options
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if (returnsignal == 9):
