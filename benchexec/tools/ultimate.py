@@ -34,7 +34,6 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        # Ultimate would like to have the global options last, so we reverse the list of options.
         return [executable] + [spec] + options + ['--full-output'] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
