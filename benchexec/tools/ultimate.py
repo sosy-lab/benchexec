@@ -35,7 +35,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
         # Ultimate would like to have the global options last, so we reverse the list of options.
-        return [executable] + [spec] + tasks + list(reversed(options)) + ['--full-output']
+        return [executable] + [spec] + options + ['--full-output'] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if (returnsignal == 9):
@@ -68,7 +68,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_UNKNOWN
                 break
             elif line.startswith('ERROR'):
-                status = 'ERROR'
+                status = line
                 break
 
         return status
