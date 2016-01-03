@@ -559,7 +559,9 @@ class Run(object):
         for pattern in required_files_patterns:
             this_required_files = runSet.expand_filename_pattern(pattern, runSet.benchmark.base_dir, rel_sourcefile)
             if not this_required_files:
-                logging.warning('Pattern %s in requiredfiles tag did not match any file.', pattern)
+                logging.warning(
+                    'Pattern %s in requiredfiles tag did not match any file for task %s.',
+                    pattern, self.identifier)
             self.required_files.update(this_required_files)
         self.required_files = list(self.required_files)
 
