@@ -72,7 +72,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_UNKNOWN
                 break
             elif line.startswith('ERROR'):
-                status = line
+                status = 'ERROR'
                 break
 
         return status
