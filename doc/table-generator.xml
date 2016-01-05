@@ -8,9 +8,9 @@
        or data can be extracted using a pattern from the output of the tool
        (needs specific support in the tool-specifiy Python module). -->
   <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memUsage*"
-          numberOfDigits="*optional number of digits for rounding the value*"/>
+          numberOfDigits="*optional number of significant digits for presenting the value*"/>
   <column title="*name of a column*"
-          numberOfDigits="*optional number of digits for rounding the value*">*pattern for extracting data from tool output*</column>
+          numberOfDigits="*optional number of significant digits for presenting the value*">*pattern for extracting data from tool output*</column>
 
   <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
   <result filename="*file-name pattern for XML files produced by BenchExec*">

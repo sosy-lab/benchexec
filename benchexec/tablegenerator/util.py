@@ -85,29 +85,31 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
-def format_number(s, number_of_digits):
+def format_number(s, number_of_significant_digits):
     """
     If the value is a number (or number plus one char),
     this function returns a string-representation of the number
-    with a number of digits after the decimal separator.
-    If the number has more digits, it is rounded, else zeros are added.
+    with the specified number of significant digits.
 
     If the value is no number, it is returned unchanged.
     """
     # if the number ends with "s" or another unit, remove it
     value, suffix = split_number_and_unit((str(s) or '').strip())
     try:
-        floatValue = float(value)
-        return "{value:.{width}f}{suffix}".format(width=number_of_digits, value=floatValue, suffix=suffix)
+        floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
+        import math
+        if floatValue >= math.pow(10, int(number_of_significant_digits) - 1):
+            return str(round(floatValue)) + suffix
+        else:
+            return str(floatValue)        + suffix
     except ValueError: # if value is no float, don't format it
         return s
-
 
 def format_value(value, column):
     """
     Format a value nicely for human-readable output (including rounding).
     """
-    if not value:
+    if not value or value == '-':
         return '-'
 
     number_of_digits = column.number_of_digits
@@ -117,7 +119,6 @@ def format_value(value, column):
     if number_of_digits is None:
         return value
     return format_number(value, number_of_digits)
-
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
