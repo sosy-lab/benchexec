@@ -100,12 +100,11 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         # Round to the given amount of significant digits
         #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
+        formattedValue = str(floatValue)
         import math
         if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
-        else:
-            formattedValue = str(floatValue)
         # There is a decimal point involved, thus we need to fill the missing zeros at the end.
         zerosToAdd = 0
         if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
