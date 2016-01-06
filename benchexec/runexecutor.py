@@ -1078,9 +1078,13 @@ def _get_debug_output_after_crash(output_filename):
                                     'from %s (%s)',
                                     dumpFile, e.strerror)
                 break
-            if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
-                logging.debug('Going to append error report file')
-                foundDumpFile = True
+            try:
+                if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
+                    logging.debug('Going to append error report file')
+                    foundDumpFile = True
+            except UnicodeDecodeError:
+                pass
+                # ignore invalid chars from logfile
 
 
 class _TimelimitThread(threading.Thread):
