@@ -93,15 +93,16 @@ def format_number(s, number_of_significant_digits):
 
     If the value is no number, it is returned unchanged.
     """
-    # if the number ends with "s" or another unit, remove it
+    # If the number ends with "s" or another unit, remove it.
+    # Units should not occur in table cells, but in the table head.
     value, suffix = split_number_and_unit((str(s) or '').strip())
     try:
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         import math
         if floatValue >= math.pow(10, int(number_of_significant_digits) - 1):
-            return str(round(floatValue)) + suffix
+            return str(round(floatValue))
         else:
-            return str(floatValue)        + suffix
+            return str(floatValue)
     except ValueError: # if value is no float, don't format it
         return s
 
