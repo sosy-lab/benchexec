@@ -165,13 +165,13 @@ def get_task_id(task):
 class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
-    and number_of_digits of a column.
+    and number_of_significant_digits of a column.
     It does NOT contain the value of a column.
     """
     def __init__(self, title, pattern, numOfDigits):
         self.title = title
         self.pattern = pattern
-        self.number_of_digits = numOfDigits
+        self.number_of_significant_digits = numOfDigits
 
 
 loaded_tools = {}
@@ -553,8 +553,8 @@ class RunResult(object):
 
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
-            if column.number_of_digits is not None:
-                value = Util.format_number(value, int(column.number_of_digits))
+            if column.number_of_significant_digits is not None:
+                value = Util.format_number(value, int(column.number_of_significant_digits))
 
             values.append(value)
 

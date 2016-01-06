@@ -126,13 +126,13 @@ def format_value(value, column, isToAlign=False):
     if not value or value == '-':
         return '-'
 
-    number_of_digits = column.number_of_digits
-    if number_of_digits is None and column.title.lower().endswith('time'):
-        number_of_digits = DEFAULT_TIME_PRECISION
+    number_of_significant_digits = column.number_of_significant_digits
+    if number_of_significant_digits is None and column.title.lower().endswith('time'):
+        number_of_significant_digits = DEFAULT_TIME_PRECISION
 
-    if number_of_digits is None:
+    if number_of_significant_digits is None:
         return value
-    return format_number(value, int(number_of_digits), isToAlign)
+    return format_number(value, int(number_of_significant_digits), isToAlign)
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
