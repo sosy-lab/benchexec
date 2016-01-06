@@ -95,7 +95,7 @@ def format_number(s, number_of_significant_digits):
     """
     # If the number ends with "s" or another unit, remove it.
     # Units should not occur in table cells, but in the table head.
-    value, suffix = split_number_and_unit((str(s) or '').strip())
+    value = remove_unit((str(s) or '').strip())
     try:
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         import math
