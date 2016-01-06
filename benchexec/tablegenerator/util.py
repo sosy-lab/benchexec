@@ -87,11 +87,13 @@ def remove_unit(s):
 
 def format_number(s, number_of_significant_digits, isToAlign=False):
     """
-    If the value is a number (or number plus one char),
+    If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
-    with the specified number of significant digits.
+    with the specified number of significant digits,
+    optionally aligned at the decimal point.
+    The formatting works well only for numbers larger than 0.1.
 
-    If the value is no number, it is returned unchanged.
+    If the value is not a number, it is returned unchanged.
     """
     # If the number ends with "s" or another unit, remove it.
     # Units should not occur in table cells, but in the table head.
