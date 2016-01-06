@@ -225,7 +225,7 @@ def format_options(str):
 <td class="status {{runResult.category}}">{{(value or '-').lower()}}</td>
     {{endif}}
   {{else}}
-<td class="{{runResult.category}} value">{{format_value(value, column)|html}}</td>
+<td class="{{runResult.category}} value">{{format_value(value, column, True)|html}}</td>
   {{endif}}
   {{endfor}}
   {{endfor}}
