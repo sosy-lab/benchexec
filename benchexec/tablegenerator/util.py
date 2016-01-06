@@ -105,7 +105,7 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
-        # There is a decimal point involved, thus we need to fill the missing zeros at the end.
+        # We need to fill the missing zeros at the end because they are significant!
         zerosToAdd = 0
         if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
             zerosToAdd = number_of_significant_digits + 2 - len(formattedValue)
