@@ -105,10 +105,14 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
         else:
-            # There is a decimal point involved, thus we need to add missing zeros.
             formattedValue = str(floatValue)
-            if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
-              formattedValue += '0'
+        # There is a decimal point involved, thus we need to fill the missing zeros at the end.
+        zerosToAdd = 0
+        if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
+            zerosToAdd = number_of_significant_digits + 2 - len(formattedValue)
+        elif formattedValue.find('.') >= 0 and len(formattedValue) < number_of_significant_digits + 1:
+            zerosToAdd = number_of_significant_digits + 1 - len(formattedValue)
+        formattedValue += "".join(['0'] * zerosToAdd)
         # Alignment
         if isToAlign:
             alignment = number_of_significant_digits + 1
