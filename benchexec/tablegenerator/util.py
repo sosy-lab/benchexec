@@ -101,16 +101,16 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         # Alignment
         import math
-        if floatValue >= math.pow(10, int(number_of_significant_digits) - 1):
+        if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
-            alignment = int(number_of_significant_digits) + 1
+            alignment = number_of_significant_digits + 1
         else:
             # There is a decimal point involved.
             formattedValue = str(floatValue)
-            if formattedValue.startswith('0.') and len(formattedValue) < int(number_of_significant_digits) + 2:
+            if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
               formattedValue += '0'
-            alignment = int(number_of_significant_digits) + 1 - (len(formattedValue) - 1)
+            alignment = number_of_significant_digits + 1 - (len(formattedValue) - 1)
         if isToAlign:
           return formattedValue + "".join(['&#160;'] * alignment)
         else:
@@ -131,7 +131,7 @@ def format_value(value, column, isToAlign=False):
 
     if number_of_digits is None:
         return value
-    return format_number(value, number_of_digits, isToAlign)
+    return format_number(value, int(number_of_digits), isToAlign)
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')

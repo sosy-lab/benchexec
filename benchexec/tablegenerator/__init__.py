@@ -554,7 +554,7 @@ class RunResult(object):
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
             if column.number_of_digits is not None:
-                value = Util.format_number(value, column.number_of_digits)
+                value = Util.format_number(value, int(column.number_of_digits))
 
             values.append(value)
 
