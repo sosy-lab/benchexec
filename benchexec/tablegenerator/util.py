@@ -116,11 +116,14 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         formattedValue += "".join(['0'] * zerosToAdd)
         # Alignment
         if isToAlign:
-            alignment = number_of_significant_digits + 1
+            alignment = number_of_significant_digits
             if formattedValue.find('.') >= 0:
-                # Subtract spaces for decimal point and digits after it.
-                alignment -= len(formattedValue) - formattedValue.find('.')
-            formattedValue += "".join(['&#160;'] * alignment)
+                # Subtract spaces for digits after the decimal point.
+                alignment -= len(formattedValue) - formattedValue.find('.') - 1
+            else:
+                # Add punctuation space.
+                formattedValue += '&#x2008;'
+            formattedValue += "".join(['&#x2007;'] * alignment)
         return formattedValue
     except ValueError: # If value is no float, don't format it.
         return s
