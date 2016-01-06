@@ -85,6 +85,17 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
+def format_number_align(formattedValue, number_of_significant_digits):
+    alignment = number_of_significant_digits
+    if formattedValue.find('.') >= 0:
+        # Subtract spaces for digits after the decimal point.
+        alignment -= len(formattedValue) - formattedValue.find('.') - 1
+    else:
+        # Add punctuation space.
+        formattedValue += '&#x2008;'
+    formattedValue += "".join(['&#x2007;'] * alignment)
+    return formattedValue
+
 def format_number(s, number_of_significant_digits, isToAlign=False):
     """
     If the value is a number (or number followed by a unit),
@@ -116,14 +127,7 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         formattedValue += "".join(['0'] * zerosToAdd)
         # Alignment
         if isToAlign:
-            alignment = number_of_significant_digits
-            if formattedValue.find('.') >= 0:
-                # Subtract spaces for digits after the decimal point.
-                alignment -= len(formattedValue) - formattedValue.find('.') - 1
-            else:
-                # Add punctuation space.
-                formattedValue += '&#x2008;'
-            formattedValue += "".join(['&#x2007;'] * alignment)
+            formattedValue = format_number_align(formattedValue, number_of_significant_digits)
         return formattedValue
     except ValueError: # If value is no float, don't format it.
         return s
