@@ -85,7 +85,7 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
-def format_number(s, number_of_significant_digits):
+def format_number(s, number_of_significant_digits, isToAlign=False):
     """
     If the value is a number (or number plus one char),
     this function returns a string-representation of the number
@@ -97,16 +97,28 @@ def format_number(s, number_of_significant_digits):
     # Units should not occur in table cells, but in the table head.
     value = remove_unit((str(s) or '').strip())
     try:
+        # Reduce to the given amount of significant digits
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
+        # Alignment
         import math
         if floatValue >= math.pow(10, int(number_of_significant_digits) - 1):
-            return str(round(floatValue))
+            # There are no significant digits after the decimal point, thus remove the zeros after the point.
+            formattedValue = str(round(floatValue))
+            alignment = int(number_of_significant_digits) + 1
         else:
-            return str(floatValue)
+            # There is a decimal point involved.
+            formattedValue = str(floatValue)
+            if formattedValue.startswith('0.') and len(formattedValue) < int(number_of_significant_digits) + 2:
+              formattedValue += '0'
+            alignment = int(number_of_significant_digits) + 1 - (len(formattedValue) - 1)
+        if isToAlign:
+          return formattedValue + "".join(['&#160;'] * alignment)
+        else:
+          return formattedValue
     except ValueError: # if value is no float, don't format it
         return s
 
-def format_value(value, column):
+def format_value(value, column, isToAlign=False):
     """
     Format a value nicely for human-readable output (including rounding).
     """
@@ -119,7 +131,7 @@ def format_value(value, column):
 
     if number_of_digits is None:
         return value
-    return format_number(value, number_of_digits)
+    return format_number(value, number_of_digits, isToAlign)
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
