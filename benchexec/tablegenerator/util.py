@@ -97,24 +97,26 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
     # Units should not occur in table cells, but in the table head.
     value = remove_unit((str(s) or '').strip())
     try:
-        # Reduce to the given amount of significant digits
+        # Round to the given amount of significant digits
+        #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
-        # Alignment
         import math
         if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
-            alignment = number_of_significant_digits + 1
         else:
-            # There is a decimal point involved.
+            # There is a decimal point involved, thus we need to add missing zeros.
             formattedValue = str(floatValue)
             if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
               formattedValue += '0'
-            alignment = number_of_significant_digits + 1 - (len(formattedValue) - 1)
+        # Alignment
         if isToAlign:
-          formattedValue += "".join(['&#160;'] * alignment)
+            alignment = number_of_significant_digits + 1
+            if formattedValue.find('.') >= 0:
+              alignment -= len(formattedValue) - 1
+            formattedValue += "".join(['&#160;'] * alignment)
         return formattedValue
-    except ValueError: # if value is no float, don't format it
+    except ValueError: # If value is no float, don't format it.
         return s
 
 def format_value(value, column, isToAlign=False):
