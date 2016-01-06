@@ -112,9 +112,8 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
               formattedValue += '0'
             alignment = number_of_significant_digits + 1 - (len(formattedValue) - 1)
         if isToAlign:
-          return formattedValue + "".join(['&#160;'] * alignment)
-        else:
-          return formattedValue
+          formattedValue += "".join(['&#160;'] * alignment)
+        return formattedValue
     except ValueError: # if value is no float, don't format it
         return s
 
