@@ -116,7 +116,8 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         if isToAlign:
             alignment = number_of_significant_digits + 1
             if formattedValue.find('.') >= 0:
-              alignment -= len(formattedValue) - 1
+                # Subtract spaces for decimal point and digits after it.
+                alignment -= len(formattedValue) - formattedValue.find('.')
             formattedValue += "".join(['&#160;'] * alignment)
         return formattedValue
     except ValueError: # If value is no float, don't format it.
