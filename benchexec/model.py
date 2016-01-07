@@ -277,9 +277,16 @@ class Benchmark(object):
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
             logging.warning("No <rundefinition> tag selected, nothing will be executed.")
             if config.selected_run_definitions:
-                logging.warning("The selection %s does not match any runSet of %s",
+                logging.warning("The selection %s does not match any run definitions of %s.",
                                 config.selected_run_definitions,
                                 [runSet.real_name for runSet in self.run_sets])
+        elif config.selected_run_definitions:
+            for selected in config.selected_run_definitions:
+                if not any((selected == run_set.real_name) for run_set in self.run_sets):
+                    logging.warning(
+                        'The selected run definition "%s" is not present in the input file, '
+                        'skipping it.',
+                        selected)
 
 
     def required_files(self):
