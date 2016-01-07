@@ -429,6 +429,14 @@ class RunSet(object):
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
+
+        if self.benchmark.config.selected_sourcefile_sets:
+            for selected in self.benchmark.config.selected_sourcefile_sets:
+                if not any((selected == sourcefile_set.real_name) for sourcefile_set in blocks):
+                    logging.warning(
+                        'The selected tasks "%s" are not present in the input file, '
+                        'skipping them.',
+                        selected)
         return blocks
 
 
