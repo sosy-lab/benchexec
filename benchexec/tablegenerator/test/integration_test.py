@@ -150,6 +150,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             'simple-table-with-columns.table',
             )
 
+    def test_simple_table_xml_with_numberOfDigits(self):
+        self.generate_tables_and_compare_csv(
+            ['-x', os.path.join(here, 'simple-table-with-numberOfDigits.xml')],
+            'simple-table-with-numberOfDigits.table',
+            )
+
     def test_multi_table(self):
         self.generate_tables_and_compare_csv(
             ['--name', 'predicateAnalysis',
