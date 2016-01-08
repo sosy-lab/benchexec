@@ -713,7 +713,7 @@ class Run(object):
             if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
                 status = '{} ({})'.format(status, tool_status)
 
-        if status == result.RESULT_UNKNOWN and returnvalue is not None:
+        if status in [result.RESULT_ERROR, result.RESULT_UNKNOWN] and returnvalue is not None:
             # provide some more information if possible
             if returnsignal == 6:
                 status = 'ABORTED'
