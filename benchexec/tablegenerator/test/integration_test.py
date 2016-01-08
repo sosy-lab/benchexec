@@ -83,31 +83,35 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             expected_files |= {csv_diff_file, html_diff_file}
         else:
             csv_diff_file = None
+            html_diff_file = None
 
         expected_files.discard(None)
         self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
-        return output, csv_file, csv_diff_file
+        return output, html_file, html_diff_file, csv_file, csv_diff_file
 
-    def generate_tables_and_compare_csv(self, args, table_prefix, result_prefix=None,
+    def generate_tables_and_compare_content(self, args, table_prefix, result_prefix=None,
                                         diff_prefix=None, result_diff_prefix=None,
                                         expected_counts=None):
-        output, csv_file, csv_diff_file = \
+        def expected_file_name(ending):
+            return [here, 'expected', (result_prefix or table_prefix) + '.' + ending]
+        def expected_diff_file_name(ending):
+            return [here, 'expected', (result_diff_prefix or diff_prefix) + '.' + ending]
+
+        output, html_file, html_diff_file, csv_file, csv_diff_file = \
             self.generate_tables_and_check_produced_files(args, table_prefix, diff_prefix)
 
-        generated = util.read_file(csv_file)
-        expected_file = [here, 'expected', (result_prefix or table_prefix) + '.csv']
-        if OVERWRITE_MODE:
-            util.write_file(generated, *expected_file)
-        else:
-            self.assertMultiLineEqual(generated, util.read_file(*expected_file))
+        generated_csv = util.read_file(csv_file)
+        self.assert_file_content_equals(generated_csv, expected_file_name('csv'))
+
+        generated_html = self.read_table_from_html(html_file)
+        self.assert_file_content_equals(generated_html, expected_file_name('html'))
 
         if diff_prefix:
-            generated_diff = util.read_file(csv_diff_file)
-            expected_diff_file = [here, 'expected', (result_diff_prefix or diff_prefix) + '.csv']
-            if OVERWRITE_MODE:
-                util.write_file(generated_diff, *expected_diff_file)
-            else:
-                self.assertMultiLineEqual(generated_diff, util.read_file(*expected_diff_file))
+            generated_csv_diff = util.read_file(csv_diff_file)
+            self.assert_file_content_equals(generated_csv_diff, expected_diff_file_name('csv'))
+
+            generated_html_diff = self.read_table_from_html(html_diff_file)
+            self.assert_file_content_equals(generated_html_diff, expected_diff_file_name('html'))
 
         if expected_counts:
             # output of table-generator should end with statistics about regressions
@@ -117,47 +121,60 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             self.assertNotIn('REGRESSIONS', output)
             self.assertNotIn('STATS', output)
 
+    def assert_file_content_equals(self, content, file):
+        if OVERWRITE_MODE:
+            util.write_file(content, *file)
+        else:
+            self.assertMultiLineEqual(content, util.read_file(*file))
+
+    def read_table_from_html(self, file):
+        content = util.read_file(file)
+        # only keep table
+        content = content[content.index('<table id="dataTable">'):content.index('</table>') + 8]
+        return content
+
+
     def test_simple_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_simple_table_correct_only(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--correct-only', result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             'test.2015-03-03_1613.results.predicateAnalysis.correct-only',
             )
 
     def test_simple_table_all_columns(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--all-columns', result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
             'test.2015-03-03_1613.results.predicateAnalysis',
             'test.2015-03-03_1613.results.predicateAnalysis.all-columns',
             )
 
     def test_simple_table_xml(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table.xml')],
             'simple-table.table',
             'test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_simple_table_xml_with_columns(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table-with-columns.xml')],
             'simple-table-with-columns.table',
             )
 
     def test_simple_table_xml_with_numberOfDigits(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table-with-numberOfDigits.xml')],
             'simple-table-with-numberOfDigits.table',
             )
 
     def test_multi_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'predicateAnalysis',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1815.results.predicateAnalysis.xml'),
@@ -166,7 +183,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_reverse(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'predicateAnalysis-reverse',
              result_file('test.2015-03-03_1815.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
@@ -175,7 +192,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_no_diff(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613', '--no-diff',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
@@ -184,7 +201,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_differing_files(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
@@ -194,7 +211,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_differing_files_common(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613-common', '--common',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
@@ -204,7 +221,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_differing_files_reverse(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613-reverse',
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
@@ -214,7 +231,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_differing_files_correct_only(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613-correct-only', '--correct-only',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
@@ -224,7 +241,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_big_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
@@ -234,7 +251,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_single_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--dump',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
             ],
@@ -243,7 +260,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_single_table2(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--dump',
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
@@ -252,7 +269,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_multi_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613', '--dump',
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
@@ -263,7 +280,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_multi_table_reverse(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613-reverse', '--dump',
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
@@ -274,7 +291,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count2(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'smt.xml'), '--dump',
             ],
             table_prefix='smt.table',
@@ -283,7 +300,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_big_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
@@ -294,7 +311,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_dump_count_big_table_ignore_flapping_timeout_regressions(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-22_1113.results.xml.bz2'),
              result_file('integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2'),
@@ -305,89 +322,85 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_multi_table_xml(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'multi-table.xml')],
             table_prefix='multi-table.table',
             diff_prefix='multi-table.diff',
             )
 
     def test_multi_table_xml_with_columns(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'multi-table-with-columns.xml')],
             table_prefix='multi-table-with-columns.table',
             diff_prefix='multi-table-with-columns.diff',
             )
 
     def test_multi_table_xml_with_wildcards(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'multi-table-with-wildcards.xml')],
             table_prefix='multi-table-with-wildcards.table',
             diff_prefix='multi-table-with-wildcards.diff',
             )
 
     def test_union_table(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table-predicateAnalysis.xml')],
             table_prefix='union-table-predicateAnalysis.table',
-            result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_union_table2(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table-valueAnalysis.xml')],
             table_prefix='union-table-valueAnalysis.table',
-            result_prefix='test.2015-03-03_1613.results.valueAnalysis',
             )
 
     def test_union_table_different_result_order(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table.xml')],
             table_prefix='union-table.table',
             diff_prefix='union-table.diff',
-            result_prefix='test.2015-03-03_1613.table',
-            result_diff_prefix='test.2015-03-03_1613.diff',
             )
 
     def test_union_table_duplicate_results(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table-duplicate-results.xml')],
             table_prefix='union-table-duplicate-results.table',
             diff_prefix='union-table-duplicate-results.diff',
             )
 
     def test_union_table_multiple_results(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table-multiple-results.xml')],
             table_prefix='union-table-multiple-results.table',
             diff_prefix='union-table-multiple-results.diff',
             )
 
     def test_union_table_order_of_results(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'union-table-mixed.xml')],
             table_prefix='union-table-mixed.table',
             diff_prefix='union-table-mixed.diff',
             )
 
     def test_simple_table_legacy(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis-legacy.xml')],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis-legacy',
             result_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_error_result(self):
-        self.generate_tables_and_compare_csv(
-            ['--name', 'test.2015-03-03_1613',
+        self.generate_tables_and_compare_content(
+            ['--name', 'test-error.2015-03-03_1613',
              result_file('test-error.2015-03-03_1613.results.predicateAnalysis.xml'),
              result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
             ],
-            table_prefix='test.2015-03-03_1613.table',
-            diff_prefix='test.2015-03-03_1613.diff',
+            table_prefix='test-error.2015-03-03_1613.table',
+            diff_prefix='test-error.2015-03-03_1613.diff',
             )
 
     def test_error_result_ignored(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['--name', 'test.2015-03-03_1613.results.valueAnalysis',
              '--ignore-erroneous-benchmarks',
              result_file('test-error.2015-03-03_1613.results.predicateAnalysis.xml'),
@@ -397,19 +410,19 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_compressed_table_gzip(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml.gz')],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_compressed_table_bzip2(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml.bz2')],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
             )
 
     def test_output_stdout(self):
-        output, _, _ = self.generate_tables_and_check_produced_files(
+        output, _, _, _, _ = self.generate_tables_and_check_produced_files(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
              '-f', 'csv', '-q'],
             table_prefix='test.2015-03-03_1613.results.predicateAnalysis',
@@ -444,7 +457,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
 
     def test_smt_results(self):
-        self.generate_tables_and_compare_csv(
+        self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'smt.xml'),
             ],
             table_prefix='smt.table',
