@@ -66,11 +66,11 @@ and other values as strings.
     This can be one of the `RESULT_*` constants of the
     [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py),
     or an arbitrary string.
-    If the result is correct or wrong according to the `category` value,
+    If the result is `CATEGORY_CORRECT` or `CATEGORY_WRONG` according to the `category` value,
     the `status` contains the answer of the tool.
-    If the result is an error, the `status` is a human-readable string with more information
+    If the result is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,
-    e.g., whether the tool terminated with an error code, the time limit was hit etc.
+    e.g., whether the tool terminated with an error code, the time limit was hit, etc.
 
 Furthermore, `benchexec` allows the user to specify arbitrary additional result values
 by defining them with a `<column>` tag in the benchmark-definition file.
