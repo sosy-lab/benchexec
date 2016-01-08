@@ -66,7 +66,7 @@ and other values as strings.
     This can be one of the `RESULT_*` constants of the
     [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py),
     or an arbitrary string.
-    If the `category` is `CATEGORY_CORRECT` or `CATEGORY_WRONG`,
+    If the `category` is `CATEGORY_CORRECT`, `CATEGORY_WRONG`, or `CATEGORY_UNKNOWN`,
     the `status` contains the answer of the tool.
     If the `category` is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,
