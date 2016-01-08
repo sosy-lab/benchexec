@@ -44,11 +44,14 @@ if not sys.stdout.isatty():
     COLOR_WARNING = ''
 
 
-def print_value(description, value):
-    print('{}{}{}: “{}{}{}”'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT, COLOR_VALUE, value, COLOR_DEFAULT), file=sys.stderr)
+def print_value(description, value, extra_line=False):
+    print('{}{}{}:{}“{}{}{}”'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT,
+                                     '\n\t' if extra_line else ' ',
+                                     COLOR_VALUE, value, COLOR_DEFAULT),
+          file=sys.stderr)
 
 def print_list(description, value):
-    print('{}{}{}:\n\t{}{}{}'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT, COLOR_VALUE, list(value), COLOR_DEFAULT), file=sys.stderr)
+    print_value(description, list(value), extra_line=True)
 
 def print_multiline_list(description, values):
     print('{}{}{}:'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT), file=sys.stderr)
@@ -141,6 +144,23 @@ def print_tool_info(name):
     except:
         logging.warning('Tool module does not support tasks with CPU-time limit:', exc_info=1)
 
+    return tool
+
+
+def analyze_tool_output(tool, file):
+    try:
+        output = file.readlines()
+    except (IOError, UnicodeDecodeError) as e:
+        logging.warning("Cannot read tool output from “%s”: %s", file.name, e)
+        return
+
+    try:
+        result = tool.determine_result(returncode=0, returnsignal=0, output=output, isTimeout=False)
+        print_value('Result of analyzing tool output in “' + file.name + "”",
+                    result, extra_line=True)
+    except:
+        logging.warning('Tool module failed to analyze result in “%s”:', file.name, exc_info=1)
+
 
 def main(argv=None):
     """
@@ -158,10 +178,17 @@ def main(argv=None):
            Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
     parser.add_argument("tool", metavar="TOOL",
                         help="name of tool info to test")
+    parser.add_argument("--tool-output", metavar="OUTPUT_FILE",
+                        nargs='+', type=argparse.FileType('r'),
+                        help="optional names of text files with example outputs of a tool run")
     options = parser.parse_args(argv[1:])
     logging.basicConfig(format=COLOR_WARNING+"%(levelname)s: %(message)s"+COLOR_DEFAULT)
 
-    print_tool_info(options.tool)
+    tool = print_tool_info(options.tool)
+
+    if options.tool_output:
+        for file in options.tool_output:
+            analyze_tool_output(tool, file)
 
 if __name__ == '__main__':
     main()
