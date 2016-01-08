@@ -5,4 +5,4 @@ test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i
 test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c	unreach-label	false(reach)	correct	1	2.189887353	1.587	
 test/programs/simple/compoundLiteral_true-unreach-label.c	unreach-label	true	correct	2	2.22954344	1.665	
 doc/examples/example.c		true	missing	0	2.272238619	1.644	
-test/programs/simple/builtin_expect_true-unreach-label.c	unreach-label	true	correct	2	2.058647067	1.493	
+test/programs/simple/builtin_expect_true-unreach-label.c	unreach-label	true	correct	2	2.058647067	1.493
