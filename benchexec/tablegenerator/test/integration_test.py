@@ -53,7 +53,10 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         cls.maxDiff = None
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="BenchExec.tablegenerator.integration_test")
+        # We use a temporary directory inside the source tree to avoid mismatching
+        # path names inside HTML tables.
+        self.tmp = tempfile.mkdtemp(prefix="integration_test_tmp_",
+                                    dir=os.path.dirname(__file__))
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
