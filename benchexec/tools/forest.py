@@ -47,13 +47,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
-        if "TRUE" in output:
-            status = result.RESULT_TRUE_PROP
-        if "FALSE_REACH" in output:
-            status = result.RESULT_FALSE_REACH
-        if "FALSE_DEREF" in output:
-            status = result.RESULT_FALSE_DEREF
-        if "FALSE_FREE" in output:
-            status = result.RESULT_FALSE_FREE
-
+        for line in output:
+            if "TRUE" in line:
+                status = result.RESULT_TRUE_PROP
+            if "FALSE_REACH" in line:
+                status = result.RESULT_FALSE_REACH
+            if "FALSE_DEREF" in line:
+                status = result.RESULT_FALSE_DEREF
+            if "FALSE_FREE" in line:
+                status = result.RESULT_FALSE_FREE
         return status
+

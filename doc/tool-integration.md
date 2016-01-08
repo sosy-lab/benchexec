@@ -77,11 +77,15 @@ how the command line is constructed etc.
 
 To execute this utility, run
 
-    python3 -m benchexec.test_tool_info <TOOL>
+    python3 -m benchexec.test_tool_info <TOOL> --tool-output <OUTPUT_FILE> ...
 
 `<TOOL>` is the name of a tool-info module
 as it would be given in the `tool` attribute of the `<benchmark>` tag.
 If necessary, change to the appropriate directory or adjust `PATH` as described above.
+
+The optional flag `--tool-output` activates testing of the function `determine_result`
+that should analyze the tool output.
+If specified, this option needs to be given at least one file with example output of the tool.
 
 If the utility runs successfully and its output looks sane
 (i.e., correct paths, command line, etc.),
