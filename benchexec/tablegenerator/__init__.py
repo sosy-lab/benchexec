@@ -546,7 +546,8 @@ class RunResult(object):
                 value = status
 
             elif not correct_only or category == result.CATEGORY_CORRECT:
-                if not column.pattern: # collect values from XML
+                if not column.pattern or column.href:
+                    # collect values from XML
                     value = Util.get_column_value(sourcefileTag, column.title)
 
                 else: # collect values from logfile
