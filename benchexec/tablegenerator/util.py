@@ -85,9 +85,13 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
-def create_link(log_file, base_dir):
-    from os.path import relpath
-    return relpath(log_file, base_dir)
+def create_link(runResult, base_dir, column):
+    from os.path import relpath, join
+    log_file_rel_path = relpath(runResult.log_file, base_dir)
+    #source_file = runResult.task_id[0]
+    href_path = column.href_path or ''
+    filename = log_file_rel_path
+    return join(base_dir, href_path, filename)
 
 def format_options(options):
     '''Helper function for formatting the content of the options line'''

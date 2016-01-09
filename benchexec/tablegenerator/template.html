@@ -211,9 +211,9 @@
   {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
-  {{if column.title == 'status'}}
+  {{if column.title.endswith('status')}}
     {{if runResult.log_file}}
-<td class="status {{runResult.category}}" title="Click here to show output of tool"><a href="{{create_link(runResult.log_file, base_dir)|url}}">{{(value or '-').lower()}}</a></td>
+<td class="status {{runResult.category}}" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)|url}}">{{(value or '-').lower()}}</a></td>
     {{else}}
 <td class="status {{runResult.category}}">{{(value or '-').lower()}}</td>
     {{endif}}
