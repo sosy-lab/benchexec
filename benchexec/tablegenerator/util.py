@@ -87,11 +87,12 @@ def remove_unit(s):
 
 def create_link(runResult, base_dir, column):
     from os.path import relpath, join
-    log_file_rel_path = relpath(runResult.log_file, base_dir)
-    #source_file = runResult.task_id[0]
-    href_path = column.href_path or ''
-    filename = log_file_rel_path
-    return join(base_dir, href_path, filename)
+    from benchexec import model 
+    if not column.href_path:
+        return relpath(runResult.log_file, base_dir)
+    source_file = runResult.task_id[0]
+    href_path = model.substitute_vars([column.href_path], None, source_file)[0]
+    return join(base_dir, href_path)
 
 def format_options(options):
     '''Helper function for formatting the content of the options line'''
