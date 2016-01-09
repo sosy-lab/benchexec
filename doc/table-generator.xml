@@ -9,8 +9,9 @@
        (needs specific support in the tool-specifiy Python module). -->
   <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memUsage*"
           numberOfDigits="*optional number of significant digits for presenting the value*"/>
-  <column title="*name of a column*"
+  <column title="*name of a (new) column*"
           numberOfDigits="*optional number of significant digits for presenting the value*">*pattern for extracting data from tool output*</column>
+  <column title="*name of a (possibly new) column*" href="*relative path or absolute URL*">*(optional) text to appear in all cells of the column*</column>
 
   <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
   <result filename="*file-name pattern for XML files produced by BenchExec*">
