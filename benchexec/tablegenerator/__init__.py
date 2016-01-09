@@ -165,13 +165,15 @@ def get_task_id(task):
 class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
-    and number_of_significant_digits of a column.
+    number_of_significant_digits of a column and
+    type of the column's values.
     It does NOT contain the value of a column.
     """
     def __init__(self, title, pattern, numOfDigits):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = numOfDigits
+        self.type = None
 
 
 loaded_tools = {}
