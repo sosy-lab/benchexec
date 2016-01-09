@@ -112,7 +112,7 @@ def extract_columns_from_table_definition_file(xmltag):
     """
     Extract all columns mentioned in the result tag of a table definition file.
     """
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("hrefPath"))
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("href"))
             for c in xmltag.findall('column')]
 
 def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
@@ -166,14 +166,14 @@ def get_task_id(task):
 class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
-    number_of_significant_digits of a column, and href_path (to create a link to a resource).
+    number_of_significant_digits of a column, and href (to create a link to a resource).
     It does NOT contain the value of a column.
     """
-    def __init__(self, title, pattern, numOfDigits, hrefPath):
+    def __init__(self, title, pattern, numOfDigits, href):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = numOfDigits
-        self.href_path = hrefPath
+        self.href = href
 
 
 loaded_tools = {}
