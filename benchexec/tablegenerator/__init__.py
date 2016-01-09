@@ -61,6 +61,7 @@ TEMPLATE_NAMESPACE={
    'flatten': Util.flatten,
    'json': Util.to_json,
    'create_link': Util.create_link,
+   'format_options': Util.format_options,
    'format_value': Util.format_value,
    'split_number_and_unit': Util.split_number_and_unit,
    'remove_unit': Util.remove_unit,

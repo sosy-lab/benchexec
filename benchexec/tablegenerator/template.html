@@ -188,31 +188,13 @@
 
 <table id="dataTable">
 <thead>
-{{py:
-def format_options(str):
-    '''Helper function for formatting the content of the options line'''
-    options = html_quote(str)
-    # split on one of the following tokens: ' -' or '[[' or ']]'
-    lines = ['']
-    import re
-    for token in re.split('( -|\[\[|\]\])', options):
-      if token in ['[[',']]']:
-        lines.append(token)
-        lines.append('')
-      elif token == ' -':
-        lines.append(token)
-      else:
-        lines[-1] += token
-    # join all non-empty lines and wrap them into 'span'-tags
-    return html('<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>')
-}}
 {{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
   <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
-<td colspan="{{width}}">{{format_options(cell) if line.id == 'options' else cell}}</td>
+<td colspan="{{width}}">{{html(format_options(html_quote(cell))) if line.id == 'options' else cell}}</td>
     {{endfor}}
 </tr>
   {{endif}}
