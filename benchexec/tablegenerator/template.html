@@ -211,9 +211,14 @@
   {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
+  {{if not value}}
+  {{py:value = column.pattern}}
+  {{endif}}
   {{py:ccsclass = runResult.category + ' value'}}
   {{if column.title.endswith('status')}}
     {{py:ccsclass = 'status ' + runResult.category}}
+  {{endif}}
+  {{if column.title.endswith('status') or column.href}}
     {{if runResult.log_file or column.href}}
 <td class="{{ccsclass}}" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)|url}}">{{(value or '-').lower()}}</a></td>
     {{else}}
