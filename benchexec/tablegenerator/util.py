@@ -85,6 +85,10 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
+def create_link(log_file, base_dir):
+    from os.path import relpath
+    return relpath(log_file, base_dir)
+
 def format_number_align(formattedValue, number_of_significant_digits):
     alignment = number_of_significant_digits
     if formattedValue.find('.') >= 0:
