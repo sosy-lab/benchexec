@@ -39,24 +39,26 @@ PROPERTY_TAG = "propertyfile"
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
-def substitute_vars(oldList, runSet, sourcefile=None):
+def substitute_vars(oldList, runSet=None, sourcefile=None):
     """
     This method replaces special substrings from a list of string
     and return a new list.
     """
-    benchmark = runSet.benchmark
+    keyValueList = []
+    if runSet:
+        benchmark = runSet.benchmark
 
-    # list with tuples (key, value): 'key' is replaced by 'value'
-    keyValueList = [('${benchmark_name}',     benchmark.name),
-                    ('${benchmark_date}',     benchmark.instance),
-                    ('${benchmark_path}',     benchmark.base_dir or '.'),
-                    ('${benchmark_path_abs}', os.path.abspath(benchmark.base_dir)),
-                    ('${benchmark_file}',     os.path.basename(benchmark.benchmark_file)),
-                    ('${benchmark_file_abs}', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
-                    ('${logfile_path}',       os.path.dirname(runSet.log_folder) or '.'),
-                    ('${logfile_path_abs}',   os.path.abspath(runSet.log_folder)),
-                    ('${rundefinition_name}', runSet.real_name if runSet.real_name else ''),
-                    ('${test_name}',          runSet.real_name if runSet.real_name else '')]
+        # list with tuples (key, value): 'key' is replaced by 'value'
+        keyValueList = [('${benchmark_name}',     benchmark.name),
+                        ('${benchmark_date}',     benchmark.instance),
+                        ('${benchmark_path}',     benchmark.base_dir or '.'),
+                        ('${benchmark_path_abs}', os.path.abspath(benchmark.base_dir)),
+                        ('${benchmark_file}',     os.path.basename(benchmark.benchmark_file)),
+                        ('${benchmark_file_abs}', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
+                        ('${logfile_path}',       os.path.dirname(runSet.log_folder) or '.'),
+                        ('${logfile_path_abs}',   os.path.abspath(runSet.log_folder)),
+                        ('${rundefinition_name}', runSet.real_name if runSet.real_name else ''),
+                        ('${test_name}',          runSet.real_name if runSet.real_name else '')]
 
     if sourcefile:
         keyValueList.append(('${inputfile_name}', os.path.basename(sourcefile)))
