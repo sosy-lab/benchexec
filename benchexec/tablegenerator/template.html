@@ -212,9 +212,6 @@
   {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
-  {{if not value}}
-  {{py:value = column.pattern}}
-  {{endif}}
   {{py:ccsclass = runResult.category + ' value'}}
   {{if column.href}}
     {{py:ccsclass = 'link ' + runResult.category}}
