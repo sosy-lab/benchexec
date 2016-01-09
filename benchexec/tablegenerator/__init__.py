@@ -904,7 +904,7 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     try:
         valueList = [Util.to_decimal(v) for v in values]
     except InvalidOperation as e:
-        if columnTitle != "host": # we ignore values of column host, used in cloud-mode
+        if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
         return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
 
