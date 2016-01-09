@@ -92,6 +92,8 @@ def create_link(runResult, base_dir, column):
         return relpath(runResult.log_file, base_dir)
     source_file = runResult.task_id[0]
     href = model.substitute_vars([column.href], None, source_file)[0]
+    if href.startswith('http://'):
+        return href
     return join(base_dir, href)
 
 def format_options(options):
