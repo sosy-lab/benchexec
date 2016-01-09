@@ -297,7 +297,7 @@ class RunSetResult(object):
                     if not title in columnNames \
                             and (all_columns or c.get('hidden') != 'true'):
                         columnNames.add(title)
-                        columns.append(Column(title, None, None, None, None))
+                        columns.append(Column(title, None, None, None))
             return columns
 
 
