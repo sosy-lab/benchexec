@@ -228,6 +228,22 @@ def get_column_type(column, result_set):
     return column_type
 
 
+def is_number_type(column_type):
+    col_type = column_type.get_type()
+
+    return col_type is ColumnType.measure or col_type is ColumnType.count
+
+
+def get_column_output_title(column):
+    column_title = column.title
+    column_type = column.type
+
+    if is_number_type(column_type) and column_type.get_unit():
+        column_title += " (" + str(column_type.get_unit()) + ")"
+
+    return column_title
+
+
 def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
@@ -823,7 +839,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                              name=rowName,
                              content=valuesAndWidths)
 
-    titles      = [column.title for runSetResult in runSetResults for column in runSetResult.columns]
+    titles      = [get_column_output_title(column) for runSetResult in runSetResults for column in runSetResult.columns]
     runSetWidths1 = [1]*sum(runSetWidths)
     titleRow    = tempita.bunch(id='columnTitles', name=commonFileNamePrefix,
                                 content=list(zip(titles, runSetWidths1)))
@@ -1159,7 +1175,8 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     template_values.head = get_table_head(runSetResults, common_prefix)
     template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
     template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]
-    template_values.columnTitles = [[column.title for column in runSet.columns] for runSet in runSetResults]
+    template_values.columnTitles =\
+        [[get_column_output_title(column) for column in runSet.columns] for runSet in runSetResults]
 
     template_values.relevant_id_columns = select_relevant_id_columns(rows)
     template_values.count_id_columns = template_values.relevant_id_columns.count(True)
