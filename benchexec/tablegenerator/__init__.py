@@ -1142,9 +1142,9 @@ def get_summary(runSetResults):
                 try:
                     value = Util.to_decimal(runSetResult.summary[column.title])
                 except InvalidOperation:
-                    value = ''
+                    value = '-'
             else:
-                value = ''
+                value = '-'
             summaryStats.append(StatValue(value))
 
     if available:
