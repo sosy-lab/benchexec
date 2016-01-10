@@ -220,7 +220,7 @@
     {{py:ccsclass = 'status ' + runResult.category}}
   {{endif}}
   {{if column.title.endswith('status') or column.href}}
-    {{py:value = (value or '-').lower()}}
+    {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
 <td class="{{ccsclass}}" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
     {{else}}
