@@ -214,7 +214,7 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         return s
 
 
-def format_value(value, column, isToAlign=False):
+def format_value(value, column, isToAlign=False, format_target="html"):
     """
     Format a value nicely for human-readable output (including rounding).
 
@@ -231,11 +231,14 @@ def format_value(value, column, isToAlign=False):
     if column.type.get_type() is ColumnType.measure:
 
         number_of_significant_digits = column.number_of_significant_digits
-        if number_of_significant_digits is None:
+        if number_of_significant_digits is None and format_target is not "csv":
             number_of_significant_digits = DEFAULT_TIME_PRECISION
         max_dec_digits = column.type.max_decimal_digits
 
-        return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign)
+        if number_of_significant_digits is not None:
+            return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign)
+        else:
+            return value
 
     else:
         return value
