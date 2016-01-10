@@ -556,9 +556,6 @@ class RunResult(object):
 
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
-            if column.number_of_significant_digits is not None:
-                value = Util.format_number(value, int(column.number_of_significant_digits))
-
             values.append(value)
 
         return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
