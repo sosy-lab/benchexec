@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+
+import sys
+sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+import os
+import xml.etree.ElementTree as ET
+
+import benchexec.util as Util
+from benchexec.filewriter import FileWriter
+
+
+def getWitnesses(witnessXML):
+    witnesses = {}
+    for result in witnessXML.findall('run'):
+        run = result.get('name')
+        witnesses[run] = result
+    return witnesses
+
+
+def getWitnessResult(witness):
+    
+    if witness is None:
+        return ('witness missing', 'error')
+    
+    sourcefile = witness.get('name')
+    status = witness.findall('column[@title="status"]')[0].get('value')
+    category = witness.findall('column[@title="category"]')[0].get('value')
+    
+    # remove 's' forseconds and parse time as float
+    wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
+    cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
+    
+    if status.startswith('true') or status.startswith('unknown'):
+        return ('witness unconfirmed', 'error')
+
+    if max(wallTime, cpuTime) > 90:
+        return ('witness timeout', 'error')
+
+    if status.startswith('false('):
+        return (status, category)
+
+    return ('witness invalid (' + status + ')', 'error')
+
+
+def main(argv=None):
+
+    if argv is None:
+        argv = sys.argv
+
+    if len(argv) < 3:
+        sys.exit('2 or 3 arguments needed: results-xml and 1 or 2 witness-xml (optional last argument: --no-overwrite-status)\n' + str(argv))
+    
+    resultFile   = argv[1]
+    witnessFiles = []
+    for i in [2, 3]:
+        if len(argv) > i and not argv[i].startswith('--'):
+            witnessFiles.append(argv[i])
+    isOverwrite = True
+    if argv[len(argv) - 1] == '--no-overwrite-status':
+        isOverwrite = False
+        
+    if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
+        sys.exit('File {0} does not exist.'.format(repr(resultFile)))
+    resultXML   = ET.ElementTree().parse(resultFile)
+    witnessSets = []
+    for witnessFile in witnessFiles:
+        if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
+            sys.exit('File {0} does not exist.'.format(repr(witnessFile)))
+        witnessXML = ET.ElementTree().parse(witnessFile)
+        witnessSets.append(getWitnesses(witnessXML))
+        resultXML.set('options', '' + resultXML.get('options', default='') + ' [[ ' + witnessXML.get('options', default='') + ' ]]')
+        resultXML.set('date',    '' + resultXML.get('date', default='')    + ' [[ ' + witnessXML.get('date', default='')    + ' ]]')
+
+    for result in resultXML.findall('run'):
+        run = result.get('name')
+        basename = os.path.basename(run)
+        if ('false-unreach-call' in basename or 'false-no-overflow' in basename or 'false-valid-' in basename) \
+            and 'correct' == result.findall('column[@title="category"]')[0].get('value'):
+
+            statusVer   = result.findall('column[@title="status"]')[0]
+            categoryVer = result.findall('column[@title="category"]')[0]         
+            result.append(ET.Element('column', {
+                                'title':  'void-status',
+                                'value':  statusVer.get('value'),
+                                'hidden': statusVer.get('hidden','false')
+                                               }))
+            result.append(ET.Element('column', {
+                                'title':  'void-category',
+                                'value':  categoryVer.get('value'),
+                                'hidden': categoryVer.get('hidden','false')
+                                               }))
+
+            statusWit, categoryWit = ('', '')
+            i = 0
+            for witnessSet in witnessSets:
+                i = i + 1
+                witness = witnessSet.get(run, None)
+                # copy data from witness
+                if witness is not None:
+                    for column in witness:
+                        newColumn = ET.Element('column', {
+                             'title': 'wit' + str(i) + '_' + column.get('title'),
+                             'value':  column.get('value'),
+                             'hidden': column.get('hidden','false')
+                             })
+                        result.append(newColumn)
+                    witnessSet.pop(run)
+                    if not statusWit.startswith('false('):
+                        statusWit, categoryWit = getWitnessResult(witness)
+            # Overwrite status with status from witness
+            if isOverwrite:
+                result.findall('column[@title="status"]')[0].set('value', statusWit)
+                result.findall('column[@title="category"]')[0].set('value', categoryWit)         
+
+
+    print ('    ' + resultFile + '.merged.xml')
+    XMLFile = FileWriter(resultFile + '.merged.xml', 
+                         Util.xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
+
+if __name__ == '__main__':
+    sys.exit(main())
