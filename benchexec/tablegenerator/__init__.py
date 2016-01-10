@@ -33,6 +33,7 @@ import signal
 import subprocess
 import sys
 import time
+from enum import Enum
 from xml.etree import ElementTree
 
 import tempita
@@ -67,7 +68,7 @@ TEMPLATE_NAMESPACE={
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
-
+REGEX_MEASURE = re.compile('(\d+)(\.(0*)\d+)?')
 
 def parse_table_definition_file(file, options):
     '''
@@ -113,6 +114,52 @@ def extract_columns_from_table_definition_file(xmltag):
     """
     return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
             for c in xmltag.findall('column')]
+
+
+def get_column_type(column, result_set):
+    """
+    Returns the type of the given column based on its row values on the given RunSetResult
+    @param column: the column to return the correct ColumnType for
+    @param result_set: the RunSetResults to consider
+    @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
+    """
+    column_type = None
+    for run_result in result_set.results:
+        if column in run_result.columns:
+            column_index = run_result.columns.index(column)
+            column_value = run_result.values[column_index]
+            value_match = REGEX_MEASURE.match(str(column_value))
+
+            # As soon as one row's value is no number, the column type is 'text'
+            if value_match is None:
+                return ColumnType.text
+
+            # If all rows are integers, column type is 'count'
+            elif not value_match.group(2) and not column_type:
+                column_type = ColumnType.count
+
+            # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
+            elif value_match.group(2) and not (column_type and column_type.get_type() is ColumnType.text):
+                if int(value_match.group(1)) == 0:
+                    # number of needed decimal digits = number of zeroes after decimal point + significant digits
+                    curr_dec_digits = len(value_match.group(3)) + column.number_of_significant_digits
+
+                else:
+                    # number of needed decimal digits = significant digits - number of digits in front of decimal point
+                    curr_dec_digits = column.number_of_significant_digits - len(value_match.group(1))
+
+                try:
+                    max_dec_digits = column_type.max_decimal_digits
+                except AttributeError or TypeError:
+                    max_dec_digits = 0
+
+                if curr_dec_digits > max_dec_digits:
+                    max_dec_digits = curr_dec_digits
+
+                column_type = ColumnMeasureType(max_dec_digits)
+
+    return column_type
+
 
 def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
     def get_file_list(result_tag):
@@ -175,6 +222,24 @@ class Column(object):
         self.number_of_significant_digits = numOfDigits
         self.type = None
 
+
+class ColumnType(Enum):
+    text = 1
+    count = 2
+    measure = 3
+
+    def get_type(self):
+        return self
+
+class ColumnMeasureType(object):
+    """
+    Column type 'Measure', contains the column's largest amount of digits after the decimal point.
+    """
+    def __init__(self, max_decimal_digits):
+        self.max_decimal_digits = max_decimal_digits
+
+    def get_type(self):
+        return ColumnType.measure
 
 loaded_tools = {}
 def load_tool(result):
@@ -259,6 +324,10 @@ class RunSetResult(object):
                                                           get_value_from_logfile,
                                                           self.columns,
                                                           correct_only))
+
+        for column in self.columns:
+            column.type = get_column_type(column, self)
+
 
         del self._xml_results
 
