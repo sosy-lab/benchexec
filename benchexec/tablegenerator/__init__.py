@@ -46,6 +46,8 @@ from benchexec.tablegenerator import util as Util
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
 # Initialized only in main() because we cannot do so in the worker processes.
+from benchexec.tablegenerator.util import ColumnType
+
 parallel = None
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
@@ -164,7 +166,7 @@ def get_column_type(column, result_set):
                 if curr_dec_digits > max_dec_digits:
                     max_dec_digits = curr_dec_digits
 
-                column_type = ColumnMeasureType(max_dec_digits)
+                column_type = Util.ColumnMeasureType(max_dec_digits)
 
     return column_type
 
@@ -230,24 +232,6 @@ class Column(object):
         self.number_of_significant_digits = numOfDigits
         self.type = None
         self.href = href
-
-class ColumnType(Enum):
-    text = 1
-    count = 2
-    measure = 3
-
-    def get_type(self):
-        return self
-
-class ColumnMeasureType(object):
-    """
-    Column type 'Measure', contains the column's largest amount of digits after the decimal point.
-    """
-    def __init__(self, max_decimal_digits):
-        self.max_decimal_digits = max_decimal_digits
-
-    def get_type(self):
-        return ColumnType.measure
 
 loaded_tools = {}
 def load_tool(result):

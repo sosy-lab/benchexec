@@ -28,10 +28,31 @@ import glob
 import json
 import logging
 import os
+from enum import Enum
 
+import re
 import tempita
 
 DEFAULT_TIME_PRECISION = 3
+REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')
+
+class ColumnType(Enum):
+    text = 1
+    count = 2
+    measure = 3
+
+    def get_type(self):
+        return self
+
+class ColumnMeasureType(object):
+    """
+    Column type 'Measure', contains the column's largest amount of digits after the decimal point.
+    """
+    def __init__(self, max_decimal_digits):
+        self.max_decimal_digits = max_decimal_digits
+
+    def get_type(self):
+        return ColumnType.measure
 
 
 def get_file_list(shortFile):
@@ -112,8 +133,8 @@ def format_options(options):
     # join all non-empty lines and wrap them into 'span'-tags
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
-def format_number_align(formattedValue, number_of_significant_digits):
-    alignment = number_of_significant_digits
+def format_number_align(formattedValue, max_number_of_dec_digits):
+    alignment = max_number_of_dec_digits
     if formattedValue.find('.') >= 0:
         # Subtract spaces for digits after the decimal point.
         alignment -= len(formattedValue) - formattedValue.find('.') - 1
@@ -123,7 +144,7 @@ def format_number_align(formattedValue, number_of_significant_digits):
     formattedValue += "".join(['&#x2007;'] * alignment)
     return formattedValue
 
-def format_number(s, number_of_significant_digits, isToAlign=False):
+def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
@@ -145,16 +166,21 @@ def format_number(s, number_of_significant_digits, isToAlign=False):
         if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
+
         # We need to fill the missing zeros at the end because they are significant!
-        zerosToAdd = 0
-        if formattedValue.startswith('0.') and len(formattedValue) < number_of_significant_digits + 2:
-            zerosToAdd = number_of_significant_digits + 2 - len(formattedValue)
-        elif formattedValue.find('.') >= 0 and len(formattedValue) < number_of_significant_digits + 1:
-            zerosToAdd = number_of_significant_digits + 1 - len(formattedValue)
+        # regular expression returns three groups:
+        # Group 1: Digits in front of decimal point
+        # Group 2: Digits after decimal point
+        # Group 3: Digits after decimal point starting at the first value not 0
+        m = REGEX_SIGNIFICANT_DIGITS.match(formattedValue)
+        if int(m.group(1)) == 0:
+            zerosToAdd = number_of_significant_digits - len(m.group(3))
+        else:
+            zerosToAdd = number_of_significant_digits - len(m.group(1)) - len(m.group(2))
         formattedValue += "".join(['0'] * zerosToAdd)
         # Alignment
         if isToAlign:
-            formattedValue = format_number_align(formattedValue, number_of_significant_digits)
+            formattedValue = format_number_align(formattedValue, max_digits_after_decimal)
         return formattedValue
     except ValueError: # If value is no float, don't format it.
         return s
@@ -166,13 +192,17 @@ def format_value(value, column, isToAlign=False):
     if not value or value == '-':
         return '-'
 
-    number_of_significant_digits = column.number_of_significant_digits
-    if number_of_significant_digits is None and column.title.lower().endswith('time'):
-        number_of_significant_digits = DEFAULT_TIME_PRECISION
+    if column.type.get_type() is ColumnType.measure:
 
-    if number_of_significant_digits is None:
+        number_of_significant_digits = column.number_of_significant_digits
+        if number_of_significant_digits is None:
+            number_of_significant_digits = DEFAULT_TIME_PRECISION
+        max_dec_digits = column.type.max_decimal_digits
+
+        return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign)
+
+    else:
         return value
-    return format_number(value, int(number_of_significant_digits), isToAlign)
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
