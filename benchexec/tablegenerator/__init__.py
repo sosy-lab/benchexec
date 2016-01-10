@@ -1162,11 +1162,6 @@ def get_summary(runSetResults):
         return None
 
 
-def get_js_column_titles(runSetResults):
-    return [[get_column_output_title(column) for column in runSet.columns if is_js_compatible_column(column)]\
-            for runSet in runSetResults]
-
-
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
     '''
     Create tables and write them to files.
@@ -1194,7 +1189,8 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     template_values.head = get_table_head(runSetResults, common_prefix)
     template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
     template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]
-    template_values.columnTitles = get_js_column_titles(runSetResults)
+    template_values.columnTitles =\
+        [[get_column_output_title(column) for column in runSet.columns] for runSet in runSetResults]
 
     template_values.relevant_id_columns = select_relevant_id_columns(rows)
     template_values.count_id_columns = template_values.relevant_id_columns.count(True)
