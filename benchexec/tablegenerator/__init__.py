@@ -48,6 +48,8 @@ from benchexec.tablegenerator import util as Util
 # Initialized only in main() because we cannot do so in the worker processes.
 parallel = None
 
+DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
+
 NAME_START = "results" # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results/"
@@ -140,13 +142,18 @@ def get_column_type(column, result_set):
 
             # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
             elif value_match.group(2) and not (column_type and column_type.get_type() is ColumnType.text):
+                num_of_digits = column.number_of_significant_digits
+
+                if num_of_digits is None:
+                    num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
+
                 if int(value_match.group(1)) == 0:
                     # number of needed decimal digits = number of zeroes after decimal point + significant digits
-                    curr_dec_digits = len(value_match.group(3)) + column.number_of_significant_digits
+                    curr_dec_digits = len(value_match.group(3)) + num_of_digits
 
                 else:
                     # number of needed decimal digits = significant digits - number of digits in front of decimal point
-                    curr_dec_digits = column.number_of_significant_digits - len(value_match.group(1))
+                    curr_dec_digits = num_of_digits - len(value_match.group(1))
 
                 try:
                     max_dec_digits = column_type.max_decimal_digits
@@ -157,6 +164,9 @@ def get_column_type(column, result_set):
                     max_dec_digits = curr_dec_digits
 
                 column_type = ColumnMeasureType(max_dec_digits)
+
+    if column_type.get_type() is ColumnType.measure and column.number_of_significant_digits is None:
+        column.number_of_significant_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
 
     return column_type
 
