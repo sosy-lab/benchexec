@@ -41,6 +41,7 @@ class ColumnType(Enum):
     text = 1
     count = 2
     measure = 3
+    status = 4
 
     def get_type(self):
         return self

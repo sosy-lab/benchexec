@@ -159,6 +159,9 @@ def get_column_type(column, result_set):
     @param result_set: the RunSetResult to consider
     @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
     """
+    if column.title == "status":
+        return ColumnType.status
+
     column_type = None
     for run_result in result_set.results:
         if column in run_result.columns:
@@ -235,7 +238,7 @@ def is_number_type(column_type):
 
 
 def is_js_compatible_column(column):
-    return column.title == 'status' or is_number_type(column.type)
+    return column.type.get_type() is ColumnType.status or is_number_type(column.type)
 
 
 def get_column_output_title(column):
