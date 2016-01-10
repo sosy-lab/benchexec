@@ -36,6 +36,10 @@ To install the latest development version from the
 
     pip3 install --user git+https://github.com/sosy-lab/benchexec.git
 
+It is useful to install the system package `python3-lxml` before,
+otherwise pip will try to download and build this module,
+which needs a compiler and several development header packages.
+
 If you want to run benchmarks under different user account than your own,
 please check the [respective documentation](separate-user.md) for how to setup sudo.
 

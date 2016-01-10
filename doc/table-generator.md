@@ -39,7 +39,7 @@ The document type of these files should be
     <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.0//EN" "http://www.sosy-lab.org/benchexec/table-1.0.dtd">
 
 A document-type definition with a formal specification of such files can be found in
-[doc/table-generator.dtd](table-generator.dtd).
+[doc/table.dtd](table.dtd).
 To use such files pass them with the parameter `-x` to `table-generator`
 (no result files can be given as these are referenced within the table-definition file):
 

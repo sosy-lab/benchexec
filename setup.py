@@ -24,7 +24,6 @@ import re
 import setuptools
 import sys
 import warnings
-sys.dont_write_bytecode = True # prevent creation of .pyc files
 warnings.filterwarnings('default', module="^benchexec\..*")
 
 # Links for documentation on how to build and use Python packages:

@@ -39,29 +39,33 @@ PROPERTY_TAG = "propertyfile"
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
-def substitute_vars(oldList, runSet, sourcefile=None):
+def substitute_vars(oldList, runSet=None, sourcefile=None):
     """
     This method replaces special substrings from a list of string
     and return a new list.
     """
-    benchmark = runSet.benchmark
+    keyValueList = []
+    if runSet:
+        benchmark = runSet.benchmark
 
-    # list with tuples (key, value): 'key' is replaced by 'value'
-    keyValueList = [('${benchmark_name}',     benchmark.name),
-                    ('${benchmark_date}',     benchmark.instance),
-                    ('${benchmark_path}',     benchmark.base_dir or '.'),
-                    ('${benchmark_path_abs}', os.path.abspath(benchmark.base_dir)),
-                    ('${benchmark_file}',     os.path.basename(benchmark.benchmark_file)),
-                    ('${benchmark_file_abs}', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
-                    ('${logfile_path}',       os.path.dirname(runSet.log_folder) or '.'),
-                    ('${logfile_path_abs}',   os.path.abspath(runSet.log_folder)),
-                    ('${rundefinition_name}', runSet.real_name if runSet.real_name else ''),
-                    ('${test_name}',          runSet.real_name if runSet.real_name else '')]
+        # list with tuples (key, value): 'key' is replaced by 'value'
+        keyValueList = [('${benchmark_name}',     benchmark.name),
+                        ('${benchmark_date}',     benchmark.instance),
+                        ('${benchmark_path}',     benchmark.base_dir or '.'),
+                        ('${benchmark_path_abs}', os.path.abspath(benchmark.base_dir)),
+                        ('${benchmark_file}',     os.path.basename(benchmark.benchmark_file)),
+                        ('${benchmark_file_abs}', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
+                        ('${logfile_path}',       os.path.dirname(runSet.log_folder) or '.'),
+                        ('${logfile_path_abs}',   os.path.abspath(runSet.log_folder)),
+                        ('${rundefinition_name}', runSet.real_name if runSet.real_name else ''),
+                        ('${test_name}',          runSet.real_name if runSet.real_name else '')]
 
     if sourcefile:
         keyValueList.append(('${inputfile_name}', os.path.basename(sourcefile)))
+        keyValueList.append(('${inputfile_rel}', os.path.relpath(sourcefile, os.curdir)))
         keyValueList.append(('${inputfile_path}', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('${inputfile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
+        # The following are deprecated: do not use anymore.
         keyValueList.append(('${sourcefile_name}', os.path.basename(sourcefile)))
         keyValueList.append(('${sourcefile_path}', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('${sourcefile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
@@ -277,9 +281,16 @@ class Benchmark(object):
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
             logging.warning("No <rundefinition> tag selected, nothing will be executed.")
             if config.selected_run_definitions:
-                logging.warning("The selection %s does not match any runSet of %s",
+                logging.warning("The selection %s does not match any run definitions of %s.",
                                 config.selected_run_definitions,
                                 [runSet.real_name for runSet in self.run_sets])
+        elif config.selected_run_definitions:
+            for selected in config.selected_run_definitions:
+                if not any((selected == run_set.real_name) for run_set in self.run_sets):
+                    logging.warning(
+                        'The selected run definition "%s" is not present in the input file, '
+                        'skipping it.',
+                        selected)
 
 
     def required_files(self):
@@ -422,6 +433,14 @@ class RunSet(object):
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
+
+        if self.benchmark.config.selected_sourcefile_sets:
+            for selected in self.benchmark.config.selected_sourcefile_sets:
+                if not any((selected == sourcefile_set.real_name) for sourcefile_set in blocks):
+                    logging.warning(
+                        'The selected tasks "%s" are not present in the input file, '
+                        'skipping them.',
+                        selected)
         return blocks
 
 
@@ -698,7 +717,7 @@ class Run(object):
             if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
                 status = '{} ({})'.format(status, tool_status)
 
-        if status == result.RESULT_UNKNOWN and returnvalue is not None:
+        if status in [result.RESULT_ERROR, result.RESULT_UNKNOWN] and returnvalue is not None:
             # provide some more information if possible
             if returnsignal == 6:
                 status = 'ABORTED'

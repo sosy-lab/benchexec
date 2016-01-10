@@ -60,17 +60,17 @@ and other values as strings.
     that determines how the run result should be interpreted
     (cf. the documentation of these constants).
     Note that the distinction between `CATEGORY_UNKNOWN` and `CATEGORY_ERROR`
-    is made by the tool-info module and thus may depend on the tool.
+    also depends on the tool-info module (and thus may differ between tools).
 - **status**: The result of the run, as determined by BenchExec
     and interpreted by the tool-info module.
     This can be one of the `RESULT_*` constants of the
     [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py),
     or an arbitrary string.
-    If the result is correct or wrong according to the `category` value,
+    If the `category` is `CATEGORY_CORRECT`, `CATEGORY_WRONG`, or `CATEGORY_UNKNOWN`,
     the `status` contains the answer of the tool.
-    If the result is an error, the `status` is a human-readable string with more information
+    If the `category` is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,
-    e.g., whether the tool terminated with an error code, the time limit was hit etc.
+    e.g., whether the tool terminated with an error code, the time limit was hit, etc.
 
 Furthermore, `benchexec` allows the user to specify arbitrary additional result values
 by defining them with a `<column>` tag in the benchmark-definition file.

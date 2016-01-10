@@ -85,6 +85,33 @@ def remove_unit(s):
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
 
+def create_link(runResult, base_dir, column):
+    from os.path import relpath, join
+    from benchexec import model 
+    if not column.href:
+        return relpath(runResult.log_file, base_dir)
+    source_file = runResult.task_id[0]
+    href = model.substitute_vars([column.href], None, source_file)[0]
+    if href.startswith('http://'):
+        return href
+    return join(base_dir, href)
+
+def format_options(options):
+    '''Helper function for formatting the content of the options line'''
+    # split on one of the following tokens: ' -' or '[[' or ']]'
+    lines = ['']
+    import re
+    for token in re.split('( -|\[\[|\]\])', options):
+      if token in ['[[',']]']:
+        lines.append(token)
+        lines.append('')
+      elif token == ' -':
+        lines.append(token)
+      else:
+        lines[-1] += token
+    # join all non-empty lines and wrap them into 'span'-tags
+    return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
+
 def format_number_align(formattedValue, number_of_significant_digits):
     alignment = number_of_significant_digits
     if formattedValue.find('.') >= 0:

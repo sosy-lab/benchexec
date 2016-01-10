@@ -63,7 +63,8 @@ TEMPLATE_ENCODING = 'UTF-8'
 TEMPLATE_NAMESPACE={
    'flatten': Util.flatten,
    'json': Util.to_json,
-   'relpath': os.path.relpath,
+   'create_link': Util.create_link,
+   'format_options': Util.format_options,
    'format_value': Util.format_value,
    'split_number_and_unit': Util.split_number_and_unit,
    'remove_unit': Util.remove_unit,
@@ -114,7 +115,7 @@ def extract_columns_from_table_definition_file(xmltag):
     """
     Extract all columns mentioned in the result tag of a table definition file.
     """
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"))
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("href"))
             for c in xmltag.findall('column')]
 
 
@@ -222,16 +223,16 @@ def get_task_id(task):
 class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
-    number_of_significant_digits of a column and
-    type of the column's values.
+    number_of_significant_digits of a column, the type of the column's values,
+    and href (to create a link to a resource).
     It does NOT contain the value of a column.
     """
-    def __init__(self, title, pattern, numOfDigits):
+    def __init__(self, title, pattern, numOfDigits, href):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = numOfDigits
         self.type = None
-
+        self.href = href
 
 class ColumnType(Enum):
     text = 1
@@ -376,7 +377,7 @@ class RunSetResult(object):
                     if not title in columnNames \
                             and (all_columns or c.get('hidden') != 'true'):
                         columnNames.add(title)
-                        columns.append(Column(title, None, None))
+                        columns.append(Column(title, None, None, None))
             return columns
 
 
@@ -625,7 +626,8 @@ class RunResult(object):
                 value = status
 
             elif not correct_only or category == result.CATEGORY_CORRECT:
-                if not column.pattern: # collect values from XML
+                if not column.pattern or column.href:
+                    # collect values from XML
                     value = Util.get_column_value(sourcefileTag, column.title)
 
                 else: # collect values from logfile
@@ -981,7 +983,7 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     try:
         valueList = [Util.to_decimal(v) for v in values]
     except InvalidOperation as e:
-        if columnTitle != "host": # we ignore values of column host, used in cloud-mode
+        if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
         return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
 
