@@ -73,7 +73,10 @@ TEMPLATE_NAMESPACE={
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
+
+# Compile regular expression for detecting measurements only once.
 REGEX_MEASURE = re.compile('(\d+)(\.(0*)\d+)?')
+
 
 def parse_table_definition_file(file, options):
     '''
@@ -113,6 +116,7 @@ def parse_table_definition_file(file, options):
             itertools.repeat(defaultColumnsToShow),
             itertools.repeat(options)))
 
+
 def extract_columns_from_table_definition_file(xmltag):
     """
     Extract all columns mentioned in the result tag of a table definition file.
@@ -121,11 +125,38 @@ def extract_columns_from_table_definition_file(xmltag):
             for c in xmltag.findall('column')]
 
 
+def _get_decimal_digits(decimal_number_match, column):
+    """
+    Returns the amount of decimal digits of the given regex match, considering the number of significant
+    digits for the provided column.
+
+    @param decimal_number_match: a regex match of a decimal number, resulting from REGEX_MEASURE.match(x).
+    @param column: the Column the decimal number is a part of. The column's information is used to compute
+        the number of decimal digits.
+    @return: the number of decimal digits of the given decimal number match's representation, after expanding
+        the number to the required amount of significant digits
+    """
+    num_of_digits = column.number_of_significant_digits
+
+    if num_of_digits is None:
+        num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
+
+    if int(decimal_number_match.group(1)) == 0:
+        # number of needed decimal digits = number of zeroes after decimal point + significant digits
+        curr_dec_digits = len(decimal_number_match.group(3)) + num_of_digits
+
+    else:
+        # number of needed decimal digits = significant digits - number of digits in front of decimal point
+        curr_dec_digits = num_of_digits - len(decimal_number_match.group(1))
+
+    return curr_dec_digits
+
+
 def get_column_type(column, result_set):
     """
-    Returns the type of the given column based on its row values on the given RunSetResult
+    Returns the type of the given column based on its row values on the given RunSetResult.
     @param column: the column to return the correct ColumnType for
-    @param result_set: the RunSetResults to consider
+    @param result_set: the RunSetResult to consider
     @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
     """
     column_type = None
@@ -133,6 +164,20 @@ def get_column_type(column, result_set):
         if column in run_result.columns:
             column_index = run_result.columns.index(column)
             column_value = run_result.values[column_index]
+
+            # Heuristic for detecting the column type.
+            # The regex matches any number and provides the following groups:
+            # Group 1: The value as an integer
+            #   (i.e. all digits in front of the decimal point, if one exists. Otherwise the whole number)
+            # Group 2: The decimal point and all following digits (this part is optional)
+            # Group 3: The number of consecutive 0's following the decimal point directly
+            #   (an optional subset of Group 2)
+            #
+            # Example: Matching '18.00301' results in:
+            #   Group 1: '18'
+            #   Group 2: '.00301'
+            #   Group 3: '00'
+            # Use these groups to derive the type (see comments for each if-statement below)
             value_match = REGEX_MEASURE.match(str(column_value))
 
             # As soon as one row's value is no number, the column type is 'text'
@@ -145,19 +190,10 @@ def get_column_type(column, result_set):
 
             # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
             elif value_match.group(2) and not (column_type and column_type.get_type() is ColumnType.text):
-                num_of_digits = column.number_of_significant_digits
 
-                if num_of_digits is None:
-                    num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
-
-                if int(value_match.group(1)) == 0:
-                    # number of needed decimal digits = number of zeroes after decimal point + significant digits
-                    curr_dec_digits = len(value_match.group(3)) + num_of_digits
-
-                else:
-                    # number of needed decimal digits = significant digits - number of digits in front of decimal point
-                    curr_dec_digits = num_of_digits - len(value_match.group(1))
-
+                # Compute the number of decimal digits of the current value, considering the number of significant
+                # digits for this column.
+                curr_dec_digits = _get_decimal_digits(value_match, column)
                 try:
                     max_dec_digits = column_type.max_decimal_digits
                 except AttributeError or TypeError:
@@ -206,6 +242,7 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
             return []
     return results
 
+
 def get_task_id(task):
     """
     Return a unique identifier for a given task.
@@ -234,6 +271,8 @@ class Column(object):
         self.href = href
 
 loaded_tools = {}
+
+
 def load_tool(result):
     """
     Load the module with the tool-specific code.
@@ -475,6 +514,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     insert_logfile_names(resultFile, resultElem)
     return resultElem
 
+
 def insert_logfile_names(resultFile, resultElem):
     # get folder of logfiles (truncate end of XML file name and append .logfiles instead)
     log_folder = resultFile[0:resultFile.rfind('.results.')] + '.logfiles/'
@@ -523,6 +563,7 @@ def merge_tasks(runset_results):
                     index = task_list.index(task)
 
     merge_task_lists(runset_results, task_list)
+
 
 def merge_task_lists(runset_results, tasks):
     """
@@ -647,6 +688,7 @@ class Row(object):
 
         self.short_filename = self.filename.replace(common_prefix, '', 1)
 
+
 def rows_to_columns(rows):
     """
     Convert a list of Rows into a column-wise list of list of RunResult
@@ -689,7 +731,6 @@ def filter_rows_with_differences(rows):
         return []
 
     return rowsDiff
-
 
 
 def get_table_head(runSetResults, commonFileNamePrefix):
@@ -1146,6 +1187,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
 
     return futures
 
+
 def write_table_in_format(template_format, outfile, template_values, show_table):
     # read template
     Template = tempita.HTMLTemplate if template_format == 'html' else tempita.Template
@@ -1276,6 +1318,7 @@ def create_argument_parser():
 def sigint_handler(*args, **kwargs):
     # Use SystemExit instead of KeyboardInterrupt to avoid ugly stack traces for each worker
     sys.exit(1)
+
 
 def main(args=None):
     if sys.version_info < (3,):

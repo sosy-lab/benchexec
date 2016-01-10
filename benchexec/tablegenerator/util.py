@@ -34,7 +34,8 @@ import re
 import tempita
 
 DEFAULT_TIME_PRECISION = 3
-REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')
+REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')  # compile regular expression only once for later uses
+
 
 class ColumnType(Enum):
     text = 1
@@ -43,6 +44,7 @@ class ColumnType(Enum):
 
     def get_type(self):
         return self
+
 
 class ColumnMeasureType(object):
     """
@@ -99,12 +101,14 @@ def split_number_and_unit(s):
         pos -= 1
     return (s[:pos], s[pos:])
 
+
 def remove_unit(s):
     """
     Remove a unit from a number string, or return the full string if it is not a number.
     """
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == '' else prefix
+
 
 def create_link(runResult, base_dir, column):
     from os.path import relpath, join
@@ -116,6 +120,7 @@ def create_link(runResult, base_dir, column):
     if href.startswith('http://'):
         return href
     return join(base_dir, href)
+
 
 def format_options(options):
     '''Helper function for formatting the content of the options line'''
@@ -133,6 +138,7 @@ def format_options(options):
     # join all non-empty lines and wrap them into 'span'-tags
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
+
 def format_number_align(formattedValue, max_number_of_dec_digits):
     alignment = max_number_of_dec_digits
     if formattedValue.find('.') >= 0:
@@ -144,13 +150,13 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     formattedValue += "".join(['&#x2007;'] * alignment)
     return formattedValue
 
+
 def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
     with the specified number of significant digits,
     optionally aligned at the decimal point.
-    The formatting works well only for numbers larger than 0.1.
 
     If the value is not a number, it is returned unchanged.
     """
@@ -168,10 +174,12 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
             formattedValue = str(round(floatValue))
 
         # We need to fill the missing zeros at the end because they are significant!
-        # regular expression returns three groups:
+        # Regular expression returns three groups:
         # Group 1: Digits in front of decimal point
         # Group 2: Digits after decimal point
         # Group 3: Digits after decimal point starting at the first value not 0
+        # Use these groups to compute the number of zeroes that have to be added to the current number's
+        # decimal positions.
         m = REGEX_SIGNIFICANT_DIGITS.match(formattedValue)
         if int(m.group(1)) == 0:
             zerosToAdd = number_of_significant_digits - len(m.group(3))
@@ -185,9 +193,17 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
     except ValueError: # If value is no float, don't format it.
         return s
 
+
 def format_value(value, column, isToAlign=False):
     """
     Format a value nicely for human-readable output (including rounding).
+
+    @param value: the value to format
+    @param column: a Column object describing the column the value is a part of.
+        This given Column is used to derive information about proper formatting.
+    @param isToAlign: if True, spaces will be added to the returned String representation to align it to all
+        other values in this column, correctly
+    @return: a formatted String representation of the given value.
     """
     if not value or value == '-':
         return '-'
@@ -203,6 +219,7 @@ def format_value(value, column, isToAlign=False):
 
     else:
         return value
+
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
@@ -227,17 +244,21 @@ def collapse_equal_values(values, counts):
 
     yield (previousValue, previousCount)
 
+
 def get_column_value(sourcefileTag, columnTitle, default=None):
     for column in sourcefileTag.findall('column'):
         if column.get('title') == columnTitle:
                 return column.get('value')
     return default
 
+
 def flatten(list_):
     return [value for sublist in list_ for value in sublist]
 
+
 def to_json(obj):
     return tempita.html(json.dumps(obj, sort_keys=True))
+
 
 def prettylist(list_):
     if not list_:
