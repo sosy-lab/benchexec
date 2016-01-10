@@ -242,7 +242,7 @@ def get_column_output_title(column):
     column_type = column.type
 
     if is_number_type(column_type) and column_type.get_unit():
-        column_title += " (" + str(column_type.get_unit()) + ")"
+        column_title += "(" + str(column_type.get_unit()) + ")"
 
     return column_title
 
