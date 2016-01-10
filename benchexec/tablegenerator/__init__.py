@@ -166,9 +166,6 @@ def get_column_type(column, result_set):
 
                 column_type = ColumnMeasureType(max_dec_digits)
 
-    if column_type.get_type() is ColumnType.measure and column.number_of_significant_digits is None:
-        column.number_of_significant_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
-
     return column_type
 
 
