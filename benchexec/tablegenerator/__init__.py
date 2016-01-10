@@ -147,7 +147,7 @@ def _get_decimal_digits(decimal_number_match, column):
 
     else:
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
-        curr_dec_digits = num_of_digits - len(decimal_number_match.group(1))
+        curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(1))
 
     return curr_dec_digits
 
