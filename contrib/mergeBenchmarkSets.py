@@ -49,16 +49,16 @@ def main(argv=None):
         argv = sys.argv
 
     if len(argv) < 3:
-        sys.exit('2 or 3 arguments needed: results-xml and 1 or 2 witness-xml (optional last argument: --no-overwrite-status)\n' + str(argv))
+        sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status].\n')
     
     resultFile   = argv[1]
     witnessFiles = []
-    for i in [2, 3]:
+    isOverwrite = True
+    for i in range(2, len(argv)):
         if len(argv) > i and not argv[i].startswith('--'):
             witnessFiles.append(argv[i])
-    isOverwrite = True
-    if argv[len(argv) - 1] == '--no-overwrite-status':
-        isOverwrite = False
+        if argv[i] == '--no-overwrite-status':
+            isOverwrite = False
         
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit('File {0} does not exist.'.format(repr(resultFile)))
