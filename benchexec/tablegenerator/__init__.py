@@ -957,8 +957,13 @@ def get_stats_of_run_set(runResults):
 
             score = StatValue(sum(run_result.score for run_result in runResults))
 
-        else:
+        elif is_number_type(column.type):
             total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
+            score = ''
+
+        else: # Fill text columns with 0's
+            total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
+                (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
             score = ''
 
         if (total.sum, correct.sum, correctTrue.sum, correctFalse.sum, incorrect.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0,0,0,0):
@@ -1130,7 +1135,9 @@ def get_summary(runSetResults):
     available = False
     for runSetResult in runSetResults:
         for column in runSetResult.columns:
-            if column.title in runSetResult.summary and runSetResult.summary[column.title] != '':
+            if is_number_type(column.type)\
+                    and column.title in runSetResult.summary and runSetResult.summary[column.title] != '':
+
                 available = True
                 try:
                     value = Util.to_decimal(runSetResult.summary[column.title])
