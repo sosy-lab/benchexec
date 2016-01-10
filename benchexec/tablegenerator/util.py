@@ -46,15 +46,34 @@ class ColumnType(Enum):
         return self
 
 
+class ColumnCountType(object):
+    """
+    Column type 'Count', contains the column's unit.
+    """
+
+    def __init__(self, unit):
+        self.unit = unit
+
+    def get_type(self):
+        return ColumnType.count
+
+    def get_unit(self):
+        return self.unit
+
+
 class ColumnMeasureType(object):
     """
-    Column type 'Measure', contains the column's largest amount of digits after the decimal point.
+    Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
     """
-    def __init__(self, max_decimal_digits):
+    def __init__(self, unit, max_decimal_digits):
+        self.unit = unit
         self.max_decimal_digits = max_decimal_digits
 
     def get_type(self):
         return ColumnType.measure
+
+    def get_unit(self):
+        return self.unit
 
 
 def get_file_list(shortFile):

@@ -75,7 +75,7 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('(\d+)(\.(0*)\d+)?')
+REGEX_MEASURE = re.compile('(\d+)(\.(0*)\d+)?\s?([a-zA-Z]*)')
 
 
 def parse_table_definition_file(file, options):
@@ -172,11 +172,13 @@ def get_column_type(column, result_set):
             # Group 2: The decimal point and all following digits (this part is optional)
             # Group 3: The number of consecutive 0's following the decimal point directly
             #   (an optional subset of Group 2)
+            # Group 4: The unit of the value (optional)
             #
-            # Example: Matching '18.00301' results in:
+            # Example: Matching '18.00301 ms' results in:
             #   Group 1: '18'
             #   Group 2: '.00301'
             #   Group 3: '00'
+            #   Group 4: 'ms'
             # Use these groups to derive the type (see comments for each if-statement below)
             value_match = REGEX_MEASURE.match(str(column_value))
 
@@ -185,11 +187,30 @@ def get_column_type(column, result_set):
                 return ColumnType.text
 
             # If all rows are integers, column type is 'count'
-            elif not value_match.group(2) and not column_type:
-                column_type = ColumnType.count
+            elif not value_match.group(2) and (not column_type or column_type.get_type() is ColumnType.count):
+                column_unit = value_match.group(4)
+
+                if column_type:
+                    assert column_type.get_type() is ColumnType.count
+                    existing_column_unit = column_type.get_unit()
+
+                    # if the units in two different rows of the same column differ, handle the column as 'text' type
+                    if column_unit != existing_column_unit:
+                        return ColumnType.text
+
+                else:
+                    column_type = Util.ColumnCountType(column_unit)
 
             # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
             elif value_match.group(2) and not (column_type and column_type.get_type() is ColumnType.text):
+                column_unit = value_match.group(4)
+
+                if column_type:
+                    existing_column_unit = column_type.get_unit()
+
+                    # if the units in two different rows of the same column differ, handle the column as 'text' type
+                    if column_unit != existing_column_unit:
+                        return ColumnType.text
 
                 # Compute the number of decimal digits of the current value, considering the number of significant
                 # digits for this column.
@@ -202,7 +223,7 @@ def get_column_type(column, result_set):
                 if curr_dec_digits > max_dec_digits:
                     max_dec_digits = curr_dec_digits
 
-                column_type = Util.ColumnMeasureType(max_dec_digits)
+                column_type = Util.ColumnMeasureType(column_unit, max_dec_digits)
 
     return column_type
 
