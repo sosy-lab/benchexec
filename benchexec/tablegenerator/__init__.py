@@ -33,7 +33,6 @@ import signal
 import subprocess
 import sys
 import time
-from enum import Enum
 from xml.etree import ElementTree
 
 import tempita

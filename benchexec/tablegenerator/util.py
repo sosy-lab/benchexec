@@ -28,7 +28,6 @@ import glob
 import json
 import logging
 import os
-from enum import Enum
 
 import re
 import tempita
@@ -37,14 +36,27 @@ DEFAULT_TIME_PRECISION = 3
 REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')  # compile regular expression only once for later uses
 
 
-class ColumnType(Enum):
-    text = 1
-    count = 2
-    measure = 3
-    status = 4
+def enum(**enums):
+    return type('Enum', (), enums)
+
+
+class ColumnEnumType(object):
+
+    def __init__(self, type):
+        self.type = type
 
     def get_type(self):
-        return self
+        return self.type
+
+
+
+
+class ColumnType(object):
+    column_types = enum(text=1, count=2, measure=3, status=4)
+    text = ColumnEnumType(column_types.text)
+    count = ColumnEnumType(column_types.count)
+    measure = ColumnEnumType(column_types.measure)
+    status = ColumnEnumType(column_types.status)
 
 
 class ColumnCountType(object):
