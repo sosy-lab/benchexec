@@ -237,10 +237,6 @@ def is_number_type(column_type):
     return col_type is ColumnType.measure or col_type is ColumnType.count
 
 
-def is_js_compatible_column(column):
-    return column.type.get_type() is ColumnType.status or is_number_type(column.type)
-
-
 def get_column_output_title(column):
     column_title = column.title
     column_type = column.type
