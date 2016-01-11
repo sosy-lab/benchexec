@@ -163,8 +163,12 @@ def get_column_type(column, result_set):
     @param result_set: the RunSetResult to consider
     @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
     """
-    if column.title == "status":
-        return ColumnType.status
+
+    if "status" in column.title:
+        if column.title == "status":
+            return ColumnType.main_status
+        else:
+            return ColumnType.status
 
     column_type = None
     for run_result in result_set.results:
@@ -939,7 +943,7 @@ def get_stats_of_run_set(runResults):
     listsOfValues = zip(*[runResult.values for runResult in runResults])
 
     columns = runResults[0].columns
-    statusList = [(runResult.category, runResult.status) for runResult in runResults]
+    main_status_list = [(runResult.category, runResult.status) for runResult in runResults]
 
     # collect some statistics
     totalRow = []
@@ -953,13 +957,21 @@ def get_stats_of_run_set(runResults):
 
     status_col_index = 0  # index of 'status' column
     for index, (column, values) in enumerate(zip(columns, listsOfValues)):
-        if column.type.get_type() != ColumnType.text:
-            if column.type.get_type() == ColumnType.status:
-                status_col_index = index
-                total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
+        col_type = column.type.get_type()
+        if col_type != ColumnType.text:
+            if col_type == ColumnType.main_status or col_type == ColumnType.status:
+                if col_type == ColumnType.main_status:
+                    status_col_index = index
+                    score = StatValue(sum(run_result.score for run_result in runResults))
+                else:
+                    score = ''
+
+                total   = StatValue(len([runResult.values[index] for runResult in runResults if runResult.status]))
+
+                curr_status_list = [(runResult.category, runResult.values[index]) for runResult in runResults]
 
                 counts = collections.Counter((category, result.get_result_classification(status))
-                                             for category, status in statusList)
+                                             for category, status in curr_status_list)
                 countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
                 countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
                 countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
@@ -972,12 +984,10 @@ def get_stats_of_run_set(runResults):
                 wrongTrue   = StatValue(countWrongTrue)
                 wrongFalse = StatValue(countWrongFalse)
 
-                score = StatValue(sum(run_result.score for run_result in runResults))
-
             else:
                 assert is_number_type(column.type)
                 total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
-                    get_stats_of_number_column(values, statusList, column.title)
+                    get_stats_of_number_column(values, main_status_list, column.title)
 
                 score = ''
 

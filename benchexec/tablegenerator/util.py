@@ -52,11 +52,12 @@ class ColumnEnumType(object):
         return self.type == other.type
 
 class ColumnType(object):
-    column_types = enum(text=1, count=2, measure=3, status=4)
+    column_types = enum(text=1, count=2, measure=3, status=4, main_status=5)
     text = ColumnEnumType(column_types.text)
     count = ColumnEnumType(column_types.count)
     measure = ColumnEnumType(column_types.measure)
     status = ColumnEnumType(column_types.status)
+    main_status = ColumnEnumType(column_types.main_status)
 
 
 class ColumnCountType(object):
