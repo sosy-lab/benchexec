@@ -284,9 +284,9 @@ def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
     if s:
         s, _ = split_number_and_unit(s.strip())
-        return Decimal(s)
+        return Decimal(s) if s else None
     else:
-        return s
+        return None
 
 
 def collapse_equal_values(values, counts):
