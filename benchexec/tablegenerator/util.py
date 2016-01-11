@@ -46,10 +46,10 @@ class ColumnEnumType(object):
         self.type = type
 
     def get_type(self):
-        return self.type
+        return self
 
-
-
+    def __eq__(self, other):
+        return self.type == other.type
 
 class ColumnType(object):
     column_types = enum(text=1, count=2, measure=3, status=4)

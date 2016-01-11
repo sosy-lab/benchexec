@@ -198,11 +198,11 @@ def get_column_type(column, result_set):
                 return ColumnType.text
 
             # If all rows are integers, column type is 'count'
-            elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() is ColumnType.count):
+            elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() == ColumnType.count):
                 column_unit = value_match.group(GROUP_UNIT)
 
                 if column_type:
-                    assert column_type.get_type() is ColumnType.count
+                    assert column_type.get_type() == ColumnType.count
                     existing_column_unit = column_type.get_unit()
 
                     # if the units in two different rows of the same column differ, handle the column as 'text' type
@@ -213,7 +213,7 @@ def get_column_type(column, result_set):
                     column_type = Util.ColumnCountType(column_unit)
 
             # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
-            elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() is ColumnType.text):
+            elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() == ColumnType.text):
                 column_unit = value_match.group(GROUP_UNIT)
 
                 if column_type:
@@ -245,7 +245,7 @@ def get_column_type(column, result_set):
 def is_number_type(column_type):
     col_type = column_type.get_type()
 
-    return col_type is ColumnType.measure or col_type is ColumnType.count
+    return col_type == ColumnType.measure or col_type == ColumnType.count
 
 
 def get_column_output_title(column):
