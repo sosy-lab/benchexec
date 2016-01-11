@@ -953,37 +953,38 @@ def get_stats_of_run_set(runResults):
 
     status_col_index = 0  # index of 'status' column
     for index, (column, values) in enumerate(zip(columns, listsOfValues)):
-        if column.title == 'status':
-            status_col_index = index
-            total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
+        if column.type.get_type() != ColumnType.text:
+            if column.type.get_type() == ColumnType.status:
+                status_col_index = index
+                total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
 
-            counts = collections.Counter((category, result.get_result_classification(status))
-                                         for category, status in statusList)
-            countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
-            countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
-            countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-            countWrongFalse   = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
+                counts = collections.Counter((category, result.get_result_classification(status))
+                                             for category, status in statusList)
+                countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
+                countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
+                countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
+                countWrongFalse   = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
 
-            correct = StatValue(countCorrectTrue + countCorrectFalse)
-            correctTrue = StatValue(countCorrectTrue)
-            correctFalse = StatValue(countCorrectFalse)
-            incorrect = StatValue(countWrongTrue + countWrongFalse)
-            wrongTrue   = StatValue(countWrongTrue)
-            wrongFalse = StatValue(countWrongFalse)
+                correct = StatValue(countCorrectTrue + countCorrectFalse)
+                correctTrue = StatValue(countCorrectTrue)
+                correctFalse = StatValue(countCorrectFalse)
+                incorrect = StatValue(countWrongTrue + countWrongFalse)
+                wrongTrue   = StatValue(countWrongTrue)
+                wrongFalse = StatValue(countWrongFalse)
 
-            score = StatValue(sum(run_result.score for run_result in runResults))
+                score = StatValue(sum(run_result.score for run_result in runResults))
 
-        elif is_number_type(column.type):
-            total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(values, statusList, column.title)
-            score = ''
+            else:
+                assert is_number_type(column.type)
+                total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
+                    get_stats_of_number_column(values, statusList, column.title)
 
-        else: # Fill text columns with 0's
+                score = ''
+
+        else:  # Fill text columns with '-'s
             total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
-                (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
+                (None, None, None, None, None, None, None)
             score = ''
-
-        if (total.sum, correct.sum, correctTrue.sum, correctFalse.sum, incorrect.sum, wrongTrue.sum, wrongFalse.sum) == (0,0,0,0,0,0,0):
-            (total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse) = (None, None, None, None, None, None, None)
 
         totalRow.append(total)
         correctRow.append(correct)
