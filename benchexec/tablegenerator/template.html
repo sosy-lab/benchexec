@@ -227,7 +227,7 @@
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
   {{else}}
-<td class="{{ccsclass}}">{{format_value(value, column, True)|html}}</td>
+<td class="{{ccsclass}}">{{format_value(value, column, True, 'html_cell')|html}}</td>
   {{endif}}
   {{endfor}}
   {{endfor}}
@@ -255,7 +255,7 @@ def format_stat_title(stat, column, format_value):
 <tr class="statistics">
 <td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
     {{for cell, column in zip(line.content, flatten(columns))}}
-<td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column)}}</td>
+<td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, False, 'html_cell')|html}}</td>
     {{endfor}}
 </tr>
 {{endfor}}
