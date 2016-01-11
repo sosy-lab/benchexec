@@ -19,18 +19,18 @@ def getWitnesses(witnessXML):
 
 
 def getWitnessResult(witness):
-    
+
     if witness is None:
         return ('witness missing', 'error')
-    
+
     sourcefile = witness.get('name')
     status = witness.findall('column[@title="status"]')[0].get('value')
     category = witness.findall('column[@title="category"]')[0].get('value')
-    
+
     # remove 's' forseconds and parse time as float
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
-    
+
     if status.startswith('true') or status.startswith('unknown'):
         return ('witness unconfirmed', 'error')
 
@@ -50,7 +50,7 @@ def main(argv=None):
 
     if len(argv) < 3:
         sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status].\n')
-    
+
     resultFile   = argv[1]
     witnessFiles = []
     isOverwrite = True
@@ -59,7 +59,7 @@ def main(argv=None):
             witnessFiles.append(argv[i])
         if argv[i] == '--no-overwrite-status':
             isOverwrite = False
-        
+
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit('File {0} does not exist.'.format(repr(resultFile)))
     resultXML   = ET.ElementTree().parse(resultFile)
@@ -79,7 +79,7 @@ def main(argv=None):
             and 'correct' == result.findall('column[@title="category"]')[0].get('value'):
 
             statusVer   = result.findall('column[@title="status"]')[0]
-            categoryVer = result.findall('column[@title="category"]')[0]         
+            categoryVer = result.findall('column[@title="category"]')[0]
             result.append(ET.Element('column', {
                                 'title':  'void-status',
                                 'value':  statusVer.get('value'),
@@ -111,11 +111,11 @@ def main(argv=None):
             # Overwrite status with status from witness
             if isOverwrite:
                 result.findall('column[@title="status"]')[0].set('value', statusWit)
-                result.findall('column[@title="category"]')[0].set('value', categoryWit)         
+                result.findall('column[@title="category"]')[0].set('value', categoryWit)
 
 
     print ('    ' + resultFile + '.merged.xml')
-    XMLFile = FileWriter(resultFile + '.merged.xml', 
+    XMLFile = FileWriter(resultFile + '.merged.xml',
                          Util.xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
 
 if __name__ == '__main__':

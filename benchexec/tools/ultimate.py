@@ -34,7 +34,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        # search for witness in options and put it at the end / together with tasks 
+        # search for witness in options and put it at the end / together with tasks
         for option in options:
             if option.endswith('.graphml'):
                 options.remove(option)
