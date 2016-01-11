@@ -944,8 +944,10 @@ def get_stats_of_run_set(runResults):
     wrongFalseRow = []
     scoreRow = []
 
-    for column, values in zip(columns, listsOfValues):
+    status_col_index = 0  # index of 'status' column
+    for index, (column, values) in enumerate(zip(columns, listsOfValues)):
         if column.title == 'status':
+            status_col_index = index
             total   = StatValue(len([runResult.status for runResult in runResults if runResult.status]))
 
             counts = collections.Counter((category, result.get_result_classification(status))
@@ -988,7 +990,7 @@ def get_stats_of_run_set(runResults):
     def replace_irrelevant(row):
         if not row:
             return
-        count = row[0]
+        count = row[status_col_index]
         if not count or not count.sum:
             for i in range(1, len(row)):
                 row[i] = None
