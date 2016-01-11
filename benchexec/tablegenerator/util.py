@@ -238,7 +238,10 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     @return: a formatted String representation of the given value.
     """
     if not value or value == '-':
-        return '-'
+        if format_target == "csv":
+            return ''
+        else:
+            return '-'
 
     if column.type.get_type() is ColumnType.measure:
 
