@@ -170,6 +170,7 @@ def get_column_type(column, result_set):
         else:
             return ColumnType.status
 
+    # If the column is not a 'status' column, we have to guess the type based on its rows' values.
     column_type = None
     for run_result in result_set.results:
         if column in run_result.columns:
