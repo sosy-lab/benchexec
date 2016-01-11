@@ -184,7 +184,7 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     return formattedValue
 
 
-def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False):
+def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
@@ -219,6 +219,13 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         else:
             zerosToAdd = number_of_significant_digits - len(m.group(1)) - len(m.group(2))
         formattedValue += "".join(['0'] * zerosToAdd)
+
+        # Cut the 0 in front of the decimal point for values < 1.
+        # Example: 0.002 => .002
+        if format_target is not "csv" and float(formattedValue) < 1:
+            assert formattedValue[0] == '0'
+            formattedValue = formattedValue[1:]
+
         # Alignment
         if isToAlign:
             formattedValue = format_number_align(formattedValue, max_digits_after_decimal)
@@ -252,7 +259,7 @@ def format_value(value, column, isToAlign=False, format_target="html"):
         max_dec_digits = column.type.max_decimal_digits
 
         if number_of_significant_digits is not None:
-            return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign)
+            return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign, format_target)
         else:
             return value
 
