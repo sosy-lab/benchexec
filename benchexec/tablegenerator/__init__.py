@@ -167,6 +167,8 @@ def get_column_type(column, result_set):
             column_index = run_result.columns.index(column)
             column_value = run_result.values[column_index]
 
+            if not column_value or column_value == '-': # skip rows without value
+                continue
             # Heuristic for detecting the column type.
             # The regex matches any number and provides the following groups:
             # Group 1: The value as an integer
@@ -226,6 +228,9 @@ def get_column_type(column, result_set):
                     max_dec_digits = curr_dec_digits
 
                 column_type = Util.ColumnMeasureType(column_unit, max_dec_digits)
+
+    if column_type is None:
+        column_type = ColumnType.text
 
     return column_type
 
