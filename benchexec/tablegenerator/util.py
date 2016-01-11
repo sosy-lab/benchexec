@@ -176,7 +176,7 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     if formattedValue.find('.') >= 0:
         # Subtract spaces for digits after the decimal point.
         alignment -= len(formattedValue) - formattedValue.find('.') - 1
-    else:
+    elif max_number_of_dec_digits > 0:
         # Add punctuation space.
         formattedValue += '&#x2008;'
     formattedValue += "".join(['&#x2007;'] * alignment)
