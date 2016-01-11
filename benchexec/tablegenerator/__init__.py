@@ -74,7 +74,12 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('(\d+)(\.(0*)\d+)?\s?([a-zA-Z]*)')
+REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)\d+)?\s?([a-zA-Z]*)')
+GROUP_SIGN = 1
+GROUP_INT_PART = 2
+GROUP_DEC_PART = 3
+GROUP_ZEROES = 4
+GROUP_UNIT = 5
 
 
 def parse_table_definition_file(file, options):
@@ -140,13 +145,13 @@ def _get_decimal_digits(decimal_number_match, column):
     if num_of_digits is None:
         num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
 
-    if int(decimal_number_match.group(1)) == 0:
+    if int(decimal_number_match.group(GROUP_INT_PART)) == 0:
         # number of needed decimal digits = number of zeroes after decimal point + significant digits
-        curr_dec_digits = len(decimal_number_match.group(3)) + int(num_of_digits)
+        curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(num_of_digits)
 
     else:
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
-        curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(1))
+        curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(GROUP_INT_PART))
 
     return curr_dec_digits
 
@@ -171,18 +176,20 @@ def get_column_type(column, result_set):
                 continue
             # Heuristic for detecting the column type.
             # The regex matches any number and provides the following groups:
-            # Group 1: The value as an integer
+            # Group 1: The sign - or + (optional)
+            # Group 2: The value as an integer
             #   (i.e. all digits in front of the decimal point, if one exists. Otherwise the whole number)
-            # Group 2: The decimal point and all following digits (this part is optional)
-            # Group 3: The number of consecutive 0's following the decimal point directly
+            # Group 3: The decimal point and all following digits (this part is optional)
+            # Group 4: The number of consecutive 0's following the decimal point directly
             #   (an optional subset of Group 2)
-            # Group 4: The unit of the value (optional)
+            # Group 5: The unit of the value (optional)
             #
             # Example: Matching '18.00301 ms' results in:
-            #   Group 1: '18'
-            #   Group 2: '.00301'
-            #   Group 3: '00'
-            #   Group 4: 'ms'
+            #   Group 1: ''
+            #   Group 2: '18'
+            #   Group 3: '.00301'
+            #   Group 4: '00'
+            #   Group 5: 'ms'
             # Use these groups to derive the type (see comments for each if-statement below)
             value_match = REGEX_MEASURE.match(str(column_value))
 
@@ -191,8 +198,8 @@ def get_column_type(column, result_set):
                 return ColumnType.text
 
             # If all rows are integers, column type is 'count'
-            elif not value_match.group(2) and (not column_type or column_type.get_type() is ColumnType.count):
-                column_unit = value_match.group(4)
+            elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() is ColumnType.count):
+                column_unit = value_match.group(GROUP_UNIT)
 
                 if column_type:
                     assert column_type.get_type() is ColumnType.count
@@ -206,8 +213,8 @@ def get_column_type(column, result_set):
                     column_type = Util.ColumnCountType(column_unit)
 
             # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
-            elif value_match.group(2) and not (column_type and column_type.get_type() is ColumnType.text):
-                column_unit = value_match.group(4)
+            elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() is ColumnType.text):
+                column_unit = value_match.group(GROUP_UNIT)
 
                 if column_type:
                     existing_column_unit = column_type.get_unit()
