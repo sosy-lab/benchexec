@@ -1,6 +1,6 @@
 tool		CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M	CPAchecker 1.4-svn 15944M
 run set		predicateAnalysis	predicateAnalysis	predicateAnalysis	predicateAnalysis
-		status	cputime	walltime	memUsage
+		status	cputime (s)	walltime (s)	memUsage
 test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i	unreach-label	true	2.17	2.2	128032768
 test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c	unreach-label	false(reach)	2.19	2.2	129118208
 test/programs/simple/compoundLiteral_true-unreach-label.c	unreach-label	true	2.23	2.2	132337664
