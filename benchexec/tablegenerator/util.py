@@ -238,7 +238,7 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
 
         # Cut the 0 in front of the decimal point for values < 1.
         # Example: 0.002 => .002
-        if format_target is not "csv" and float(formattedValue) < 1:
+        if format_target is not "csv" and float(formattedValue) < 1 and float(formattedValue) != 0:
             assert formattedValue[0] == '0'
             formattedValue = formattedValue[1:]
 
