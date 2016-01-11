@@ -33,7 +33,7 @@ import re
 import tempita
 
 DEFAULT_TIME_PRECISION = 3
-REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')  # compile regular expression only once for later uses
+REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))?')  # compile regular expression only once for later uses
 
 
 def enum(**enums):
@@ -202,23 +202,25 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         formattedValue = str(floatValue)
         import math
-        if floatValue >= math.pow(10, number_of_significant_digits - 1):
-            # There are no significant digits after the decimal point, thus remove the zeros after the point.
+        if floatValue >= math.pow(10, number_of_significant_digits - 1) or float(value) == floatValue:
+            # There are no correct significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
 
-        # We need to fill the missing zeros at the end because they are significant!
-        # Regular expression returns three groups:
-        # Group 1: Digits in front of decimal point
-        # Group 2: Digits after decimal point
-        # Group 3: Digits after decimal point starting at the first value not 0
-        # Use these groups to compute the number of zeroes that have to be added to the current number's
-        # decimal positions.
-        m = REGEX_SIGNIFICANT_DIGITS.match(formattedValue)
-        if int(m.group(1)) == 0:
-            zerosToAdd = number_of_significant_digits - len(m.group(3))
         else:
-            zerosToAdd = number_of_significant_digits - len(m.group(1)) - len(m.group(2))
-        formattedValue += "".join(['0'] * zerosToAdd)
+            # If the value was rounded and zeros at the end were cut,
+            # we need to fill the missing zeros at the end because they are significant!
+            # Regular expression returns three groups:
+            # Group 1: Digits in front of decimal point
+            # Group 2: Digits after decimal point
+            # Group 3: Digits after decimal point starting at the first value not 0
+            # Use these groups to compute the number of zeroes that have to be added to the current number's
+            # decimal positions.
+            m = REGEX_SIGNIFICANT_DIGITS.match(formattedValue)
+            if int(m.group(1)) == 0:
+                zerosToAdd = number_of_significant_digits - len(m.group(3))
+            else:
+                zerosToAdd = number_of_significant_digits - len(m.group(1)) - len(m.group(2))
+            formattedValue += "".join(['0'] * zerosToAdd)
 
         # Cut the 0 in front of the decimal point for values < 1.
         # Example: 0.002 => .002
