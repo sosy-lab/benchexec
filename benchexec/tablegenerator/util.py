@@ -27,10 +27,13 @@ from decimal import Decimal
 import glob
 import json
 import logging
+import math
 import os
 
 import re
 import tempita
+
+from benchexec import model
 
 DEFAULT_TIME_PRECISION = 3
 REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))')  # compile regular expression only once for later uses
@@ -143,22 +146,19 @@ def remove_unit(s):
 
 
 def create_link(runResult, base_dir, column):
-    from os.path import relpath, join
-    from benchexec import model 
     if not column.href:
-        return relpath(runResult.log_file, base_dir)
+        return os.path.relpath(runResult.log_file, base_dir)
     source_file = runResult.task_id[0]
     href = model.substitute_vars([column.href], None, source_file)[0]
     if href.startswith('http://'):
         return href
-    return join(base_dir, href)
+    return os.path.join(base_dir, href)
 
 
 def format_options(options):
     '''Helper function for formatting the content of the options line'''
     # split on one of the following tokens: ' -' or '[[' or ']]'
     lines = ['']
-    import re
     for token in re.split('( -|\[\[|\]\])', options):
       if token in ['[[',']]']:
         lines.append(token)
@@ -200,7 +200,6 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
         floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         formattedValue = str(floatValue)
-        import math
         if floatValue >= math.pow(10, number_of_significant_digits - 1):
             # There are no significant digits after the decimal point, thus remove the zeros after the point.
             formattedValue = str(round(floatValue))
