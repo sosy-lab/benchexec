@@ -217,12 +217,12 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
     try:
         # Round to the given amount of significant digits
         #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
-        floatValue = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
-        formattedValue = str(floatValue)
+        float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
+        formatted_value = str(float_value)
         import math
-        if floatValue >= math.pow(10, number_of_significant_digits - 1):
+        if float_value >= math.pow(10, number_of_significant_digits - 1):
             # There are no correct significant digits after the decimal point, thus remove the zeros after the point.
-            formattedValue = str(round(floatValue))
+            formatted_value = str(round(float_value))
 
         else:
             # If the value was rounded and zeros at the end were cut,
@@ -233,36 +233,36 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
             # Group 3: Digits after decimal point starting at the first value not 0
             # Use these groups to compute the number of zeroes that have to be added to the current number's
             # decimal positions.
-            m = REGEX_SIGNIFICANT_DIGITS.match(formattedValue)
-            m2 = REGEX_SIGNIFICANT_DIGITS.match(value)
+            formatted_match = REGEX_SIGNIFICANT_DIGITS.match(formatted_value)
+            initial_match = REGEX_SIGNIFICANT_DIGITS.match(value)
 
-            if int(m.group(1)) == 0:
-                current_sig_digits = len(m.group(3))
+            if int(formatted_match.group(1)) == 0:
+                current_sig_digits = len(formatted_match.group(3))
                 if float(value) == 0:
-                    initial_value_sig_digits = len(m2.group(2)) + len(m2.group(3))
+                    initial_value_sig_digits = len(initial_match.group(2)) + len(initial_match.group(3))
                 else:
-                    initial_value_sig_digits = len(m2.group(3))
+                    initial_value_sig_digits = len(initial_match.group(3))
 
             else:
-                current_sig_digits = len(m.group(1)) + len(m.group(2))
-                initial_value_sig_digits = len(m2.group(1)) + len(m2.group(2))
+                current_sig_digits = len(formatted_match.group(1)) + len(formatted_match.group(2))
+                initial_value_sig_digits = len(initial_match.group(1)) + len(initial_match.group(2))
 
             intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
 
             zerosToAdd = intended_digits - current_sig_digits
-            formattedValue += "".join(['0'] * zerosToAdd)
+            formatted_value += "".join(['0'] * zerosToAdd)
 
         # Cut the 0 in front of the decimal point for values < 1.
         # Example: 0.002 => .002
-        if format_target == "html_cell" and float(formattedValue) < 1 and float(formattedValue) != 0:
-            assert formattedValue[0] == '0'
-            formattedValue = formattedValue[1:]
+        if format_target == "html_cell" and float(formatted_value) < 1 and float(formatted_value) != 0:
+            assert formatted_value[0] == '0'
+            formatted_value = formatted_value[1:]
 
         # Alignment
         if isToAlign:
-            formattedValue = format_number_align(formattedValue, max_digits_after_decimal)
-        return formattedValue
-    except ValueError: # If value is no float, don't format it.
+            formatted_value = format_number_align(formatted_value, max_digits_after_decimal)
+        return formatted_value
+    except ValueError:  # If value is no float, don't format it.
         return s
 
 
