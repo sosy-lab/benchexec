@@ -39,7 +39,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if "YES" in output[0]:
+        if not output:
+            return result.RESULT_ERROR
+        elif "YES" in output[0]:
             return result.RESULT_TRUE_PROP
         elif "TRUE" in output[0]:
             return result.RESULT_TRUE_PROP
