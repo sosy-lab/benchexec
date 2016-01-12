@@ -204,6 +204,11 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
     # Units should not occur in table cells, but in the table head.
     value = remove_unit((str(s)).strip())
     try:
+        value = str(float(value))
+    except ValueError:
+        pass
+
+    try:
         # Round to the given amount of significant digits
         #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
         float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
