@@ -166,7 +166,7 @@ def _get_column_type_heur(column, column_values):
     column_type = None
     for value in column_values:
 
-        if not value or value == '' or value == '-':
+        if value is None or value == '':
             continue
 
         # Heuristic for detecting the column type.
@@ -976,7 +976,7 @@ def get_stats_of_run_set(runResults):
                     status_col_index = index
                     score = StatValue(sum(run_result.score for run_result in runResults))
                 else:
-                    score = ''
+                    score = None
 
                 total   = StatValue(len([runResult.values[index] for runResult in runResults if runResult.status]))
 
@@ -1001,12 +1001,12 @@ def get_stats_of_run_set(runResults):
                 total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
                     get_stats_of_number_column(values, main_status_list, column.title)
 
-                score = ''
+                score = None
 
-        else:  # Fill text columns with '-'s
+        else:
             total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
                 (None, None, None, None, None, None, None)
-            score = ''
+            score = None
 
         totalRow.append(total)
         correctRow.append(correct)
@@ -1191,9 +1191,9 @@ def get_summary(runSetResults):
                 try:
                     value = Util.to_decimal(runSetResult.summary[column.title])
                 except InvalidOperation:
-                    value = '-'
+                    value = None
             else:
-                value = '-'
+                value = None
             summaryStats.append(StatValue(value))
 
     if available:
