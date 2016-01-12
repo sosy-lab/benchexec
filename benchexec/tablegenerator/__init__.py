@@ -903,9 +903,9 @@ def select_relevant_id_columns(rows):
 
 def get_stats(rows):
     stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
-    stats = stats_and_col_types[0][0] # first tuple returned by get_stats_of_run_set
-    stats_columns = stats_and_col_types[0][1] # second tuple returned by get_stats_of_run_set
-    rowsForStats = list(map(Util.flatten, zip(stats)))  # row-wise
+    stats = [s[0] for s in stats_and_col_types]  # first tuple returned by get_stats_of_run_set
+    stats_columns = [s[1] for s in stats_and_col_types]  # second tuple returned by get_stats_of_run_set
+    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
     count_true = count_false = max_score = 0
@@ -1252,7 +1252,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                 if summary:
                     stats.insert(1, summary)
 
-            template_values.foot_columns = [stats_columns]
+            template_values.foot_columns = stats_columns
         else:
             stats = None
             template_values.foot_columns = None
