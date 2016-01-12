@@ -69,6 +69,10 @@
   .link { text-align: center; color:DarkSlateBlue; }
   .value { font-family: monospace }
   .score { text-align:center; font-size:large; font-weight:bold; }
+  .status { text-align: center }
+  .status_main { text-align: center }
+  .measure { text-align: right }
+  .count { text-align: right }
   a { color: inherit; text-decoration: none; }
   #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
@@ -244,6 +248,16 @@ def format_stat_title(stat, column, format_value):
     values = {k: format_value(v, column) for k, v in stat.__dict__.items()}
     return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}
+{{py:
+def get_stat_col_classes(column, lineid):
+    linepart = str(lineid) if lineid else ''
+    columnpart = str(column.type.get_type()) if column.type else ''
+
+    if linepart and columnpart:
+        linepart += ' '
+    return linepart + columnpart
+}}
+
 {{py:line = head['title']}}
 <tr class="{{line.id}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
@@ -254,8 +268,8 @@ def format_stat_title(stat, column, format_value):
 {{for line in foot}}
 <tr class="statistics">
 <td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
-    {{for cell, column in zip(line.content, flatten(columns))}}
-<td {{attr(class_=line.id, title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, False, 'html_cell')|html}}</td>
+    {{for cell, column in zip(line.content, flatten(foot_columns))}}
+<td {{attr(class_=get_stat_col_classes(column, line.id), title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, True, 'html_cell')|html}}</td>
     {{endfor}}
 </tr>
 {{endfor}}

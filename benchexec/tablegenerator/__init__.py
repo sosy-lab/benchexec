@@ -129,7 +129,7 @@ def extract_columns_from_table_definition_file(xmltag):
             for c in xmltag.findall('column')]
 
 
-def _get_decimal_digits(decimal_number_match, column):
+def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     """
     Returns the amount of decimal digits of the given regex match, considering the number of significant
     digits for the provided column.
@@ -140,7 +140,7 @@ def _get_decimal_digits(decimal_number_match, column):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
-    num_of_digits = column.number_of_significant_digits
+    num_of_digits = number_of_significant_digits
 
     if num_of_digits is None:
         num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
@@ -156,6 +156,83 @@ def _get_decimal_digits(decimal_number_match, column):
     return curr_dec_digits
 
 
+def _get_column_type_heur(column, column_values):
+    if "status" in column.title:
+        if column.title == "status":
+            return ColumnType.main_status
+        else:
+            return ColumnType.status
+
+    column_type = None
+    for value in column_values:
+
+        if not value or value == '' or value == '-':
+            continue
+
+        # Heuristic for detecting the column type.
+        # The regex matches any number and provides the following groups:
+        # Group 1: The sign - or + (optional)
+        # Group 2: The value as an integer
+        #   (i.e. all digits in front of the decimal point, if one exists. Otherwise the whole number)
+        # Group 3: The decimal point and all following digits (this part is optional)
+        # Group 4: The number of consecutive 0's following the decimal point directly
+        #   (an optional subset of Group 2)
+        # Group 5: The unit of the value (optional)
+        #
+        # Example: Matching '18.00301 ms' results in:
+        #   Group 1: ''
+        #   Group 2: '18'
+        #   Group 3: '.00301'
+        #   Group 4: '00'
+        #   Group 5: 'ms'
+        # Use these groups to derive the type (see comments for each if-statement below)
+        value_match = REGEX_MEASURE.match(str(value))
+
+        # As soon as one row's value is no number, the column type is 'text'
+        if value_match is None:
+            return ColumnType.text
+
+        # If all rows are integers, column type is 'count'
+        elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() == ColumnType.count):
+            column_unit = value_match.group(GROUP_UNIT)
+
+            if column_type:
+                assert column_type.get_type() == ColumnType.count
+                existing_column_unit = column_type.get_unit()
+
+                # if the units in two different rows of the same column differ, handle the column as 'text' type
+                if column_unit != existing_column_unit:
+                    return ColumnType.text
+
+            else:
+                column_type = Util.ColumnCountType(column_unit)
+
+        # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
+        elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() == ColumnType.text):
+            column_unit = value_match.group(GROUP_UNIT)
+
+            if column_type:
+                existing_column_unit = column_type.get_unit()
+
+                # if the units in two different rows of the same column differ, handle the column as 'text' type
+                if column_unit != existing_column_unit:
+                    return ColumnType.text
+
+            # Compute the number of decimal digits of the current value, considering the number of significant
+            # digits for this column.
+            curr_dec_digits = _get_decimal_digits(value_match, column.number_of_significant_digits)
+            try:
+                max_dec_digits = column_type.max_decimal_digits
+            except AttributeError or TypeError:
+                max_dec_digits = 0
+
+            if curr_dec_digits > max_dec_digits:
+                max_dec_digits = curr_dec_digits
+
+            column_type = Util.ColumnMeasureType(column_unit, max_dec_digits)
+
+    return column_type if column_type else ColumnType.text
+
 def get_column_type(column, result_set):
     """
     Returns the type of the given column based on its row values on the given RunSetResult.
@@ -164,6 +241,8 @@ def get_column_type(column, result_set):
     @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
     """
 
+    # This is actually checked in _get_column_type_heur(..), too.
+    # But we do this here already so we do not have to create the column_values list for status columns unnecessarily.
     if "status" in column.title:
         if column.title == "status":
             return ColumnType.main_status
@@ -171,78 +250,8 @@ def get_column_type(column, result_set):
             return ColumnType.status
 
     # If the column is not a 'status' column, we have to guess the type based on its rows' values.
-    column_type = None
-    for run_result in result_set.results:
-        if column in run_result.columns:
-            column_index = run_result.columns.index(column)
-            column_value = run_result.values[column_index]
-
-            if not column_value or column_value == '-': # skip rows without value
-                continue
-            # Heuristic for detecting the column type.
-            # The regex matches any number and provides the following groups:
-            # Group 1: The sign - or + (optional)
-            # Group 2: The value as an integer
-            #   (i.e. all digits in front of the decimal point, if one exists. Otherwise the whole number)
-            # Group 3: The decimal point and all following digits (this part is optional)
-            # Group 4: The number of consecutive 0's following the decimal point directly
-            #   (an optional subset of Group 2)
-            # Group 5: The unit of the value (optional)
-            #
-            # Example: Matching '18.00301 ms' results in:
-            #   Group 1: ''
-            #   Group 2: '18'
-            #   Group 3: '.00301'
-            #   Group 4: '00'
-            #   Group 5: 'ms'
-            # Use these groups to derive the type (see comments for each if-statement below)
-            value_match = REGEX_MEASURE.match(str(column_value))
-
-            # As soon as one row's value is no number, the column type is 'text'
-            if value_match is None:
-                return ColumnType.text
-
-            # If all rows are integers, column type is 'count'
-            elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() == ColumnType.count):
-                column_unit = value_match.group(GROUP_UNIT)
-
-                if column_type:
-                    assert column_type.get_type() == ColumnType.count
-                    existing_column_unit = column_type.get_unit()
-
-                    # if the units in two different rows of the same column differ, handle the column as 'text' type
-                    if column_unit != existing_column_unit:
-                        return ColumnType.text
-
-                else:
-                    column_type = Util.ColumnCountType(column_unit)
-
-            # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
-            elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() == ColumnType.text):
-                column_unit = value_match.group(GROUP_UNIT)
-
-                if column_type:
-                    existing_column_unit = column_type.get_unit()
-
-                    # if the units in two different rows of the same column differ, handle the column as 'text' type
-                    if column_unit != existing_column_unit:
-                        return ColumnType.text
-
-                # Compute the number of decimal digits of the current value, considering the number of significant
-                # digits for this column.
-                curr_dec_digits = _get_decimal_digits(value_match, column)
-                try:
-                    max_dec_digits = column_type.max_decimal_digits
-                except AttributeError or TypeError:
-                    max_dec_digits = 0
-
-                if curr_dec_digits > max_dec_digits:
-                    max_dec_digits = curr_dec_digits
-
-                column_type = Util.ColumnMeasureType(column_unit, max_dec_digits)
-
-    if column_type is None:
-        column_type = ColumnType.text
+    column_values = [run_result.values[run_result.columns.index(column)] for run_result in result_set.results if column in run_result.columns]
+    column_type = _get_column_type_heur(column, column_values)
 
     return column_type
 
@@ -893,8 +902,10 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats(rows):
-    stats = parallel.map(get_stats_of_run_set, rows_to_columns(rows)) # column-wise
-    rowsForStats = list(map(Util.flatten, zip(*stats))) # row-wise
+    stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+    stats = stats_and_col_types[0][0] # first tuple returned by get_stats_of_run_set
+    stats_columns = stats_and_col_types[0][1] # second tuple returned by get_stats_of_run_set
+    rowsForStats = list(map(Util.flatten, zip(stats)))  # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
     count_true = count_false = max_score = 0
@@ -928,7 +939,7 @@ def get_stats(rows):
             tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
             tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
             tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
-            ] + ([score_row] if max_score else [])
+            ] + ([score_row] if max_score else []), stats_columns
 
 
 def get_stats_of_run_set(runResults):
@@ -1023,7 +1034,17 @@ def get_stats_of_run_set(runResults):
     replace_irrelevant(wrongFalseRow)
     replace_irrelevant(scoreRow)
 
-    return (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
+    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
+
+    stats_columns = []
+    for i, column in enumerate(columns):
+        column_values = [totalRow[i], correctRow[i], correctTrueRow[i], correctFalseRow[i], incorrectRow[i], wrongTrueRow[i], wrongFalseRow[i], scoreRow[i]]
+        column_type = _get_column_type_heur(column, column_values)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href)
+        new_column.type = column_type
+        stats_columns.append(new_column)
+
+    return stats, stats_columns
 
 
 class StatValue(object):
@@ -1225,13 +1246,16 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
         if not options.format == ['csv']:
-            stats = get_stats(rows)
+            stats, stats_columns = get_stats(rows)
             if use_local_summary:
                 summary = get_summary(runSetResults)
                 if summary:
                     stats.insert(1, summary)
+
+            template_values.foot_columns = [stats_columns]
         else:
             stats = None
+            template_values.foot_columns = None
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
