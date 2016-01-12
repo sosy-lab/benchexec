@@ -176,13 +176,6 @@ def format_options(options):
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
 
-def get_format_dummy(format_target):
-    if format_target == "csv":
-        return ''
-    else:
-        return '-'
-
-
 def format_number_align(formattedValue, max_number_of_dec_digits):
     alignment = max_number_of_dec_digits
     if formattedValue.find('.') >= 0:
@@ -195,10 +188,6 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     return formattedValue
 
 
-def is_no_value(value):
-    return not value or value == '' or value == '-'
-
-
 def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
     """
     If the value is a number (or number followed by a unit),
@@ -208,8 +197,8 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
 
     If the value is not a number, it is returned unchanged.
     """
-    if is_no_value(s):
-        return get_format_dummy(format_target)
+    if s is None:
+        return ''
 
     # If the number ends with "s" or another unit, remove it.
     # Units should not occur in table cells, but in the table head.
@@ -265,8 +254,8 @@ def format_value(value, column, isToAlign=False, format_target="html"):
         other values in this column, correctly
     @return: a formatted String representation of the given value.
     """
-    if is_no_value(value):
-        return get_format_dummy(format_target)
+    if value is None:
+        return ''
 
     if column.type.get_type() is ColumnType.measure:
 

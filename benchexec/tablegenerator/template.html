@@ -68,6 +68,8 @@
   .status.error { color:magenta; font-weight: bold; }
   .link { text-align: center; color:DarkSlateBlue; }
   .value { font-family: monospace }
+  .novalue:before { content: "-"; }
+  .novalue { text-align: center !important;  }
   .score { text-align:center; font-size:large; font-weight:bold; }
   .status { text-align: center }
   .status_main { text-align: center }
@@ -231,7 +233,7 @@
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
   {{else}}
-<td class="{{ccsclass}}">{{format_value(value, column, True, 'html_cell')|html}}</td>
+<td class="{{ccsclass}}{{' novalue' if value is None or value == '' else ''}}">{{format_value(value, column, True, 'html_cell')|html}}</td>
   {{endif}}
   {{endfor}}
   {{endfor}}
@@ -249,13 +251,16 @@ def format_stat_title(stat, column, format_value):
     return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}
 {{py:
-def get_stat_col_classes(column, lineid):
-    linepart = str(lineid) if lineid else ''
-    columnpart = str(column.type.get_type()) if column.type else ''
+def get_stat_col_classes(column, cell, lineid):
+    classes = []
+    if lineid:
+      classes.append(str(lineid))
+    if column.type:
+      classes.append(str(column.type.get_type()))
+    if cell is None:
+      classes.append("novalue")
 
-    if linepart and columnpart:
-        linepart += ' '
-    return linepart + columnpart
+    return " ".join(classes)
 }}
 
 {{py:line = head['title']}}
@@ -269,7 +274,7 @@ def get_stat_col_classes(column, lineid):
 <tr class="statistics">
 <td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
     {{for cell, column in zip(line.content, flatten(foot_columns))}}
-<td {{attr(class_=get_stat_col_classes(column, line.id), title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, True, 'html_cell')|html}}</td>
+<td {{attr(class_=get_stat_col_classes(column, cell, line.id), title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, True, 'html_cell')|html}}</td>
     {{endfor}}
 </tr>
 {{endfor}}
