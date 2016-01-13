@@ -344,10 +344,10 @@ class Column(object):
     and href (to create a link to a resource).
     It does NOT contain the value of a column.
     """
-    def __init__(self, title, pattern, numOfDigits, href):
+    def __init__(self, title, pattern, num_of_digits, href):
         self.title = title
         self.pattern = pattern
-        self.number_of_significant_digits = numOfDigits
+        self.number_of_significant_digits = num_of_digits
         self.type = None
         self.href = href
 
