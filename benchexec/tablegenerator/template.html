@@ -50,31 +50,41 @@
       text-align:center;
       background: white;
   }
-  tbody { text-align:right; white-space: nowrap}
-  tfoot { text-align:center}
+  tbody { white-space: nowrap; }
   tr:hover { background-color:yellow}
-  td { border:1px solid black}
-  td:first-child { text-align:left; white-space:nowrap}
+  td { border:1px solid black; }
+  td:first-child { text-align: left; }
   #dataTable tbody td:first-child { font-family: monospace; }
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
                                    font-family: monospace; vertical-align: top; }
   .columnTitles td:first-child { font-family: monospace; font-size: x-small; }
+  .columnTitles, .run { text-align: center; }
   thead tr:last-child td { border-bottom:3px solid black}
   tfoot tr:first-child td { border-top:3px solid black}
-  .status { text-align: center; }
-  .status.correct { color:green}
-  .status.wrong { color:red; font-weight: bold; }
-  .status.unknown { color:orange; font-weight: bold; }
-  .status.error { color:magenta; font-weight: bold; }
+  .status, .main_status { text-align: center; }
+  .status.correct, .main_status.correct { color:green}
+  .status.wrong, .main_status.wrong { color:red; font-weight: bold; }
+  .status.unknown, .main_status.unknown { color:orange; font-weight: bold; }
+  .status.error, .main_status.error { color:magenta; font-weight: bold; }
   .link { text-align: center; color:DarkSlateBlue; }
-  .value { font-family: monospace }
-  .novalue:before { content: "-"; }
-  .novalue { text-align: center !important;  }
+  .text { font-family: monospace; }
+  #dataTable tbody .measure, #dataTable tbody .count {
+      font-size: 85%;
+  }
+  .measure, .count {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      -moz-font-feature-settings: "tnum";
+      -webkit-font-feature-settings: "tnum";
+      font-feature-settings: "tnum";
+  }
+  .measure, .count, .text { padding: 0px 0.25ex; }
+  .novalue:before { content: '\2013'; }
+  .novalue {
+      text-align: center !important;
+      font-size: 100% !important;
+  }
   .score { text-align:center; font-size:large; font-weight:bold; }
-  .status { text-align: center }
-  .status_main { text-align: center }
-  .measure { text-align: right }
-  .count { text-align: right }
   a { color: inherit; text-decoration: none; }
   #dataTable a { display: block; }
   a:hover, .clickable:hover { background: lime; cursor: pointer; }
@@ -218,17 +228,11 @@
   {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
-  {{py:ccsclass = runResult.category + ' value'}}
-  {{if column.href}}
-    {{py:ccsclass = 'link ' + runResult.category}}
-  {{endif}}
-  {{if column.title.endswith('status')}}
-    {{py:ccsclass = 'status ' + runResult.category}}
-  {{endif}}
+  {{py:ccsclass = runResult.category + ' ' + str(column.type.get_type())}}
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}}" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
