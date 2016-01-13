@@ -258,7 +258,7 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
             assert '.' in formatted_value
             formatted_value += "".join(['0'] * digits_to_add)
         elif digits_to_add < 0:
-            assert digits_to_add == -1
+            assert round(float_value) == float_value  # check that the number has no decimal values
             formatted_value = str(round(float_value))
 
         # Cut the 0 in front of the decimal point for values < 1.
