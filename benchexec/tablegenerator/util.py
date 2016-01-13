@@ -36,6 +36,7 @@ import tempita
 from benchexec import model
 
 DEFAULT_TIME_PRECISION = 3
+DEFAULT_STATISTICS_PRECISION = 2
 REGEX_SIGNIFICANT_DIGITS = re.compile('([-\+])?(\d+)\.?(0*(\d+))?([eE]([-\+])(\d+))?')  # compile regular expression only once for later uses
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
@@ -44,6 +45,7 @@ GROUP_SIG_DEC_DIGITS = 4
 GROUP_EXP = 5
 GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
+POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'csv']
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -226,6 +228,9 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
 
     If the value is not a number, it is returned unchanged.
     """
+    if format_target not in POSSIBLE_FORMAT_TARGETS:
+        raise ValueError('Unknown format target')
+
     if s is None:
         return ''
 
@@ -281,6 +286,9 @@ def format_value(value, column, isToAlign=False, format_target="html"):
         other values in this column, correctly
     @return: a formatted String representation of the given value.
     """
+    if format_target not in POSSIBLE_FORMAT_TARGETS:
+        raise ValueError('Unknown format target')
+
     if value is None:
         return ''
 
