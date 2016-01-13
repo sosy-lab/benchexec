@@ -1189,12 +1189,12 @@ def get_summary(runSetResults):
 
                 available = True
                 try:
-                    value = Util.to_decimal(runSetResult.summary[column.title])
+                    value = StatValue(Util.to_decimal(runSetResult.summary[column.title]))
                 except InvalidOperation:
                     value = None
             else:
                 value = None
-            summaryStats.append(StatValue(value))
+            summaryStats.append(value)
 
     if available:
         return tempita.bunch(id=None, title='local summary',
