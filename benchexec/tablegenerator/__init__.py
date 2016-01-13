@@ -74,12 +74,13 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)\d+)?\s?([a-zA-Z]*)')
+REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?\s?([a-zA-Z]*)')
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
 GROUP_DEC_PART = 3
 GROUP_ZEROES = 4
-GROUP_UNIT = 5
+GROUP_SIG_DEC_PART = 5
+GROUP_UNIT = 6
 
 
 def parse_table_definition_file(file, options):
@@ -140,16 +141,26 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
-    num_of_digits = number_of_significant_digits
-
-    if num_of_digits is None:
+    try:
+        num_of_digits = int(number_of_significant_digits)
+    except TypeError:
         num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
 
-    if int(decimal_number_match.group(GROUP_INT_PART)) == 0:
+    # If 1 > value > 0, only look at the decimal digits.
+    # In the second condition, we have to remove the first character from the decimal part group because the
+    # first character always is '.'
+    if int(decimal_number_match.group(GROUP_INT_PART)) == 0\
+            and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0:
+
+        max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
+        num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = number of zeroes after decimal point + significant digits
         curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(num_of_digits)
 
     else:
+        max_num_of_digits =\
+            len(decimal_number_match.group(GROUP_INT_PART)) + len(decimal_number_match.group(GROUP_DEC_PART))
+        num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
         curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(GROUP_INT_PART))
 
@@ -165,11 +176,7 @@ def _get_column_type_heur(column, column_values):
 
     column_type = None
     for value in column_values:
-
-        if value is None or value == '':
-            continue
-
-        # Heuristic for detecting the column type.
+                # Heuristic for detecting the column type.
         # The regex matches any number and provides the following groups:
         # Group 1: The sign - or + (optional)
         # Group 2: The value as an integer
@@ -186,6 +193,14 @@ def _get_column_type_heur(column, column_values):
         #   Group 4: '00'
         #   Group 5: 'ms'
         # Use these groups to derive the type (see comments for each if-statement below)
+        value_match = REGEX_MEASURE.match(str(value))
+
+
+    for value in column_values:
+
+        if value is None or value == '':
+            continue
+
         value_match = REGEX_MEASURE.match(str(value))
 
         # As soon as one row's value is no number, the column type is 'text'
