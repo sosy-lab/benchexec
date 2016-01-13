@@ -47,6 +47,7 @@ GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
 POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip_stochastic', 'csv']
 
+
 def enum(**enums):
     return type('Enum', (), enums)
 
@@ -195,6 +196,7 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     formattedValue += "".join(['&#x2007;'] * alignment)
     return formattedValue
 
+
 def _get_significant_digits(value):
     # Regular expression returns multiple groups:
     #
@@ -244,7 +246,6 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
         float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         formatted_value = str(float_value)
-        import math
 
         # Get the number of intended significant digits and the number of current significant digits.
         # If we have not enough digits due to rounding, 0's have to be re-added.

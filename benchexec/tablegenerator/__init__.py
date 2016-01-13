@@ -248,6 +248,7 @@ def _get_column_type_heur(column, column_values):
 
     return column_type if column_type else ColumnType.text
 
+
 def get_column_type(column, result_set):
     """
     Returns the type of the given column based on its row values on the given RunSetResult.
@@ -479,7 +480,6 @@ class RunSetResult(object):
                         columnNames.add(title)
                         columns.append(Column(title, None, None, None))
             return columns
-
 
     @staticmethod
     def _extract_attributes_from_result(resultFile, resultTag):
