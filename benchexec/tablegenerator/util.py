@@ -55,17 +55,21 @@ def enum(**enums):
 class ColumnEnumType(object):
 
     def __init__(self, type, name):
-        self.type = type
+        self._type = type
         self.name = name
 
-    def get_type(self):
+    @property
+    def type(self):
         return self
 
     def __str__(self):
         return self.name
 
     def __eq__(self, other):
-        return self.type == other.type
+        try:
+            return self._type == other._type
+        except:
+            return False
 
 
 class ColumnType(object):
@@ -83,13 +87,16 @@ class ColumnCountType(object):
     """
 
     def __init__(self, unit):
-        self.unit = unit
+        self._unit = unit
+        self._type = ColumnType.count
 
-    def get_type(self):
-        return ColumnType.count
+    @property
+    def type(self):
+        return self._type
 
-    def get_unit(self):
-        return self.unit
+    @property
+    def unit(self):
+        return self._unit
 
 
 class ColumnMeasureType(object):
@@ -97,14 +104,21 @@ class ColumnMeasureType(object):
     Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
     """
     def __init__(self, unit, max_decimal_digits):
-        self.unit = unit
-        self.max_decimal_digits = max_decimal_digits
+        self._unit = unit
+        self._type = ColumnType.measure
+        self._max_decimal_digits = max_decimal_digits
 
-    def get_type(self):
-        return ColumnType.measure
+    @property
+    def type(self):
+        return self._type
 
-    def get_unit(self):
-        return self.unit
+    @property
+    def unit(self):
+        return self._unit
+
+    @property
+    def max_decimal_digits(self):
+        return self._max_decimal_digits
 
 
 def get_file_list(shortFile):
@@ -300,7 +314,7 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     if number_of_significant_digits is None and format_target is "tooltip_stochastic":
         return str(round(float(remove_unit(str(value).strip())), DEFAULT_TOOLTIP_PRECISION))
 
-    elif column.type.get_type() is ColumnType.measure:
+    elif column.type.type is ColumnType.measure:
         if number_of_significant_digits is None and format_target is not "csv":
             number_of_significant_digits = DEFAULT_TIME_PRECISION
         max_dec_digits = column.type.max_decimal_digits

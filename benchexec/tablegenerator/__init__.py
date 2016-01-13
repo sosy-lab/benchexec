@@ -208,12 +208,12 @@ def _get_column_type_heur(column, column_values):
             return ColumnType.text
 
         # If all rows are integers, column type is 'count'
-        elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.get_type() == ColumnType.count):
+        elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.type == ColumnType.count):
             column_unit = value_match.group(GROUP_UNIT)
 
             if column_type:
-                assert column_type.get_type() == ColumnType.count
-                existing_column_unit = column_type.get_unit()
+                assert column_type.type == ColumnType.count
+                existing_column_unit = column_type.unit
 
                 # if the units in two different rows of the same column differ, handle the column as 'text' type
                 if column_unit != existing_column_unit:
@@ -223,11 +223,11 @@ def _get_column_type_heur(column, column_values):
                 column_type = Util.ColumnCountType(column_unit)
 
         # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
-        elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.get_type() == ColumnType.text):
+        elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.type == ColumnType.text):
             column_unit = value_match.group(GROUP_UNIT)
 
             if column_type:
-                existing_column_unit = column_type.get_unit()
+                existing_column_unit = column_type.unit
 
                 # if the units in two different rows of the same column differ, handle the column as 'text' type
                 if column_unit != existing_column_unit:
@@ -254,7 +254,7 @@ def get_column_type(column, result_set):
     Returns the type of the given column based on its row values on the given RunSetResult.
     @param column: the column to return the correct ColumnType for
     @param result_set: the RunSetResult to consider
-    @return: a type object describing the column - the concrete ColumnType can be returned by using get_type() on it
+    @return: a type object describing the column - the concrete ColumnType is stored in the attribute 'type'
     """
 
     # This is actually checked in _get_column_type_heur(..), too.
@@ -273,7 +273,7 @@ def get_column_type(column, result_set):
 
 
 def is_number_type(column_type):
-    col_type = column_type.get_type()
+    col_type = column_type.type
 
     return col_type == ColumnType.measure or col_type == ColumnType.count
 
@@ -282,8 +282,8 @@ def get_column_output_title(column):
     column_title = column.title
     column_type = column.type
 
-    if is_number_type(column_type) and column_type.get_unit():
-        column_title += " (" + str(column_type.get_unit()) + ")"
+    if is_number_type(column_type) and column_type.unit:
+        column_title += " (" + str(column_type.unit) + ")"
 
     return column_title
 
@@ -984,7 +984,7 @@ def get_stats_of_run_set(runResults):
 
     status_col_index = 0  # index of 'status' column
     for index, (column, values) in enumerate(zip(columns, listsOfValues)):
-        col_type = column.type.get_type()
+        col_type = column.type.type
         if col_type != ColumnType.text:
             if col_type == ColumnType.main_status or col_type == ColumnType.status:
                 if col_type == ColumnType.main_status:

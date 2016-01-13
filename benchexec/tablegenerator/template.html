@@ -229,7 +229,7 @@
   {{endfor}}
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
-  {{py:ccsclass = runResult.category + ' ' + str(column.type.get_type())}}
+  {{py:ccsclass = runResult.category + ' ' + str(column.type.type)}}
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
@@ -267,7 +267,7 @@ def get_stat_col_classes(column, cell, lineid):
     if lineid:
       classes.append(str(lineid))
     if column.type:
-      classes.append(str(column.type.get_type()))
+      classes.append(str(column.type.type))
     if cell is None:
       classes.append("novalue")
 
