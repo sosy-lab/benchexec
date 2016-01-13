@@ -36,7 +36,7 @@ import tempita
 from benchexec import model
 
 DEFAULT_TIME_PRECISION = 3
-DEFAULT_STATISTICS_PRECISION = 2
+DEFAULT_TOOLTIP_PRECISION = 2
 REGEX_SIGNIFICANT_DIGITS = re.compile('([-\+])?(\d+)\.?(0*(\d+))?([eE]([-\+])(\d+))?')  # compile regular expression only once for later uses
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
@@ -45,7 +45,7 @@ GROUP_SIG_DEC_DIGITS = 4
 GROUP_EXP = 5
 GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
-POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'csv']
+POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip', 'csv']
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -292,18 +292,18 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     if value is None:
         return ''
 
-    if column.type.get_type() is ColumnType.measure:
+    number_of_significant_digits = column.number_of_significant_digits
+    max_dec_digits = 0
+    if number_of_significant_digits is None and format_target is "tooltip":
+            number_of_significant_digits = DEFAULT_TOOLTIP_PRECISION
 
-        number_of_significant_digits = column.number_of_significant_digits
+    elif column.type.get_type() is ColumnType.measure:
         if number_of_significant_digits is None and format_target is not "csv":
             number_of_significant_digits = DEFAULT_TIME_PRECISION
         max_dec_digits = column.type.max_decimal_digits
 
-        if number_of_significant_digits is not None:
-            return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign, format_target)
-        else:
-            return value
-
+    if number_of_significant_digits is not None:
+        return format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign, format_target)
     else:
         return value
 
