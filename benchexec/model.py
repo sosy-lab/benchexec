@@ -659,7 +659,7 @@ class Run(object):
 
         # read output
         try:
-            with open(self.log_file, 'rt') as outputFile:
+            with open(self.log_file, 'rt', errors='ignore') as outputFile:
                 output = outputFile.readlines()
                 # first 6 lines are for logging, rest is output of subprocess, see runexecutor.py for details
                 output = output[6:]
