@@ -263,7 +263,7 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
 
         # Cut the 0 in front of the decimal point for values < 1.
         # Example: 0.002 => .002
-        if format_target == "html_cell" and 1 > float(formatted_value) >= 0:
+        if format_target == "html_cell" and '.' in formatted_value and 1 > float(formatted_value) >= 0:
             assert formatted_value[0] == '0'
             formatted_value = formatted_value[1:]
 
