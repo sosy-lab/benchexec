@@ -252,7 +252,13 @@ def format_stat_title(stat, column, format_value):
     '''Helper function to create the tooltip of a status cell containing average etc.'''
     if not stat or not stat.avg:
         return None
-    values = {k: format_value(v, column, False, 'tooltip') for k, v in stat.__dict__.items()}
+    values = dict()
+    for k, v in stat.__dict__.items():
+        if k in ['avg', 'stdev']:
+            formatted_value = format_value(v, column, False, 'tooltip_stochastic')
+        else:
+            formatted_value = format_value(v, column)
+        values[k] = formatted_value
     return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}
 {{py:

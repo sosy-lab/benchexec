@@ -45,7 +45,7 @@ GROUP_SIG_DEC_DIGITS = 4
 GROUP_EXP = 5
 GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
-POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip', 'csv']
+POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip_stochastic', 'csv']
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -294,7 +294,7 @@ def format_value(value, column, isToAlign=False, format_target="html"):
 
     number_of_significant_digits = column.number_of_significant_digits
     max_dec_digits = 0
-    if number_of_significant_digits is None and format_target is "tooltip":
+    if number_of_significant_digits is None and format_target is "tooltip_stochastic":
             number_of_significant_digits = DEFAULT_TOOLTIP_PRECISION
 
     elif column.type.get_type() is ColumnType.measure:
