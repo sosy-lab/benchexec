@@ -733,7 +733,9 @@ function createStatsView(statistics, currentIndex) {
             var cell = $('<td>').appendTo(rowHTML);
             var index = runSet.indexToColumn[j];
             originalCell = $(statisticsRow.cells[index + headerColumnsOffset]);
-            cell.text(originalCell.text()).attr('title', originalCell.attr('title'));
+            cell.text(originalCell.text())
+                .attr('title', originalCell.attr('title'))
+                .attr('class', originalCell.attr('class'));
         }
     }
     $('<div>').attr('id', 'tableViewTableWrapper')
