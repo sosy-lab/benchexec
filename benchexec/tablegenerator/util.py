@@ -36,8 +36,14 @@ import tempita
 from benchexec import model
 
 DEFAULT_TIME_PRECISION = 3
-REGEX_SIGNIFICANT_DIGITS = re.compile('(\d+)\.?(0*(\d+))?')  # compile regular expression only once for later uses
-
+REGEX_SIGNIFICANT_DIGITS = re.compile('([-\+])?(\d+)\.?(0*(\d+))?([eE]([-\+])(\d+))?')  # compile regular expression only once for later uses
+GROUP_SIGN = 1
+GROUP_INT_PART = 2
+GROUP_DEC_PART = 3
+GROUP_SIG_DEC_DIGITS = 4
+GROUP_EXP = 5
+GROUP_EXP_SIGN = 6
+GROUP_EXP_VAL = 7
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -187,6 +193,29 @@ def format_number_align(formattedValue, max_number_of_dec_digits):
     formattedValue += "".join(['&#x2007;'] * alignment)
     return formattedValue
 
+def _get_significant_digits(value):
+    # Regular expression returns multiple groups:
+    #
+    # Group GROUP_SIGN: Optional sign of value
+    # Group GROUP_INT_PART: Digits in front of decimal point
+    # Group GROUP_DEC_PART: Optional digits after decimal point
+    # Group GROUP_SIG_DEC_DIGITS: Digits after decimal point, starting at the first value not 0
+    # Group GROUP_EXP: Optional exponent part (e.g. 'e-5')
+    # Group GROUP_EXP_SIGN: Optional sign of exponent part
+    # Group GROUP_EXP_VALUE: Value of exponent part (e.g. '5' for 'e-5')
+    # Use these groups to compute the number of zeros that have to be added to the current number's
+    # decimal positions.
+    match = REGEX_SIGNIFICANT_DIGITS.match(value)
+
+    if int(match.group(GROUP_INT_PART)) == 0 and float(value) != 0:
+        sig_digits = len(match.group(GROUP_SIG_DEC_DIGITS))
+
+    else:
+        sig_digits = len(match.group(GROUP_INT_PART))
+        if match.group(GROUP_DEC_PART):
+            sig_digits += len(match.group(GROUP_DEC_PART))
+
+    return sig_digits
 
 def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
     """
@@ -203,10 +232,6 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
     # If the number ends with "s" or another unit, remove it.
     # Units should not occur in table cells, but in the table head.
     value = remove_unit((str(s)).strip())
-    try:
-        value = str(float(value))
-    except ValueError:
-        pass
 
     try:
         # Round to the given amount of significant digits
@@ -214,41 +239,26 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
         float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
         formatted_value = str(float_value)
         import math
-        if float_value >= math.pow(10, number_of_significant_digits - 1):
-            # There are no correct significant digits after the decimal point, thus remove the zeros after the point.
+
+        # Get the number of intended significant digits and the number of current significant digits.
+        # If we have not enough digits due to rounding, 0's have to be re-added.
+        # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
+        initial_value_sig_digits = _get_significant_digits(value)
+        current_sig_digits = _get_significant_digits(formatted_value)
+
+        intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
+        digits_to_add = intended_digits - current_sig_digits
+
+        if digits_to_add > 0:
+            assert '.' in formatted_value
+            formatted_value += "".join(['0'] * digits_to_add)
+        elif digits_to_add < 0:
+            assert digits_to_add == -1
             formatted_value = str(round(float_value))
-
-        else:
-            # If the value was rounded and zeros at the end were cut,
-            # we need to fill the missing zeros at the end because they are significant!
-            # Regular expression returns three groups:
-            # Group 1: Digits in front of decimal point
-            # Group 2: Digits after decimal point
-            # Group 3: Digits after decimal point starting at the first value not 0
-            # Use these groups to compute the number of zeroes that have to be added to the current number's
-            # decimal positions.
-            formatted_match = REGEX_SIGNIFICANT_DIGITS.match(formatted_value)
-            initial_match = REGEX_SIGNIFICANT_DIGITS.match(value)
-
-            if int(formatted_match.group(1)) == 0:
-                current_sig_digits = len(formatted_match.group(3))
-                if float(value) == 0:
-                    initial_value_sig_digits = len(initial_match.group(2)) + len(initial_match.group(3))
-                else:
-                    initial_value_sig_digits = len(initial_match.group(3))
-
-            else:
-                current_sig_digits = len(formatted_match.group(1)) + len(formatted_match.group(2))
-                initial_value_sig_digits = len(initial_match.group(1)) + len(initial_match.group(2))
-
-            intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-
-            zerosToAdd = intended_digits - current_sig_digits
-            formatted_value += "".join(['0'] * zerosToAdd)
 
         # Cut the 0 in front of the decimal point for values < 1.
         # Example: 0.002 => .002
-        if format_target == "html_cell" and float(formatted_value) < 1 and float(formatted_value) != 0:
+        if format_target == "html_cell" and 1 > float(formatted_value) >= 0:
             assert formatted_value[0] == '0'
             formatted_value = formatted_value[1:]
 
