@@ -219,6 +219,7 @@ def _get_significant_digits(value):
 
     return sig_digits
 
+
 def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
     """
     If the value is a number (or number followed by a unit),
@@ -295,7 +296,7 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     number_of_significant_digits = column.number_of_significant_digits
     max_dec_digits = 0
     if number_of_significant_digits is None and format_target is "tooltip_stochastic":
-            number_of_significant_digits = DEFAULT_TOOLTIP_PRECISION
+        return str(round(float(remove_unit(str(value).strip())), DEFAULT_TOOLTIP_PRECISION))
 
     elif column.type.get_type() is ColumnType.measure:
         if number_of_significant_digits is None and format_target is not "csv":
