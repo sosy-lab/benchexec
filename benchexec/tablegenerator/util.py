@@ -274,6 +274,7 @@ def format_value(value, column, isToAlign=False, format_target="html"):
         This given Column is used to derive information about proper formatting.
     @param isToAlign: if True, spaces will be added to the returned String representation to align it to all
         other values in this column, correctly
+    @param format_target the target the value should be formatted for
     @return: a formatted String representation of the given value.
     """
     if format_target not in POSSIBLE_FORMAT_TARGETS:
