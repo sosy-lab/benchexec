@@ -62,7 +62,6 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
 
     if sourcefile:
         keyValueList.append(('${inputfile_name}', os.path.basename(sourcefile)))
-        keyValueList.append(('${inputfile_rel}', os.path.relpath(sourcefile, os.curdir)))
         keyValueList.append(('${inputfile_path}', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('${inputfile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
         # The following are deprecated: do not use anymore.
