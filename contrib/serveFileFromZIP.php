@@ -26,7 +26,7 @@ $path = preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']);
 # Example: /2016/results/results-verified/xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
 
 # Use SCRIPT_FILENAME to get absolute path to this script.
-$pathPrefix = preg_replace("/fileservice\.php/", "", $_SERVER['SCRIPT_FILENAME']);
+$pathPrefix = preg_replace("/serveFileFromZIP\.php/", "", $_SERVER['SCRIPT_FILENAME']);
 # Example: /srv/web/Org/SV-COMP/2016/results/results-verified/
 
 # Make pathPrefix relative to document root.
