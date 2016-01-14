@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.6//EN" "http://www.sosy-lab.org/benchexec/table-1.6.dtd">
+<table>
+  <result filename="*.results.*Simple.xml"/>
+
+  <column title="status"/>
+  <column title="cputime"/>
+  <column title="walltime"/>
+  <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+</table>
