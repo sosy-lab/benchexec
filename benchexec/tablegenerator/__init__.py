@@ -46,6 +46,7 @@ from benchexec.tablegenerator import util as Util
 # processes, not threads.
 # Initialized only in main() because we cannot do so in the worker processes.
 from benchexec.tablegenerator.util import ColumnType
+from benchexec.tablegenerator.util import Column
 
 parallel = None
 
@@ -328,25 +329,6 @@ def get_task_id(task):
                ]
     return tuple(task_id)
 
-
-class Column(object):
-    """
-    The class Column contains title, pattern (to identify a line in log_file),
-    number_of_significant_digits of a column, the type of the column's values,
-    their unit, a scale factor to apply to all values of the column (mostly to fit the unit)
-    and href (to create a link to a resource).
-    It does NOT contain the value of a column.
-    """
-    def __init__(self, title, pattern, num_of_digits, href, col_type=None, unit=None, scale_factor=1):
-        self.title = title
-        self.pattern = pattern
-        self.number_of_significant_digits = num_of_digits
-        self.type = col_type
-        self.unit = unit
-        self.scale_factor = float(scale_factor) if scale_factor else 1
-        if int(self.scale_factor) == self.scale_factor:
-            self.scale_factor = int(self.scale_factor)
-        self.href = href
 
 loaded_tools = {}
 
