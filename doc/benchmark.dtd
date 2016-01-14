@@ -35,4 +35,6 @@
 
 <!ATTLIST option name CDATA #REQUIRED>
 <!ATTLIST column title CDATA #IMPLIED
-                 numberOfDigits CDATA #IMPLIED>
+                 numberOfDigits CDATA #IMPLIED
+                 displayUnit CDATA #IMPLIED
+                 scaleFactor CDATA #IMPLIED>

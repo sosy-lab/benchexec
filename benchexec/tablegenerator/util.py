@@ -81,40 +81,17 @@ class ColumnType(object):
     main_status = ColumnEnumType(column_types.main_status, 'main_status')
 
 
-class ColumnCountType(object):
-    """
-    Column type 'Count', contains the column's unit.
-    """
-
-    def __init__(self, unit):
-        self._unit = unit
-        self._type = ColumnType.count
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def unit(self):
-        return self._unit
-
-
 class ColumnMeasureType(object):
     """
     Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
     """
-    def __init__(self, unit, max_decimal_digits):
-        self._unit = unit
+    def __init__(self, max_decimal_digits):
         self._type = ColumnType.measure
         self._max_decimal_digits = max_decimal_digits
 
     @property
     def type(self):
         return self._type
-
-    @property
-    def unit(self):
-        return self._unit
 
     @property
     def max_decimal_digits(self):
@@ -237,7 +214,7 @@ def _get_significant_digits(value):
     return sig_digits
 
 
-def format_number(s, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
+def format_number(value, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
@@ -249,12 +226,8 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
     if format_target not in POSSIBLE_FORMAT_TARGETS:
         raise ValueError('Unknown format target')
 
-    if s is None:
+    if value is None:
         return ''
-
-    # If the number ends with "s" or another unit, remove it.
-    # Units should not occur in table cells, but in the table head.
-    value = remove_unit((str(s)).strip())
 
     try:
         # Round to the given amount of significant digits
@@ -289,7 +262,7 @@ def format_number(s, number_of_significant_digits, max_digits_after_decimal, isT
             formatted_value = format_number_align(formatted_value, max_digits_after_decimal)
         return formatted_value
     except ValueError:  # If value is no float, don't format it.
-        return s
+        return value
 
 
 def format_value(value, column, isToAlign=False, format_target="html"):
@@ -309,12 +282,26 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     if value is None:
         return ''
 
+    # If the number ends with "s" or another unit, remove it.
+    # Units should not occur in table cells, but in the table head.
+    value = remove_unit(str(value).strip())
+
+    # Apply the scale factor to the value
+    try:
+        if column.scale_factor != 1:
+            value = float(value) * column.scale_factor
+            if int(value) == value:
+                value = int(value)
+            value = str(value)
+    except ValueError:
+        pass
+
     number_of_significant_digits = column.number_of_significant_digits
     max_dec_digits = 0
     if number_of_significant_digits is None and format_target is "tooltip_stochastic":
-        return str(round(float(remove_unit(str(value).strip())), DEFAULT_TOOLTIP_PRECISION))
+        return str(round(float(value), DEFAULT_TOOLTIP_PRECISION))
 
-    elif column.type.type is ColumnType.measure:
+    elif column.type.type == ColumnType.measure:
         if number_of_significant_digits is None and format_target is not "csv":
             number_of_significant_digits = DEFAULT_TIME_PRECISION
         max_dec_digits = column.type.max_decimal_digits

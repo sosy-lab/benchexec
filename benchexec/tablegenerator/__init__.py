@@ -126,7 +126,7 @@ def extract_columns_from_table_definition_file(xmltag):
     """
     Extract all columns mentioned in the result tag of a table definition file.
     """
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("href"))
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("href"), None, c.get("displayUnit"), c.get("scaleFactor"))
             for c in xmltag.findall('column')]
 
 
@@ -170,32 +170,15 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
 def _get_column_type_heur(column, column_values):
     if "status" in column.title:
         if column.title == "status":
-            return ColumnType.main_status
+            return ColumnType.main_status, None
         else:
-            return ColumnType.status
+            return ColumnType.status, None
 
     column_type = None
-    for value in column_values:
-                # Heuristic for detecting the column type.
-        # The regex matches any number and provides the following groups:
-        # Group 1: The sign - or + (optional)
-        # Group 2: The value as an integer
-        #   (i.e. all digits in front of the decimal point, if one exists. Otherwise the whole number)
-        # Group 3: The decimal point and all following digits (this part is optional)
-        # Group 4: The number of consecutive 0's following the decimal point directly
-        #   (an optional subset of Group 2)
-        # Group 5: The unit of the value (optional)
-        #
-        # Example: Matching '18.00301 ms' results in:
-        #   Group 1: ''
-        #   Group 2: '18'
-        #   Group 3: '.00301'
-        #   Group 4: '00'
-        #   Group 5: 'ms'
-        # Use these groups to derive the type (see comments for each if-statement below)
-        value_match = REGEX_MEASURE.match(str(value))
+    column_unit = column.unit
 
-
+    if int(column.scale_factor) != column.scale_factor:
+        column_type = ColumnType.measure
     for value in column_values:
 
         if value is None or value == '':
@@ -205,37 +188,38 @@ def _get_column_type_heur(column, column_values):
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
-            return ColumnType.text
+            return ColumnType.text, None
 
-        # If all rows are integers, column type is 'count'
+            # If all rows are integers, column type is 'count'
         elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.type == ColumnType.count):
-            column_unit = value_match.group(GROUP_UNIT)
+            curr_column_unit = value_match.group(GROUP_UNIT)
 
-            if column_type:
-                assert column_type.type == ColumnType.count
-                existing_column_unit = column_type.unit
-
-                # if the units in two different rows of the same column differ, handle the column as 'text' type
-                if column_unit != existing_column_unit:
-                    return ColumnType.text
-
+            # if the units in two different rows of the same column differ, handle the column as 'text' type
+            if column_unit and curr_column_unit and curr_column_unit != column_unit:
+                raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
             else:
-                column_type = Util.ColumnCountType(column_unit)
+                column_type = ColumnType.count
+                column_unit = curr_column_unit
 
         # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
-        elif value_match.group(GROUP_DEC_PART) and not (column_type and column_type.type == ColumnType.text):
-            column_unit = value_match.group(GROUP_UNIT)
+        elif not (column_type and column_type.type == ColumnType.text):
+            curr_column_unit = value_match.group(GROUP_UNIT)
 
-            if column_type:
-                existing_column_unit = column_type.unit
-
-                # if the units in two different rows of the same column differ, handle the column as 'text' type
-                if column_unit != existing_column_unit:
-                    return ColumnType.text
+            # if the units in two different rows of the same column differ, handle the column as 'text' type
+            if curr_column_unit:
+                if column_unit and curr_column_unit != column_unit:
+                    raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                else:
+                    column_unit = curr_column_unit
 
             # Compute the number of decimal digits of the current value, considering the number of significant
             # digits for this column.
-            curr_dec_digits = _get_decimal_digits(value_match, column.number_of_significant_digits)
+            # Use the column's scale factor for computing the decimal digits of the current value.
+            # Otherwise, they might be different from output.
+            scaled_value = float(Util.remove_unit(str(value))) * column.scale_factor
+            scaled_value_match = REGEX_MEASURE.match(str(scaled_value))
+
+            curr_dec_digits = _get_decimal_digits(scaled_value_match, column.number_of_significant_digits)
             try:
                 max_dec_digits = column_type.max_decimal_digits
             except AttributeError or TypeError:
@@ -244,9 +228,12 @@ def _get_column_type_heur(column, column_values):
             if curr_dec_digits > max_dec_digits:
                 max_dec_digits = curr_dec_digits
 
-            column_type = Util.ColumnMeasureType(column_unit, max_dec_digits)
+            column_type = Util.ColumnMeasureType(max_dec_digits)
 
-    return column_type if column_type else ColumnType.text
+    if column_type:
+        return column_type, column_unit
+    else:
+        return ColumnType.text, None
 
 
 def get_column_type(column, result_set):
@@ -254,22 +241,21 @@ def get_column_type(column, result_set):
     Returns the type of the given column based on its row values on the given RunSetResult.
     @param column: the column to return the correct ColumnType for
     @param result_set: the RunSetResult to consider
-    @return: a type object describing the column - the concrete ColumnType is stored in the attribute 'type'
+    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type'
+        - and the unit of the column, which may be None.
     """
 
     # This is actually checked in _get_column_type_heur(..), too.
     # But we do this here already so we do not have to create the column_values list for status columns unnecessarily.
     if "status" in column.title:
         if column.title == "status":
-            return ColumnType.main_status
+            return ColumnType.main_status, None
         else:
-            return ColumnType.status
+            return ColumnType.status, None
 
     # If the column is not a 'status' column, we have to guess the type based on its rows' values.
     column_values = [run_result.values[run_result.columns.index(column)] for run_result in result_set.results if column in run_result.columns]
-    column_type = _get_column_type_heur(column, column_values)
-
-    return column_type
+    return _get_column_type_heur(column, column_values)
 
 
 def is_number_type(column_type):
@@ -282,8 +268,8 @@ def get_column_output_title(column):
     column_title = column.title
     column_type = column.type
 
-    if is_number_type(column_type) and column_type.unit:
-        column_title += " (" + str(column_type.unit) + ")"
+    if is_number_type(column_type) and column.unit:
+        column_title += " (" + str(column.unit) + ")"
 
     return column_title
 
@@ -341,14 +327,19 @@ class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
     number_of_significant_digits of a column, the type of the column's values,
+    their unit, a scale factor to apply to all values of the column (mostly to fit the unit)
     and href (to create a link to a resource).
     It does NOT contain the value of a column.
     """
-    def __init__(self, title, pattern, num_of_digits, href):
+    def __init__(self, title, pattern, num_of_digits, href, col_type=None, unit=None, scale_factor=1):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = num_of_digits
-        self.type = None
+        self.type = col_type
+        self.unit = unit
+        self.scale_factor = float(scale_factor) if scale_factor else 1
+        if int(self.scale_factor) == self.scale_factor:
+            self.scale_factor = int(self.scale_factor)
         self.href = href
 
 loaded_tools = {}
@@ -438,7 +429,7 @@ class RunSetResult(object):
                                                           correct_only))
 
         for column in self.columns:
-            column.type = get_column_type(column, self)
+            column.type, column.unit = get_column_type(column, self)
 
 
         del self._xml_results
@@ -1054,9 +1045,8 @@ def get_stats_of_run_set(runResults):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [totalRow[i], correctRow[i], correctTrueRow[i], correctFalseRow[i], incorrectRow[i], wrongTrueRow[i], wrongFalseRow[i], scoreRow[i]]
-        column_type = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href)
-        new_column.type = column_type
+        column_type, column_unit = _get_column_type_heur(column, column_values)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor)
         stats_columns.append(new_column)
 
     return stats, stats_columns
