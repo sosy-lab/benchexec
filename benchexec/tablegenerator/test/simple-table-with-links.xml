@@ -1,0 +1,7 @@
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="cputime"/>
+  <column title="witness" href="benchmark.logfiles/${inputfile_name}.files/error-witness.graphml">wit</column>
+</table>
