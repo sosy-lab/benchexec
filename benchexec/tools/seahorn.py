@@ -57,11 +57,24 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+import os
+
 class Tool(benchexec.tools.template.BaseTool):
 
 
+    REQUIRED_PATHS = [
+                  "bin",
+                  "include",
+                  "lib",
+                  "share"
+                  ]
+
     def executable(self):
-        return util.find_executable('sea_svcomp')
+        return util.find_executable('sea_svcomp', os.path.join("bin", 'sea_svcomp'))
+
+    def program_files(self, executable):
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
     def name(self):
         return 'SeaHorn-F16'
@@ -69,7 +82,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1
         assert propertyfile is not None
-        spec = ['--spec', propertyfile]
+        spec = ['--spec=' + propertyfile]
         return [executable] + options + spec + tasks
 
     def version(self, executable):
@@ -80,7 +93,10 @@ class Tool(benchexec.tools.template.BaseTool):
         if "BRUNCH_STAT Result TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif "BRUNCH_STAT Result FALSE" in output:
-            status = result.RESULT_FALSE_REACH
+            if "Termination" in output:
+               status = result.RESULT_FALSE_TERMINATION
+            else:
+               status = result.RESULT_FALSE_REACH
         elif returnsignal == 9 or returnsignal == (128+9):
             if isTimeout:
                 status = "TIMEOUT"
