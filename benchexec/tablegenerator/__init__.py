@@ -111,7 +111,7 @@ def parse_table_definition_file(file, options):
         logging.error("Table file %s is invalid: It's root element is not named 'table'.", file)
         exit(1)
 
-    defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile)
+    defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
 
     return Util.flatten(
         parallel.map(
@@ -122,11 +122,17 @@ def parse_table_definition_file(file, options):
             itertools.repeat(options)))
 
 
-def extract_columns_from_table_definition_file(xmltag):
+def extract_columns_from_table_definition_file(xmltag, table_definition_file):
     """
     Extract all columns mentioned in the result tag of a table definition file.
     """
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), c.get("href"))
+    def handle_path(path):
+        """Convert path from a path relative to table-definition file."""
+        if not path or path.startswith("http://") or path.startswith("https://"):
+            return path
+        return os.path.join(os.path.dirname(table_definition_file), path)
+
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), handle_path(c.get("href")))
             for c in xmltag.findall('column')]
 
 
@@ -296,13 +302,13 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
 
     results = [] # default value for results
     if tag.tag == 'result':
-        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
         run_set_id = tag.get('id')
         for resultsFile in get_file_list(tag):
             results.append(load_result(resultsFile, options, run_set_id, columnsToShow))
 
     elif tag.tag == 'union':
-        columnsToShow = extract_columns_from_table_definition_file(tag) or defaultColumnsToShow
+        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
         result = RunSetResult([], collections.defaultdict(list), columnsToShow)
 
         for resultTag in tag.findall('result'):

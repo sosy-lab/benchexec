@@ -170,6 +170,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             'simple-table-with-columns.table',
             )
 
+    def test_simple_table_xml_with_links(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-links.xml')],
+            'simple-table-with-links.table',
+            )
+
     def test_simple_table_xml_with_numberOfDigits(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table-with-numberOfDigits.xml')],
