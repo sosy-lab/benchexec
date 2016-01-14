@@ -183,6 +183,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             'simple-table-with-numberOfDigits.table',
             )
 
+    def test_simple_table_xml_with_scaling(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-scaling.xml')],
+            'simple-table-with-scaling.table',
+        )
+
     def test_multi_table(self):
         self.generate_tables_and_compare_content(
             ['--name', 'predicateAnalysis',

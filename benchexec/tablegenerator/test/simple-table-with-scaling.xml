@@ -1,0 +1,8 @@
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="cputime" numberOfDigits="3"/>
+  <column title="walltime" numberOfDigits="2"/>
+  <column title="memUsage" numberOfDigits="5" displayUnit="MB" scaleFactor="0.000001"/>
+</table>
