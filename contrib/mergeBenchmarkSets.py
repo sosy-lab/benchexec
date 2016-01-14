@@ -110,7 +110,7 @@ def main(argv=None):
                                 'hidden': categoryVer.get('hidden','false')
                                                }))
 
-            statusWit, categoryWit = ('', '')
+            statusWit, categoryWit = (None, None)
             i = 0
             for witnessSet in witnessSets:
                 i = i + 1
@@ -125,8 +125,9 @@ def main(argv=None):
                              })
                         result.append(newColumn)
                     witnessSet.pop(run)
-                    if not statusWit.startswith('false('):
-                        statusWit, categoryWit = getWitnessResult(witness)
+                    statusWitNew, categoryWitNew = getWitnessResult(witness)
+                    if statusWitNew.startswith('false(') or statusWit is None:
+                        statusWit, categoryWit = (statusWitNew, categoryWitNew)
             # Overwrite status with status from witness
             if isOverwrite:
                 result.findall('column[@title="status"]')[0].set('value', statusWit)
