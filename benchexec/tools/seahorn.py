@@ -1,3 +1,5 @@
+# coding: utf-8
+
 """
 SeaHorn Verification Framework
 Copyright (c) 2015 Carnegie Mellon University.
@@ -93,7 +95,10 @@ class Tool(benchexec.tools.template.BaseTool):
         if "BRUNCH_STAT Result TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif "BRUNCH_STAT Result FALSE" in output:
-            status = result.RESULT_FALSE_REACH
+            if "BRUNCH_STAT Termination" in output:
+                status = result.RESULT_FALSE_TERMINATION
+            else:
+                status = result.RESULT_FALSE_REACH
         elif returnsignal == 9 or returnsignal == (128+9):
             if isTimeout:
                 status = "TIMEOUT"
