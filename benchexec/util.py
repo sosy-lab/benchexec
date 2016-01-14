@@ -337,9 +337,9 @@ def shrink_text_file(filename, max_size, removal_marker=None):
 
     # Trick taken from StackOverflow:
     # https://stackoverflow.com/questions/2329417/fastest-way-to-delete-a-line-from-large-file-in-python
-    # We open the file twice at the same time, once for reading and once for writing.
-    # We position the one file object at the beginning of B
-    # and the other at the beginning of C.
+    # We open the file twice at the same time, once for reading (input_file) and once for writing (output_file).
+    # We position output_file at the beginning of part B
+    # and input_file at the beginning of part C.
     # Then we copy the content of C into B, overwriting what is there.
     # Afterwards we truncate the file after A+C.
 
