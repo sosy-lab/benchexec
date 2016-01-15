@@ -23,7 +23,8 @@ class Tool(benchexec.tools.template.BaseTool):
                   "opt-3.7",
                   "skink.sh",
                   "skink-v1.0.jar",
-                  "test.sh"
+                  "test.sh",
+                  "z3"
                   ]
 
     def executable(self):
