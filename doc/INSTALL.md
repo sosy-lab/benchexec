@@ -103,8 +103,8 @@ To do so, you typically need to edit your bootloader configuration
 update the bootloader (`sudo update-grub`), and reboot.
 
 In some debian kernels (and those derived from them, e.g. Raspberry Pi kernel),
-some memory cgroup controller should be disabled by default, and can be enabled
-with `cgroup_enable=memory` option on the kernel command line, similar to
+memory cgroup controller should be disabled by default, and can be enabled with
+`cgroup_enable=memory` option on the kernel command line, similar to
 `swapaccount=1` above.
 
 All the above requirements can be checked easily by running
