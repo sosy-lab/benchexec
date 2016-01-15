@@ -185,7 +185,7 @@ def _get_column_type_heur(column, column_values):
     column_unit = column.unit
 
     if int(column.scale_factor) != column.scale_factor:
-        column_type = ColumnType.measure
+        column_type = Util.ColumnMeasureType(0)
     for value in column_values:
 
         if value is None or value == '':
