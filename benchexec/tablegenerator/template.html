@@ -1571,7 +1571,7 @@ function createScatterPlotView() {
 
 // this function adds the listeners to the table
 $(document).ready(function() {
-  $(columnTitleCells)
+  $(columnTitleCells).add($('tfoot > .columnTitles').children().slice(headerColumnsOffset))
       .addClass("clickable")
       .attr("title", "Click here to show a graph of this column")
       .click(createQuantilePlotView);
