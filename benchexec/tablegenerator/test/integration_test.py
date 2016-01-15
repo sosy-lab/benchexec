@@ -39,8 +39,10 @@ tablegenerator = os.path.join(bin_dir, 'table-generator')
 # Use this to update expected files if necessary. Do not commit this flag set to True!
 OVERWRITE_MODE = False
 
+
 def result_file(name):
     return os.path.join(here, 'results', name)
+
 
 class TableGeneratorIntegrationTests(unittest.TestCase):
 
