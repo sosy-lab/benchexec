@@ -141,43 +141,37 @@ The following steps are necessary:
    This setting needs a reboot to take effect,
    and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
 
- * Put the following into a file `/usr/local/sbin/benchexec-cgroup.sh`.
-   By default, this gives permissions to use the BenchExec cgroup
-   to users of the group `benchexec`, please adjust this as necessary.
-   Do not forget to make the file executable.
-```
-#!/bin/bash
-# Fill in set of allowed CPUs and memory regions (default is empty).
-cp /sys/fs/cgroup/cpuset/cpuset.cpus /sys/fs/cgroup/cpuset/system.slice/
-cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/
-cp /sys/fs/cgroup/cpuset/cpuset.cpus /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
-cp /sys/fs/cgroup/cpuset/cpuset.mems /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/
-
-echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
-
-# Adjust permissions of cgroup (change as appropriate for you).
-chgrp -vR benchexec /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
-chmod -vR g+w /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/
-
-# Sleep for 10 years.
-exec sleep $(( 10 * 365 * 24 * 3600 ))
-```
-
  * Put the following into a file `/etc/systemd/system/benchexec-cgroup.service`
-   and enable the service with `systemctl daemon-reload; systemctl enable benchexec-cgroup; systemctl start benchexec-cgroup`:
+   and enable the service with `systemctl enable benchexec-cgroup; systemctl start benchexec-cgroup`.
+
+   By default, this gives permissions to use the BenchExec cgroup to users of
+   the group `benchexec`, please adjust this as necessary or create this group
+   by running `groupadd benchexec` command beforehand.
+
+
 ```
 [Unit]
-Description=Cgroup for BenchExec
+Description=Cgroup setup for BenchExec
 Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
 Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
 
 [Service]
-Type=simple
-ExecStart=/usr/local/sbin/benchexec-cgroup.sh
 Restart=always
 Delegate=true
 CPUAccounting=true
 MemoryAccounting=true
+
+ExecStart=/bin/bash -c '\
+set -e;\
+cd /sys/fs/cgroup/cpuset/;\
+cp cpuset.cpus system.slice/;\
+cp cpuset.mems system.slice/;\
+cp cpuset.cpus system.slice/benchexec-cgroup.service/;\
+cp cpuset.mems system.slice/benchexec-cgroup.service/;\
+echo $$$$ > system.slice/benchexec-cgroup.service/tasks;\
+chgrp -R benchexec /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
+chmod -R g+w /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
+exec sleep $(( 10 * 365 * 24 * 3600 ))'
 
 [Install]
 WantedBy=multi-user.target
