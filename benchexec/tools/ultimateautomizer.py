@@ -26,6 +26,7 @@ class Tool(ultimate.UltimateTool):
                   "artifacts.xml",
                   "AutomizerTermination.xml",
                   "Automizer.xml",
+                  "AutomizerWitnessValidation.xml",
                   "configuration",
                   "features",
                   "Kojak.xml",
