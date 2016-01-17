@@ -99,16 +99,6 @@ def main(argv=None):
 
             statusVer   = result.findall('column[@title="status"]')[0]
             categoryVer = result.findall('column[@title="category"]')[0]
-            result.append(ET.Element('column', {
-                                'title':  'void-status',
-                                'value':  statusVer.get('value'),
-                                'hidden': statusVer.get('hidden','false')
-                                               }))
-            result.append(ET.Element('column', {
-                                'title':  'void-category',
-                                'value':  categoryVer.get('value'),
-                                'hidden': categoryVer.get('hidden','false')
-                                               }))
 
             statusWit, categoryWit = (None, None)
             i = 0
