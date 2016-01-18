@@ -44,3 +44,34 @@ To use such files pass them with the parameter `-x` to `table-generator`
 (no result files can be given as these are referenced within the table-definition file):
 
     table-generator -x doc/table-generator-example.xml
+
+
+### Regression Checking
+
+When given multiple result files, `table-generator` can automatically compute regression counts.
+To use this, pass the parameter `--dump`. The console output will then contain lines like this:
+
+    REGRESSIONS 4
+    STATS
+    338 8 136
+    315 8 161
+    321 8 155
+
+The number after `REGRESSIONS` is the number of regressions
+between the second-to-last and the last result set (in the order they are given as input).
+A row in the result table is counted as regression,
+if the column `status` is different and the later result is not strictly better than the previous one.
+This means that a change from a wrong result to an error is counted as a regression,
+as well as a change from an error to a wrong result.
+Furthermore, changes between different kinds of errors are also counted as regressions.
+
+It can be useful to additionally pass the parameter `--ignore-flapping-timeout-regressions`.
+If it is given, a row with a `timeout` result is not counted as regression
+if any previous result for the same task in the table is also `timeout`.
+
+After the line `STATS` there are a few more statistics in the output,
+one line for each given result file (in the same order).
+Each line contains the counts for the correct, wrong, and other results.
+Note that the regression count as output above does not necessarily correspond to a difference
+between some of the statistics numbers, but they are useful for example for checking whether there
+were any incorrect results.

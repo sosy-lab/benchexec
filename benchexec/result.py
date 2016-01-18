@@ -42,33 +42,51 @@ CATEGORY_MISSING = 'missing'
 because no property was defined, and no other categories apply."""
 
 
-# property names used in this module (should not contain spaces)
+# internal property names used in this module (should not contain spaces)
+# previously used by SV-COMP (http://sv-comp.sosy-lab.org/2014/rules.php):
 _PROP_LABEL =        'unreach-label'
+# currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php):
 _PROP_CALL =         'unreach-call'
 _PROP_TERMINATION =  'termination'
+_PROP_OVERFLOW =     'no-overflow'
 _PROP_DEREF =        'valid-deref'
 _PROP_FREE =         'valid-free'
 _PROP_MEMTRACK =     'valid-memtrack'
+# for Java verification:
 _PROP_ASSERT =       'assert'
+# specification given as an automaton:
 _PROP_AUTOMATON =    'observer-automaton'
+# for solvers:
 _PROP_SAT =          'sat'
-_PROP_OVERFLOW =     'no-overflow'
 
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
 # possible run results (output of a tool)
 RESULT_UNKNOWN =            'unknown'
+"""tool could not find out an answer due to incompleteness"""
 RESULT_ERROR =              'ERROR' # or any other value not listed here
+"""tool could not complete due to an error
+(it is recommended to instead use a string with more details about the error)"""
 RESULT_TRUE_PROP =          'true'
+"""property holds"""
 RESULT_FALSE_REACH =        STR_FALSE + '(reach)'
+"""SV-COMP reachability property violated"""
 RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
-RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
-RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
-RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
-RESULT_WITNESS_CONFIRMED =  'witness confirmed'
-RESULT_SAT =                'sat'
-RESULT_UNSAT =              'unsat'
+"""SV-COMP termination property violated"""
 RESULT_FALSE_OVERFLOW =     STR_FALSE + '(' + _PROP_OVERFLOW    + ')'
+"""SV-COMP overflow property violated"""
+RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
+"""SV-COMP valid-deref property violated"""
+RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
+"""SV-COMP valid-free property violated"""
+RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
+"""SV-COMP valid-memtrack property violated"""
+RESULT_WITNESS_CONFIRMED =  'witness confirmed'
+"""SV-COMP property violated and witness confirmed"""
+RESULT_SAT =                'sat'
+"""task is satisfiable"""
+RESULT_UNSAT =              'unsat'
+"""task is unsatisfiable"""
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
