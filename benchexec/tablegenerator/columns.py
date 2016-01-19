@@ -99,12 +99,10 @@ class Column(object):
     def __init__(self, title, pattern, num_of_digits, href, col_type=None, unit=None, scale_factor=1):
         self.title = title
         self.pattern = pattern
-        self.number_of_significant_digits = num_of_digits
+        self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None
         self.type = col_type
         self.unit = unit
         self.scale_factor = float(scale_factor) if scale_factor else 1
-        if int(self.scale_factor) == self.scale_factor:
-            self.scale_factor = int(self.scale_factor)
         self.href = href
 
 
@@ -126,22 +124,20 @@ class Column(object):
 
         # If the number ends with "s" or another unit, remove it.
         # Units should not occur in table cells, but in the table head.
-        value = util.remove_unit(str(value).strip())
+        number_str = util.remove_unit(str(value).strip())
+
+        try:
+            number = float(number_str)
+        except ValueError:  # If value is no float, don't format it.
+            return value
 
         # Apply the scale factor to the value
-        try:
-            if self.scale_factor != 1:
-                value = float(value) * self.scale_factor
-                if int(value) == value:
-                    value = int(value)
-                value = str(value)
-        except ValueError:
-            pass
+        number = number * self.scale_factor
 
         number_of_significant_digits = self.number_of_significant_digits
         max_dec_digits = 0
         if number_of_significant_digits is None and format_target is "tooltip_stochastic":
-            return str(round(float(value), DEFAULT_TOOLTIP_PRECISION))
+            return str(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         elif self.type.type == ColumnType.measure:
             if number_of_significant_digits is None and format_target is not "csv":
@@ -149,9 +145,15 @@ class Column(object):
             max_dec_digits = self.type.max_decimal_digits
 
         if number_of_significant_digits is not None:
-            return _format_number(value, int(number_of_significant_digits), int(max_dec_digits), isToAlign, format_target)
+            current_significant_digits = _get_significant_digits(number_str)
+            return _format_number(number, current_significant_digits, number_of_significant_digits, max_dec_digits, isToAlign, format_target)
         else:
-            return value
+            if number == float(number_str):
+                # TODO remove as soon as scaled values are handled correctly
+                return number_str
+            if int(number) == number:
+                number = int(number)
+            return str(number)
 
 
 def _format_number_align(formattedValue, max_number_of_dec_digits):
@@ -162,7 +164,7 @@ def _format_number_align(formattedValue, max_number_of_dec_digits):
     elif max_number_of_dec_digits > 0:
         # Add punctuation space.
         formattedValue += '&#x2008;'
-    formattedValue += "".join(['&#x2007;'] * alignment)
+    formattedValue += '&#x2007;' * alignment
     return formattedValue
 
 
@@ -191,52 +193,42 @@ def _get_significant_digits(value):
     return sig_digits
 
 
-def _format_number(value, number_of_significant_digits, max_digits_after_decimal, isToAlign=False, format_target='html'):
+def _format_number(number, initial_value_sig_digits, number_of_significant_digits, max_digits_after_decimal, isToAlign, format_target):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
     with the specified number of significant digits,
     optionally aligned at the decimal point.
-
-    If the value is not a number, it is returned unchanged.
     """
-    if format_target not in POSSIBLE_FORMAT_TARGETS:
-        raise ValueError('Unknown format target')
+    assert format_target in POSSIBLE_FORMAT_TARGETS
 
-    if value is None:
-        return ''
+    # Round to the given amount of significant digits
+    #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
+    float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=number))
+    formatted_value = str(float_value)
 
-    try:
-        # Round to the given amount of significant digits
-        #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
-        float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=float(value)))
-        formatted_value = str(float_value)
+    # Get the number of intended significant digits and the number of current significant digits.
+    # If we have not enough digits due to rounding, 0's have to be re-added.
+    # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
+    current_sig_digits = _get_significant_digits(formatted_value)
 
-        # Get the number of intended significant digits and the number of current significant digits.
-        # If we have not enough digits due to rounding, 0's have to be re-added.
-        # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
-        initial_value_sig_digits = _get_significant_digits(value)
-        current_sig_digits = _get_significant_digits(formatted_value)
+    intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
+    digits_to_add = intended_digits - current_sig_digits
 
-        intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-        digits_to_add = intended_digits - current_sig_digits
+    if digits_to_add > 0:
+        assert '.' in formatted_value
+        formatted_value += "".join(['0'] * digits_to_add)
+    elif digits_to_add < 0:
+        assert round(float_value) == float_value  # check that the number has no decimal values
+        formatted_value = str(round(float_value))
 
-        if digits_to_add > 0:
-            assert '.' in formatted_value
-            formatted_value += "".join(['0'] * digits_to_add)
-        elif digits_to_add < 0:
-            assert round(float_value) == float_value  # check that the number has no decimal values
-            formatted_value = str(round(float_value))
+    # Cut the 0 in front of the decimal point for values < 1.
+    # Example: 0.002 => .002
+    if format_target == "html_cell" and '.' in formatted_value and 1 > float(formatted_value) >= 0:
+        assert formatted_value[0] == '0'
+        formatted_value = formatted_value[1:]
 
-        # Cut the 0 in front of the decimal point for values < 1.
-        # Example: 0.002 => .002
-        if format_target == "html_cell" and '.' in formatted_value and 1 > float(formatted_value) >= 0:
-            assert formatted_value[0] == '0'
-            formatted_value = formatted_value[1:]
-
-        # Alignment
-        if isToAlign:
-            formatted_value = _format_number_align(formatted_value, max_digits_after_decimal)
-        return formatted_value
-    except ValueError:  # If value is no float, don't format it.
-        return value
+    # Alignment
+    if isToAlign:
+        formatted_value = _format_number_align(formatted_value, max_digits_after_decimal)
+    return formatted_value
