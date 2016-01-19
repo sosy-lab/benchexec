@@ -908,8 +908,11 @@ def select_relevant_id_columns(rows):
     return relevant_id_columns
 
 
-def get_stats(rows):
-    stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+def get_stats_of_rows(rows):
+    if parallel:
+        stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+    else:
+        stats_and_col_types = list(map(get_stats_of_run_set, rows_to_columns(rows)))
     stats = [s[0] for s in stats_and_col_types]  # first tuple returned by get_stats_of_run_set
     stats_columns = [s[1] for s in stats_and_col_types]  # second tuple returned by get_stats_of_run_set
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
@@ -928,6 +931,12 @@ def get_stats(rows):
         elif correct_result is False:
             count_false += 1
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT)
+
+    return rowsForStats, max_score, count_true, count_false, stats_columns
+
+def get_stats(rows):
+    rowsForStats, max_score, count_true, count_false, stats_columns = get_stats_of_rows(rows)
+
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
