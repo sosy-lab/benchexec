@@ -175,6 +175,8 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
 
 
 def _get_column_type_heur(column, column_values):
+    text_type_tuple = ColumnType.text, None
+
     if "status" in column.title:
         if column.title == "status":
             return ColumnType.main_status, None
@@ -200,7 +202,7 @@ def _get_column_type_heur(column, column_values):
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
-            return ColumnType.text, None
+            return text_type_tuple
 
             # If all rows are integers, column type is 'count'
         elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.type == ColumnType.count):
@@ -211,7 +213,7 @@ def _get_column_type_heur(column, column_values):
                 if explicit_unit_defined:
                     raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
                 else:
-                    return ColumnType.text, None
+                    return text_type_tuple
             else:
                 column_type = ColumnType.count
                 column_unit = curr_column_unit
@@ -226,7 +228,7 @@ def _get_column_type_heur(column, column_values):
                     if explicit_unit_defined:
                         raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
                     else:
-                        return ColumnType.text, None
+                        return text_type_tuple
                 else:
                     column_unit = curr_column_unit
 
@@ -251,7 +253,7 @@ def _get_column_type_heur(column, column_values):
     if column_type:
         return column_type, column_unit
     else:
-        return ColumnType.text, None
+        return text_type_tuple
 
 
 def get_column_type(column, result_set):
