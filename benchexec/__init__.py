@@ -49,4 +49,4 @@ Variables ending with "tag" contain references to XML tag objects created by the
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__version__ = '1.6'
+__version__ = '1.7-dev'
