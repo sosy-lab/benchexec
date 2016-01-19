@@ -685,7 +685,7 @@ class OutputHandler(object):
             doctype = minidom.DOMImplementation().createDocumentType(
                     'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
             reparsed.insertBefore(doctype, reparsed.documentElement)
-            reparsed.writexml(file, indent="", addindent="  ", newl="\n")
+            reparsed.writexml(file, indent="", addindent="  ", newl="\n", encoding="utf-8")
 
         if self.compress_results:
             # try to delete uncompressed file (would have been overwritten in no-compress-mode)
