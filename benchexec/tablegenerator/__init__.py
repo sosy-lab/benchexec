@@ -40,13 +40,12 @@ import tempita
 from benchexec import __version__
 import benchexec.result as result
 from benchexec.tablegenerator import util as Util
+from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
 # Initialized only in main() because we cannot do so in the worker processes.
-from benchexec.tablegenerator.util import ColumnType
-from benchexec.tablegenerator.util import Column
 
 parallel = None
 
@@ -67,9 +66,6 @@ TEMPLATE_NAMESPACE={
    'json': Util.to_json,
    'create_link': Util.create_link,
    'format_options': Util.format_options,
-   'format_value': Util.format_value,
-   'split_number_and_unit': Util.split_number_and_unit,
-   'remove_unit': Util.remove_unit,
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
@@ -192,7 +188,7 @@ def _get_column_type_heur(column, column_values):
         explicit_unit_defined = False
 
     if int(column.scale_factor) != column.scale_factor:
-        column_type = Util.ColumnMeasureType(0)
+        column_type = ColumnMeasureType(0)
     for value in column_values:
 
         if value is None or value == '':
@@ -248,7 +244,7 @@ def _get_column_type_heur(column, column_values):
             if curr_dec_digits > max_dec_digits:
                 max_dec_digits = curr_dec_digits
 
-            column_type = Util.ColumnMeasureType(max_dec_digits)
+            column_type = ColumnMeasureType(max_dec_digits)
 
     if column_type:
         return column_type, column_unit

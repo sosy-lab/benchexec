@@ -4,5 +4,5 @@
 {{endif}}
 {{endfor}}
 {{for line in body}}
-{{line.short_filename}}	{{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}{{if show}}{{id}}	{{endif}}{{endfor}}{{map(remove_unit, map(format_value, *zip(*[(value or '', column, False, 'csv') for runResult in line.results for value, column in zip(runResult.values, runResult.columns)]))) | '\t'.join}}
+{{line.short_filename}}	{{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}{{if show}}{{id}}	{{endif}}{{endfor}}{{[column.format_value(value or '', False, 'csv') for runResult in line.results for value, column in zip(runResult.values, runResult.columns)] | '\t'.join}}
 {{endfor}}

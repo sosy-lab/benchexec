@@ -1,5 +1,45 @@
 # BenchExec Changelog
 
+## BenchExec 1.6
+
+This release brings several improvements to `table-generator`:
+- `table-generator` now rounds measurement values in a scientifically correct way,
+  i.e., with a fixed number of significant digits, not with a fixed number of decimal places.
+  The attribute `numberOfDigits` of `<column>` tags in table-definition files
+  now also specifies significant digits, not decimal places.
+  By default, in HTML tables all fractional values are now rounded (e.g., time measurements)
+  and all integer values continue without rounding (e.g., memory measurements),
+  previously only "time" columns were rounded.
+  The remaining rounding-related behavior stays unchanged:
+  In CSV tables, values are not rounded by default,
+  and if `numberOfDigits` is explicitly given for a column,
+  it's value will always be rounded in both HTML and CSV tables.
+- `table-generator` now automatically extracts units from the cells in a column
+  and puts them into the table header.
+- In HTML tables, numeric values are now aligned at the decimal point,
+  and text values are left aligned (previously both were right aligned).
+- `table-generator` now allows to convert values from one unit into another.
+  So far this is only implemented for values that do not have a unit attached to them,
+  and both the target unit and the scale factor need to be specified explicitly
+  in the `<column>` tag.
+  This can be used for example to show memory measurements in MB instead of Bytes in tables.
+- `table-generator` now allows columns with links to arbitrary files to be added to tables.
+- `table-generator` does not handle columns where cells have differing units wrongly anymore.
+  Previously, the unit was simply dropped, leading to wrong values for statistics.
+  Now such columns are treated as text and no statistics are generated.
+  (Note that BenchExec never creates such columns by itself,
+  only if values are extracted from the tool output this could happen).
+
+Other changes:
+- The behavior of `benchexec --timelimit` was changed slightly,
+  if a value for `hardtimelimit` was given in the benchmark-definition file.
+  If a time limit is specified on the command line, this now overrides both soft and hard time limit.
+- Implementation of tool-info modules got easier because the `test_tool_info` helper got improved
+  (it now allows to test the function for extracting results from tool outputs).
+- Several tool-info modules of tools participating in SV-COMP got improved.
+- Simplified cgroups setup for systemd systems.
+- Improved documentation.
+
 ## BenchExec 1.5
 
 - Improved definition of time and memory limits:

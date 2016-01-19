@@ -238,7 +238,7 @@
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
   {{else}}
-<td class="{{ccsclass}}{{' novalue' if value is None or value == '' else ''}}">{{format_value(value, column, True, 'html_cell')|html}}</td>
+<td class="{{ccsclass}}{{' novalue' if value is None or value == '' else ''}}">{{column.format_value(value, True, 'html_cell')|html}}</td>
   {{endif}}
   {{endfor}}
   {{endfor}}
@@ -248,16 +248,16 @@
 
 <tfoot>
 {{py:
-def format_stat_title(stat, column, format_value):
+def format_stat_title(stat, column):
     '''Helper function to create the tooltip of a status cell containing average etc.'''
     if not stat or not stat.avg:
         return None
     values = dict()
     for k, v in stat.__dict__.items():
         if k in ['avg', 'stdev']:
-            formatted_value = format_value(v, column, False, 'tooltip_stochastic')
+            formatted_value = column.format_value(v, False, 'tooltip_stochastic')
         else:
-            formatted_value = format_value(v, column)
+            formatted_value = column.format_value(v)
         values[k] = formatted_value
     return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}
@@ -285,7 +285,7 @@ def get_stat_col_classes(column, cell, lineid):
 <tr class="statistics">
 <td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
     {{for cell, column in zip(line.content, flatten(foot_columns))}}
-<td {{attr(class_=get_stat_col_classes(column, cell, line.id), title=format_stat_title(cell, column, format_value))}}>{{format_value(cell, column, True, 'html_cell')|html}}</td>
+<td {{attr(class_=get_stat_col_classes(column, cell, line.id), title=format_stat_title(cell, column))}}>{{column.format_value(cell, True, 'html_cell')|html}}</td>
     {{endfor}}
 </tr>
 {{endfor}}
@@ -303,10 +303,10 @@ def get_stat_col_classes(column, cell, lineid):
 <!-- ################## Base JS ################## -->
 
 <!--[if lt IE 9]>
-    <script type="text/javascript" src="{{lib_url}}/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="{{lib_url}}/jquery/1.12.0/jquery.min.js"></script>
 <![endif]-->
 <!--[if gte IE 9]><!-->
-    <script type="text/javascript" src="{{lib_url}}/jquery/2.1.4/jquery.min.js" integrity="sha384-8gBf6Y4YYq7Jx97PIqmTwLPin4hxIzQw5aDmUg/DDhul9fFpbbLcLh3nTIIDJKhx" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{lib_url}}/jquery/2.2.0/jquery.min.js" integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk" crossorigin="anonymous"></script>
 <!--<![endif]-->
 <script type="text/javascript" src="{{lib_url}}/jquery.floatthead/1.3.2/jquery.floatThead.min.js" integrity="sha384-Mdm3orYgm56x2iwLwcRB8PfUD1l6iKnn+wTW9brTgxSOiHvlG7s1AYTeL1konRwV" crossorigin="anonymous"></script>
 

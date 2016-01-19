@@ -61,12 +61,16 @@ and other values as strings.
     (cf. the documentation of these constants).
     Note that the distinction between `CATEGORY_UNKNOWN` and `CATEGORY_ERROR`
     also depends on the tool-info module (and thus may differ between tools).
+    `CATEGORY_MISSING` is used in cases where BenchExec could not determine the expected result
+    for the given task (e.g., because no property was specified, or because the expected result
+    is not encoded in the input file's name.
 - **status**: The result of the run, as determined by BenchExec
     and interpreted by the tool-info module.
     This can be one of the `RESULT_*` constants of the
     [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py),
     or an arbitrary string.
-    If the `category` is `CATEGORY_CORRECT`, `CATEGORY_WRONG`, or `CATEGORY_UNKNOWN`,
+    If the `category` is `CATEGORY_CORRECT`, `CATEGORY_WRONG`,
+    `CATEGORY_UNKNOWN`, or `CATEGORY_MISSING`,
     the `status` contains the answer of the tool.
     If the `category` is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,

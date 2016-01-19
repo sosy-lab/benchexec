@@ -97,7 +97,8 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(output[0], cmd, 'run output misses executed command')
 
     def check_result_keys(self, result, *additional_keys):
-        expected_keys = {'cputime', 'walltime', 'memory', 'exitcode'}
+        expected_keys = {'cputime', 'walltime', 'memory', 'exitcode',
+                         'energy', 'energy-cpu', 'energy-core', 'energy-uncore'}
         expected_keys.update(additional_keys)
         for key in result.keys():
             if key.startswith('cputime-cpu'):

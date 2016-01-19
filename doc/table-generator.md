@@ -27,16 +27,15 @@ Alternatively, `table-generator` also supports using a special table-definition 
 that defines the layout of the generated tables
 and allows even more customizations,
 for example to have a different set of columns shown for each result file.
-This mode also includes the ability to extract arbitrary values
-from the output of the tool of each run
-and insert them into the table.
+This mode also has several more features described below
+that allow to customize the content of columns.
 Such table-definition files are in XML format
 and a complete definition can be found in the file
 [doc/table-generator.xml](table-generator.xml),
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.0//EN" "http://www.sosy-lab.org/benchexec/table-1.0.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.6//EN" "http://www.sosy-lab.org/benchexec/table-1.6.dtd">
 
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
@@ -44,6 +43,39 @@ To use such files pass them with the parameter `-x` to `table-generator`
 (no result files can be given as these are referenced within the table-definition file):
 
     table-generator -x doc/table-generator-example.xml
+
+### Column Features
+
+If a table-definition file is used, the `<column>` tags in it provide the following features.
+
+If only the attribute `title` is given and no content of the tag,
+the value is taken from the BenchExec result file if present
+(this can be used for the default BenchExec columns like `status`, `cputime`, etc.,
+but also for additional columns like `score`).
+If some content is given for a `<column>` tag,
+the respective value is extracted from the tool output of each run
+(this needs specific support from the tool-info module that is responsible for this tool).
+For example, the following line can be used to extract values for a column "analysis time"
+by letting the tool info look for the given pattern in the output
+(pattern format is tool specific):
+
+    <column title="analysis time">Total time for analysis: </column>
+
+If the attribute `href` is given, the column will contain a link to the respective target
+(variables such as `${inputfile_name}` can be used to customize this link per task).
+If `href` specifies a relative path, it is interpreted as relative to the directory
+of the table-definition file and will be converted appropriately for the location of the output files.
+An absolute URL can also be given.
+
+The attributes `numberOfDigits`, `displayUnit`, and `scaleFactor`
+change how numeric values are treated.
+`numberOfDigits` specifies the number of significant digits to which a value should be rounded.
+The other two attributes allow to convert the value into a different unit (given with `displayUnit`)
+by applying the given `scaleFactor`. Currently this is only possible for values without a unit.
+For example, this can be used to convert the memory column to MB
+by using the following line in a table-definition file:
+
+    <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
 
 
 ### Regression Checking
