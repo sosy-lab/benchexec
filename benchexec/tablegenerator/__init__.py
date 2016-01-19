@@ -67,7 +67,6 @@ TEMPLATE_NAMESPACE={
    'create_link': Util.create_link,
    'format_options': Util.format_options,
    'split_number_and_unit': Util.split_number_and_unit,
-   'remove_unit': Util.remove_unit,
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
