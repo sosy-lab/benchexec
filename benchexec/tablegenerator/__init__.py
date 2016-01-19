@@ -40,13 +40,12 @@ import tempita
 from benchexec import __version__
 import benchexec.result as result
 from benchexec.tablegenerator import util as Util
+from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
 # Initialized only in main() because we cannot do so in the worker processes.
-from benchexec.tablegenerator.util import ColumnType
-from benchexec.tablegenerator.util import Column
 
 parallel = None
 
@@ -185,7 +184,7 @@ def _get_column_type_heur(column, column_values):
     column_unit = column.unit
 
     if int(column.scale_factor) != column.scale_factor:
-        column_type = Util.ColumnMeasureType(0)
+        column_type = ColumnMeasureType(0)
     for value in column_values:
 
         if value is None or value == '':
@@ -235,7 +234,7 @@ def _get_column_type_heur(column, column_values):
             if curr_dec_digits > max_dec_digits:
                 max_dec_digits = curr_dec_digits
 
-            column_type = Util.ColumnMeasureType(max_dec_digits)
+            column_type = ColumnMeasureType(max_dec_digits)
 
     if column_type:
         return column_type, column_unit

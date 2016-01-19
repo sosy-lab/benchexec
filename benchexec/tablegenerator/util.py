@@ -33,6 +33,7 @@ import re
 import tempita
 
 from benchexec import model
+from benchexec.tablegenerator.columns import ColumnType
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -45,76 +46,6 @@ GROUP_EXP = 5
 GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
 POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip_stochastic', 'csv']
-
-
-def enum(**enums):
-    return type('Enum', (), enums)
-
-
-class ColumnEnumType(object):
-
-    def __init__(self, type, name):
-        self._type = type
-        self.name = name
-
-    @property
-    def type(self):
-        return self
-
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other):
-        try:
-            return self._type == other._type
-        except:
-            return False
-
-
-class ColumnType(object):
-    column_types = enum(text=1, count=2, measure=3, status=4, main_status=5)
-    text = ColumnEnumType(column_types.text, 'text')
-    count = ColumnEnumType(column_types.count, 'count')
-    measure = ColumnEnumType(column_types.measure, 'measure')
-    status = ColumnEnumType(column_types.status, 'status')
-    main_status = ColumnEnumType(column_types.main_status, 'main_status')
-
-
-class ColumnMeasureType(object):
-    """
-    Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
-    """
-    def __init__(self, max_decimal_digits):
-        self._type = ColumnType.measure
-        self._max_decimal_digits = max_decimal_digits
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def max_decimal_digits(self):
-        return self._max_decimal_digits
-
-
-class Column(object):
-    """
-    The class Column contains title, pattern (to identify a line in log_file),
-    number_of_significant_digits of a column, the type of the column's values,
-    their unit, a scale factor to apply to all values of the column (mostly to fit the unit)
-    and href (to create a link to a resource).
-    It does NOT contain the value of a column.
-    """
-    def __init__(self, title, pattern, num_of_digits, href, col_type=None, unit=None, scale_factor=1):
-        self.title = title
-        self.pattern = pattern
-        self.number_of_significant_digits = num_of_digits
-        self.type = col_type
-        self.unit = unit
-        self.scale_factor = float(scale_factor) if scale_factor else 1
-        if int(self.scale_factor) == self.scale_factor:
-            self.scale_factor = int(self.scale_factor)
-        self.href = href
 
 
 def get_file_list(shortFile):

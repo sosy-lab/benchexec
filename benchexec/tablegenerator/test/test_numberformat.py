@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 from benchexec.tablegenerator import util
+from benchexec.tablegenerator.columns import Column, ColumnType, ColumnMeasureType
 
 
 class FormatValueTests(unittest.TestCase):
@@ -29,8 +30,8 @@ class FormatValueTests(unittest.TestCase):
     def setUp(self):        
         self.max_dec_digits = 6
         self.sig_figures = 4
-        self.measure_type = util.ColumnMeasureType(self.max_dec_digits)
-        self.measure_column = util.Column("CpuTime", None, self.sig_figures, None, self.measure_type, None, 1)
+        self.measure_type = ColumnMeasureType(self.max_dec_digits)
+        self.measure_column = Column("CpuTime", None, self.sig_figures, None, self.measure_type, None, 1)
         self.default_optionals = (False, 'html')
 
     def tearDown(self):
@@ -65,12 +66,12 @@ class FormatValueTests(unittest.TestCase):
         self.assertEqual(formatted_value_0_cut,    ".05600&#x2007;")
 
     def test_format_value_two_significant_figures(self):
-        self.measure_column_two_sig_figures = util.Column("CpuTime", None, 2, None, self.measure_type, None, 1)
+        self.measure_column_two_sig_figures = Column("CpuTime", None, 2, None, self.measure_type, None, 1)
         formatted_value_decimals_cut = util.format_value("9.99999", self.measure_column_two_sig_figures, *self.default_optionals)
         self.assertEqual(formatted_value_decimals_cut,   "10")
 
     def test_format_value_no_sigs(self):
-        self.measure_column_no_sigs = util.Column("CpuTime", None, None, None, self.measure_type, None, 1)
+        self.measure_column_no_sigs = Column("CpuTime", None, None, None, self.measure_type, None, 1)
         formatted_value_rounding = util.format_value("9999.12015s", self.measure_column_no_sigs, *self.default_optionals)
         self.assertEqual(formatted_value_rounding,   "10000")
 
@@ -87,7 +88,7 @@ class FormatValueTests(unittest.TestCase):
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs,   "0.1260")
 
     def test_format_value_count_alignment(self):
-        count_column = util.Column("memUsed", None, None, None, util.ColumnType.count, None, 1)
+        count_column = Column("memUsed", None, None, None, ColumnType.count, None, 1)
         formatted_value_count_no_align_no_sigs = util.format_value("123456789", count_column, *self.default_optionals)
         self.assertEqual(formatted_value_count_no_align_no_sigs,   "123456789")
 
@@ -95,16 +96,16 @@ class FormatValueTests(unittest.TestCase):
         self.assertEqual(formatted_value_aligned, formatted_value_count_no_align_no_sigs)
 
     def test_format_value_count_sigs(self):
-        count_column_sigs = util.Column("memUsed", None, 3, None, util.ColumnType.count, None, 1)
+        count_column_sigs = Column("memUsed", None, 3, None, ColumnType.count, None, 1)
         formatted_value_count_sigs = util.format_value("123456789", count_column_sigs, *self.default_optionals)
         self.assertEqual(formatted_value_count_sigs,   "123000000")
 
     def test_format_value_scale_values_down(self):
-        scaling_column_smaller = util.Column("memUsed", None, None, None, self.measure_type, None, '0.0000001')
+        scaling_column_smaller = Column("memUsed", None, None, None, self.measure_type, None, '0.0000001')
         formatted_value_scaled = util.format_value("123456789", scaling_column_smaller, *self.default_optionals)
         self.assertEqual(formatted_value_scaled, "12.3")
 
     def test_format_value_scale_values_up(self):
-        scaling_column_bigger = util.Column("memUsed", None, None, None, self.measure_type, None, '1000')
+        scaling_column_bigger = Column("memUsed", None, None, None, self.measure_type, None, '1000')
         formatted_value_scaled = util.format_value("12.3", scaling_column_bigger, *self.default_optionals)
         self.assertEqual(formatted_value_scaled, "12300")
