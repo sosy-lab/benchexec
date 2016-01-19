@@ -131,21 +131,6 @@ def copy_of_xml_element(elem):
     return copyElem
 
 
-def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
-    """
-    Return a pretty-printed XML string for the Element.
-    Also allows setting a document type.
-    """
-    from xml.dom import minidom
-    rough_string = ElementTree.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    if qualified_name:
-        doctype = minidom.DOMImplementation().createDocumentType(
-                qualified_name, public_id, system_id)
-        reparsed.insertBefore(doctype, reparsed.documentElement)
-    return reparsed.toprettyxml(indent="  ")
-
-
 def decode_to_string(toDecode):
     """
     This function is needed for Python 3,

@@ -19,11 +19,14 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import bz2
 import collections
+import io
 import os
 import threading
 import time
 import sys
+from xml.dom import minidom
 from xml.etree import ElementTree as ET
 import zipfile
 
@@ -448,16 +451,14 @@ class OutputHandler(object):
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        runSet.xml_file.replace(self._result_xml_to_string(runSet.xml))
+        self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file.filename)
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
-                util.write_file(
-                    self._result_xml_to_string(self.runs_to_xml(runSet, block.runs, block.name)),
-                    blockFileName
-                )
-                self.all_created_files.add(blockFileName)
+                self._write_pretty_result_xml_to_file(
+                    self.runs_to_xml(runSet, block.runs, block.name),
+                    blockFileName)
 
         self.txt_file.append(self.run_set_to_text(runSet, True, cputime, walltime, energy))
 
@@ -626,8 +627,9 @@ class OutputHandler(object):
             tableGeneratorPath = _find_file_relative('table-generator.py') \
                               or _find_file_relative('table-generator')
             if tableGeneratorPath:
+                xml_file_names = [file+".bz2" for file in self.xml_file_names] if self.compress_results else self.xml_file_names
                 util.printOut("In order to get HTML and CSV tables, run\n{0} '{1}'"
-                              .format(tableGeneratorPath, "' '".join(self.xml_file_names)))
+                              .format(tableGeneratorPath, "' '".join(xml_file_names)))
 
         if isStoppedByInterrupt:
             util.printOut("\nScript was interrupted by user, some runs may not be done.\n")
@@ -663,7 +665,41 @@ class OutputHandler(object):
 
 
     def _result_xml_to_string(self, xml):
-        return util.xml_to_string(xml, 'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
+        """Return a rough string version of the XML (for temporary files)."""
+        return ET.tostring(xml, 'unicode')
+
+    def _write_pretty_result_xml_to_file(self, xml, filename):
+        """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
+        if self.compress_results:
+            actual_filename = filename + ".bz2"
+            open_func = bz2.BZ2File
+        else:
+            # write content to temp file first to prevent loosing data
+            # in existing file if writing fails
+            actual_filename = filename + ".tmp"
+            open_func = open
+
+        with io.TextIOWrapper(open_func(actual_filename, 'wb'), encoding='utf-8') as file:
+            rough_string = self._result_xml_to_string(xml)
+            reparsed = minidom.parseString(rough_string)
+            doctype = minidom.DOMImplementation().createDocumentType(
+                    'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
+            reparsed.insertBefore(doctype, reparsed.documentElement)
+            reparsed.writexml(file, indent="", addindent="  ", newl="\n")
+
+        if self.compress_results:
+            # try to delete uncompressed file (would have been overwritten in no-compress-mode)
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
+            self.all_created_files.discard(filename)
+            self.all_created_files.add(actual_filename)
+        else:
+            os.rename(actual_filename, filename)
+            self.all_created_files.add(filename)
+
+        return filename
 
 
 class Statistics(object):

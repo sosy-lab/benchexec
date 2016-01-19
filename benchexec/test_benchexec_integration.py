@@ -70,9 +70,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
                        + list(args))
         generated_files = set(os.listdir(self.tmp))
 
+        xml_suffix = '.xml.bz2' if compress else '.xml'
         expected_files = ['logfiles.zip' if compress else 'logfiles',
-                          'results.txt', 'results.xml'] \
-                       + ['results.'+files+'.xml' for files in tasks]
+                          'results.txt', 'results'+xml_suffix] \
+                       + ['results.'+files+xml_suffix for files in tasks]
         if name is None:
             basename = 'benchmark-example-rand.2015-01-01_0000.'
         else:
@@ -120,6 +121,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_cmd(benchexec, benchmark_test_file,
                      '--outputpath', self.tmp,
                      '--startTime', '2015-01-01 00:00',
+                     '--no-compress-results',
                      )
         basename = 'benchmark-example-rand.2015-01-01_0000.'
         xml_files = ['results.xml'] + ['results.'+files+'.xml' for files in benchmark_test_tasks]
