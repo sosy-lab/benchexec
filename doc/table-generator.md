@@ -44,7 +44,7 @@ To use such files pass them with the parameter `-x` to `table-generator`
 
     table-generator -x doc/table-generator-example.xml
 
-### Columnn Features
+### Column Features
 
 If a table-definition file is used, the `<column>` tags in it provide the following features.
 
