@@ -25,6 +25,7 @@ import threading
 import time
 import sys
 from xml.etree import ElementTree as ET
+import zipfile
 
 import benchexec
 from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
@@ -72,12 +73,13 @@ class OutputHandler(object):
 
     print_lock = threading.Lock()
 
-    def __init__(self, benchmark, sysinfo):
+    def __init__(self, benchmark, sysinfo, compress_results):
         """
         The constructor of OutputHandler collects information about the benchmark and the computer.
         """
 
-        self.all_created_files = []
+        self.compress_results = compress_results
+        self.all_created_files = set()
         self.benchmark = benchmark
         self.statistics = Statistics()
 
@@ -109,6 +111,12 @@ class OutputHandler(object):
                                  environment=sysinfo.environment,
                                  cpu_turboboost=sysinfo.cpu_turboboost)
         self.xml_file_names = []
+
+        if compress_results:
+            self.log_zip = zipfile.ZipFile(benchmark.log_zip, mode="w",
+                                           compression=zipfile.ZIP_DEFLATED)
+            self.all_created_files.add(benchmark.log_zip)
+
 
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
                           runSet=None, environment={},
@@ -233,7 +241,7 @@ class OutputHandler(object):
         # write to file
         txt_file_name = self.get_filename(runSetName, "txt")
         self.txt_file = filewriter.FileWriter(txt_file_name, self.description)
-        self.all_created_files.append(txt_file_name)
+        self.all_created_files.add(txt_file_name)
 
 
     def output_before_run_set(self, runSet):
@@ -285,7 +293,7 @@ class OutputHandler(object):
         runSet.xml_file = filewriter.FileWriter(xml_file_name,
                        self._result_xml_to_string(runSet.xml))
         runSet.xml_file.lastModifiedTime = util.read_monotonic_time()
-        self.all_created_files.append(xml_file_name)
+        self.all_created_files.add(xml_file_name)
         self.xml_file_names.append(xml_file_name)
 
 
@@ -362,7 +370,7 @@ class OutputHandler(object):
             OutputHandler.print_lock.release()
 
         # get name of file-specific log-file
-        self.all_created_files.append(run.log_file)
+        self.all_created_files.add(run.log_file)
 
 
     def output_after_run(self, run):
@@ -425,6 +433,11 @@ class OutputHandler(object):
         finally:
             OutputHandler.print_lock.release()
 
+        if self.compress_results:
+            self.log_zip.write(run.log_file, os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir)))
+            os.remove(run.log_file)
+            self.all_created_files.remove(run.log_file)
+
 
     def output_after_run_set(self, runSet, cputime=None, walltime=None, energy={}):
         """
@@ -444,7 +457,7 @@ class OutputHandler(object):
                     self._result_xml_to_string(self.runs_to_xml(runSet, block.runs, block.name)),
                     blockFileName
                 )
-                self.all_created_files.append(blockFileName)
+                self.all_created_files.add(blockFileName)
 
         self.txt_file.append(self.run_set_to_text(runSet, True, cputime, walltime, energy))
 
@@ -618,6 +631,12 @@ class OutputHandler(object):
 
         if isStoppedByInterrupt:
             util.printOut("\nScript was interrupted by user, some runs may not be done.\n")
+
+
+    def close(self):
+        """Do all necessary cleanup."""
+        if self.compress_results:
+            self.log_zip.close()
 
 
     def get_filename(self, runSetName, fileExtension):

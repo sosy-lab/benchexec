@@ -25,6 +25,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
@@ -59,14 +60,18 @@ class BenchExecIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
-    def run_benchexec_and_compare_expected_files(self, *args, tasks=benchmark_test_tasks, name=None):
+    def run_benchexec_and_compare_expected_files(self, *args, tasks=benchmark_test_tasks, name=None,
+                                                 compress=False):
         self.run_cmd(*[benchexec, benchmark_test_file,
                        '--outputpath', self.tmp,
                        '--startTime', '2015-01-01 00:00',
-                       ] + list(args))
+                       ]
+                       + ([] if compress else ['--no-compress-results'])
+                       + list(args))
         generated_files = set(os.listdir(self.tmp))
 
-        expected_files = ['logfiles', 'results.txt', 'results.xml'] \
+        expected_files = ['logfiles.zip' if compress else 'logfiles',
+                          'results.txt', 'results.xml'] \
                        + ['results.'+files+'.xml' for files in tasks]
         if name is None:
             basename = 'benchmark-example-rand.2015-01-01_0000.'
@@ -75,6 +80,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
         expected_files = set(map(lambda x : basename + x, expected_files))
         self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
         # TODO find way to compare expected output to generated output
+
+        if compress:
+            with zipfile.ZipFile(os.path.join(self.tmp, basename + "logfiles.zip")) as log_zip:
+                self.assertIsNone(log_zip.testzip(), "Logfiles zip archive is broken")
+                for file in log_zip.namelist():
+                    self.assertTrue(file.startswith(basename + "logfiles" + os.sep),
+                                    "Unexpected file in logfiles zip: " + file)
 
     def test_simple(self):
         self.run_benchexec_and_compare_expected_files()
@@ -90,6 +102,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
     def test_simple_parallel(self):
         self.run_benchexec_and_compare_expected_files('--numOfThreads', '12')
+
+    def test_simple_compressed_results(self):
+        self.run_benchexec_and_compare_expected_files(compress=True)
 
     def test_sudo(self):
         # sudo allows refering to numerical uids with '#'

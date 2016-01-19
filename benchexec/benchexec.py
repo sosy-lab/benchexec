@@ -157,6 +157,10 @@ class BenchExec(object):
                             metavar="USER",
                             help="Execute benchmarks under given user account(s) (needs password-less sudo setup).")
 
+        parser.add_argument("--no-compress-results",
+                            dest="compress_results", action="store_false",
+                            help="Do not compress result files.")
+
         def parse_filesize_value(value):
             try:
                 value = int(value)
@@ -235,7 +239,8 @@ class BenchExec(object):
         self.check_existing_results(benchmark)
 
         self.executor.init(self.config, benchmark)
-        output_handler = OutputHandler(benchmark, self.executor.get_system_info())
+        output_handler = OutputHandler(benchmark, self.executor.get_system_info(),
+                                       self.config.compress_results)
 
         logging.debug("I'm benchmarking %r consisting of %s run sets.",
                       benchmark_file, len(benchmark.run_sets))
@@ -243,6 +248,7 @@ class BenchExec(object):
         try:
             result = self.executor.execute_benchmark(benchmark, output_handler)
         finally:
+            output_handler.close()
             # remove useless log folder if it is empty
             try:
                 os.rmdir(benchmark.log_folder)
@@ -265,8 +271,9 @@ class BenchExec(object):
         already exists in order to avoid overwriting results.
         """
         if os.path.exists(benchmark.log_folder):
-            # we refuse to overwrite existing results
             sys.exit('Output directory {0} already exists, will not overwrite existing results.'.format(benchmark.log_folder))
+        if os.path.exists(benchmark.log_zip):
+            sys.exit('Output archive {0} already exists, will not overwrite existing results.'.format(benchmark.log_zip))
 
 
     def stop(self):
