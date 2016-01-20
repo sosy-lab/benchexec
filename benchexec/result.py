@@ -143,6 +143,20 @@ _FILE_RESULTS = {
               '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
               }
 
+# Map a property to all possible results for it.
+_VALID_RESULTS_PER_PROPERTY = {
+    _PROP_ASSERT:      {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
+    _PROP_LABEL:       {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
+    _PROP_CALL:        {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
+    _PROP_AUTOMATON:   {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
+    _PROP_DEREF:       {RESULT_TRUE_PROP, RESULT_FALSE_DEREF},
+    _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_FREE},
+    _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_MEMTRACK},
+    _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_OVERFLOW},
+    _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_TERMINATION},
+    _PROP_SAT:         {RESULT_SAT, RESULT_UNSAT},
+    }
+
 # Score values taken from http://sv-comp.sosy-lab.org/
 # If different scores should be used depending on the checked property,
 # change score_for_task() appropriately
@@ -266,6 +280,8 @@ def get_result_category(filename, result, properties):
     @param properties: The list of properties to check (as returned by properties_of_file()).
     @return One of the CATEGORY_* strings.
     '''
+    assert set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())
+
     if result not in RESULT_LIST:
         return CATEGORY_ERROR
 
@@ -285,8 +301,11 @@ def get_result_category(filename, result, properties):
     if not expected_result:
         # filename gives no hint on the expected output
         return CATEGORY_MISSING
-    else:
-        if expected_result == result:
-            return CATEGORY_CORRECT
-        else:
-            return CATEGORY_WRONG
+
+    for prop in properties:
+        if result in _VALID_RESULTS_PER_PROPERTY[prop]:
+            # tool returned an answer for this property
+            return CATEGORY_CORRECT if expected_result == result else CATEGORY_WRONG
+
+    # tool returned an answer that does not belong to any of the checked properties
+    return CATEGORY_UNKNOWN
