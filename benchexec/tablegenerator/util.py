@@ -30,6 +30,7 @@ import logging
 import os
 
 import re
+from urllib.parse import quote as url_quote
 import tempita
 
 from benchexec import model
@@ -171,13 +172,18 @@ def remove_unit(s):
 
 
 def create_link(runResult, base_dir, column):
-    if not column.href:
-        return os.path.relpath(runResult.log_file, base_dir)
     source_file = runResult.task_id[0]
-    href = model.substitute_vars([column.href], None, source_file)[0]
+    href = column.href or runResult.log_file
+
     if href.startswith("http://") or href.startswith("https://"):
+        # quote special characters only in inserted variable values, not full URL
+        source_file = url_quote(source_file)
+        href = model.substitute_vars([href], None, source_file)[0]
         return href
-    return os.path.relpath(href, base_dir)
+
+    # quote special characters everywhere (but not twice in source_file!)
+    href = model.substitute_vars([href], None, source_file)[0]
+    return url_quote(os.path.relpath(href, base_dir))
 
 
 def format_options(options):
