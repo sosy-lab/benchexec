@@ -1,5 +1,24 @@
 # BenchExec Changelog
 
+## BenchExec 1.7
+
+- Fix `table-generator` behavior for columns where different cells have different units:
+  The release notes for 1.6 claimed that these columns are treated as text column,
+  when instead they were rejected. Now they are treated as text.
+  Note that BenchExec does not create such columns itself, so this should not affect most users.
+- Fix computation of scores according to the SV-COMP scoring scheme:
+  if the expected result is for example `false(valid-deref)` and the tool returns `false(valid-free)`,
+  the resulting score is the one for a wrong false answer (-16 points),
+  not the one for a wrong true answer (-32 points).
+  The latter score is only given if the tool actually answers `true` incorrectly.
+- Change result classification, if the returned answer does not belong to the property of the task,
+  for example, if the tool returns `true` instead of `sat` for a task with category `satisfiability`,
+  or if the tool returns `false(no-overflow)` when it should not even check for overflows.
+  Now these results are classified as unknown (with score 0),
+  previously these were treated as wrong answers.
+- Fix escaping of links in HTML tables, e.g., to log files with special characters in their name.
+  This was broken in 1.6.
+
 ## BenchExec 1.6
 
 This release brings several improvements to `table-generator`:
