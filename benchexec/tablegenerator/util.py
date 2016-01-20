@@ -302,6 +302,9 @@ def format_value(value, column, isToAlign=False, format_target="html"):
     if value is None:
         return ''
 
+    if column.type.type == ColumnType.text:
+        return value
+
     # If the number ends with "s" or another unit, remove it.
     # Units should not occur in table cells, but in the table head.
     value = remove_unit(str(value).strip())

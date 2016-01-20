@@ -184,6 +184,11 @@ def _get_column_type_heur(column, column_values):
     column_type = None
     column_unit = column.unit
 
+    if column_unit:
+        explicit_unit_defined = True
+    else:
+        explicit_unit_defined = False
+
     if int(column.scale_factor) != column.scale_factor:
         column_type = Util.ColumnMeasureType(0)
     for value in column_values:
@@ -203,7 +208,10 @@ def _get_column_type_heur(column, column_values):
 
             # if the units in two different rows of the same column differ, handle the column as 'text' type
             if column_unit and curr_column_unit and curr_column_unit != column_unit:
-                raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                if explicit_unit_defined:
+                    raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                else:
+                    return ColumnType.text, None
             else:
                 column_type = ColumnType.count
                 column_unit = curr_column_unit
@@ -215,7 +223,10 @@ def _get_column_type_heur(column, column_values):
             # if the units in two different rows of the same column differ, handle the column as 'text' type
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
-                    raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                    if explicit_unit_defined:
+                        raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                    else:
+                        return ColumnType.text, None
                 else:
                     column_unit = curr_column_unit
 
