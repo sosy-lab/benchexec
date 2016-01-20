@@ -228,21 +228,39 @@ def satisfies_file_property(filename, properties):
     return None
 
 
-def score_for_task(filename, properties, category):
+def score_for_task(filename, properties, category, result):
     """
     Return the possible score of task, depending on whether the result is correct or not.
+    Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     if _PROP_SAT in properties:
         return 0
+
     correct = (category == CATEGORY_CORRECT)
     expected = satisfies_file_property(filename, properties)
     if expected is None:
         return 0
     elif expected == True:
+        # expected result is "true", result was "true" or "false"
         return _SCORE_CORRECT_TRUE if correct else _SCORE_WRONG_FALSE
     elif expected == False:
+        if correct:
+            # expected result is "false", result was "false" with correct property
+            return _SCORE_CORRECT_FALSE
+        else:
+            assert result, "Cannot compute score without actual tool result"
+            result_class = get_result_classification(result)
+            if result_class == RESULT_CLASS_TRUE:
+                # expected result is "false", result was "true"
+                return _SCORE_WRONG_TRUE
+            elif result_class == RESULT_CLASS_FALSE:
+                # expected result is "false", result was "false" but with wrong property
+                return _SCORE_WRONG_FALSE
+            else:
+                assert False, "unexpected result classification " + result_class + " for result " + result
+
         return _SCORE_CORRECT_FALSE if correct else _SCORE_WRONG_TRUE
     else:
         assert False, "unexpected return value from satisfies_file_property: " + expected

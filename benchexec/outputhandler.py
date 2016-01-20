@@ -659,9 +659,9 @@ class Statistics(object):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
-        self.score += result.score_for_task(run.identifier, run.properties, run.category)
+        self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status)
         #if run.properties:
-        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT)
+        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]

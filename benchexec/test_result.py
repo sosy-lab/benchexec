@@ -145,51 +145,53 @@ class TestResult(unittest.TestCase):
 
 
     def test_score_for_task_no_score_available(self):
-        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_MISSING))
-        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_ERROR))
-        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_UNKNOWN))
+        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_MISSING, None))
+        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_ERROR, None))
+        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [_PROP_CALL], CATEGORY_UNKNOWN, None))
 
-        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [], CATEGORY_CORRECT))
-        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [], CATEGORY_WRONG))
+        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [], CATEGORY_CORRECT, None))
+        self.assertEqual(0, score_for_task('test_true-unreach-call.c', [], CATEGORY_WRONG, None))
 
     def test_score_for_task_smt(self):
-        self.assertEqual(0, score_for_task('test_sat.smt2', [_PROP_SAT], CATEGORY_CORRECT))
-        self.assertEqual(0, score_for_task('test_sat.smt2', [_PROP_SAT], CATEGORY_WRONG))
+        self.assertEqual(0, score_for_task('test_sat.smt2', [_PROP_SAT], CATEGORY_CORRECT, None))
+        self.assertEqual(0, score_for_task('test_sat.smt2', [_PROP_SAT], CATEGORY_WRONG, None))
 
     def test_score_for_task_svcomp(self):
         self.assertEqual(_SCORE_CORRECT_TRUE,
-                         score_for_task('test_true-unreach-call.c',    [_PROP_CALL], CATEGORY_CORRECT))
+                         score_for_task('test_true-unreach-call.c',    [_PROP_CALL], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_FALSE,
-                         score_for_task('test_false-unreach-call.c',   [_PROP_CALL], CATEGORY_CORRECT))
+                         score_for_task('test_false-unreach-call.c',   [_PROP_CALL], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_TRUE,
-                         score_for_task('test_true-valid-memsafety.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_CORRECT))
+                         score_for_task('test_true-valid-memsafety.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_FALSE,
-                         score_for_task('test_false-valid-memtrack.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_CORRECT))
+                         score_for_task('test_false-valid-memtrack.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_TRUE,
-                         score_for_task('test_true-termination.c',     [_PROP_TERMINATION], CATEGORY_CORRECT))
+                         score_for_task('test_true-termination.c',     [_PROP_TERMINATION], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_FALSE,
-                         score_for_task('test_false-termination.c',    [_PROP_TERMINATION], CATEGORY_CORRECT))
+                         score_for_task('test_false-termination.c',    [_PROP_TERMINATION], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_TRUE,
-                         score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_CORRECT))
+                         score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_FALSE,
-                         score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_CORRECT))
+                         score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_CORRECT, None))
 
         self.assertEqual(_SCORE_WRONG_FALSE,
-                         score_for_task('test_true-unreach-call.c',    [_PROP_CALL], CATEGORY_WRONG))
+                         score_for_task('test_true-unreach-call.c',    [_PROP_CALL], CATEGORY_WRONG, None))
         self.assertEqual(_SCORE_WRONG_TRUE,
-                         score_for_task('test_false-unreach-call.c',   [_PROP_CALL], CATEGORY_WRONG))
+                         score_for_task('test_false-unreach-call.c',   [_PROP_CALL], CATEGORY_WRONG, RESULT_CLASS_TRUE))
         self.assertEqual(_SCORE_WRONG_FALSE,
-                         score_for_task('test_true-valid-memsafety.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_WRONG))
+                         score_for_task('test_true-valid-memsafety.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_WRONG, None))
         self.assertEqual(_SCORE_WRONG_TRUE,
-                         score_for_task('test_false-valid-memtrack.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_WRONG))
+                         score_for_task('test_false-valid-memtrack.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_WRONG, RESULT_CLASS_TRUE))
         self.assertEqual(_SCORE_WRONG_FALSE,
-                         score_for_task('test_true-termination.c',     [_PROP_TERMINATION], CATEGORY_WRONG))
-        self.assertEqual(_SCORE_WRONG_TRUE,
-                         score_for_task('test_false-termination.c',    [_PROP_TERMINATION], CATEGORY_WRONG))
+                         score_for_task('test_false-valid-memtrack.c', [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK], CATEGORY_WRONG, RESULT_FALSE_DEREF))
         self.assertEqual(_SCORE_WRONG_FALSE,
-                         score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_WRONG))
+                         score_for_task('test_true-termination.c',     [_PROP_TERMINATION], CATEGORY_WRONG, None))
         self.assertEqual(_SCORE_WRONG_TRUE,
-                         score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_WRONG))
+                         score_for_task('test_false-termination.c',    [_PROP_TERMINATION], CATEGORY_WRONG, RESULT_CLASS_TRUE))
+        self.assertEqual(_SCORE_WRONG_FALSE,
+                         score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_WRONG, None))
+        self.assertEqual(_SCORE_WRONG_TRUE,
+                         score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_WRONG, RESULT_CLASS_TRUE))
 
 
     def test_result_classification(self):

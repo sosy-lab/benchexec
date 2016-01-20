@@ -694,7 +694,8 @@ class RunResult(object):
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
         score = result.score_for_task(sourcefileTag.get('name'),
                                       sourcefileTag.get('properties', '').split(),
-                                      category)
+                                      category,
+                                      status)
         logfileLines = None
 
         values = []
@@ -914,7 +915,7 @@ def get_stats(rows):
             count_true += 1
         elif correct_result is False:
             count_false += 1
-        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT)
+        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
