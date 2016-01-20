@@ -679,7 +679,14 @@ class OutputHandler(object):
             actual_filename = filename + ".tmp"
             open_func = open
 
-        with io.TextIOWrapper(open_func(actual_filename, 'wb'), encoding='utf-8') as file:
+        # TextIOWrapper needs readable() function with BZ2File does not have under Python 3.2
+        raw_file = open_func(actual_filename, 'wb')
+        try:
+            raw_file.readable()
+        except AttributeError:
+            raw_file.readable = lambda self: False
+
+        with io.TextIOWrapper(raw_file, encoding='utf-8') as file:
             rough_string = self._result_xml_to_string(xml)
             reparsed = minidom.parseString(rough_string)
             doctype = minidom.DOMImplementation().createDocumentType(
