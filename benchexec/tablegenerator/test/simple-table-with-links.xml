@@ -3,5 +3,6 @@
 
   <column title="status"/>
   <column title="cputime"/>
-  <column title="witness" href="benchmark.logfiles/${inputfile_name}.files/error-witness.graphml">wit</column>
+  <column title="witness" href="benchmark.logfiles/${inputfile_name}.files/error#witness.graphml">wit</column>
+  <column title="benchexec" href="https://github.com/sosy-lab/benchexec?file=${inputfile_name}#benchexec">benchexec</column>
 </table>
