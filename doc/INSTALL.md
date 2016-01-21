@@ -55,18 +55,21 @@ acceptable, though there have been performance improvements for the memory
 controller in version 3.3, and cgroups in general are still getting improved, thus,
 using a recent kernel is a good idea.
 
-### Warning for Users of Ubuntu 14.04
+### Warning for Users of Linux Kernel up to 3.13 (e.g., Ubuntu 14.04)
 
-There is a problem in the Linux kernel 3.13 used by Ubuntu 14.04.
-If the cgroup option `memory.use_hierarchy` is enabled,
-the kernel sporadically crashes
-with the message `BUG: soft lockup` in `/var/log/kern.org`
-when the benchmarked process hits its memory limit,
-and needs to be rebooted.
+There is a race condition in the Linux kernel up to version 3.13
+that sometimes causes the machine to freeze if a process hits its memory limit
+([blog post with description](https://community.nitrous.io/posts/stability-and-a-linux-oom-killer-bug),
+[commits fixing it](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?id=4d4048be8a93769350efa31d2482a038b7de73d0&qt=range&q=9853a407b97d8d066b5a865173a4859a3e69fd8a...4d4048be8a93769350efa31d2482a038b7de73d0),
+[entry in Ubuntu bug tracker](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1510196)).
+The kernel log then contains messages like `BUG: soft lookup`
+and `Memory cgroup out of memory` or similar immediately before the crash,
+and the machine needs to be rebooted.
 
-If you use Ubuntu 14.04 with `memory.use_hierarchy`,
-please upgrade to kernel 3.16 or newer, which is not affected,
-using the officially supported
+So far we have experienced this only if the cgroup option `memory.use_hierarchy` is enabled.
+Thus, if you use kernel 3.13 or older with `memory.use_hierarchy`,
+please upgrade or make sure your kernel contains the above fixes.
+For Ubuntu 14.04, upgrading can be done using the officially supported
 [Ubuntu LTS Hardware Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
 
 
