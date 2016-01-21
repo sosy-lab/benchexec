@@ -25,6 +25,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
+import bz2
 import glob
 import logging
 import os
@@ -366,6 +367,28 @@ def read_key_value_pairs_from_file(*path):
     with open(os.path.join(*path)) as f:
         for line in f:
             yield line.split(' ', 1) #maxsplit=1
+
+
+class BZ2FileHack(bz2.BZ2File):
+    """Hack for Python 3.2, where BZ2File cannot be used in a io.TextIOWrapper
+    because it lacks several functions.
+    """
+    def __init__(self, filename, mode, *args, **kwargs):
+        assert mode == "wb"
+        bz2.BZ2File.__init__(self, filename, mode, *args, **kwargs)
+
+    def readable(self):
+        return False
+
+    def seekable(self):
+        return False
+
+    def writable(self):
+        return True
+
+    def flush(self):
+        pass
+
 
 def add_files_to_git_repository(base_dir, files, description):
     """

@@ -672,21 +672,15 @@ class OutputHandler(object):
         """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
         if self.compress_results:
             actual_filename = filename + ".bz2"
-            open_func = bz2.BZ2File
+            # Use BZ2File directly or our hack for Python 3.2
+            open_func = bz2.BZ2File if hasattr(bz2.BZ2File, 'writable') else util.BZ2FileHack
         else:
             # write content to temp file first to prevent loosing data
             # in existing file if writing fails
             actual_filename = filename + ".tmp"
             open_func = open
 
-        # TextIOWrapper needs readable() function with BZ2File does not have under Python 3.2
-        raw_file = open_func(actual_filename, 'wb')
-        try:
-            raw_file.readable()
-        except AttributeError:
-            raw_file.readable = lambda self: False
-
-        with io.TextIOWrapper(raw_file, encoding='utf-8') as file:
+        with io.TextIOWrapper(open_func(actual_filename, 'wb'), encoding='utf-8') as file:
             rough_string = self._result_xml_to_string(xml)
             reparsed = minidom.parseString(rough_string)
             doctype = minidom.DOMImplementation().createDocumentType(
