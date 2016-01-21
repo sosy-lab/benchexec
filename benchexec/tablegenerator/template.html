@@ -462,7 +462,14 @@ $(document).ready(function() {
 
 <!-- ################## Make links load via AJAX and show content in extra panel ################## -->
 
+<script type="text/javascript" src="http://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/zip.js" integrity="sha384-MeRnH55Zif/L4RFyjHhP84qa2UZNBaCtvqLwd2wSLHxvsIVFyqlfnA4M4A+Jh9Nf" crossorigin="anonymous"></script>
+<script type="text/javascript" src="http://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/zip-ext.js" integrity="sha384-5XVhUBjSICwNlApchJ6WQL+IWtZ37toeXJF4liYi1v3YgkxARSHsJfhCKch0xBcq" crossorigin="anonymous"></script>
+<script type="text/javascript" src="http://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/inflate.js" integrity="sha384-YaI2tf97t7If3Fzl+vd3knFT+VMvkEjE+AhkDl/1vyKvag+6oPuqeF4NkzE04JrF" crossorigin="anonymous"></script>
+
 <script type="text/javascript">
+// We cannot use web workers and need to load inflate.js manually,
+// because browsers do not allow to load web workers from different domains.
+zip.useWebWorkers = false;
 
 function loadContentWrapper(event) {
   var url = $(event.target).attr("href");
@@ -472,33 +479,77 @@ function loadContentWrapper(event) {
 
 function loadContent(url) {
   var contentPane = $('<pre id="content"></pre>').appendTo("#contentPane")
+  function writeToContentPane(text) {
+    debug(text);
+    newtext = text.replace(/&/g, "&amp;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;");
+    contentPane.html(newtext);
+  }
 
-  $.ajax({
-    async: false, // wait for isError
-    url: url,
-    cache: false,
-    dataType: "text",
-    beforeSend: function() {
-      showContentPane();
-      contentPane.html("loading...");
-    },
-    success: function(text) {
-      newtext = text.replace(/&/g, "&amp;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/\\n/g, "<br>");
-      contentPane.html(newtext);
-    },
-    error: function() {
-      contentPane.html("error while loading content.<br>" +
-        "this could be a problem of the 'same-origin-policy' of your browser.<br><br>" +
-        "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
-        "Firefox can access files from local directories by default,<br>" +
-        "and this works only if the file is in the same directory as this website.<br><br>" +
-        "you can try to download the file: <a href=" + url + ">" + url + "</a>");
-    },
-  });
+  function giveUp(error) {
+    contentPane.html("Error while loading content (" + error + ").<br>" +
+      "This could be a problem of the <a href='https://en.wikipedia.org/wiki/Same-origin_policy'>same-origin policy</a> of your browser.<br><br>" +
+      "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
+      "Firefox can access files from local directories by default,<br>" +
+      "but this does not work for files that are not benath the same directory as this HTML page.<br><br>" +
+      "You can try to download the file: <a href=" + url + ">" + url + "</a>");
+  }
+
+  showContentPane();
+  writeToContentPane("Loading file " + url);
+
+  // 1) Try loading url with normal Ajax request for uncompressed results.
+  // 2) Try loading url from within ZIP archive using HTTP Range header for efficient access
+  //    (this fails for ZIPs on the local disk).
+  // 3) Try loading url from within ZIP archive without Range header.
+
+  function attemptLoadingFromZIP() {
+    var splitPos = url.lastIndexOf('/');
+    var zipUrl = url.substring(0, splitPos) + ".zip";
+    var logfile = url.substring(splitPos);
+
+    function loadFileFromZip(logZip) {
+      logZip.getEntries(function(entries) {
+        try {
+          for (var i = 0; i < entries.length; i++) {
+            if (entries[i].filename.search(logfile) >= 0) {
+              entries[i].getData(new zip.TextWriter(), writeToContentPane);
+              return;
+            }
+          }
+        } finally {
+          logZip.close();
+        }
+        giveUp('did not find file "' + logfile.substring(1) + '" in "' + zipUrl + '"');
+      });
+    }
+
+    writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '"');
+    try {
+      zip.createReader(new zip.HttpRangeReader(zipUrl), loadFileFromZip,
+        function(error) {
+          if (error == "HTTP Range not supported.") {
+            // try again without HTTP Range header
+            writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '" without using HTTP Range header.');
+            zip.createReader(new zip.HttpReader(zipUrl), loadFileFromZip, giveUp);
+          } else {
+            giveUp(error);
+          }
+        });
+    } catch (ex) {
+      debug(ex);
+      giveUp(ex.message);
+    }
+  }
+
+  $.ajax({ url: url, dataType: "text" })
+    .done(writeToContentPane)
+    .fail(function(jqXHR, textStatus, errorThrown) {
+            debug(errorThrown);
+          })
+    .fail(attemptLoadingFromZIP);
 }
 
 $(document).ready(function() {
