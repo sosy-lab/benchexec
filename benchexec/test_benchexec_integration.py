@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import bz2
 import os
 import shutil
 import subprocess
@@ -88,6 +89,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
                 for file in log_zip.namelist():
                     self.assertTrue(file.startswith(basename + "logfiles" + os.sep),
                                     "Unexpected file in logfiles zip: " + file)
+
+            for file in generated_files:
+                if file.endswith(".bz2"):
+                    # try to decompress and read to see if there are any errors with it
+                    with bz2.BZ2File(os.path.join(self.tmp, file)) as bz2file:
+                        bz2file.read()
+
 
     def test_simple(self):
         self.run_benchexec_and_compare_expected_files()
