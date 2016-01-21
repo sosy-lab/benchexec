@@ -709,6 +709,7 @@ class RunResult(object):
                 else:
                     logging.warning("Could not find logfile '%s' nor log archive '%s'.",
                                     logfilename, log_zip_name)
+                    return []
             except IOError as e:
                 logging.warning("Could not read value from logfile: %s", e)
                 return []
