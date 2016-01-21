@@ -25,6 +25,7 @@ import collections
 from decimal import Decimal, InvalidOperation
 import glob
 import gzip
+import io
 import itertools
 import logging
 import os.path
@@ -41,6 +42,7 @@ from benchexec import __version__
 import benchexec.result as result
 from benchexec.tablegenerator import util as Util
 from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
+import zipfile
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -692,9 +694,21 @@ class RunResult(object):
         def read_logfile_lines(logfilename):
             if not logfilename:
                 return []
+            log_zip_name = os.path.dirname(logfilename) + ".zip"
             try:
-                with open(logfilename, 'rt') as logfile:
-                    return logfile.readlines()
+                if os.path.exists(logfilename):
+                    with open(logfilename, 'rt') as logfile:
+                        return logfile.readlines()
+
+                elif os.path.exists(log_zip_name):
+                    with zipfile.ZipFile(log_zip_name) as log_zip:
+                        path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
+                        with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
+                            return logfile.readlines()
+
+                else:
+                    logging.warning("Could not find logfile '%s' nor log archive '%s'.",
+                                    logfilename, log_zip_name)
             except IOError as e:
                 logging.warning("Could not read value from logfile: %s", e)
                 return []
