@@ -489,12 +489,18 @@ function loadContent(url) {
   }
 
   function giveUp(error) {
-    contentPane.html("Error while loading content (" + error + ").<br>" +
-      "This could be a problem of the <a href='https://en.wikipedia.org/wiki/Same-origin_policy'>same-origin policy</a> of your browser.<br><br>" +
-      "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
-      "Firefox can access files from local directories by default,<br>" +
-      "but this does not work for files that are not benath the same directory as this HTML page.<br><br>" +
-      "You can try to download the file: <a href=" + url + ">" + url + "</a>");
+    var _contentPane = $('#contentPane');
+    _contentPane.html("Error while loading content (" + error + ").<br>" +
+      "This could be a problem of the <a href='https://en.wikipedia.org/wiki/Same-origin_policy'>same-origin policy</a> of your browser.<br><br>");
+    if (window.location.href.search("file://") == 0) {
+      _contentPane.append(
+        "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
+        "Reading files from within ZIP archives on the local disk does not work with Google Chrome,<br>" +
+        "if the target file is within a ZIP archive you need to extract it.<br><br>" +
+        "Firefox can access files from local directories by default,<br>" +
+        "but this does not work for files that are not benath the same directory as this HTML page.<br><br>");
+    }
+    _contentPane.append("You can try to download the file: <a href=" + url + ">" + url + "</a>");
   }
 
   showContentPane();
