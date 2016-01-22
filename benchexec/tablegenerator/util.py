@@ -109,13 +109,13 @@ def format_options(options):
     # split on one of the following tokens: ' -' or '[[' or ']]'
     lines = ['']
     for token in re.split('( -|\[\[|\]\])', options):
-      if token in ['[[',']]']:
-        lines.append(token)
-        lines.append('')
-      elif token == ' -':
-        lines.append(token)
-      else:
-        lines[-1] += token
+        if token in ['[[',']]']:
+            lines.append(token)
+            lines.append('')
+        elif token == ' -':
+            lines.append(token)
+        else:
+            lines[-1] += token
     # join all non-empty lines and wrap them into 'span'-tags
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
