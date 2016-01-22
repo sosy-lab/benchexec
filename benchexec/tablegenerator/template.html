@@ -471,6 +471,9 @@ $(document).ready(function() {
 // because browsers do not allow to load web workers from different domains.
 zip.useWebWorkers = false;
 
+// When loading files from ZIP files, we cache the list of files per ZIP file here
+cachedZipFileEntries = {}
+
 function loadContentWrapper(event) {
   var url = $(event.target).attr("href");
   loadContent(url);
@@ -516,37 +519,42 @@ function loadContent(url) {
     var zipUrl = url.substring(0, splitPos) + ".zip";
     var logfile = url.substring(splitPos);
 
+    function loadFileFromZipEntries(entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].filename.search(logfile) >= 0) {
+          entries[i].getData(new zip.TextWriter(), writeToContentPane);
+          return;
+        }
+      }
+      giveUp('did not find file "' + logfile.substring(1) + '" in "' + zipUrl + '"');
+    }
+
     function loadFileFromZip(logZip) {
       logZip.getEntries(function(entries) {
-        try {
-          for (var i = 0; i < entries.length; i++) {
-            if (entries[i].filename.search(logfile) >= 0) {
-              entries[i].getData(new zip.TextWriter(), writeToContentPane);
-              return;
-            }
-          }
-        } finally {
-          logZip.close();
-        }
-        giveUp('did not find file "' + logfile.substring(1) + '" in "' + zipUrl + '"');
+        cachedZipFileEntries[zipUrl] = entries;
+        loadFileFromZipEntries(entries);
       });
     }
 
     writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '"');
-    try {
-      zip.createReader(new zip.HttpRangeReader(zipUrl), loadFileFromZip,
-        function(error) {
-          if (error == "HTTP Range not supported.") {
-            // try again without HTTP Range header
-            writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '" without using HTTP Range header.');
-            zip.createReader(new zip.HttpReader(zipUrl), loadFileFromZip, giveUp);
-          } else {
-            giveUp(error);
-          }
-        });
-    } catch (ex) {
-      debug(ex);
-      giveUp(ex.message);
+    if (zipUrl in cachedZipFileEntries) {
+      loadFileFromZipEntries(cachedZipFileEntries[zipUrl]);
+    } else {
+      try {
+        zip.createReader(new zip.HttpRangeReader(zipUrl), loadFileFromZip,
+          function(error) {
+            if (error == "HTTP Range not supported.") {
+              // try again without HTTP Range header
+              writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '" without using HTTP Range header.');
+              zip.createReader(new zip.HttpReader(zipUrl), loadFileFromZip, giveUp);
+            } else {
+              giveUp(error);
+            }
+          });
+      } catch (ex) {
+        debug(ex);
+        giveUp(ex.message);
+      }
     }
   }
 
