@@ -292,12 +292,11 @@ class OutputHandler(object):
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
-        xml_file_name = self.get_filename(runSet.name, "xml")
-        runSet.xml_file = filewriter.FileWriter(xml_file_name,
-                       self._result_xml_to_string(runSet.xml))
-        runSet.xml_file.lastModifiedTime = util.read_monotonic_time()
-        self.all_created_files.add(xml_file_name)
-        self.xml_file_names.append(xml_file_name)
+        runSet.xml_file_name = self.get_filename(runSet.name, "xml")
+        self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
+        runSet.xml_file_last_modified_time = util.read_monotonic_time()
+        self.all_created_files.add(runSet.xml_file_name)
+        self.xml_file_names.append(runSet.xml_file_name)
 
 
     def output_for_skipping_run_set(self, runSet, reason=None):
@@ -429,9 +428,9 @@ class OutputHandler(object):
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
             currentTime = util.read_monotonic_time()
-            if currentTime - run.runSet.xml_file.lastModifiedTime > 60:
-                run.runSet.xml_file.replace(self._result_xml_to_string(run.runSet.xml))
-                run.runSet.xml_file.lastModifiedTime = util.read_monotonic_time()
+            if currentTime - run.runSet.xml_file_last_modified_time > 60:
+                self._write_rough_result_xml_to_file(run.runSet.xml, run.runSet.xml_file_name)
+                run.runSet.xml_file_last_modified_time = util.read_monotonic_time()
 
         finally:
             OutputHandler.print_lock.release()
@@ -451,7 +450,7 @@ class OutputHandler(object):
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file.filename)
+        self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
@@ -664,9 +663,13 @@ class OutputHandler(object):
         return fileName.ljust(runSet.max_length_of_filename + 4)
 
 
-    def _result_xml_to_string(self, xml):
-        """Return a rough string version of the XML (for temporary files)."""
-        return ET.tostring(xml, 'unicode')
+    def _write_rough_result_xml_to_file(self, xml, filename):
+        """Write a rough string version of the XML (for temporary files)."""
+        # Write content to temp file first
+        temp_filename = filename + ".tmp"
+        with open(temp_filename, 'wb') as file:
+            ET.ElementTree(xml).write(file, encoding='utf-8', xml_declaration=True)
+        os.rename(temp_filename, filename)
 
     def _write_pretty_result_xml_to_file(self, xml, filename):
         """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
@@ -681,7 +684,7 @@ class OutputHandler(object):
             open_func = open
 
         with io.TextIOWrapper(open_func(actual_filename, 'wb'), encoding='utf-8') as file:
-            rough_string = self._result_xml_to_string(xml)
+            rough_string = ET.tostring(xml, encoding='unicode')
             reparsed = minidom.parseString(rough_string)
             doctype = minidom.DOMImplementation().createDocumentType(
                     'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
