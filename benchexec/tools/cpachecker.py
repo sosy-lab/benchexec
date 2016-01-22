@@ -130,10 +130,12 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'OUT OF MEMORY'
             elif 'SIGSEGV' in line:
                 status = 'SEGMENTATION FAULT'
+            elif (returncode == 0 or returncode == 1) and 'java.lang.AssertionError' in line:
+                status = 'ASSERTION'
             elif ((returncode == 0 or returncode == 1)
-                    and ('Exception' in line or 'java.lang.AssertionError' in line)
+                    and ('Exception:' in line or line.startswith('Exception in thread'))
                     and not line.startswith('cbmc')): # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
-                status = 'ASSERTION' if 'java.lang.AssertionError' in line else 'EXCEPTION'
+                status = 'EXCEPTION'
             elif 'Could not reserve enough space for object heap' in line:
                 status = 'JAVA HEAP ERROR'
             elif line.startswith('Error: ') and not status:
