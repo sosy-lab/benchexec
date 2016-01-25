@@ -204,7 +204,8 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     # Round to the given amount of significant digits
     #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
-    float_value = float("{value:.{digits}g}".format(digits=number_of_significant_digits, value=number))
+    intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
+    float_value = float("{value:.{digits}g}".format(digits=intended_digits, value=number))
     formatted_value = str(float_value)
 
     # Get the number of intended significant digits and the number of current significant digits.
@@ -212,7 +213,6 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
     current_sig_digits = _get_significant_digits(formatted_value)
 
-    intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
     digits_to_add = intended_digits - current_sig_digits
 
     if digits_to_add > 0:
