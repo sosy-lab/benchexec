@@ -264,7 +264,11 @@ class RunExecutor(object):
                 self._home_dir = _get_user_account_info(user).pw_dir
             except (KeyError, ValueError) as e:
                 sys.exit('Unknown user {}: {}'.format(user, e))
-            self._home_dir_content = set(self._listdir(self._home_dir))
+            try:
+                self._home_dir_content = set(self._listdir(self._home_dir))
+            except (subprocess.CalledProcessError, IOError):
+                # Probably directory does not exist
+                self._home_dir_content = []
             if self._home_dir_content:
                 logging.warning(
                     'Home directory %s of user %s contains files and/or directories, it is '
@@ -401,7 +405,7 @@ class RunExecutor(object):
             return os.listdir(path)
         else:
             args = self._build_cmdline(['/bin/ls', '-1', path])
-            return subprocess.check_output(args).decode('utf-8', errors='ignore').split('\n')
+            return subprocess.check_output(args, stderr=DEVNULL).decode('utf-8', errors='ignore').split('\n')
 
     def _set_termination_reason(self, reason):
         if not self._termination_reason:
@@ -987,7 +991,11 @@ class RunExecutor(object):
         """
         if not self._user:
             return None
-        created_files = set(self._listdir(self._home_dir)).difference(self._home_dir_content)
+        try:
+            created_files = set(self._listdir(self._home_dir)).difference(self._home_dir_content)
+        except (subprocess.CalledProcessError, IOError):
+            # Probably home directory does not exist
+            created_files = []
         if created_files:
             logging.warning('The tool created the following files in %s, '
                             'this may influence later runs:\n\t%s',
