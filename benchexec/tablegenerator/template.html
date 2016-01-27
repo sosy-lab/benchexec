@@ -536,6 +536,17 @@ function loadContent(url) {
       });
     }
 
+    function attemptLoadingZIPManually() {
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'arraybuffer';
+      xhr.addEventListener("load", function() {
+          zip.createReader(new zip.ArrayBufferReader(xhr.response), loadFileFromZip, giveUp);
+        }, false);
+      xhr.addEventListener("error", giveUp, false);
+      xhr.open('GET', zipUrl);
+      xhr.send();
+    }
+
     writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '"');
     if (zipUrl in cachedZipFileEntries) {
       loadFileFromZipEntries(cachedZipFileEntries[zipUrl]);
@@ -546,7 +557,9 @@ function loadContent(url) {
             if (error == "HTTP Range not supported.") {
               // try again without HTTP Range header
               writeToContentPane('Loading file "' + logfile.substring(1) + '" from ZIP archive "' + zipUrl + '" without using HTTP Range header.');
-              zip.createReader(new zip.HttpReader(zipUrl), loadFileFromZip, giveUp);
+              // Try with HttpReader, but this fails in Chrome for local files,
+              // so fall back to a manual XMLHttpRequest.
+              zip.createReader(new zip.HttpReader(zipUrl), loadFileFromZip, attemptLoadingZIPManually);
             } else {
               giveUp(error);
             }
