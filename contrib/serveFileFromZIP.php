@@ -1,5 +1,4 @@
 <?php
-
 # BenchExec is a framework for reliable benchmarking.
 # This file is part of BenchExec.
 #
@@ -18,76 +17,98 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+/*
+ * This script serves files included in ZIP archives transparently to the client.
+ * For example, if the client requests /foo/bar/file.txt and this request
+ * gets handled by this script,
+ * it checks whether an archive /foo/bar.zip with a contained file bar/file.txt
+ * or an archive /foo.zip with a contained file foo/bar/file.txt exists
+ * and serves the content of this file.
+ *
+ * This can be used for BenchExec's log-file archives.
+ * To use it on an Apache server,
+ * put this script in your results directory or a directory above it,
+ * and insert the following in the ".htaccess" file in the same directory:
 
+RewriteEngine On
+# Only redirect if target does not exist as file or directory
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-f
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-d
+# If Apache has option MultiViews set it rewrites the URL to include ".zip",
+# so we match both
+RewriteRule ^.*\.logfiles(\.zip)?/.* serveFileFromZIP.php
+
+ * This requires mod_rewrite and the permission to configure it from ".htaccess"
+ * (given with "AllowOverride FileInfo" in the server config).
+ * Alternatively, you can also put this rewrite rule directly into your server config,
+ * but you probably need to adjust the path to the PHP script.
+ *
+ * TODO: Currently this script always sets Content-Type "text/plain".
+ */
+
+/* Send error 404 to client. */
 function handleError($message) {
-  header('HTTP/1.0 404 Not Found');
-  echo '<html>' . PHP_EOL;
-  echo '<body>' . PHP_EOL;
-  echo '<h1>Error 404: Not Found</h1>' . PHP_EOL;
-  echo '<p>' . $message . '</p>' . PHP_EOL;
-  echo '</body>' . PHP_EOL;
-  echo '</html>' . PHP_EOL;
+  header('HTTP/1.1 404 Not Found');
+  ?>
+    <html><head>
+    <title>404 Not Found</title>
+    </head><body>
+    <h1>Not Found</h1>
+    <p><?php echo $message;?>.</p>
+    </body></html>
+  <?php
   exit();
 }
 
-# Remove query from URI.
+/* Read a file from a ZIP archive and send content to client. */
+function serveFileFromZIP($baseDir, $zipName, $fileName) {
+  $zip = new ZipArchive();
+  if ($zip->open($baseDir . $zipName) !== TRUE) {
+    handleError("Could not open ZIP file '$zipName'");
+  }
+
+  $contents = $zip->getStream($fileName);
+  if ($contents === FALSE) {
+    $zip->close();
+    handleError("Could not find file '$fileName' in ZIP file '$zipName'");
+  }
+
+  $fileSize = $zip->statName($fileName)['size'];
+  header('Content-Length: ' . $fileSize);
+  header('Content-Type: text/plain');
+
+  fpassthru($contents);
+  fclose($contents);
+  $zip->close();
+  exit();
+}
+
+# Remove query from URI, example: /foo/bar/file.txt
 $path = preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']);
-# Example: /2016/results/results-verified/xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
 
-# Use SCRIPT_FILENAME to get absolute path to this script.
-$pathPrefix = preg_replace("/serveFileFromZIP\.php/", "", $_SERVER['SCRIPT_FILENAME']);
-# Example: /srv/web/Org/SV-COMP/2016/results/results-verified/
+# Parts of path, example: ["foo", "bar", "file.txt"]
+$parts = explode("/", ltrim($path, "/"));
 
-# Make $pathPrefix relative to document root.
-$pathPrefix = '/' . preg_replace("/(^" . str_replace('/', '\/', $_SERVER['DOCUMENT_ROOT']) . "|\?.*)/", "", $pathPrefix);
-# Example: /2016/results/results-verified/
+# Base directory (document root), example: /var/www/
+$baseDir = rtrim($_SERVER['DOCUMENT_ROOT'], "/") . "/";
 
-# Make $path relative to pathPrefix.
-$path = preg_replace("/(^" . str_replace('/', '\/', $pathPrefix) . "|\?.*)/", "", $path);
-# Example: xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
+# Iterate backwards through $parts,
+# check if archive with name $parts[0,...,$i-1] exists
+# and serve file $parts[$i-1,...] from it.
+for ($i = count($parts)-1; $i > 0; $i--) {
+  $dirName = implode("/", array_slice($parts, 0, $i));
+  $fileName = implode("/", array_slice($parts, $i-1));
+  $zipName = $dirName . ".zip";
 
-# Split $path into a prefix $zipName and suffix $fileName
-# such that $zipName is refering to a zip file and $fileName is a file inside the zip file.
-$zipName  = ".";
-$fileName = ".";
-$isBeforeZip = true;
-foreach (explode("/", $path) as $pathComponent) {
-  if ($isBeforeZip && file_exists($zipName . "/" . $pathComponent)) {
-    $zipName .= "/" . $pathComponent;
-  } else {
-    $isBeforeZip = false;
-    if (file_exists($zipName . "/" . $pathComponent . ".zip")) {
-      $zipName = $zipName . "/" . $pathComponent . ".zip";
-    }
-    $fileName .= "/" . $pathComponent;
+  if (file_exists($baseDir . $dirName)) {
+    # Abort if we have found a path component that exists.
+    handleError("The requested URL '$path' was not found on this server.");
+  }
+
+  if (file_exists($baseDir . $zipName)) {
+    serveFileFromZIP($baseDir, $zipName, $fileName);
   }
 }
-$zipName = preg_replace("/^\.\//", "", $zipName);
-# Example: xyz.2016-01-02_2242.logfiles.zip
 
-$fileName = preg_replace("/^\.\//", "", $fileName);
-# Example: xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
-
-#echo $zipName  . PHP_EOL;
-#echo $fileName . PHP_EOL;
-
-if ( !preg_match("/\.zip$/", $zipName) || !file_exists($zipName) ) {
-  handleError("Error: ZIP file not found (tried '$zipName').");
-}
-$zip = new ZipArchive();
-if ($zip->open($zipName) !== TRUE) {
-  handleError("Error: Could not open ZIP file '$zipName'.");
-}
-$contents = $zip->getFromName($fileName);
-$zip->close();
-if ($contents === FALSE) {
-  handleError("Error: Could not find file '$fileName' in ZIP file '$zipName'.");
-}
-$fileSize = strlen($contents);
-$fileName = preg_replace("/.*\//", "", $fileName);
-header('Content-Description: File Download from ZIP File');
-header("Content-Disposition: attachment; filename=$fileName");
-header('Content-Type: text/plain');
-header('Content-Length: ' . $fileSize);
-echo $contents;
+handleError("The requested URL '$path' was not found on this server.");
 ?>
