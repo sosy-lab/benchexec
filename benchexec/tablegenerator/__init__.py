@@ -839,7 +839,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     turbo = 'disabled'
                 else:
                     turbo = None
-                runSetResult.attributes['turbo'] = ', Turbo Boost {}'.format(turbo) if turbo else ''
+                runSetResult.attributes['turbo'] = ', Turbo Boost: {}'.format(turbo) if turbo else ''
 
             elif key == 'timelimit':
                 def fix_unit_display(value):
@@ -895,7 +895,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             'limit':   get_row('Limits', 'timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}', collapse=True),
             'host':    get_row('Host', '{host}', collapse=True, onlyIf='host'),
             'os':      get_row('OS', '{os}', collapse=True, onlyIf='os'),
-            'system':  get_row('System', 'CPU: {cpu} with {cores} cores, frequency: {freq}{turbo}; RAM: {ram}', collapse=True, onlyIf='cpu'),
+            'system':  get_row('System', 'CPU: {cpu}, cores: {cores}, frequency: {freq}{turbo}; RAM: {ram}', collapse=True, onlyIf='cpu'),
             'date':    get_row('Date of execution', '{date}', collapse=True),
             'runset':  get_row('Run set', '{niceName}'),
             'branch':  get_row('Branch', '{branch}'),
