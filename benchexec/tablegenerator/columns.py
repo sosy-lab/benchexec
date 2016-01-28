@@ -105,7 +105,6 @@ class Column(object):
         self.scale_factor = float(scale_factor) if scale_factor else 1
         self.href = href
 
-
     def format_value(self, value, isToAlign=False, format_target="html"):
         """
         Format a value nicely for human-readable output (including rounding).
@@ -156,15 +155,22 @@ class Column(object):
             return str(number)
 
 
-def _format_number_align(formattedValue, max_number_of_dec_digits):
+def _format_number_align(formattedValue, max_number_of_dec_digits, format_target="html"):
     alignment = max_number_of_dec_digits
+
     if formattedValue.find('.') >= 0:
         # Subtract spaces for digits after the decimal point.
         alignment -= len(formattedValue) - formattedValue.find('.') - 1
-    elif max_number_of_dec_digits > 0:
+    elif max_number_of_dec_digits > 0 and format_target.startswith('html'):
         # Add punctuation space.
         formattedValue += '&#x2008;'
-    formattedValue += '&#x2007;' * alignment
+
+    if format_target.startswith('html'):
+        whitespace = '&#x2007;'
+    else:
+        whitespace = ' '
+    formattedValue += whitespace * alignment
+
     return formattedValue
 
 
@@ -224,11 +230,17 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
-    if format_target == "html_cell" and '.' in formatted_value and 1 > float(formatted_value) >= 0:
+    if _is_to_cut(formatted_value, format_target, isToAlign):
         assert formatted_value[0] == '0'
         formatted_value = formatted_value[1:]
 
     # Alignment
     if isToAlign:
-        formatted_value = _format_number_align(formatted_value, max_digits_after_decimal)
+        formatted_value = _format_number_align(formatted_value, max_digits_after_decimal, format_target)
     return formatted_value
+
+
+def _is_to_cut(value, format_target, is_to_align):
+    correct_target = format_target == "html_cell" or (format_target == 'csv' and is_to_align)
+
+    return correct_target and '.' in value and 1 > float(value) >= 0
