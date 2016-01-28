@@ -19,7 +19,16 @@
 # limitations under the License.
 
 
-header('Content-Type: text/plain');
+function handleError($message) {
+  header('HTTP/1.0 404 Not Found');
+  echo '<html>' . PHP_EOL;
+  echo '<body>' . PHP_EOL;
+  echo '<h1>Error 404: Not Found</h1>' . PHP_EOL;
+  echo '<p>' . $message . '</p>' . PHP_EOL;
+  echo '</body>' . PHP_EOL;
+  echo '</html>' . PHP_EOL;
+  exit();
+}
 
 # Remove query from URI.
 $path = preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']);
@@ -29,11 +38,11 @@ $path = preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']);
 $pathPrefix = preg_replace("/serveFileFromZIP\.php/", "", $_SERVER['SCRIPT_FILENAME']);
 # Example: /srv/web/Org/SV-COMP/2016/results/results-verified/
 
-# Make pathPrefix relative to document root.
+# Make $pathPrefix relative to document root.
 $pathPrefix = '/' . preg_replace("/(^" . str_replace('/', '\/', $_SERVER['DOCUMENT_ROOT']) . "|\?.*)/", "", $pathPrefix);
 # Example: /2016/results/results-verified/
 
-# Make path relative to pathPrefix.
+# Make $path relative to pathPrefix.
 $path = preg_replace("/(^" . str_replace('/', '\/', $pathPrefix) . "|\?.*)/", "", $path);
 # Example: xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
 
@@ -59,25 +68,26 @@ $zipName = preg_replace("/^\.\//", "", $zipName);
 $fileName = preg_replace("/^\.\//", "", $fileName);
 # Example: xyz.2016-01-02_2242.logfiles/sv-comp16.standard_find_true-unreach-call_ground.i.log
 
-if ($fileName == "") {
-  if (!file_exists($zipName)) {
-    echo "Error: ZIP file does not exist." . PHP_EOL;
-    exit();
-  }
-  if (!preg_match("\.zip$", $zipName)) {
-    echo "Error: File is not a ZIP file." . PHP_EOL;
-    exit();
-  }
-}
+#echo $zipName  . PHP_EOL;
+#echo $fileName . PHP_EOL;
 
+if ( !preg_match("/\.zip$/", $zipName) || !file_exists($zipName) ) {
+  handleError("Error: ZIP file not found (tried '$zipName').");
+}
 $zip = new ZipArchive();
-if ($zip->open($zipName) === FALSE) {
-  echo "Error: Could not open ZIP file." . PHP_EOL;
-  exit();
+if ($zip->open($zipName) !== TRUE) {
+  handleError("Error: Could not open ZIP file '$zipName'.");
 }
-
-echo $zip->getFromName($fileName);
-
+$contents = $zip->getFromName($fileName);
 $zip->close();
+if ($contents === FALSE) {
+  handleError("Error: Could not find file '$fileName' in ZIP file '$zipName'.");
+}
+$fileSize = strlen($contents);
+$fileName = preg_replace("/.*\//", "", $fileName);
+header('Content-Description: File Download from ZIP File');
+header("Content-Disposition: attachment; filename=$fileName");
+header('Content-Type: text/plain');
+header('Content-Length: ' . $fileSize);
+echo $contents;
 ?>
-
