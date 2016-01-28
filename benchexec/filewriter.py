@@ -34,12 +34,12 @@ class FileWriter(object):
         If the file exist, it will be OVERWRITTEN without a message!
         """
 
-        self.__filename = filename
+        self.filename = filename
         self.__needsRewrite = False
         self.__content = content
 
         # Open file with "w" at least once so it will be overwritten.
-        util.write_file(content, self.__filename)
+        util.write_file(content, self.filename)
 
     def append(self, newContent, keep=True):
         """
@@ -56,13 +56,13 @@ class FileWriter(object):
             Replace the content of the file.
             A temporary file is used to avoid loss of data through an interrupt.
             """
-            tmpFilename = self.__filename + ".tmp"
+            tmpFilename = self.filename + ".tmp"
 
             util.write_file(content, tmpFilename)
 
-            os.rename(tmpFilename, self.__filename)
+            os.rename(tmpFilename, self.filename)
         else:
-            with open(self.__filename, "a") as file:
+            with open(self.filename, "a") as file:
                 file.write(newContent)
 
         self.__needsRewrite = not keep

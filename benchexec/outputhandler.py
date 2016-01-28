@@ -19,12 +19,16 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import bz2
 import collections
+import io
 import os
 import threading
 import time
 import sys
+from xml.dom import minidom
 from xml.etree import ElementTree as ET
+import zipfile
 
 import benchexec
 from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
@@ -72,12 +76,13 @@ class OutputHandler(object):
 
     print_lock = threading.Lock()
 
-    def __init__(self, benchmark, sysinfo):
+    def __init__(self, benchmark, sysinfo, compress_results):
         """
         The constructor of OutputHandler collects information about the benchmark and the computer.
         """
 
-        self.all_created_files = []
+        self.compress_results = compress_results
+        self.all_created_files = set()
         self.benchmark = benchmark
         self.statistics = Statistics()
 
@@ -109,6 +114,12 @@ class OutputHandler(object):
                                  environment=sysinfo.environment,
                                  cpu_turboboost=sysinfo.cpu_turboboost)
         self.xml_file_names = []
+
+        if compress_results:
+            self.log_zip = zipfile.ZipFile(benchmark.log_zip, mode="w",
+                                           compression=zipfile.ZIP_DEFLATED)
+            self.all_created_files.add(benchmark.log_zip)
+
 
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
                           runSet=None, environment={},
@@ -233,7 +244,7 @@ class OutputHandler(object):
         # write to file
         txt_file_name = self.get_filename(runSetName, "txt")
         self.txt_file = filewriter.FileWriter(txt_file_name, self.description)
-        self.all_created_files.append(txt_file_name)
+        self.all_created_files.add(txt_file_name)
 
 
     def output_before_run_set(self, runSet):
@@ -281,12 +292,11 @@ class OutputHandler(object):
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
-        xml_file_name = self.get_filename(runSet.name, "xml")
-        runSet.xml_file = filewriter.FileWriter(xml_file_name,
-                       self._result_xml_to_string(runSet.xml))
-        runSet.xml_file.lastModifiedTime = util.read_monotonic_time()
-        self.all_created_files.append(xml_file_name)
-        self.xml_file_names.append(xml_file_name)
+        runSet.xml_file_name = self.get_filename(runSet.name, "xml")
+        self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
+        runSet.xml_file_last_modified_time = util.read_monotonic_time()
+        self.all_created_files.add(runSet.xml_file_name)
+        self.xml_file_names.append(runSet.xml_file_name)
 
 
     def output_for_skipping_run_set(self, runSet, reason=None):
@@ -362,7 +372,7 @@ class OutputHandler(object):
             OutputHandler.print_lock.release()
 
         # get name of file-specific log-file
-        self.all_created_files.append(run.log_file)
+        self.all_created_files.add(run.log_file)
 
 
     def output_after_run(self, run):
@@ -418,12 +428,17 @@ class OutputHandler(object):
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
             currentTime = util.read_monotonic_time()
-            if currentTime - run.runSet.xml_file.lastModifiedTime > 60:
-                run.runSet.xml_file.replace(self._result_xml_to_string(run.runSet.xml))
-                run.runSet.xml_file.lastModifiedTime = util.read_monotonic_time()
+            if currentTime - run.runSet.xml_file_last_modified_time > 60:
+                self._write_rough_result_xml_to_file(run.runSet.xml, run.runSet.xml_file_name)
+                run.runSet.xml_file_last_modified_time = util.read_monotonic_time()
 
         finally:
             OutputHandler.print_lock.release()
+
+        if self.compress_results:
+            self.log_zip.write(run.log_file, os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir)))
+            os.remove(run.log_file)
+            self.all_created_files.remove(run.log_file)
 
 
     def output_after_run_set(self, runSet, cputime=None, walltime=None, energy={}):
@@ -435,16 +450,14 @@ class OutputHandler(object):
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
         # write results to files
-        runSet.xml_file.replace(self._result_xml_to_string(runSet.xml))
+        self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
-                util.write_file(
-                    self._result_xml_to_string(self.runs_to_xml(runSet, block.runs, block.name)),
-                    blockFileName
-                )
-                self.all_created_files.append(blockFileName)
+                self._write_pretty_result_xml_to_file(
+                    self.runs_to_xml(runSet, block.runs, block.name),
+                    blockFileName)
 
         self.txt_file.append(self.run_set_to_text(runSet, True, cputime, walltime, energy))
 
@@ -613,11 +626,18 @@ class OutputHandler(object):
             tableGeneratorPath = _find_file_relative('table-generator.py') \
                               or _find_file_relative('table-generator')
             if tableGeneratorPath:
+                xml_file_names = [file+".bz2" for file in self.xml_file_names] if self.compress_results else self.xml_file_names
                 util.printOut("In order to get HTML and CSV tables, run\n{0} '{1}'"
-                              .format(tableGeneratorPath, "' '".join(self.xml_file_names)))
+                              .format(tableGeneratorPath, "' '".join(xml_file_names)))
 
         if isStoppedByInterrupt:
             util.printOut("\nScript was interrupted by user, some runs may not be done.\n")
+
+
+    def close(self):
+        """Do all necessary cleanup."""
+        if self.compress_results:
+            self.log_zip.close()
 
 
     def get_filename(self, runSetName, fileExtension):
@@ -643,8 +663,47 @@ class OutputHandler(object):
         return fileName.ljust(runSet.max_length_of_filename + 4)
 
 
-    def _result_xml_to_string(self, xml):
-        return util.xml_to_string(xml, 'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
+    def _write_rough_result_xml_to_file(self, xml, filename):
+        """Write a rough string version of the XML (for temporary files)."""
+        # Write content to temp file first
+        temp_filename = filename + ".tmp"
+        with open(temp_filename, 'wb') as file:
+            ET.ElementTree(xml).write(file, encoding='utf-8', xml_declaration=True)
+        os.rename(temp_filename, filename)
+
+    def _write_pretty_result_xml_to_file(self, xml, filename):
+        """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
+        if self.compress_results:
+            actual_filename = filename + ".bz2"
+            # Use BZ2File directly or our hack for Python 3.2
+            open_func = bz2.BZ2File if hasattr(bz2.BZ2File, 'writable') else util.BZ2FileHack
+        else:
+            # write content to temp file first to prevent loosing data
+            # in existing file if writing fails
+            actual_filename = filename + ".tmp"
+            open_func = open
+
+        with io.TextIOWrapper(open_func(actual_filename, 'wb'), encoding='utf-8') as file:
+            rough_string = ET.tostring(xml, encoding='unicode')
+            reparsed = minidom.parseString(rough_string)
+            doctype = minidom.DOMImplementation().createDocumentType(
+                    'result', RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID)
+            reparsed.insertBefore(doctype, reparsed.documentElement)
+            reparsed.writexml(file, indent="", addindent="  ", newl="\n", encoding="utf-8")
+
+        if self.compress_results:
+            # try to delete uncompressed file (would have been overwritten in no-compress-mode)
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
+            self.all_created_files.discard(filename)
+            self.all_created_files.add(actual_filename)
+        else:
+            os.rename(actual_filename, filename)
+            self.all_created_files.add(filename)
+
+        return filename
 
 
 class Statistics(object):

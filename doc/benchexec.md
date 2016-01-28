@@ -112,15 +112,28 @@ the following command-line is equivalent to the one above:
 
     benchexec doc/benchmark-example-rand.xml @benchexec.cfg
 
+### BenchExec Results
 `benchexec` produces as output the results and resource measurements
-of all the individual tool executions in XML files
+of all the individual tool executions in (compressed) XML files
 from which tables can be created using `table-generator`.
 There is one file per run definition/tool configuration,
 and additional files for each subset of tasks
 (all by default in directory `./result/`).
 A document-type definition with a formal specification of such result files can be found in
 [doc/result.dtd](result.dtd), and a description under [Run Results](run-results.md).
-The output of the tool executions is stored in additional files in a sub-directory.
+
+The output of the tool executions is stored in separate log files
+in a ZIP archive beside the XML files.
+Storing the log files in an archive avoids producing large amounts of small individual files,
+which can slow down some file systems significantly.
+Furthermore, tool outputs can typically be compressed significantly.
+
+If you prefer uncompressed results, you can pass `--no-compress-results` to `benchexec`,
+this will let XML files be uncompressed and the log files be stored as regular files in a directory.
+Alternatively, you can simply uncompress the results with `bzip2 -d ...results.xml.bz2`
+and `unzip -x ...logfiles.zip`.
+The post-processing of results with `table-generator` supports both compressed and uncompressed files.
+
 If the target directory for the output files (specified with `--outputpath`)
 is a git repository without uncommitted changes and the option `--commit`
 is specified, `benchexec` will add and commit all created files to the git repository.

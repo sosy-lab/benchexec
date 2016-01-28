@@ -151,6 +151,7 @@ class Benchmark(object):
 
         self.output_base_name = config.output_path + self.name + "." + self.instance
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
+        self.log_zip = self.output_base_name + ".logfiles.zip"
 
         # parse XML
         try:

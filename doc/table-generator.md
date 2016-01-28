@@ -10,7 +10,7 @@ and produces tables with columns for each of the files,
 such that all results for a given input file appear on the same line.
 To start it, simply pass all result files on the command line, e.g.
 
-    table-generator results/benchmark-example-rand.*.results.xml
+    table-generator results/benchmark-example-rand.*.results.xml.bz2
 
 Further command-line arguments can be used to customized the table,
 e.g. for ignoring all incorrect results (`--correct-only`),
@@ -19,9 +19,16 @@ The full set of available parameters can be seen with `table-generator -h`.
 Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
-You can also give compressed XML result files to `table-generator`,
-just specify them in the regular way, they will be transparently decompressed.
-Currently GZip and BZip2 are supported.
+You can give compressed (GZip and BZip2) as well as uncompressed XML result files to `table-generator`.
+Similarly, the log files for the runs can be present in a ZIP archive
+(which is the default for `benchexec`),
+or in a regular directory with the same name except for the `.zip` suffix.
+When clicking on a log-file link in the generated HTML table,
+the log file is transparently searched in the directory as well as in the ZIP archive.
+Showing log files from ZIP archives needs either JavaScript support in the browser,
+or special setup of the web server, for example by using
+[serveFileFromZIP.php](https://github.com/sosy-lab/benchexec/blob/master/contrib/serveFileFromZIP.php)
+(cf. documentation in this file).
 
 Alternatively, `table-generator` also supports using a special table-definition file as input
 that defines the layout of the generated tables
