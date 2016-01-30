@@ -25,7 +25,6 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 import os
 import xml.etree.ElementTree as ET
 
-import benchexec.util as Util
 from benchexec.filewriter import FileWriter
 
 
@@ -61,6 +60,19 @@ def getWitnessResult(witness):
 
     return ('witness invalid (' + status + ')', 'error')
 
+def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
+    """
+    Return a pretty-printed XML string for the Element.
+    Also allows setting a document type.
+    """
+    from xml.dom import minidom
+    rough_string = ET.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    if qualified_name:
+        doctype = minidom.DOMImplementation().createDocumentType(
+                qualified_name, public_id, system_id)
+        reparsed.insertBefore(doctype, reparsed.documentElement)
+    return reparsed.toprettyxml(indent="  ")
 
 def main(argv=None):
 
@@ -126,7 +138,7 @@ def main(argv=None):
 
     print ('    ' + resultFile + '.merged.xml')
     XMLFile = FileWriter(resultFile + '.merged.xml',
-                         Util.xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
+                         xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
 
 if __name__ == '__main__':
     sys.exit(main())
