@@ -83,8 +83,8 @@ function serveFileFromZIP($baseDir, $zipName, $fileName) {
   exit();
 }
 
-# Remove query from URI, example: /foo/bar/file.txt
-$path = preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']);
+# Remove query from URI (and decode URI), example: /foo/bar/file.txt
+$path = urldecode(preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']));
 
 # Parts of path, example: ["foo", "bar", "file.txt"]
 $parts = explode("/", ltrim($path, "/"));
