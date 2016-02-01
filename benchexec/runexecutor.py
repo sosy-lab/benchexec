@@ -755,10 +755,6 @@ class RunExecutor(object):
             os.nice(5) # increase niceness of subprocess
             self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
-            # put us into the cgroup(s)
-            pid = os.getpid()
-            cgroups.add_task(pid)
-
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         base_dir, home_dir, temp_dir = self._setup_temp_dir()
@@ -768,7 +764,7 @@ class RunExecutor(object):
 
         timelimitThread = None
         oomThread = None
-        p = None
+        pid = None
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
@@ -783,21 +779,20 @@ class RunExecutor(object):
         walltime_before = util.read_monotonic_time()
 
         try:
-            p = subprocess.Popen(args,
-                                 stdin=stdin,
-                                 stdout=outputFile, stderr=outputFile,
-                                 env=run_environment, cwd=workingDir,
-                                 close_fds=True,
-                                 preexec_fn=preSubprocess)
+            pid, result_fn = self._start_execution(args=args,
+                stdin=stdin, stdout=outputFile, stderr=outputFile,
+                env=run_environment, cwd=workingDir,
+                cgroups=cgroups,
+                child_setup_fn=preSubprocess)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.add(p.pid)
+                self.SUB_PROCESS_PIDS.add(pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p.pid)
-            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p.pid)
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid)
+            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
 
-            returnvalue, ru_child = self._wait_for_process(p.pid, args[0])
+            returnvalue, ru_child = result_fn() # this blocks until process has terminated
 
             # stop measurements first
             walltime = util.read_monotonic_time() - walltime_before
@@ -811,7 +806,7 @@ class RunExecutor(object):
             logging.debug('Process terminated, exit code %s.', returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.discard(p.pid)
+                self.SUB_PROCESS_PIDS.discard(pid)
 
             if timelimitThread:
                 timelimitThread.cancel()
@@ -856,6 +851,29 @@ class RunExecutor(object):
             result['energy'] = energy
 
         return result
+
+    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups, child_setup_fn):
+        """Actually start the tool and the measurements.
+        @return: a tuple of PID of process and a blocking function that waits for the process
+        and returns the exit code and the resource usage of the process (do not use os.wait)
+        """
+        def pre_subprocess():
+            # Do some other setup the caller wants.
+            child_setup_fn()
+
+            # put us into the cgroup(s)
+            pid = os.getpid()
+            cgroups.add_task(pid)
+
+        p = subprocess.Popen(args,
+                     stdin=stdin,
+                     stdout=stdout, stderr=stderr,
+                     env=env, cwd=cwd,
+                     close_fds=True,
+                     preexec_fn=pre_subprocess)
+
+        return (p.pid, lambda: self._wait_for_process(p.pid, args))
+
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
