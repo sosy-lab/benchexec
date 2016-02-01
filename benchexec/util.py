@@ -396,7 +396,8 @@ ProcessExitCode = collections.namedtuple('ProcessExitCode', 'raw value signal')
 Only value or signal are present, not both
 (a process cannot return a value when it is killed by a signal).
 """
-def _ProcessExitCode_from_raw(exitcode):
+@classmethod
+def _ProcessExitCode_from_raw(cls, exitcode):
     if not (0 <= exitcode < 2**16):
         raise ValueError("invalid exitcode " + str(exitcode))
     # calculation: exitcode == (returnvalue * 256) + exitsignal
@@ -410,7 +411,7 @@ def _ProcessExitCode_from_raw(exitcode):
         assert returnvalue == 0,\
             "returnvalue " + str(returnvalue) + ", although exitsignal is " + str(exitsignal)
         returnvalue = None
-    return ProcessExitCode(exitcode, returnvalue, exitsignal)
+    return cls(exitcode, returnvalue, exitsignal)
 ProcessExitCode.from_raw = _ProcessExitCode_from_raw
 
 def add_files_to_git_repository(base_dir, files, description):
