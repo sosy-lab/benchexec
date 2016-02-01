@@ -24,10 +24,12 @@ import sys
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec.util import ProcessExitCode
 from benchexec.model import Run
 from benchexec.result import *  # @UnusedWildImport
 from benchexec.tools.template import BaseTool
 
+normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 
 class TestResult(unittest.TestCase):
 
@@ -59,57 +61,57 @@ class TestResult(unittest.TestCase):
 
     def test_simple(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(RESULT_UNKNOWN, run._analyse_result(0, '', False, None))
+        self.assertEqual(RESULT_UNKNOWN, run._analyse_result(normal_result, '', False, None))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual(RESULT_TRUE_PROP, run._analyse_result(0, '', False, None))
+        self.assertEqual(RESULT_TRUE_PROP, run._analyse_result(normal_result, '', False, None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual(RESULT_FALSE_REACH, run._analyse_result(0, '', False, None))
+        self.assertEqual(RESULT_FALSE_REACH, run._analyse_result(normal_result, '', False, None))
 
     def test_timeout(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('TIMEOUT', run._analyse_result(0, '', True, None))
+        self.assertEqual('TIMEOUT', run._analyse_result(normal_result, '', True, None))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('TIMEOUT (true)', run._analyse_result(0, '', True, None))
+        self.assertEqual('TIMEOUT (true)', run._analyse_result(normal_result, '', True, None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('TIMEOUT (false(reach))', run._analyse_result(0, '', True, None))
+        self.assertEqual('TIMEOUT (false(reach))', run._analyse_result(normal_result, '', True, None))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
-        self.assertEqual('SOME OTHER RESULT', run._analyse_result(0, '', True, None))
+        self.assertEqual('SOME OTHER RESULT', run._analyse_result(normal_result, '', True, None))
 
     def test_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('OUT OF MEMORY', run._analyse_result(0, '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY', run._analyse_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('OUT OF MEMORY (true)', run._analyse_result(0, '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY (true)', run._analyse_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('OUT OF MEMORY (false(reach))', run._analyse_result(0, '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY (false(reach))', run._analyse_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
-        self.assertEqual('SOME OTHER RESULT', run._analyse_result(0, '', False, 'memory'))
+        self.assertEqual('SOME OTHER RESULT', run._analyse_result(normal_result, '', False, 'memory'))
 
     def test_timeout_and_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('TIMEOUT', run._analyse_result(0, '', True, 'memory'))
+        self.assertEqual('TIMEOUT', run._analyse_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('TIMEOUT (true)', run._analyse_result(0, '', True, 'memory'))
+        self.assertEqual('TIMEOUT (true)', run._analyse_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('TIMEOUT (false(reach))', run._analyse_result(0, '', True, 'memory'))
+        self.assertEqual('TIMEOUT (false(reach))', run._analyse_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
-        self.assertEqual('SOME OTHER RESULT', run._analyse_result(0, '', False, 'memory'))
+        self.assertEqual('SOME OTHER RESULT', run._analyse_result(normal_result, '', False, 'memory'))
 
     def test_returnsignal(self):
         def signal(sig):
             """Encode a signal as it would be returned by os.wait"""
-            return sig
+            return ProcessExitCode(raw=sig, value=None, signal=sig)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         self.assertEqual('TIMEOUT', run._analyse_result(signal(9), '', True, None))
@@ -130,24 +132,24 @@ class TestResult(unittest.TestCase):
         self.assertEqual('KILLED BY SIGNAL 9', run._analyse_result(signal(9), '', False, None))
 
     def test_exitcode(self):
-        def exitcode(code):
+        def returnvalue(value):
             """Encode an exit of aprogram as it would be returned by os.wait"""
-            return code << 8
+            return ProcessExitCode(raw=value << 8, value=value, signal=None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('TIMEOUT', run._analyse_result(exitcode(1), '', True, None))
+        self.assertEqual('TIMEOUT', run._analyse_result(returnvalue(1), '', True, None))
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('OUT OF MEMORY', run._analyse_result(exitcode(1), '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY', run._analyse_result(returnvalue(1), '', False, 'memory'))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual(RESULT_TRUE_PROP, run._analyse_result(exitcode(1), '', False, None))
+        self.assertEqual(RESULT_TRUE_PROP, run._analyse_result(returnvalue(1), '', False, None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual(RESULT_FALSE_REACH, run._analyse_result(exitcode(1), '', False, None))
+        self.assertEqual(RESULT_FALSE_REACH, run._analyse_result(returnvalue(1), '', False, None))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
-        self.assertEqual('SOME OTHER RESULT', run._analyse_result(exitcode(1), '', False, None))
+        self.assertEqual('SOME OTHER RESULT', run._analyse_result(returnvalue(1), '', False, None))
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual('ERROR (1)', run._analyse_result(exitcode(1), '', False, None))
+        self.assertEqual('ERROR (1)', run._analyse_result(returnvalue(1), '', False, None))

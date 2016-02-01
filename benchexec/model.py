@@ -650,12 +650,15 @@ class Run(object):
                                self.runSet.benchmark.rlimits)
 
 
-    def after_execution(self, returnvalue, forceTimeout=False, termination_reason=None):
+    def after_execution(self, exitcode, forceTimeout=False, termination_reason=None):
         # termination reason is not fully precise for timeouts, so we guess "timeouts"
         # if time is too high
         isTimeout = forceTimeout \
                 or termination_reason in ['cputime', 'cputime-soft', 'walltime'] \
                 or self._is_timeout()
+
+        if isinstance(exitcode, int):
+            exitcode = util.ProcessExitCode.from_raw(exitcode)
 
         # read output
         try:
@@ -667,26 +670,22 @@ class Run(object):
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 
-        self.status = self._analyse_result(returnvalue, output, isTimeout, termination_reason)
+        self.status = self._analyse_result(exitcode, output, isTimeout, termination_reason)
         self.category = result.get_result_category(self.identifier, self.status, self.properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
             column.value = self.runSet.benchmark.tool.get_value_from_output(output, substitutedColumnText)
 
-    def _analyse_result(self, returnvalue, output, isTimeout, termination_reason):
+    def _analyse_result(self, exitcode, output, isTimeout, termination_reason):
         """Return status according to result and output of tool."""
         status = ""
 
         # Ask tool info.
-        if returnvalue is not None:
-            # calculation: returnvalue == (returncode * 256) + returnsignal
-            # highest bit of returnsignal shows only whether a core file was produced, we clear it
-            returnsignal = returnvalue & 0x7F
-            returncode = returnvalue >> 8
-            logging.debug("My subprocess returned %s, code %s, signal %s.",
-                          returnvalue, returncode, returnsignal)
-            status = self.runSet.benchmark.tool.determine_result(returncode, returnsignal, output, isTimeout)
+        if exitcode is not None:
+            logging.debug("My subprocess returned %s.", exitcode)
+            status = self.runSet.benchmark.tool.determine_result(
+                exitcode.value or 0, exitcode.signal or 0, output, isTimeout)
 
         # Tools sometimes produce a result even after violating a resource limit.
         # This should not be counted, so we overwrite the result with TIMEOUT/OOM
@@ -703,8 +702,8 @@ class Run(object):
             else:
                 # TODO probably this is not necessary anymore
                 rlimits = self.runSet.benchmark.rlimits
-                guessed_OOM = returnvalue is not None \
-                        and returnsignal == 9 \
+                guessed_OOM = exitcode is not None \
+                        and exitcode.signal == 9 \
                         and MEMLIMIT in rlimits \
                         and 'memUsage' in self.values \
                         and not self.values['memUsage'] is None \
@@ -717,19 +716,19 @@ class Run(object):
             if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
                 status = '{} ({})'.format(status, tool_status)
 
-        if status in [result.RESULT_ERROR, result.RESULT_UNKNOWN] and returnvalue is not None:
+        if status in [result.RESULT_ERROR, result.RESULT_UNKNOWN] and exitcode is not None:
             # provide some more information if possible
-            if returnsignal == 6:
+            if exitcode.signal == 6:
                 status = 'ABORTED'
-            elif returnsignal == 11:
+            elif exitcode.signal == 11:
                 status = 'SEGMENTATION FAULT'
-            elif returnsignal == 15:
+            elif exitcode.signal == 15:
                 status = 'KILLED'
-            elif returnsignal != 0:
-                status = 'KILLED BY SIGNAL '+str(returnsignal)
+            elif exitcode.signal:
+                status = 'KILLED BY SIGNAL '+str(exitcode.signal)
 
-            elif returncode != 0:
-                status = '{} ({})'.format(result.RESULT_ERROR, returncode)
+            elif exitcode.value:
+                status = '{} ({})'.format(result.RESULT_ERROR, exitcode.value)
 
         return status
 

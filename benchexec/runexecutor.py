@@ -194,11 +194,7 @@ def main(argv=None):
     executor.check_for_new_files_in_home()
 
     # exit_code is a special number:
-    # It is a 16bit int of which the lowest 7 bit are the signal number,
-    # and the high byte is the real exit code of the process (here 0).
-    exit_code = result['exitcode']
-    return_value = exit_code // 256
-    exitSignal = exit_code % 128
+    exit_code = util.ProcessExitCode.from_raw(result['exitcode'])
 
     def print_optional_result(key):
         if key in result:
@@ -207,11 +203,11 @@ def main(argv=None):
 
     # output results
     print_optional_result('terminationreason')
-    print("exitcode=" + str(exit_code))
-    if (exitSignal == 0) or (return_value != 0):
-        print("returnvalue=" + str(return_value))
-    if exitSignal != 0 :
-        print("exitsignal=" + str(exitSignal))
+    print("exitcode=" + str(exit_code.raw))
+    if exit_code.value is not None:
+        print("returnvalue=" + str(exit_code.value))
+    if exit_code.signal is not None:
+        print("exitsignal=" + str(exit_code.signal))
     print("walltime=" + str(result['walltime']) + "s")
     print("cputime=" + str(result['cputime']) + "s")
     for key in sorted(result.keys()):
@@ -661,7 +657,7 @@ class RunExecutor(object):
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
-        @return: a tuple with walltime in seconds, cputime in seconds, memory usage in bytes, returnvalue, and process output
+        @return: dict with result of run (measurement results and process exitcode)
         """
         # Check argument values and call the actual method _execute()
 

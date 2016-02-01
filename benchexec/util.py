@@ -26,6 +26,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
 import bz2
+import collections
 import glob
 import logging
 import os
@@ -389,6 +390,28 @@ class BZ2FileHack(bz2.BZ2File):
     def flush(self):
         pass
 
+
+ProcessExitCode = collections.namedtuple('ProcessExitCode', 'raw value signal')
+"""Tuple for storing the exit status indication given by a os.wait() call.
+Only value or signal are present, not both
+(a process cannot return a value when it is killed by a signal).
+"""
+def _ProcessExitCode_from_raw(exitcode):
+    if not (0 <= exitcode < 2**16):
+        raise ValueError("invalid exitcode " + str(exitcode))
+    # calculation: exitcode == (returnvalue * 256) + exitsignal
+    # highest bit of exitsignal shows only whether a core file was produced, we clear it
+    exitsignal = exitcode & 0x7F
+    returnvalue = exitcode >> 8
+    if exitsignal == 0:
+        # signal 0 does not exist, this means there was no signal that killed the process
+        exitsignal = None
+    else:
+        assert returnvalue == 0,\
+            "returnvalue " + str(returnvalue) + ", although exitsignal is " + str(exitsignal)
+        returnvalue = None
+    return ProcessExitCode(exitcode, returnvalue, exitsignal)
+ProcessExitCode.from_raw = _ProcessExitCode_from_raw
 
 def add_files_to_git_repository(base_dir, files, description):
     """
