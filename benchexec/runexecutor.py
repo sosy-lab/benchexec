@@ -230,8 +230,8 @@ class RunExecutor(object):
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
         self.PROCESS_KILLED = False
-        self.SUB_PROCESSES_LOCK = threading.Lock() # needed, because we kill the process asynchronous
-        self.SUB_PROCESSES = set()
+        self.SUB_PROCESS_PIDS_LOCK = threading.Lock() # needed, because we kill the process asynchronous
+        self.SUB_PROCESS_PIDS = set()
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
@@ -583,7 +583,7 @@ class RunExecutor(object):
 
 
     def _setup_cgroup_time_limit(self, hardtimelimit, softtimelimit, walltimelimit,
-                                 cgroups, cores, process):
+                                 cgroups, cores, pid_to_kill):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
@@ -596,7 +596,7 @@ class RunExecutor(object):
                                                hardtimelimit=cgroup_hardtimelimit,
                                                softtimelimit=softtimelimit,
                                                walltimelimit=walltimelimit,
-                                               process=process,
+                                               pid_to_kill=pid_to_kill,
                                                cores=cores,
                                                callbackFn=self._set_termination_reason,
                                                kill_process_fn=self._kill_process)
@@ -604,14 +604,14 @@ class RunExecutor(object):
             return timelimitThread
         return None
 
-    def _setup_cgroup_memory_limit(self, memlimit, cgroups, process):
+    def _setup_cgroup_memory_limit(self, memlimit, cgroups, pid_to_kill):
         """Start memory-limit handler.
         @return None or the memory-limit handler for calling cancel()
         """
         if memlimit is not None:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
-                    cgroups=cgroups, process=process,
+                    cgroups=cgroups, pid_to_kill=pid_to_kill,
                     callbackFn=self._set_termination_reason,
                     kill_process_fn=self._kill_process)
                 oomThread.start()
@@ -791,12 +791,12 @@ class RunExecutor(object):
                                  close_fds=True,
                                  preexec_fn=preSubprocess)
 
-            with self.SUB_PROCESSES_LOCK:
-                self.SUB_PROCESSES.add(p)
+            with self.SUB_PROCESS_PIDS_LOCK:
+                self.SUB_PROCESS_PIDS.add(p.pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p)
-            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p)
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p.pid)
+            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p.pid)
 
             returnvalue, ru_child = self._wait_for_process(p, args)
 
@@ -808,8 +808,8 @@ class RunExecutor(object):
             # cleanup steps that not time critical but need to get executed even in case of failure
             logging.debug('Process terminated, exit code %s.', returnvalue)
 
-            with self.SUB_PROCESSES_LOCK:
-                self.SUB_PROCESSES.discard(p)
+            with self.SUB_PROCESS_PIDS_LOCK:
+                self.SUB_PROCESS_PIDS.discard(p.pid)
 
             if timelimitThread:
                 timelimitThread.cancel()
@@ -970,11 +970,11 @@ class RunExecutor(object):
     def stop(self):
         self._set_termination_reason('killed')
         self.PROCESS_KILLED = True
-        with self.SUB_PROCESSES_LOCK:
-            for process in self.SUB_PROCESSES:
-                logging.warning('Killing process %s forcefully.', process.pid)
+        with self.SUB_PROCESS_PIDS_LOCK:
+            for pid in self.SUB_PROCESS_PIDS:
+                logging.warning('Killing process %s forcefully.', pid)
                 try:
-                    self._kill_process(process.pid, find_cgroups_of_process(process.pid))
+                    self._kill_process(pid, find_cgroups_of_process(pid))
                 except EnvironmentError as e:
                     # May fail due to race conditions
                     logging.debug(e)
@@ -1096,7 +1096,7 @@ class _TimelimitThread(threading.Thread):
     Thread that periodically checks whether the given process has already
     reached its timelimit. After this happens, the process is terminated.
     """
-    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, process, cores,
+    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, pid_to_kill, cores,
                  callbackFn=lambda reason: None):
         super(_TimelimitThread, self).__init__()
 
@@ -1117,7 +1117,7 @@ class _TimelimitThread(threading.Thread):
         self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
         self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value
         self.latestKillTime = util.read_monotonic_time() + walltimelimit
-        self.process = process
+        self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
         self.kill_process = kill_process_fn
         self.finished = threading.Event()
@@ -1139,25 +1139,25 @@ class _TimelimitThread(threading.Thread):
             logging.debug(
                 "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
                 "remaining soft CPU time: %s, remaining wall time: %s.",
-                self.process.pid, usedCpuTime, remainingCpuTime,
+                self.pid_to_kill, usedCpuTime, remainingCpuTime,
                 remainingSoftCpuTime, remainingWallTime)
             if remainingCpuTime <= 0:
                 self.callback('cputime')
-                logging.debug('Killing process %s due to CPU time timeout.', self.process.pid)
-                self.kill_process(self.process.pid, self.cgroups)
+                logging.debug('Killing process %s due to CPU time timeout.', self.pid_to_kill)
+                self.kill_process(self.pid_to_kill, self.cgroups)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
                 self.callback('walltime')
-                logging.warning('Killing process %s due to wall time timeout.', self.process.pid)
-                self.kill_process(self.process.pid, self.cgroups)
+                logging.warning('Killing process %s due to wall time timeout.', self.pid_to_kill)
+                self.kill_process(self.pid_to_kill, self.cgroups)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
                 self.callback('cputime-soft')
                 # soft time limit violated, ask process to terminate
-                self.kill_process(self.process.pid, self.cgroups, signal.SIGTERM)
+                self.kill_process(self.pid_to_kill, self.cgroups, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
             remainingTime = min(remainingCpuTime/self.cpuCount,
