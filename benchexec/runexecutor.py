@@ -975,7 +975,7 @@ class RunExecutor(object):
                 logging.warning('Killing process %s forcefully.', process.pid)
                 try:
                     self._kill_process(process.pid, find_cgroups_of_process(process.pid))
-                except OSError as e:
+                except EnvironmentError as e:
                     # May fail due to race conditions
                     logging.debug(e)
 
