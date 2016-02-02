@@ -26,7 +26,7 @@ from benchexec.tablegenerator.columns import Column, ColumnType, ColumnMeasureTy
 
 class FormatValueTests(unittest.TestCase):
 
-    def setUp(self):        
+    def setUp(self):
         self.max_dec_digits = 6
         self.sig_figures = 4
         self.measure_type = ColumnMeasureType(self.max_dec_digits)
@@ -35,7 +35,7 @@ class FormatValueTests(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_format_value_none(self):
         formatted_value_none = self.measure_column.format_value(None, *self.default_optionals)
         self.assertEqual(formatted_value_none, '')
