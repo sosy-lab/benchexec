@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys
 import unittest
+from benchexec.util import ProcessExitCode
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import util
@@ -65,3 +66,37 @@ class TestParse(unittest.TestCase):
         self.assertEqual(util.parse_timespan_value("1min"), 60)
         self.assertEqual(util.parse_timespan_value("1h"), 60*60)
         self.assertEqual(util.parse_timespan_value("1d"), 24*60*60)
+
+class TestProcessExitCode(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.longMessage = True
+        cls.maxDiff = None
+
+    def ProcessExitCode_with_value(self, value):
+        return ProcessExitCode(raw=value << 8, value=value, signal=None)
+
+    def ProcessExitCode_with_signal(self, signal):
+        return ProcessExitCode(raw=signal, value=None, signal=signal)
+
+    def test_boolness(self):
+        self.assertFalse(self.ProcessExitCode_with_value(0))
+        self.assertTrue(self.ProcessExitCode_with_value(1))
+        self.assertTrue(self.ProcessExitCode_with_signal(1))
+
+    def test_value(self):
+        self.assertEqual(self.ProcessExitCode_with_value(0).value, 0)
+        self.assertEqual(self.ProcessExitCode_with_value(1).value, 1)
+        self.assertEqual(ProcessExitCode.from_raw(0).value, 0)
+        self.assertEqual(ProcessExitCode.from_raw(256).value, 1)
+        self.assertIsNone(self.ProcessExitCode_with_signal(1).value)
+        self.assertIsNone(ProcessExitCode.from_raw(1).value)
+
+    def test_signal(self):
+        self.assertEqual(self.ProcessExitCode_with_signal(1).signal, 1)
+        self.assertEqual(ProcessExitCode.from_raw(1).signal, 1)
+        self.assertIsNone(self.ProcessExitCode_with_value(0).signal)
+        self.assertIsNone(self.ProcessExitCode_with_value(1).signal)
+        self.assertIsNone(ProcessExitCode.from_raw(0).signal)
+        self.assertIsNone(ProcessExitCode.from_raw(256).signal)

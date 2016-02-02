@@ -414,6 +414,17 @@ def _ProcessExitCode_from_raw(cls, exitcode):
     return cls(exitcode, returnvalue, exitsignal)
 ProcessExitCode.from_raw = _ProcessExitCode_from_raw
 
+def _ProcessExitCode__str__(self):
+    return (("exit signal " + str(self.signal)) if self.signal
+        else ("return value " + str(self.value)))
+ProcessExitCode.__str__ = _ProcessExitCode__str__
+
+def _ProcessExitCode__bool__(self):
+    return bool(self.signal or self.value)
+ProcessExitCode.__bool__ = _ProcessExitCode__bool__
+ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
+
+
 def add_files_to_git_repository(base_dir, files, description):
     """
     Add and commit all files given in a list into a git repository in the
