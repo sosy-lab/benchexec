@@ -80,7 +80,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     if msg == 'Out of memory':
                         status = 'OUT OF MEMORY'
                     elif msg:
-                        status = 'ERROR (%s)'.format(msg)
+                        status = 'ERROR ({0})'.format(msg)
                     else:
                         status = 'ERROR'
                 else:
@@ -111,7 +111,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'OUT OF MEMORY'
             else:
                 status = 'INVALID OUTPUT'
-                logging.exception("Error parsing CBMC output for returncode %d" % (returncode))
+                logging.exception("Error parsing CBMC output for returncode %d", returncode)
 
         return status
 
