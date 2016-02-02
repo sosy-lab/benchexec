@@ -798,7 +798,7 @@ class RunExecutor(object):
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, p.pid)
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, p.pid)
 
-            returnvalue, ru_child = self._wait_for_process(p, args)
+            returnvalue, ru_child = self._wait_for_process(p.pid, args[0])
 
         finally:
             # stop measurements first
@@ -858,14 +858,13 @@ class RunExecutor(object):
 
         return result
 
-
-    def _wait_for_process(self, p, args):
+    def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
         @return tuple of exit code and resource usage
         """
         try:
-            logging.debug("Waiting for process %s with pid %s", args[0], p.pid)
-            unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+            logging.debug("Waiting for process %s with pid %s", name, pid)
+            unused_pid, exitcode, ru_child = os.wait4(pid, 0)
             return exitcode, ru_child
         except OSError as e:
             if self.PROCESS_KILLED and e.errno == errno.EINTR:
@@ -873,15 +872,15 @@ class RunExecutor(object):
                 # if we killed the process ourselves after Ctrl+C was pressed
                 # We can try again to get exitcode and resource usage.
                 logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
-                              e.errno, args[0], p.pid, e.strerror)
+                              e.errno, name, pid, e.strerror)
                 try:
-                    unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
+                    unused_pid, exitcode, ru_child = os.wait4(pid, 0)
                     return exitcode, ru_child
                 except OSError:
                     pass # original error will be handled and this ignored
 
             logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                             e.errno, args[0], p.pid, e.strerror)
+                             e.errno, name, pid, e.strerror)
             return (0, None)
 
 
