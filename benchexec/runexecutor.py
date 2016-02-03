@@ -749,6 +749,21 @@ class RunExecutor(object):
         handling all setup and cleanup, but does not check whether arguments are valid.
         """
 
+        def preParent():
+            """Setup that is executed in the parent process immediately before the actual tool is started."""
+            # start measurements
+            energy_before = util.measure_energy()
+            walltime_before = util.read_monotonic_time()
+            return (walltime_before, energy_before)
+
+        def postParent(preParent_result):
+            """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
+            # finish measurements
+            walltime_before, energy_before = preParent_result
+            walltime = util.read_monotonic_time() - walltime_before
+            energy = util.measure_energy(energy_before)
+            return (walltime, energy)
+
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
             os.setpgrp() # make subprocess to group-leader
@@ -774,16 +789,13 @@ class RunExecutor(object):
 
         logging.debug('Starting process.')
 
-        # start measurements (last step before calling Popen)
-        energyBefore = util.measure_energy()
-        walltime_before = util.read_monotonic_time()
-
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=stdin, stdout=outputFile, stderr=outputFile,
                 env=run_environment, cwd=workingDir,
                 cgroups=cgroups,
-                child_setup_fn=preSubprocess)
+                parent_setup_fn=preParent, child_setup_fn=preSubprocess,
+                parent_cleanup_fn=postParent)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
@@ -792,14 +804,15 @@ class RunExecutor(object):
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid)
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
 
-            returnvalue, ru_child = result_fn() # this blocks until process has terminated
+            returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
 
-            # stop measurements first
-            walltime = util.read_monotonic_time() - walltime_before
-            energy = util.measure_energy(energyBefore)
+            result = {}
+            result['walltime'] = walltime
+            if energy:
+                result['energy'] = energy
 
             # needs to come before cgroups.remove()
-            result = self._get_cgroup_measurements(cgroups, ru_child, walltime)
+            self._get_cgroup_measurements(cgroups, ru_child, result)
 
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -847,15 +860,22 @@ class RunExecutor(object):
             # The kernel does not always issue OOM notifications and thus the OOMHandler
             # does not always run even in case of OOM. We detect this there and report OOM.
             result['terminationreason'] = 'memory'
-        if energy:
-            result['energy'] = energy
 
         return result
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups, child_setup_fn):
+    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups,
+                         parent_setup_fn, child_setup_fn, parent_cleanup_fn):
         """Actually start the tool and the measurements.
-        @return: a tuple of PID of process and a blocking function that waits for the process
-        and returns the exit code and the resource usage of the process (do not use os.wait)
+        @param parent_setup_fn a function without parameters that is called in the parent process
+            immediately before the tool is started
+        @param child_setup_fn a function without parameters that is called in the child process
+            before the tool is started
+        @param parent_cleanup_fn a function with one positional parameter that is called in the
+            parent process immediately after the tool terminated, with the result of
+            parent_setup_fn as parameter value
+        @return: a tuple of PID of process and a blocking function, which waits for the process
+            and a triple of the exit code and the resource usage of the process
+            and the result of parent_cleanup_fn (do not use os.wait)
         """
         def pre_subprocess():
             # Do some other setup the caller wants.
@@ -865,6 +885,8 @@ class RunExecutor(object):
             pid = os.getpid()
             cgroups.add_task(pid)
 
+        parent_setup = parent_setup_fn()
+
         p = subprocess.Popen(args,
                      stdin=stdin,
                      stdout=stdout, stderr=stderr,
@@ -872,7 +894,13 @@ class RunExecutor(object):
                      close_fds=True,
                      preexec_fn=pre_subprocess)
 
-        return (p.pid, lambda: self._wait_for_process(p.pid, args))
+        def wait_and_get_result():
+            exitcode, ru_child = self._wait_for_process(p.pid, args[0])
+
+            parent_cleanup = parent_cleanup_fn(parent_setup)
+            return exitcode, ru_child, parent_cleanup
+
+        return p.pid, wait_and_get_result
 
 
     def _wait_for_process(self, pid, name):
@@ -901,14 +929,12 @@ class RunExecutor(object):
             return (0, None)
 
 
-    def _get_cgroup_measurements(self, cgroups, ru_child, walltime):
+    def _get_cgroup_measurements(self, cgroups, ru_child, result):
         """
         This method calculates the exact results for time and memory measurements.
         It is not important to call this method as soon as possible after the run.
         """
         logging.debug("Getting cgroup measurements.")
-        result = {}
-        result['walltime'] = walltime
 
         cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
         cputime_cgroups = None
@@ -976,9 +1002,7 @@ class RunExecutor(object):
 
         logging.debug(
             'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            walltime, cputime_wait, cputime_cgroups, result.get('memory', None))
-
-        return result
+            result['walltime'], cputime_wait, cputime_cgroups, result.get('memory', None))
 
 
     # --- other public functions ---
