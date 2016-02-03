@@ -799,12 +799,15 @@ class RunExecutor(object):
 
             returnvalue, ru_child = self._wait_for_process(p.pid, args[0])
 
-        finally:
             # stop measurements first
             walltime = util.read_monotonic_time() - walltime_before
             energy = util.measure_energy(energyBefore)
 
-            # cleanup steps that not time critical but need to get executed even in case of failure
+            # needs to come before cgroups.remove()
+            result = self._get_cgroup_measurements(cgroups, ru_child, walltime)
+
+        finally:
+            # cleanup steps that need to get executed even in case of failure
             logging.debug('Process terminated, exit code %s.', returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
@@ -823,9 +826,6 @@ class RunExecutor(object):
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
-
-            # needs to come before cgroups.remove()
-            result = self._get_cgroup_measurements(cgroups, ru_child, walltime)
 
             logging.debug("Cleaning up cgroups.")
             cgroups.remove()
