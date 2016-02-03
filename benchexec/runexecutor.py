@@ -473,7 +473,7 @@ class RunExecutor(object):
                 try:
                     cgroups.set_value(MEMORY, swap_limit, memlimit)
                 except IOError as e:
-                    if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
+                    if e.errno == errno.ENOTSUP: # kernel responds with operation unsupported if this is disabled
                         sys.exit('Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
                     raise e
 
@@ -868,8 +868,8 @@ class RunExecutor(object):
             unused_pid, exitcode, ru_child = os.wait4(p.pid, 0)
             return exitcode, ru_child
         except OSError as e:
-            if self.PROCESS_KILLED and e.errno == 4:
-                # OSError 4 (interrupted system call) seems always to happen
+            if self.PROCESS_KILLED and e.errno == errno.EINTR:
+                # Interrupted system call seems always to happen
                 # if we killed the process ourselves after Ctrl+C was pressed
                 # We can try again to get exitcode and resource usage.
                 logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
@@ -951,7 +951,7 @@ class RunExecutor(object):
                 try:
                     result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
-                    if e.errno == 95: # kernel responds with error 95 (operation unsupported) if this is disabled
+                    if e.errno == errno.ENOTSUP: # kernel responds with operation unsupported if this is disabled
                         logging.critical(
                             "Kernel does not track swap memory usage, cannot measure memory usage."
                             " Please set swapaccount=1 on your kernel command line.")
