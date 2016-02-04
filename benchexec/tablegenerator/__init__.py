@@ -421,11 +421,15 @@ class RunSetResult(object):
             """
             return load_tool(self).get_value_from_output(lines, identifier)
 
-        for xml_result in self._xml_results:
-            self.results.append(RunResult.create_from_xml(xml_result,
-                                                          get_value_from_logfile,
-                                                          self.columns,
-                                                          correct_only))
+        # Opening the ZIP archive with the logs for every run is too slow, we cache it.
+        log_zip_cache = {}
+        try:
+            for xml_result in self._xml_results:
+                self.results.append(RunResult.create_from_xml(
+                    xml_result, get_value_from_logfile, self.columns, correct_only, log_zip_cache))
+        finally:
+            for file in log_zip_cache.values():
+                file.close()
 
         for column in self.columns:
             column.type, column.unit = get_column_type(column, self)
@@ -685,7 +689,8 @@ class RunResult(object):
         self.score = score
 
     @staticmethod
-    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only):
+    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only,
+                        log_zip_cache):
         '''
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
@@ -701,15 +706,18 @@ class RunResult(object):
                         return logfile.readlines()
 
                 elif os.path.exists(log_zip_name):
-                    with zipfile.ZipFile(log_zip_name) as log_zip:
-                        path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
-                        try:
-                            with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
-                                return logfile.readlines()
-                        except KeyError:
-                            logging.warning("Could not find logfile '%s' in archive '%s'.",
-                                            logfilename, log_zip_name)
-                            return []
+                    if log_zip_name not in log_zip_cache:
+                        log_zip_cache[log_zip_name] = zipfile.ZipFile(log_zip_name)
+                    log_zip = log_zip_cache[log_zip_name]
+
+                    path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
+                    try:
+                        with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
+                            return logfile.readlines()
+                    except KeyError:
+                        logging.warning("Could not find logfile '%s' in archive '%s'.",
+                                        logfilename, log_zip_name)
+                        return []
 
                 else:
                     logging.warning("Could not find logfile '%s' nor log archive '%s'.",
