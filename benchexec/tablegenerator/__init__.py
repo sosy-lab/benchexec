@@ -703,8 +703,13 @@ class RunResult(object):
                 elif os.path.exists(log_zip_name):
                     with zipfile.ZipFile(log_zip_name) as log_zip:
                         path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
-                        with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
-                            return logfile.readlines()
+                        try:
+                            with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
+                                return logfile.readlines()
+                        except KeyError:
+                            logging.warning("Could not find logfile '%s' in archive '%s'.",
+                                            logfilename, log_zip_name)
+                            return []
 
                 else:
                     logging.warning("Could not find logfile '%s' nor log archive '%s'.",
