@@ -37,15 +37,13 @@ The meanings of the current possible result values are as follows:
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
 - **memory** (from `runexec`) / **memUsage** (from `benchexec`):
     Peak memory consumption of run in bytes ([more information](resources.md#memory)).
-- **exitcode**: A number indicating how the process exited,
-    as returned by the Python function [`os.wait`](https://docs.python.org/3/library/os.html#os.wait).
-    It is recommended to use `returnvalue` and `exitsignal` instead (see below).
-
-### Additional Results of runexec
-`runexec` additionally uses the following result values:
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
+- **exitcode**: A number indicating how the process exited,
+    as returned by the Python function [`os.wait`](https://docs.python.org/3/library/os.html#os.wait).
+    (**Deprecated**, use `returnvalue` and `exitsignal` instead.)
+
 
 In the result dictionary of a call to `RunExecutor.execute_run()`,
 integer values are stored as `int`,

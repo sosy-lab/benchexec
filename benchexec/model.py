@@ -663,6 +663,10 @@ class Run(object):
         if exitcode is not None:
             self.values['@exitcode'] = exitcode
             exitcode = util.ProcessExitCode.from_raw(exitcode)
+            if exitcode.signal:
+                self.values['@exitsignal'] = exitcode.signal
+            else:
+                self.values['@returnvalue'] = exitcode.value
 
         for key, value in values.items():
             if key == 'walltime':
