@@ -25,8 +25,6 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 import os
 import xml.etree.ElementTree as ET
 
-from benchexec.filewriter import FileWriter
-
 
 def getWitnesses(witnessXML):
     witnesses = {}
@@ -137,8 +135,8 @@ def main(argv=None):
 
 
     print ('    ' + resultFile + '.merged.xml')
-    XMLFile = FileWriter(resultFile + '.merged.xml',
-                         xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
+    with open(resultFile + '.merged.xml', "w") as xml_file:
+        xml_file.write(xml_to_string(resultXML).replace('    \n','').replace('  \n','')))
 
 if __name__ == '__main__':
     sys.exit(main())
