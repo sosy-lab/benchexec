@@ -650,7 +650,41 @@ class Run(object):
                                self.runSet.benchmark.rlimits)
 
 
+    def set_result(self, values, visible_columns={}):
+        """Set the result of this run.
+        Use this method instead of manually setting the run attributes and calling after_execution(),
+        this method handles all this by itself.
+        @param values: a dictionary with result values as returned by RunExecutor.execute_run(),
+            may also contain arbitrary additional values
+        @param visible_columns: a set of keys of values that should be visible by default
+            (i.e., not marked as hidden), apart from those that BenchExec shows by default anyway
+        """
+        exitcode = values.pop('exitcode', None)
+        if exitcode is not None:
+            self.values['@exitcode'] = exitcode
+            exitcode = util.ProcessExitCode.from_raw(exitcode)
+
+        for key, value in values.items():
+            if key == 'walltime':
+                self.walltime = value
+            elif key == 'cputime':
+                self.cputime = value
+            elif key == 'memory':
+                self.values['memUsage'] = value
+            elif key == 'energy':
+                for ekey, evalue in value.items():
+                    self.values['energy-'+ekey] = evalue
+            elif key in visible_columns:
+                self.values[key] = value
+            else:
+                self.values['@' + key] = value
+
+        self.after_execution(exitcode, termination_reason=values.get('terminationreason'))
+
     def after_execution(self, exitcode, forceTimeout=False, termination_reason=None):
+        """
+        @deprecated: use set_result() instead
+        """
         # termination reason is not fully precise for timeouts, so we guess "timeouts"
         # if time is too high
         isTimeout = forceTimeout \

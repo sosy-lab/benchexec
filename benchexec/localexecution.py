@@ -234,7 +234,7 @@ class _Worker(threading.Thread):
 
         args = run.cmdline()
         logging.debug('Command line of run is %s', args)
-        result = \
+        run_result = \
             self.run_executor.execute_run(
                 args, run.log_file,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
@@ -246,28 +246,8 @@ class _Worker(threading.Thread):
                 workingDir=benchmark.working_directory(),
                 maxLogfileSize=benchmark.config.maxLogfileSize)
 
-        for key, value in result.items():
-            if key == 'walltime':
-                run.walltime = value
-            elif key == 'cputime':
-                run.cputime = value
-            elif key == 'memory':
-                run.values['memUsage'] = result['memory']
-            elif key == 'energy':
-                for ekey, evalue in value.items():
-                    run.values['energy-'+ekey] = evalue
-            else:
-                run.values['@' + key] = value
-
-        if self.my_cpus:
-            run.values['@cpuCores'] = self.my_cpus
-        if self.my_memory_nodes:
-            run.values['@memoryNodes'] = self.my_memory_nodes
-
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.
-            run.walltime = 0
-            run.cputime = 0
             try:
                 if benchmark.config.debug:
                     os.rename(run.log_file, run.log_file + ".killed")
@@ -277,7 +257,12 @@ class _Worker(threading.Thread):
                 pass
             return 1
 
-        run.after_execution(result['exitcode'], termination_reason=result.get('terminationreason', None))
+        if self.my_cpus:
+            run_result['cpuCores'] = self.my_cpus
+        if self.my_memory_nodes:
+            run_result['memoryNodes'] = self.my_memory_nodes
+
+        run.set_result(run_result)
         self.output_handler.output_after_run(run)
 
 
