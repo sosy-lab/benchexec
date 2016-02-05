@@ -517,7 +517,7 @@ function loadContent(url) {
   function attemptLoadingFromZIP() {
     var splitPos = url.lastIndexOf('/');
     var zipUrl = url.substring(0, splitPos) + ".zip";
-    var logfile = url.substring(splitPos);
+    var logfile = decodeURIComponent(url.substring(splitPos));
 
     function loadFileFromZipEntries(entries) {
       for (var i = 0; i < entries.length; i++) {
