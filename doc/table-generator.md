@@ -29,6 +29,8 @@ Showing log files from ZIP archives needs either JavaScript support in the brows
 or special setup of the web server, for example by using
 [serveFileFromZIP.php](https://github.com/sosy-lab/benchexec/blob/master/contrib/serveFileFromZIP.php)
 (cf. documentation in this file).
+If you want to use direct links to log files, you also need to either unpack the archives
+or use a solution like the PHP script.
 
 Alternatively, `table-generator` also supports using a special table-definition file as input
 that defines the layout of the generated tables
