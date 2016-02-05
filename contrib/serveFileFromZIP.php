@@ -46,6 +46,16 @@ RewriteRule ^.*\.logfiles(\.zip)?/.* serveFileFromZIP.php
  * TODO: Currently this script always sets Content-Type "text/plain".
  */
 
+// CONFIGURATION
+// Base directory for the files to be served, only necessary if files are not
+// inside the server's document root:
+$baseDir = "";
+// Path segments to skip at the beginning of the URL before appending it to
+// $baseDir:
+$skipUrlSegments = 0;
+
+// ---------------------------------------------------------------------------
+
 /* Send error 404 to client. */
 function handleError($message) {
   header('HTTP/1.1 404 Not Found');
@@ -87,10 +97,13 @@ function serveFileFromZIP($baseDir, $zipName, $fileName) {
 $path = urldecode(preg_replace("/\?.*/", "", $_SERVER['REQUEST_URI']));
 
 # Parts of path, example: ["foo", "bar", "file.txt"]
-$parts = explode("/", ltrim($path, "/"));
+$parts = array_slice(explode("/", ltrim($path, "/")), $skipUrlSegments);
 
 # Base directory (document root), example: /var/www/
-$baseDir = rtrim($_SERVER['DOCUMENT_ROOT'], "/") . "/";
+if ($baseDir == "") {
+  $baseDir = $_SERVER['DOCUMENT_ROOT'];
+}
+$baseDir = rtrim($baseDir, "/") . "/";
 
 # Iterate backwards through $parts,
 # check if archive with name $parts[0,...,$i-1] exists
