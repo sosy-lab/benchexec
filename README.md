@@ -7,7 +7,9 @@
 [![PyPI version](https://badge.fury.io/py/benchexec.svg)](https://badge.fury.io/py/benchexec)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
     
-**News**: We have published a paper titled
+**News**:
+- BenchExec 1.8 stores results in ZIP archives to save space and make their handling easier.
+- We have published a paper titled
 [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf)
 on BenchExec and its background
 at [SPIN 2015](http://www.spin2015.org/).

@@ -1,5 +1,23 @@
 # BenchExec Changelog
 
+## BenchExec 1.8
+
+- `benchexec` now compresses results by default: XML result files
+  are compressed with BZip2, and log files are stored within a ZIP archive.
+  This can reduce the necessary disk space significantly
+  (typically these logs compress very well),
+  and for large benchmark sets it reduces the number of necessary files,
+  which can make dealing with the results much faster.
+  The previous behavior can be restored with the parameter `--no-compress-results`.
+- `table-generator` now supports benchmark results where the log files
+  are stored in a ZIP file instead of a regular directory.
+  All features continue to work with compressed results,
+  including extraction of values from log files and viewing log files from HTML tables
+  (cf. [table-generator documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/table-generator.md) for more details).
+  Compressed and uncompressed results are handled transparently and can be mixed,
+  and using results that were manually compressed or decompressed
+  is also supported.
+
 ## BenchExec 1.7
 
 - Fix `table-generator` behavior for columns where different cells have different units:
