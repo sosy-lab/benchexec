@@ -94,7 +94,7 @@ def main(args=None):
             if run_result.category == result.CATEGORY_WRONG:
                 start_index += run_result.score
             elif run_result.category == result.CATEGORY_MISSING:
-                sys.exit('Property missing for task {0}, ',
+                sys.exit('Property missing for task {0}, '
                          'cannot produce score-based quantile data.'
                          .format(run_result.task_id[0]))
             elif run_result.category == result.CATEGORY_CORRECT:
