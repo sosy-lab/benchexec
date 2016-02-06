@@ -1401,7 +1401,7 @@ def create_argument_parser():
     parser.add_argument("--ignore-erroneous-benchmarks",
         action="store_true",
         dest="ignore_errors",
-        help="Ignore results where the was an error during benchmarking."
+        help="Ignore incomplete result files or results where the was an error during benchmarking."
     )
     parser.add_argument("-d", "--dump",
         action="store_true", dest="dump_counts",
