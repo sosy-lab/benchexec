@@ -105,6 +105,15 @@ class Column(object):
         self.scale_factor = float(scale_factor) if scale_factor else 1
         self.href = href
 
+    def is_numeric(self):
+        return self.type.type == ColumnType.measure or self.type.type == ColumnType.count
+
+    def format_title(self):
+        if self.is_numeric() and self.unit:
+            return "{} ({})".format(self.title, self.unit)
+        else:
+            return self.title
+
     def format_value(self, value, isToAlign=False, format_target="html"):
         """
         Format a value nicely for human-readable output (including rounding).

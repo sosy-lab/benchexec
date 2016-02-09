@@ -275,22 +275,6 @@ def get_column_type(column, result_set):
     return _get_column_type_heur(column, column_values)
 
 
-def is_number_type(column_type):
-    col_type = column_type.type
-
-    return col_type == ColumnType.measure or col_type == ColumnType.count
-
-
-def get_column_output_title(column):
-    column_title = column.title
-    column_type = column.type
-
-    if is_number_type(column_type) and column.unit:
-        column_title += " (" + str(column.unit) + ")"
-
-    return column_title
-
-
 def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
@@ -898,7 +882,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                              name=rowName,
                              content=valuesAndWidths)
 
-    titles      = [get_column_output_title(column) for runSetResult in runSetResults for column in runSetResult.columns]
+    titles      = [column.format_title() for runSetResult in runSetResults for column in runSetResult.columns]
     runSetWidths1 = [1]*sum(runSetWidths)
     titleRow    = tempita.bunch(id='columnTitles', name=commonFileNamePrefix,
                                 content=list(zip(titles, runSetWidths1)))
@@ -1034,7 +1018,7 @@ def get_stats_of_run_set(runResults):
                 wrongFalse = StatValue(countWrongFalse)
 
             else:
-                assert is_number_type(column.type)
+                assert column.is_numeric()
                 total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
                     get_stats_of_number_column(values, main_status_list, column.title)
 
@@ -1220,7 +1204,7 @@ def get_summary(runSetResults):
     available = False
     for runSetResult in runSetResults:
         for column in runSetResult.columns:
-            if is_number_type(column.type)\
+            if column.is_numeric() \
                     and column.title in runSetResult.summary and runSetResult.summary[column.title] != '':
 
                 available = True
@@ -1268,7 +1252,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
     template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]
     template_values.columnTitles =\
-        [[get_column_output_title(column) for column in runSet.columns] for runSet in runSetResults]
+        [[column.format_title() for column in runSet.columns] for runSet in runSetResults]
 
     template_values.relevant_id_columns = select_relevant_id_columns(rows)
     template_values.count_id_columns = template_values.relevant_id_columns.count(True)
