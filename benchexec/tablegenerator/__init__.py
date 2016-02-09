@@ -47,9 +47,8 @@ import zipfile
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
-# Initialized only in main() because we cannot do so in the worker processes.
-
-parallel = None
+# Fully initialized only in main() because we cannot do so in the worker processes.
+parallel = Util.DummyExecutor()
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
@@ -934,10 +933,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats_of_rows(rows):
-    if parallel:
-        stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
-    else:
-        stats_and_col_types = list(map(get_stats_of_run_set, rows_to_columns(rows)))
+    stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
     stats = [s[0] for s in stats_and_col_types]  # first tuple returned by get_stats_of_run_set
     stats_columns = [s[1] for s in stats_and_col_types]  # second tuple returned by get_stats_of_run_set
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise

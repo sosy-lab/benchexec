@@ -175,3 +175,26 @@ def prettylist(list_):
 
     return uniqueList[0] if len(uniqueList) == 1 \
         else '[' + '; '.join(uniqueList) + ']'
+
+
+class _DummyFuture(object):
+    def __init__(self, result):
+        self._result = result
+
+    def result(self):
+        return self._result
+
+class DummyExecutor(object):
+    """Executor similar to concurrent.futures.ProcessPoolExecutor
+    but executes everything sequentially in the current process.
+    This can be useful for debugging.
+    Not all features of ProcessPoolExecutor are supported.
+    """
+
+    def submit(self, func, *args, **kwargs):
+        return _DummyFuture(func(*args, **kwargs))
+
+    map = map
+
+    def shutdown(self, wait=None):
+        pass
