@@ -268,7 +268,7 @@ def format_stat_title(stat, column):
         if k in ['avg', 'stdev']:
             formatted_value = column.format_value(v, False, 'tooltip_stochastic')
         else:
-            formatted_value = column.format_value(v)
+            formatted_value = column.format_value(v, False, 'tooltip')
         values[k] = formatted_value
     return 'Min: {min}, Max: {max}, Average: {avg}, Median: {median}, StDev: {stdev}'.format(**values)
 }}

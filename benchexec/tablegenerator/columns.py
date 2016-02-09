@@ -20,6 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
+import math
 
 from benchexec.tablegenerator import util
 
@@ -36,7 +37,7 @@ GROUP_SIG_DEC_DIGITS = 4
 GROUP_EXP = 5
 GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
-POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip_stochastic', 'csv']
+POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip', 'tooltip_stochastic', 'csv']
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -218,10 +219,17 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     assert format_target in POSSIBLE_FORMAT_TARGETS
 
     # Round to the given amount of significant digits
-    #   (unfortunately this keeps the '.0' for large numbers and removes too many zeros from the end).
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-    float_value = float("{value:.{digits}g}".format(digits=intended_digits, value=number))
-    formatted_value = str(float_value)
+    if number == 0:
+        float_value = 0
+    else:
+        float_value = round(number, - int(math.floor(math.log10(number))) + (number_of_significant_digits - 1))
+
+    if not format_target.startswith('tooltip'):
+        max_digits_to_display = max_digits_after_decimal
+    else:
+        max_digits_to_display = len(str(float_value))  # This value may be too big, but extra digits will be cut below
+    formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
 
     # Get the number of intended significant digits and the number of current significant digits.
     # If we have not enough digits due to rounding, 0's have to be re-added.
@@ -234,8 +242,13 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
         assert '.' in formatted_value
         formatted_value += "".join(['0'] * digits_to_add)
     elif digits_to_add < 0:
-        assert round(float_value) == float_value  # check that the number has no decimal values
-        formatted_value = str(round(float_value))
+        if '.' in formatted_value[:digits_to_add]:
+            formatted_value = formatted_value[:digits_to_add]
+        else:
+            formatted_value = str(round(float_value))
+
+        if formatted_value.endswith('.'):
+            formatted_value = formatted_value[:-1]
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002

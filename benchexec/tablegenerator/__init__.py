@@ -23,7 +23,7 @@ import argparse
 import bz2
 import collections
 from decimal import Decimal, InvalidOperation
-import glob
+import math
 import gzip
 import io
 import itertools
@@ -72,13 +72,16 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?\s?([a-zA-Z]*)')
+REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z]*)')
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
 GROUP_DEC_PART = 3
 GROUP_ZEROES = 4
 GROUP_SIG_DEC_PART = 5
-GROUP_UNIT = 6
+GROUP_EXPONENT_PART = 6
+GROUP_EXPONENT_SIGN = 7
+GROUP_EXPONENT_VALUE = 8
+GROUP_UNIT = 9
 
 
 def parse_table_definition_file(file, options):
@@ -145,10 +148,16 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
+
+    assert 'e' not in decimal_number_match.group()  # check that only decimal notation is used
+
     try:
         num_of_digits = int(number_of_significant_digits)
     except TypeError:
         num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
+
+    if not decimal_number_match.group(GROUP_DEC_PART):
+        return 0
 
     # If 1 > value > 0, only look at the decimal digits.
     # In the second condition, we have to remove the first character from the decimal part group because the
@@ -208,7 +217,8 @@ def _get_column_type_heur(column, column_values):
             # if the units in two different rows of the same column differ, handle the column as 'text' type
             if column_unit and curr_column_unit and curr_column_unit != column_unit:
                 if explicit_unit_defined:
-                    raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                    raise TypeError("Values of different units in same column: " +
+                                    column_unit + " and " + curr_column_unit)
                 else:
                     return text_type_tuple
             else:
@@ -223,7 +233,8 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
-                        raise TypeError("Values of different units in same column: " + str(column_unit) + " and " + str(curr_column_unit))
+                        raise TypeError("Values of different units in same column: " +
+                                        column_unit + " and " + curr_column_unit)
                     else:
                         return text_type_tuple
                 else:
@@ -234,9 +245,20 @@ def _get_column_type_heur(column, column_values):
             # Use the column's scale factor for computing the decimal digits of the current value.
             # Otherwise, they might be different from output.
             scaled_value = float(Util.remove_unit(str(value))) * column.scale_factor
-            scaled_value_match = REGEX_MEASURE.match(str(scaled_value))
+
+            # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
+            # special cases, immediately convert the value back to decimal notation.
+            if value_match.group(GROUP_DEC_PART):
+                dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1  # - 1 since GROUP_DEC_PART includes the point
+            else:
+                dec_digits_before_scale = 0
+            max_number_of_dec_digits_after_scale = dec_digits_before_scale - math.ceil(math.log10(column.scale_factor))
+
+            scaled_value = "{0:.{1}f}".format(scaled_value, max_number_of_dec_digits_after_scale)
+            scaled_value_match = REGEX_MEASURE.match(scaled_value)
 
             curr_dec_digits = _get_decimal_digits(scaled_value_match, column.number_of_significant_digits)
+
             try:
                 max_dec_digits = column_type.max_decimal_digits
             except AttributeError or TypeError:
