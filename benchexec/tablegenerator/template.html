@@ -6,11 +6,22 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="generator" content="BenchExec table-generator {{version}}">
 
+<link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 <style type="text/css">
   <!--
   body {
     margin: 0px;
-    font-family: arial, sans serif;
+{{#
+    Main font: We need a font that is freely available,
+    has tabular nums (i.e., fixed-width digits),
+    correct U+2007 FIGURE SPACE and U+2008 PUNCTUATION SPACE characters,
+    and is not too wide (to allow a satisfactory number of columns to be shown).
+    Of the fonts I have found, only Droid Sans fits perfectly.
+    Fallbacks are Liberation Sans, Ubuntu, Trebuchet MS, and Tahoma,
+    whose spaces are slightly too wide,
+    Arial, which does not have tabular nums,
+    and Verdana, which is too wide.
+}}    font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
   }
   #header {
     position: fixed;
