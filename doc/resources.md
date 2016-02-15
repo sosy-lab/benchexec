@@ -17,7 +17,7 @@ will allocate 4 physical cores (each with 2 hyper-threading cores) to each run.
 ## Memory
 
 Memory measurement and limitation is delegated to the Linux kernel by BenchExec,
-thus the [information from kernel documentation](https://www.kernel.org/doc/Documentation/cgroups/memory.txt)
+thus the [information from kernel documentation](https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt)
 applies. For example, both is only possible with a granularity of the size of a memory page.
 
 The measured memory usage may include memory pages that are part of the kernel's file-system cache
