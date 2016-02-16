@@ -30,6 +30,32 @@ import sys
 import threading
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec import __version__
+
+
+def add_basic_executor_options(argument_parser):
+    """Add some basic options for an executor to an argparse argument_parser."""
+    argument_parser.add_argument("args", nargs="+", metavar="ARG",
+        help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
+    argument_parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+
+    verbosity = argument_parser.add_mutually_exclusive_group()
+    verbosity.add_argument("--debug", action="store_true",
+                           help="show debug output")
+    verbosity.add_argument("--quiet", action="store_true",
+                           help="show only warnings")
+
+def handle_basic_executor_options(options):
+    """Handle the options specified by add_basic_executor_options()."""
+    # setup logging
+    logLevel = logging.INFO
+    if options.debug:
+        logLevel = logging.DEBUG
+    elif options.quiet:
+        logLevel = logging.WARNING
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
+                        level=logLevel)
+
 
 class BaseExecutor(object):
 

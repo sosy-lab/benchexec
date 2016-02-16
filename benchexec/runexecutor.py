@@ -35,7 +35,7 @@ import time
 import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-from benchexec import __version__
+from benchexec import baseexecutor
 from benchexec.baseexecutor import BaseExecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
@@ -68,8 +68,6 @@ def main(argv=None):
         """Execute a command with resource limits and measurements.
            Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
            Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
-    parser.add_argument("args", nargs="+", metavar="ARG",
-                        help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
     parser.add_argument("--input", metavar="FILE",
                         help="name of file used as stdin for command (default: /dev/null; use - for stdin passthrough)")
     parser.add_argument("--output", default="output.log", metavar="FILE",
@@ -99,14 +97,10 @@ def main(argv=None):
                         help="execute tool under given user account (needs password-less sudo setup)")
     parser.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
                         help="do not delete files created by the tool in temp directory")
-    parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+    baseexecutor.add_basic_executor_options(parser)
 
-    verbosity = parser.add_mutually_exclusive_group()
-    verbosity.add_argument("--debug", action="store_true",
-                           help="show debug output")
-    verbosity.add_argument("--quiet", action="store_true",
-                           help="show only warnings")
     options = parser.parse_args(argv[1:])
+    baseexecutor.handle_basic_executor_options(options)
 
     # For integrating into some benchmarking frameworks,
     # there is a DEPRECATED special mode
@@ -123,15 +117,6 @@ def main(argv=None):
                 options.maxOutputSize = int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR # MB to bytes
             except ValueError:
                 options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
-
-    # setup logging
-    logLevel = logging.INFO
-    if options.debug:
-        logLevel = logging.DEBUG
-    elif options.quiet:
-        logLevel = logging.WARNING
-    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                        level=logLevel)
 
     if options.input == '-':
         stdin = sys.stdin
