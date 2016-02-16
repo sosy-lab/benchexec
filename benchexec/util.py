@@ -30,6 +30,8 @@ import collections
 import glob
 import logging
 import os
+import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -291,10 +293,26 @@ def common_base_dir(l):
     # os.path.commonprefix returns the common prefix, not the common directory
     return os.path.dirname(os.path.commonprefix(l))
 
-def log_shutil_rmtree_error(func, arg, exc_info):
-    """Suited as onerror handler for shutil.rmtree() that logs a warning."""
+def log_rmtree_error(func, arg, exc_info):
+    """Suited as onerror handler for (sh)util.rmtree() that logs a warning."""
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])
 
+def rmtree(path, ignore_errors=False, onerror=None):
+    """Same as shutil.rmtree, but supports directories without write or execute permissions."""
+    if ignore_errors:
+        def onerror(*args):
+            pass
+    elif onerror is None:
+        def onerror(*args):
+            raise
+    for root, dirs, unused_files in os.walk(path):
+        for directory in dirs:
+            try:
+                abs_directory = os.path.join(root, directory)
+                os.chmod(abs_directory, stat.S_IRWXU)
+            except EnvironmentError as e:
+                onerror(os.chmod, abs_directory, e)
+    shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
 
 def copy_all_lines_from_to(inputFile, outputFile):
     """Copy all lines from an input file object to an output file object."""

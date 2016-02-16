@@ -22,6 +22,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 import unittest
 from benchexec.util import ProcessExitCode
+import tempfile
+import os
+import stat
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import util
@@ -100,3 +103,50 @@ class TestProcessExitCode(unittest.TestCase):
         self.assertIsNone(self.ProcessExitCode_with_value(1).signal)
         self.assertIsNone(ProcessExitCode.from_raw(0).signal)
         self.assertIsNone(ProcessExitCode.from_raw(256).signal)
+
+class TestRmtree(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.longMessage = True
+        cls.maxDiff = None
+
+    def setUp(self):
+        self.base_dir = tempfile.mkdtemp(prefix="BenchExec_test_util_rmtree")
+
+    def test_writable_file(self):
+        util.write_file("", self.base_dir, "tempfile")
+        util.rmtree(self.base_dir)
+        self.assertFalse(os.path.exists(self.base_dir), "Failed to remove directory with file")
+
+    def test_writable_dir(self):
+        os.mkdir(os.path.join(self.base_dir, "tempdir"))
+        util.rmtree(self.base_dir)
+        self.assertFalse(os.path.exists(self.base_dir), "Failed to remove directory with child directory")
+
+    def test_nonwritable_file(self):
+        temp_file = os.path.join(self.base_dir, "tempfile")
+        util.write_file("", temp_file)
+        os.chmod(temp_file, 0)
+        util.rmtree(self.base_dir)
+        self.assertFalse(os.path.exists(self.base_dir), "Failed to remove directory with non-writable file")
+
+    def create_and_delete_directory(self, mode):
+        tempdir = os.path.join(self.base_dir, "tempdir")
+        os.mkdir(tempdir)
+        util.write_file(tempdir, "tempfile")
+        os.chmod(tempdir, mode)
+        util.rmtree(self.base_dir)
+        self.assertFalse(os.path.exists(self.base_dir), "Failed to remove directory")
+
+    def test_nonwritable_dir(self):
+        self.create_and_delete_directory(stat.S_IRUSR|stat.S_IXUSR)
+
+    def test_nonexecutable_dir(self):
+        self.create_and_delete_directory(stat.S_IRUSR|stat.S_IWUSR)
+
+    def test_nonreadable_dir(self):
+        self.create_and_delete_directory(stat.S_IWUSR|stat.S_IXUSR)
+
+    def test_dir_without_any_permissions(self):
+        self.create_and_delete_directory(0)

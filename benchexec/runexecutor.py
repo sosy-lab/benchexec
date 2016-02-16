@@ -523,7 +523,7 @@ class RunExecutor(object):
         if self._should_cleanup_temp_dir:
             logging.debug('Cleaning up temporary directory.')
             if self._user is None:
-                shutil.rmtree(base_dir, onerror=util.log_shutil_rmtree_error)
+                util.rmtree(base_dir, onerror=util.log_rmtree_error)
             else:
                 rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
                                       stderr=subprocess.PIPE)
