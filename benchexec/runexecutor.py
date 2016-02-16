@@ -36,6 +36,7 @@ import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import __version__
+from benchexec.baseexecutor import BaseExecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
 from benchexec import systeminfo
@@ -218,20 +219,19 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor(object):
+class RunExecutor(BaseExecutor):
 
     # --- object initialization ---
 
-    def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[]):
+    def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[],
+                 *args, **kwargs):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        self.PROCESS_KILLED = False
-        self.SUB_PROCESS_PIDS_LOCK = threading.Lock() # needed, because we kill the process asynchronous
-        self.SUB_PROCESS_PIDS = set()
+        super(RunExecutor, self).__init__(*args, **kwargs)
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
@@ -345,7 +345,7 @@ class RunExecutor(object):
             result.append(var + '=' + value)
         return result + ['--'] + args
 
-    def _kill_process(self, pid, cgroups, sig=signal.SIGKILL):
+    def _kill_process(self, pid, cgroups=None, sig=signal.SIGKILL):
         """
         Try to send signal to given process, either directly of with sudo.
         Because we cannot send signals to the sudo process itself,
@@ -353,6 +353,8 @@ class RunExecutor(object):
         and redirects the signal to sudo's child in this case.
         """
         if self._user is not None:
+            if not cgroups:
+                cgroups = find_cgroups_of_process(pid)
             # In case we started a tool with sudo, we cannot kill the started
             # process itself, because sudo always runs as root.
             # So if we are asked to kill the started process itself (the first
@@ -377,15 +379,7 @@ class RunExecutor(object):
         Use _kill_process() because of this.
         """
         if self._user is None:
-            try:
-                os.kill(pid, sig)
-            except OSError as e:
-                if e.errno == errno.ESRCH: # process itself returned and exited before killing
-                    logging.debug("Failure %s while killing process %s with signal %s: %s",
-                                  e.errno, pid, sig, e.strerror)
-                else:
-                    logging.warning("Failure %s while killing process %s with signal %s: %s",
-                                    e.errno, pid, sig, e.strerror)
+            super(RunExecutor, self)._kill_process(pid, sig)
         else:
             logging.debug('Sending signal %s to %s with sudo.', sig, pid)
             try:
@@ -863,71 +857,6 @@ class RunExecutor(object):
 
         return result
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups,
-                         parent_setup_fn, child_setup_fn, parent_cleanup_fn):
-        """Actually start the tool and the measurements.
-        @param parent_setup_fn a function without parameters that is called in the parent process
-            immediately before the tool is started
-        @param child_setup_fn a function without parameters that is called in the child process
-            before the tool is started
-        @param parent_cleanup_fn a function with one positional parameter that is called in the
-            parent process immediately after the tool terminated, with the result of
-            parent_setup_fn as parameter value
-        @return: a tuple of PID of process and a blocking function, which waits for the process
-            and a triple of the exit code and the resource usage of the process
-            and the result of parent_cleanup_fn (do not use os.wait)
-        """
-        def pre_subprocess():
-            # Do some other setup the caller wants.
-            child_setup_fn()
-
-            # put us into the cgroup(s)
-            pid = os.getpid()
-            cgroups.add_task(pid)
-
-        parent_setup = parent_setup_fn()
-
-        p = subprocess.Popen(args,
-                     stdin=stdin,
-                     stdout=stdout, stderr=stderr,
-                     env=env, cwd=cwd,
-                     close_fds=True,
-                     preexec_fn=pre_subprocess)
-
-        def wait_and_get_result():
-            exitcode, ru_child = self._wait_for_process(p.pid, args[0])
-
-            parent_cleanup = parent_cleanup_fn(parent_setup)
-            return exitcode, ru_child, parent_cleanup
-
-        return p.pid, wait_and_get_result
-
-
-    def _wait_for_process(self, pid, name):
-        """Wait for the given process to terminate.
-        @return tuple of exit code and resource usage
-        """
-        try:
-            logging.debug("Waiting for process %s with pid %s", name, pid)
-            unused_pid, exitcode, ru_child = os.wait4(pid, 0)
-            return exitcode, ru_child
-        except OSError as e:
-            if self.PROCESS_KILLED and e.errno == errno.EINTR:
-                # Interrupted system call seems always to happen
-                # if we killed the process ourselves after Ctrl+C was pressed
-                # We can try again to get exitcode and resource usage.
-                logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
-                              e.errno, name, pid, e.strerror)
-                try:
-                    unused_pid, exitcode, ru_child = os.wait4(pid, 0)
-                    return exitcode, ru_child
-                except OSError:
-                    pass # original error will be handled and this ignored
-
-            logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                             e.errno, name, pid, e.strerror)
-            return (0, None)
-
 
     def _get_cgroup_measurements(self, cgroups, ru_child, result):
         """
@@ -1009,15 +938,7 @@ class RunExecutor(object):
 
     def stop(self):
         self._set_termination_reason('killed')
-        self.PROCESS_KILLED = True
-        with self.SUB_PROCESS_PIDS_LOCK:
-            for pid in self.SUB_PROCESS_PIDS:
-                logging.warning('Killing process %s forcefully.', pid)
-                try:
-                    self._kill_process(pid, find_cgroups_of_process(pid))
-                except EnvironmentError as e:
-                    # May fail due to race conditions
-                    logging.debug(e)
+        super(RunExecutor, self).stop()
 
     def check_for_new_files_in_home(self):
         """Check that the user account's home directory now does not contain more files than
