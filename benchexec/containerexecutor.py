@@ -44,6 +44,36 @@ from benchexec import container
 from benchexec import util
 
 
+def add_basic_container_args(argument_parser):
+    argument_parser.add_argument("--allow-network", action="store_true",
+        help="allow process to use network communication")
+    argument_parser.add_argument("--keep-tmp", action="store_true",
+        help="do not use a private /tmp for process")
+    argument_parser.add_argument("--hide-home", action="store_true",
+        help="use a private home directory (like '--hide-dir $HOME --writable-dir $HOME')")
+    argument_parser.add_argument("--hide-dir", metavar="DIR", action="append", default=[],
+        help="hide this directory by mounting an empty directory over it")
+    argument_parser.add_argument("--writable-dir", metavar="DIR", action="append", default=None,
+        help="let this directory be writable (default: /tmp)")
+
+def handle_basic_container_args(options):
+    """Handle the options specified by add_basic_container_args().
+    @return: a dict that can be used as kwargs for the ContainerExecutor constructor
+    """
+    if options.writable_dir is None:
+        options.writable_dir = ["/tmp"]
+    if not options.keep_tmp:
+        options.hide_dir.append("/tmp")
+    if options.hide_home:
+        home = pwd.getpwuid(os.getuid()).pw_dir
+        options.hide_dir.append(home)
+        options.writable_dir.append(home)
+
+    return {
+        'allow_network': options.allow_network,
+        'hide_dirs': options.hide_dir,
+        'writable_dirs': options.writable_dir}
+
 def main(argv=None):
     """
     A simple command-line interface for the containerexecutor module of BenchExec.
@@ -66,20 +96,12 @@ def main(argv=None):
                         help="use given UID within namespace (default: current UID)")
     parser.add_argument("--gid", metavar="GID", type=int, default=None,
                         help="use given GID within namespace (default: current UID)")
-    parser.add_argument("--allow-network", action="store_true",
-                        help="allow process to use network communication")
-    parser.add_argument("--keep-tmp", action="store_true",
-                        help="do not use a private /tmp for process")
-    parser.add_argument("--hide-home", action="store_true",
-                        help="use a private home directory (like '--hide-dir $HOME --writable-dir $HOME')")
-    parser.add_argument("--hide-dir", metavar="DIR", action="append", default=[],
-                        help="hide this directory by mounting an empty directory over it")
-    parser.add_argument("--writable-dir", metavar="DIR", action="append", default=None,
-                        help="let this directory be writable (default: /tmp)")
+    add_basic_container_args(parser)
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options)
+    container_options = handle_basic_container_args(options)
 
     if options.root:
         if options.uid is not None or options.gid is not None:
@@ -92,21 +114,10 @@ def main(argv=None):
         if options.gid is None:
             options.gid = os.getgid()
 
-    if options.writable_dir is None:
-        options.writable_dir = ["/tmp"]
-    if not options.keep_tmp:
-        options.hide_dir.append("/tmp")
-    if options.hide_home:
-        home = pwd.getpwuid(os.getuid()).pw_dir
-        options.hide_dir.append(home)
-        options.writable_dir.append(home)
-
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
     logging.info('Starting command %s', formatted_args)
 
-    executor = ContainerExecutor(uid=options.uid, gid=options.gid,
-                                 allow_network=options.allow_network,
-                                 hide_dirs=options.hide_dir, writable_dirs=options.writable_dir)
+    executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -128,7 +139,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def __init__(self, use_namespaces=True,
                  uid=os.getuid(), gid=os.getgid(),
                  allow_network=False,
-                 writable_dirs=[], hide_dirs=[],
+                 writable_dirs=["/tmp"], hide_dirs=[],
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces

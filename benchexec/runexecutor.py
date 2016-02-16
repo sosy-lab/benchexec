@@ -36,7 +36,7 @@ import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
-from benchexec.containerexecutor import ContainerExecutor
+from benchexec import containerexecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
 from benchexec import systeminfo
@@ -95,6 +95,14 @@ def main(argv=None):
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
+    container_args = parser.add_argument_group("optional arguments for run container")
+    container_on_args = container_args.add_mutually_exclusive_group()
+    container_on_args.add_argument("--container", action='store_true',
+        help="force isolation of run in container (future default starting with BenchExec 2.0)")
+    container_on_args.add_argument("--no-container", action='store_true',
+        help="disable use of containers for isolation of runs (current default)")
+    containerexecutor.add_basic_container_args(container_args)
+
     environment_args = parser.add_argument_group("optional arguments for run environment")
     environment_args.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
         help="additional cgroup system that should be enabled for runs "
@@ -105,12 +113,27 @@ def main(argv=None):
     environment_args.add_argument("--dir", metavar="DIR",
         help="working directory for executing the command (default is current directory)")
     environment_args.add_argument("--user", metavar="USER",
-        help="execute tool under given user account (needs password-less sudo setup)")
+        help="execute tool under given user account (needs password-less sudo setup, "
+            "not supported in combination with --container)")
 
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options)
+
+    if options.container:
+        if options.user is not None:
+            sys.exit("Cannot use --user in combination with --container.")
+        container_options = containerexecutor.handle_basic_container_args(options)
+    else:
+        container_options = {}
+        if not options.no_container:
+            logging.warning(
+                "Neither --container or --no-container was specified, "
+                "not using containers for isolation of runs. "
+                "Either specify --no-container to silence this warning, "
+                "or specify --container to use containers for better isolation of runs "
+                "(this will be the default starting with BenchExec 2.0).")
 
     # For integrating into some benchmarking frameworks,
     # there is a DEPRECATED special mode
@@ -155,7 +178,8 @@ def main(argv=None):
         cgroup_subsystems.add(subsystem)
 
     executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup,
-                           additional_cgroup_subsystems=list(cgroup_subsystems))
+                           additional_cgroup_subsystems=list(cgroup_subsystems),
+                           use_namespaces=options.container, **container_options)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -214,19 +238,21 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor(ContainerExecutor):
+class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- object initialization ---
 
     def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[],
-                 *args, **kwargs):
+                 use_namespaces=False, *args, **kwargs):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(use_namespaces=False, *args, **kwargs)
+        super(RunExecutor, self).__init__(use_namespaces=use_namespaces, *args, **kwargs)
+        if use_namespaces and user:
+            raise ValueError("Combination of sudo mode of RunExecutor and namespaces is not supported")
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir

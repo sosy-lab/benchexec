@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
+import pwd
 import re
 import subprocess
 import sys
@@ -500,6 +501,33 @@ class TestRunExecutorWithSudo(TestRunExecutor):
                           'runexecutor failed to detect new temporary file in home directory')
         finally:
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
+
+
+class TestRunExecutorWithNamespaces(TestRunExecutor):
+
+    home_dir = pwd.getpwuid(os.getuid()).pw_dir
+
+    def setUp(self, *args, **kwargs):
+        self.runexecutor = RunExecutor(use_namespaces=True,
+                                       hide_dirs=["/tmp", TestRunExecutorWithNamespaces.home_dir],
+                                       *args, **kwargs)
+
+    def execute_run(self, *args, **kwargs):
+        return super(TestRunExecutorWithNamespaces, self).execute_run(workingDir="/", *args, **kwargs)
+
+    def test_home_and_tmp_is_separate(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'ls {}; ls /tmp'.format(TestRunExecutorWithNamespaces.home_dir))
+        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', "Home or tmp directory is not empty")
+
+    def test_temp_dirs_are_removed(self):
+        self.skipTest("unimplemented")
+
+    def test_no_cleanup_temp(self):
+        self.skipTest("unimplemented")
 
 
 class _StopRunThread(threading.Thread):
