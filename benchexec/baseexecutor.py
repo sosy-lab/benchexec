@@ -76,7 +76,7 @@ class BaseExecutor(object):
                 logging.warning("Failure %s while killing process %s with signal %s: %s",
                                 e.errno, pid, sig, e.strerror)
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups,
+    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
                          parent_setup_fn, child_setup_fn, parent_cleanup_fn):
         """Actually start the tool and the measurements.
         @param parent_setup_fn a function without parameters that is called in the parent process

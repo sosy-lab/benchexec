@@ -36,7 +36,7 @@ import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
-from benchexec.baseexecutor import BaseExecutor
+from benchexec.containerexecutor import ContainerExecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
 from benchexec import systeminfo
@@ -214,7 +214,7 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor(BaseExecutor):
+class RunExecutor(ContainerExecutor):
 
     # --- object initialization ---
 
@@ -226,7 +226,7 @@ class RunExecutor(BaseExecutor):
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(*args, **kwargs)
+        super(RunExecutor, self).__init__(use_namespaces=False, *args, **kwargs)
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
@@ -781,7 +781,7 @@ class RunExecutor(BaseExecutor):
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=stdin, stdout=outputFile, stderr=outputFile,
-                env=run_environment, cwd=workingDir,
+                env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent)

@@ -125,12 +125,15 @@ def main(argv=None):
 
 class ContainerExecutor(baseexecutor.BaseExecutor):
 
-    def __init__(self,
+    def __init__(self, use_namespaces=True,
                  uid=os.getuid(), gid=os.getgid(),
                  allow_network=False,
                  writable_dirs=[], hide_dirs=[],
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
+        self._use_namespaces = use_namespaces
+        if not use_namespaces:
+            return
         self._uid = uid
         self._gid = gid
         self._allow_network = allow_network
@@ -188,17 +191,24 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # cleanup steps that are only relevant in case of success
         return util.ProcessExitCode.from_raw(returnvalue)
 
+    def _start_execution(self, *args, **kwargs):
+        if not self._use_namespaces:
+            return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
+        else:
+            return self._start_execution_in_container(*args, **kwargs)
+
 
     # --- container implementation with namespaces ---
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
-                         parent_setup_fn, child_setup_fn, parent_cleanup_fn):
-        """Execute the given command and measure its resource usage similarly to _start_execution(),
+    def _start_execution_in_container(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
+                                      parent_setup_fn, child_setup_fn, parent_cleanup_fn):
+        """Execute the given command and measure its resource usage similarly to super()._start_execution(),
         but inside a container implemented using Linux namespaces.
         The command has no network access (only loopback),
         a fresh directory as /tmp and no write access outside of this,
         and it does not see other processes except itself.
         """
+        assert self._use_namespaces
 
         # We have three processes involved:
         # parent: the current Python process in which RunExecutor is executing
