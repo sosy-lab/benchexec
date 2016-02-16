@@ -33,7 +33,6 @@ import sys
 import threading
 import time
 import tempfile
-import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import __version__

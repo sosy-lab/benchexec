@@ -134,7 +134,7 @@ class TestRmtree(unittest.TestCase):
     def create_and_delete_directory(self, mode):
         tempdir = os.path.join(self.base_dir, "tempdir")
         os.mkdir(tempdir)
-        util.write_file(tempdir, "tempfile")
+        util.write_file("", tempdir, "tempfile")
         os.chmod(tempdir, mode)
         util.rmtree(self.base_dir)
         self.assertFalse(os.path.exists(self.base_dir), "Failed to remove directory")
