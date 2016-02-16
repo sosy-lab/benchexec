@@ -210,6 +210,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         assert self._use_namespaces
 
+        args = self._build_cmdline(args, env=env)
+
         # We have three processes involved:
         # parent: the current Python process in which RunExecutor is executing
         # child: child process in new namespace (PID 1 in inner namespace),

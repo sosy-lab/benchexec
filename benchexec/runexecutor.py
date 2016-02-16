@@ -334,7 +334,7 @@ class RunExecutor(ContainerExecutor):
         using sudo if necessary.
         """
         if self._user is None:
-            return args
+            return super(RunExecutor, self)._build_cmdline(args, env)
         result = _SUDO_ARGS + [self._user]
         for var, value in env.items():
             result.append(var + '=' + value)
@@ -482,11 +482,8 @@ class RunExecutor(ContainerExecutor):
         return cgroups
 
 
-    def _setup_temp_dir(self):
-        """Setup the temporary directories for the run.
-        @return a triple of base directory, home directory, and temp directory
-            (all can be removed after the run)
-        """
+    def _create_temp_dir(self):
+        """Create a temporary directory for the run."""
         if self._user is None:
             base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
         else:
@@ -496,16 +493,13 @@ class RunExecutor(ContainerExecutor):
                 'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
                 ])
             base_dir = subprocess.check_output(create_temp_dir).decode().strip()
-        temp_dir = os.path.join(base_dir, "tmp")
-        home_dir = os.path.join(base_dir, "home")
-        if self._user is None:
-            os.mkdir(temp_dir)
-            os.mkdir(home_dir)
-        else:
-            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700", temp_dir, home_dir]))
+        return base_dir
 
-        logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
-        return base_dir, home_dir, temp_dir
+    def _create_dirs_in_temp_dir(self, *paths):
+        if self._user is None:
+            super(RunExecutor, self)._create_dirs_in_temp_dir(*paths)
+        elif paths:
+            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700"] + list(paths)))
 
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
@@ -525,24 +519,18 @@ class RunExecutor(ContainerExecutor):
             logging.info("Skipping cleanup of temporary directory %s.", base_dir)
 
 
-    def _setup_environment(self, environments, home_dir, temp_dir):
+    def _setup_environment(self, environments):
         """Return map with desired environment variables for run."""
         # If keepEnv is set or sudo is used, start from a fresh environment,
         # otherwise with the current one.
-        # Set HOME and TMPDIR to the temporary directories create above.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
         if self._user is not None or environments.get("keepEnv", None) is not None:
             run_environment = {}
-        else :
+        else:
             run_environment = os.environ.copy()
-        run_environment["HOME"] = home_dir
-        run_environment["TMPDIR"] = temp_dir
-        run_environment["TMP"] = temp_dir
-        run_environment["TEMPDIR"] = temp_dir
-        run_environment["TEMP"] = temp_dir
         for key, value in environments.get("keepEnv", {}).items():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
@@ -761,10 +749,9 @@ class RunExecutor(ContainerExecutor):
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
-        base_dir, home_dir, temp_dir = self._setup_temp_dir()
-        run_environment = self._setup_environment(environments, home_dir, temp_dir)
+        temp_dir = self._create_temp_dir()
+        run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(output_filename, args)
-        args = self._build_cmdline(args, env=run_environment)
 
         timelimitThread = None
         oomThread = None
@@ -827,7 +814,7 @@ class RunExecutor(ContainerExecutor):
             logging.debug("Cleaning up cgroups.")
             cgroups.remove()
 
-            self._cleanup_temp_dir(base_dir)
+            self._cleanup_temp_dir(temp_dir)
 
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
