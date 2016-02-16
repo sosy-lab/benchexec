@@ -167,7 +167,8 @@ def main(argv=None):
     signal.signal(signal.SIGTERM, signal_handler_kill)
     signal.signal(signal.SIGINT,  signal_handler_kill)
 
-    logging.info('Starting command %s', ' '.join(options.args))
+    formatted_args = " ".join(map(util.escape_string_shell, options.args))
+    logging.info('Starting command %s', formatted_args)
     logging.info('Writing output to %s', options.output)
 
     # actual run execution
