@@ -68,35 +68,45 @@ def main(argv=None):
         """Execute a command with resource limits and measurements.
            Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
            Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
-    parser.add_argument("--input", metavar="FILE",
-                        help="name of file used as stdin for command (default: /dev/null; use - for stdin passthrough)")
-    parser.add_argument("--output", default="output.log", metavar="FILE",
-                        help="name of file where command output is written")
-    parser.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
-                        help="shrink output file to approximately this size if necessary (by removing lines from the middle of the output)")
-    parser.add_argument("--memlimit", type=util.parse_memory_value, metavar="BYTES",
-                        help="memory limit in bytes")
-    parser.add_argument("--timelimit", type=util.parse_timespan_value, metavar="SECONDS",
-                        help="CPU time limit in seconds")
-    parser.add_argument("--softtimelimit", type=util.parse_timespan_value, metavar="SECONDS",
-                        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)')
-    parser.add_argument("--walltimelimit", type=util.parse_timespan_value, metavar="SECONDS",
-                        help='wall time limit in seconds (default is CPU time limit plus a few seconds)')
-    parser.add_argument("--cores", type=util.parse_int_list, metavar="N,M-K",
-                        help="list of CPU cores to use")
-    parser.add_argument("--memoryNodes", type=util.parse_int_list, metavar="N,M-K",
-                        help="list of memory nodes to use")
-    parser.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
-                        help="additional cgroup system that should be enabled for runs (may be specified multiple times)")
-    parser.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", default=[],
-                        metavar="SUBSYSTEM.OPTION=VALUE",
-                        help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')")
-    parser.add_argument("--dir", metavar="DIR",
-                        help="working directory for executing the command (default is current directory)")
-    parser.add_argument("--user", metavar="USER",
-                        help="execute tool under given user account (needs password-less sudo setup)")
-    parser.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
-                        help="do not delete files created by the tool in temp directory")
+
+    resource_args = parser.add_argument_group("optional arguments for resource limits")
+    resource_args.add_argument("--memlimit", type=util.parse_memory_value, metavar="BYTES",
+        help="memory limit in bytes")
+    resource_args.add_argument("--timelimit", type=util.parse_timespan_value, metavar="SECONDS",
+        help="CPU time limit in seconds")
+    resource_args.add_argument("--softtimelimit", type=util.parse_timespan_value, metavar="SECONDS",
+        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)')
+    resource_args.add_argument("--walltimelimit", type=util.parse_timespan_value, metavar="SECONDS",
+        help='wall time limit in seconds (default is CPU time limit plus a few seconds)')
+    resource_args.add_argument("--cores", type=util.parse_int_list, metavar="N,M-K",
+        help="list of CPU cores to use")
+    resource_args.add_argument("--memoryNodes", type=util.parse_int_list, metavar="N,M-K",
+        help="list of memory nodes to use")
+
+    io_args = parser.add_argument_group("optional arguments for run I/O")
+    io_args.add_argument("--input", metavar="FILE",
+        help="name of file used as stdin for command "
+            "(default: /dev/null; use - for stdin passthrough)")
+    io_args.add_argument("--output", default="output.log", metavar="FILE",
+        help="name of file where command output is written")
+    io_args.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
+        help="shrink output file to approximately this size if necessary "
+            "(by removing lines from the middle of the output)")
+    io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
+        help="do not delete files created by the tool in temp directory")
+
+    environment_args = parser.add_argument_group("optional arguments for run environment")
+    environment_args.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
+        help="additional cgroup system that should be enabled for runs "
+            "(may be specified multiple times)")
+    environment_args.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", default=[],
+        metavar="SUBSYSTEM.OPTION=VALUE",
+        help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')")
+    environment_args.add_argument("--dir", metavar="DIR",
+        help="working directory for executing the command (default is current directory)")
+    environment_args.add_argument("--user", metavar="USER",
+        help="execute tool under given user account (needs password-less sudo setup)")
+
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
