@@ -56,6 +56,19 @@ class FormatValueTests(unittest.TestCase):
         formatted_value_aligned = self.measure_column.format_value("1.555s", True, 'html')
         self.assertEqual(formatted_value_aligned,   "1.555&#x2007;&#x2007;&#x2007;")
 
+    def test_format_value_small_value(self):
+        small_value = "0.000008767"
+        small_value_measure_type = ColumnMeasureType(len(small_value) - 3)
+        small_value_column = Column("CpuTime", None, 3, None, small_value_measure_type, unit=None, scale_factor=1)
+        formatted_value_aligned = small_value_column.format_value(small_value, True, 'html')
+        self.assertEqual(formatted_value_aligned, "0.00000877")
+
+        # Test whether scaling to small values and resulting values are handled correctly
+        small_value_measure_type = ColumnMeasureType(12)
+        small_value_column = Column("CpuTime", None, 3, None, small_value_measure_type, unit=None, scale_factor=1e-10)
+        formatted_value_aligned = small_value_column.format_value('2', True, 'html')
+        self.assertEqual(formatted_value_aligned, '0.0000000002&#x2007;&#x2007;')
+
     def test_format_value_align_int(self):
         formatted_value_int_aligned = self.measure_column.format_value("20", True, 'html')
         self.assertEqual(formatted_value_int_aligned,   "20&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;")
