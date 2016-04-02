@@ -1,5 +1,5 @@
 <!ELEMENT benchmark ((rundefinition | option | propertyfile | tasks | requiredfiles | resultfiles | require )*, columns?)>
-<!ELEMENT rundefinition (tasks | option | propertyfile)*>
+<!ELEMENT rundefinition (tasks | option | propertyfile | requiredfiles)*>
 
 <!ELEMENT tasks (include | includesfile | exclude | excludesfile | append | withoutfile | option | propertyfile | requiredfiles)*>
 <!ELEMENT include (#PCDATA)>
