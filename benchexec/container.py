@@ -41,6 +41,8 @@ __all__ = [
     'execute_in_namespace',
     'setup_user_mapping',
     'activate_network_interface',
+    'get_mount_points',
+    'remount_with_additional_flags',
     'remount_filesystems_ro',
     'mount_proc',
     'make_writable_bind_mount',
@@ -149,35 +151,50 @@ def activate_network_interface(iface):
     finally:
         sock.close()
 
-def remount_filesystems_ro(exceptions={}):
-    """Remount all mounted filesystems as read-only."""
-    # Using bytes avoids encoding problems with mount points with problematic characters
-
+def get_mount_points():
+    """Get all current mount points of the system.
+    Changes to the mount points during iteration may be reflected in the result.
+    @return a generator of (source, target, fstype, options),
+    where options is a list of bytes instances, and the others are bytes instances
+    (this avoids encoding problems with mount points with problematic characters).
+    """
     with open("/proc/self/mounts", "rb") as mounts:
         for mount in mounts:
-            unused_source, target, unused_fstype, options, unused1, unused2 = mount.split(b" ")
+            source, target, fstype, options, unused1, unused2 = mount.split(b" ")
             options = set(options.split(b","))
-            if b"ro" in options:
-                continue
-            if target.decode() in exceptions:
-                continue
+            yield (source, target, fstype, options)
 
-            mountflags = libc.MS_RDONLY | libc.MS_REMOUNT | libc.MS_BIND
-            for option, flag in libc.MOUNT_FLAGS.items():
-                option = option.encode()
-                if option in options:
-                    options.remove(option)
-                    mountflags |= flag
+def remount_with_additional_flags(mountpoint, existing_options, mountflags):
+    """Remount an existing mount point with additional flags.
+    @param mountpoint: the mount point as bytes
+    @param existing_options: dict with current mount existing_options as bytes
+    @param mountflags: int with additional mount existing_options (cf. libc.MS_* constants)
+    """
+    mountflags |= libc.MS_REMOUNT|libc.MS_BIND
+    for option, flag in libc.MOUNT_FLAGS.items():
+        option = option.encode()
+        if option in existing_options:
+            mountflags |= flag
 
-            try:
-                libc.mount(None, target, None, mountflags, None)
-            except OSError as e:
-                if e.errno == errno.EACCES and target.startswith(b"/run/user/"):
-                    logging.debug(e)
-                elif e.errno == errno.ENOENT:
-                    logging.debug(e)
-                else:
-                    raise e
+    try:
+        libc.mount(None, mountpoint, None, mountflags, None)
+    except OSError as e:
+        if e.errno == errno.EACCES and mountpoint.startswith(b"/run/user/"):
+            logging.debug(e)
+        elif e.errno == errno.ENOENT:
+            logging.debug(e)
+        else:
+            raise e
+
+def remount_filesystems_ro(exceptions={}):
+    """Remount all mounted filesystems as read-only."""
+    for unused_source, target, unused_fstype, options in get_mount_points():
+        if b"ro" in options:
+            continue
+        if target.decode() in exceptions:
+            continue
+
+        remount_with_additional_flags(target, options, libc.MS_RDONLY)
 
 def mount_proc():
     """Mount the /proc filesystem."""
@@ -190,9 +207,14 @@ def make_mountpoint_writable(directory):
     make_bind_mount(directory, directory)
     libc.mount(directory.encode(), directory.encode(), None, libc.MS_BIND|libc.MS_REMOUNT, None)
 
-def make_bind_mount(source, target):
+def make_bind_mount(source, target, recursive=False, private=False):
     """Make a bind mount."""
-    libc.mount(source.encode(), target.encode(), None, libc.MS_BIND, None)
+    flags = libc.MS_BIND
+    if recursive:
+        flags |= libc.MS_REC
+    if private:
+        flags |= libc.MS_PRIVATE
+    libc.mount(source.encode(), target.encode(), None, flags, None)
 
 def make_writable_bind_mount(source, target):
     """Make a bind mount and make the target writable."""
