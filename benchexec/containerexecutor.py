@@ -291,26 +291,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                               container.get_my_pid_from_procfs())
                 if not self._allow_network:
                     container.activate_network_interface("lo")
-                delayed_mounts = [] # ugly, maybe use separate mount dir and chroot
-                for path in self._hide_dirs:
-                    if temp_dir.startswith(path + os.sep):
-                        delayed_mounts.append(path)
-                    else:
-                        temp_path = temp_dir + path # no os.path.join because path is absolute
-                        os.makedirs(temp_path, exist_ok=True)
-                        container.make_bind_mount(temp_path, path)
-                for path in delayed_mounts:
-                    temp_path = temp_dir + path # no os.path.join because path is absolute
-                    os.makedirs(temp_path, exist_ok=True)
-                    container.make_bind_mount(temp_path, path)
-                for path in self._writable_dirs.difference(self._hide_dirs):
-                    if not os.path.exists(path):
-                        # Example: --hide-dir /home --writable-dir /home/<user>
-                        os.makedirs(path, exist_ok=True)
-                    container.make_bind_mount(path, path)
-                container.remount_filesystems_ro(exceptions=self._writable_dirs)
-                # TODO mount --make-rprivate because of systemd's shared mounts
-                # We do not mount fresh /proc here, grandchild still needs old /proc
+                self._setup_container_filesystem(temp_dir)
 
                 # Close pipe ends that are not necessary in (grand)child
                 os.close(from_grandchild)
@@ -420,6 +401,28 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             return exitcode, ru_child, parent_cleanup
 
         return grandchild_pid, wait_for_grandchild
+
+    def _setup_container_filesystem(self, temp_dir):
+        delayed_mounts = [] # ugly, maybe use separate mount dir and chroot
+        for path in self._hide_dirs:
+            if temp_dir.startswith(path + os.sep):
+                delayed_mounts.append(path)
+            else:
+                temp_path = temp_dir + path # no os.path.join because path is absolute
+                os.makedirs(temp_path, exist_ok=True)
+                container.make_bind_mount(temp_path, path)
+        for path in delayed_mounts:
+            temp_path = temp_dir + path # no os.path.join because path is absolute
+            os.makedirs(temp_path, exist_ok=True)
+            container.make_bind_mount(temp_path, path)
+        for path in self._writable_dirs.difference(self._hide_dirs):
+            if not os.path.exists(path):
+                # Example: --hide-dir /home --writable-dir /home/<user>
+                os.makedirs(path, exist_ok=True)
+            container.make_bind_mount(path, path)
+        container.remount_filesystems_ro(exceptions=self._writable_dirs)
+        # TODO mount --make-rprivate because of systemd's shared mounts
+        # We do not mount fresh /proc here, grandchild still needs old /proc
 
 
 if __name__ == '__main__':
