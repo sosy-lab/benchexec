@@ -43,6 +43,7 @@ __all__ = [
     'activate_network_interface',
     'get_mount_points',
     'remount_with_additional_flags',
+    'make_overlay_mount',
     'mount_proc',
     'make_bind_mount',
     'get_my_pid_from_proc',
@@ -183,6 +184,12 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
             logging.debug(e)
         else:
             raise e
+
+def make_overlay_mount(mount, lower, upper, work):
+    logging.debug("Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
+                  mount, lower, upper, work)
+    libc.mount(b"none", mount, b"overlay", 0,
+               b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work)
 
 def mount_proc():
     """Mount the /proc filesystem."""

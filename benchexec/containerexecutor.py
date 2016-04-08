@@ -45,6 +45,9 @@ from benchexec import container
 from benchexec import libc
 from benchexec import util
 
+FS_OVERLAY = "overlay"
+FS_READONLY = "read-only"
+FS_MODES = [FS_OVERLAY, FS_READONLY]
 
 DIR_HIDDEN = "hidden"
 DIR_WRITABLE = "writable"
@@ -53,6 +56,11 @@ DIR_WRITABLE = "writable"
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--allow-network", action="store_true",
         help="allow process to use network communication")
+    argument_parser.add_argument("--file-system", metavar="MODE",
+        choices=FS_MODES, default=FS_OVERLAY,
+        help="how to organize the file-system layout: "
+            "use an overlay file-system to isolate writes (default, 'overlay'), "
+            "or make everything read-only ('read-only')")
     argument_parser.add_argument("--keep-tmp", action="store_true",
         help="do not use a private /tmp for process (same as '--writable-dir /tmp')")
     argument_parser.add_argument("--hide-home", action="store_true",
@@ -100,6 +108,7 @@ def handle_basic_container_args(options):
 
     return {
         'allow_network': options.allow_network,
+        'filesystem_mode': options.file_system,
         'special_dirs': special_dirs,
         }
 
@@ -168,7 +177,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def __init__(self, use_namespaces=True,
                  uid=os.getuid(), gid=os.getgid(),
                  allow_network=False,
-                 special_dirs={},
+                 filesystem_mode=FS_OVERLAY, special_dirs={},
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
@@ -177,6 +186,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._uid = uid
         self._gid = gid
         self._allow_network = allow_network
+        if not filesystem_mode in FS_MODES:
+            raise ValueError("Invalid filesystem mode '{}'.".format(filesystem_mode))
+        self._filesystem_mode = filesystem_mode
 
         for path, kind in special_dirs.items():
             if kind not in [DIR_HIDDEN, DIR_WRITABLE]:
@@ -447,6 +459,76 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             any(self._is_below(path, special_dir) for special_dir in self._special_dirs))
 
     def _setup_container_filesystem(self, temp_dir):
+        if self._filesystem_mode == FS_OVERLAY:
+            self._setup_container_filesystem_overlay(temp_dir)
+        else:
+            self._setup_container_filesystem_direct(temp_dir)
+
+    def _setup_container_filesystem_overlay(self, temp_dir):
+        temp_dir = temp_dir.encode()
+        mount_base = os.path.join(temp_dir, b"mount")
+        temp_base = os.path.join(temp_dir, b"temp")
+        work_base = os.path.join(temp_dir, b"work")
+        os.mkdir(mount_base)
+        os.mkdir(temp_base)
+        os.mkdir(work_base)
+
+        # Mount overlay for / in the container
+        container.make_overlay_mount(mount_base, b"/", temp_base, work_base)
+
+        # Import /proc from host into the container (necessary for the grandchild to read PID,
+        # will be replaced later).
+        container.make_bind_mount(b"/proc", os.path.join(mount_base, b"proc"), recursive=True, private=True)
+        # Import /dev and /sys from host into the container, overlay does not work well here.
+        container.make_bind_mount(b"/dev", os.path.join(mount_base, b"dev"), recursive=True, private=True)
+        container.make_bind_mount(b"/sys", os.path.join(mount_base, b"sys"), recursive=True, private=True)
+
+        # Mount all other host FS in the container
+        for unused_source, mountpoint, fstype, options in container.get_mount_points():
+            if (mountpoint == b"/" or
+                    self._is_below(mountpoint, b"/proc") or
+                    self._is_below(mountpoint, temp_dir) or
+                    self._is_special_dir(mountpoint) or
+                    fstype == b"autofs"):
+                # Ignore mounts that are handled otherwise or are irrelevant.
+                continue
+
+            mount_path = mount_base + mountpoint
+            temp_path = temp_base + mountpoint
+            work_path = work_base + mountpoint
+
+            if (self._is_below(mountpoint, b"/sys") or
+                    self._is_below(mountpoint, b"/dev") or
+                    fstype == b"cgroup"):
+                # Mark as readonly, because overlay does not make sense for these.
+                container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                continue
+
+            os.makedirs(temp_path)
+            os.makedirs(work_path)
+            container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+
+        for special_dir, kind in self._special_dirs.items():
+            mount_path = mount_base + special_dir
+            temp_path = temp_base + special_dir
+            if not os.path.exists(mount_path):
+                os.makedirs(mount_path)
+            if kind == DIR_HIDDEN:
+                os.makedirs(temp_path)
+                container.make_bind_mount(temp_path, mount_path)
+            elif kind == DIR_WRITABLE:
+                container.make_bind_mount(special_dir, mount_path, recursive=True, private=True)
+
+        # If necessary, (i.e., if /tmp is not already hidden),
+        # hide the directory where we store our files from processes in the container
+        # by mounting an empty directory over it.
+        if os.path.exists(mount_base + temp_dir):
+            os.makedirs(temp_base + temp_dir)
+            container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
+
+        os.chroot(mount_base)
+
+    def _setup_container_filesystem_direct(self, temp_dir):
         """Setup the filesystem layout in the container.
         This makes everything read-only, with the exception of those directories that should stay
         writable, and those directories that should be hidden.
