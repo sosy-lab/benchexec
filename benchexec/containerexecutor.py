@@ -25,6 +25,7 @@ import argparse
 import errno
 import logging
 import os
+import collections
 try:
     import cPickle as pickle
 except ImportError:
@@ -41,38 +42,66 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 from benchexec import baseexecutor
 from benchexec.cgroups import Cgroup
 from benchexec import container
+from benchexec import libc
 from benchexec import util
+
+
+DIR_HIDDEN = "hidden"
+DIR_WRITABLE = "writable"
 
 
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--allow-network", action="store_true",
         help="allow process to use network communication")
     argument_parser.add_argument("--keep-tmp", action="store_true",
-        help="do not use a private /tmp for process")
+        help="do not use a private /tmp for process (same as '--writable-dir /tmp')")
     argument_parser.add_argument("--hide-home", action="store_true",
-        help="use a private home directory (like '--hide-dir $HOME --writable-dir $HOME')")
+        help="use a private home directory (same as '--hide-dir $HOME')")
     argument_parser.add_argument("--hide-dir", metavar="DIR", action="append", default=[],
-        help="hide this directory by mounting an empty directory over it")
-    argument_parser.add_argument("--writable-dir", metavar="DIR", action="append", default=None,
-        help="let this directory be writable (default: /tmp)")
+        help="hide this directory by mounting an empty directory over it (default: /tmp)")
+    argument_parser.add_argument("--writable-dir", metavar="DIR", action="append", default=[],
+        help="let this directory be writable")
 
 def handle_basic_container_args(options):
     """Handle the options specified by add_basic_container_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor constructor
     """
-    if options.writable_dir is None:
-        options.writable_dir = ["/tmp"]
-    if not options.keep_tmp:
-        options.hide_dir.append("/tmp")
+    special_dirs = {}
+
+    for path in options.writable_dir:
+        path = os.path.abspath(path)
+        if not os.path.isdir(path):
+            sys.exit("Cannot make path '{}' writable because it does not exist or is no directory."
+                     .format(path))
+        special_dirs[path] = DIR_WRITABLE
+
+    for path in options.hide_dir:
+        path = os.path.abspath(path)
+        if not os.path.isdir(path):
+            sys.exit("Cannot hide path '{}' because it does not exist or is no directory."
+                     .format(path))
+        if path in special_dirs:
+            sys.exit(
+                "Cannot specify both --hide-dir and --writable-dir for directory {}.".format(path))
+        special_dirs[path] = DIR_HIDDEN
+
+    if options.keep_tmp:
+        if "/tmp" in special_dirs and not special_dirs["/tmp"] == DIR_WRITABLE:
+            sys.exit("Cannot specify both --keep-tmp and --hide-dir /tmp.")
+        special_dirs["/tmp"] = DIR_WRITABLE
+    elif not "/tmp" in special_dirs:
+        special_dirs["/tmp"] = DIR_HIDDEN
+
     if options.hide_home:
         home = pwd.getpwuid(os.getuid()).pw_dir
-        options.hide_dir.append(home)
-        options.writable_dir.append(home)
+        if home in special_dirs:
+            sys.exit("Cannot specify both --hide-home and --writable-dir {}.".format(path))
+        special_dirs[home] = DIR_HIDDEN
 
     return {
         'allow_network': options.allow_network,
-        'hide_dirs': options.hide_dir,
-        'writable_dirs': options.writable_dir}
+        'special_dirs': special_dirs,
+        }
 
 def main(argv=None):
     """
@@ -139,7 +168,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def __init__(self, use_namespaces=True,
                  uid=os.getuid(), gid=os.getgid(),
                  allow_network=False,
-                 writable_dirs=["/tmp"], hide_dirs=[],
+                 special_dirs={},
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
@@ -149,15 +178,17 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._gid = gid
         self._allow_network = allow_network
 
-        # All directories are made absolute, hide_dirs needs to be sorted by length
+        for path, kind in special_dirs.items():
+            if kind not in [DIR_HIDDEN, DIR_WRITABLE]:
+                raise ValueError("Invalid value '{}' for directory '{}'.".format(kind, path))
+            if not os.path.isabs(path):
+                raise ValueError("Invalid non-absolute directory '{}'.".format(path))
+            if not os.path.isdir(path):
+                raise ValueError("Cannot handle dir '{}' specially if it does not exist.".format(path))
+        # All directories in special_dirs are sorted by length
         # to ensure parent directories come before child directories
-        self._hide_dirs = sorted(set(os.path.abspath(path) for path in hide_dirs), key=len)
-        self._writable_dirs = set(os.path.abspath(path) for path in writable_dirs)
-        for path in self._writable_dirs:
-            if (not os.path.isdir(path) and
-                    not any(path.startswith(hidden_dir + os.sep) for hidden_dir in self._hide_dirs)):
-                raise ValueError("Cannot make dir '{}' writable if it does not exist "
-                                 "and is not inside a hidde dir.".format(path))
+        sorted_special_dirs = sorted(special_dirs.items(), key=lambda tupl : len(tupl[0]))
+        self._special_dirs = collections.OrderedDict(sorted_special_dirs)
 
 
     # --- run execution ---
@@ -403,26 +434,60 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         return grandchild_pid, wait_for_grandchild
 
     def _setup_container_filesystem(self, temp_dir):
-        delayed_mounts = [] # ugly, maybe use separate mount dir and chroot
-        for path in self._hide_dirs:
-            if temp_dir.startswith(path + os.sep):
-                delayed_mounts.append(path)
-            else:
-                temp_path = temp_dir + path # no os.path.join because path is absolute
-                os.makedirs(temp_path, exist_ok=True)
-                container.make_bind_mount(temp_path, path)
-        for path in delayed_mounts:
-            temp_path = temp_dir + path # no os.path.join because path is absolute
-            os.makedirs(temp_path, exist_ok=True)
-            container.make_bind_mount(temp_path, path)
-        for path in self._writable_dirs.difference(self._hide_dirs):
-            if not os.path.exists(path):
-                # Example: --hide-dir /home --writable-dir /home/<user>
-                os.makedirs(path, exist_ok=True)
-            container.make_bind_mount(path, path)
-        container.remount_filesystems_ro(exceptions=self._writable_dirs)
-        # TODO mount --make-rprivate because of systemd's shared mounts
-        # We do not mount fresh /proc here, grandchild still needs old /proc
+        """Setup the filesystem layout in the container.
+        This makes everything read-only, with the exception of those directories that should stay
+        writable, and those directories that should be hidden.
+        This could be done by iterating over all existing mount points and set them to read-only,
+        but it is easier to create a directory (mount_base), set up all the mountpoints there,
+        and then chroot into it.
+        First, we still have access to the original mountpoints while doing so,
+        and second, we avoid race conditions if someone else changes the existing mountpoints.
+        As first step, we create a copy of all existing mountpoints in mount_base, recursively,
+        and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
+        to our copy). Then we mark them readonly where necessary, and then we handle
+        those directories that should be hidden (we mount a fresh directory over them),
+        or should stay writable (we add a writable bind mount from the original directory).
+
+        We do not mount fresh /proc here, grandchild still needs old /proc
+        @param temp_dir: The base directory where temporary files are created.
+        """
+        # First step: create copy of all mounts in mount_base
+        mount_base = os.path.join(temp_dir, "mount")
+        os.mkdir(mount_base)
+        container.make_bind_mount("/", mount_base, recursive=True, private=True)
+
+        # Second step: mark existing mounts below mount_base as readonly if necessary
+        mountpoints = set()
+        mount_base_b = mount_base.encode()
+        for unused_source, full_mountpoint, unused_fstype, options in container.get_mount_points():
+            # compare with trailing slashes for cases like /foo and /foobar
+            if not os.path.join(full_mountpoint, b'').startswith(os.path.join(mount_base_b, b'')):
+                continue
+            mountpoint = full_mountpoint[len(mount_base_b):].decode() or "/"
+            mountpoints.add(mountpoint)
+
+            if not (b"ro" in options or
+                    mountpoint in self._special_dirs or
+                    any(mountpoint.startswith(os.path.join(special_dir, ''))
+                        for special_dir in self._special_dirs)):
+                # mountpoint is visible in container and should be readonly, mark as such
+                container.remount_with_additional_flags(full_mountpoint, options, libc.MS_RDONLY)
+
+        if self._special_dirs:
+            temp_base = os.path.join(temp_dir, "temp")
+            os.mkdir(temp_base)
+        for special_dir, kind in self._special_dirs.items():
+            mount_path = mount_base + special_dir
+            temp_path = temp_base + special_dir
+            if not os.path.exists(mount_path):
+                os.makedirs(mount_path)
+            if kind == DIR_HIDDEN:
+                os.makedirs(temp_path)
+                container.make_bind_mount(temp_path, mount_path)
+            elif kind == DIR_WRITABLE and not special_dir in mountpoints:
+                container.make_bind_mount(special_dir, mount_path, recursive=True, private=True)
+
+        os.chroot(mount_base)
 
 
 if __name__ == '__main__':

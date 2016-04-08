@@ -43,9 +43,7 @@ __all__ = [
     'activate_network_interface',
     'get_mount_points',
     'remount_with_additional_flags',
-    'remount_filesystems_ro',
     'mount_proc',
-    'make_writable_bind_mount',
     'get_my_pid_from_proc',
     'drop_capabilities',
     'forward_all_signals',
@@ -186,26 +184,11 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
         else:
             raise e
 
-def remount_filesystems_ro(exceptions={}):
-    """Remount all mounted filesystems as read-only."""
-    for unused_source, target, unused_fstype, options in get_mount_points():
-        if b"ro" in options:
-            continue
-        if target.decode() in exceptions:
-            continue
-
-        remount_with_additional_flags(target, options, libc.MS_RDONLY)
-
 def mount_proc():
     """Mount the /proc filesystem."""
     # We keep a reference to the outer /proc somewhere else because we need it
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
-
-def make_mountpoint_writable(directory):
-    """Make a mountpoint writable."""
-    make_bind_mount(directory, directory)
-    libc.mount(directory.encode(), directory.encode(), None, libc.MS_BIND|libc.MS_REMOUNT, None)
 
 def make_bind_mount(source, target, recursive=False, private=False):
     """Make a bind mount."""
@@ -215,15 +198,6 @@ def make_bind_mount(source, target, recursive=False, private=False):
     if private:
         flags |= libc.MS_PRIVATE
     libc.mount(source.encode(), target.encode(), None, flags, None)
-
-def make_writable_bind_mount(source, target):
-    """Make a bind mount and make the target writable."""
-    # Linux does not support this in one call:
-    # https://lwn.net/Articles/281157/ http://man7.org/linux/man-pages/man8/mount.8.html
-    # First, create the bind:
-    libc.mount(source.encode(), target.encode(), None, libc.MS_BIND, None)
-    # Second, make it writable by remounting without MS_RDONLY:
-    libc.mount(source.encode(), target.encode(), None, libc.MS_BIND|libc.MS_REMOUNT, None)
 
 def get_my_pid_from_procfs():
     """Get the PID of this process by reading from /proc (this is the PID of this process
