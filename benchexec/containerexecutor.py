@@ -436,6 +436,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         return grandchild_pid, wait_for_grandchild
 
+    def _is_below(self, path, target_path):
+        # compare with trailing slashes for cases like /foo and /foobar
+        path = os.path.join(path, b"")
+        target_path = os.path.join(target_path, b"")
+        return path.startswith(target_path)
+
+    def _is_special_dir(self, path):
+        return (path in self._special_dirs or
+            any(self._is_below(path, special_dir) for special_dir in self._special_dirs))
+
     def _setup_container_filesystem(self, temp_dir):
         """Setup the filesystem layout in the container.
         This makes everything read-only, with the exception of those directories that should stay
@@ -465,16 +475,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # Second step: mark existing mounts below mount_base as readonly if necessary
         mountpoints = set()
         for unused_source, full_mountpoint, unused_fstype, options in container.get_mount_points():
-            # compare with trailing slashes for cases like /foo and /foobar
-            if not os.path.join(full_mountpoint, b'').startswith(os.path.join(mount_base, b'')):
+            if not self._is_below(full_mountpoint, mount_base):
                 continue
             mountpoint = full_mountpoint[len(mount_base):] or b"/"
             mountpoints.add(mountpoint)
 
-            if not (b"ro" in options or
-                    mountpoint in self._special_dirs or
-                    any(mountpoint.startswith(os.path.join(special_dir, b''))
-                        for special_dir in self._special_dirs)):
+            if not (b"ro" in options or self._is_special_dir(mountpoint)):
                 # mountpoint is visible in container and should be readonly, mark as such
                 container.remount_with_additional_flags(full_mountpoint, options, libc.MS_RDONLY)
 
