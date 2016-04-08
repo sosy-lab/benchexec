@@ -100,10 +100,10 @@ MS_MOVE = 8192
 MS_REC = 16384
 MS_PRIVATE = 262144
 MOUNT_FLAGS = {
-    "ro": MS_RDONLY,
-    "nosuid": MS_NOSUID,
-    "nodev": MS_NODEV,
-    "noexec": MS_NOEXEC,
+    b"ro": MS_RDONLY,
+    b"nosuid": MS_NOSUID,
+    b"nodev": MS_NODEV,
+    b"noexec": MS_NOEXEC,
     }
 
 

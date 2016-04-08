@@ -44,6 +44,7 @@ __all__ = [
     'get_mount_points',
     'remount_with_additional_flags',
     'mount_proc',
+    'make_bind_mount',
     'get_my_pid_from_proc',
     'drop_capabilities',
     'forward_all_signals',
@@ -170,7 +171,6 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     """
     mountflags |= libc.MS_REMOUNT|libc.MS_BIND
     for option, flag in libc.MOUNT_FLAGS.items():
-        option = option.encode()
         if option in existing_options:
             mountflags |= flag
 
@@ -191,13 +191,19 @@ def mount_proc():
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
 
 def make_bind_mount(source, target, recursive=False, private=False):
-    """Make a bind mount."""
+    """Make a bind mount.
+    @param source: the source directory as bytes
+    @param target: the target directory as bytes
+    @param recursive: whether to also recursively bind mount all mounts below source
+    @param private: whether to mark the bind as private, i.e., changes to the existing mounts
+        won't propagate and vice-versa (changes to files/dirs will still be visible).
+    """
     flags = libc.MS_BIND
     if recursive:
         flags |= libc.MS_REC
     if private:
         flags |= libc.MS_PRIVATE
-    libc.mount(source.encode(), target.encode(), None, flags, None)
+    libc.mount(source, target, None, flags, None)
 
 def get_my_pid_from_procfs():
     """Get the PID of this process by reading from /proc (this is the PID of this process

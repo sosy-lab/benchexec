@@ -187,7 +187,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 raise ValueError("Cannot handle dir '{}' specially if it does not exist.".format(path))
         # All directories in special_dirs are sorted by length
         # to ensure parent directories come before child directories
-        sorted_special_dirs = sorted(special_dirs.items(), key=lambda tupl : len(tupl[0]))
+        # All directories are bytes to avoid issues if existing mountpoints are invalid UTF-8.
+        sorted_special_dirs = sorted(
+            ((path.encode(), kind) for (path, kind) in special_dirs.items()),
+            key=lambda tupl : len(tupl[0]))
         self._special_dirs = collections.OrderedDict(sorted_special_dirs)
 
 
@@ -451,30 +454,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         We do not mount fresh /proc here, grandchild still needs old /proc
         @param temp_dir: The base directory where temporary files are created.
         """
+        # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
+        temp_dir = temp_dir.encode()
+
         # First step: create copy of all mounts in mount_base
-        mount_base = os.path.join(temp_dir, "mount")
+        mount_base = os.path.join(temp_dir, b"mount")
         os.mkdir(mount_base)
-        container.make_bind_mount("/", mount_base, recursive=True, private=True)
+        container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
         # Second step: mark existing mounts below mount_base as readonly if necessary
         mountpoints = set()
-        mount_base_b = mount_base.encode()
         for unused_source, full_mountpoint, unused_fstype, options in container.get_mount_points():
             # compare with trailing slashes for cases like /foo and /foobar
-            if not os.path.join(full_mountpoint, b'').startswith(os.path.join(mount_base_b, b'')):
+            if not os.path.join(full_mountpoint, b'').startswith(os.path.join(mount_base, b'')):
                 continue
-            mountpoint = full_mountpoint[len(mount_base_b):].decode() or "/"
+            mountpoint = full_mountpoint[len(mount_base):] or b"/"
             mountpoints.add(mountpoint)
 
             if not (b"ro" in options or
                     mountpoint in self._special_dirs or
-                    any(mountpoint.startswith(os.path.join(special_dir, ''))
+                    any(mountpoint.startswith(os.path.join(special_dir, b''))
                         for special_dir in self._special_dirs)):
                 # mountpoint is visible in container and should be readonly, mark as such
                 container.remount_with_additional_flags(full_mountpoint, options, libc.MS_RDONLY)
 
         if self._special_dirs:
-            temp_base = os.path.join(temp_dir, "temp")
+            temp_base = os.path.join(temp_dir, b"temp")
             os.mkdir(temp_base)
         for special_dir, kind in self._special_dirs.items():
             mount_path = mount_base + special_dir
