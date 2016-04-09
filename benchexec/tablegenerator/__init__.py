@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import bz2
 import collections
+import copy
 from decimal import Decimal, InvalidOperation
 import math
 import gzip
@@ -391,7 +392,7 @@ class RunSetResult(object):
     def __init__(self, xml_results, attributes, columns, summary={}):
         self._xml_results = xml_results
         self.attributes = attributes
-        self.columns = columns
+        self.columns = copy.deepcopy(columns)  # Copy the columns since they may be modified
         self.summary = summary
 
     def get_tasks(self):
