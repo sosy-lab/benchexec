@@ -56,6 +56,9 @@ DIR_WRITABLE = "writable"
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--allow-network", action="store_true",
         help="allow process to use network communication")
+    argument_parser.add_argument("--keep-system-config",
+        dest="container_system_config", action="store_false",
+        help="do not use a special minimal configuration for local user and host lookups inside the container")
     argument_parser.add_argument("--file-system", metavar="MODE",
         choices=FS_MODES, default=FS_OVERLAY,
         help="how to organize the file-system layout: "
@@ -106,8 +109,20 @@ def handle_basic_container_args(options):
             sys.exit("Cannot specify both --hide-home and --writable-dir {}.".format(path))
         special_dirs[home] = DIR_HIDDEN
 
+    if options.container_system_config:
+        if options.file_system != FS_OVERLAY:
+            logging.warning("Option --file-system '%s' implies --keep-system-config, "
+                "i.e., the container cannot be configured to force only local user and host lookups.",
+                options.file_system)
+            options.container_system_config = False
+        elif options.allow_network:
+            logging.warning("The container configuration disables DNS, "
+                "host lookups will fail despite --allow-network. "
+                "Consider using --keep-system-config.")
+
     return {
         'allow_network': options.allow_network,
+        'container_system_config': options.container_system_config,
         'filesystem_mode': options.file_system,
         'special_dirs': special_dirs,
         }
@@ -146,11 +161,6 @@ def main(argv=None):
             sys.exit("Cannot combine option --root with --uid/--gid")
         options.uid = 0
         options.gid = 0
-    else:
-        if options.uid is None:
-            options.uid = os.getuid()
-        if options.gid is None:
-            options.gid = os.getgid()
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
     logging.info('Starting command %s', formatted_args)
@@ -175,20 +185,33 @@ def main(argv=None):
 class ContainerExecutor(baseexecutor.BaseExecutor):
 
     def __init__(self, use_namespaces=True,
-                 uid=os.getuid(), gid=os.getgid(),
+                 uid=None, gid=None,
                  allow_network=False,
                  filesystem_mode=FS_OVERLAY, special_dirs={},
+                 container_system_config=True,
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
-        self._uid = uid
-        self._gid = gid
+        self._container_system_config = container_system_config
+        self._uid = (uid if uid is not None
+                     else container.CONTAINER_UID if container_system_config
+                     else os.getuid())
+        self._gid = (gid if gid is not None
+                     else container.CONTAINER_GID if container_system_config
+                     else os.getgid())
         self._allow_network = allow_network
         if not filesystem_mode in FS_MODES:
             raise ValueError("Invalid filesystem mode '{}'.".format(filesystem_mode))
         self._filesystem_mode = filesystem_mode
+        self._env = None
+        if container_system_config:
+            if filesystem_mode != FS_OVERLAY:
+                raise ValueError("Cannot setup minimal system configuration for the container "
+                    "without overlay filesystem.")
+            self._env = os.environ.copy()
+            self._env["HOME"] = container.CONTAINER_HOME
 
         for path, kind in special_dirs.items():
             if kind not in [DIR_HIDDEN, DIR_WRITABLE]:
@@ -197,6 +220,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 raise ValueError("Invalid non-absolute directory '{}'.".format(path))
             if not os.path.isdir(path):
                 raise ValueError("Cannot handle dir '{}' specially if it does not exist.".format(path))
+        if container_system_config and not container.CONTAINER_HOME in special_dirs:
+            special_dirs[container.CONTAINER_HOME] = DIR_HIDDEN
         # All directories in special_dirs are sorted by length
         # to ensure parent directories come before child directories
         # All directories are bytes to avoid issues if existing mountpoints are invalid UTF-8.
@@ -224,7 +249,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=None, stdout=None, stderr=None,
-                env=None, cwd=workingDir, temp_dir=temp_dir,
+                env=self._env, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
                 child_setup_fn=lambda: None,
                 parent_setup_fn=lambda: None,
@@ -496,7 +521,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if not os.path.exists(mount_path):
                 os.makedirs(mount_path)
             if kind == DIR_HIDDEN:
-                os.makedirs(temp_path)
+                if not os.path.exists(temp_path):
+                    os.makedirs(temp_path)
                 container.make_bind_mount(temp_path, mount_path)
             elif kind == DIR_WRITABLE:
                 container.make_bind_mount(special_dir, mount_path, recursive=True, private=True)
@@ -527,6 +553,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and mount_base the mount target.
         work_base = os.path.join(temp_dir, b"overlayfs")
         os.mkdir(work_base)
+
+        if self._container_system_config:
+            container.setup_container_system_config(temp_base)
 
         # Mount overlay for / in the container
         container.make_overlay_mount(mount_base, b"/", temp_base, work_base)

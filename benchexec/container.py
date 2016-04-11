@@ -49,11 +49,62 @@ __all__ = [
     'get_my_pid_from_proc',
     'drop_capabilities',
     'forward_all_signals',
+    'setup_container_config',
+    'CONTAINER_UID',
+    'CONTAINER_GID',
+    'CONTAINER_HOME',
     ]
 
 
 DEFAULT_STACK_SIZE = 1024*1024
 GUARD_PAGE_SIZE = 4096 # size of guard page at end of stack
+
+CONTAINER_UID = 1000
+CONTAINER_GID = 1000
+CONTAINER_HOME = '/home/benchexec'
+
+CONTAINER_ETC_NSSWITCH_CONF = """
+passwd: files
+group: files
+shadow: files
+hosts: files
+networks: files
+
+protocols:      db files
+services:       db files
+ethers:         db files
+rpc:            db files
+
+netgroup:       files
+automount:      files
+"""
+CONTAINER_ETC_PASSWD = """
+root:x:0:0:root:/root:/bin/bash
+benchexec:x:{uid}:{gid}:benchexec:{home}:/bin/bash
+nobody:x:65534:65534:nobody:/:/bin/false
+""".format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
+
+CONTAINER_ETC_GROUP = """
+root:x:0:
+benchexec:x:{gid}:
+nogroup:x:65534:
+""".format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
+
+CONTAINER_ETC_HOSTS = """
+127.0.0.1       localhost {host} {fqdn}
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+""".format(host=socket.gethostname(), fqdn=socket.getfqdn())
+
+CONTAINER_ETC_FILE_OVERRIDE = {
+    b'nsswitch.conf': CONTAINER_ETC_NSSWITCH_CONF,
+    b'passwd': CONTAINER_ETC_PASSWD,
+    b'group': CONTAINER_ETC_GROUP,
+    b'hosts': CONTAINER_ETC_HOSTS,
+    }
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -243,3 +294,17 @@ def forward_all_signals(target_pid, process_name):
         # the state of the signal module is incorrect due to the clone()
         # (it may think we are in a different thread than the main thread).
         libc.signal(signum, forwarding_signal_handler)
+
+
+def setup_container_system_config(basedir):
+    """Create a minimal system configuration for use in a container.
+    @param basedir: The root directory of the container as bytes.
+    """
+    etc = os.path.join(basedir, b"etc")
+    if not os.path.exists(etc):
+        os.mkdir(etc)
+
+    for file, content in CONTAINER_ETC_FILE_OVERRIDE.items():
+        util.write_file(content, etc, file)
+
+    os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
