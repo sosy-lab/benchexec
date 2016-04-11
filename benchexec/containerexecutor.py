@@ -54,7 +54,7 @@ DIR_WRITABLE = "writable"
 
 
 def add_basic_container_args(argument_parser):
-    argument_parser.add_argument("--allow-network", action="store_true",
+    argument_parser.add_argument("--network-access", action="store_true",
         help="allow process to use network communication")
     argument_parser.add_argument("--keep-system-config",
         dest="container_system_config", action="store_false",
@@ -115,13 +115,13 @@ def handle_basic_container_args(options):
                 "i.e., the container cannot be configured to force only local user and host lookups.",
                 options.file_system)
             options.container_system_config = False
-        elif options.allow_network:
+        elif options.network_access:
             logging.warning("The container configuration disables DNS, "
-                "host lookups will fail despite --allow-network. "
+                "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
 
     return {
-        'allow_network': options.allow_network,
+        'network_access': options.network_access,
         'container_system_config': options.container_system_config,
         'filesystem_mode': options.file_system,
         'special_dirs': special_dirs,
@@ -186,7 +186,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     def __init__(self, use_namespaces=True,
                  uid=None, gid=None,
-                 allow_network=False,
+                 network_access=False,
                  filesystem_mode=FS_OVERLAY, special_dirs={},
                  container_system_config=True,
                  *args, **kwargs):
@@ -201,7 +201,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._gid = (gid if gid is not None
                      else container.CONTAINER_GID if container_system_config
                      else os.getgid())
-        self._allow_network = allow_network
+        self._allow_network = network_access
         if not filesystem_mode in FS_MODES:
             raise ValueError("Invalid filesystem mode '{}'.".format(filesystem_mode))
         self._filesystem_mode = filesystem_mode
