@@ -498,6 +498,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             elif kind == DIR_WRITABLE and not special_dir in mountpoints:
                 container.make_bind_mount(special_dir, mount_path, recursive=True, private=True)
 
+        # If necessary, (i.e., if /tmp is not already hidden),
+        # hide the directory where we store our files from processes in the container
+        # by mounting an empty directory over it.
+        if os.path.exists(mount_base + temp_dir):
+            os.makedirs(temp_base + temp_dir)
+            container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
+
         os.chroot(mount_base)
 
 
