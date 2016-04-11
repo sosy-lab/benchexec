@@ -65,7 +65,7 @@ def add_basic_container_args(argument_parser):
             "or make everything read-only ('read-only')")
     argument_parser.add_argument("--keep-tmp", action="store_true",
         help="do not use a private /tmp for process (same as '--full-access-dir /tmp')")
-    argument_parser.add_argument("--hide-dir", metavar="DIR", action="append", default=[],
+    argument_parser.add_argument("--hidden-dir", metavar="DIR", action="append", default=[],
         help="hide this directory by mounting an empty directory over it (default: /tmp)")
     argument_parser.add_argument("--full-access-dir", metavar="DIR", action="append", default=[],
         help="give full access (read/write) to this directory inside the container")
@@ -84,20 +84,20 @@ def handle_basic_container_args(options):
                 .format(path))
         special_dirs[path] = DIR_FULL_ACCESS
 
-    for path in options.hide_dir:
+    for path in options.hidden_dir:
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             sys.exit("Cannot hide path '{}' because it does not exist or is no directory."
                      .format(path))
         if path in special_dirs:
             sys.exit(
-                "Cannot specify both --hide-dir and --full-access-dir for directory {}."
+                "Cannot specify both --hidden-dir and --full-access-dir for directory {}."
                 .format(path))
         special_dirs[path] = DIR_HIDDEN
 
     if options.keep_tmp:
         if "/tmp" in special_dirs and not special_dirs["/tmp"] == DIR_FULL_ACCESS:
-            sys.exit("Cannot specify both --keep-tmp and --hide-dir /tmp.")
+            sys.exit("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         special_dirs["/tmp"] = DIR_FULL_ACCESS
     elif not "/tmp" in special_dirs:
         special_dirs["/tmp"] = DIR_HIDDEN
