@@ -30,7 +30,6 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-import pwd
 import resource  # @UnusedImport necessary to eagerly import this module
 import signal
 import subprocess
@@ -66,8 +65,6 @@ def add_basic_container_args(argument_parser):
             "or make everything read-only ('read-only')")
     argument_parser.add_argument("--keep-tmp", action="store_true",
         help="do not use a private /tmp for process (same as '--writable-dir /tmp')")
-    argument_parser.add_argument("--hide-home", action="store_true",
-        help="use a private home directory (same as '--hide-dir $HOME')")
     argument_parser.add_argument("--hide-dir", metavar="DIR", action="append", default=[],
         help="hide this directory by mounting an empty directory over it (default: /tmp)")
     argument_parser.add_argument("--writable-dir", metavar="DIR", action="append", default=[],
@@ -102,12 +99,6 @@ def handle_basic_container_args(options):
         special_dirs["/tmp"] = DIR_WRITABLE
     elif not "/tmp" in special_dirs:
         special_dirs["/tmp"] = DIR_HIDDEN
-
-    if options.hide_home:
-        home = pwd.getpwuid(os.getuid()).pw_dir
-        if home in special_dirs:
-            sys.exit("Cannot specify both --hide-home and --writable-dir {}.".format(path))
-        special_dirs[home] = DIR_HIDDEN
 
     if options.container_system_config:
         if options.file_system != FS_OVERLAY:
