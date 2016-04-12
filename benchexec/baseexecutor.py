@@ -58,6 +58,7 @@ def handle_basic_executor_options(options):
 
 
 class BaseExecutor(object):
+    """Class for starting and handling processes."""
 
     def __init__(self):
         self.PROCESS_KILLED = False

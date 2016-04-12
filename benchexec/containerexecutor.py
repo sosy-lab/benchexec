@@ -62,18 +62,18 @@ def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--hidden-dir", metavar="DIR", action="append", default=[],
         help="hide this directory by mounting an empty directory over it (default for '/tmp')")
     argument_parser.add_argument("--read-only-dir", metavar="DIR", action="append", default=[],
-        help="make this directory read-only")
+        help="make this directory visible read-only in the container")
     argument_parser.add_argument("--overlay-dir", metavar="DIR", action="append", default=[],
         help="mount an overlay filesystem over this directory "
             "that redirects all write accesses to temporary files (default for '/')")
     argument_parser.add_argument("--full-access-dir", metavar="DIR", action="append", default=[],
-        help="give full access (read/write) to this directory inside the container")
+        help="give full access (read/write) to this host directory to processes inside container")
 
 def handle_basic_container_args(options):
     """Handle the options specified by add_basic_container_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor constructor
     """
-    special_dirs = {}
+    dir_modes = {}
 
     def handle_dir_mode(path, mode):
         path = os.path.abspath(path)
@@ -81,9 +81,9 @@ def handle_basic_container_args(options):
             sys.exit(
                 "Cannot specify directory mode for '{}' because it does not exist or is no directory."
                 .format(path))
-        if path in special_dirs:
+        if path in dir_modes:
             sys.exit("Cannot specify multiple directory modes for '{}'.".format(path))
-        special_dirs[path] = mode
+        dir_modes[path] = mode
 
     for path in options.hidden_dir:
         handle_dir_mode(path, DIR_HIDDEN)
@@ -95,17 +95,17 @@ def handle_basic_container_args(options):
         handle_dir_mode(path, DIR_FULL_ACCESS)
 
     if options.keep_tmp:
-        if "/tmp" in special_dirs and not special_dirs["/tmp"] == DIR_FULL_ACCESS:
+        if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
             sys.exit("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
-        special_dirs["/tmp"] = DIR_FULL_ACCESS
-    elif not "/tmp" in special_dirs:
-        special_dirs["/tmp"] = DIR_HIDDEN
+        dir_modes["/tmp"] = DIR_FULL_ACCESS
+    elif not "/tmp" in dir_modes:
+        dir_modes["/tmp"] = DIR_HIDDEN
 
-    if not "/" in special_dirs:
-        special_dirs["/"] = DIR_OVERLAY
+    if not "/" in dir_modes:
+        dir_modes["/"] = DIR_OVERLAY
 
     if options.container_system_config:
-        if special_dirs.get("/etc", special_dirs["/"]) != DIR_OVERLAY:
+        if dir_modes.get("/etc", dir_modes["/"]) != DIR_OVERLAY:
             logging.warning("Specified directory mode for /etc implies --keep-system-config, "
                 "i.e., the container cannot be configured to force only local user and host lookups. "
                 "Use --overlay-dir /etc to allow overwriting system configuration in the container.")
@@ -118,7 +118,7 @@ def handle_basic_container_args(options):
     return {
         'network_access': options.network_access,
         'container_system_config': options.container_system_config,
-        'special_dirs': special_dirs,
+        'dir_modes': dir_modes,
         }
 
 def main(argv=None):
@@ -138,11 +138,11 @@ def main(argv=None):
     parser.add_argument("--dir", metavar="DIR",
                         help="working directory for executing the command (default is current directory)")
     parser.add_argument("--root", action="store_true",
-                        help="use UID 0 and GID 0 (i.e., fake root account) within namespace")
+                        help="use UID 0 and GID 0 (i.e., fake root account) within container")
     parser.add_argument("--uid", metavar="UID", type=int, default=None,
-                        help="use given UID within namespace (default: current UID)")
+                        help="use given UID within container (default: current UID)")
     parser.add_argument("--gid", metavar="GID", type=int, default=None,
-                        help="use given GID within namespace (default: current UID)")
+                        help="use given GID within container (default: current UID)")
     add_basic_container_args(parser)
     baseexecutor.add_basic_executor_options(parser)
 
@@ -177,13 +177,25 @@ def main(argv=None):
     return result.signal or result.value
 
 class ContainerExecutor(baseexecutor.BaseExecutor):
+    """Extended executor that allows to start the processes inside containers
+    using Linux namespaces."""
 
     def __init__(self, use_namespaces=True,
                  uid=None, gid=None,
                  network_access=False,
-                 special_dirs={"/": DIR_OVERLAY},
+                 dir_modes={"/": DIR_OVERLAY},
                  container_system_config=True,
                  *args, **kwargs):
+        """Create instance.
+        @param use_namespaces: If False, disable all container features of this class
+            and ignore all other parameters.
+        @param uid: Which UID to use inside container.
+        @param gid: Which GID to use inside container.
+        @param network_access: Whether to allow processes in the contain to access the network.
+        @param dir_modes: Dict that specifies which directories should be accessible and how in the container.
+        @param container_system_config: Whether to use a special system configuration in the container
+            that disables all remote host and user lookups.
+        """
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
         if not use_namespaces:
@@ -199,30 +211,30 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._env = None
 
         if container_system_config:
-            if special_dirs.get("/etc", special_dirs.get("/")) != DIR_OVERLAY:
+            if dir_modes.get("/etc", dir_modes.get("/")) != DIR_OVERLAY:
                 raise ValueError("Cannot setup minimal system configuration for the container "
                     "without overlay filesystem for /etc.")
             self._env = os.environ.copy()
             self._env["HOME"] = container.CONTAINER_HOME
-            if not container.CONTAINER_HOME in special_dirs:
-                special_dirs[container.CONTAINER_HOME] = DIR_HIDDEN
+            if not container.CONTAINER_HOME in dir_modes:
+                dir_modes[container.CONTAINER_HOME] = DIR_HIDDEN
 
-        if not "/" in special_dirs:
+        if not "/" in dir_modes:
             raise ValueError("Need directory mode for '/'.")
-        for path, kind in special_dirs.items():
+        for path, kind in dir_modes.items():
             if kind not in DIR_MODES:
                 raise ValueError("Invalid value '{}' for directory '{}'.".format(kind, path))
             if not os.path.isabs(path):
                 raise ValueError("Invalid non-absolute directory '{}'.".format(path))
             if path == "/proc":
                 raise ValueError("Cannot handle /proc specially, it is needed for container support.".format(path))
-        # All special_dirs in special_dirs are sorted by length
+        # All dir_modes in dir_modes are sorted by length
         # to ensure parent directories come before child directories
         # All directories are bytes to avoid issues if existing mountpoints are invalid UTF-8.
         sorted_special_dirs = sorted(
-            ((path.encode(), kind) for (path, kind) in special_dirs.items()),
+            ((path.encode(), kind) for (path, kind) in dir_modes.items()),
             key=lambda tupl : len(tupl[0]))
-        self._special_dirs = collections.OrderedDict(sorted_special_dirs)
+        self._dir_modes = collections.OrderedDict(sorted_special_dirs)
 
 
     # --- run execution ---
@@ -511,7 +523,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             parent_mode = None
             result_mode = None
-            for special_dir, mode in self._special_dirs.items():
+            for special_dir, mode in self._dir_modes.items():
                 if _is_below(path, special_dir):
                     if path != special_dir:
                         parent_mode = mode
@@ -544,8 +556,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # Create a copy of host's mountpoints.
         container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
-        # Ensure each special_dir is a mountpoint such that the next loop covers it.
-        for special_dir in self._special_dirs.keys():
+        # Ensure each special dir is a mountpoint such that the next loop covers it.
+        for special_dir in self._dir_modes.keys():
             mount_path = mount_base + special_dir
             temp_path = temp_base + special_dir
             try:
