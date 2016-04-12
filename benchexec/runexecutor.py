@@ -36,6 +36,7 @@ import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
+from benchexec import BenchExecException
 from benchexec import containerexecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
@@ -735,9 +736,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                                  cgroupValues,
                                  environments, workingDir, maxLogfileSize)
 
+        except BenchExecException as e:
+            logging.critical("Cannot execute '%s': %s.",
+                util.escape_string_shell(args[0]), e)
+            return {'terminationreason': 'failed', 'exitcode': 0,
+                    'cputime': 0, 'walltime': 0}
         except OSError as e:
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
-                             e.errno, args[0], workingDir or '.', e.strerror)
+                e.errno, util.escape_string_shell(args[0]), workingDir or '.', e.strerror)
             return {'terminationreason': 'failed', 'exitcode': 0,
                     'cputime': 0, 'walltime': 0}
 

@@ -39,6 +39,7 @@ import threading
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
+from benchexec import BenchExecException
 from benchexec.cgroups import Cgroup
 from benchexec import container
 from benchexec import libc
@@ -170,7 +171,7 @@ def main(argv=None):
     # actual run execution
     try:
         result = executor.execute_run(options.args, workingDir=options.dir)
-    except OSError as e:
+    except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
         sys.exit("Cannot execute {0}: {1}".format(util.escape_string_shell(options.args[0]), e))
@@ -366,20 +367,40 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             try:
                 logging.debug("Child process of RunExecutor started in container with PID %d.",
                               container.get_my_pid_from_procfs())
-                if not self._allow_network:
-                    container.activate_network_interface("lo")
-                self._setup_container_filesystem(temp_dir)
+                try:
+                    if not self._allow_network:
+                        container.activate_network_interface("lo")
+                    self._setup_container_filesystem(temp_dir)
+                except EnvironmentError as e:
+                    logging.critical("Failed to configure container: %s", e)
+                    return int(e.errno)
 
                 # Close pipe ends that are not necessary in (grand)child
                 os.close(from_grandchild)
                 os.close(to_grandchild)
 
-                grandchild_proc = subprocess.Popen(args,
-                                    stdin=stdin,
-                                    stdout=stdout, stderr=stderr,
-                                    env=env, cwd=cwd,
-                                    close_fds=True,
-                                    preexec_fn=grandchild)
+                try:
+                    os.chdir(cwd)
+                except EnvironmentError as e:
+                    logging.critical(
+                        "Cannot change into working directory inside container: %s", e)
+                    return int(e.errno)
+
+                try:
+                    grandchild_proc = subprocess.Popen(args,
+                                        stdin=stdin,
+                                        stdout=stdout, stderr=stderr,
+                                        env=env,
+                                        close_fds=True,
+                                        preexec_fn=grandchild)
+                except (EnvironmentError, RuntimeError) as e:
+                    logging.critical("Cannot start process: %s", e)
+                    try:
+                        return int(e.errno)
+                    except BaseException:
+                        # subprocess.Popen in Python 2.7 throws OSError with errno=None
+                        # if the preexec_fn fails.
+                        return -2
 
                 container.drop_capabilities()
 
@@ -399,13 +420,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 return 0
             except EnvironmentError as e:
-                logging.debug("Error in child process of RunExecutor: %s", e)
-                try:
-                    return int(e.errno)
-                except BaseException:
-                    # subprocess.Popen in Python 2.7 throws OSError with errno=None
-                    # if the preexec_fn fails.
-                    return -2
+                logging.exception("Error in child process of RunExecutor")
+                return int(e.errno)
             except:
                 # Need to catch everything because this method always needs to return a int
                 # (we are inside a C callback that requires returning int).
@@ -413,7 +429,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 return -1
 
         try: # parent
-            child_pid = container.execute_in_namespace(child, use_network_ns=not self._allow_network)
+            try:
+                child_pid = container.execute_in_namespace(child, use_network_ns=not self._allow_network)
+            except OSError as e:
+                raise BenchExecException(
+                    "Creating namespace for container mode failed: " + os.strerror(e.errno))
 
             def check_child_exit_code():
                 """Check if the child process terminated cleanly and raise an error otherwise."""
@@ -588,7 +608,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     libc.umount(mount_path)
                 except OSError as e:
                     logging.debug(e)
-                container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                try:
+                    container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                except OSError as e:
+                    raise OSError(e.errno,
+                        "Creating overlay mount for '{}' failed: {}. "
+                        "Please use other directory modes."
+                            .format(mountpoint.decode(), os.strerror(e.errno)))
 
             elif mode == DIR_HIDDEN:
                 if not os.path.exists(temp_path):
