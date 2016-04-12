@@ -44,12 +44,11 @@ from benchexec import container
 from benchexec import libc
 from benchexec import util
 
-FS_OVERLAY = "overlay"
-FS_READONLY = "read-only"
-FS_MODES = [FS_OVERLAY, FS_READONLY]
-
 DIR_HIDDEN = "hidden"
+DIR_READ_ONLY = "read-only"
+DIR_OVERLAY = "overlay"
 DIR_FULL_ACCESS = "full-access"
+DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 
 
 def add_basic_container_args(argument_parser):
@@ -58,15 +57,15 @@ def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--keep-system-config",
         dest="container_system_config", action="store_false",
         help="do not use a special minimal configuration for local user and host lookups inside the container")
-    argument_parser.add_argument("--file-system", metavar="MODE",
-        choices=FS_MODES, default=FS_OVERLAY,
-        help="how to organize the file-system layout: "
-            "use an overlay file-system to isolate writes (default, 'overlay'), "
-            "or make everything read-only ('read-only')")
     argument_parser.add_argument("--keep-tmp", action="store_true",
         help="do not use a private /tmp for process (same as '--full-access-dir /tmp')")
     argument_parser.add_argument("--hidden-dir", metavar="DIR", action="append", default=[],
-        help="hide this directory by mounting an empty directory over it (default: /tmp)")
+        help="hide this directory by mounting an empty directory over it (default for '/tmp')")
+    argument_parser.add_argument("--read-only-dir", metavar="DIR", action="append", default=[],
+        help="make this directory read-only")
+    argument_parser.add_argument("--overlay-dir", metavar="DIR", action="append", default=[],
+        help="mount an overlay filesystem over this directory "
+            "that redirects all write accesses to temporary files (default for '/')")
     argument_parser.add_argument("--full-access-dir", metavar="DIR", action="append", default=[],
         help="give full access (read/write) to this directory inside the container")
 
@@ -76,24 +75,24 @@ def handle_basic_container_args(options):
     """
     special_dirs = {}
 
-    for path in options.full_access_dir:
+    def handle_dir_mode(path, mode):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             sys.exit(
-                "Cannot use full access for path '{}' because it does not exist or is no directory."
+                "Cannot specify directory mode for '{}' because it does not exist or is no directory."
                 .format(path))
-        special_dirs[path] = DIR_FULL_ACCESS
+        if path in special_dirs:
+            sys.exit("Cannot specify multiple directory modes for '{}'.".format(path))
+        special_dirs[path] = mode
 
     for path in options.hidden_dir:
-        path = os.path.abspath(path)
-        if not os.path.isdir(path):
-            sys.exit("Cannot hide path '{}' because it does not exist or is no directory."
-                     .format(path))
-        if path in special_dirs:
-            sys.exit(
-                "Cannot specify both --hidden-dir and --full-access-dir for directory {}."
-                .format(path))
-        special_dirs[path] = DIR_HIDDEN
+        handle_dir_mode(path, DIR_HIDDEN)
+    for path in options.read_only_dir:
+        handle_dir_mode(path, DIR_READ_ONLY)
+    for path in options.overlay_dir:
+        handle_dir_mode(path, DIR_OVERLAY)
+    for path in options.full_access_dir:
+        handle_dir_mode(path, DIR_FULL_ACCESS)
 
     if options.keep_tmp:
         if "/tmp" in special_dirs and not special_dirs["/tmp"] == DIR_FULL_ACCESS:
@@ -102,11 +101,14 @@ def handle_basic_container_args(options):
     elif not "/tmp" in special_dirs:
         special_dirs["/tmp"] = DIR_HIDDEN
 
+    if not "/" in special_dirs:
+        special_dirs["/"] = DIR_OVERLAY
+
     if options.container_system_config:
-        if options.file_system != FS_OVERLAY:
-            logging.warning("Option --file-system '%s' implies --keep-system-config, "
-                "i.e., the container cannot be configured to force only local user and host lookups.",
-                options.file_system)
+        if special_dirs.get("/etc", special_dirs["/"]) != DIR_OVERLAY:
+            logging.warning("Specified directory mode for /etc implies --keep-system-config, "
+                "i.e., the container cannot be configured to force only local user and host lookups. "
+                "Use --overlay-dir /etc to allow overwriting system configuration in the container.")
             options.container_system_config = False
         elif options.network_access:
             logging.warning("The container configuration disables DNS, "
@@ -116,7 +118,6 @@ def handle_basic_container_args(options):
     return {
         'network_access': options.network_access,
         'container_system_config': options.container_system_config,
-        'filesystem_mode': options.file_system,
         'special_dirs': special_dirs,
         }
 
@@ -180,7 +181,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def __init__(self, use_namespaces=True,
                  uid=None, gid=None,
                  network_access=False,
-                 filesystem_mode=FS_OVERLAY, special_dirs={},
+                 special_dirs={"/": DIR_OVERLAY},
                  container_system_config=True,
                  *args, **kwargs):
         super(ContainerExecutor, self).__init__(*args, **kwargs)
@@ -195,27 +196,27 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                      else container.CONTAINER_GID if container_system_config
                      else os.getgid())
         self._allow_network = network_access
-        if not filesystem_mode in FS_MODES:
-            raise ValueError("Invalid filesystem mode '{}'.".format(filesystem_mode))
-        self._filesystem_mode = filesystem_mode
         self._env = None
+
         if container_system_config:
-            if filesystem_mode != FS_OVERLAY:
+            if special_dirs.get("/etc", special_dirs.get("/")) != DIR_OVERLAY:
                 raise ValueError("Cannot setup minimal system configuration for the container "
-                    "without overlay filesystem.")
+                    "without overlay filesystem for /etc.")
             self._env = os.environ.copy()
             self._env["HOME"] = container.CONTAINER_HOME
+            if not container.CONTAINER_HOME in special_dirs:
+                special_dirs[container.CONTAINER_HOME] = DIR_HIDDEN
 
+        if not "/" in special_dirs:
+            raise ValueError("Need directory mode for '/'.")
         for path, kind in special_dirs.items():
-            if kind not in [DIR_HIDDEN, DIR_FULL_ACCESS]:
+            if kind not in DIR_MODES:
                 raise ValueError("Invalid value '{}' for directory '{}'.".format(kind, path))
             if not os.path.isabs(path):
                 raise ValueError("Invalid non-absolute directory '{}'.".format(path))
-            if not os.path.isdir(path):
-                raise ValueError("Cannot handle dir '{}' specially if it does not exist.".format(path))
-        if container_system_config and not container.CONTAINER_HOME in special_dirs:
-            special_dirs[container.CONTAINER_HOME] = DIR_HIDDEN
-        # All directories in special_dirs are sorted by length
+            if path == "/proc":
+                raise ValueError("Cannot handle /proc specially, it is needed for container support.".format(path))
+        # All special_dirs in special_dirs are sorted by length
         # to ensure parent directories come before child directories
         # All directories are bytes to avoid issues if existing mountpoints are invalid UTF-8.
         sorted_special_dirs = sorted(
@@ -466,23 +467,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         return grandchild_pid, wait_for_grandchild
 
-    def _is_below(self, path, target_path):
-        # compare with trailing slashes for cases like /foo and /foobar
-        path = os.path.join(path, b"")
-        target_path = os.path.join(target_path, b"")
-        return path.startswith(target_path)
-
-    def _is_special_dir(self, path):
-        return (path in self._special_dirs or
-            any(self._is_below(path, special_dir) for special_dir in self._special_dirs))
 
     def _setup_container_filesystem(self, temp_dir):
         """Setup the filesystem layout in the container.
-        First, we create a copy of the existing mounts of the system under a new directory
-        (either a read-only copy or as an overlay depending on file-system mode), then
-        we handle those directories that should be hidden (we mount a fresh directory over them),
-        or should stay writable (we add a writable bind mount from the original directory),
-        and then we chroot into the new mount hierarchy.
+         As first step, we create a copy of all existing mountpoints in mount_base, recursively,
+        and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
+        to our copy).
+        Then we iterate over all mountpoints and change them
+        according to the mode the user has specified (hidden, read-only, overlay, or full-access).
+        This has do be done for each mountpoint because overlays are not recursive.
+        Then we chroot into the new mount hierarchy.
 
         The new filesystem layout still has a view of the host's /proc.
         We do not mount a fresh /proc here because the grandchild still needs old the /proc.
@@ -496,51 +490,48 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
         temp_dir = temp_dir.encode()
-        mount_base = os.path.join(temp_dir, b"mount")
-        temp_base = os.path.join(temp_dir, b"temp")
+        mount_base = os.path.join(temp_dir, b"mount") # base dir for container mounts
+        temp_base = os.path.join(temp_dir, b"temp") # directory with files created by tool
         os.mkdir(mount_base)
         os.mkdir(temp_base)
 
-        # Setup new filesystem hierarchy below mount_base.
-        if self._filesystem_mode == FS_OVERLAY:
-            self._setup_container_filesystem_overlay(temp_dir, mount_base, temp_base)
-        else:
-            self._setup_container_filesystem_bind(mount_base, temp_base)
+        def _is_below(path, target_path):
+            # compare with trailing slashes for cases like /foo and /foobar
+            path = os.path.join(path, b"")
+            target_path = os.path.join(target_path, b"")
+            return path.startswith(target_path)
 
-        # Handle special directories the user requested.
-        for special_dir, kind in self._special_dirs.items():
-            mount_path = mount_base + special_dir
-            temp_path = temp_base + special_dir
-            if not os.path.exists(mount_path):
-                os.makedirs(mount_path)
-            if kind == DIR_HIDDEN:
-                if not os.path.exists(temp_path):
-                    os.makedirs(temp_path)
-                container.make_bind_mount(temp_path, mount_path)
-            elif kind == DIR_FULL_ACCESS:
-                container.make_bind_mount(special_dir, mount_path, recursive=True, private=True)
+        def find_mode_for_dir(path, fstype):
+            if (path == b"/proc"):
+                # /proc is necessary for the grandchild to read PID, will be replaced later.
+                return DIR_READ_ONLY
+            if _is_below(path, b"/proc"):
+                # Irrelevant.
+                return None
 
-        # If necessary, (i.e., if /tmp is not already hidden),
-        # hide the directory where we store our files from processes in the container
-        # by mounting an empty directory over it.
-        if os.path.exists(mount_base + temp_dir):
-            os.makedirs(temp_base + temp_dir)
-            container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
+            parent_mode = None
+            result_mode = None
+            for special_dir, mode in self._special_dirs.items():
+                if _is_below(path, special_dir):
+                    if path != special_dir:
+                        parent_mode = mode
+                    result_mode = mode
+            assert result_mode is not None
 
-        os.chroot(mount_base)
+            if result_mode == DIR_OVERLAY and (
+                    _is_below(path, b"/dev") or
+                    _is_below(path, b"/sys") or
+                    fstype == b"autofs" or
+                    fstype == b"cgroup"):
+                # Import /dev, /sys, cgroup, and autofs from host into the container,
+                # overlay does not work for them.
+                return DIR_READ_ONLY
 
-    def _setup_container_filesystem_overlay(self, temp_dir, mount_base, temp_base):
-        """Setup the filesystem layout in the container with an overlay filesystem.
-        As first step, we create an overlay for "/". Then we bind mount /proc, /dev, and /sys,
-        for which overlays do not make sense or do not work.
-        Then we create overlays for all other mountpoints (an overlay mount does not recursively
-        propagate to sub mounts).
+            if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
+                # No need to recursively recreate mountpoints in hidden dirs.
+                return None
+            return result_mode
 
-        @param temp_dir: The base directory under which all our directories should be created.
-        @param mount_base: The base directory where the container filesystem should be set up
-            (we will chroot into this directory).
-        @param temp_base: The base directory where temporary files of the tool are created.
-        """
         # Overlayfs needs its own additional temporary directory ("work" directory).
         # temp_base will be the "upper" layer, the host FS the "lower" layer,
         # and mount_base the mount target.
@@ -550,65 +541,85 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if self._container_system_config:
             container.setup_container_system_config(temp_base)
 
-        # Mount overlay for / in the container
-        container.make_overlay_mount(mount_base, b"/", temp_base, work_base)
+        # Create a copy of host's mountpoints.
+        container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
-        # Import /proc from host into the container (necessary for the grandchild to read PID,
-        # will be replaced later).
-        container.make_bind_mount(b"/proc", os.path.join(mount_base, b"proc"), recursive=True, private=True)
-        # Import /dev and /sys from host into the container, overlay does not work well here.
-        container.make_bind_mount(b"/dev", os.path.join(mount_base, b"dev"), recursive=True, private=True)
-        container.make_bind_mount(b"/sys", os.path.join(mount_base, b"sys"), recursive=True, private=True)
+        # Ensure each special_dir is a mountpoint such that the next loop covers it.
+        for special_dir in self._special_dirs.keys():
+            mount_path = mount_base + special_dir
+            temp_path = temp_base + special_dir
+            try:
+                container.make_bind_mount(mount_path, mount_path)
+            except OSError as e:
+                logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
 
-        # Mount all other host FS in the container
-        for unused_source, mountpoint, fstype, options in container.get_mount_points():
-            if (mountpoint == b"/" or
-                    self._is_below(mountpoint, b"/proc") or
-                    self._is_below(mountpoint, temp_dir) or
-                    self._is_special_dir(mountpoint) or
-                    fstype == b"autofs"):
-                # Ignore mounts that are handled otherwise or are irrelevant.
+        # Set desired access mode for each mountpoint.
+        for unused_source, full_mountpoint, fstype, options in list(container.get_mount_points()):
+            if not _is_below(full_mountpoint, mount_base):
                 continue
+            mountpoint = full_mountpoint[len(mount_base):] or b"/"
 
             mount_path = mount_base + mountpoint
             temp_path = temp_base + mountpoint
             work_path = work_base + mountpoint
 
-            if (self._is_below(mountpoint, b"/sys") or
-                    self._is_below(mountpoint, b"/dev") or
-                    fstype == b"cgroup"):
-                # Mark as readonly, because overlay does not make sense for these.
-                container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
-                continue
+            mode = find_mode_for_dir(mountpoint, fstype)
+            if mode == DIR_OVERLAY:
+                if not os.path.exists(temp_path):
+                    os.makedirs(temp_path)
+                if not os.path.exists(work_path):
+                    os.makedirs(work_path)
+                try:
+                    # Previous mount in this place not needed if replaced with overlay dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
+                container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
 
-            os.makedirs(temp_path)
-            os.makedirs(work_path)
-            container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+            elif mode == DIR_HIDDEN:
+                if not os.path.exists(temp_path):
+                    os.makedirs(temp_path)
+                try:
+                    # Previous mount in this place not needed if replaced with hidden dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
+                container.make_bind_mount(temp_path, mount_path)
 
-    def _setup_container_filesystem_bind(self, mount_base, temp_base):
-        """Setup the filesystem layout in the container with bind mounts from the host.
-        As first step, we create a copy of all existing mountpoints in mount_base, recursively,
-        and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
-        to our copy). Then we mark them readonly where necessary.
-        Linux does not support making read-only bind mounts in one step:
-        https://lwn.net/Articles/281157/ http://man7.org/linux/man-pages/man8/mount.8.html
+            elif mode == DIR_READ_ONLY:
+                try:
+                    container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                except OSError:
+                    # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
+                    # Linux does not support making read-only bind mounts in one step:
+                    # https://lwn.net/Articles/281157/ http://man7.org/linux/man-pages/man8/mount.8.html
+                    container.make_bind_mount(mountpoint, mount_path, recursive=True, private=True)
+                    container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
 
-        @param mount_base: The base directory where the container filesystem should be set up
-            (we will chroot into this directory).
-        @param temp_base: The base directory where temporary files of the tool are created.
-        """
-        # First step: create copy of all mounts in mount_base
-        container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
+            elif mode == DIR_FULL_ACCESS:
+                try:
+                    # Ensure directory is still a mountpoint by attempting to remount.
+                    container.remount_with_additional_flags(mount_path, options, 0)
+                except OSError:
+                    # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
+                    container.make_bind_mount(mountpoint, mount_path, recursive=True, private=True)
 
-        # Second step: mark existing mounts below mount_base as readonly if necessary
-        for unused_source, full_mountpoint, unused_fstype, options in container.get_mount_points():
-            if not self._is_below(full_mountpoint, mount_base):
-                continue
-            mountpoint = full_mountpoint[len(mount_base):] or b"/"
+            elif mode is None:
+                pass
 
-            if not (b"ro" in options or self._is_special_dir(mountpoint)):
-                # mountpoint is visible in container and should be readonly, mark as such
-                container.remount_with_additional_flags(full_mountpoint, options, libc.MS_RDONLY)
+            else:
+                assert False
+
+        # If necessary, (i.e., if /tmp is not already hidden),
+        # hide the directory where we store our files from processes in the container
+        # by mounting an empty directory over it.
+        if os.path.exists(mount_base + temp_dir):
+            os.makedirs(temp_base + temp_dir)
+            container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
+
+        os.chroot(mount_base)
 
 
 if __name__ == '__main__':

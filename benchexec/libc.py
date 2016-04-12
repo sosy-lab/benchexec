@@ -106,6 +106,11 @@ MOUNT_FLAGS = {
     b"noexec": MS_NOEXEC,
     }
 
+umount = _libc.umount
+"""Unmount a filesystem."""
+umount.argtypes = [c_char_p] # target
+umount.errcheck = _check_errno
+
 
 _sighandler_t = _ctypes.CFUNCTYPE(None, c_int)
 _libc.signal.argtypes = [c_int, _sighandler_t]
