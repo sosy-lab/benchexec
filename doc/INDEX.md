@@ -12,6 +12,7 @@ The documentation for BenchExec is available in the following files:
 - [benchexec](benchexec.md)
 - [table-generator](table-generator.md)
 - [runexec](runexec.md)
+- [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
 
 More on the background of BenchExec can also be found in our paper

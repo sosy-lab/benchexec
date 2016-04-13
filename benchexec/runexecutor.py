@@ -134,7 +134,9 @@ def main(argv=None):
                 "not using containers for isolation of runs. "
                 "Either specify --no-container to silence this warning, "
                 "or specify --container to use containers for better isolation of runs "
-                "(this will be the default starting with BenchExec 2.0).")
+                "(this will be the default starting with BenchExec 2.0). "
+                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
+                "for more information.")
 
     # For integrating into some benchmarking frameworks,
     # there is a DEPRECATED special mode

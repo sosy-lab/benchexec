@@ -88,6 +88,7 @@ Example:
     benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10s --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
+For explanation of the parameters for containers, please see [container mode](container.md).
 For executing benchmarks under a different user account with the parameter `--user`,
 please check the [respective documentation](separate-user.md).
 
