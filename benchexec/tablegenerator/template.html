@@ -1399,6 +1399,16 @@ function addButtons(target, callback, showQuantileButton) {
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
 }
 
+function isValidStatisticsColumn(columnIndex) {
+  var firstRow = $('#dataTable').find('> tbody > tr:visible')[0];
+  var firstColumnEntry = firstRow.cells[dataColumnsOffset + columnIndex];
+  var columnClasses = firstColumnEntry.classList;
+
+  return $(columnTitleCells[columnIndex]).is(':visible')
+          && (columnClasses.contains('status') || columnClasses.contains('main_status')
+            || columnClasses.contains('measure') || columnClasses.contains('count'));
+}
+
 function getSelectorForScatter(identifier) {
     var select = $('<select>', {class:'plot-selector'});
     var columnIndex = 0;
@@ -1407,7 +1417,7 @@ function getSelectorForScatter(identifier) {
         var group = $('<optgroup>', {label:getNameOfTestDirect(runSet)})
                 .appendTo(select);
         for (var j = 0; j < runSet.columns.length; j++, columnIndex++) {
-            if ($(columnTitleCells[columnIndex]).is(':visible')) {
+          if (isValidStatisticsColumn(columnIndex)) {
                 var column = runSet.columns[j];
                 var option = $('<option>', {
                                 value:columnIndex,
@@ -1547,7 +1557,7 @@ function getSelectorForQuantile() {
         var run_set = run_sets[i];
         for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
             var column = run_set.columns[j];
-            if (columns[column] == null && $(columnTitleCells[columnIndex]).is(':visible')) {
+            if (columns[column] == null && isValidStatisticsColumn(columnIndex)) {
               $('<option>', { value:'column' + columnIndex, selected:(!graphData.isRunSet && graphData.target.textContent == column) })
                   .text(column).appendTo(group);
               columns[column] = column;
