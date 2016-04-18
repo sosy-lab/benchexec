@@ -33,6 +33,7 @@ import time
 
 from benchexec import __version__
 from benchexec.model import Benchmark
+from benchexec import containerexecutor
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
 
@@ -201,6 +202,14 @@ class BenchExec(object):
         parser.add_argument("--version",
                             action="version",
                             version="%(prog)s " + __version__)
+
+        container_args = parser.add_argument_group("optional arguments for run container")
+        container_on_args = container_args.add_mutually_exclusive_group()
+        container_on_args.add_argument("--container", action='store_true',
+            help="force isolation of run in container (future default starting with BenchExec 2.0)")
+        container_on_args.add_argument("--no-container", action='store_true',
+            help="disable use of containers for isolation of runs (current default)")
+        containerexecutor.add_basic_container_args(container_args)
 
         return parser
 

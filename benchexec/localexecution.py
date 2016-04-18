@@ -31,6 +31,7 @@ from queue import Queue
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
 from benchexec import cgroups
+from benchexec import containerexecutor
 from benchexec.resources import *
 from benchexec.runexecutor import RunExecutor
 from benchexec import systeminfo
@@ -44,6 +45,22 @@ STOPPED_BY_INTERRUPT = False
 def init(config, benchmark):
     benchmark.executable = benchmark.tool.executable()
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+
+    config.containerargs = {}
+    if config.container:
+        if config.users is not None:
+            sys.exit("Cannot use --user in combination with --container.")
+        config.containerargs = containerexecutor.handle_basic_container_args(config)
+        config.containerargs["use_namespaces"] = True
+    elif not config.no_container:
+        logging.warning(
+            "Neither --container or --no-container was specified, "
+            "not using containers for isolation of runs. "
+            "Either specify --no-container to silence this warning, "
+            "or specify --container to use containers for better isolation of runs "
+            "(this will be the default starting with BenchExec 2.0). "
+            "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
+            "for more information.")
 
     try:
         processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]
@@ -202,7 +219,7 @@ class _Worker(threading.Thread):
         self.my_cpus = my_cpus
         self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
-        self.run_executor = RunExecutor(user=my_user)
+        self.run_executor = RunExecutor(user=my_user, **benchmark.config.containerargs)
         self.setDaemon(True)
 
         self.start()
