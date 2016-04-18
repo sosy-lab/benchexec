@@ -326,7 +326,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the bind mount,
         # but the directory behind it. Thus we always set cwd to force a change of directory.
-        cwd = cwd or os.path.abspath(os.curdir)
+        cwd = os.path.abspath(cwd or os.curdir)
 
         def grandchild():
             """Setup everything inside the process that finally exec()s the tool."""
