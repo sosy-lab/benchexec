@@ -21,7 +21,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
-import pwd
 import re
 import subprocess
 import sys
@@ -31,6 +30,7 @@ import time
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec import containerexecutor
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
 
@@ -103,10 +103,11 @@ class TestRunExecutor(unittest.TestCase):
         expected_keys.update(additional_keys)
         for key in result.keys():
             if key.startswith('cputime-cpu'):
-                self.assertRegex(key, '^cputime-cpu[0-9]+$', 'unexpected result value ' + key)
+                self.assertRegex(key, '^cputime-cpu[0-9]+$',
+                                 "unexpected result entry '{}={}'".format(key, result[key]))
             else:
-                self.assertIn(key, expected_keys, 'unexpected result value ' + key)
-
+                self.assertIn(key, expected_keys,
+                              "unexpected result entry '{}={}'".format(key, result[key]))
 
     def test_command_output(self):
         if not os.path.exists('/bin/echo'):
@@ -503,31 +504,27 @@ class TestRunExecutorWithSudo(TestRunExecutor):
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
 
 
-class TestRunExecutorWithNamespaces(TestRunExecutor):
-
-    home_dir = pwd.getpwuid(os.getuid()).pw_dir
+class TestRunExecutorWithContainer(TestRunExecutor):
 
     def setUp(self, *args, **kwargs):
-        self.runexecutor = RunExecutor(use_namespaces=True,
-                                       hide_dirs=["/tmp", TestRunExecutorWithNamespaces.home_dir],
-                                       *args, **kwargs)
+        self.runexecutor = RunExecutor(
+            use_namespaces=True,
+            dir_modes={"/": containerexecutor.DIR_READ_ONLY,
+                       "/tmp": containerexecutor.DIR_HIDDEN},
+            container_system_config=False,
+            *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
-        return super(TestRunExecutorWithNamespaces, self).execute_run(workingDir="/", *args, **kwargs)
+        return super(TestRunExecutorWithContainer, self).execute_run(workingDir="/", *args, **kwargs)
 
     def test_home_and_tmp_is_separate(self):
-        if not os.path.exists('/bin/sh'):
-            self.skipTest('missing /bin/sh')
-        (result, output) = self.execute_run('/bin/sh', '-c', 'ls {}; ls /tmp'.format(TestRunExecutorWithNamespaces.home_dir))
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
-        for line in output[1:]:
-            self.assertRegex(line, '^-*$', "Home or tmp directory is not empty")
+        self.skipTest("not relevant in container")
 
     def test_temp_dirs_are_removed(self):
-        self.skipTest("unimplemented")
+        self.skipTest("not relevant in container")
 
     def test_no_cleanup_temp(self):
-        self.skipTest("unimplemented")
+        self.skipTest("not relevant in container")
 
 
 class _StopRunThread(threading.Thread):
