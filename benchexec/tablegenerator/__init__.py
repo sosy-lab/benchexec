@@ -558,7 +558,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
         with Util.open_url_seekable(url, mode='rb') as f:
             try:
                 try:
-                    resultElem = parse(gzip.open(f))
+                    resultElem = parse(gzip.GzipFile(fileobj=f))
                 except IOError:
                     f.seek(0)
                     resultElem = parse(bz2.BZ2File(f))
