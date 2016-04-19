@@ -480,3 +480,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             table_prefix='smt.table',
             diff_prefix='smt.diff',
             )
+
+    def test_results_via_url(self):
+        try:
+            self.generate_tables_and_compare_content(
+                ["https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.results.Simple.xml"],
+                table_prefix="cbmc.2015-12-11_1211.results.Simple",
+                )
+        except subprocess.CalledProcessError as e:
+            if "HTTP Error" in e.output.decode():
+                self.skipTest("HTTP access to GitHub failed")
+            else:
+                raise

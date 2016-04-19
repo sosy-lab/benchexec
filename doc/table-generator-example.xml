@@ -4,7 +4,7 @@
 
   <!-- By default, use all columns (no <column> tags). -->
 
-  <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
+  <!-- <result> defines from which files/URLs to take the benchmark results (can appear multiple times). -->
   <result filename="../results/benchmark-example-rand.*.results.xml">
 
     <!-- <column> can be used here to override the global set of columns.  -->

@@ -17,7 +17,7 @@
   <column title="..." href="*path relative to this file or absolute URL*">*(optional) text to appear in all cells of the column*</column>
 
   <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
-  <result filename="*file-name pattern for XML files produced by BenchExec*">
+  <result filename="*file-name pattern or URL for XML files produced by BenchExec*">
     <!-- <column> can be used here to override the global set of columns.  -->
   </result>
 

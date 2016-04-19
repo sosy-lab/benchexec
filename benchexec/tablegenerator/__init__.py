@@ -35,6 +35,8 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.parse
+import urllib.request
 from xml.etree import ElementTree
 
 import tempita
@@ -548,25 +550,21 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     @param resultFile: The file name of the XML file with the results.
     @param run_set_id: An optional identifier of this set of results.
     '''
-    if not os.path.isfile(resultFile):
-        logging.error("File '%s' not found.", resultFile)
-        exit(1)
-
     logging.info('    %s', resultFile)
+    url = Util.make_url(resultFile)
 
     parse = ElementTree.ElementTree().parse
-
     try:
-        try:
+        with Util.open_url_seekable(url, mode='rb') as f:
             try:
-                with gzip.open(resultFile) as f:
-                    resultElem = parse(f)
+                try:
+                    resultElem = parse(gzip.open(f))
+                except IOError:
+                    f.seek(0)
+                    resultElem = parse(bz2.BZ2File(f))
             except IOError:
-                with bz2.BZ2File(resultFile) as f:
-                    resultElem = parse(f)
-        except IOError:
-            resultElem = parse(resultFile)
-
+                f.seek(0)
+                resultElem = parse(f)
     except IOError as e:
         logging.error('Could not read result file %s: %s', resultFile, e)
         exit(1)
@@ -702,36 +700,39 @@ class RunResult(object):
         Only columns that should be part of the table are collected.
         '''
 
-        def read_logfile_lines(logfilename):
-            if not logfilename:
+        def read_logfile_lines(log_file):
+            if not log_file:
                 return []
-            log_zip_name = os.path.dirname(logfilename) + ".zip"
+            log_file_url = Util.make_url(log_file)
+            url_parts = urllib.parse.urlparse(log_file_url, allow_fragments=False)
+            log_zip_path = os.path.dirname(url_parts.path) + ".zip"
+            log_zip_url = urllib.parse.urlunparse((url_parts.scheme, url_parts.netloc,
+                log_zip_path, url_parts.params, url_parts.query, url_parts.fragment))
+            path_in_zip = urllib.parse.unquote(
+                os.path.relpath(url_parts.path, os.path.dirname(log_zip_path)))
+
             try:
-                if os.path.exists(logfilename):
-                    with open(logfilename, 'rt') as logfile:
-                        return logfile.readlines()
+                with Util.open_url_seekable(log_file_url, 'rt') as logfile:
+                    return logfile.readlines()
+            except IOError as unused_e1:
+                try:
+                    if log_zip_url not in log_zip_cache:
+                        log_zip_cache[log_zip_url] = zipfile.ZipFile(
+                            Util.open_url_seekable(log_zip_url, 'rb'))
+                    log_zip = log_zip_cache[log_zip_url]
 
-                elif os.path.exists(log_zip_name):
-                    if log_zip_name not in log_zip_cache:
-                        log_zip_cache[log_zip_name] = zipfile.ZipFile(log_zip_name)
-                    log_zip = log_zip_cache[log_zip_name]
-
-                    path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
                     try:
                         with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
                             return logfile.readlines()
                     except KeyError:
                         logging.warning("Could not find logfile '%s' in archive '%s'.",
-                                        logfilename, log_zip_name)
+                                        log_file, log_zip_url)
                         return []
 
-                else:
+                except IOError as unused_e2:
                     logging.warning("Could not find logfile '%s' nor log archive '%s'.",
-                                    logfilename, log_zip_name)
+                                    log_file, log_zip_url)
                     return []
-            except IOError as e:
-                logging.warning("Could not read value from logfile: %s", e)
-                return []
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
@@ -1523,7 +1524,7 @@ def main(args=None):
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
-            if all(path == os.path.dirname(file) for file in inputFiles):
+            if not "://" in path and all(path == os.path.dirname(file) for file in inputFiles):
                 outputPath = path
             else:
                 outputPath = DEFAULT_OUTPUT_PATH

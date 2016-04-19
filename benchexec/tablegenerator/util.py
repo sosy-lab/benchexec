@@ -25,12 +25,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from decimal import Decimal
 import glob
+import io
 import json
 import logging
 import os
-
 import re
 from urllib.parse import quote as url_quote
+import urllib.request
 import tempita
 
 from benchexec import model
@@ -41,6 +42,8 @@ def get_file_list(shortFile):
     The function get_file_list expands a short filename to a sorted list
     of filenames. The short filename can contain variables and wildcards.
     """
+    if "://" in shortFile: # seems to be a URL
+        return [shortFile]
 
     # expand tilde and variables
     expandedFile = os.path.expandvars(os.path.expanduser(shortFile))
@@ -64,6 +67,34 @@ def extend_file_list(filelist):
     and returns a new list of files.
     '''
     return [file for wildcardFile in filelist for file in get_file_list(wildcardFile)]
+
+
+def make_url(path_or_url):
+    """Make a URL from a string which is either a URL or a local path,
+    by adding "file:" if necessary.
+    """
+    if not "://" in path_or_url and not path_or_url.startswith("file:"):
+        return "file:" + urllib.request.pathname2url(path_or_url)
+    return path_or_url
+
+
+def open_url_seekable(path_url, mode='rt'):
+    """Open a URL and ensure that the result is seekable,
+    copying it into a buffer if necessary."""
+
+    logging.debug("Making request to '%s'", path_url)
+    response = urllib.request.urlopen(path_url)
+    logging.debug("Got response %s", response.info())
+
+    try:
+        response.seek(0)
+    except IOError:
+        # Copy into buffer to allow seeking.
+        response = io.BytesIO(response.read())
+    if "b" in mode:
+        return response
+    else:
+        return io.TextIOWrapper(response)
 
 
 def split_number_and_unit(s):
@@ -93,7 +124,7 @@ def create_link(runResult, base_dir, column):
     source_file = runResult.task_id[0]
     href = column.href or runResult.log_file
 
-    if href.startswith("http://") or href.startswith("https://"):
+    if href.startswith("http://") or href.startswith("https://") or href.startswith("file:"):
         # quote special characters only in inserted variable values, not full URL
         source_file = url_quote(source_file)
         href = model.substitute_vars([href], None, source_file)[0]
