@@ -88,7 +88,7 @@ def open_url_seekable(path_url, mode='rt'):
 
     try:
         response.seek(0)
-    except IOError:
+    except (IOError, AttributeError):
         # Copy into buffer to allow seeking.
         response = io.BytesIO(response.read())
     if "b" in mode:
