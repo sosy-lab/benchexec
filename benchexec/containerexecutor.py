@@ -35,7 +35,6 @@ import signal
 import subprocess
 import sys
 import tempfile
-import threading
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
@@ -356,14 +355,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         def child():
             """Setup everything inside the container, start the tool, and wait for result."""
-            try:
-                # The state of the threading module may be wrong now, because in the child
-                # there is only this one thread. Although we do not need the threading module
-                # in the child right now, it should not hurt to correct this state.
-                threading._after_fork()
-            except Exception:
-                pass # But if this fails, we don't care.
-
             try:
                 logging.debug("Child: started in container with PID %d.",
                               container.get_my_pid_from_procfs())

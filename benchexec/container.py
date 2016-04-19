@@ -138,10 +138,29 @@ def execute_in_namespace(func, use_network_ns=True):
     if use_network_ns:
         flags |= libc.CLONE_NEWNET
 
-    child_func = ctypes.CFUNCTYPE(ctypes.c_int)(func)
+    # We use the syscall clone() here, which is similar to fork().
+    # Calling it without letting Python know about it is dangerous (especially because
+    # we want to execute Python code in the child, too), but so far it seems to work.
+    # Basically we attempt to do (almost) the same that os.fork() does (cf. function os_fork_impl
+    # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
+    # We currently do not take the import lock os.lock() does because it is only available
+    # via an internal API, and because the child should never import anything anyway
+    # (inside the container, modules might not be visible).
+    # It is very important, however, that we have the GIL during clone(),
+    # otherwise the child will often deadlock when trying to execute Python code.
+    # Luckily, the ctypes module allows us to hold the GIL while executing the
+    # function by using ctypes.PyDLL as library access instead of ctypes.CLL.
+
+    def child_func():
+        # This is necessary for correcting the Python interpreter state after a
+        # fork-like operation. For example, it resets the GIL and fixes state of
+        # several modules like threading and signal.
+        ctypes.pythonapi.PyOS_AfterFork()
+
+        return func()
 
     with allocate_stack() as stack:
-        pid = libc.clone(child_func, stack, flags, None)
+        pid = libc.clone(ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None)
     return pid
 
 def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):

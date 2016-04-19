@@ -30,6 +30,9 @@ from ctypes import c_int, c_uint32, c_long, c_ulong, c_size_t, c_char_p, c_void_
 import os as _os
 
 _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
+"""Reference to standard C library."""
+_libc_with_GIL = _ctypes.PyDLL("libc.so.6", use_errno=True)
+"""Reference to standard C library, and we will hold the GIL during all function calls."""
 
 def _check_errno(result, func, arguments):
     assert func.restype in [c_int, c_void_p]
@@ -48,7 +51,7 @@ def _check_errno(result, func, arguments):
 # In my tests it is equal to long on both 32bit and 64bit x86 Linux.
 c_off_t = c_long
 
-clone = _libc.clone
+clone = _libc_with_GIL.clone # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
 clone.argtypes = [_ctypes.CFUNCTYPE(c_int), c_void_p, c_int, c_void_p] # fn, child_stack, flags, arg (varargs omitted)
 clone.errcheck = _check_errno
