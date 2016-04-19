@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bz2
 import collections
+import fnmatch
 import glob
 import logging
 import os
@@ -543,3 +544,6 @@ def _energy_difference(newEnergy, oldEnergy):
         if key in oldEnergy:
             diff[key] = newEnergy[key] - oldEnergy[key]
     return diff
+
+def wildcard_match(word, wildcard):
+  return word and fnmatch.fnmatch(word, wildcard)

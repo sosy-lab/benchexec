@@ -286,7 +286,7 @@ class Benchmark(object):
                                 [runSet.real_name for runSet in self.run_sets])
         elif config.selected_run_definitions:
             for selected in config.selected_run_definitions:
-                if not any((selected == run_set.real_name) for run_set in self.run_sets):
+                if not any(util.wildcard_match(run_set.real_name, selected) for run_set in self.run_sets):
                     logging.warning(
                         'The selected run definition "%s" is not present in the input file, '
                         'skipping it.',
@@ -400,7 +400,7 @@ class RunSet(object):
 
     def should_be_executed(self):
         return not self.benchmark.config.selected_run_definitions \
-            or self.real_name in self.benchmark.config.selected_run_definitions
+            or any(util.wildcard_match(self.real_name, run_definition) for run_definition in self.benchmark.config.selected_run_definitions)
 
 
     def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern):
