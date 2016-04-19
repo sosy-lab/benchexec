@@ -365,7 +365,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 pass # But if this fails, we don't care.
 
             try:
-                logging.debug("Child process of RunExecutor started in container with PID %d.",
+                logging.debug("Child: started in container with PID %d.",
                               container.get_my_pid_from_procfs())
                 try:
                     if not self._allow_network:
@@ -413,7 +413,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 # wait for grandchild and return its result
                 grandchild_result = self._wait_for_process(grandchild_proc.pid, args[0])
-                logging.debug("Process %s terminated with exit code %d.",
+                logging.debug("Child: process %s terminated with exit code %d.",
                               args[0], grandchild_result[0])
                 os.write(to_parent, pickle.dumps(grandchild_result))
                 os.close(to_parent)
@@ -434,12 +434,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             except OSError as e:
                 raise BenchExecException(
                     "Creating namespace for container mode failed: " + os.strerror(e.errno))
+            logging.debug("Parent: child process of RunExecutor with PID %d started.", child_pid)
 
             def check_child_exit_code():
                 """Check if the child process terminated cleanly and raise an error otherwise."""
                 child_exitcode, unused_child_rusage = self._wait_for_process(child_pid, args[0])
                 child_exitcode = util.ProcessExitCode.from_raw(child_exitcode)
-                logging.debug("Child process of RunExecutor with PID %d terminated with %s.",
+                logging.debug("Parent: child process of RunExecutor with PID %d terminated with %s.",
                               child_pid, child_exitcode)
 
                 if child_exitcode:
@@ -462,7 +463,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 check_child_exit_code()
                 assert False, "Child process of RunExecutor terminated cleanly but did not send expected data."
 
-            logging.debug("Executing %s in process with PID %d.", args[0], grandchild_pid)
+            logging.debug("Parent: executing %s in grand child with PID %d via child with PID %d.",
+                          args[0], grandchild_pid, child_pid)
 
             # start measurements
             cgroups.add_task(grandchild_pid)
