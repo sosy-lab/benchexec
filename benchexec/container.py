@@ -141,7 +141,7 @@ def execute_in_namespace(func, use_network_ns=True):
     child_func = ctypes.CFUNCTYPE(ctypes.c_int)(func)
 
     with allocate_stack() as stack:
-        pid = libc.clone(child_func, stack, flags)
+        pid = libc.clone(child_func, stack, flags, None)
     return pid
 
 def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):

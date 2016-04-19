@@ -50,7 +50,7 @@ c_off_t = c_long
 
 clone = _libc.clone
 """Create copy of current process, similar to fork()."""
-clone.argtypes = [_ctypes.CFUNCTYPE(c_int), c_void_p, c_int] # fn, child_stack, flags (varargs omitted)
+clone.argtypes = [_ctypes.CFUNCTYPE(c_int), c_void_p, c_int, c_void_p] # fn, child_stack, flags, arg (varargs omitted)
 clone.errcheck = _check_errno
 
 # /usr/include/linux/sched.h
