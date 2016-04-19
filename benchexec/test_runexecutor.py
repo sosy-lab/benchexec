@@ -499,7 +499,7 @@ class TestRunExecutorWithSudo(TestRunExecutor):
             self.assertIn(tmp_file, self.runexecutor.check_for_new_files_in_home(),
                           'runexecutor failed to detect new temporary file in home directory')
         finally:
-            subprocess.check_call(self.runexecutor._build_cmdline('rm', tmp_file))
+            subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
 
 
 class _StopRunThread(threading.Thread):
