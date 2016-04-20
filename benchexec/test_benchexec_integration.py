@@ -134,6 +134,27 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def test_simple_parallel(self):
         self.run_benchexec_and_compare_expected_files('--numOfThreads', '12')
 
+    def test_wildcard_tasks_1(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '*', tasks=['DTD files', 'Markdown files', 'XML files', 'Dummy tasks'])
+
+    def test_wildcard_tasks_2(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '* files', tasks=['DTD files', 'Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_3(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '*M* files', tasks=['Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_4(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '??? files', tasks=['DTD files', 'XML files'])
+
+    def test_wildcard_tasks_5(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '[MD]* files', tasks=['DTD files', 'Markdown files'])
+
+    def test_wildcard_tasks_6(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '[!D]*', tasks=['Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_7(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', 'D*', tasks=['DTD files', 'Dummy tasks'])
+
     def test_simple_compressed_results(self):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
