@@ -415,7 +415,7 @@ class RunSet(object):
             sourcefileSetName = sourcefilesTag.get("name")
             matchName = sourcefileSetName or str(index)
             if self.benchmark.config.selected_sourcefile_sets \
-                and matchName not in self.benchmark.config.selected_sourcefile_sets:
+                and not any(util.wildcard_match(matchName, sourcefile_set) for sourcefile_set in self.benchmark.config.selected_sourcefile_sets):
                     continue
 
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
@@ -436,7 +436,7 @@ class RunSet(object):
 
         if self.benchmark.config.selected_sourcefile_sets:
             for selected in self.benchmark.config.selected_sourcefile_sets:
-                if not any((selected == sourcefile_set.real_name) for sourcefile_set in blocks):
+                if not any(util.wildcard_match(sourcefile_set.real_name, selected) for sourcefile_set in blocks):
                     logging.warning(
                         'The selected tasks "%s" are not present in the input file, '
                         'skipping them.',
