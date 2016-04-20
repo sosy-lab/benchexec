@@ -356,8 +356,20 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         def child():
             """Setup everything inside the container, start the tool, and wait for result."""
             try:
-                logging.debug("Child: started in container with PID %d.",
+                logging.debug("Child: child process of RunExecutor with PID %d started",
                               container.get_my_pid_from_procfs())
+
+                # We want to avoid leaking file descriptors to the executed child.
+                # It is also nice if the child has only the minimal necessary file descriptors,
+                # to avoid keeping other pipes and files open, e.g., those that the parent
+                # uses to communicate with other containers (if containers are started in parallel).
+                # Thus we do not use the close_fds feature of subprocess.Popen,
+                # but do the same here manually.
+                # We keep the relevant ends of our pipes, and stdin/out/err of child and grandchild.
+                necessary_fds = {sys.stdin, sys.stdout, sys.stderr,
+                    to_parent, from_parent, stdin, stdout, stderr} - {None}
+                container.close_open_fds(keep_files=necessary_fds)
+
                 try:
                     if not self._allow_network:
                         container.activate_network_interface("lo")
@@ -365,10 +377,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return int(e.errno)
-
-                # Close pipe ends that are not necessary in (grand)child
-                os.close(from_grandchild)
-                os.close(to_grandchild)
 
                 try:
                     os.chdir(cwd)
@@ -382,7 +390,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                                         stdin=stdin,
                                         stdout=stdout, stderr=stderr,
                                         env=env,
-                                        close_fds=True,
+                                        close_fds=False,
                                         preexec_fn=grandchild)
                 except (EnvironmentError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
@@ -395,12 +403,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 container.drop_capabilities()
 
-                os.close(from_parent) # close unnecessary end of pipe
-
                 # Set up signal handlers to forward signals to grandchild
                 # (because we are PID 1, there is a special signal handling otherwise).
                 # cf. dumb-init project: https://github.com/Yelp/dumb-init
                 container.forward_all_signals(grandchild_proc.pid, args[0])
+
+                # Close other fds that were still necessary above.
+                container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent})
 
                 # wait for grandchild and return its result
                 grandchild_result = self._wait_for_process(grandchild_proc.pid, args[0])

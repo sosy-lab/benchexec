@@ -314,6 +314,29 @@ def forward_all_signals(target_pid, process_name):
         # (it may think we are in a different thread than the main thread).
         libc.signal(signum, forwarding_signal_handler)
 
+def close_open_fds(keep_files=[]):
+    """Close all open file descriptors except those in a given set.
+    @param keep_files: an iterable of file descriptors or file-like objects.
+    """
+    keep_fds = set()
+    for file in keep_files:
+        if isinstance(file, int):
+            keep_fds.add(file)
+        else:
+            try:
+                keep_fds.add(file.fileno())
+            except Exception:
+                pass
+
+    for fd in os.listdir("/proc/self/fd"):
+        fd = int(fd)
+        if fd not in keep_fds:
+            try:
+                os.close(fd)
+            except OSError:
+                # irrelevant and expected
+                # (the fd that was used by os.listdir() of course always fails)
+                pass
 
 def setup_container_system_config(basedir):
     """Create a minimal system configuration for use in a container.
