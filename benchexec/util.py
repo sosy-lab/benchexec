@@ -32,6 +32,7 @@ import glob
 import logging
 import os
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -547,3 +548,34 @@ def _energy_difference(newEnergy, oldEnergy):
 
 def wildcard_match(word, wildcard):
   return word and fnmatch.fnmatch(word, wildcard)
+
+
+def _debug_current_process(sig, current_frame):
+    """Interrupt running process, and provide a python prompt for interactive debugging.
+    This code is based on http://stackoverflow.com/a/133384/396730
+    """
+    # Import modules only if necessary, readline is for shell history support.
+    import code, traceback, readline, threading  # @UnresolvedImport @UnusedImport
+
+    d={'_frame':current_frame}         # Allow access to frame object.
+    d.update(current_frame.f_globals)  # Unless shadowed by global
+    d.update(current_frame.f_locals)
+
+    i = code.InteractiveConsole(d)
+    message  = "Signal received : entering python shell.\n"
+
+    threads = dict((thread.ident, thread) for thread in threading.enumerate())
+    current_thread = threading.current_thread()
+    for thread_id, frame in sys._current_frames().items():
+        if current_thread.ident != thread_id:
+            message += "\nTraceback of thread {}:\n".format(threads[thread_id])
+            message += ''.join(traceback.format_stack(frame))
+    message += "\nTraceback of current thread {}:\n".format(current_thread)
+    message += ''.join(traceback.format_stack(current_frame))
+    i.interact(message)
+
+def activate_debug_shell_on_signal():
+    """Install a signal handler for USR1 that dumps stack traces
+    and gives an interactive debugging shell.
+    """
+    signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler

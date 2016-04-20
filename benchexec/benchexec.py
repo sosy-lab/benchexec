@@ -103,7 +103,7 @@ class BenchExec(object):
                           help="XML file with benchmark definition")
         parser.add_argument("-d", "--debug",
                           action="store_true",
-                          help="Enable debug output")
+                          help="Enable debug output and a debugging helper on signal USR1")
 
         parser.add_argument("-r", "--rundefinition", dest="selected_run_definitions",
                           action="append",
@@ -212,6 +212,7 @@ class BenchExec(object):
         if self.config.debug:
             logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                                 level=logging.DEBUG)
+            util.activate_debug_shell_on_signal()
         else:
             logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                                 level=logging.INFO)
