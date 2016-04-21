@@ -108,13 +108,13 @@ class BenchExec(object):
         parser.add_argument("-r", "--rundefinition", dest="selected_run_definitions",
                           action="append",
                           help="Run only the specified RUN_DEFINITION from the benchmark definition file. "
-                                + "This option can be specified several times.",
+                                + "This option can be specified several times and can contain wildcards.",
                           metavar="RUN_DEFINITION")
 
         parser.add_argument("-t", "--tasks", dest="selected_sourcefile_sets",
                           action="append",
                           help="Run only the tasks from the tasks tag with TASKS as name. "
-                                + "This option can be specified several times.",
+                                + "This option can be specified several times and can contain wildcards.",
                           metavar="TASKS")
 
         parser.add_argument("-n", "--name",
