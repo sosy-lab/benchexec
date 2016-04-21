@@ -83,7 +83,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
           expected_files = []
         else:
           expected_files = ['logfiles.zip' if compress else 'logfiles']
-        print(rundefs, expected_files)
+
         if rundefs is None or len(rundefs) != 1:
           expected_files += ['results.txt']
         else:
