@@ -39,6 +39,7 @@ result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.3//EN'
 benchmark_test_name = 'benchmark-example-rand'
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
+benchmark_test_rundefs = None
 
 class BenchExecIntegrationTests(unittest.TestCase):
 
@@ -64,6 +65,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
     def run_benchexec_and_compare_expected_files(self, *args, name=None,
                                                  tasks=benchmark_test_tasks,
+                                                 rundefs=benchmark_test_rundefs,
                                                  test_name=benchmark_test_name,
                                                  test_file=benchmark_test_file,
                                                  compress=False):
@@ -76,9 +78,24 @@ class BenchExecIntegrationTests(unittest.TestCase):
         generated_files = set(os.listdir(self.tmp))
 
         xml_suffix = '.xml.bz2' if compress else '.xml'
-        expected_files = ['logfiles.zip' if compress else 'logfiles',
-                          'results.txt', 'results'+xml_suffix] \
-                       + ['results.'+files+xml_suffix for files in tasks]
+
+        if rundefs == []:
+          expected_files = []
+        else:
+          expected_files = ['logfiles.zip' if compress else 'logfiles']
+        print(rundefs, expected_files)
+        if rundefs is None or len(rundefs) != 1:
+          expected_files += ['results.txt']
+        else:
+          expected_files += ['results.' + rundefs[0] + '.txt']
+
+        if rundefs is None:
+          expected_files += ['results.'+task+xml_suffix for task in tasks]
+          expected_files += ['results'+xml_suffix]
+        else:
+          expected_files += ['results.'+rundef+'.'+task+xml_suffix for task in tasks for rundef in rundefs]
+          expected_files += ['results.'+rundef+xml_suffix for rundef in rundefs]
+
         if name is None:
             basename = test_name + '.2015-01-01_0000.'
         else:
