@@ -65,8 +65,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def run_benchexec_and_compare_expected_files(self, *args, name=None,
                                                  tasks=benchmark_test_tasks,
                                                  test_name=benchmark_test_name,
+                                                 test_file=benchmark_test_file,
                                                  compress=False):
-        self.run_cmd(*[benchexec, benchmark_test_file,
+        self.run_cmd(*[benchexec, test_file,
                        '--outputpath', self.tmp,
                        '--startTime', '2015-01-01 00:00',
                        ]
