@@ -36,6 +36,7 @@ benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
 result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.3//EN'
 
+benchmark_test_name = 'benchmark-example-rand'
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
 
@@ -61,7 +62,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
-    def run_benchexec_and_compare_expected_files(self, *args, tasks=benchmark_test_tasks, name=None,
+    def run_benchexec_and_compare_expected_files(self, *args, name=None,
+                                                 tasks=benchmark_test_tasks,
+                                                 test_name=benchmark_test_name,
                                                  compress=False):
         self.run_cmd(*[benchexec, benchmark_test_file,
                        '--outputpath', self.tmp,
@@ -76,9 +79,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
                           'results.txt', 'results'+xml_suffix] \
                        + ['results.'+files+xml_suffix for files in tasks]
         if name is None:
-            basename = 'benchmark-example-rand.2015-01-01_0000.'
+            basename = test_name + '.2015-01-01_0000.'
         else:
-            basename = 'benchmark-example-rand.' + name + '.2015-01-01_0000.'
+            basename = test_name + '.' + name + '.2015-01-01_0000.'
+
         expected_files = set(map(lambda x : basename + x, expected_files))
         self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
         # TODO find way to compare expected output to generated output
