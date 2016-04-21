@@ -155,6 +155,36 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def test_wildcard_tasks_7(self):
         self.run_benchexec_and_compare_expected_files('--tasks', 'D*', tasks=['DTD files', 'Dummy tasks'])
 
+    def test_wildcard_rundefinition_1(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options', 'other options'])
+
+    def test_wildcard_rundefinition_2(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options', 'other options'])
+
+    def test_wildcard_rundefinition_3(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?o* options',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options'])
+
+    def test_wildcard_rundefinition_4(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?[!o]*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['other options'])
+
+    def test_wildcard_rundefinition_5(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=[])
+
     def test_simple_compressed_results(self):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
