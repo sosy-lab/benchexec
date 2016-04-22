@@ -245,15 +245,7 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
         if option in existing_options:
             mountflags |= flag
 
-    try:
-        libc.mount(None, mountpoint, None, mountflags, None)
-    except OSError as e:
-        if e.errno == errno.EACCES and mountpoint.startswith(b"/run/user/"):
-            logging.debug(e)
-        elif e.errno == errno.ENOENT:
-            logging.debug(e)
-        else:
-            raise e
+    libc.mount(None, mountpoint, None, mountflags, None)
 
 def make_overlay_mount(mount, lower, upper, work):
     logging.debug("Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",

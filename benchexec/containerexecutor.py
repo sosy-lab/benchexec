@@ -682,20 +682,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             elif mode == DIR_READ_ONLY:
                 try:
                     container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
-                except OSError:
-                    # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
-                    # Linux does not support making read-only bind mounts in one step:
-                    # https://lwn.net/Articles/281157/ http://man7.org/linux/man-pages/man8/mount.8.html
-                    container.make_bind_mount(mountpoint, mount_path, recursive=True, private=True)
-                    container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                except OSError as e:
+                    if e.errno == errno.EACCES:
+                        logging.warning(
+                            "Cannot mount '%s', directory may be missing from container.",
+                            mountpoint.decode())
+                    else:
+                        # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
+                        # Linux does not support making read-only bind mounts in one step:
+                        # https://lwn.net/Articles/281157/ http://man7.org/linux/man-pages/man8/mount.8.html
+                        container.make_bind_mount(
+                            mountpoint, mount_path, recursive=True, private=True)
+                        container.remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
 
             elif mode == DIR_FULL_ACCESS:
                 try:
                     # Ensure directory is still a mountpoint by attempting to remount.
                     container.remount_with_additional_flags(mount_path, options, 0)
-                except OSError:
-                    # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
-                    container.make_bind_mount(mountpoint, mount_path, recursive=True, private=True)
+                except OSError as e:
+                    if e.errno == errno.EACCES:
+                        logging.warning(
+                            "Cannot mount '%s', directory may be missing from container.",
+                            mountpoint.decode())
+                    else:
+                        # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
+                        container.make_bind_mount(
+                            mountpoint, mount_path, recursive=True, private=True)
 
             elif mode is None:
                 pass
