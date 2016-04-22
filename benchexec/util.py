@@ -547,7 +547,7 @@ def _energy_difference(newEnergy, oldEnergy):
     return diff
 
 def wildcard_match(word, wildcard):
-  return word and fnmatch.fnmatch(word, wildcard)
+    return word and fnmatch.fnmatch(word, wildcard)
 
 
 def _debug_current_process(sig, current_frame):
