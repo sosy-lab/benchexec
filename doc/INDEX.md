@@ -39,6 +39,8 @@ BenchExec always uses the SI standard units:
 
 - **option**: A command-line argument for a tool.
 
+- **result file**: A file written by a tool during a run.
+
 - **run**: A single execution of a tool.
   It consists of the full command-line arguments (including input file)
   and the resource limits,

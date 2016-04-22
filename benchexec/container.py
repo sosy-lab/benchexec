@@ -350,3 +350,11 @@ def setup_container_system_config(basedir):
         util.write_file(content, etc, file)
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
+
+def is_container_system_config_file(file):
+    """Determine whether a given file is one of the files created by setup_container_system_config().
+    @param file: Absolute file path as string.
+    """
+    if not file.startswith("/etc/"):
+        return False
+    return file in [os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE]

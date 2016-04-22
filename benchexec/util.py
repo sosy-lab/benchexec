@@ -52,6 +52,16 @@ except AttributeError:
     read_monotonic_time = time.time
 
 
+try:
+    glob.iglob("/", recursive=True)
+except TypeError:
+    def maybe_recursive_iglob(pathname, recursive=False):
+        """Workaround for glob.iglob not accepting parameter recursive on Python <= 3.4"""
+        return glob.iglob(pathname)
+else:
+    maybe_recursive_iglob = glob.iglob
+
+
 ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
 
 _BYTE_FACTOR = 1000 # byte in kilobyte

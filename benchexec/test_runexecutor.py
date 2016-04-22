@@ -28,8 +28,10 @@ import tempfile
 import threading
 import time
 import unittest
+import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec import container
 from benchexec import containerexecutor
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
@@ -507,6 +509,11 @@ class TestRunExecutorWithSudo(TestRunExecutor):
 class TestRunExecutorWithContainer(TestRunExecutor):
 
     def setUp(self, *args, **kwargs):
+        try:
+            container.execute_in_namespace(lambda: 0)
+        except OSError as e:
+            self.skipTest("Namespaces not supported: {}".format(os.strerror(e.errno)))
+
         self.runexecutor = RunExecutor(
             use_namespaces=True,
             dir_modes={"/": containerexecutor.DIR_READ_ONLY,
@@ -515,7 +522,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
-        return super(TestRunExecutorWithContainer, self).execute_run(workingDir="/", *args, **kwargs)
+        return super(TestRunExecutorWithContainer, self).execute_run(workingDir="/tmp", *args, **kwargs)
 
     def test_home_and_tmp_is_separate(self):
         self.skipTest("not relevant in container")
@@ -525,6 +532,54 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
+
+    def check_result_files(self, shell_cmd, result_files_pattern, expected_result_files):
+        output_dir = tempfile.mkdtemp("", "output_")
+        try:
+            result, output = self.execute_run("/bin/sh", "-c", shell_cmd,
+                                              output_dir=output_dir,
+                                              result_files_pattern=result_files_pattern)
+            self.assertNotIn("terminationreason", result)
+            self.assertEqual(result["exitcode"], 0,
+                "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}"
+                    .format(" ".join(shell_cmd), result, "\n".join(output)))
+            result_files = []
+            for root, unused_dirs, files in os.walk(output_dir):
+                for file in files:
+                    result_files.append(os.path.relpath(os.path.join(root, file), output_dir))
+            expected_result_files.sort()
+            result_files.sort()
+            self.assertListEqual(result_files, expected_result_files,
+                "\nList of retrieved result files differs from expected list,\n"
+                "result was {!r},\noutput was\n{}".format(result, "\n".join(output)))
+        finally:
+            shutil.rmtree(output_dir, ignore_errors=True)
+
+    def test_result_file_simple(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ".", ["TEST_FILE"])
+
+    def test_result_file_recursive(self):
+        self.check_result_files("mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE", ".",
+                               ["TEST_DIR/TEST_FILE"])
+
+    def test_result_file_multiple(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; echo TEST_TOKEN > TEST_FILE2", ".",
+                               ["TEST_FILE", "TEST_FILE2"])
+
+    def test_result_file_symlink(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; ln -s TEST_FILE TEST_LINK", ".",
+                               ["TEST_FILE"])
+
+    def test_result_file_no_match(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", "NO_MATCH", [])
+
+    def test_result_file_partial_match(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE",
+            "TEST_DIR", ["TEST_DIR/TEST_FILE"])
+
+    def test_result_file_absolute_pattern(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", "/", ["tmp/TEST_FILE"])
 
 
 class _StopRunThread(threading.Thread):

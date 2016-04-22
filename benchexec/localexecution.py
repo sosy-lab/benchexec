@@ -253,7 +253,10 @@ class _Worker(threading.Thread):
         logging.debug('Command line of run is %s', args)
         run_result = \
             self.run_executor.execute_run(
-                args, run.log_file,
+                args,
+                output_filename=run.log_file,
+                output_dir=run.result_files_folder,
+                result_files_pattern=benchmark.result_files_pattern,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
                 softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
                 cores=self.my_cpus,

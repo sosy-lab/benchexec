@@ -103,6 +103,7 @@ def main(argv=None):
     container_on_args.add_argument("--no-container", action='store_true',
         help="disable use of containers for isolation of runs (current default)")
     containerexecutor.add_basic_container_args(container_args)
+    containerexecutor.add_container_output_args(container_args)
 
     environment_args = parser.add_argument_group("optional arguments for run environment")
     environment_args.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
@@ -126,8 +127,10 @@ def main(argv=None):
         if options.user is not None:
             sys.exit("Cannot use --user in combination with --container.")
         container_options = containerexecutor.handle_basic_container_args(options)
+        container_output_options = containerexecutor.handle_container_output_args(options)
     else:
         container_options = {}
+        container_output_options = {}
         if not options.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
@@ -192,7 +195,12 @@ def main(argv=None):
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
     logging.info('Starting command %s', formatted_args)
-    logging.info('Writing output to %s', options.output)
+    if options.container and options.output_directory and options.result_files:
+        logging.info('Writing output to %s and result files to %s',
+                     util.escape_string_shell(options.output),
+                     util.escape_string_shell(options.output_directory))
+    else:
+        logging.info('Writing output to %s', util.escape_string_shell(options.output))
 
     # actual run execution
     try:
@@ -209,7 +217,8 @@ def main(argv=None):
                             cgroupValues=cgroup_values,
                             environments=env,
                             workingDir=options.dir,
-                            maxLogfileSize=options.maxOutputSize)
+                            maxLogfileSize=options.maxOutputSize,
+                            **container_output_options)
     finally:
         if stdin:
             stdin.close()
@@ -646,7 +655,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
-                   cgroupValues={}):
+                   cgroupValues={},
+                   **kwargs):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -663,6 +673,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
+        @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
         # Check argument values and call the actual method _execute()
@@ -736,7 +747,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
-                                 environments, workingDir, maxLogfileSize)
+                                 environments, workingDir, maxLogfileSize,
+                                 **kwargs)
 
         except BenchExecException as e:
             logging.critical("Cannot execute '%s': %s.",
@@ -754,7 +766,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
-                 environments, workingDir, max_output_size):
+                 environments, workingDir, max_output_size,
+                 **kwargs):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
@@ -805,7 +818,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
-                parent_cleanup_fn=postParent)
+                parent_cleanup_fn=postParent,
+                **kwargs)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)

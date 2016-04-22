@@ -42,6 +42,7 @@ class TestResult(unittest.TestCase):
         # lambdas are simple dummy objects
         runSet = lambda: None
         runSet.log_folder = '.'
+        runSet.result_files_folder = '.'
         runSet.options = []
         runSet.real_name = None
         runSet.propertyfile = None

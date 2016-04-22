@@ -30,6 +30,8 @@ The features of container mode are:
   not even communicating with processes on the same host (configurable).
 - File-system access can be restricted,
   and write accesses can be redirected such that they not affect the host filesystem.
+- Result files produced by the tool in the container can be collected and copied
+  to an output directory afterwards.
 
 Note that while BenchExec containers rely on the same kernel features as similar solutions,
 they are not meant as a secure solution for restricting potentially malicious applications.
@@ -104,7 +106,8 @@ and to also hide any directories that might contain cache or configuration files
 that could unintentionally influence the run (like the home directory).
 
 Writes to directories in the hidden and overlay modes will be stored in a temporary directory
-on the host. In the future, it will be possible to access these files after the run.
+on the host and the produced result files will be copied to an output directory after the run.
+Please see below for how to customize this.
 We do not use a RAM disk for storing these files as this would allow the executed tool
 to use an arbitrary amount of memory and circumvent the memory limit.
 
@@ -126,6 +129,39 @@ which also lets the container use the same user list as the host.
 Note that this feature is only available with an overlay mount for `/etc`,
 and thus a container that uses a different access mode for this directory
 will have `--keep-system-config` set by default.
+
+
+## Retrieving Result Files
+Files written by the executed tool to directories in the hidden or overlay modes
+are not visible on the host filesystem.
+In order to allow the user to access these files after the benchmarking,
+BenchExec copies them into an output directory.
+Note that files written to a directory in the full-access mode will not be affected by this.
+A pattern matching the following rules can be given
+to select only a subset of created files to be copied:
+- If the pattern is a relative path (does not start with `/`),
+  it is interpreted as relative to the working directory of the tool,
+  and the directory tree that is created in the output directory will also start at this point.
+- Absolute paths are also valid as patterns,
+  and in this case the directory tree in the output directory
+  will start at the root of the filesystem.
+- Relative patterns that traverse upwards out of the working directory (e.g., `..`) are not allowed.
+- The shell wildcards `?` and `*` are supported,
+  and if you use Python 3.5 or newer also the recursive wildcard `**`.
+- If a directory is matched by the pattern, all files in the directory will be copied recursively.
+- Only regular files are copied; symlinks, empty directories, etc. are ignored.
+
+This means that if you want to retrieve all files written by the tool below its working directory,
+use the pattern `.` or `*` (this is the default).
+If you want to retrieve all files written anywhere use `/`.
+For disabling the retrieval of result files altogether, use the empty string as pattern.
+
+For `containerexec` and `runexec`, the command-line parameters
+`--result-files` and `--output-directory` can be used
+to specify the pattern for matching result files and the directory where they should be placed.
+For `benchexec`, the pattern is given with a `<resultfiles>` tag
+in the benchmark-definition XML file,
+and the result files are placed in a directory besides the result XML file.
 
 
 ## Common Problems

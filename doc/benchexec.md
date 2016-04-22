@@ -70,6 +70,10 @@ that is in the same directory as each input file, use
 
     <option name="-f">${inputfile_path}/additional-file.txt</option>
 
+The tag `<resultfiles>` inside the `<benchmark>` tag specifies
+[which files should be copied to the output directory](container.md#retrieving-result-files)
+(only supported in [container mode](container.md)).
+
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:
