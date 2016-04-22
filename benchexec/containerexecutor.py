@@ -61,7 +61,8 @@ def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--keep-tmp", action="store_true",
         help="do not use a private /tmp for process (same as '--full-access-dir /tmp')")
     argument_parser.add_argument("--hidden-dir", metavar="DIR", action="append", default=[],
-        help="hide this directory by mounting an empty directory over it (default for '/tmp')")
+        help="hide this directory by mounting an empty directory over it "
+            "(default for '/tmp' and '/run')")
     argument_parser.add_argument("--read-only-dir", metavar="DIR", action="append", default=[],
         help="make this directory visible read-only in the container")
     argument_parser.add_argument("--overlay-dir", metavar="DIR", action="append", default=[],
@@ -104,6 +105,8 @@ def handle_basic_container_args(options):
 
     if not "/" in dir_modes:
         dir_modes["/"] = DIR_OVERLAY
+    if not "/run" in dir_modes:
+        dir_modes["/run"] = DIR_HIDDEN
 
     if options.container_system_config:
         if dir_modes.get("/etc", dir_modes["/"]) != DIR_OVERLAY:
@@ -215,7 +218,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def __init__(self, use_namespaces=True,
                  uid=None, gid=None,
                  network_access=False,
-                 dir_modes={"/": DIR_OVERLAY},
+                 dir_modes={"/": DIR_OVERLAY, "/run": DIR_HIDDEN, "/tmp": DIR_HIDDEN},
                  container_system_config=True,
                  *args, **kwargs):
         """Create instance.
