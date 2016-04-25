@@ -71,7 +71,7 @@ def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--full-access-dir", metavar="DIR", action="append", default=[],
         help="give full access (read/write) to this host directory to processes inside container")
 
-def handle_basic_container_args(options):
+def handle_basic_container_args(options, parser):
     """Handle the options specified by add_basic_container_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor constructor
     """
@@ -80,11 +80,11 @@ def handle_basic_container_args(options):
     def handle_dir_mode(path, mode):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
-            sys.exit(
+            parser.error(
                 "Cannot specify directory mode for '{}' because it does not exist or is no directory."
                 .format(path))
         if path in dir_modes:
-            sys.exit("Cannot specify multiple directory modes for '{}'.".format(path))
+            parser.error("Cannot specify multiple directory modes for '{}'.".format(path))
         dir_modes[path] = mode
 
     for path in options.hidden_dir:
@@ -98,7 +98,7 @@ def handle_basic_container_args(options):
 
     if options.keep_tmp:
         if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
-            sys.exit("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
+            parser.error("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         dir_modes["/tmp"] = DIR_FULL_ACCESS
     elif not "/tmp" in dir_modes:
         dir_modes["/tmp"] = DIR_HIDDEN
@@ -136,7 +136,7 @@ def add_container_output_args(argument_parser):
         help="pattern for specifying which result files should be copied to the output directory "
             "(default: '.')")
 
-def handle_container_output_args(options):
+def handle_container_output_args(options, parser):
     """Handle the options specified by add_container_output_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor.execute_run()
     """
@@ -144,13 +144,13 @@ def handle_container_output_args(options):
         result_files_patterns = [os.path.normpath(p) for p in options.result_files if p]
         for pattern in result_files_patterns:
             if pattern.startswith(".."):
-                sys.exit("Invalid relative result-files pattern '{}'.".format(pattern))
+                parser.error("Invalid relative result-files pattern '{}'.".format(pattern))
     else:
         result_files_patterns = ["."]
 
     output_dir = options.output_directory
     if os.path.exists(output_dir) and not os.path.isdir(output_dir):
-        sys.exit("Output directory '{}' must not refer to an existing file.".format(output_dir))
+        parser.error("Output directory '{}' must not refer to an existing file.".format(output_dir))
     return {
         'output_dir': output_dir,
         'result_files_patterns': result_files_patterns,
@@ -184,13 +184,13 @@ def main(argv=None):
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
-    baseexecutor.handle_basic_executor_options(options)
-    container_options = handle_basic_container_args(options)
-    container_output_options = handle_container_output_args(options)
+    baseexecutor.handle_basic_executor_options(options, parser)
+    container_options = handle_basic_container_args(options, parser)
+    container_output_options = handle_container_output_args(options, parser)
 
     if options.root:
         if options.uid is not None or options.gid is not None:
-            sys.exit("Cannot combine option --root with --uid/--gid")
+            parser.error("Cannot combine option --root with --uid/--gid")
         options.uid = 0
         options.gid = 0
 

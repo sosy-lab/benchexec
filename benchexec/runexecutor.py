@@ -121,13 +121,13 @@ def main(argv=None):
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
-    baseexecutor.handle_basic_executor_options(options)
+    baseexecutor.handle_basic_executor_options(options, parser)
 
     if options.container:
         if options.user is not None:
             sys.exit("Cannot use --user in combination with --container.")
-        container_options = containerexecutor.handle_basic_container_args(options)
-        container_output_options = containerexecutor.handle_container_output_args(options)
+        container_options = containerexecutor.handle_basic_container_args(options, parser)
+        container_output_options = containerexecutor.handle_container_output_args(options, parser)
     else:
         container_options = {}
         container_output_options = {}
