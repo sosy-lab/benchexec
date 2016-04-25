@@ -256,7 +256,7 @@ class _Worker(threading.Thread):
                 args,
                 output_filename=run.log_file,
                 output_dir=run.result_files_folder,
-                result_files_pattern=benchmark.result_files_pattern,
+                result_files_patterns=benchmark.result_files_patterns,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
                 softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
                 cores=self.my_cpus,

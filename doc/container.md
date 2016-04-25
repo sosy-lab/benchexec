@@ -137,11 +137,13 @@ are not visible on the host filesystem.
 In order to allow the user to access these files after the benchmarking,
 BenchExec copies them into an output directory.
 Note that files written to a directory in the full-access mode will not be affected by this.
-A pattern matching the following rules can be given
+Patterns matching the following rules can be given
 to select only a subset of created files to be copied:
+- A file is retrieved if any of the given patterns match it.
 - If the pattern is a relative path (does not start with `/`),
-  it is interpreted as relative to the working directory of the tool,
-  and the directory tree that is created in the output directory will also start at this point.
+  it is interpreted as relative to the working directory of the tool.
+  If all given patterns are relative,
+  the directory tree that is created in the output directory will also start at this point.
 - Absolute paths are also valid as patterns,
   and in this case the directory tree in the output directory
   will start at the root of the filesystem.
@@ -158,8 +160,8 @@ For disabling the retrieval of result files altogether, use the empty string as 
 
 For `containerexec` and `runexec`, the command-line parameters
 `--result-files` and `--output-directory` can be used
-to specify the pattern for matching result files and the directory where they should be placed.
-For `benchexec`, the pattern is given with a `<resultfiles>` tag
+to specify the pattern(s) for matching result files and the directory where they should be placed.
+For `benchexec`, the patterns are given within `<resultfiles>` tags
 in the benchmark-definition XML file,
 and the result files are placed in a directory besides the result XML file.
 

@@ -132,7 +132,7 @@ def add_container_output_args(argument_parser):
     """
     argument_parser.add_argument("--output-directory", metavar="DIR", default="output.files",
         help="target directory for result files (default: './output.files')")
-    argument_parser.add_argument("--result-files", metavar="PATTERN", default=".",
+    argument_parser.add_argument("--result-files", metavar="PATTERN", action="append", default=[],
         help="pattern for specifying which result files should be copied to the output directory "
             "(default: '.')")
 
@@ -140,16 +140,20 @@ def handle_container_output_args(options):
     """Handle the options specified by add_container_output_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor.execute_run()
     """
-    result_files_pattern = os.path.normpath(options.result_files)
-    if result_files_pattern.startswith(".."):
-        sys.exit("Invalid relative output-files pattern '{}'.".format(result_files_pattern))
+    if options.result_files:
+        result_files_patterns = [os.path.normpath(p) for p in options.result_files if p]
+        for pattern in result_files_patterns:
+            if pattern.startswith(".."):
+                sys.exit("Invalid relative result-files pattern '{}'.".format(pattern))
+    else:
+        result_files_patterns = ["."]
 
     output_dir = options.output_directory
     if os.path.exists(output_dir) and not os.path.isdir(output_dir):
         sys.exit("Output directory '{}' must not refer to an existing file.".format(output_dir))
     return {
         'output_dir': output_dir,
-        'result_files_pattern': result_files_pattern,
+        'result_files_patterns': result_files_patterns,
         }
 
 
@@ -274,14 +278,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, workingDir=None, output_dir=None, result_files_pattern=None):
+    def execute_run(self, args, workingDir=None, output_dir=None, result_files_patterns=[]):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
         @param args: the command line to run
         @param workingDir: None or a directory which the execution should use as working directory
         @param output_dir: the directory where to write result files (required if result_files_pattern)
-        @param result_files_pattern: a pattern of files to retrieve as result files
+        @param result_files_patterns: a list of patterns of files to retrieve as result files
         """
         # preparations
         temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
@@ -296,7 +300,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 stdin=None, stdout=None, stderr=None,
                 env=self._env, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
-                output_dir=output_dir, result_files_pattern=result_files_pattern,
+                output_dir=output_dir, result_files_patterns=result_files_patterns,
                 child_setup_fn=lambda: None,
                 parent_setup_fn=lambda: None,
                 parent_cleanup_fn=id)
@@ -319,27 +323,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # cleanup steps that are only relevant in case of success
         return util.ProcessExitCode.from_raw(returnvalue)
 
-    def _start_execution(self, output_dir=None, result_files_pattern=None, *args, **kwargs):
+    def _start_execution(self, output_dir=None, result_files_patterns=[], *args, **kwargs):
         if not self._use_namespaces:
             return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
         else:
-            if result_files_pattern:
+            if result_files_patterns:
                 if not output_dir:
                     raise ValueError("Output directory needed for retaining result files.")
-                result_files_pattern = os.path.normpath(result_files_pattern)
-                if result_files_pattern.startswith(".."):
-                    raise ValueError(
-                        "Invalid relative output-files pattern '{}'".format(result_files_pattern))
+                for pattern in result_files_patterns:
+                    if not pattern:
+                        raise ValueError("Invalid empty result-files pattern in {}"
+                                         .format(result_files_patterns))
+
+                    pattern = os.path.normpath(pattern)
+                    if pattern.startswith(".."):
+                        raise ValueError("Invalid relative result-files pattern '{}'."
+                                         .format(pattern))
 
             return self._start_execution_in_container(
-                output_dir=output_dir, result_files_pattern=result_files_pattern, *args, **kwargs)
+                output_dir=output_dir, result_files_patterns=result_files_patterns, *args, **kwargs)
 
 
     # --- container implementation with namespaces ---
 
     def _start_execution_in_container(
             self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
-            output_dir, result_files_pattern,
+            output_dir, result_files_patterns,
             parent_setup_fn, child_setup_fn, parent_cleanup_fn):
         """Execute the given command and measure its resource usage similarly to super()._start_execution(),
         but inside a container implemented using Linux namespaces.
@@ -547,8 +556,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(from_grandchild_copy)
             check_child_exit_code()
 
-            if result_files_pattern:
-                self._transfer_output_files(temp_dir, cwd, output_dir, result_files_pattern)
+            if result_files_patterns:
+                self._transfer_output_files(temp_dir, cwd, output_dir, result_files_patterns)
 
             exitcode, ru_child = pickle.loads(received)
             return exitcode, ru_child, parent_cleanup
@@ -728,23 +737,19 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         os.chroot(mount_base)
 
 
-    def _transfer_output_files(self, temp_dir, working_dir, output_dir, pattern):
+    def _transfer_output_files(self, temp_dir, working_dir, output_dir, patterns):
         """Transfer files created by the tool in the container to the output directory.
         @param temp_dir: The base directory under which all our directories are created.
         @param working_dir: The absolute working directory of the tool in the container.
         @param output_dir: the directory where to write result files
-        @param pattern: a pattern of files to retrieve as result files
+        @param patterns: a list of patterns of files to retrieve as result files
         """
-        assert output_dir and pattern
+        assert output_dir and patterns
         tool_output_dir = os.path.join(temp_dir, "temp")
-        if os.path.isabs(pattern):
+        if any(os.path.isabs(pattern) for pattern in patterns):
             base_dir = tool_output_dir
-            pattern = tool_output_dir + pattern
         else:
             base_dir = tool_output_dir + working_dir
-            pattern = tool_output_dir + os.path.join(working_dir, pattern)
-        # normalize pattern for preventing directory traversal attacks:
-        pattern = os.path.normpath(pattern)
 
         def transfer_file(abs_file):
             assert abs_file.startswith(base_dir)
@@ -762,21 +767,28 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 except EnvironmentError:
                     pass # exist_ok=True not supported on Python 2
                 try:
-                    # copy would work, too, but move is more efficient
-                    # in case both abs_file and target are on the same filesystem
+                    # move is more efficient than copy in case both abs_file and target
+                    # are on the same filesystem, and it avoids matching the file again
+                    # with the next pattern.
                     shutil.move(abs_file, target)
                 except EnvironmentError as e:
                     logging.warning("Could not retrieve output file '%s': %s", file, e)
 
-        for abs_file in util.maybe_recursive_iglob(pattern):
-            # Recursive matching is only supported starting with Python 3.5,
-            # so we allow the user to match directories and transfer them recursively.
-            if os.path.isdir(abs_file):
-                for root, unused_dirs, files in os.walk(abs_file):
-                    for file in files:
-                        transfer_file(os.path.join(root, file))
+        for pattern in patterns:
+            if os.path.isabs(pattern):
+                pattern = tool_output_dir + pattern
             else:
-                transfer_file(abs_file)
+                pattern = tool_output_dir + os.path.join(working_dir, pattern)
+            # normalize pattern for preventing directory traversal attacks:
+            for abs_file in util.maybe_recursive_iglob(os.path.normpath(pattern)):
+                # Recursive matching is only supported starting with Python 3.5,
+                # so we allow the user to match directories and transfer them recursively.
+                if os.path.isdir(abs_file):
+                    for root, unused_dirs, files in os.walk(abs_file):
+                        for file in files:
+                            transfer_file(os.path.join(root, file))
+                else:
+                    transfer_file(abs_file)
 
 
 if __name__ == '__main__':

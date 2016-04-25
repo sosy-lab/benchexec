@@ -533,12 +533,12 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
 
-    def check_result_files(self, shell_cmd, result_files_pattern, expected_result_files):
+    def check_result_files(self, shell_cmd, result_files_patterns, expected_result_files):
         output_dir = tempfile.mkdtemp("", "output_")
         try:
             result, output = self.execute_run("/bin/sh", "-c", shell_cmd,
                                               output_dir=output_dir,
-                                              result_files_pattern=result_files_pattern)
+                                              result_files_patterns=result_files_patterns)
             self.assertNotIn("terminationreason", result)
             self.assertEqual(result["exitcode"], 0,
                 "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}"
@@ -556,30 +556,64 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             shutil.rmtree(output_dir, ignore_errors=True)
 
     def test_result_file_simple(self):
-        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ".", ["TEST_FILE"])
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["."], ["TEST_FILE"])
 
     def test_result_file_recursive(self):
-        self.check_result_files("mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE", ".",
+        self.check_result_files("mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE", ["."],
                                ["TEST_DIR/TEST_FILE"])
 
     def test_result_file_multiple(self):
-        self.check_result_files("echo TEST_TOKEN > TEST_FILE; echo TEST_TOKEN > TEST_FILE2", ".",
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; echo TEST_TOKEN > TEST_FILE2", ["."],
                                ["TEST_FILE", "TEST_FILE2"])
 
     def test_result_file_symlink(self):
-        self.check_result_files("echo TEST_TOKEN > TEST_FILE; ln -s TEST_FILE TEST_LINK", ".",
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; ln -s TEST_FILE TEST_LINK", ["."],
                                ["TEST_FILE"])
 
     def test_result_file_no_match(self):
-        self.check_result_files("echo TEST_TOKEN > TEST_FILE", "NO_MATCH", [])
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["NO_MATCH"], [])
+
+    def test_result_file_no_pattern(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", [], [])
+
+    def test_result_file_empty_pattern(self):
+        self.assertRaises(ValueError,
+            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], []))
 
     def test_result_file_partial_match(self):
         self.check_result_files(
             "echo TEST_TOKEN > TEST_FILE; mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE",
-            "TEST_DIR", ["TEST_DIR/TEST_FILE"])
+            ["TEST_DIR"], ["TEST_DIR/TEST_FILE"])
+
+    def test_result_file_multiple_patterns(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; "
+            "echo TEST_TOKEN > TEST_FILE2; "
+            "mkdir TEST_DIR; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_FILE; ",
+            ["TEST_FILE", "TEST_DIR/TEST_FILE"], ["TEST_FILE", "TEST_DIR/TEST_FILE"])
+
+    def test_result_file_wildcard(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; "
+            "echo TEST_TOKEN > TEST_FILE2; "
+            "echo TEST_TOKEN > TEST_NOFILE; ",
+            ["TEST_FILE*"], ["TEST_FILE", "TEST_FILE2"])
 
     def test_result_file_absolute_pattern(self):
-        self.check_result_files("echo TEST_TOKEN > TEST_FILE", "/", ["tmp/TEST_FILE"])
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["/"], ["tmp/TEST_FILE"])
+
+    def test_result_file_absolute_and_pattern(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE",
+            ["TEST_FILE", "/tmp/TEST_DIR", ], ["tmp/TEST_FILE", "tmp/TEST_DIR/TEST_FILE"])
+
+    def test_result_file_relative_traversal(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../TEST_FILE"], ["TEST_FILE"])
+
+    def test_result_file_illegal_relative_traversal(self):
+        self.assertRaises(ValueError,
+            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []))
 
 
 class _StopRunThread(threading.Thread):

@@ -254,13 +254,16 @@ class Benchmark(object):
         # get requirements
         self.requirements = Requirements(rootTag.findall("require"), self.rlimits, config)
 
-        self.result_files_pattern = "."
-        resultFilesTags = rootTag.findall("resultfiles")
-        if resultFilesTags:
-            if len(resultFilesTags) > 1:
-                logging.warning("Benchmark file has multiple <resultfiles> tags, "
-                                "ignoring all but the first.")
-            self.result_files_pattern = resultFilesTags[0].text
+        result_files_tags = rootTag.findall("resultfiles")
+        if result_files_tags:
+            self.result_files_patterns = [
+                os.path.normpath(p.text) for p in result_files_tags if p.text]
+            for pattern in self.result_files_patterns:
+                if pattern.startswith(".."):
+                    sys.exit("Invalid relative result-files pattern '{}'.".format(pattern))
+        else:
+            # default is "everything below current directory"
+            self.result_files_patterns = ["."]
 
         # get benchmarks
         self.run_sets = []
