@@ -1470,7 +1470,8 @@ def main(args=None):
         sys.exit('table-generator needs Python 3 to run.')
     signal.signal(signal.SIGINT, sigint_handler)
 
-    options = create_argument_parser().parse_args((args or sys.argv)[1:])
+    arg_parser = create_argument_parser()
+    options = arg_parser.parse_args((args or sys.argv)[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",
                         level=logging.WARNING if options.quiet else logging.INFO)
@@ -1496,8 +1497,7 @@ def main(args=None):
 
     if options.xmltablefile:
         if options.tables:
-            logging.error("Invalid additional arguments '%s'.", " ".join(options.tables))
-            exit(1)
+            arg_parser.error("Invalid additional arguments '{}'.".format(" ".join(options.tables)))
         runSetResults = parse_table_definition_file(options.xmltablefile, options)
         if not name:
             name = basename_without_ending(options.xmltablefile)

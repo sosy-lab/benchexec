@@ -161,11 +161,11 @@ def main(argv=None):
         stdin = sys.stdin
     elif options.input is not None:
         if options.input == options.output:
-            sys.exit("Input and output files cannot be the same.")
+            parser.error("Input and output files cannot be the same.")
         try:
             stdin = open(options.input, 'rt')
         except IOError as e:
-            sys.exit(e)
+            parser.error(e)
     else:
         stdin = None
 
@@ -178,8 +178,9 @@ def main(argv=None):
             if not subsystem or not option:
                 raise ValueError()
         except ValueError:
-            sys.exit('Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'
-                     .format(arg))
+            parser.error(
+                'Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'
+                    .format(arg))
         cgroup_values[(subsystem, option)] = value
         cgroup_subsystems.add(subsystem)
 
