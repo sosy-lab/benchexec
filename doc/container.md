@@ -43,13 +43,14 @@ they are not meant as a secure solution for restricting potentially malicious ap
 Container mode uses two kernel features:
 
 - **User Namespaces**: This is typically available in Linux 3.8 or newer,
-  and most distros enable it by default.
+  and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
   Debian disables this feature for regular users, so the system administrator needs to enable it
   with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
   Arch Linux has the feature [disabled completely](https://bugs.archlinux.org/task/36969).
 
-- **Overlay Filesystem**: This is typically available in Linux 3.18 or newer.
+- **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
+  (kernel option `CONFIG_OVERLAY_FS`).
   However, it seems that only Ubuntu allows regular users to create such mounts in a container.
   Users of other distributions can still use container mode, but have to choose a different mode
   of mounting the file systems in the container, e.g., with `--read-only-dir /`.
