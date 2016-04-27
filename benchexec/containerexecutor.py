@@ -71,20 +71,21 @@ def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--full-access-dir", metavar="DIR", action="append", default=[],
         help="give full access (read/write) to this host directory to processes inside container")
 
-def handle_basic_container_args(options, parser):
+def handle_basic_container_args(options, parser=None):
     """Handle the options specified by add_basic_container_args().
     @return: a dict that can be used as kwargs for the ContainerExecutor constructor
     """
     dir_modes = {}
+    error_fn = parser.error if parser else sys.exit
 
     def handle_dir_mode(path, mode):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
-            parser.error(
+            error_fn(
                 "Cannot specify directory mode for '{}' because it does not exist or is no directory."
                 .format(path))
         if path in dir_modes:
-            parser.error("Cannot specify multiple directory modes for '{}'.".format(path))
+            error_fn("Cannot specify multiple directory modes for '{}'.".format(path))
         dir_modes[path] = mode
 
     for path in options.hidden_dir:
@@ -98,7 +99,7 @@ def handle_basic_container_args(options, parser):
 
     if options.keep_tmp:
         if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
-            parser.error("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
+            error_fn("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         dir_modes["/tmp"] = DIR_FULL_ACCESS
     elif not "/tmp" in dir_modes:
         dir_modes["/tmp"] = DIR_HIDDEN
