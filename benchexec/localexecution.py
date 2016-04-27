@@ -43,9 +43,6 @@ STOPPED_BY_INTERRUPT = False
 
 
 def init(config, benchmark):
-    benchmark.executable = benchmark.tool.executable()
-    benchmark.tool_version = benchmark.tool.version(benchmark.executable)
-
     config.containerargs = {}
     if config.container:
         if config.users is not None:
@@ -69,6 +66,9 @@ def init(config, benchmark):
                             "Please make sure to not interfere with somebody else's benchmarks.")
     except OSError:
         pass # this does not work on Windows
+
+    benchmark.executable = benchmark.tool.executable()
+    benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
 def get_system_info():
     return systeminfo.SystemInfo()
