@@ -29,7 +29,7 @@ The features of container mode are:
 - Network access is not possible from the container,
   not even communicating with processes on the same host (configurable).
 - File-system access can be restricted,
-  and write accesses can be redirected such that they not affect the host filesystem.
+  and write accesses can be redirected such that they do not affect the host filesystem.
 - Result files produced by the tool in the container can be collected and copied
   to an output directory afterwards.
 
@@ -71,7 +71,7 @@ If your kernel fulfills these requirements, no further setup or permissions are 
 This section describes how BenchExec configures the container, and how it can be customized.
 
 ### Directory Access Modes
-The directory tree in the container is based on the directory tree of the host systems,
+The directory tree in the container is based on the directory tree of the host system,
 but BenchExec supports isolating the container by preventing read or write access to certain directories.
 For each directory in the container one of the following four access modes can be given:
 
@@ -93,9 +93,9 @@ Directory modes are applied recursively,
 i.e., for all subdirectories which do not have a mode specified explicitly.
 For the overlay mode, please note the system requirements mentioned above.
 
-The default configuration is `--overlay-dir / --hidden-dir /tmp`,
-i.e., to mount an overlay filesystem over all directories except for `/tmp`,
-which is replaced by an empty directory.
+The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
+i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,
+which are replaced by empty directories.
 To disable the default overlay mount and replace it by e.g. read-only access,
 specify `--read-only-dir /`.
 
@@ -173,7 +173,7 @@ Note that for investigating container-related problems, it can be easier to star
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
 #### `Cannot execute ...: Creating namespace for container mode failed`
-Probably your kernel does not support user names, please check the system requirements above.
+Probably your kernel does not support unprivileged user namespaces, please check the system requirements above.
 On Debian, please ask your system administrator to enable them for you.
 Note that you cannot nest BenchExec containers currently,
 and using them inside other container solutions such as Docker is untested.
