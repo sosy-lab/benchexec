@@ -80,21 +80,21 @@ class BenchExecIntegrationTests(unittest.TestCase):
         xml_suffix = '.xml.bz2' if compress else '.xml'
 
         if rundefs == []:
-          expected_files = []
+            expected_files = []
         else:
-          expected_files = ['logfiles.zip' if compress else 'logfiles']
+            expected_files = ['logfiles.zip' if compress else 'logfiles']
 
         if rundefs is None or len(rundefs) != 1:
-          expected_files += ['results.txt']
+            expected_files += ['results.txt']
         else:
-          expected_files += ['results.' + rundefs[0] + '.txt']
+            expected_files += ['results.' + rundefs[0] + '.txt']
 
         if rundefs is None:
-          expected_files += ['results.'+task+xml_suffix for task in tasks]
-          expected_files += ['results'+xml_suffix]
+            expected_files += ['results.'+task+xml_suffix for task in tasks]
+            expected_files += ['results'+xml_suffix]
         else:
-          expected_files += ['results.'+rundef+'.'+task+xml_suffix for task in tasks for rundef in rundefs]
-          expected_files += ['results.'+rundef+xml_suffix for rundef in rundefs]
+            expected_files += ['results.'+rundef+'.'+task+xml_suffix for task in tasks for rundef in rundefs]
+            expected_files += ['results.'+rundef+xml_suffix for rundef in rundefs]
 
         if name is None:
             basename = test_name + '.2015-01-01_0000.'
