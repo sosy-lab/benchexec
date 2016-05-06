@@ -49,6 +49,7 @@ _PROP_LABEL =        'unreach-label'
 _PROP_CALL =         'unreach-call'
 _PROP_TERMINATION =  'termination'
 _PROP_OVERFLOW =     'no-overflow'
+_PROP_DEADLOCK =     'no-deadlock'
 _PROP_DEREF =        'valid-deref'
 _PROP_FREE =         'valid-free'
 _PROP_MEMTRACK =     'valid-memtrack'
@@ -75,6 +76,8 @@ RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 """SV-COMP termination property violated"""
 RESULT_FALSE_OVERFLOW =     STR_FALSE + '(' + _PROP_OVERFLOW    + ')'
 """SV-COMP overflow property violated"""
+RESULT_FALSE_DEADLOCK =     STR_FALSE + '(' + _PROP_DEADLOCK    + ')'
+"""deadlock property violated""" # not yet part of SV-COMP
 RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
 """SV-COMP valid-deref property violated"""
 RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
@@ -95,7 +98,7 @@ RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
-               RESULT_FALSE_OVERFLOW
+               RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
                ]
 
 # Classification of results
@@ -114,6 +117,7 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'OBSERVER AUTOMATON':                _PROP_AUTOMATON,
                    'SATISFIABLE':                       _PROP_SAT,
                    'LTL(G ! overflow)':                 _PROP_OVERFLOW,
+                   'LTL(G ! deadlock)':                 _PROP_DEADLOCK,
                   }
 
 # This maps a possible result substring of a file name
@@ -129,6 +133,7 @@ _FILE_RESULTS = {
               '_true-valid-memtrack':  (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
               '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
               '_true-no-overflow':     (RESULT_TRUE_PROP, {_PROP_OVERFLOW}),
+              '_true-no-deadlock':     (RESULT_TRUE_PROP, {_PROP_DEADLOCK}),
 
               '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
               '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
@@ -138,6 +143,7 @@ _FILE_RESULTS = {
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
               '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK}),
               '_false-no-overflow':    (RESULT_FALSE_OVERFLOW,    {_PROP_OVERFLOW}),
+              '_false-no-deadlock':    (RESULT_FALSE_DEADLOCK,    {_PROP_DEADLOCK}),
 
               '_sat':                  (RESULT_SAT,   {_PROP_SAT}),
               '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
@@ -153,6 +159,7 @@ _VALID_RESULTS_PER_PROPERTY = {
     _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_FREE},
     _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_MEMTRACK},
     _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_OVERFLOW},
+    _PROP_DEADLOCK:    {RESULT_TRUE_PROP, RESULT_FALSE_DEADLOCK},
     _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_TERMINATION},
     _PROP_SAT:         {RESULT_SAT, RESULT_UNSAT},
     }
