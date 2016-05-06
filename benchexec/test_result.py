@@ -27,7 +27,7 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 from benchexec.result import *  # @UnusedWildImport
 from benchexec.result import _PROP_CALL, _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK,\
     _PROP_TERMINATION, _PROP_SAT, _SCORE_CORRECT_FALSE, _SCORE_CORRECT_TRUE,\
-    _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW
+    _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW, _PROP_DEADLOCK
 
 
 class TestResult(unittest.TestCase):
@@ -62,6 +62,10 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_OVERFLOW]))
         self.assertEqual(False, satisfies_file_property('test_false-no-overflow.c',
                                                         [_PROP_OVERFLOW]))
+        self.assertEqual(True,  satisfies_file_property('test_true-no-deadlock.c',
+                                                        [_PROP_DEADLOCK]))
+        self.assertEqual(False, satisfies_file_property('test_false-no-deadlock.c',
+                                                        [_PROP_DEADLOCK]))
 
     def test_satisfies_file_property_multiple_results_in_name(self):
         self.assertEqual(True,  satisfies_file_property('test_false-termination_true-unreach-call_unsat.c',
@@ -88,6 +92,10 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_OVERFLOW]))
         self.assertEqual(False, satisfies_file_property('test_true-unreach-call_false-no-overflow_sat.c',
                                                         [_PROP_OVERFLOW]))
+        self.assertEqual(True,  satisfies_file_property('test_false-unreach-call_true-no-deadlock_unsat.c',
+                                                        [_PROP_DEADLOCK]))
+        self.assertEqual(False, satisfies_file_property('test_true-unreach-call_false-no-deadlock_sat.c',
+                                                        [_PROP_DEADLOCK]))
 
     def test_satisfies_file_property_no_property(self):
         self.assertEqual(None,  satisfies_file_property('test_true-unreach-call.c',
@@ -135,6 +143,13 @@ class TestResult(unittest.TestCase):
         self.assertEqual(None,  satisfies_file_property('test_sat',
                                                         [_PROP_OVERFLOW]))
 
+        self.assertEqual(None,  satisfies_file_property('test_true-unreach-call.c',
+                                                        [_PROP_DEADLOCK]))
+        self.assertEqual(None,  satisfies_file_property('test_true-valid-memsafety.c',
+                                                        [_PROP_DEADLOCK]))
+        self.assertEqual(None,  satisfies_file_property('test_sat',
+                                                        [_PROP_DEADLOCK]))
+
     def test_satisfies_file_property_multiple_properties(self):
         self.assertEqual(True,  satisfies_file_property('test_true-unreach-call.c',
                                                         [_PROP_CALL, _PROP_TERMINATION]))
@@ -142,6 +157,8 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_SAT, _PROP_TERMINATION]))
         self.assertEqual(True,  satisfies_file_property('test_true-no-overflow.c',
                                                         [_PROP_SAT, _PROP_OVERFLOW]))
+        self.assertEqual(True,  satisfies_file_property('test_true-no-deadlock.c',
+                                                        [_PROP_SAT, _PROP_DEADLOCK]))
 
 
     def test_score_for_task_no_score_available(self):
@@ -173,6 +190,10 @@ class TestResult(unittest.TestCase):
                          score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_CORRECT, None))
         self.assertEqual(_SCORE_CORRECT_FALSE,
                          score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_CORRECT, None))
+        self.assertEqual(_SCORE_CORRECT_TRUE,
+                         score_for_task('test_true-no-deadlock.c',     [_PROP_DEADLOCK], CATEGORY_CORRECT, None))
+        self.assertEqual(_SCORE_CORRECT_FALSE,
+                         score_for_task('test_false-no-deadlock.c',    [_PROP_DEADLOCK], CATEGORY_CORRECT, None))
 
         self.assertEqual(_SCORE_WRONG_FALSE,
                          score_for_task('test_true-unreach-call.c',    [_PROP_CALL], CATEGORY_WRONG, None))
@@ -192,6 +213,10 @@ class TestResult(unittest.TestCase):
                          score_for_task('test_true-no-overflow.c',     [_PROP_OVERFLOW], CATEGORY_WRONG, None))
         self.assertEqual(_SCORE_WRONG_TRUE,
                          score_for_task('test_false-no-overflow.c',    [_PROP_OVERFLOW], CATEGORY_WRONG, RESULT_CLASS_TRUE))
+        self.assertEqual(_SCORE_WRONG_FALSE,
+                         score_for_task('test_true-no-deadlock.c',     [_PROP_DEADLOCK], CATEGORY_WRONG, None))
+        self.assertEqual(_SCORE_WRONG_TRUE,
+                         score_for_task('test_false-no-deadlock.c',    [_PROP_DEADLOCK], CATEGORY_WRONG, RESULT_CLASS_TRUE))
 
 
     def test_result_classification(self):
@@ -235,6 +260,10 @@ class TestResult(unittest.TestCase):
                          get_result_category('test_true-no-overflow.c',     RESULT_TRUE_PROP, [_PROP_OVERFLOW]))
         self.assertEqual(CATEGORY_WRONG,
                          get_result_category('test_false-no-overflow.c',    RESULT_TRUE_PROP, [_PROP_OVERFLOW]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category('test_true-no-deadlock.c',     RESULT_TRUE_PROP, [_PROP_DEADLOCK]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_TRUE_PROP, [_PROP_DEADLOCK]))
 
     def test_result_category_false(self):
         self.assertEqual(CATEGORY_WRONG,
@@ -265,6 +294,10 @@ class TestResult(unittest.TestCase):
                          get_result_category('test_true-no-overflow.c',     RESULT_FALSE_OVERFLOW, [_PROP_OVERFLOW]))
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category('test_false-no-overflow.c',    RESULT_FALSE_OVERFLOW, [_PROP_OVERFLOW]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category('test_true-no-deadlock.c',     RESULT_FALSE_DEADLOCK, [_PROP_DEADLOCK]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_FALSE_DEADLOCK, [_PROP_DEADLOCK]))
 
     def test_result_category_different_false_result(self):
         self.assertEqual(CATEGORY_UNKNOWN,
@@ -302,6 +335,15 @@ class TestResult(unittest.TestCase):
                          get_result_category('test_false-no-overflow.c',    RESULT_FALSE_TERMINATION, [_PROP_OVERFLOW]))
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category('test_false-no-overflow.c',    RESULT_UNSAT, [_PROP_OVERFLOW]))
+
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_FALSE_REACH, [_PROP_DEADLOCK]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_FALSE_DEREF, [_PROP_DEADLOCK]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_FALSE_TERMINATION, [_PROP_DEADLOCK]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category('test_false-no-deadlock.c',    RESULT_UNSAT, [_PROP_DEADLOCK]))
 
     def test_result_category_different_true_result(self):
         self.assertEqual(CATEGORY_UNKNOWN,
