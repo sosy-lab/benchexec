@@ -76,7 +76,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 break
 
         return status
-    
+
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
         # stop after the first line, that contains the searched text
