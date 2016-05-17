@@ -36,7 +36,8 @@ import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import baseexecutor
-from benchexec.baseexecutor import BaseExecutor
+from benchexec import BenchExecException
+from benchexec import containerexecutor
 from benchexec.cgroups import *
 from benchexec import oomhandler
 from benchexec import systeminfo
@@ -95,6 +96,15 @@ def main(argv=None):
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
+    container_args = parser.add_argument_group("optional arguments for run container")
+    container_on_args = container_args.add_mutually_exclusive_group()
+    container_on_args.add_argument("--container", action='store_true',
+        help="force isolation of run in container (future default starting with BenchExec 2.0)")
+    container_on_args.add_argument("--no-container", action='store_true',
+        help="disable use of containers for isolation of runs (current default)")
+    containerexecutor.add_basic_container_args(container_args)
+    containerexecutor.add_container_output_args(container_args)
+
     environment_args = parser.add_argument_group("optional arguments for run environment")
     environment_args.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
         help="additional cgroup system that should be enabled for runs "
@@ -105,12 +115,31 @@ def main(argv=None):
     environment_args.add_argument("--dir", metavar="DIR",
         help="working directory for executing the command (default is current directory)")
     environment_args.add_argument("--user", metavar="USER",
-        help="execute tool under given user account (needs password-less sudo setup)")
+        help="execute tool under given user account (needs password-less sudo setup, "
+            "not supported in combination with --container)")
 
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
-    baseexecutor.handle_basic_executor_options(options)
+    baseexecutor.handle_basic_executor_options(options, parser)
+
+    if options.container:
+        if options.user is not None:
+            sys.exit("Cannot use --user in combination with --container.")
+        container_options = containerexecutor.handle_basic_container_args(options, parser)
+        container_output_options = containerexecutor.handle_container_output_args(options, parser)
+    else:
+        container_options = {}
+        container_output_options = {}
+        if not options.no_container:
+            logging.warning(
+                "Neither --container or --no-container was specified, "
+                "not using containers for isolation of runs. "
+                "Either specify --no-container to silence this warning, "
+                "or specify --container to use containers for better isolation of runs "
+                "(this will be the default starting with BenchExec 2.0). "
+                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
+                "for more information.")
 
     # For integrating into some benchmarking frameworks,
     # there is a DEPRECATED special mode
@@ -156,7 +185,8 @@ def main(argv=None):
         cgroup_subsystems.add(subsystem)
 
     executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup,
-                           additional_cgroup_subsystems=list(cgroup_subsystems))
+                           additional_cgroup_subsystems=list(cgroup_subsystems),
+                           use_namespaces=options.container, **container_options)
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
@@ -166,7 +196,12 @@ def main(argv=None):
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
     logging.info('Starting command %s', formatted_args)
-    logging.info('Writing output to %s', options.output)
+    if options.container and options.output_directory and options.result_files:
+        logging.info('Writing output to %s and result files to %s',
+                     util.escape_string_shell(options.output),
+                     util.escape_string_shell(options.output_directory))
+    else:
+        logging.info('Writing output to %s', util.escape_string_shell(options.output))
 
     # actual run execution
     try:
@@ -183,7 +218,8 @@ def main(argv=None):
                             cgroupValues=cgroup_values,
                             environments=env,
                             workingDir=options.dir,
-                            maxLogfileSize=options.maxOutputSize)
+                            maxLogfileSize=options.maxOutputSize,
+                            **container_output_options)
     finally:
         if stdin:
             stdin.close()
@@ -215,19 +251,21 @@ def main(argv=None):
         for key, value in result['energy'].items():
             print("energy-{0}={1}".format(key, value))
 
-class RunExecutor(BaseExecutor):
+class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- object initialization ---
 
     def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[],
-                 *args, **kwargs):
+                 use_namespaces=False, *args, **kwargs):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(*args, **kwargs)
+        super(RunExecutor, self).__init__(use_namespaces=use_namespaces, *args, **kwargs)
+        if use_namespaces and user:
+            raise ValueError("Combination of sudo mode of RunExecutor and namespaces is not supported")
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
@@ -335,7 +373,7 @@ class RunExecutor(BaseExecutor):
         using sudo if necessary.
         """
         if self._user is None:
-            return args
+            return super(RunExecutor, self)._build_cmdline(args, env)
         result = _SUDO_ARGS + [self._user]
         for var, value in env.items():
             result.append(var + '=' + value)
@@ -483,11 +521,8 @@ class RunExecutor(BaseExecutor):
         return cgroups
 
 
-    def _setup_temp_dir(self):
-        """Setup the temporary directories for the run.
-        @return a triple of base directory, home directory, and temp directory
-            (all can be removed after the run)
-        """
+    def _create_temp_dir(self):
+        """Create a temporary directory for the run."""
         if self._user is None:
             base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
         else:
@@ -497,16 +532,13 @@ class RunExecutor(BaseExecutor):
                 'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
                 ])
             base_dir = subprocess.check_output(create_temp_dir).decode().strip()
-        temp_dir = os.path.join(base_dir, "tmp")
-        home_dir = os.path.join(base_dir, "home")
-        if self._user is None:
-            os.mkdir(temp_dir)
-            os.mkdir(home_dir)
-        else:
-            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700", temp_dir, home_dir]))
+        return base_dir
 
-        logging.debug("Executing run with $HOME and $TMPDIR below %s.", base_dir)
-        return base_dir, home_dir, temp_dir
+    def _create_dirs_in_temp_dir(self, *paths):
+        if self._user is None:
+            super(RunExecutor, self)._create_dirs_in_temp_dir(*paths)
+        elif paths:
+            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700"] + list(paths)))
 
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
@@ -526,24 +558,18 @@ class RunExecutor(BaseExecutor):
             logging.info("Skipping cleanup of temporary directory %s.", base_dir)
 
 
-    def _setup_environment(self, environments, home_dir, temp_dir):
+    def _setup_environment(self, environments):
         """Return map with desired environment variables for run."""
         # If keepEnv is set or sudo is used, start from a fresh environment,
         # otherwise with the current one.
-        # Set HOME and TMPDIR to the temporary directories create above.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
         if self._user is not None or environments.get("keepEnv", None) is not None:
             run_environment = {}
-        else :
+        else:
             run_environment = os.environ.copy()
-        run_environment["HOME"] = home_dir
-        run_environment["TMPDIR"] = temp_dir
-        run_environment["TMP"] = temp_dir
-        run_environment["TEMPDIR"] = temp_dir
-        run_environment["TEMP"] = temp_dir
         for key, value in environments.get("keepEnv", {}).items():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
@@ -630,7 +656,8 @@ class RunExecutor(BaseExecutor):
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
-                   cgroupValues={}):
+                   cgroupValues={},
+                   **kwargs):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -647,6 +674,7 @@ class RunExecutor(BaseExecutor):
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
+        @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
         # Check argument values and call the actual method _execute()
@@ -720,11 +748,17 @@ class RunExecutor(BaseExecutor):
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
-                                 environments, workingDir, maxLogfileSize)
+                                 environments, workingDir, maxLogfileSize,
+                                 **kwargs)
 
+        except BenchExecException as e:
+            logging.critical("Cannot execute '%s': %s.",
+                util.escape_string_shell(args[0]), e)
+            return {'terminationreason': 'failed', 'exitcode': 0,
+                    'cputime': 0, 'walltime': 0}
         except OSError as e:
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
-                             e.errno, args[0], workingDir or '.', e.strerror)
+                e.errno, util.escape_string_shell(args[0]), workingDir or '.', e.strerror)
             return {'terminationreason': 'failed', 'exitcode': 0,
                     'cputime': 0, 'walltime': 0}
 
@@ -733,7 +767,8 @@ class RunExecutor(BaseExecutor):
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
-                 environments, workingDir, max_output_size):
+                 environments, workingDir, max_output_size,
+                 **kwargs):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
@@ -762,10 +797,9 @@ class RunExecutor(BaseExecutor):
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
-        base_dir, home_dir, temp_dir = self._setup_temp_dir()
-        run_environment = self._setup_environment(environments, home_dir, temp_dir)
+        temp_dir = self._create_temp_dir()
+        run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(output_filename, args)
-        args = self._build_cmdline(args, env=run_environment)
 
         timelimitThread = None
         oomThread = None
@@ -782,10 +816,11 @@ class RunExecutor(BaseExecutor):
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=stdin, stdout=outputFile, stderr=outputFile,
-                env=run_environment, cwd=workingDir,
+                env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
-                parent_cleanup_fn=postParent)
+                parent_cleanup_fn=postParent,
+                **kwargs)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
@@ -828,7 +863,7 @@ class RunExecutor(BaseExecutor):
             logging.debug("Cleaning up cgroups.")
             cgroups.remove()
 
-            self._cleanup_temp_dir(base_dir)
+            self._cleanup_temp_dir(temp_dir)
 
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():

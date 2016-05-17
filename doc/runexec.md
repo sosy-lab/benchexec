@@ -45,6 +45,7 @@ and can be seen in the directories `/sys/devices/system/cpu` and `/sys/devices/s
 
 Additional parameters allow to change the name of the output file and the working directory.
 The full set of available parameters can be seen with `runexec -h`.
+For explanation of the parameters for containers, please see [container mode](container.md).
 For executing benchmarks under a different user account with the parameter `--user`,
 please check the [respective documentation](separate-user.md).
 Command-line parameters can additionally be read from a file

@@ -45,7 +45,7 @@ def add_basic_executor_options(argument_parser):
     verbosity.add_argument("--quiet", action="store_true",
                            help="show only warnings")
 
-def handle_basic_executor_options(options):
+def handle_basic_executor_options(options, parser):
     """Handle the options specified by add_basic_executor_options()."""
     # setup logging
     logLevel = logging.INFO
@@ -58,6 +58,7 @@ def handle_basic_executor_options(options):
 
 
 class BaseExecutor(object):
+    """Class for starting and handling processes."""
 
     def __init__(self):
         self.PROCESS_KILLED = False
@@ -76,7 +77,18 @@ class BaseExecutor(object):
                 logging.warning("Failure %s while killing process %s with signal %s: %s",
                                 e.errno, pid, sig, e.strerror)
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, cgroups,
+    def _create_dirs_in_temp_dir(self, *paths):
+        """Create some directories, all of which need to be below the temp_dir given to
+        _start_execution(). This can be overridden by subclasses if necessary.
+        """
+        for path in paths:
+            os.mkdir(path)
+
+    def _build_cmdline(self, args, env={}):
+        """Build the final command line for executing the given command."""
+        return args
+
+    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
                          parent_setup_fn, child_setup_fn, parent_cleanup_fn):
         """Actually start the tool and the measurements.
         @param parent_setup_fn a function without parameters that is called in the parent process
@@ -97,6 +109,19 @@ class BaseExecutor(object):
             # put us into the cgroup(s)
             pid = os.getpid()
             cgroups.add_task(pid)
+
+        # Set HOME and TMPDIR to fresh directories.
+        tmp_dir = os.path.join(temp_dir, "tmp")
+        home_dir = os.path.join(temp_dir, "home")
+        self._create_dirs_in_temp_dir(tmp_dir, home_dir)
+        env["HOME"] = home_dir
+        env["TMPDIR"] = tmp_dir
+        env["TMP"] = tmp_dir
+        env["TEMPDIR"] = tmp_dir
+        env["TEMP"] = tmp_dir
+        logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
+
+        args = self._build_cmdline(args, env=env)
 
         parent_setup = parent_setup_fn()
 

@@ -39,4 +39,9 @@
 
   <!-- <option> may be used here, too. -->
   <!-- <propertyfile> may be used here, too. -->
+
+  <!-- Copy all result files from below the working directory to the output directory
+       (this is redundant because it is the default). -->
+  <resultfiles>.</resultfiles>
+
 </benchmark>

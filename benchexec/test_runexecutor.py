@@ -28,8 +28,11 @@ import tempfile
 import threading
 import time
 import unittest
+import shutil
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+from benchexec import container
+from benchexec import containerexecutor
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
 
@@ -102,10 +105,11 @@ class TestRunExecutor(unittest.TestCase):
         expected_keys.update(additional_keys)
         for key in result.keys():
             if key.startswith('cputime-cpu'):
-                self.assertRegex(key, '^cputime-cpu[0-9]+$', 'unexpected result value ' + key)
+                self.assertRegex(key, '^cputime-cpu[0-9]+$',
+                                 "unexpected result entry '{}={}'".format(key, result[key]))
             else:
-                self.assertIn(key, expected_keys, 'unexpected result value ' + key)
-
+                self.assertIn(key, expected_keys,
+                              "unexpected result entry '{}={}'".format(key, result[key]))
 
     def test_command_output(self):
         if not os.path.exists('/bin/echo'):
@@ -500,6 +504,116 @@ class TestRunExecutorWithSudo(TestRunExecutor):
                           'runexecutor failed to detect new temporary file in home directory')
         finally:
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
+
+
+class TestRunExecutorWithContainer(TestRunExecutor):
+
+    def setUp(self, *args, **kwargs):
+        try:
+            container.execute_in_namespace(lambda: 0)
+        except OSError as e:
+            self.skipTest("Namespaces not supported: {}".format(os.strerror(e.errno)))
+
+        self.runexecutor = RunExecutor(
+            use_namespaces=True,
+            dir_modes={"/": containerexecutor.DIR_READ_ONLY,
+                       "/tmp": containerexecutor.DIR_HIDDEN},
+            container_system_config=False,
+            *args, **kwargs)
+
+    def execute_run(self, *args, **kwargs):
+        return super(TestRunExecutorWithContainer, self).execute_run(workingDir="/tmp", *args, **kwargs)
+
+    def test_home_and_tmp_is_separate(self):
+        self.skipTest("not relevant in container")
+
+    def test_temp_dirs_are_removed(self):
+        self.skipTest("not relevant in container")
+
+    def test_no_cleanup_temp(self):
+        self.skipTest("not relevant in container")
+
+    def check_result_files(self, shell_cmd, result_files_patterns, expected_result_files):
+        output_dir = tempfile.mkdtemp("", "output_")
+        try:
+            result, output = self.execute_run("/bin/sh", "-c", shell_cmd,
+                                              output_dir=output_dir,
+                                              result_files_patterns=result_files_patterns)
+            self.assertNotIn("terminationreason", result)
+            self.assertEqual(result["exitcode"], 0,
+                "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}"
+                    .format(" ".join(shell_cmd), result, "\n".join(output)))
+            result_files = []
+            for root, unused_dirs, files in os.walk(output_dir):
+                for file in files:
+                    result_files.append(os.path.relpath(os.path.join(root, file), output_dir))
+            expected_result_files.sort()
+            result_files.sort()
+            self.assertListEqual(result_files, expected_result_files,
+                "\nList of retrieved result files differs from expected list,\n"
+                "result was {!r},\noutput was\n{}".format(result, "\n".join(output)))
+        finally:
+            shutil.rmtree(output_dir, ignore_errors=True)
+
+    def test_result_file_simple(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["."], ["TEST_FILE"])
+
+    def test_result_file_recursive(self):
+        self.check_result_files("mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE", ["."],
+                               ["TEST_DIR/TEST_FILE"])
+
+    def test_result_file_multiple(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; echo TEST_TOKEN > TEST_FILE2", ["."],
+                               ["TEST_FILE", "TEST_FILE2"])
+
+    def test_result_file_symlink(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE; ln -s TEST_FILE TEST_LINK", ["."],
+                               ["TEST_FILE"])
+
+    def test_result_file_no_match(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["NO_MATCH"], [])
+
+    def test_result_file_no_pattern(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", [], [])
+
+    def test_result_file_empty_pattern(self):
+        self.assertRaises(ValueError,
+            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], []))
+
+    def test_result_file_partial_match(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE",
+            ["TEST_DIR"], ["TEST_DIR/TEST_FILE"])
+
+    def test_result_file_multiple_patterns(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; "
+            "echo TEST_TOKEN > TEST_FILE2; "
+            "mkdir TEST_DIR; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_FILE; ",
+            ["TEST_FILE", "TEST_DIR/TEST_FILE"], ["TEST_FILE", "TEST_DIR/TEST_FILE"])
+
+    def test_result_file_wildcard(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; "
+            "echo TEST_TOKEN > TEST_FILE2; "
+            "echo TEST_TOKEN > TEST_NOFILE; ",
+            ["TEST_FILE*"], ["TEST_FILE", "TEST_FILE2"])
+
+    def test_result_file_absolute_pattern(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["/"], ["tmp/TEST_FILE"])
+
+    def test_result_file_absolute_and_pattern(self):
+        self.check_result_files(
+            "echo TEST_TOKEN > TEST_FILE; mkdir TEST_DIR; echo TEST_TOKEN > TEST_DIR/TEST_FILE",
+            ["TEST_FILE", "/tmp/TEST_DIR", ], ["tmp/TEST_FILE", "tmp/TEST_DIR/TEST_FILE"])
+
+    def test_result_file_relative_traversal(self):
+        self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../TEST_FILE"], ["TEST_FILE"])
+
+    def test_result_file_illegal_relative_traversal(self):
+        self.assertRaises(ValueError,
+            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []))
 
 
 class _StopRunThread(threading.Thread):
