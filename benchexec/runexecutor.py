@@ -904,6 +904,10 @@ class RunExecutor(BaseExecutor):
                         result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
                 except (OSError, ValueError) as e:
                     logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
+        else:
+            # For backwards compatibility, we report cputime_wait on systems without cpuacct cgroup.
+            # TOOD We might remove this for BenchExec 2.0.
+            result['cputime'] = cputime_wait
 
         if MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
