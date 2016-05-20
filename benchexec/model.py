@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import collections
 import logging
 import os
 import time
@@ -638,7 +639,7 @@ class Run(object):
 
         # here we store the optional result values, e.g. memory usage, energy, host name
         # keys need to be strings, if first character is "@" the value is marked as hidden (e.g., debug info)
-        self.values = {}
+        self.values = collections.OrderedDict()
 
         # dummy values, for output in case of interrupt
         self.status = ""

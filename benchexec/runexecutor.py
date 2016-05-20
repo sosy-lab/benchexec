@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
 import argparse
+import collections
 import errno
 import logging
 import multiprocessing
@@ -831,7 +832,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
 
-            result = {}
+            result = collections.OrderedDict()
             result['walltime'] = walltime
             if energy:
                 result['energy'] = energy
