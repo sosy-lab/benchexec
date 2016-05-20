@@ -20,6 +20,10 @@ Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
 The XML result files can be specified either by a local path or by a URL (e.g., HTTP or HTTPS).
+Note that if you want to view log files from HTTP(S) URLs in generated tables,
+you probably need to set the `Access-Control-Allow-Origin` HTTP header on the server
+to avoid problems with the cross-origin policy of the browser.
+
 You can give compressed (GZip and BZip2) as well as uncompressed XML result files to `table-generator`.
 Similarly, the log files for the runs can be present in a ZIP archive
 (which is the default for `benchexec`),
