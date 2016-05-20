@@ -1,3 +1,9 @@
+benchexec (1.9-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 May 2016 15:24:24 +0200
+
 benchexec (1.8-1) trusty; urgency=medium
 
   * New upstream version.
