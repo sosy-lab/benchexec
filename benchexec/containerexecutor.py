@@ -267,7 +267,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if not os.path.isabs(path):
                 raise ValueError("Invalid non-absolute directory '{}'.".format(path))
             if path == "/proc":
-                raise ValueError("Cannot handle /proc specially, it is needed for container support.".format(path))
+                raise ValueError("Cannot specify directory mode for /proc.")
         # All dir_modes in dir_modes are sorted by length
         # to ensure parent directories come before child directories
         # All directories are bytes to avoid issues if existing mountpoints are invalid UTF-8.
