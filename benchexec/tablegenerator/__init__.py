@@ -616,8 +616,11 @@ def insert_logfile_names(resultFile, resultElem):
 
     # for each file: append original filename and insert log_file_name into sourcefileElement
     for sourcefile in _get_run_tags_from_xml(resultElem):
-        log_file_name = os.path.basename(sourcefile.get('name')) + ".log"
-        sourcefile.set('logfile', log_folder + log_file_name)
+        if 'logfile' in sourcefile.attrib:
+            log_file = urllib.parse.urljoin(resultFile, sourcefile.get('logfile'))
+        else:
+            log_file = log_folder + os.path.basename(sourcefile.get('name')) + ".log"
+        sourcefile.set('logfile', log_file)
 
 
 def merge_tasks(runset_results):
