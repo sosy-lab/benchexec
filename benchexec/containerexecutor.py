@@ -119,6 +119,11 @@ def handle_basic_container_args(options, parser=None):
             logging.warning("The container configuration disables DNS, "
                 "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
+    else:
+        if not "/run/resolvconf" in dir_modes and os.path.isdir("/run/resolvconf"):
+            # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
+            # to /run/resolvconf/resolv.conf, so we keep that directory accessible as well.
+            dir_modes["/run/resolvconf"] = DIR_READ_ONLY
 
     return {
         'network_access': options.network_access,
