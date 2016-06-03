@@ -69,6 +69,25 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - Paper [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf) about BenchExec ([supplementary webpage](http://www.sosy-lab.org/~dbeyer/benchmarking/))
 
+### Authors
+Maintainer: [Philipp Wendler](http://www.philippwendler.de)
+
+Contributors:
+- [Dirk Beyer](https://www.sosy-lab.org/~dbeyer)
+- [Montgomery Carter](https://github.com/MontyCarter)
+- [Andreas Donig](https://github.com/adonig)
+- [Karlheinz Friedberger](http://www.sosy-lab.org/people-friedberger.php)
+- Peter Häring
+- [George Karpenkov](http://metaworld.me/)
+- [Mike Kazantsev](http://fraggod.net/)
+- Thomas Lemberger
+- Stefan Löwe
+- [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
+- [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
+- [Andreas Stahlbauer](http://stahlbauer.net/)
+- [Thomas Stieglmaier](https://stieglmaier.me/)
+- and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
+
 ### Users of BenchExec
 
 BenchExec was successfully used for benchmarking in all four instances
