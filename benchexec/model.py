@@ -622,7 +622,7 @@ class Run(object):
                 self.propertyfile = None
 
         if self.propertyfile:
-            self.required_files.update(self.propertyfile)
+            self.required_files.add(self.propertyfile)
             self.properties = result.properties_of_file(self.propertyfile)
         else:
             self.properties = []
