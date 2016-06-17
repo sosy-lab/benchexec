@@ -303,11 +303,6 @@ class Benchmark(object):
         return self._required_files.union(self.tool.program_files(self.executable))
 
 
-    def add_required_file(self, filename=None):
-        if filename is not None:
-            self._required_files.add(filename)
-
-
     def working_directory(self):
         assert self.executable is not None, "executor needs to set tool executable"
         return self.tool.working_directory(self.executable)
