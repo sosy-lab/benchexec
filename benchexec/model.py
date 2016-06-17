@@ -303,11 +303,6 @@ class Benchmark(object):
         return self._required_files.union(self.tool.program_files(self.executable))
 
 
-    def add_required_file(self, filename=None):
-        if filename is not None:
-            self._required_files.add(filename)
-
-
     def working_directory(self):
         assert self.executable is not None, "executor needs to set tool executable"
         return self.tool.working_directory(self.executable)
@@ -590,7 +585,6 @@ class Run(object):
                     'Pattern %s in requiredfiles tag did not match any file for task %s.',
                     pattern, self.identifier)
             self.required_files.update(this_required_files)
-        self.required_files = list(self.required_files)
 
         # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
         self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
@@ -628,10 +622,12 @@ class Run(object):
                 self.propertyfile = None
 
         if self.propertyfile:
-            self.runSet.benchmark.add_required_file(self.propertyfile)
+            self.required_files.update(self.propertyfile)
             self.properties = result.properties_of_file(self.propertyfile)
         else:
             self.properties = []
+            
+        self.required_files = list(self.required_files)
 
         # Copy columns for having own objects in run
         # (we need this for storing the results in them).
