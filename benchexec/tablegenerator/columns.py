@@ -88,6 +88,9 @@ class ColumnMeasureType(object):
     def max_decimal_digits(self):
         return self._max_decimal_digits
 
+    def __str__(self):
+        return "{}({})".format(self._type, self._max_decimal_digits)
+
 
 class Column(object):
     """
@@ -164,6 +167,10 @@ class Column(object):
                 number = int(number)
             return str(number)
 
+    def __str__(self):
+        return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
+            self.__class__.__name__, self.title, self.pattern, self.number_of_significant_digits, self.href, self.type, self.unit, self.scale_factor)
+
 
 def _format_number_align(formattedValue, max_number_of_dec_digits, format_target="html"):
     alignment = max_number_of_dec_digits
@@ -216,7 +223,7 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     with the specified number of significant digits,
     optionally aligned at the decimal point.
     """
-    assert format_target in POSSIBLE_FORMAT_TARGETS
+    assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
@@ -239,7 +246,10 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     digits_to_add = intended_digits - current_sig_digits
 
     if digits_to_add > 0:
-        assert '.' in formatted_value
+        if '.' not in formatted_value:
+            raise AssertionError(
+                "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'"
+                .format(formatted_value, number, float_value, intended_digits, max_digits_to_display, format_target))
         formatted_value += "".join(['0'] * digits_to_add)
     elif digits_to_add < 0:
         if '.' in formatted_value[:digits_to_add]:
