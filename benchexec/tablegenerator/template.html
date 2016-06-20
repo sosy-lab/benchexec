@@ -295,7 +295,7 @@ def get_stat_col_classes(column, cell, lineid):
 {{for line in foot}}
 <tr class="statistics">
 <td colspan="{{count_id_columns}}" {{attr(title=line.description)}}>{{line.title | html}}</td>
-    {{for cell, column in zip(line.content, flatten(foot_columns))}}
+    {{for cell, column in zip(line.content, foot_columns)}}
 <td {{attr(class_=get_stat_col_classes(column, cell, line.id), title=format_stat_title(cell, column))}}>{{column.format_value(cell, True, 'html_cell')|html}}</td>
     {{endfor}}
 </tr>

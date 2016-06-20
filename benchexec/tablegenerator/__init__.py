@@ -948,9 +948,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats_of_rows(rows):
-    stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
-    stats = [s[0] for s in stats_and_col_types]  # first tuple returned by get_stats_of_run_set
-    stats_columns = [s[1] for s in stats_and_col_types]  # second tuple returned by get_stats_of_run_set
+    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
     # Calculate maximal score and number of true/false files for the given properties
@@ -968,10 +966,21 @@ def get_stats_of_rows(rows):
             count_false += 1
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
 
-    return rowsForStats, max_score, count_true, count_false, stats_columns
+    return rowsForStats, max_score, count_true, count_false
 
-def get_stats(rows):
-    rowsForStats, max_score, count_true, count_false, stats_columns = get_stats_of_rows(rows)
+def get_stats(rows, local_summary):
+    rowsForStats, max_score, count_true, count_false = get_stats_of_rows(rows)
+
+    # find out column types for statistics columns
+    if local_summary:
+        rowsForStats.append(local_summary)
+    columns = Util.flatten(run_result.columns for run_result in rows[0].results)
+    stats_columns = []
+    for i, column in enumerate(columns):
+        column_values = [row[i] for row in rowsForStats]
+        column_type, column_unit = _get_column_type_heur(column, column_values)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor)
+        stats_columns.append(new_column)
 
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
@@ -981,10 +990,16 @@ def get_stats(rows):
                                   description=task_counts,
                                   content=rowsForStats[7])
 
+    if local_summary:
+        summary_row = tempita.bunch(id=None, title='local summary',
+            description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
+            content=local_summary)
+
     def indent(n):
         return '&nbsp;'*(n*4)
 
     return [tempita.bunch(id=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
+            ] + ([summary_row] if local_summary else []) + [
             tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
             tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
@@ -1087,15 +1102,7 @@ def get_stats_of_run_set(runResults):
     replace_irrelevant(scoreRow)
 
     stats = (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
-
-    stats_columns = []
-    for i, column in enumerate(columns):
-        column_values = [totalRow[i], correctRow[i], correctTrueRow[i], correctFalseRow[i], incorrectRow[i], wrongTrueRow[i], wrongFalseRow[i], scoreRow[i]]
-        column_type, column_unit = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor)
-        stats_columns.append(new_column)
-
-    return stats, stats_columns
+    return stats
 
 
 class StatValue(object):
@@ -1247,12 +1254,7 @@ def get_summary(runSetResults):
                 value = None
             summaryStats.append(value)
 
-    if available:
-        return tempita.bunch(id=None, title='local summary',
-            description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
-            content=summaryStats)
-    else:
-        return None
+    return summaryStats if available else None
 
 
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
@@ -1297,16 +1299,10 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
         if not options.format == ['csv']:
-            stats, stats_columns = get_stats(rows)
-            if use_local_summary:
-                summary = get_summary(runSetResults)
-                if summary:
-                    stats.insert(1, summary)
-
-            template_values.foot_columns = stats_columns
+            local_summary = get_summary(runSetResults) if use_local_summary else None
+            stats, stats_columns = get_stats(rows, local_summary)
         else:
-            stats = None
-            template_values.foot_columns = None
+            stats = stats_columns = None
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
@@ -1316,7 +1312,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                 outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=table_type, ext=template_format))
                 logging.info('Writing %s into %s ...', template_format.upper().ljust(4), outfile)
 
-            this_template_values = dict(title=title, body=rows, foot=stats)
+            this_template_values = dict(title=title, body=rows, foot=stats, foot_columns=stats_columns)
             this_template_values.update(template_values.__dict__)
 
             futures.append(parallel.submit(
