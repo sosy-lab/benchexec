@@ -601,7 +601,7 @@ class Run(object):
 
         # replace run-specific stuff in the propertyfile and add it to the set of required files
         if self.propertyfile is None:
-            log_property_file_once('No propertyfile specified. Results for C programs will be handled as UNKNOWN.')
+            log_property_file_once('No propertyfile specified. Score computation will ignore the results.')
         else:
             # we check two cases: direct filename or user-defined substitution, one of them must be a 'file'
             # TODO: do we need the second case? it is equal to previous used option "-spec ${sourcefile_path}/ALL.prp"
