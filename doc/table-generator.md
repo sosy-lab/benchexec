@@ -49,7 +49,7 @@ and a complete definition can be found in the file
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.6//EN" "http://www.sosy-lab.org/benchexec/table-1.6.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.7//EN" "http://www.sosy-lab.org/benchexec/table-1.7.dtd">
 
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
@@ -91,6 +91,12 @@ by using the following line in a table-definition file:
 
     <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
 
+Additionally, it is possible to specify columns that should be considered when comparing different
+results. In this case, `table-generator` produces an additional table with all rows the columns
+differ. The default behavior is to only compare the `status` column, but it is possible to use any
+column specified in the table-definition file by adding the attribute `relevantForDiff` with value
+`true` to the `column` tag. If the attribute `relevantForDiff` is specified at at least one column,
+only these columns will be taken for comparison.
 
 ### Regression Checking
 
