@@ -12,4 +12,5 @@
                  href CDATA #IMPLIED
                  numberOfDigits CDATA #IMPLIED
                  displayUnit CDATA #IMPLIED
-                 scaleFactor CDATA #IMPLIED>
+                 scaleFactor CDATA #IMPLIED
+                 relevantForDiff (true|false) #IMPLIED>
