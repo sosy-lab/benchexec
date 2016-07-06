@@ -40,6 +40,7 @@ import urllib.request
 from xml.etree import ElementTree
 
 import tempita
+from functools import reduce
 
 from benchexec import __version__
 import benchexec.result as result
@@ -116,6 +117,8 @@ def parse_table_definition_file(file, options):
         exit(1)
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(
+        defaultColumnsToShow)
 
     return Util.flatten(
         parallel.map(
@@ -123,6 +126,7 @@ def parse_table_definition_file(file, options):
             tableGenFile,
             itertools.repeat(file),
             itertools.repeat(defaultColumnsToShow),
+            itertools.repeat(columns_relevant_for_diff),
             itertools.repeat(options)))
 
 
@@ -136,8 +140,27 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), handle_path(c.get("href")), None, c.get("displayUnit"), c.get("scaleFactor"))
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"),
+                   handle_path(c.get("href")), None, c.get("displayUnit"),
+                   c.get("scaleFactor"), c.get("relevantForDiff"))
             for c in xmltag.findall('column')]
+
+
+def _get_columns_relevant_for_diff(columns_to_show):
+    """
+    Extract columns that are relevant for the diff table.
+
+    @param columns_to_show: (list) A list of columns that should be shown
+    @return: (set) Set of columns that are relevant for the diff table. If
+             none is marked relevant, the column named "status" will be
+             returned in the set.
+    """
+    cols = set([col.title for col in columns_to_show if col.relevant_for_diff])
+    if len(cols) == 0:
+        return set(
+            [col.title for col in columns_to_show if col.title == "status"])
+    else:
+        return cols
 
 
 def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
@@ -300,7 +323,9 @@ def get_column_type(column, result_set):
     return _get_column_type_heur(column, column_values)
 
 
-def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
+def handle_tag_in_table_definition_file(tag, table_file,
+                                        defaultColumnsToShow,
+                                        columns_relevant_for_diff, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
             logging.warning("Result tag without filename attribute in file '%s'.", table_file)
@@ -312,7 +337,9 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
         columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
         run_set_id = tag.get('id')
         for resultsFile in get_file_list(tag):
-            results.append(load_result(resultsFile, options, run_set_id, columnsToShow))
+            results.append(
+                load_result(resultsFile, options, run_set_id, columnsToShow,
+                            columns_relevant_for_diff))
 
     elif tag.tag == 'union':
         columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
@@ -391,11 +418,13 @@ class RunSetResult(object):
     the sourcefiles tags (with sourcefiles + values), the columns to show
     and the benchmark attributes.
     """
-    def __init__(self, xml_results, attributes, columns, summary={}):
+    def __init__(self, xml_results, attributes, columns, summary={},
+                 columns_relevant_for_diff=set()):
         self._xml_results = xml_results
         self.attributes = attributes
         self.columns = copy.deepcopy(columns)  # Copy the columns since they may be modified
         self.summary = summary
+        self.columns_relevant_for_diff = columns_relevant_for_diff
 
     def get_tasks(self):
         """
@@ -434,7 +463,8 @@ class RunSetResult(object):
         try:
             for xml_result in self._xml_results:
                 self.results.append(RunResult.create_from_xml(
-                    xml_result, get_value_from_logfile, self.columns, correct_only, log_zip_cache))
+                    xml_result, get_value_from_logfile, self.columns,
+                    correct_only, log_zip_cache, self.columns_relevant_for_diff))
         finally:
             for file in log_zip_cache.values():
                 file.close()
@@ -446,7 +476,8 @@ class RunSetResult(object):
         del self._xml_results
 
     @staticmethod
-    def create_from_xml(resultFile, resultElem, columns=None, all_columns=False):
+    def create_from_xml(resultFile, resultElem, columns=None,
+                        all_columns=False, columns_relevant_for_diff=set()):
         '''
         This function extracts everything necessary for creating a RunSetResult object
         from the "result" XML tag of a benchmark result file.
@@ -463,7 +494,7 @@ class RunSetResult(object):
         summary = RunSetResult._extract_summary_from_result(resultElem, columns)
 
         return RunSetResult(_get_run_tags_from_xml(resultElem),
-                attributes, columns, summary)
+                attributes, columns, summary, columns_relevant_for_diff)
 
     @staticmethod
     def _extract_existing_columns_from_result(resultFile, resultElem, all_columns):
@@ -528,17 +559,25 @@ def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
 
-def load_result(result_file, options, run_set_id=None, columns=None):
+def load_result(result_file, options, run_set_id=None, columns=None,
+                columns_relevant_for_diff=set()):
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
+    @param options additional options
+    @param run_set_id the identifier of the run set
+    @param columns the list of columns
+    @param columns_relevant_for_diff a set of columns that is relevant for
+                                     the diff table
     @return a fully ready RunSetResult instance or None
     """
     xml = parse_results_file(result_file, run_set_id=run_set_id, ignore_errors=options.ignore_errors)
     if xml is None:
         return None
 
-    result = RunSetResult.create_from_xml(result_file, xml, columns=columns, all_columns=options.all_columns)
+    result = RunSetResult.create_from_xml(
+        result_file, xml, columns=columns, all_columns=options.all_columns,
+        columns_relevant_for_diff=columns_relevant_for_diff)
     result.collect_data(options.correct_only)
     return result
 
@@ -689,7 +728,8 @@ class RunResult(object):
     """
     The class RunResult contains the results of a single verification run.
     """
-    def __init__(self, task_id, status, category, score, log_file, columns, values):
+    def __init__(self, task_id, status, category, score, log_file, columns,
+                 values, columns_relevant_for_diff=set()):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -698,10 +738,11 @@ class RunResult(object):
         self.values = values
         self.category = category
         self.score = score
+        self.columns_relevant_for_diff = columns_relevant_for_diff
 
     @staticmethod
-    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only,
-                        log_zip_cache):
+    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
+                        correct_only, log_zip_cache, columns_relevant_for_diff):
         '''
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
@@ -771,7 +812,9 @@ class RunResult(object):
 
             values.append(value)
 
-        return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
+        return RunResult(get_task_id(sourcefileTag), status, category, score,
+                         sourcefileTag.get('logfile'), listOfColumns, values,
+                         columns_relevant_for_diff)
 
 
 class Row(object):
@@ -829,14 +872,38 @@ def filter_rows_with_differences(rows):
         # table with single column
         return []
 
+
+    def get_index_of_column(name, cols):
+        for i in range(0, len(cols)):
+            if cols[i].title == name:
+                return i
+        return -1
+
+
     def all_equal_result(listOfResults):
-        allStatus = set(result.status for result in listOfResults)
-        return len(allStatus) <= 1
+        relevant_columns = set()
+        for res in listOfResults:
+            for relevant_column in res.columns_relevant_for_diff:
+                relevant_columns.add(relevant_column)
+        if len(relevant_columns) == 0:
+            relevant_columns.add("status")
+
+        status = []
+        for col in relevant_columns:
+            # It's necessary to search for the index of a column every time
+            # because they can differ between results
+            status.append(
+                set(
+                    res.values[get_index_of_column(col, res.columns)]
+                    for res in listOfResults))
+
+        return reduce(lambda x, y: x and (len(y) <= 1), status, True)
+
 
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
 
     if len(rowsDiff) == 0:
-        logging.info("---> NO DIFFERENCE FOUND IN COLUMN 'STATUS'")
+        logging.info("---> NO DIFFERENCE FOUND IN SELECTED COLUMNS")
     elif len(rowsDiff) == len(rows):
         logging.info("---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE")
         return []
