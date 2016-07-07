@@ -352,6 +352,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='multi-table-with-columns.diff',
             )
 
+    def test_multi_table_xml_with_diff_over_column(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'multi-table-with-diff-over-'
+                                      'column.xml')],
+            table_prefix='multi-table-with-diff-over-column.table',
+            diff_prefix='multi-table-with-diff-over-column.diff',
+            )
+
     def test_multi_table_xml_with_wildcards(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'multi-table-with-wildcards.xml')],
