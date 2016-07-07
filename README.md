@@ -82,6 +82,7 @@ Contributors:
 - [Mike Kazantsev](http://fraggod.net/)
 - Thomas Lemberger
 - Stefan Löwe
+- Stephan Lukasczyk
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
