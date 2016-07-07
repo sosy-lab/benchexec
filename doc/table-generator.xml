@@ -15,6 +15,10 @@
   <column title="..." displayUnit="*unit*" scaleFactor="*number*">...</column>
   <!-- Table cells can contain configurable link: -->
   <column title="..." href="*path relative to this file or absolute URL*">*(optional) text to appear in all cells of the column*</column>
+  <!-- Using a different column to calculate the differences table is also
+       possible. If this is used, only the columns with this attribute will be
+       considered for the differences table. -->
+  <column title="..." relevantForDiff="true">...</column>
 
   <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
   <result filename="*file-name pattern or URL for XML files produced by BenchExec*">
