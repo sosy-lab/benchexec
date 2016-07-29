@@ -218,7 +218,7 @@ def main(argv=None):
     except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
-        sys.exit("Cannot execute {0}: {1}".format(util.escape_string_shell(options.args[0]), e))
+        sys.exit("Cannot execute {0}: {1}.".format(util.escape_string_shell(options.args[0]), e))
     return result.signal or result.value
 
 class ContainerExecutor(baseexecutor.BaseExecutor):
@@ -385,6 +385,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # We cannot use the same pipe for both directions, because otherwise a sender might
         # read the bytes it has sent itself.
 
+        # Error codes from child to parent
+        CHILD_OSERROR = 128
+        CHILD_UNKNOWN_ERROR = 129
+
         from_parent, to_grandchild = os.pipe() # "downstream" pipe parent->grandchild
         from_grandchild, to_parent = os.pipe() # "upstream" pipe grandchild/child->parent
 
@@ -442,14 +446,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     self._setup_container_filesystem(temp_dir)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
-                    return int(e.errno)
+                    return CHILD_OSERROR
 
                 try:
                     os.chdir(cwd)
                 except EnvironmentError as e:
                     logging.critical(
                         "Cannot change into working directory inside container: %s", e)
-                    return int(e.errno)
+                    return CHILD_OSERROR
 
                 try:
                     grandchild_proc = subprocess.Popen(args,
@@ -460,12 +464,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                                         preexec_fn=grandchild)
                 except (EnvironmentError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
-                    try:
-                        return int(e.errno)
-                    except BaseException:
-                        # subprocess.Popen in Python 2.7 throws OSError with errno=None
-                        # if the preexec_fn fails.
-                        return -2
+                    return CHILD_OSERROR
 
                 container.drop_capabilities()
 
@@ -487,12 +486,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 return 0
             except EnvironmentError as e:
                 logging.exception("Error in child process of RunExecutor")
-                return int(e.errno)
+                return CHILD_OSERROR
             except:
                 # Need to catch everything because this method always needs to return a int
                 # (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")
-                return -1
+                return CHILD_UNKNOWN_ERROR
 
         try: # parent
             try:
@@ -510,8 +509,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                               child_pid, child_exitcode)
 
                 if child_exitcode:
-                    if child_exitcode.value and child_exitcode.value <= 128:
-                        # This was an OSError in the child, re-create it
+                    if child_exitcode.value:
+                        if child_exitcode.value == CHILD_OSERROR:
+                            # This was an OSError in the child, details were already logged
+                            raise BenchExecException("execution in container failed, check log for details")
+                        elif child_exitcode.value == CHILD_UNKNOWN_ERROR:
+                            raise BenchExecException("unexpected error in container")
                         raise OSError(child_exitcode.value, os.strerror(child_exitcode.value))
                     raise OSError(0, "Child process of RunExecutor terminated with " + str(child_exitcode))
 
