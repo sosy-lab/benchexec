@@ -96,8 +96,12 @@ For the overlay mode, please note the system requirements mentioned above.
 The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
 i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,
 which are replaced by empty directories.
-To disable the default overlay mount and replace it by e.g. read-only access,
-specify `--read-only-dir /`.
+To overwrite the default configuration,
+simply specify other directory modes for one or more of these directories.
+Note that if you specify a different directory more for one of them,
+the default configuration for the other directories will still be used.
+So for example, to disable the overlay mount (e.g., on systems that do not support it)
+and keep the default modes for `/run` and `/tmp`, simply specify `--read-only-dir /`.
 
 In general, for a good isolation of runs and reproducibility of results,
 we advise to use directory access modes that are as restrictive as possible.
