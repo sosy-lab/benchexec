@@ -22,6 +22,8 @@ in a similar way as for example Docker isolates applications
 This is recommended to improve reproducibility of results.
 Contrary to using a VM, the application is still executed with native performance,
 because it is run directly on the host kernel, without any additional layers.
+By using an overlay filesystem (if available), the benchmarked process can still read from the host filesystem,
+but not modify any files except where specifically allowed.
 
 The features of container mode are:
 
@@ -29,7 +31,7 @@ The features of container mode are:
 - Network access is not possible from the container,
   not even communicating with processes on the same host (configurable).
 - File-system access can be restricted,
-  and write accesses can be redirected such that they do not affect the host filesystem.
+  and write accesses can be redirected such that they do not affect the host filesystem (configurable).
 - Result files produced by the tool in the container can be collected and copied
   to an output directory afterwards.
 
@@ -53,7 +55,7 @@ Container mode uses two kernel features:
   (kernel option `CONFIG_OVERLAY_FS`).
   However, it seems that only Ubuntu allows regular users to create such mounts in a container.
   Users of other distributions can still use container mode, but have to choose a different mode
-  of mounting the file systems in the container, e.g., with `--read-only-dir /`.
+  of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
   Alternatively, you could compile your own kernel and include [this patch](http://kernel.ubuntu.com/git/ubuntu/ubuntu-xenial.git/commit?id=0c29f9eb00d76a0a99804d97b9e6aba5d0bf19b3).
   Note that creating overlays over NFS mounts is not stable at least until Linux 4.5,
   thus it is recommended to specify a different directory mode for every NFS mount on the system.
