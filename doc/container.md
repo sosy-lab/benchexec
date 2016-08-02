@@ -98,10 +98,13 @@ i.e., to mount an overlay filesystem over all directories except for `/run` and 
 which are replaced by empty directories.
 To overwrite the default configuration,
 simply specify other directory modes for one or more of these directories.
-Note that if you specify a different directory more for one of them,
+Note that if you specify a different directory mode for one of them,
 the default configuration for the other directories will still be used.
+Of course you can always specify additional directory modes for other directories.
 So for example, to disable the overlay mount (e.g., on systems that do not support it)
-and keep the default modes for `/run` and `/tmp`, simply specify `--read-only-dir /`.
+and keep the default modes for `/run` and `/tmp`, simply specify `--read-only-dir /`,
+and if additionally you need certain directories to be writable,
+add `--full-access-dir ...` for them.
 
 In general, for a good isolation of runs and reproducibility of results,
 we advise to use directory access modes that are as restrictive as possible.
@@ -141,7 +144,15 @@ Files written by the executed tool to directories in the hidden or overlay modes
 are not visible on the host filesystem.
 In order to allow the user to access these files after the benchmarking,
 BenchExec copies them into an output directory.
-Note that files written to a directory in the full-access mode will not be affected by this.
+
+Note that files written to a directory in the full-access mode will not be affected by this
+(they already exist on the host filesystem).
+If you cannot use the hidden or overlay modes but still need to retrieve output files,
+you need to mark some directory as writable with `--full-access-dir`.
+But note that this has the disadvantage that the tool can then make arbitrary changes
+to existing files and directories at this location,
+so full isolation is no longer guaranteed.
+
 Patterns matching the following rules can be given
 to select only a subset of created files to be copied:
 - A file is retrieved if any of the given patterns match it.
@@ -186,11 +197,13 @@ You can still use BenchExec if you completely disable the container mode with `-
 #### `Failed to configure container: [Errno 19] Creating overlay mount for '...' failed: No such device`
 Your kernel does not support the overlay filesystem, please check the system requirements above.
 You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
 Your kernel does not allow mounting the overlay filesystem inside a container
 (this is apparently only possible on Ubuntu).
 You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`
 Either you have specified an invalid directory as working directory with `--dir`,
