@@ -34,7 +34,8 @@ of the benchmarked tool even if it spawns subprocesses.
 In order to achieve this,
 it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroups/cgroups.txt)
 of the Linux kernel to correctly handle groups of processes.
-For proper isolation of the benchmarks, it uses Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
+For proper isolation of the benchmarks, it uses (if available)
+Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
 and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
 to create a [container](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
 that restricts interference of the executed tool with the benchmarking host.
