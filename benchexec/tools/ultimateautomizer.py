@@ -28,7 +28,7 @@ class Tool(ultimate.UltimateTool):
                   "Automizer.xml",
                   "AutomizerWitnessValidation.xml",
                   "configuration",
-                  "cvc4"
+                  "cvc4",
                   "features",
                   "Kojak.xml",
                   "p2",
