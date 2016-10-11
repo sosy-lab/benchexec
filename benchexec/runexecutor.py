@@ -866,6 +866,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             self._cleanup_temp_dir(temp_dir)
 
+            if timelimitThread:
+                _try_join_cancelled_thread(timelimitThread)
+            if oomThread:
+                _try_join_cancelled_thread(oomThread)
+
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. '
@@ -1063,6 +1068,15 @@ def _get_debug_output_after_crash(output_filename):
                 # ignore invalid chars from logfile
 
 
+def _try_join_cancelled_thread(thread):
+    """Join a thread, but if the thread doesn't terminate for some time, ignore it
+    instead of waiting infinitely."""
+    thread.join(10)
+    if thread.is_alive():
+        logging.warning("Thread %s did not terminate within grace period after cancellation",
+                        thread.name)
+
+
 class _TimelimitThread(threading.Thread):
     """
     Thread that periodically checks whether the given process has already
@@ -1071,6 +1085,7 @@ class _TimelimitThread(threading.Thread):
     def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, pid_to_kill, cores,
                  callbackFn=lambda reason: None):
         super(_TimelimitThread, self).__init__()
+        self.name = "TimelimitThread-" + self.name
 
         if hardtimelimit or softtimelimit:
             assert CPUACCT in cgroups
@@ -1084,7 +1099,6 @@ class _TimelimitThread(threading.Thread):
             except NotImplementedError:
                 self.cpuCount = 1
 
-        self.daemon = True
         self.cgroups = cgroups
         self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
         self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value

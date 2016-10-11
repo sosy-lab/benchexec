@@ -60,7 +60,7 @@ class KillProcessOnOomThread(threading.Thread):
     """
     def __init__(self, cgroups, kill_process_fn, pid_to_kill, callbackFn=lambda reason: None):
         super(KillProcessOnOomThread, self).__init__()
-        self.daemon = True
+        self.name = "KillProcessOnOomThread-" + self.name
         self._finished = threading.Event()
         self._pid_to_kill = pid_to_kill
         self._cgroups = cgroups
@@ -98,6 +98,8 @@ class KillProcessOnOomThread(threading.Thread):
         # It happens that the Python interpreter has already cleaned up at this point
         # and "os" resolves to None, leading to an AttributeError.
         # Thus we keep our own reference to this function.
+        # (Should not happen anymore since this is no longer a daemon thread,
+        # but should not hurt anyway.)
         close = os.close
         try:
             # In an eventfd, there are always 8 bytes
