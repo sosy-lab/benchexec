@@ -115,7 +115,7 @@ for ($i = count($parts)-1; $i > 0; $i--) {
 
   if (file_exists($baseDir . $dirName)) {
     # Abort if we have found a path component that exists.
-    handleError("The requested URL '$path' was not found on this server.");
+    handleError("The requested URL '$path' was not found on this server");
   }
 
   if (file_exists($baseDir . $zipName)) {
@@ -123,5 +123,5 @@ for ($i = count($parts)-1; $i > 0; $i--) {
   }
 }
 
-handleError("The requested URL '$path' was not found on this server.");
+handleError("The requested URL '$path' was not found on this server");
 ?>
