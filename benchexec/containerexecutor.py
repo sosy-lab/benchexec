@@ -51,6 +51,7 @@ DIR_OVERLAY = "overlay"
 DIR_FULL_ACCESS = "full-access"
 DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 
+_HAS_SIGWAIT = hasattr(signal, 'sigwait')
 
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--network-access", action="store_true",
@@ -411,6 +412,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 container.mount_proc()
                 container.drop_capabilities()
+                container.reset_signal_handling()
                 child_setup_fn() # Do some other setup the caller wants.
 
                 # Signal readiness to parent by sending our PID and wait until parent is also ready
@@ -428,6 +430,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             try:
                 logging.debug("Child: child process of RunExecutor with PID %d started",
                               container.get_my_pid_from_procfs())
+
+                # Put all received signals on hold until we handle them later.
+                container.block_all_signals()
 
                 # We want to avoid leaking file descriptors to the executed child.
                 # It is also nice if the child has only the minimal necessary file descriptors,
@@ -468,16 +473,20 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 container.drop_capabilities()
 
-                # Set up signal handlers to forward signals to grandchild
-                # (because we are PID 1, there is a special signal handling otherwise).
-                # cf. dumb-init project: https://github.com/Yelp/dumb-init
-                container.forward_all_signals(grandchild_proc.pid, args[0])
-
                 # Close other fds that were still necessary above.
                 container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent})
 
-                # wait for grandchild and return its result
-                grandchild_result = self._wait_for_process(grandchild_proc.pid, args[0])
+                # Set up signal handlers to forward signals to grandchild
+                # (because we are PID 1, there is a special signal handling otherwise).
+                # cf. dumb-init project: https://github.com/Yelp/dumb-init
+                # Also wait for grandchild and return its result.
+                if _HAS_SIGWAIT:
+                    grandchild_result = container.wait_for_child_and_forward_all_signals(
+                        grandchild_proc.pid, args[0])
+                else:
+                    container.forward_all_signals_async(grandchild_proc.pid, args[0])
+                    grandchild_result = self._wait_for_process(grandchild_proc.pid, args[0])
+
                 logging.debug("Child: process %s terminated with exit code %d.",
                               args[0], grandchild_result[0])
                 os.write(to_parent, pickle.dumps(grandchild_result))
