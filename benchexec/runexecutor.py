@@ -1153,7 +1153,6 @@ class _TimelimitThread(threading.Thread):
 
     def cancel(self):
         self.finished.set()
-        self.join()
 
 
 if __name__ == '__main__':
