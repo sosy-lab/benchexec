@@ -111,6 +111,9 @@ class TestRunExecutor(unittest.TestCase):
                 self.assertIn(key, expected_keys,
                               "unexpected result entry '{}={}'".format(key, result[key]))
 
+    def check_exitcode(self, result, exitcode, msg=None):
+        self.assertEqual(int(result['exitcode']), exitcode, msg)
+
     def test_command_output(self):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')
@@ -124,7 +127,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')
         (result, _) = self.execute_run('/bin/echo', 'TEST_TOKEN')
-        self.assertEqual(result['exitcode'], 0, 'exit code of /bin/echo is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/echo is not zero')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of /bin/echo not as expected')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/echo not as expected')
         self.check_result_keys(result)
@@ -134,7 +137,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/sh')
         (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
                                             hardtimelimit=1)
-        self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
+        self.check_exitcode(result, 9, 'exit code of killed process is not 9')
         if 'terminationreason' in result:
             # not produced currently if killed by ulimit
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
@@ -155,7 +158,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(str(e), 'Soft time limit cannot be specified without cpuacct cgroup.')
             self.skipTest(e)
 
-        self.assertEqual(result['exitcode'], 15, 'exit code of killed process is not 15')
+        self.check_exitcode(result, 15, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 4, delta=3, msg='cputime is not approximately the time after which the process should have been killed')
@@ -173,7 +176,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
             self.skipTest(e)
 
-        self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
+        self.check_exitcode(result, 9, 'exit code of killed process is not 9')
         self.assertEqual(result['terminationreason'], 'walltime', 'termination reason is not "walltime"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
@@ -189,7 +192,7 @@ class TestRunExecutor(unittest.TestCase):
         (result, output) = self.execute_run('/bin/sh', '-c', 'i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i',
                                             hardtimelimit=1, walltimelimit=5)
 
-        self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
+        self.check_exitcode(result, 9, 'exit code of killed process is not 9')
         if 'terminationreason' in result:
             # not produced currently if killed by ulimit
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
@@ -210,7 +213,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(str(e), 'Soft time limit cannot be specified without cpuacct cgroup.')
             self.skipTest(e)
 
-        self.assertEqual(result['exitcode'], 15, 'exit code of killed process is not 15')
+        self.check_exitcode(result, 15, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
@@ -228,7 +231,7 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
             self.skipTest(e)
 
-        self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
+        self.check_exitcode(result, 0, 'exit code of process is not 0')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result)
@@ -250,7 +253,7 @@ class TestRunExecutor(unittest.TestCase):
                 self.assertEqual(str(e), 'Wall time limit is not implemented for systems without cpuacct cgroup.')
                 self.skipTest(e)
 
-        self.assertEqual(result['exitcode'], 0, 'exit code of process is not 0')
+        self.check_exitcode(result, 0, 'exit code of process is not 0')
         self.assertAlmostEqual(result['walltime'], 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result)
@@ -286,7 +289,7 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.decode().splitlines())}
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of process is not 0')
+        self.check_exitcode(result, 0, 'exit code of process is not 0')
         self.assertAlmostEqual(float(result['walltime'].rstrip('s')), 0.2, delta=0.2, msg='walltime of "/bin/cat < /dev/null" is not approximately zero')
         self.assertAlmostEqual(float(result['cputime'].rstrip('s')), 0.2, delta=0.2, msg='cputime of "/bin/cat < /dev/null" is not approximately zero')
         self.check_result_keys(result, 'returnvalue')
@@ -304,7 +307,7 @@ class TestRunExecutor(unittest.TestCase):
         (result, output) = self.execute_run('/bin/sleep', '10')
         thread.join()
 
-        self.assertEqual(result['exitcode'], 9, 'exit code of killed process is not 9')
+        self.check_exitcode(result, 9, 'exit code of killed process is not 9')
         self.assertEqual(result['terminationreason'], 'killed', 'termination reason is not "killed"')
         self.assertAlmostEqual(result['walltime'], 1, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
@@ -367,7 +370,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')
         (result, output) = self.execute_run_extern('/bin/echo', 'TEST_TOKEN')
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/echo is not zero')
         self.check_result_keys(result, 'returnvalue')
 
         self.check_command_in_output(output, '/bin/echo TEST_TOKEN')
@@ -379,7 +382,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
         (result, output) = self.execute_run('/bin/sh', '-c', 'echo $HOME $TMPDIR')
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/sh is not zero')
         self.assertRegex(output[-1], '/BenchExec_run_[^/]*/home .*/BenchExec_run_[^/]*/tmp',
                          'HOME or TMPDIR variable does not contain expected temporary directory')
 
@@ -387,7 +390,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
         (result, output) = self.execute_run('/bin/sh', '-c', 'echo $HOME $TMPDIR')
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/sh is not zero')
         home_dir = output[-1].split(' ')[0]
         temp_dir = output[-1].split(' ')[1]
         self.assertFalse(os.path.exists(home_dir),
@@ -400,7 +403,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/sh')
         self.setUp(cleanup_temp_dir=False)  # create RunExecutor with desired parameter
         (result, output) = self.execute_run('/bin/sh', '-c', 'echo "$TMPDIR"; echo "" > "$TMPDIR/test"')
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/sh is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/sh is not zero')
         temp_dir = output[-1]
         test_file = os.path.join(temp_dir, 'test')
         subprocess.check_call(self.runexecutor._build_cmdline(['test', '-f', test_file]))
@@ -420,7 +423,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists('/bin/cat'):
             self.skipTest('missing /bin/cat')
         (result, output) = self.execute_run('/bin/cat', '/proc/self/cgroup')
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/cat is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/cat is not zero')
         for line in output:
             if re.match('^[0-9]*:([^:]*,)?cpu(,[^:]*)?:/(.*/)?benchmark_.*$',line):
                 return # Success
@@ -435,7 +438,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
         (result, _) = self.execute_run('/bin/echo',
                                             cgroupValues={('cpu', 'shares'): 42})
-        self.assertEqual(int(result['exitcode']), 0, 'exit code of /bin/echo is not zero')
+        self.check_exitcode(result, 0, 'exit code of /bin/echo is not zero')
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
@@ -462,18 +465,12 @@ class TestRunExecutorWithSudo(TestRunExecutor):
             # sudo seems not to be available
             self.skipTest(e)
 
-    def execute_run(self, *args, **kwargs):
-        result, output = super(TestRunExecutorWithSudo, self).execute_run(*args, **kwargs)
-        self.fix_exitcode(result)
-        return (result, output)
+    def check_exitcode(self, result, expected, msg=None):
+        actual = int(result['exitcode'])
+        if expected == 15 and actual == 0:
+            # On Ubuntu 16.04, sudo returns 0 if process is killed with signal 15
+            return
 
-    def execute_run_extern(self, *args, **kwargs):
-        result, output = super(TestRunExecutorWithSudo, self) \
-            .execute_run_extern('--user', self.user, *args, **kwargs)
-        self.fix_exitcode(result)
-        return (result, output)
-
-    def fix_exitcode(self, result):
         # Using sudo may affect the exit code:
         # what was the returnsignal is now the returnvalue.
         # The distinction between returnsignal and returnvalue of the actual
@@ -481,11 +478,12 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         # If the returnsignal (of the sudo process) is 0,
         # we replace the exit code with the mixed returnsignal/returnvalue of
         # the actual process (with bit for core dump cleared).
-        exitcode = int(result['exitcode'])
-        returnsignal = exitcode & 0x7F
-        returnvalue = (exitcode >> 8) & 0x7F
+        returnsignal = actual & 0x7F
+        returnvalue = (actual >> 8) & 0x7F
         if returnsignal == 0:
-            result['exitcode'] = returnvalue
+            actual = returnvalue
+
+        self.assertEqual(actual, expected, msg)
 
     def check_command_in_output(self, output, cmd):
         self.assertTrue(output[0].endswith(cmd), 'run output misses executed command')
@@ -498,7 +496,7 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         (result, output) = self.execute_run(
             '/usr/bin/mktemp', '--tmpdir=' + home_dir, tmp_file_pattern)
         try:
-            self.assertEqual(int(result['exitcode']), 0, 'exit code of /usr/bin/mktemp is not zero')
+            self.check_exitcode(result, 0, 'exit code of /usr/bin/mktemp is not zero')
             tmp_file = output[-1]
             self.assertIn(tmp_file, self.runexecutor.check_for_new_files_in_home(),
                           'runexecutor failed to detect new temporary file in home directory')
