@@ -29,7 +29,7 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import util
 
-here = os.path.dirname(__file__)
+here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, '..', '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
 tablegenerator = os.path.join(bin_dir, 'table-generator')

@@ -758,6 +758,10 @@ class RunResult(object):
                 log_zip_path, url_parts.params, url_parts.query, url_parts.fragment))
             path_in_zip = urllib.parse.unquote(
                 os.path.relpath(url_parts.path, os.path.dirname(log_zip_path)))
+            if log_zip_url.startswith("file:///") and not log_zip_path.startswith("/"):
+                # Replace file:/// with file: for relative paths,
+                # otherwise opening fails.
+                log_zip_url = "file:" + log_zip_url[8:]
 
             try:
                 with Util.open_url_seekable(log_file_url, 'rt') as logfile:
