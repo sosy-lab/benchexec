@@ -75,6 +75,12 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_TRUE_PROP
         elif re.search(r'SMACK found an error.*', splitout):
             return result.RESULT_FALSE_REACH
+        elif re.search(r'SMACK found an invalid pointer dereference', splitout):
+            return result.RESULT_FALSE_DEREF
+        elif re.search(r'SMACK found an invalid memory deallocation', splitout):
+            return result.RESULT_FALSE_FREE
+        elif re.search(r'SMACK found a memory leak', splitout):
+            return result.RESULT_FALSE_MEMTRACK
         else:
             return result.RESULT_UNKNOWN
 
