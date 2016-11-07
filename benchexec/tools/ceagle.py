@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# coding=utf-8
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
@@ -25,6 +25,11 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
 
+    REQUIRED_PATHS = [
+        "sv-ceagle",
+        "z3"
+    ]
+
     def executable(self):
         return util.find_executable('sv-ceagle')
 
@@ -42,7 +47,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
         status = result.RESULT_UNKNOWN
         stroutput = str(output)
-        # strresult = stroutput.split("\n")[-1]
 
         if isTimeout:
             status = 'TIMEOUT'
