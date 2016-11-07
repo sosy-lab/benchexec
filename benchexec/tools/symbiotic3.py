@@ -31,12 +31,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
                   "bin",
-                  "build-fix.sh",
                   "include",
+                  "instrumentation",
                   "lib",
                   "lib32",
-                  "lib.c",
-                  "path_to_ml.pl",
                   "symbiotic"
                   ]
 
@@ -53,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         Determine a version string for this tool, if available.
         """
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, arg='--version-short')
 
     def name(self):
         """
@@ -65,8 +63,6 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         Compose the command line to execute from the name of the executable
         """
-        # only one task is supported
-        assert len(tasks) == 1
 
         if not propertyfile is None:
             options = options + ['--prp={0}'.format(propertyfile)]
@@ -88,5 +84,11 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_UNKNOWN
           elif line == 'FALSE':
             return result.RESULT_FALSE_REACH
+          elif line == 'FALSE (valid-deref)':
+            return result.RESULT_FALSE_DEREF
+          elif line == 'FALSE (valid-free)':
+            return result.RESULT_FALSE_FREE
+          elif line == 'FALSE (valid-memtrack)':
+            return result.RESULT_FALSE_MEMTRACK
 
         return result.RESULT_ERROR
