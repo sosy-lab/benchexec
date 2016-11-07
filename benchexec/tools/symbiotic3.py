@@ -82,13 +82,13 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_TRUE_PROP
           elif line == 'UNKNOWN':
             return result.RESULT_UNKNOWN
-          elif line == 'FALSE':
-            return result.RESULT_FALSE_REACH
-          elif line == 'FALSE (valid-deref)':
+          elif line.startswith('FALSE (valid-deref)'):
             return result.RESULT_FALSE_DEREF
-          elif line == 'FALSE (valid-free)':
+          elif line.startswith('FALSE (valid-free)'):
             return result.RESULT_FALSE_FREE
-          elif line == 'FALSE (valid-memtrack)':
+          elif line.startswith('FALSE (valid-memtrack)'):
             return result.RESULT_FALSE_MEMTRACK
+          elif line.startswith('FALSE'):
+            return result.RESULT_FALSE_REACH
 
         return result.RESULT_ERROR
