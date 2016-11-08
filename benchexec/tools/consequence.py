@@ -17,9 +17,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
-import xml.etree.ElementTree as ET
-
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -28,17 +25,17 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 	ConSequence
     """
-
+    
     REQUIRED_PATHS = [
-                  "consequence.pl"
-                  ]
-
+        "consequence.pl"
+    ]
+    
     def executable(self):
         return util.find_executable('consequence.pl')
-
+    
     def name(self):
         return 'ConSequence'
-
+    
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
         if isTimeout:
