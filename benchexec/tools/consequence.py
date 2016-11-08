@@ -42,7 +42,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
         if isTimeout:
-            return 'TIMEOUT' 
+            return 'TIMEOUT'
         if "success" in lines:
             return result.RESULT_TRUE_PROP
         elif "failed" in lines:

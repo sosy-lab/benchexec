@@ -42,7 +42,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
         if isTimeout:
-            return 'TIMEOUT' 
+            return 'TIMEOUT'
         if "INVALID-POINTER" in lines or "DYNAMIC_OBJECT" in lines or "dereference failure" in lines:
             return result.RESULT_FALSE_DEREF		
         elif "SUCCESS" in lines:
