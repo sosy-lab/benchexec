@@ -19,6 +19,7 @@ limitations under the License.
 """
 import logging
 import xml.etree.ElementTree as ET
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -37,12 +38,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return 'ConSequence'
-
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        if propertyfile:
-            options += ['--property-file', propertyfile]
-        self.options = options
-        return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
