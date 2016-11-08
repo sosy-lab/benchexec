@@ -23,9 +23,9 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-        VeriAbs
+    VeriAbs
     """
-    
+
     def executable(self):
         return util.find_executable('veriabs')
     

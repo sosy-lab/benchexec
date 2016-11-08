@@ -23,7 +23,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-	ConSequence
+    ConSequence
     """
     
     REQUIRED_PATHS = [
