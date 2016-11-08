@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
@@ -28,24 +27,17 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('yogar-cbmc')
 
-    def version(self, executable):
-        return '0.1'
-
     def name(self):
-        return 'yogar-cbmc'
+        return 'Yogar-CBMC'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         options += ['--no-unwinding-assertions']
-        options += ['--error-label', 'ERROR']
-        options += ['--mm', 'sc']
-        options += ['--32']
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         status = result.RESULT_UNKNOWN
         stroutput = str(output)
-        # strresult = stroutput.split("\n")[-1]
 
         if isTimeout:
             status = 'TIMEOUT'
