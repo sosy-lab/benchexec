@@ -1045,27 +1045,30 @@ def _get_debug_output_after_crash(output_filename):
     """
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
-    with open(output_filename, 'r+') as outputFile:
-        for line in outputFile:
-            if foundDumpFile:
-                try:
+    try:
+        with open(output_filename, 'r+') as outputFile:
+            for line in outputFile:
+                if foundDumpFile:
                     dumpFileName = line.strip(' #\n')
                     outputFile.seek(0, os.SEEK_END) # jump to end of log file
-                    with open(dumpFileName, 'r') as dumpFile:
-                        util.copy_all_lines_from_to(dumpFile, outputFile)
-                    os.remove(dumpFileName)
-                except IOError as e:
-                    logging.warning('Could not append additional segmentation fault information '
-                                    'from %s (%s)',
-                                    dumpFile, e.strerror)
-                break
-            try:
-                if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
-                    logging.debug('Going to append error report file')
-                    foundDumpFile = True
-            except UnicodeDecodeError:
-                pass
-                # ignore invalid chars from logfile
+                    try:
+                        with open(dumpFileName, 'r') as dumpFile:
+                            util.copy_all_lines_from_to(dumpFile, outputFile)
+                        os.remove(dumpFileName)
+                    except IOError as e:
+                        logging.warning('Could not append additional segmentation fault information '
+                                        'from %s (%s)',
+                                        dumpFileName, e.strerror)
+                    break
+                try:
+                    if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
+                        logging.debug('Going to append error report file')
+                        foundDumpFile = True
+                except UnicodeDecodeError:
+                    pass
+                    # ignore invalid chars from logfile
+    except IOError as e:
+        logging.warning('Could not analyze tool output for crash information (%s)', e.strerror)
 
 
 def _try_join_cancelled_thread(thread):
