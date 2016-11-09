@@ -31,12 +31,12 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
                   "cpachecker",
                   "esbmc",
-                  "esbmc.sh",
+                  "esbmc-wrapper.py",
                   "tokenizer"
                   ]
 
     def executable(self):
-        return util.find_executable('esbmc.sh')
+        return util.find_executable('esbmc-wrapper.py')
 
 
     def working_directory(self, executable):
@@ -58,7 +58,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
         inputfile = tasks[0]
-        return [executable] + ['-c', propertyfile] + options + [inputfile]
+        return [executable] + ['-p', propertyfile] + options + [inputfile]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
@@ -80,12 +80,8 @@ class Tool(benchexec.tools.template.BaseTool):
         if status == result.RESULT_UNKNOWN:
             if isTimeout:
                 status = 'TIMEOUT'
-            elif output.endswith(('Z3 Error 9', 'Z3 Error 9\n')):
-                status = 'ERROR (Z3 Error 9)'
             elif output.endswith(('error', 'error\n')):
                 status = 'ERROR'
-            elif 'Encountered Z3 conversion error:' in output:
-                status = 'ERROR (Z3 conversion error)'
 
         return status
 
