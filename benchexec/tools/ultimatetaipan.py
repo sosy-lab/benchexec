@@ -24,9 +24,6 @@ class Tool(ultimate.UltimateTool):
 
     REQUIRED_PATHS = [
                   "artifacts.xml",
-                  "AutomizerTermination.xml",
-                  "AutomizerWitnessValidation.xml",
-                  "Automizer.xml",
                   "configuration",
                   "cvc4",
                   "features",
@@ -36,17 +33,17 @@ class Tool(ultimate.UltimateTool):
                   "p2",
                   "plugins",
                   "README",
-                  "svcomp-Deref-32bit-Automizer_Bitvector.epf",
-                  "svcomp-Deref-32bit-Automizer_Default.epf",
-                  "svcomp-DerefFreeMemtrack-32bit-Automizer_Bitvector.epf",
-                  "svcomp-DerefFreeMemtrack-32bit-Automizer_Default.epf",
-                  "svcomp-Overflow-32bit-Automizer_Default.epf",
-                  "svcomp-Overflow-64bit-Automizer_Default.epf",
-                  "svcomp-Reach-32bit-Automizer_Bitvector.epf",
-                  "svcomp-Reach-32bit-Automizer_Default.epf",
-                  "svcomp-Reach-64bit-Automizer_Bitvector.epf",
-                  "svcomp-Reach-64bit-Automizer_Default.epf",
-                  "svcomp-Termination-64bit-Automizer_Default.epf",
+                  "svcomp-Deref-32bit-Taipan_Bitvector.epf",
+                  "svcomp-Deref-32bit-Taipan_Default.epf",
+                  "svcomp-DerefFreeMemtrack-32bit-Taipan_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-32bit-Taipan_Default.epf",
+                  "svcomp-Overflow-32bit-Taipan_Default.epf",
+                  "svcomp-Overflow-64bit-Taipan_Default.epf",
+                  "svcomp-Reach-32bit-Taipan_Bitvector.epf",
+                  "svcomp-Reach-32bit-Taipan_Default.epf",
+                  "svcomp-Reach-64bit-Taipan_Bitvector.epf",
+                  "svcomp-Reach-64bit-Taipan_Default.epf",
+                  "Taipan.xml",
                   "Ultimate",
                   "Ultimate.ini",
                   "Ultimate.py",
@@ -54,4 +51,4 @@ class Tool(ultimate.UltimateTool):
                   ]
 
     def name(self):
-        return 'ULTIMATE Automizer'
+        return 'ULTIMATE Taipan'
