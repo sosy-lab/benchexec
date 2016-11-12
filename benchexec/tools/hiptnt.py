@@ -24,7 +24,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
-        return util.find_executable('HipTNT.sh')
+        return util.find_executable('hiptnt.sh')
 
 
     def name(self):
