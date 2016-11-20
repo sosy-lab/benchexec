@@ -18,8 +18,8 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
-                  "bin/*",
-                  "lib/*",
+                  "bin",
+                  "lib",
                   "skink.sh",
                   "skink.jar"
                   ]
