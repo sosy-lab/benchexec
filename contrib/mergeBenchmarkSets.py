@@ -136,7 +136,7 @@ def main(argv=None):
 
     print ('    ' + resultFile + '.merged.xml')
     with open(resultFile + '.merged.xml', "w") as xml_file:
-        xml_file.write(xml_to_string(resultXML).replace('    \n','').replace('  \n','')))
+        xml_file.write(xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
 
 if __name__ == '__main__':
     sys.exit(main())
