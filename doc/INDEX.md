@@ -24,6 +24,9 @@ for example [files for generating plots](../contrib/plots/README.md).
 Information for developers and maintainers of BenchExec is available
 in the [development documentation](DEVELOPMENT.md).
 
+Information for users of BenchExec on how to [integrate a tool](tool-integration.md).
+
+
 ## Definitions
 
 ### Units
