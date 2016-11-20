@@ -46,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'SymDIVINE'
 
     def version(self, executable):
-         """
+        """
         Return the name of the tool, formatted for humans.
         """
         return self._version_from_tool(executable)
