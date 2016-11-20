@@ -1,5 +1,4 @@
-# BenchExec: benchexec
-## Tool Integration
+# BenchExec: Tool Integration
 
 In order to know how to execute a tool and how to interpret its output,
 `benchexec` needs a tool-specific Python module
