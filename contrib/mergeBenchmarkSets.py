@@ -25,6 +25,7 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 import os
 import xml.etree.ElementTree as ET
 
+import benchexec.tablegenerator as tablegenerator
 
 def getWitnesses(witnessXML):
     witnesses = {}
@@ -91,12 +92,12 @@ def main(argv=None):
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit('File {0} does not exist.'.format(repr(resultFile)))
-    resultXML   = ET.ElementTree().parse(resultFile)
+    resultXML   = tablegenerator.parse_results_file(resultFile)
     witnessSets = []
     for witnessFile in witnessFiles:
         if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
             sys.exit('File {0} does not exist.'.format(repr(witnessFile)))
-        witnessXML = ET.ElementTree().parse(witnessFile)
+        witnessXML = tablegenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
         resultXML.set('options', '' + resultXML.get('options', default='') + ' [[ ' + witnessXML.get('options', default='') + ' ]]')
         resultXML.set('date',    '' + resultXML.get('date', default='')    + ' [[ ' + witnessXML.get('date', default='')    + ' ]]')
