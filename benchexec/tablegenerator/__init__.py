@@ -584,9 +584,9 @@ def load_result(result_file, options, run_set_id=None, columns=None,
 
 def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     '''
-    This function parses a XML file with the results of the execution of a run set.
+    This function parses an XML file that contains the results of the execution of a run set.
     It returns the "result" XML tag.
-    @param resultFile: The file name of the XML file with the results.
+    @param resultFile: The file name of the XML file that contains the results.
     @param run_set_id: An optional identifier of this set of results.
     '''
     logging.info('    %s', resultFile)
