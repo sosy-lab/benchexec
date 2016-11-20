@@ -105,7 +105,7 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_MEMTRACK
         elif 'FALSE' in output:
             status = result.RESULT_FALSE_REACH
-        else:
+        elif 'UNKNOWN' in output:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
