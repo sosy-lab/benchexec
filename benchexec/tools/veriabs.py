@@ -21,13 +21,23 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+REQUIRED_PATHS = [
+                  "bin",
+                  "cpac",
+                  "jars",
+                  "prism",
+                  "scripts",
+                  "suportFiles",
+                  "VeriAbs",
+                  ]
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     VeriAbs
     """
 
     def executable(self):
-        return util.find_executable('veriabs')
+        return util.find_executable('scripts/veriabs')
     
     def name(self):
         return 'VeriAbs'
