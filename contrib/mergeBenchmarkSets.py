@@ -133,7 +133,8 @@ def main(argv=None):
             if isOverwrite:
                 result.findall('column[@title="status"]')[0].set('value', statusWit)
                 result.findall('column[@title="category"]')[0].set('value', categoryWit)
-
+        # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
+        del result.attrib['logfile']
 
     print ('    ' + resultFile + '.merged.xml')
     with open(resultFile + '.merged.xml', "w") as xml_file:
