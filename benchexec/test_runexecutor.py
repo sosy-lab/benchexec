@@ -299,6 +299,20 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_append_environment_variable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH')
+        path = output[-1]
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH', environments={'additionalEnv': {'PATH': ':TEST_TOKEN'}})
+        self.assertEqual(output[-1], path + ':TEST_TOKEN')
+
+    def test_new_environment_variable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH', environments={'newEnv': {'PATH': '/usr/bin'}})
+        self.assertEqual(output[-1], '/usr/bin')
+
     def test_stop_run(self):
         if not os.path.exists('/bin/sleep'):
             self.skipTest('missing /bin/sleep')
@@ -503,6 +517,13 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         finally:
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
 
+    def test_append_environment_variable(self):
+        # sudo-mode has a suboptimal implementation for additionalEnv:
+        # If an environment variable is not modified, it will be cleared completely and in case of
+        # PATH sudo will set it. If PATH is specified in additionalEnv, we will copy the value
+        # from the current process (which is different than what sudo would set)
+        # and append the given string.
+        pass
 
 class TestRunExecutorWithContainer(TestRunExecutor):
 
