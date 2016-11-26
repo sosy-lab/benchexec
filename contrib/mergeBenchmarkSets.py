@@ -23,8 +23,11 @@ import sys
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 import os
+import io
 import xml.etree.ElementTree as ET
+import bz2
 
+from benchexec import util
 import benchexec.tablegenerator as tablegenerator
 
 def getWitnesses(witnessXML):
@@ -136,8 +139,10 @@ def main(argv=None):
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del result.attrib['logfile']
 
-    print ('    ' + resultFile + '.merged.xml')
-    with open(resultFile + '.merged.xml', "w") as xml_file:
+    filename = resultFile + '.merged.xml.bz2'
+    print ('    ' + filename)
+    open_func = bz2.BZ2File if hasattr(bz2.BZ2File, 'writable') else util.BZ2FileHack
+    with io.TextIOWrapper(open_func(filename, 'wb'), encoding='utf-8') as xml_file:
         xml_file.write(xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
 
 if __name__ == '__main__':
