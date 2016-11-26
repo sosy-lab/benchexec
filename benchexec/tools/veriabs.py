@@ -38,15 +38,15 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         return util.find_executable('scripts/veriabs')
-    
+
     def name(self):
         return 'VeriAbs'
-    
+
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
-            options += ['--property-file', propertyfile]
+            options = options + ['--property-file', propertyfile]
         return [executable] + options + tasks
-    
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
         if isTimeout:
