@@ -50,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
-            options += ['--propertyfile', propertyfile]
+            options = options + ['--propertyfile', propertyfile]
         elif ("--xml-ui" not in options):
             options = options + ["--xml-ui"]
 
