@@ -65,3 +65,5 @@ class Tool(benchexec.tools.template.BaseTool):
 
         return status
 
+    def environment(self, executable):
+        return {"additionalEnv": {"PATH": ":."}}
