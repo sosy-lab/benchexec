@@ -64,6 +64,6 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_UNKNOWN
 
         return status
-    
+
     def environment(self, executable):
-        return {"additionalEnv": {"PATH": ":" + executable}}
+        return {"additionalEnv": {"PATH": ":."}}
