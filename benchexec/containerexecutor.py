@@ -254,14 +254,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                      else container.CONTAINER_GID if container_system_config
                      else os.getgid())
         self._allow_network = network_access
-        self._env = None
+        self._env_override = {}
 
         if container_system_config:
             if dir_modes.get("/etc", dir_modes.get("/")) != DIR_OVERLAY:
                 raise ValueError("Cannot setup minimal system configuration for the container "
                     "without overlay filesystem for /etc.")
-            self._env = os.environ.copy()
-            self._env["HOME"] = container.CONTAINER_HOME
+            self._env_override["HOME"] = container.CONTAINER_HOME
             if not container.CONTAINER_HOME in dir_modes:
                 dir_modes[container.CONTAINER_HOME] = DIR_HIDDEN
 
@@ -305,7 +304,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=None, stdout=None, stderr=None,
-                env=self._env, cwd=workingDir, temp_dir=temp_dir,
+                env=os.environ.copy(), cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
                 output_dir=output_dir, result_files_patterns=result_files_patterns,
                 child_setup_fn=lambda: None,
@@ -364,6 +363,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         and it does not see other processes except itself.
         """
         assert self._use_namespaces
+
+        env.update(self._env_override)
 
         args = self._build_cmdline(args, env=env)
 

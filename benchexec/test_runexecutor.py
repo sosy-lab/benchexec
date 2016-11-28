@@ -412,6 +412,13 @@ class TestRunExecutor(unittest.TestCase):
         self.assertFalse(os.path.exists(temp_dir),
                          'temporary temp directory {} was not cleaned up'.format(temp_dir))
 
+    def test_home_is_writable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'touch $HOME/TEST_FILE')
+        self.check_exitcode(
+            result, 0, 'Failed to write to $HOME/TEST_FILE, output was\n{}'.format(output))
+
     def test_no_cleanup_temp(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
@@ -548,6 +555,9 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def test_temp_dirs_are_removed(self):
         self.skipTest("not relevant in container")
+
+    def test_home_is_writable(self):
+        self.skipTest("needs container_system_config=True and thus overlay mode")
 
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
