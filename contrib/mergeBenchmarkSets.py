@@ -108,34 +108,34 @@ def main(argv=None):
     for result in resultXML.findall('run'):
         run = result.get('name')
         basename = os.path.basename(run)
-        if ('false-unreach-call' in basename or 'false-no-overflow' in basename or 'false-valid-' in basename) \
-            and 'correct' == result.findall('column[@title="category"]')[0].get('value'):
+        if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
+            if 'false-unreach-call' in basename or 'false-no-overflow' in basename or 'false-valid-' in basename:
 
-            statusVer   = result.findall('column[@title="status"]')[0]
-            categoryVer = result.findall('column[@title="category"]')[0]
+                statusVer   = result.findall('column[@title="status"]')[0]
+                categoryVer = result.findall('column[@title="category"]')[0]
 
-            statusWit, categoryWit = (None, None)
-            i = 0
-            for witnessSet in witnessSets:
-                i = i + 1
-                witness = witnessSet.get(run, None)
-                # copy data from witness
-                if witness is not None:
-                    for column in witness:
-                        newColumn = ET.Element('column', {
-                             'title': 'wit' + str(i) + '_' + column.get('title'),
-                             'value':  column.get('value'),
-                             'hidden': column.get('hidden','false')
-                             })
-                        result.append(newColumn)
-                    witnessSet.pop(run)
-                    statusWitNew, categoryWitNew = getWitnessResult(witness)
-                    if statusWitNew.startswith('false(') or statusWit is None:
-                        statusWit, categoryWit = (statusWitNew, categoryWitNew)
-            # Overwrite status with status from witness
-            if isOverwrite:
-                result.findall('column[@title="status"]')[0].set('value', statusWit)
-                result.findall('column[@title="category"]')[0].set('value', categoryWit)
+                statusWit, categoryWit = (None, None)
+                i = 0
+                for witnessSet in witnessSets:
+                    i = i + 1
+                    witness = witnessSet.get(run, None)
+                    # copy data from witness
+                    if witness is not None:
+                        for column in witness:
+                            newColumn = ET.Element('column', {
+                                 'title': 'wit' + str(i) + '_' + column.get('title'),
+                                 'value':  column.get('value'),
+                                 'hidden': column.get('hidden','false')
+                                 })
+                            result.append(newColumn)
+                        witnessSet.pop(run)
+                        statusWitNew, categoryWitNew = getWitnessResult(witness)
+                        if statusWitNew.startswith('false(') or statusWit is None:
+                            statusWit, categoryWit = (statusWitNew, categoryWitNew)
+                # Overwrite status with status from witness
+                if isOverwrite:
+                    result.findall('column[@title="status"]')[0].set('value', statusWit)
+                    result.findall('column[@title="category"]')[0].set('value', categoryWit)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del result.attrib['logfile']
 
