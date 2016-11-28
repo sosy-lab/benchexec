@@ -79,65 +79,12 @@ For Ubuntu 14.04, upgrading can be done using the officially supported
 
 ## Setting up Cgroups
 
-The cgroup virtual file system is typically mounted at `/sys/fs/cgroup`.
-If it is not, you can mount it with
+### Setting up Cgroups on Machines with systemd
 
-    sudo mount -t cgroup cgroup /sys/fs/cgroup
-
-To give all users on the system the ability to create their own cgroups,
-you can use
-
-    sudo chmod o+wt,g+w /sys/fs/cgroup/
-
-Of course permissions can also be assigned in a more fine-grained way if necessary.
-
-Alternatively, software such as `cgrulesengd` from
-the [cgroup-bin](http://libcg.sourceforge.net/) package
-can be used to setup the cgroups hierarchy.
-
-Note that `cgrulesengd` might interfere with the cgroups of processes,
-if configured to do so via `cgrules.conf`.
-This can invalidate the measurements.
-BenchExec will try to prevent such interference automatically,
-but for this it needs write access to `/run/cgred.socket`.
-
-If your machine has swap, cgroups should be configured to also track swap memory.
-If the file `memory.memsw.usage_in_bytes` does not exist in the directory
-where the cgroup file system is mounted, this needs to be enabled by setting
-`swapaccount=1` on the command line of the kernel.
-To do so, you typically need to edit your bootloader configuration
-(under Ubuntu for example in `/etc/default/grub`, line `GRUB_CMDLINE_LINUX`),
-update the bootloader (`sudo update-grub`), and reboot.
-
-In some debian kernels (and those derived from them, e.g. Raspberry Pi kernel),
-memory cgroup controller should be disabled by default, and can be enabled with
-`cgroup_enable=memory` option on the kernel command line, similar to
-`swapaccount=1` above.
-
-All the above requirements can be checked easily by running
-
-    python3 -m benchexec.check_cgroups
-
-after BenchExec has been installed.
-It will report warnings and exit with code 1 if something is missing.
-We recommend running this check to ensure benchmarks will get executed reliably.
-
-It may be that your Linux distribution already mounts the cgroup file system
-and creates a cgroup hierarchy for you.
-In this case you need to adjust the above commands appropriately.
-To optimally use BenchExec,
-the cgroup controllers `cpuacct`, `cpuset`, `freezer`, and `memory`
-should be mounted and usable,
-i.e., they should be listed in `/proc/self/cgroups` and the current user
-should have at least the permission to create sub-cgroups of the current cgroup(s)
-listed in this file for these controllers.
-
-### Setting up Cgroups on Systems with systemd
-
-This affects most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
+This is relevant for most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
 and potentially other distributions.
 systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
-Thus it may interfere with the cgroups usage of BenchExec.
+Thus it would interfere with the cgroups usage of BenchExec.
 
 By using a fake service we can let systemd create an appropriate cgroup for BenchExec
 and prevent interference.
@@ -198,19 +145,82 @@ echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
 echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
 ```
 
-Please check the correct cgroup setup with `python3 -m benchexec.check_cgroups` as described above.
+In any case, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
 
-Note that using systemd with BenchExec is still experimental.
-Please report back your experience and whether you have found a better solution than the above.
+### Setting up Cgroups on Machines without systemd
 
+The cgroup virtual file system is typically mounted at or below `/sys/fs/cgroup`.
+If it is not, you can mount it with
 
-### Setting up Cgroups in a Docker container
+    sudo mount -t cgroup cgroup /sys/fs/cgroup
+
+To give all users on the system the ability to create their own cgroups,
+you can use
+
+    sudo chmod o+wt,g+w /sys/fs/cgroup/
+
+Of course permissions can also be assigned in a more fine-grained way if necessary.
+
+Alternatively, software such as `cgrulesengd` from
+the [cgroup-bin](http://libcg.sourceforge.net/) package
+can be used to setup the cgroups hierarchy.
+
+Note that `cgrulesengd` might interfere with the cgroups of processes,
+if configured to do so via `cgrules.conf`.
+This can invalidate the measurements.
+BenchExec will try to prevent such interference automatically,
+but for this it needs write access to `/run/cgred.socket`.
+
+It may be that your Linux distribution already mounts the cgroup file system
+and creates a cgroup hierarchy for you.
+In this case you need to adjust the above commands appropriately.
+To optimally use BenchExec,
+the cgroup controllers `cpuacct`, `cpuset`, `freezer`, and `memory`
+should be mounted and usable,
+i.e., they should be listed in `/proc/self/cgroups` and the current user
+should have at least the permission to create sub-cgroups of the current cgroup(s)
+listed in this file for these controllers.
+
+In any case, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+### Setting up Cgroups in a Docker Container
 
 If you want to run benchmarks within a Docker container,
+and the cgroups file system is not available within the container,
 please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it:
 
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
+
+### Testing Cgroups Setup and Known Problems
+
+After installing BenchExec and setting up the cgroups file system, please run
+
+    python3 -m benchexec.check_cgroups
+
+This will report warnings and exit with code 1 if something is missing.
+If you find that something does not work,
+please check the following list of solutions.
+
+If your machine has swap, cgroups should be configured to also track swap memory.
+This is turned off by several distributions.
+If the file `memory.memsw.usage_in_bytes` does not exist in the directory
+`/sys/fs/cgroup/memory` (or wherever the cgroup file system is mounted),
+this needs to be enabled by setting `swapaccount=1` on the command line of the kernel.
+On Ubuntu, you can for example set this parameter by creating the file
+`/etc/default/grub.d/swapaccount-for-benchexec.cfg` with the following content:
+
+    GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} swapaccount=1"
+
+Then run `sudo update-grub` and reboot.
+On other distributions, please adjust your boot loader configuration appropriately.
+
+In some Debian kernels (and those derived from them, e.g. Raspberry Pi kernel),
+the memory cgroup controller is disabled by default, and can be enabled by
+setting `cgroup_enable=memory` on the kernel command line, similar to
+`swapaccount=1` above.
 
 
 ## Installation for Development
