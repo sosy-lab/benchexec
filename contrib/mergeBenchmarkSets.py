@@ -135,7 +135,7 @@ def main(argv=None):
                             if statusWitNew.startswith('true') or statusWit is None:
                                 statusWit, categoryWit = (statusWitNew, categoryWitNew)
                 # Overwrite status with status from witness
-                if isOverwrite:
+                if isOverwrite and statusWit is not None and categoryWit is not None:
                     result.findall('column[@title="status"]')[0].set('value', statusWit)
                     result.findall('column[@title="category"]')[0].set('value', categoryWit)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
