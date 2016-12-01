@@ -120,11 +120,11 @@ class Column(object):
         return self.type.type == ColumnType.measure or self.type.type == ColumnType.count
 
     def format_title(self):
+        title = self.display_title or self.title
         if self.is_numeric() and self.unit:
-            return "{} ({})".format(self.title, self.unit)
+            return "{} ({})".format(title, self.unit)
         else:
-            return self.title \
-                       if self.display_title is None else self.display_title
+            return title
 
     def format_value(self, value, isToAlign=False, format_target="html"):
         """
