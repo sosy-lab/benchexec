@@ -61,7 +61,7 @@ def getWitnessResult(witness):
     status = witness.findall('column[@title="status"]')[0].get('value')
     category = witness.findall('column[@title="category"]')[0].get('value')
 
-    # remove 's' forseconds and parse time as float
+    # remove 's' for seconds and parse time as float
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
@@ -111,6 +111,11 @@ def main(argv=None):
         if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
                 statusVer   = result.findall('column[@title="status"]')[0]
                 categoryVer = result.findall('column[@title="category"]')[0]
+                expected_result = 'unknown';
+                if 'false-unreach-call' in basename or 'false-no-overflow' in basename or 'false-valid-' in basename:
+                    expected_result = 'false';
+                if 'true-unreach-call' in basename or 'true-no-overflow' in basename or 'true-valid-' in basename:
+                    expected_result = 'true';
 
                 statusWit, categoryWit = (None, None)
                 i = 0
@@ -128,10 +133,10 @@ def main(argv=None):
                             result.append(newColumn)
                         witnessSet.pop(run)
                         statusWitNew, categoryWitNew = getWitnessResult(witness)
-                        if 'false-unreach-call' in basename or 'false-no-overflow' in basename or 'false-valid-' in basename:
+                        if expected_result == 'false':
                             if statusWitNew.startswith('false(') or statusWit is None:
                                 statusWit, categoryWit = (statusWitNew, categoryWitNew)
-                        if 'true-unreach-call' in basename or 'true-no-overflow' in basename or 'true-valid-' in basename:
+                        if expected_result == 'true':
                             if statusWitNew.startswith('true') or statusWit is None:
                                 statusWit, categoryWit = (statusWitNew, categoryWitNew)
                 # Overwrite status with status from witness
