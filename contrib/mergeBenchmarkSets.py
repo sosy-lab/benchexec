@@ -52,7 +52,7 @@ def getWitnesses(witnessXML):
     return witnesses
 
 
-def getWitnessResult(witness):
+def getWitnessResult(witness, expected_result):
 
     if witness is None:
         return ('witness missing', 'error')
@@ -65,14 +65,20 @@ def getWitnessResult(witness):
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
-    if status.startswith('true') or status.startswith('unknown'):
-        return ('witness unconfirmed', 'error')
-
-    if max(wallTime, cpuTime) > 90:
-        return ('witness timeout', 'error')
-
-    if status.startswith('false('):
-        return (status, category)
+    if expected_result == 'false':
+        if status.startswith('true') or status.startswith('unknown'):
+            return ('witness unconfirmed', 'error')
+        if max(wallTime, cpuTime) > 90:
+            return ('witness timeout', 'error')
+        if status.startswith('false('):
+            return (status, category)
+    if expected_result == 'true':
+        if status.startswith('false(') or status.startswith('unknown'):
+            return ('witness unconfirmed', 'error')
+        if max(wallTime, cpuTime) > 900:
+            return ('witness timeout', 'error')
+        if status.startswith('true'):
+            return (status, category)
 
     return ('witness invalid (' + status + ')', 'error')
 
@@ -132,7 +138,7 @@ def main(argv=None):
                                  })
                             result.append(newColumn)
                         witnessSet.pop(run)
-                        statusWitNew, categoryWitNew = getWitnessResult(witness)
+                        statusWitNew, categoryWitNew = getWitnessResult(witness, expected_result)
                         if expected_result == 'false':
                             if statusWitNew.startswith('false(') or statusWit is None:
                                 statusWit, categoryWit = (statusWitNew, categoryWitNew)
