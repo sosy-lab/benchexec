@@ -4,7 +4,7 @@
   <column title="status"/>
   <column title="category"/>
   <column title="score"/>
-  <column title="cputime"/>
+  <column title="cputime" displayTitle="CPU Time"/>
   <column title="setup">Time for analysis setup</column>
   <column title="non-existent">Pattern that does not match</column>
 </table>
