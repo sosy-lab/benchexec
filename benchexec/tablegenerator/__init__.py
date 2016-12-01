@@ -142,7 +142,7 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
 
     return [Column(c.get("title"), c.text, c.get("numberOfDigits"),
                    handle_path(c.get("href")), None, c.get("displayUnit"),
-                   c.get("scaleFactor"), c.get("relevantForDiff"))
+                   c.get("scaleFactor"), c.get("relevantForDiff"), c.get("displayTitle"))
             for c in xmltag.findall('column')]
 
 
@@ -511,7 +511,7 @@ class RunSetResult(object):
                     if not title in columnNames \
                             and (all_columns or c.get('hidden') != 'true'):
                         columnNames.add(title)
-                        columns.append(Column(title, None, None, None))
+                        columns.append(Column(title, None, None, None, display_title=c.get('displayTitle')))
             return columns
 
     @staticmethod
@@ -1050,7 +1050,7 @@ def get_stats(rows, local_summary):
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
         column_type, column_unit = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor, column.display_title)
         stats_columns.append(new_column)
 
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)

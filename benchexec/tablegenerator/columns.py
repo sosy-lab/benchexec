@@ -101,7 +101,7 @@ class Column(object):
     It does NOT contain the value of a column.
     """
     def __init__(self, title, pattern, num_of_digits, href, col_type=None,
-                 unit=None, scale_factor=1, relevant_for_diff=None):
+                 unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None
@@ -114,6 +114,7 @@ class Column(object):
         else:
             self.relevant_for_diff = True \
                 if relevant_for_diff.lower() == "true" else False
+        self.display_title = display_title
 
     def is_numeric(self):
         return self.type.type == ColumnType.measure or self.type.type == ColumnType.count
@@ -122,7 +123,8 @@ class Column(object):
         if self.is_numeric() and self.unit:
             return "{} ({})".format(self.title, self.unit)
         else:
-            return self.title
+            return self.title \
+                       if self.display_title is None else self.display_title
 
     def format_value(self, value, isToAlign=False, format_target="html"):
         """
