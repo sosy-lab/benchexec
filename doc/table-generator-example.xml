@@ -9,8 +9,8 @@
 
     <!-- <column> can be used here to override the global set of columns.  -->
     <column title="status"/>
-    <column title="cputime"/>
-    <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+    <column title="cputime" displayTitle="CPU Time"/>
+    <column title="memUsage" displayTitle="Memory" displayUnit="MB" scaleFactor="0.000001"/>
   </result>
 
   <!-- <union> groups a set of results which should be placed below each other in the table

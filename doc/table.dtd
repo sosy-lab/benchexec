@@ -9,6 +9,7 @@
 
 <!ELEMENT column (#PCDATA)>
 <!ATTLIST column title CDATA #IMPLIED
+                 displayTitlle CDATA #IMPLIED
                  href CDATA #IMPLIED
                  numberOfDigits CDATA #IMPLIED
                  displayUnit CDATA #IMPLIED
