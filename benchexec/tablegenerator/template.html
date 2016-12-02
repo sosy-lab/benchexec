@@ -64,6 +64,7 @@
   tbody { white-space: nowrap; }
   tr:hover { background-color:yellow}
   td { border:1px solid gray; }
+  td.selected { border-color: red; }
   td:first-child { text-align: left; }
   #dataTable tbody td:first-child { font-family: monospace; }
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
@@ -351,15 +352,15 @@ var currentlySelectedCell = null;
 function highlightCell(event) {
   var target = event.target;
   if (target.nodeName === 'A') {
-    target = target.parentNode;
+    target = $(target.parentNode);
 
     // unhighlight currentlySelectedCell
     if (currentlySelectedCell != null) {
-      currentlySelectedCell.style.borderColor = 'black';
+      currentlySelectedCell.removeClass('selected');
     }
 
     // highlight cell that has been just clicked on
-    target.style.borderColor = 'red';
+    target.addClass('selected');
     currentlySelectedCell = target;
   }
 }
