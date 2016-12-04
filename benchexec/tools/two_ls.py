@@ -44,8 +44,6 @@ class Tool(benchexec.tools.template.BaseTool):
         if propertyfile:
             options = options + ['--propertyfile', propertyfile]
 
-        self.options = options
-
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -58,26 +56,20 @@ class Tool(benchexec.tools.template.BaseTool):
         elif returncode == 0:
             status = result.RESULT_TRUE_PROP
         elif returncode == 10:
-            if '--propertyfile' in self.options:
-                # SV-COMP mode
-                if len(output) > 0:
-                    result_str = output[-1].strip()
-                    if result_str == 'FALSE(valid-memtrack)':
-                        status = result.RESULT_FALSE_MEMTRACK
-                    elif result_str == 'FALSE(valid-deref)':
-                        status = result.RESULT_FALSE_DEREF
-                    elif result_str == 'FALSE(valid-free)':
-                        status = result.RESULT_FALSE_FREE
-                    elif result_str == 'FALSE(no-overflow)':
-                        status = result.RESULT_FALSE_OVERFLOW
-                    elif result_str == 'FALSE(termination)':
-                        status = result.RESULT_FALSE_TERMINATION
-                    else:
-                        status = result.RESULT_FALSE_REACH
+            if len(output) > 0:
+                result_str = output[-1].strip()
+                if result_str == 'FALSE(valid-memtrack)':
+                    status = result.RESULT_FALSE_MEMTRACK
+                elif result_str == 'FALSE(valid-deref)':
+                    status = result.RESULT_FALSE_DEREF
+                elif result_str == 'FALSE(valid-free)':
+                    status = result.RESULT_FALSE_FREE
+                elif result_str == 'FALSE(no-overflow)':
+                    status = result.RESULT_FALSE_OVERFLOW
+                elif result_str == 'FALSE(termination)':
+                    status = result.RESULT_FALSE_TERMINATION
                 else:
-                   status = result.RESULT_FALSE_REACH
-            elif '--termination' in self.options:
-                status = result.RESULT_FALSE_TERMINATION
+                    status = result.RESULT_FALSE_REACH
             else:
                 status = result.RESULT_FALSE_REACH
         else:
