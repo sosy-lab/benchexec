@@ -592,7 +592,7 @@ function loadContent(url) {
 }
 
 $(document).ready(function() {
-  var cellsWithUrls = $('#dataTable a').not("[target='_blank']");
+  var cellsWithUrls = $('#dataTable a').not("[target='_self']");
   cellsWithUrls.each(
     function(index, elem) {
       $(elem).click(highlightCell).click(loadContentWrapper);
