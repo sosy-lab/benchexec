@@ -98,10 +98,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
             elif status == "SUCCESS":
                 assert returncode == 0
-                if "--no-unwinding-assertions" in self.options:
-                    status = result.RESULT_UNKNOWN
-                else:
+                if "--unwinding-assertions" in self.options:
                     status = result.RESULT_TRUE_PROP
+                else:
+                    status = result.RESULT_UNKNOWN
 
         except Exception:
             if isTimeout:
