@@ -44,10 +44,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return executableDir
 
 
-    def environment(self, executable):
-        return {"additionalEnv" : {'PATH' :  ':.'}}
-
-
     def version(self, executable):
         return self._version_from_tool(executable, '-v')
 
