@@ -40,7 +40,6 @@ class Tool(benchexec.tools.template.BaseTool):
         'esbmc',
         '__init__.py',
         'modules',
-        'tokenizer',
         ]
 
     def executable(self):
@@ -51,9 +50,6 @@ class Tool(benchexec.tools.template.BaseTool):
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
         return executableDir
-
-    def environment(self, executable):
-        return {"additionalEnv" : {'PATH' : ':.'}}
 
     def version(self, executable):
         workingDir = self.working_directory(executable)
@@ -123,10 +119,3 @@ class Tool(benchexec.tools.template.BaseTool):
                 return matchstep.group(1).strip()
 
         return '-'
-
-    
-
-
-			
-			
-			
