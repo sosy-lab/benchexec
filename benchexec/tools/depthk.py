@@ -53,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return executableDir
 
     def environment(self, executable):
-        return {'additionalEnv': {'PATH': ':.'}}
+        return {"additionalEnv" : {'PATH' : ':.'}}
 
     def version(self, executable):
         workingDir = self.working_directory(executable)
