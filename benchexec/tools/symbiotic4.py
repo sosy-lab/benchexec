@@ -32,7 +32,8 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
                   "bin",
                   "include",
-                  "instrumentation",
+                  "share",
+                  "instrumentations",
                   "lib",
                   "lib32",
                   "symbiotic"
