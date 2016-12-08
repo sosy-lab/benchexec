@@ -44,12 +44,12 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return self._version_from_tool(os.path.join(os.path.dirname(executable),self.blastExe()))[6:11]
+        return self._version_from_tool(os.path.join(os.path.dirname(executable), self.blastExe()))[6:11]
 
 
-    def cmdline(self, svcomprunner, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         spec = ["-propertyfile", propertyfile] if propertyfile is not None else []
-        return [svcomprunner] + ['ocamltune', self.blastExe()] + options + spec + tasks
+        return [executable] + ['ocamltune', self.blastExe()] + options + spec + tasks
 
 
     def name(self):
