@@ -33,7 +33,6 @@ class Tool(benchexec.tools.template.BaseTool):
                       "prism",
                       "scripts",
                       "suportFiles",
-                      "VeriAbs",
                       ]
 
     def executable(self):

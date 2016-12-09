@@ -29,7 +29,6 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
                       "bin",
                       "check.sh",
-                      "ConSequence",
                       "consequence.pl",
                       "deps",
                       "jars",
