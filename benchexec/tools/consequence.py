@@ -21,21 +21,21 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-REQUIRED_PATHS = [
-                  "bin",
-                  "check.sh",
-                  "ConSequence",
-                  "consequence.pl",
-                  "deps",
-                  "jars",
-                  "setup_consequence.pl",
-                  ]
-
 class Tool(benchexec.tools.template.BaseTool):
     """
     ConSequence
     """
     
+    REQUIRED_PATHS = [
+                      "bin",
+                      "check.sh",
+                      "ConSequence",
+                      "consequence.pl",
+                      "deps",
+                      "jars",
+                      "setup_consequence.pl",
+                      ]
+
     def executable(self):
         return util.find_executable('consequence.pl')
     

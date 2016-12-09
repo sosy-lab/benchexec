@@ -23,12 +23,12 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-REQUIRED_PATHS = [
-                  "etv",
-                  "bin",
-                  ]
-
 class Tool(benchexec.tools.template.BaseTool):
+
+    REQUIRED_PATHS = [
+                      "etv",
+                      "bin",
+                     ]
 
     def blastExe(self):
         return 'pblast.opt'
@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def program_files(self, executable):
         installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
 
     def version(self, executable):

@@ -21,19 +21,19 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-REQUIRED_PATHS = [
-                  "fixcalc",
-                  "hip",
-                  "hiptnt",
-                  "hiptnt.sh",
-                  "oc",
-                  "prelude.ss",
-                  "run_hiptnt",
-                  "stdlib.h",
-                  "z3-4.3.2",
-                  ]
-
 class Tool(benchexec.tools.template.BaseTool):
+
+    REQUIRED_PATHS = [
+                      "fixcalc",
+                      "hip",
+                      "hiptnt",
+                      "hiptnt.sh",
+                      "oc",
+                      "prelude.ss",
+                      "run_hiptnt",
+                      "stdlib.h",
+                      "z3-4.3.2",
+                      ]
 
     def executable(self):
         return util.find_executable('hiptnt.sh')
