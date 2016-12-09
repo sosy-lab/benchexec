@@ -17,6 +17,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import os
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -32,11 +34,15 @@ class Tool(benchexec.tools.template.BaseTool):
                       "jars",
                       "prism",
                       "scripts",
-                      "suportFiles",
+                      "supportFiles",
                       ]
 
     def executable(self):
         return util.find_executable('scripts/veriabs')
+
+    def program_files(self, executable):
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
     def name(self):
         return 'VeriAbs'
