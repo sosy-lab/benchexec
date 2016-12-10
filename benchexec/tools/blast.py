@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool):
                       "bin",
                      ]
 
-    def blastExe(self):
+    def blast_exe(self):
         return 'pblast.opt'
 
 
@@ -44,12 +44,12 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return self._version_from_tool(os.path.join(os.path.dirname(executable), self.blastExe()))[6:11]
+        return self._version_from_tool(os.path.join(os.path.dirname(executable), self.blast_exe()))[6:11]
 
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         spec = ["-propertyfile", propertyfile] if propertyfile is not None else []
-        return [executable] + ['ocamltune', self.blastExe()] + options + spec + tasks
+        return [executable] + ['ocamltune', self.blast_exe()] + options + spec + tasks
 
 
     def name(self):
