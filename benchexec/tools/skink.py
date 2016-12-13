@@ -20,6 +20,7 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
                   "bin",
                   "lib",
+                  "include",
                   "logback-test.xml",
                   "skink.sh",
                   "skink.jar"
