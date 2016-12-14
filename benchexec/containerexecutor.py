@@ -637,10 +637,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if result_mode == DIR_OVERLAY and (
                     _is_below(path, b"/dev") or
                     _is_below(path, b"/sys") or
-                    fstype == b"autofs" or
                     fstype == b"cgroup"):
-                # Import /dev, /sys, cgroup, and autofs from host into the container,
-                # overlay does not work for them.
+                # Overlay does not make sense for /dev, /sys, and all cgroups.
+                return DIR_READ_ONLY
+
+            if result_mode == DIR_OVERLAY and (
+                    fstype == b"autofs" or
+                    fstype == b"vfat" or
+                    fstype == b"ntfs"):
+                # Overlayfs does not support these as underlying file systems.
+                logging.debug("Cannot use overlay mode for %s because it has file system %s. "
+                              "Using read-only mode instead.",
+                              path.decode(), fstype.decode())
                 return DIR_READ_ONLY
 
             if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
