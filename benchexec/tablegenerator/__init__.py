@@ -962,6 +962,9 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                         return value
                 runSetResult.attributes[key] = Util.prettylist(map(round_to_MHz, values))
 
+            elif key == 'host':
+                runSetResult.attributes[key] = Util.prettylist(values, True)
+
             else:
                 runSetResult.attributes[key] = Util.prettylist(values)
 

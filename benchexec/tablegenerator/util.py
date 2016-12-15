@@ -97,17 +97,18 @@ def open_url_seekable(path_url, mode='rt'):
         return io.TextIOWrapper(response)
 
 
-def split_number_and_unit(s):
+def split_number_and_unit(s, reverse=False):
     """
     Split a string into two parts: a number prefix and an arbitrary suffix.
     Splitting is done from the end, so the split is where the last digit
     in the string is (that means the prefix may include non-digit characters,
     if they are followed by at least one digit).
+    In 'reverse' mode we split the element into the string and a postfix number.
     """
     if not s:
         return (s, '')
     pos = len(s)
-    while pos and not s[pos-1].isdigit():
+    while pos and reverse == s[pos-1].isdigit():
         pos -= 1
     return (s[:pos], s[pos:])
 
@@ -192,14 +193,30 @@ def to_json(obj):
     return tempita.html(json.dumps(obj, sort_keys=True))
 
 
-def prettylist(list_):
+def prettylist(list_, merge=False):
+    """
+    Filter out duplicate values while keeping order.
+
+    In 'merge' mode we try to also match post-fixed names.
+    This might be useful in cases of several similar values like hostnames.
+    Example: ['test', 'pc1', 'pc2', 'pc3'] -> ['test', 'pc*']
+    """
     if not list_:
         return ''
 
-    # Filter out duplicate values while keeping order
     values = set()
     uniqueList = []
+    entryPrefix = None
     for entry in list_:
+        if merge:
+            newPrefix, ident = split_number_and_unit(entry, True)
+            if entryPrefix == newPrefix and entry != newPrefix:
+                uniqueList.pop() # remove latest entry, it is merged into current
+                uniqueList.append(entryPrefix + '*')
+                values.add(entryPrefix)
+                entry = entryPrefix
+            else:
+                entryPrefix = newPrefix
         if not entry in values:
             values.add(entry)
             uniqueList.append(entry)
