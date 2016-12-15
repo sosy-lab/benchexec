@@ -89,6 +89,8 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_FALSE_FREE
           elif line.startswith('FALSE (valid-memtrack)'):
             return result.RESULT_FALSE_MEMTRACK
+          elif line.startswith('FALSE (overflow)'):
+            return result.RESULT_FALSE_OVERFLOW
           elif line.startswith('FALSE'):
             return result.RESULT_FALSE_REACH
 
