@@ -33,7 +33,6 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
-import ast
 
 from benchexec import model
 
@@ -150,13 +149,6 @@ def format_options(options):
             lines[-1] += token
     # join all non-empty lines and wrap them into 'span'-tags
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
-
-def format_host(host_line):
-    '''Helper function for formatting the content of the host line'''
-    host_list = [item.strip() for item in host_line.replace('[', '').replace(']', '').split(';')];
-    if len(host_list) < 10:
-        return host_line
-    return '[' + '; '.join(host_list[0:5]) + '; ...; '+ host_list[-1] + ']'
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')

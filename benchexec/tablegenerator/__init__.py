@@ -71,7 +71,6 @@ TEMPLATE_NAMESPACE={
    'json': Util.to_json,
    'create_link': Util.create_link,
    'format_options': Util.format_options,
-   'format_host': Util.format_host,
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
