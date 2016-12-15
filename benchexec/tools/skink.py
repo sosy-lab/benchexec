@@ -23,7 +23,8 @@ class Tool(benchexec.tools.template.BaseTool):
                   "include",
                   "logback-test.xml",
                   "skink.sh",
-                  "skink.jar"
+                  "skink.jar",
+                  "skink_exp.jar"
                   ]
 
     def executable(self):
