@@ -219,10 +219,11 @@ def properties_of_file(propertyfile):
 
 def satisfies_file_property(filename, properties):
     """
-    Tell whether the given property is violated or satisfied in a given file.
+    Tell whether the given properties are violated or satisfied in a given file.
+    Assumption: Currently, only one expected result per set of properties is supported.
     @param filename: The file name of the input file.
     @param properties: The list of properties to check (as returned by properties_of_file()).
-    @return True if the property is satisfied; False if it is violated; None if it is unknown
+    @return True if the properties are satisfied; False if it is violated; None if it is unknown
     """
     expected_result = _expected_result(filename, properties)
     if not expected_result:
