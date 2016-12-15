@@ -193,30 +193,47 @@ def to_json(obj):
     return tempita.html(json.dumps(obj, sort_keys=True))
 
 
-def prettylist(list_, merge=False):
+def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
+    """
+    Returns a list where sequences of post-fixed entries are shortened to their common prefix.
+    This might be useful in cases of several similar values,
+    where the prefix is identical for several entries.
+    If less than 'number_of_needed_commons' are identically prefixed, they are kept unchanged.
+    Example: ['test', 'pc1', 'pc2', 'pc3', ... , 'pc10'] -> ['test', 'pc*']
+    """
+    # first find common entry-sequences
+    prefix = None
+    lists_to_merge = []
+    for entry in list_:
+        newPrefix = split_number_and_unit(entry, True)[0]
+        if entry == newPrefix or prefix != newPrefix:
+            lists_to_merge.append([])
+            prefix = newPrefix
+        lists_to_merge[-1].append(entry)
+
+    # then merge them
+    returnvalue = []
+    for common_entries in lists_to_merge:
+        if len(common_entries) <= number_of_needed_commons:
+            returnvalue.extend(common_entries)
+        else:
+            common_prefix = split_number_and_unit(common_entries[0], True)[0]
+            returnvalue.append(common_prefix + '*')
+
+    return returnvalue
+
+
+def prettylist(list_):
     """
     Filter out duplicate values while keeping order.
-
-    In 'merge' mode we try to also match post-fixed names.
-    This might be useful in cases of several similar values like hostnames.
-    Example: ['test', 'pc1', 'pc2', 'pc3'] -> ['test', 'pc*']
     """
     if not list_:
         return ''
 
     values = set()
     uniqueList = []
-    entryPrefix = None
+
     for entry in list_:
-        if merge:
-            newPrefix, ident = split_number_and_unit(entry, True)
-            if entryPrefix == newPrefix and entry != newPrefix:
-                uniqueList.pop() # remove latest entry, it is merged into current
-                uniqueList.append(entryPrefix + '*')
-                values.add(entryPrefix)
-                entry = entryPrefix
-            else:
-                entryPrefix = newPrefix
         if not entry in values:
             values.add(entry)
             uniqueList.append(entry)
