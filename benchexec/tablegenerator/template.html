@@ -929,7 +929,7 @@ function fillRowFilterField(columnIndex) {
     // determinate options
     var options = [];
     var columnName = columnTitleCells[columnIndex].textContent;
-    if (columnName == 'status') {
+    if (columnName.startsWith('status')) {
         options = options.concat(['correct', 'wrong', 'unknown']);
     }
     $('#dataTable > tbody > tr').filter(':visible').each(function(_, row) {
@@ -1009,7 +1009,7 @@ function hideRows(values, columnIndex, invertFilter) {
         }
 
         // special case: show 'correct', 'wrong' and 'unknown' results
-        if (!isVisible && columnName == 'status') {
+        if (!isVisible && columnName.startsWith('status')) {
             var classNames = row.cells[columnIndex + dataColumnsOffset].className.split(' ');
             for (var j = 0; j < values.length; j++) {
                 var value = values[j];
