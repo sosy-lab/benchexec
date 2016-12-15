@@ -712,14 +712,14 @@ class Run(object):
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 
-        self.status = self._analyse_result(exitcode, output, isTimeout, termination_reason)
+        self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
         self.category = result.get_result_category(self.identifier, self.status, self.properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
             column.value = self.runSet.benchmark.tool.get_value_from_output(output, substitutedColumnText)
 
-    def _analyse_result(self, exitcode, output, isTimeout, termination_reason):
+    def _analyze_result(self, exitcode, output, isTimeout, termination_reason):
         """Return status according to result and output of tool."""
         status = ""
 
