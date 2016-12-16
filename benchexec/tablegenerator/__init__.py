@@ -71,7 +71,6 @@ TEMPLATE_NAMESPACE={
    'json': Util.to_json,
    'create_link': Util.create_link,
    'format_options': Util.format_options,
-   'format_host': Util.format_host,
    }
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
@@ -962,6 +961,9 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     except ValueError:
                         return value
                 runSetResult.attributes[key] = Util.prettylist(map(round_to_MHz, values))
+
+            elif key == 'host':
+                runSetResult.attributes[key] = Util.prettylist(Util.merge_entries_with_common_prefixes(values))
 
             else:
                 runSetResult.attributes[key] = Util.prettylist(values)

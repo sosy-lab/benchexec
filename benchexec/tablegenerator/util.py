@@ -33,7 +33,6 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
-import ast
 
 from benchexec import model
 
@@ -105,10 +104,20 @@ def split_number_and_unit(s):
     in the string is (that means the prefix may include non-digit characters,
     if they are followed by at least one digit).
     """
+    return split_string_at_suffix(s,False)
+
+
+def split_string_at_suffix(s, numbers_into_suffix=False):
+    """
+    Split a string into two parts: a prefix and a suffix. Splitting is done from the end,
+    so the split is done around the position of the last digit in the string
+    (that means the prefix may include any character, mixing digits and chars).
+    The flag 'numbers_into_suffix' determines whether the suffix consists of digits or non-digits.
+    """
     if not s:
         return (s, '')
     pos = len(s)
-    while pos and not s[pos-1].isdigit():
+    while pos and numbers_into_suffix == s[pos-1].isdigit():
         pos -= 1
     return (s[:pos], s[pos:])
 
@@ -150,13 +159,6 @@ def format_options(options):
             lines[-1] += token
     # join all non-empty lines and wrap them into 'span'-tags
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
-
-def format_host(host_line):
-    '''Helper function for formatting the content of the host line'''
-    host_list = [item.strip() for item in host_line.replace('[', '').replace(']', '').split(';')];
-    if len(host_list) < 10:
-        return host_line
-    return '[' + '; '.join(host_list[0:5]) + '; ...; '+ host_list[-1] + ']'
 
 def to_decimal(s):
     # remove whitespaces and trailing units (e.g., in '1.23s')
@@ -200,13 +202,49 @@ def to_json(obj):
     return tempita.html(json.dumps(obj, sort_keys=True))
 
 
+def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
+    """
+    Returns a list where sequences of post-fixed entries are shortened to their common prefix.
+    This might be useful in cases of several similar values,
+    where the prefix is identical for several entries.
+    If less than 'number_of_needed_commons' are identically prefixed, they are kept unchanged.
+    Example: ['test', 'pc1', 'pc2', 'pc3', ... , 'pc10'] -> ['test', 'pc*']
+    """
+    # first find common entry-sequences
+    prefix = None
+    lists_to_merge = []
+    for entry in list_:
+        newPrefix,number = split_string_at_suffix(entry, numbers_into_suffix=True)
+        if entry == newPrefix or prefix != newPrefix:
+            lists_to_merge.append([])
+            prefix = newPrefix
+        lists_to_merge[-1].append((entry,newPrefix,number))
+
+    # then merge them
+    returnvalue = []
+    for common_entries in lists_to_merge:
+        common_prefix = common_entries[0][1]
+        assert all(common_prefix == prefix for entry,prefix,number in common_entries)
+        if len(common_entries) <= number_of_needed_commons:
+            returnvalue.extend((entry for entry,prefix,number in common_entries))
+        else:
+            # we use '*' to indicate several entries,
+            # it would also be possible to use '[min,max]' from '(n for e,p,n in common_entries)'
+            returnvalue.append(common_prefix + '*')
+
+    return returnvalue
+
+
 def prettylist(list_):
+    """
+    Filter out duplicate values while keeping order.
+    """
     if not list_:
         return ''
 
-    # Filter out duplicate values while keeping order
     values = set()
     uniqueList = []
+
     for entry in list_:
         if not entry in values:
             values.add(entry)

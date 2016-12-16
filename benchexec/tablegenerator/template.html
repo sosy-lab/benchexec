@@ -224,7 +224,7 @@
   <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
-<td colspan="{{width}}">{{html(format_options(html_quote(cell))) if line.id == 'options' else format_host(cell) if lineName == 'host' else cell}}</td>
+<td colspan="{{width}}">{{html(format_options(html_quote(cell))) if line.id == 'options' else cell}}</td>
     {{endfor}}
 </tr>
   {{endif}}
