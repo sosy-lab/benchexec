@@ -1,4 +1,6 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
@@ -34,28 +36,20 @@ class Tool(benchexec.tools.template.BaseTool):
     Autor: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.
     """
 
-    REQUIRED_PATHS = [
-        'depthk.py',
-        'depthk-wrapper.sh',
-        'esbmc',
-        '__init__.py',
-        'modules',
-        ]
+    REQUIRED_PATHS = ['depthk.py', 'depthk-wrapper.sh', 'esbmc',
+                      '__init__.py', 'modules']
 
     def executable(self):
-        
-        return Util.find_executable('depthk-wrapper.sh'
-                                    )
+
+        return Util.find_executable('depthk-wrapper.sh')
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
         return executableDir
 
     def version(self, executable):
-        workingDir = self.working_directory(executable)
-
-        version = subprocess.Popen([workingDir + '/depthk.py',
-                                   '--version'],
+        cmd = os.path.join(os.path.dirname(os.path.abspath(executable)),'depthk.py')
+        version = subprocess.Popen([cmd, '--version'],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT).stdout.readline().decode()
         return version
@@ -109,7 +103,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return status
 
     def get_value_from_output(self, lines, identifier):
-     
+
         for line in lines:
             if identifier == 'k' and line.startswith('Bound k:'):
                 matchbound = re.search(r'Bound k:(.*)', line)
@@ -119,3 +113,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 return matchstep.group(1).strip()
 
         return '-'
+
+
+
+			
