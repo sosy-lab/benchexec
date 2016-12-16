@@ -97,7 +97,7 @@ def open_url_seekable(path_url, mode='rt'):
         return io.TextIOWrapper(response)
 
 
-def split_number_and_unit(s, reverse=False):
+def split_number_and_unit(s):
     """
     Split a string into two parts: a number prefix and an arbitrary suffix.
     Splitting is done from the end, so the split is where the last digit
@@ -105,10 +105,20 @@ def split_number_and_unit(s, reverse=False):
     if they are followed by at least one digit).
     In 'reverse' mode we split the element into the string and a postfix number.
     """
+    return split_string_at_suffix(s,False)
+
+
+def split_string_at_suffix(s, numbers_into_suffix=False):
+    """
+    Split a string into two parts: a prefix and a suffix. Splitting is done from the end,
+    so the split is done around the position of the last digit in the string
+    (that means the prefix may include any character, mixing digits and chars).
+    The flag 'numbers_into_suffix' determines whether the suffix consists of digits or non-digits.
+    """
     if not s:
         return (s, '')
     pos = len(s)
-    while pos and reverse == s[pos-1].isdigit():
+    while pos and numbers_into_suffix == s[pos-1].isdigit():
         pos -= 1
     return (s[:pos], s[pos:])
 
@@ -205,19 +215,22 @@ def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     prefix = None
     lists_to_merge = []
     for entry in list_:
-        newPrefix = split_number_and_unit(entry, True)[0]
+        newPrefix,number = split_string_at_suffix(entry, numbers_into_suffix=True)
         if entry == newPrefix or prefix != newPrefix:
             lists_to_merge.append([])
             prefix = newPrefix
-        lists_to_merge[-1].append(entry)
+        lists_to_merge[-1].append((entry,newPrefix,number))
 
     # then merge them
     returnvalue = []
     for common_entries in lists_to_merge:
+        common_prefix = common_entries[0][1]
+        assert all(common_prefix == prefix for entry,prefix,number in common_entries)
         if len(common_entries) <= number_of_needed_commons:
-            returnvalue.extend(common_entries)
+            returnvalue.extend((entry for entry,prefix,number in common_entries))
         else:
-            common_prefix = split_number_and_unit(common_entries[0], True)[0]
+            # we use '*' to indicate several entries,
+            # it would also be possible to use '[min,max]' from '(n for e,p,n in common_entries)'
             returnvalue.append(common_prefix + '*')
 
     return returnvalue
