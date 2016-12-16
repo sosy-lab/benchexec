@@ -103,7 +103,6 @@ def split_number_and_unit(s):
     Splitting is done from the end, so the split is where the last digit
     in the string is (that means the prefix may include non-digit characters,
     if they are followed by at least one digit).
-    In 'reverse' mode we split the element into the string and a postfix number.
     """
     return split_string_at_suffix(s,False)
 
