@@ -28,6 +28,7 @@ import re
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
+                  "boogie",
                   "corral",
                   "llvm",
                   "lockpwn",
