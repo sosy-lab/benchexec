@@ -52,13 +52,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return executableDir
 
     def version(self, executable):
-        cmd=os.path.join(os.path.dirname(os.path.abspath(executable)), 'depthk.py')
-
-        version = subprocess.Popen([cmd,
-                                   '--version'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT).stdout.readline().decode()
-        return version
+        return self._version_from_tool(executable, '-v')
 
     def name(self):
         return 'DepthK'
