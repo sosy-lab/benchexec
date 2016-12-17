@@ -52,7 +52,8 @@ class Tool(ultimate.UltimateTool):
                   "Ultimate",
                   "Ultimate.ini",
                   "Ultimate.py",
-                  "z3"
+                  "z3",
+                  "mathsat"
                   ]
 
     def name(self):
