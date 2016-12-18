@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
         elif "TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif "UNKNOWN" in output:
-            status = result.RESULT_UNKNOW
+            status = result.RESULT_UNKNOWN
         elif "FALSE" in output:
             status = result.RESULT_FALSE_TERMINATION
         elif "NO" in output:
