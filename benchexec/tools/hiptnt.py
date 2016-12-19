@@ -46,15 +46,13 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
         status = result.RESULT_UNKNOWN
-        if "YES" in output:
-            status = result.RESULT_TRUE_PROP
-        elif "TRUE" in output:
-            status = result.RESULT_TRUE_PROP
+        if "error" in output:
+            status = result.RESULT_UNKNOWN
         elif "UNKNOWN" in output:
             status = result.RESULT_UNKNOWN
+        elif "TRUE" in output:
+            status = result.RESULT_TRUE_PROP
         elif "FALSE" in output:
-            status = result.RESULT_FALSE_TERMINATION
-        elif "NO" in output:
             status = result.RESULT_FALSE_TERMINATION
         else:
             status = result.RESULT_UNKNOWN
