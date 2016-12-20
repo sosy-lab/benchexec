@@ -54,18 +54,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output[-10:])
-        if isTimeout:
-            return 'TIMEOUT'
-        if "INVALID-POINTER" in lines or "DYNAMIC_OBJECT" in lines or "dereference failure" in lines:
-            return result.RESULT_FALSE_DEREF
-        elif "SUCCESS" in lines:
+        if "SUCCESS" in lines:
             return result.RESULT_TRUE_PROP
         elif "FAILED" in lines:
             return result.RESULT_FALSE_REACH
-        elif "OUTOFMEMORY" in lines:
-            return 'OUT OF MEMORY'
-        elif "TIMEOUT" in lines:
-            return "TIMEOUT"
         elif "NOT SUPPORTED" in lines or "UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
         else:
