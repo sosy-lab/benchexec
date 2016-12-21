@@ -1517,7 +1517,8 @@ def create_argument_parser():
         action="store_const", dest="lib_url",
         const=LIB_URL_OFFLINE,
         default=LIB_URL,
-        help="Don't insert links to http://www.sosy-lab.org, instead expect JS libs in libs/javascript."
+        help="Expect JS libs in libs/javascript/ instead of retrieving them from a CDN. "
+            "Currently does not work for all libs."
     )
     parser.add_argument("--show",
         action="store_true", dest="show_table",
