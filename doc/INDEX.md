@@ -16,7 +16,7 @@ The documentation for BenchExec is available in the following files:
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
 
 More on the background of BenchExec can also be found in our paper
-[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
 
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),
 for example [files for generating plots](../contrib/plots/README.md).

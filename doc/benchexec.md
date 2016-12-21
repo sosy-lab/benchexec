@@ -14,7 +14,7 @@ and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml),
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
 
 A document-type definition with a formal specification of input files can be found in
 [doc/benchmark.dtd](benchmark.dtd).
@@ -150,7 +150,7 @@ One can use this to create a reliable archive of experimental results.
 in the best possible way.
 More information on what should be considered when allocating hardware resources such as CPU cores
 can be found in our paper
-[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
 Some additional technical information is also present in the documentation on [resource handling](resources.md).
 
 

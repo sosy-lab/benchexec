@@ -49,7 +49,7 @@ and a complete definition can be found in the file
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.7//EN" "http://www.sosy-lab.org/benchexec/table-1.7.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.6//EN" "https://www.sosy-lab.org/benchexec/table-1.6.dtd">
 
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
