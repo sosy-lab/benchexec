@@ -1,0 +1,50 @@
+<!ELEMENT result (columns, systeminfo+, run*, column*)>
+<!ATTLIST result name CDATA #IMPLIED
+               benchmarkname CDATA #REQUIRED
+               block CDATA #IMPLIED
+               date CDATA #REQUIRED
+               tool CDATA #REQUIRED
+               toolmodule CDATA #REQUIRED
+               version CDATA #REQUIRED
+               options CDATA #IMPLIED
+               memlimit CDATA #IMPLIED
+               timelimit CDATA #IMPLIED
+               cpuCores CDATA #IMPLIED
+               generator CDATA #REQUIRED
+               error CDATA #IMPLIED>
+
+<!ELEMENT systeminfo (os, cpu, ram, environment)>
+<!ATTLIST systeminfo hostname CDATA #IMPLIED>
+<!ELEMENT os EMPTY>
+<!ATTLIST os name CDATA #REQUIRED>
+<!ELEMENT cpu EMPTY>
+<!ATTLIST cpu cores CDATA #REQUIRED
+              frequency CDATA #REQUIRED
+              turboboostActive CDATA #IMPLIED
+              model CDATA #REQUIRED>
+<!ELEMENT ram EMPTY>
+<!ATTLIST ram size CDATA #REQUIRED>
+<!ELEMENT environment (var*)>
+<!ELEMENT var (#PCDATA)>
+<!ATTLIST var name CDATA #REQUIRED>
+
+<!ELEMENT columns (column*)>
+<!ELEMENT column EMPTY>
+<!ATTLIST column title CDATA #REQUIRED
+                 value CDATA #IMPLIED
+                 hidden CDATA #IMPLIED>
+
+<!-- Result for a single benchmark run.
+  name: identifier for the run
+  files: list of input files of the run
+  properties: list of properties of the run
+  options: run-specific command-line options for the tool
+  logfile: path or URL that points to the logfile for this run
+      (absolute or relative to directory of result file)
+-->
+<!ELEMENT run (column*)>
+<!ATTLIST run name CDATA #REQUIRED
+              files CDATA #IMPLIED
+              properties CDATA #IMPLIED
+              options CDATA #IMPLIED
+              logfile CDATA #IMPLIED>

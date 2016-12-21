@@ -1,0 +1,15 @@
+<!ELEMENT table ((result | union | column)*)>
+
+<!ELEMENT result (column*)>
+<!ATTLIST result id CDATA #IMPLIED
+                 filename CDATA #REQUIRED>
+
+<!ELEMENT union ((result | column)*)>
+<!ATTLIST union title CDATA #IMPLIED>
+
+<!ELEMENT column (#PCDATA)>
+<!ATTLIST column title CDATA #IMPLIED
+                 href CDATA #IMPLIED
+                 numberOfDigits CDATA #IMPLIED
+                 displayUnit CDATA #IMPLIED
+                 scaleFactor CDATA #IMPLIED>

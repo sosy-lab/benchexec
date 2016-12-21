@@ -1,0 +1,38 @@
+<!ELEMENT benchmark ((rundefinition | option | propertyfile | tasks | requiredfiles | resultfiles | require )*, columns?)>
+<!ELEMENT rundefinition (tasks | option | propertyfile | requiredfiles)*>
+
+<!ELEMENT tasks (include | includesfile | exclude | excludesfile | append | withoutfile | option | propertyfile | requiredfiles)*>
+<!ELEMENT include (#PCDATA)>
+<!ELEMENT includesfile (#PCDATA)>
+<!ELEMENT exclude (#PCDATA)>
+<!ELEMENT excludesfile (#PCDATA)>
+<!ELEMENT withoutfile (#PCDATA)>
+<!ELEMENT append (#PCDATA)>
+
+<!ELEMENT requiredfiles (#PCDATA)>
+<!ELEMENT resultfiles (#PCDATA)>
+<!ELEMENT require (#PCDATA)>
+
+<!ELEMENT option (#PCDATA)>
+<!ELEMENT propertyfile (#PCDATA)>
+<!ELEMENT columns (column*)>
+<!ELEMENT column (#PCDATA)>
+
+<!ATTLIST rundefinition name CDATA #IMPLIED>
+
+<!ATTLIST benchmark tool CDATA #REQUIRED>
+<!ATTLIST benchmark memlimit CDATA #IMPLIED>
+<!ATTLIST benchmark timelimit CDATA #IMPLIED>
+<!ATTLIST benchmark hardtimelimit CDATA #IMPLIED>
+<!ATTLIST benchmark cpuCores CDATA #IMPLIED>
+<!ATTLIST benchmark threads CDATA #IMPLIED>
+
+<!ATTLIST tasks name CDATA #IMPLIED>
+
+<!ATTLIST require cpuModel CDATA #IMPLIED>
+<!ATTLIST require cpuCores CDATA "1">
+<!ATTLIST require memory   CDATA "1">
+
+<!ATTLIST option name CDATA #REQUIRED>
+<!ATTLIST column title CDATA #IMPLIED
+                 numberOfDigits CDATA #IMPLIED>
