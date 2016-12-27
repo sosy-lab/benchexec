@@ -37,8 +37,8 @@ class Tool(ultimate.UltimateTool):
                   "README",
                   "svcomp-DerefFreeMemtrack-32bit-Kojak_Bitvector.epf",
                   "svcomp-DerefFreeMemtrack-32bit-Kojak_Default.epf",
-                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Bitvector.epf"
-                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Default.epf"
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Default.epf",
                   "svcomp-Overflow-32bit-Kojak_Default.epf",
                   "svcomp-Overflow-64bit-Kojak_Default.epf",
                   "svcomp-Reach-32bit-Kojak_Bitvector.epf",
