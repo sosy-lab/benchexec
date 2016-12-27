@@ -37,9 +37,6 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return [executable] + [spec] + options + ['--full-output'] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if (returnsignal == 9):
-            return 'TIMEOUT'
-
         status = result.RESULT_UNKNOWN
         for line in output:
             if line.startswith('FALSE(valid-free)'):
