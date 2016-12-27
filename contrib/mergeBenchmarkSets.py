@@ -80,6 +80,8 @@ def getWitnessResult(witness, expected_result):
             return ('witness timeout', 'error')
         if status.startswith('true'):
             return (status, category)
+    if status.startswith('OUT OF MEMORY'):
+        return ('witness out of memory', 'error')
 
     return ('witness invalid (' + status + ')', 'error')
 
