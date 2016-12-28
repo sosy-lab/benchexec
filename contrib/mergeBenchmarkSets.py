@@ -30,7 +30,6 @@ import bz2
 from benchexec import util
 import benchexec.result as Result
 import benchexec.tablegenerator as TableGenerator
-import benchexec
 
 def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
     """
@@ -125,7 +124,7 @@ def main(argv=None):
                 statusVer   = result.findall('column[@title="status"]')[0]
                 categoryVer = result.findall('column[@title="category"]')[0]
                 properties = result.get('properties').split(' ');
-                expected_result = benchexec.result.satisfies_file_property(basename, properties);
+                expected_result = Result.satisfies_file_property(basename, properties);
 
                 statusWit, categoryWit = (None, None)
                 i = 0
