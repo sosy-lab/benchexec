@@ -28,7 +28,7 @@ import xml.etree.ElementTree as ET
 import bz2
 
 from benchexec import util
-from benchexec import result
+import benchexec.result as Result
 import benchexec.tablegenerator as tablegenerator
 import benchexec
 
@@ -58,7 +58,7 @@ def getWitnessResult(witness, expected_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
-        return ('witness missing', result.CATEGORY_ERROR)
+        return ('witness missing', Result.CATEGORY_ERROR)
 
     sourcefile = witness.get('name')
     status = witness.findall('column[@title="status"]')[0].get('value')
@@ -70,24 +70,24 @@ def getWitnessResult(witness, expected_result):
 
     # Unconfirmed witnesses count as 'unknown'.
     if expected_result == False:
-        if status.startswith('true') or status.startswith(result.RESULT_UNKNOWN):
-            return ('witness unconfirmed', result.CATEGORY_UNKNOWN)
+        if status.startswith('true') or status.startswith(Result.RESULT_UNKNOWN):
+            return ('witness unconfirmed', Result.CATEGORY_UNKNOWN)
         if max(wallTime, cpuTime) > 90:
-            return ('witness timeout', result.CATEGORY_UNKNOWN)
+            return ('witness timeout', Result.CATEGORY_UNKNOWN)
         if status.startswith('false('):
             return (status, category)
     if expected_result == True:
-        if status.startswith('false(') or status.startswith(result.RESULT_UNKNOWN):
-            return ('witness unconfirmed', result.CATEGORY_UNKNOWN)
+        if status.startswith('false(') or status.startswith(Result.RESULT_UNKNOWN):
+            return ('witness unconfirmed', Result.CATEGORY_UNKNOWN)
         if max(wallTime, cpuTime) > 900:
-            return ('witness timeout', result.CATEGORY_UNKNOWN)
+            return ('witness timeout', Result.CATEGORY_UNKNOWN)
         if status.startswith('true'):
             return (status, category)
     if status.startswith('OUT OF MEMORY'):
-        return ('witness out of memory', result.CATEGORY_UNKNOWN)
+        return ('witness out of memory', Result.CATEGORY_UNKNOWN)
 
     # An invalid witness counts as error of the verifier.
-    return ('witness invalid (' + status + ')', result.CATEGORY_ERROR)
+    return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
 
 def main(argv=None):
 
