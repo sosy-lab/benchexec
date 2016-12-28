@@ -169,6 +169,7 @@ _VALID_RESULTS_PER_PROPERTY = {
 # change score_for_task() appropriately
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
+_SCORE_CORRECT_TRUE_UNCONFIRMED = 1
 _SCORE_CORRECT_FALSE = 1
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
@@ -241,6 +242,9 @@ def score_for_task(filename, properties, category, result):
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
+    # Special case for unconfirmed results 'true'
+    if category == CATEGORY_UNKNOWN and result and result.startswith('witness'):
+        return _SCORE_CORRECT_TRUE_UNCONFIRMED
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     if _PROP_SAT in properties:
