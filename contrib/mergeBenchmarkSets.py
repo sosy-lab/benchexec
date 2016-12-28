@@ -142,12 +142,13 @@ def main(argv=None):
                             result.append(newColumn)
                         witnessSet.pop(run)
                         statusWitNew, categoryWitNew = getWitnessResult(witness, expected_result)
-                        if expected_result == False:
-                            if statusWitNew.startswith('false(') or statusWit is None:
-                                statusWit, categoryWit = (statusWitNew, categoryWitNew)
-                        if expected_result == True:
-                            if statusWitNew.startswith('true') or statusWit is None:
-                                statusWit, categoryWit = (statusWitNew, categoryWitNew)
+                        if (
+                             (expected_result == False and statusWitNew.startswith('false(')) or
+                             (expected_result == True  and statusWitNew.startswith('true')) or
+                             (categoryWit == 'error' and categoryWitNew == 'unknown') or
+                             (statusWit is None)
+                           ):
+                            statusWit, categoryWit = (statusWitNew, categoryWitNew)
                 # Overwrite status with status from witness
                 if isOverwrite and statusWit is not None and categoryWit is not None:
                     result.findall('column[@title="status"]')[0].set('value', statusWit)
