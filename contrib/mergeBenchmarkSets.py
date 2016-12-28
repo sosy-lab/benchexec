@@ -56,6 +56,7 @@ def getWitnesses(witnessXML):
 def getWitnessResult(witness, expected_result):
 
     if witness is None:
+        # If there is no witness, then this is an error of the verifier.
         return ('witness missing', 'error')
 
     sourcefile = witness.get('name')
@@ -66,23 +67,25 @@ def getWitnessResult(witness, expected_result):
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
+    # Unconfirmed witnesses count as 'unknown'.
     if expected_result == False:
         if status.startswith('true') or status.startswith('unknown'):
-            return ('witness unconfirmed', 'error')
+            return ('witness unconfirmed', 'unknown')
         if max(wallTime, cpuTime) > 90:
-            return ('witness timeout', 'error')
+            return ('witness timeout', 'unknown')
         if status.startswith('false('):
             return (status, category)
     if expected_result == True:
         if status.startswith('false(') or status.startswith('unknown'):
-            return ('witness unconfirmed', 'error')
+            return ('witness unconfirmed', 'unknown')
         if max(wallTime, cpuTime) > 900:
-            return ('witness timeout', 'error')
+            return ('witness timeout', 'unknown')
         if status.startswith('true'):
             return (status, category)
     if status.startswith('OUT OF MEMORY'):
-        return ('witness out of memory', 'error')
+        return ('witness out of memory', 'unknown')
 
+    # An invalid witness counts as error of the verifier.
     return ('witness invalid (' + status + ')', 'error')
 
 def main(argv=None):
