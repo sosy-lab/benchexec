@@ -29,7 +29,7 @@ import bz2
 
 from benchexec import util
 import benchexec.result as Result
-import benchexec.tablegenerator as tablegenerator
+import benchexec.tablegenerator as TableGenerator
 import benchexec
 
 def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
@@ -108,12 +108,12 @@ def main(argv=None):
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit('File {0} does not exist.'.format(repr(resultFile)))
-    resultXML   = tablegenerator.parse_results_file(resultFile)
+    resultXML   = TableGenerator.parse_results_file(resultFile)
     witnessSets = []
     for witnessFile in witnessFiles:
         if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
             sys.exit('File {0} does not exist.'.format(repr(witnessFile)))
-        witnessXML = tablegenerator.parse_results_file(witnessFile)
+        witnessXML = TableGenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
         resultXML.set('options', '' + resultXML.get('options', default='') + ' [[ ' + witnessXML.get('options', default='') + ' ]]')
         resultXML.set('date',    '' + resultXML.get('date', default='')    + ' [[ ' + witnessXML.get('date', default='')    + ' ]]')
