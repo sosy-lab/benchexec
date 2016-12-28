@@ -268,8 +268,6 @@ def score_for_task(filename, properties, category, result):
                 return _SCORE_WRONG_FALSE
             else:
                 assert False, "unexpected result classification " + result_class + " for result " + result
-
-        return _SCORE_CORRECT_FALSE if correct else _SCORE_WRONG_TRUE
     else:
         assert False, "unexpected return value from satisfies_file_property: " + expected
 
