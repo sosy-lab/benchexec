@@ -1016,13 +1016,13 @@ function hideRows(values, columnIndex, invertFilter) {
                 switch (value) {
                     case 'correct':
                     case 'wrong':
-                        if (anyStartsWith(value, classNames)) {
+                        if (classNames.indexOf(value) >= 0) {
                             isVisible = true;
                         }
                         break;
 
                     case 'unknown':
-                        if (!anyStartsWith('correct', classNames) && !anyStartsWith('wrong', classNames)) {
+                        if (classNames.indexOf('correct') == -1 && classNames.indexOf('wrong') == -1) {
                             isVisible = true;
                         }
                         break;
@@ -1033,13 +1033,6 @@ function hideRows(values, columnIndex, invertFilter) {
         }
         if (invertFilter == isVisible) $(row).hide();
     }
-}
-
-function anyStartsWith(key, values) {
-    for (var i = 0; i < values.length; i++) {
-        if (values[i].indexOf(key) == 0) { return true; }
-    }
-    return false;
 }
 
 $(document).ready(function() {
