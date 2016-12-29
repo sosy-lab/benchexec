@@ -1072,7 +1072,7 @@ def get_stats(rows, local_summary):
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(id=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
+    return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
             ] + ([summary_row] if local_summary else []) + [
             tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
