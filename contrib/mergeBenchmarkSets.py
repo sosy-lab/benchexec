@@ -53,7 +53,7 @@ def getWitnesses(witnessXML):
     return witnesses
 
 
-def getWitnessResult(witness, filename, properties):
+def getWitnessResult(witness, status_from_verification, filename, properties):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
@@ -67,7 +67,9 @@ def getWitnessResult(witness, filename, properties):
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
-    if get_result_category(filename, status, properties) == CATEGORY_CORRECT:
+    # If the result from witness validation matches the result from verification,
+    # then leave status and category as is.
+    if status == status_from_verification:
         return (status, category)
     # Unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     expected_result = Result.satisfies_file_property(filename, properties);
@@ -141,7 +143,7 @@ def main(argv=None):
                                  })
                             result.append(newColumn)
                         witnessSet.pop(run)
-                        statusWitNew, categoryWitNew = getWitnessResult(witness, basename, properties)
+                        statusWitNew, categoryWitNew = getWitnessResult(witness, statusVer, basename, properties)
                         if (
                              (expected_result == False and statusWitNew.startswith('false(')) or
                              (expected_result == True  and statusWitNew.startswith('true')) or
