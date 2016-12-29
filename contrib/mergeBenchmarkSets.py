@@ -67,6 +67,8 @@ def getWitnessResult(witness, filename, properties):
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
+    if get_result_category(filename, status, properties) == CATEGORY_CORRECT:
+        return (status, category)
     # Unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     expected_result = Result.satisfies_file_property(filename, properties);
     if expected_result == False:
@@ -75,15 +77,11 @@ def getWitnessResult(witness, filename, properties):
              # todo: without wallTime, and category == CATEGORY_ERROR
              max(wallTime, cpuTime) > 90 ):
             return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
-        if status.startswith('false('):
-            return (status, category)
     if expected_result == True:
         if ( status.startswith('false(') or
              status.startswith(Result.RESULT_UNKNOWN) or
              max(wallTime, cpuTime) > 900 ):
             return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
-        if status.startswith('true'):
-            return (status, category)
     if status.startswith('OUT OF MEMORY'):
         return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
 
