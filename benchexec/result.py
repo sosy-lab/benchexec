@@ -25,11 +25,19 @@ import sys
 # CONSTANTS
 
 # categorization of a run result
+# 'correct' and 'wrong' refer to whether the tool's result matches the expected result.
+# 'confirmed' and 'unconfirmed' refer to whether the tool's result was confirmed (e.g., by witness validation)
 CATEGORY_CORRECT = 'correct'
-"""run result given by tool was correct"""
+"""run result given by tool was correct (we use 'correct' instead of 'correct-confirmed')"""
+
+CATEGORY_CORRECT_UNCONFIRMED = 'correct-unconfirmed'
+"""run result given by tool is correct but not confirmed"""
 
 CATEGORY_WRONG   = 'wrong'
-"""run result given by tool was wrong"""
+"""run result given by tool is wrong (we use 'wrong' instead of 'wrong-unconfirmed')"""
+
+#CATEGORY_WRONG   = 'wrong-confirmed'
+"""run result given by tool was wrong but confirmed by result validation"""
 
 CATEGORY_UNKNOWN = 'unknown'
 """run result given by tool was "unknown" (i.e., no answer)"""
@@ -169,8 +177,9 @@ _VALID_RESULTS_PER_PROPERTY = {
 # change score_for_task() appropriately
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
-_SCORE_CORRECT_TRUE_UNCONFIRMED = 1
+_SCORE_CORRECT_UNCONFIRMED_TRUE = 1
 _SCORE_CORRECT_FALSE = 1
+_SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
@@ -242,9 +251,12 @@ def score_for_task(filename, properties, category, result):
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
-    # Special case for unconfirmed results 'true'
-    if category == CATEGORY_UNKNOWN and result and result.startswith('witness'):
-        return _SCORE_CORRECT_TRUE_UNCONFIRMED
+
+    if category == CATEGORY_CORRECT_UNCONFIRMED:
+        if satisfies_file_property(filename, properties):
+            return _SCORE_CORRECT_UNCONFIRMED_TRUE
+        else:
+            return _SCORE_CORRECT_UNCONFIRMED_FALSE
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     if _PROP_SAT in properties:

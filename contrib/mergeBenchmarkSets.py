@@ -70,20 +70,21 @@ def getWitnessResult(witness, expected_result):
     # Unconfirmed witnesses count as 'unknown'.
     if expected_result == False:
         if status.startswith('true') or status.startswith(Result.RESULT_UNKNOWN):
-            return ('witness unconfirmed', Result.CATEGORY_UNKNOWN)
+            return ('witness unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
+        # todo: without wallTime, and category == CATEGORY_ERROR
         if max(wallTime, cpuTime) > 90:
-            return ('witness timeout', Result.CATEGORY_UNKNOWN)
+            return ('witness timeout (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
         if status.startswith('false('):
             return (status, category)
     if expected_result == True:
         if status.startswith('false(') or status.startswith(Result.RESULT_UNKNOWN):
-            return ('witness unconfirmed', Result.CATEGORY_UNKNOWN)
+            return ('witness unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
         if max(wallTime, cpuTime) > 900:
-            return ('witness timeout', Result.CATEGORY_UNKNOWN)
+            return ('witness timeout (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
         if status.startswith('true'):
             return (status, category)
     if status.startswith('OUT OF MEMORY'):
-        return ('witness out of memory', Result.CATEGORY_UNKNOWN)
+        return ('witness out of memory (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
 
     # An invalid witness counts as error of the verifier.
     return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
