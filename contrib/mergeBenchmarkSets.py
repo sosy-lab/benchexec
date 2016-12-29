@@ -67,7 +67,7 @@ def getWitnessResult(witness, expected_result):
     wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
     cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
 
-    # Unconfirmed witnesses count as 'unknown'.
+    # Unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if expected_result == False:
         if ( status.startswith('true') or
              status.startswith(Result.RESULT_UNKNOWN) or
