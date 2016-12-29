@@ -1022,10 +1022,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats_of_rows(rows):
-    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
-    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
-
-    # Calculate maximal score and number of true/false files for the given properties
+    """Calculcate number of true/false tasks and maximum achievable score."""
     count_true = count_false = max_score = 0
     for row in rows:
         if not row.properties:
@@ -1040,10 +1037,11 @@ def get_stats_of_rows(rows):
             count_false += 1
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
 
-    return rowsForStats, max_score, count_true, count_false
+    return max_score, count_true, count_false
 
 def get_stats(rows, local_summary):
-    rowsForStats, max_score, count_true, count_false = get_stats_of_rows(rows)
+    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
     # find out column types for statistics columns
     if local_summary:
@@ -1056,6 +1054,7 @@ def get_stats(rows, local_summary):
         new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor, column.display_title)
         stats_columns.append(new_column)
 
+    max_score, count_true, count_false = get_stats_of_rows(rows)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
