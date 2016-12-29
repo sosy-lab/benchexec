@@ -71,7 +71,11 @@ def find_my_cgroups(cgroup_paths=None):
 
     cgroupsParents = {}
     for subsystem, mount in _find_cgroup_mounts():
-        cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
+        # Ignore mount points where we do not have any access,
+        # e.g. because a parent directory has insufficient permissions
+        # (lxcfs mounts cgroups under /run/lxcfs in such a way).
+        if os.access(mount, os.F_OK):
+            cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
 
     return Cgroup(cgroupsParents)
 
