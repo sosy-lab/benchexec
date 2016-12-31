@@ -53,7 +53,7 @@ def getWitnesses(witnessXML):
     return witnesses
 
 
-def getWitnessResult(witness, status_from_verification, filename, properties):
+def getWitnessResult(witness, status_from_verification, category_from_verification):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
@@ -71,23 +71,12 @@ def getWitnessResult(witness, status_from_verification, filename, properties):
     # then leave status and category as is.
     if status == status_from_verification:
         return (status, category)
+    # An invalid witness counts as error of the verifier.
+    #return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
     # Unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
-    expected_result = Result.satisfies_file_property(filename, properties);
-    if expected_result == False:
-        if ( status.startswith('true') or
-             status.startswith(Result.RESULT_UNKNOWN) or
-             # todo: without wallTime, and category == CATEGORY_ERROR
-             max(wallTime, cpuTime) > 90 ):
-            return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
-    if expected_result == True:
-        if ( status.startswith('false(') or
-             status.startswith(Result.RESULT_UNKNOWN) or
-             max(wallTime, cpuTime) > 900 ):
-            return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
-    if status.startswith('OUT OF MEMORY'):
+    if category_from_verification == Result.CATEGORY_CORRECT:
         return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
 
-    # An invalid witness counts as error of the verifier.
     return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
 
 def main(argv=None):
@@ -123,8 +112,8 @@ def main(argv=None):
         run = result.get('name')
         basename = os.path.basename(run)
         if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
-                statusVer   = result.findall('column[@title="status"]')[0]
-                categoryVer = result.findall('column[@title="category"]')[0]
+                statusVer   = result.findall('column[@title="status"]')[0].get('value')
+                categoryVer = result.findall('column[@title="category"]')[0].get('value')
                 properties = result.get('properties').split(' ');
                 expected_result = Result.satisfies_file_property(basename, properties);
 
@@ -143,7 +132,7 @@ def main(argv=None):
                                  })
                             result.append(newColumn)
                         witnessSet.pop(run)
-                        statusWitNew, categoryWitNew = getWitnessResult(witness, statusVer, basename, properties)
+                        statusWitNew, categoryWitNew = getWitnessResult(witness, statusVer, categoryVer)
                         if (
                              (expected_result == False and statusWitNew.startswith('false(')) or
                              (expected_result == True  and statusWitNew.startswith('true')) or
