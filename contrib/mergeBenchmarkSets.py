@@ -53,7 +53,7 @@ def getWitnesses(witnessXML):
     return witnesses
 
 
-def getWitnessResult(witness, status_from_verification, category_from_verification):
+def getWitnessResult(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
@@ -62,6 +62,8 @@ def getWitnessResult(witness, status_from_verification, category_from_verificati
     sourcefile = witness.get('name')
     status = witness.findall('column[@title="status"]')[0].get('value')
     category = witness.findall('column[@title="category"]')[0].get('value')
+    status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
+    category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
@@ -108,8 +110,6 @@ def main(argv=None):
         run = result.get('name')
         basename = os.path.basename(run)
         if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
-                statusVer   = result.findall('column[@title="status"]')[0].get('value')
-                categoryVer = result.findall('column[@title="category"]')[0].get('value')
                 properties = result.get('properties').split(' ');
                 expected_result = Result.satisfies_file_property(basename, properties);
 
@@ -128,7 +128,7 @@ def main(argv=None):
                                  })
                             result.append(newColumn)
                         witnessSet.pop(run)
-                        statusWitNew, categoryWitNew = getWitnessResult(witness, statusVer, categoryVer)
+                        statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                         if (
                              (expected_result == False and statusWitNew.startswith('false(')) or
                              (expected_result == True  and statusWitNew.startswith('true')) or
