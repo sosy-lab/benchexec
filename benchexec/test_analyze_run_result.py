@@ -75,10 +75,10 @@ class TestResult(unittest.TestCase):
         self.assertEqual('TIMEOUT', run._analyze_result(normal_result, '', True, None))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('TIMEOUT (' + RESULT_TRUE_PROP + ')', run._analyze_result(normal_result, '', True, None))
+        self.assertEqual('TIMEOUT (true)', run._analyze_result(normal_result, '', True, None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('TIMEOUT (' + RESULT_FALSE_REACH + ')', run._analyze_result(normal_result, '', True, None))
+        self.assertEqual('TIMEOUT (false(reach))', run._analyze_result(normal_result, '', True, None))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
         self.assertEqual('SOME OTHER RESULT', run._analyze_result(normal_result, '', True, None))
@@ -88,10 +88,10 @@ class TestResult(unittest.TestCase):
         self.assertEqual('OUT OF MEMORY', run._analyze_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('OUT OF MEMORY (' + RESULT_TRUE_PROP + ')', run._analyze_result(normal_result, '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY (true)', run._analyze_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('OUT OF MEMORY (' + RESULT_FALSE_REACH + ')', run._analyze_result(normal_result, '', False, 'memory'))
+        self.assertEqual('OUT OF MEMORY (false(reach))', run._analyze_result(normal_result, '', False, 'memory'))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
         self.assertEqual('SOME OTHER RESULT', run._analyze_result(normal_result, '', False, 'memory'))
@@ -101,10 +101,10 @@ class TestResult(unittest.TestCase):
         self.assertEqual('TIMEOUT', run._analyze_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual('TIMEOUT (' + RESULT_TRUE_PROP + ')', run._analyze_result(normal_result, '', True, 'memory'))
+        self.assertEqual('TIMEOUT (true)', run._analyze_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual('TIMEOUT (' + RESULT_FALSE_REACH + ')', run._analyze_result(normal_result, '', True, 'memory'))
+        self.assertEqual('TIMEOUT (false(reach))', run._analyze_result(normal_result, '', True, 'memory'))
 
         run = self.create_run(info_result='SOME OTHER RESULT')
         self.assertEqual('SOME OTHER RESULT', run._analyze_result(normal_result, '', False, 'memory'))
