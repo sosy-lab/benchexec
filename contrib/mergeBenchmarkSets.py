@@ -63,10 +63,6 @@ def getWitnessResult(witness, status_from_verification, category_from_verificati
     status = witness.findall('column[@title="status"]')[0].get('value')
     category = witness.findall('column[@title="category"]')[0].get('value')
 
-    # remove 's' for seconds and parse time as float
-    wallTime = float(witness.findall('column[@title="walltime"]')[0].get('value')[:-1])
-    cpuTime = float(witness.findall('column[@title="cputime"]')[0].get('value')[:-1])
-
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
     if status == status_from_verification:
