@@ -1071,18 +1071,27 @@ def get_stats(rows, local_summary):
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
-            ] + ([summary_row] if local_summary else []) + [
+    stats_info_correct = [
             tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
             tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
+            ]
+    stats_info_correct_unconfirmed = [
             tempita.bunch(id=None, title=indent(1)+'correct-unconfimed results', description='(property holds + result is true) OR (property does not hold + result is false), but unconfirmed', content=rowsForStats[4]),
             tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed true', description='property holds + result is true, but unconfirmed', content=rowsForStats[5]),
             tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed false', description='property does not hold + result is false, but unconfirmed', content=rowsForStats[6]),
+            ]
+    stats_info_wrong = [
             tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[7]),
             tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[8]),
             tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[9]),
-            ] + ([score_row] if max_score else []), stats_columns
+            ]
+    if True:
+        stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
+    else:
+        stats_info = stats_info_correct + stats_info_wrong
+    return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
+            ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
 
 def get_stats_of_run_set(runResults):
