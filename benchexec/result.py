@@ -28,7 +28,7 @@ import sys
 # 'correct' and 'wrong' refer to whether the tool's result matches the expected result.
 # 'confirmed' and 'unconfirmed' refer to whether the tool's result was confirmed (e.g., by witness validation)
 CATEGORY_CORRECT = 'correct'
-"""run result given by tool was correct (we use 'correct' instead of 'correct-confirmed')"""
+"""run result given by tool is correct (we use 'correct' instead of 'correct-confirmed')"""
 
 CATEGORY_CORRECT_UNCONFIRMED = 'correct-unconfirmed'
 """run result given by tool is correct but not confirmed"""
@@ -37,10 +37,10 @@ CATEGORY_WRONG   = 'wrong'
 """run result given by tool is wrong (we use 'wrong' instead of 'wrong-unconfirmed')"""
 
 #CATEGORY_WRONG_CONFIRMED   = 'wrong-confirmed'
-"""run result given by tool was wrong but confirmed by result validation"""
+"""run result given by tool is wrong but confirmed by result validation"""
 
 CATEGORY_UNKNOWN = 'unknown'
-"""run result given by tool was "unknown" (i.e., no answer)"""
+"""run result given by tool is "unknown" (i.e., no answer)"""
 
 CATEGORY_ERROR   = 'error'
 """tool failed, crashed, or hit a resource limit"""
