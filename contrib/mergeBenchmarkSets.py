@@ -69,11 +69,11 @@ def getWitnessResult(witness, status_from_verification, category_from_verificati
         return (status, category)
     # An invalid witness counts as error of the verifier.
     #return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
-    # Unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
+    # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == Result.CATEGORY_CORRECT:
         return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
 
-    return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
+    return ('result invalid (' + status + ')', Result.CATEGORY_ERROR)
 
 def main(argv=None):
 
