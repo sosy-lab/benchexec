@@ -78,7 +78,7 @@ RESULT_ERROR =              'ERROR' # or any other value not listed here
 (it is recommended to instead use a string with more details about the error)"""
 RESULT_TRUE_PROP =          'true'
 """property holds"""
-RESULT_FALSE_REACH =        STR_FALSE + '(reach)'
+RESULT_FALSE_REACH =        STR_FALSE + '(' + _PROP_CALL + ')'
 """SV-COMP reachability property violated"""
 RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 """SV-COMP termination property violated"""
