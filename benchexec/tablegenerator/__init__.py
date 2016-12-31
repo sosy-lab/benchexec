@@ -1086,7 +1086,7 @@ def get_stats(rows, local_summary):
             tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[8]),
             tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[9]),
             ]
-    if False:
+    if float(rowsForStats[4][0].__str__()) > 0:
         stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
     else:
         stats_info = stats_info_correct + stats_info_wrong
