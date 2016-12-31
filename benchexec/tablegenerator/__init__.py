@@ -1061,7 +1061,7 @@ def get_stats(rows, local_summary):
         score_row = tempita.bunch(id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
                                   description=task_counts,
-                                  content=rowsForStats[7])
+                                  content=rowsForStats[10])
 
     if local_summary:
         summary_row = tempita.bunch(id=None, title='local summary',
@@ -1076,9 +1076,12 @@ def get_stats(rows, local_summary):
             tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
             tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
-            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
-            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
-            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
+            tempita.bunch(id=None, title=indent(1)+'correct-unconfimed results', description='(property holds + result is true) OR (property does not hold + result is false), but unconfirmed', content=rowsForStats[4]),
+            tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed true', description='property holds + result is true, but unconfirmed', content=rowsForStats[5]),
+            tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed false', description='property does not hold + result is false, but unconfirmed', content=rowsForStats[6]),
+            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[7]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[8]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[9]),
             ] + ([score_row] if max_score else []), stats_columns
 
 
@@ -1102,6 +1105,9 @@ def get_stats_of_run_set(runResults):
     correctRow = []
     correctTrueRow = []
     correctFalseRow = []
+    correctUnconfirmedRow = []
+    correctUnconfirmedTrueRow = []
+    correctUnconfirmedFalseRow = []
     incorrectRow = []
     wrongTrueRow = []
     wrongFalseRow = []
@@ -1124,34 +1130,46 @@ def get_stats_of_run_set(runResults):
 
                 counts = collections.Counter((category, result.get_result_classification(status))
                                              for category, status in curr_status_list)
-                countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
-                countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
-                countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-                countWrongFalse   = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
+                countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
+                countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
+                countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                countCorrectUnconfirmedFalse = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]
+                countWrongTrue               = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_TRUE]
+                countWrongFalse              = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_FALSE]
 
-                correct = StatValue(countCorrectTrue + countCorrectFalse)
-                correctTrue = StatValue(countCorrectTrue)
-                correctFalse = StatValue(countCorrectFalse)
-                incorrect = StatValue(countWrongTrue + countWrongFalse)
-                wrongTrue   = StatValue(countWrongTrue)
-                wrongFalse = StatValue(countWrongFalse)
+                correct                 = StatValue(countCorrectTrue + countCorrectFalse)
+                correctTrue             = StatValue(countCorrectTrue)
+                correctFalse            = StatValue(countCorrectFalse)
+                correctUnconfirmed      = StatValue(countCorrectUnconfirmedTrue + countCorrectUnconfirmedFalse)
+                correctUnconfirmedTrue  = StatValue(countCorrectUnconfirmedTrue)
+                correctUnconfirmedFalse = StatValue(countCorrectUnconfirmedFalse)
+                incorrect               = StatValue(countWrongTrue + countWrongFalse)
+                wrongTrue               = StatValue(countWrongTrue)
+                wrongFalse              = StatValue(countWrongFalse)
 
             else:
                 assert column.is_numeric()
-                total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
+                total, correct, correctTrue, correctFalse,\
+                       correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
+                       incorrect, wrongTrue, wrongFalse =\
                     get_stats_of_number_column(values, main_status_list, column.title)
 
                 score = None
 
         else:
-            total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
-                (None, None, None, None, None, None, None)
+            total, correct, correctTrue, correctFalse,\
+                   correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
+                   incorrect, wrongTrue, wrongFalse =\
+                (None, None, None, None, None, None, None, None, None, None)
             score = None
 
         totalRow.append(total)
         correctRow.append(correct)
         correctTrueRow.append(correctTrue)
         correctFalseRow.append(correctFalse)
+        correctUnconfirmedRow.append(correctUnconfirmed)
+        correctUnconfirmedTrueRow.append(correctUnconfirmedTrue)
+        correctUnconfirmedFalseRow.append(correctUnconfirmedFalse)
         incorrectRow.append(incorrect)
         wrongTrueRow.append(wrongTrue)
         wrongFalseRow.append(wrongFalse)
@@ -1169,12 +1187,18 @@ def get_stats_of_run_set(runResults):
     replace_irrelevant(correctRow)
     replace_irrelevant(correctTrueRow)
     replace_irrelevant(correctFalseRow)
+    replace_irrelevant(correctUnconfirmedRow)
+    replace_irrelevant(correctUnconfirmedTrueRow)
+    replace_irrelevant(correctUnconfirmedFalseRow)
     replace_irrelevant(incorrectRow)
     replace_irrelevant(wrongTrueRow)
     replace_irrelevant(wrongFalseRow)
     replace_irrelevant(scoreRow)
 
-    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
+    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow,\
+                       correctUnconfirmedRow, correctUnconfirmedTrueRow, correctUnconfirmedFalseRow,\
+                       incorrectRow, wrongTrueRow, wrongFalseRow,\
+             scoreRow)
     return stats
 
 
@@ -1229,7 +1253,9 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     except InvalidOperation as e:
         if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
-        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
+        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0),\
+                              StatValue(0), StatValue(0), StatValue(0),\
+                              StatValue(0), StatValue(0), StatValue(0))
 
     valuesPerCategory = collections.defaultdict(list)
     for value, catStat in zip(valueList, categoryList):
@@ -1243,6 +1269,10 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
                               + valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                              + valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
                               + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]),
