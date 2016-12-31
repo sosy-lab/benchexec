@@ -60,22 +60,22 @@ def getWitnessResult(witness, verification_result):
         return ('witness missing', Result.CATEGORY_ERROR)
 
     sourcefile = witness.get('name')
-    status = witness.findall('column[@title="status"]')[0].get('value')
-    category = witness.findall('column[@title="category"]')[0].get('value')
+    status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
+    category_from_validation   = witness.findall('column[@title="category"]')[0].get('value')
     status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
     category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
-    if status == status_from_verification:
-        return (status, category)
+    if status_from_validation == status_from_verification:
+        return (status_from_validation, category_from_validation)
     # An invalid witness counts as error of the verifier.
     #return ('witness invalid (' + status + ')', Result.CATEGORY_ERROR)
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == Result.CATEGORY_CORRECT:
-        return ('unconfirmed (' + status + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
+        return ('unconfirmed (' + status_from_validation + ')', Result.CATEGORY_CORRECT_UNCONFIRMED)
 
-    return ('result invalid (' + status + ')', Result.CATEGORY_ERROR)
+    return ('result invalid (' + status_from_validation + ')', Result.CATEGORY_ERROR)
 
 def main(argv=None):
 
@@ -130,10 +130,9 @@ def main(argv=None):
                         witnessSet.pop(run)
                         statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                         if (
-                             (expected_result == False and statusWitNew.startswith('false(')) or
-                             (expected_result == True  and statusWitNew.startswith('true')) or
-                             (categoryWit == 'error' and categoryWitNew == 'unknown') or
-                             (statusWit is None)
+                             categoryWit is None or
+                             not categoryWit.startswith(Result.CATEGORY_CORRECT) or
+                             categoryWitNew == Result.CATEGORY_CORRECT
                            ):
                             statusWit, categoryWit = (statusWitNew, categoryWitNew)
                 # Overwrite status with status from witness
