@@ -42,6 +42,8 @@ from benchexec import oomhandler
 from benchexec import systeminfo
 from benchexec import util
 
+from benchexec.intel_cpu_energy import EnergyMeasurement
+
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000 # byte in kilobyte
@@ -167,6 +169,9 @@ def main(argv=None):
     logging.info('Starting command %s', formatted_args)
     logging.info('Writing output to %s', options.output)
 
+    # Initialize energy measurement
+    energy_measurement = EnergyMeasurement()
+
     # actual run execution
     try:
         result = executor.execute_run(
@@ -181,6 +186,7 @@ def main(argv=None):
                             memory_nodes=options.memoryNodes,
                             cgroupValues=cgroup_values,
                             environments=env,
+                            energy_measurement=energy_measurement,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize)
     finally:
@@ -211,8 +217,9 @@ def main(argv=None):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
     if 'energy' in result:
-        for key, value in result['energy'].items():
-            print("energy-{0}={1}".format(key, value))
+        for cpu, domains in result['energy'].items():
+            for domain, value in domains.items():
+                print("energy-{0}-{1}={2}J".format(cpu, domain, value))
 
 class RunExecutor(BaseExecutor):
 
@@ -628,8 +635,9 @@ class RunExecutor(BaseExecutor):
     def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
-                   environments={}, workingDir=None, maxLogfileSize=None,
-                   cgroupValues={}):
+                   environments={}, energy_measurement=None, workingDir=None, maxLogfileSize=None,
+                   cgroupValues={},
+                   **kwargs):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -643,6 +651,7 @@ class RunExecutor(BaseExecutor):
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes in a NUMA system to use
         @param environments: special environments for running the command
+        @param energy_measurement: None or energy measurement to use
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
@@ -719,7 +728,8 @@ class RunExecutor(BaseExecutor):
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
-                                 environments, workingDir, maxLogfileSize)
+                                 environments, energy_measurement, workingDir, maxLogfileSize,
+                                 **kwargs)
 
         except OSError as e:
             logging.critical("OSError %s while starting '%s' in '%s': %s.",
@@ -732,7 +742,8 @@ class RunExecutor(BaseExecutor):
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
-                 environments, workingDir, max_output_size):
+                 environments, energy_measurement, workingDir, max_output_size,
+                 **kwargs):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
@@ -741,16 +752,22 @@ class RunExecutor(BaseExecutor):
         def preParent():
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
-            energy_before = util.measure_energy()
+            if energy_measurement is not None:
+                energy_before = energy_measurement.start()
+            else:
+                energy_before = None
             walltime_before = util.read_monotonic_time()
             return (walltime_before, energy_before)
 
         def postParent(preParent_result):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before, energy_before = preParent_result
+            walltime_before, _ = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            energy = util.measure_energy(energy_before)
+            if energy_measurement is not None:
+                energy = energy_measurement.stop()
+            else:
+                energy = None
             return (walltime, energy)
 
         def preSubprocess():

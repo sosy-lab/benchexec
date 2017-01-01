@@ -2,7 +2,7 @@ import warnings
 import subprocess
 import signal
 import re
-from util import find_executable
+from benchexec.util import find_executable
 
 class EnergyMeasurement:
 
@@ -17,22 +17,24 @@ class EnergyMeasurement:
 
         executable = find_executable('power_gadget', exitOnError=False)
         if executable is None: # not available on current system
-            logging.debug('Energy measurement not available because read-energy.sh could not be found.')
+            logging.debug('Energy measurement not available because power_gadget binary could not be found.')
             return
 
         self.measurementProcess = subprocess.Popen([executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10000)
 
+        return self.cumulativeEnergy
+
+
     def stop(self):
         """Stops the external measurement program and adds its measurement result to the internal buffer. Raises a warning if the external program isn't running."""
+        consumed_energy = {}
         if not self.isRunning():
             warnings.warn('Attempted to stop an energy measurement while none was running.')
         # Our modified power_gadget version expects SIGINT to stop and report its result
         self.measurementProcess.send_signal(signal.SIGINT)
-
         (out, err) = self.measurementProcess.communicate()
-
         for line in out.splitlines():
-            match = re.match('cpu(\d+)_([a-z]+)_Joules=(\d+\.?\d*)', line)
+            match = re.match('cpu(\d+)_([a-z]+)=(\d+\.?\d*)J', line.decode('UTF-8'))
             if not match:
                 continue
 
@@ -42,11 +44,16 @@ class EnergyMeasurement:
 
             if not cpu in self.cumulativeEnergy:
                 self.cumulativeEnergy[cpu] = {}
+            if not cpu in consumed_energy:
+                consumed_energy[cpu] = {}
 
             if not domain in self.cumulativeEnergy[cpu]:
                 self.cumulativeEnergy[cpu][domain] = 0
+            consumed_energy[cpu][domain] = energy
 
             self.cumulativeEnergy[cpu][domain] += energy
+        return consumed_energy
+
 
     def isRunning(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
