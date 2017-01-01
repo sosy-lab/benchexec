@@ -79,6 +79,7 @@ RESULT_ERROR =              'ERROR' # or any other value not listed here
 RESULT_TRUE_PROP =          'true'
 """property holds"""
 RESULT_FALSE_REACH =        STR_FALSE + '(' + _PROP_CALL + ')'
+_RESULT_FALSE_REACH_OLD =   STR_FALSE + '(reach)'
 """SV-COMP reachability property violated"""
 RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 """SV-COMP termination property violated"""
@@ -102,7 +103,9 @@ RESULT_UNSAT =              'unsat'
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
-               RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
+               RESULT_FALSE_REACH,
+               _RESULT_FALSE_REACH_OLD,
+               RESULT_FALSE_TERMINATION,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
