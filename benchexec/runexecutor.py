@@ -206,9 +206,6 @@ def main(argv=None):
     else:
         logging.info('Writing output to %s', util.escape_string_shell(options.output))
 
-    # Initialize energy measurement
-    energy_measurement = EnergyMeasurement()
-
     # actual run execution
     try:
         result = executor.execute_run(
@@ -223,7 +220,6 @@ def main(argv=None):
                             memory_nodes=options.memoryNodes,
                             cgroupValues=cgroup_values,
                             environments=env,
-                            energy_measurement=energy_measurement,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize,
                             **container_output_options)
@@ -313,6 +309,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'recommended to do benchmarks with empty home to prevent undesired influences.',
                     self._home_dir, user)
 
+        self._energy_measurement = EnergyMeasurement()
+
         self._init_cgroups()
 
     def _init_cgroups(self):
@@ -371,7 +369,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 logging.warning("Could not read available memory nodes from kernel: %s",
                                 e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
-
 
     # --- utility functions ---
 
@@ -663,7 +660,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     def execute_run(self, args, output_filename, stdin=None,
                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
-                   environments={}, energy_measurement=None, workingDir=None, maxLogfileSize=None,
+                   environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
                    **kwargs):
         """
@@ -757,7 +754,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
-                                 environments, energy_measurement, workingDir, maxLogfileSize,
+                                 environments, workingDir, maxLogfileSize,
                                  **kwargs)
 
         except BenchExecException as e:
@@ -776,7 +773,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
-                 environments, energy_measurement, workingDir, max_output_size,
+                 environments, workingDir, max_output_size,
                  **kwargs):
         """
         This method executes the command line and waits for the termination of it,
@@ -786,8 +783,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preParent():
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
-            if energy_measurement is not None:
-                energy_before = energy_measurement.start()
+            if self._energy_measurement is not None:
+                energy_before = self._energy_measurement.start()
             else:
                 energy_before = None
             walltime_before = util.read_monotonic_time()
@@ -798,8 +795,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # finish measurements
             walltime_before, _ = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            if energy_measurement is not None:
-                energy = energy_measurement.stop()
+            if self._energy_measurement is not None:
+                energy = self._energy_measurement.stop()
             else:
                 energy = None
             return (walltime, energy)
