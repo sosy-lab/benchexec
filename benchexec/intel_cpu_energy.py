@@ -27,6 +27,7 @@ import signal
 import re
 from benchexec.util import find_executable
 
+
 class EnergyMeasurement:
 
     cumulativeEnergy = {} # cE[cpuNum][domainName]
@@ -38,26 +39,25 @@ class EnergyMeasurement:
             warnings.warn('Attempted to start an energy measurement while one was already running.')
             return
 
-        executable = find_executable('power_gadget', exitOnError=False)
+        executable = find_executable('cpu-energy-meter', exitOnError=False)
         if executable is None: # not available on current system
-            logging.debug('Energy measurement not available because power_gadget binary could not be found.')
+            logging.debug('Energy measurement not available because cpu-energy-meter binary could not be found.')
             return
 
         self.measurementProcess = subprocess.Popen([executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10000)
 
         return self.cumulativeEnergy
 
-
     def stop(self):
         """Stops the external measurement program and adds its measurement result to the internal buffer. Raises a warning if the external program isn't running."""
         consumed_energy = {}
         if not self.isRunning():
             warnings.warn('Attempted to stop an energy measurement while none was running.')
-        # Our modified power_gadget version expects SIGINT to stop and report its result
+        # cpu-energy-meter expects SIGINT to stop and report its result
         self.measurementProcess.send_signal(signal.SIGINT)
         (out, err) = self.measurementProcess.communicate()
         for line in out.splitlines():
-            match = re.match('cpu(\d+)_([a-z]+)=(\d+\.?\d*)J', line.decode('UTF-8'))
+            match = re.match('cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line.decode('UTF-8'))
             if not match:
                 continue
 
