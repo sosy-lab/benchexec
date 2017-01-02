@@ -680,8 +680,8 @@ class Run(object):
             elif key == 'memory':
                 self.values['memUsage'] = value
             elif key == 'energy':
-                for ekey, evalue in value.items():
-                    self.values['energy-'+ekey] = evalue
+                for cpu, domains in value.items():
+                    self.values['energy-cpu' + str(cpu)] = domains['package']
             elif key in visible_columns:
                 self.values[key] = value
             else:
