@@ -36,6 +36,7 @@ from benchexec.resources import *
 from benchexec.runexecutor import RunExecutor
 from benchexec import systeminfo
 from benchexec import util
+from benchexec.intel_cpu_energy import EnergyMeasurement
 
 
 WORKER_THREADS = []
@@ -134,9 +135,10 @@ def execute_benchmark(benchmark, output_handler):
         else:
             run_sets_executed += 1
             # get times before runSet
+            energy_measurement = EnergyMeasurement()
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
             walltime_before = util.read_monotonic_time()
-            energyBefore = util.measure_energy()
+            energy_measurement.start()
 
             output_handler.output_before_run_set(runSet)
 
@@ -168,7 +170,7 @@ def execute_benchmark(benchmark, output_handler):
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
-            energy = util.measure_energy(energyBefore)
+            energy = energy_measurement.stop()
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \
