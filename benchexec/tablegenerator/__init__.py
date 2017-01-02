@@ -35,9 +35,12 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.parse
+import urllib.request
 from xml.etree import ElementTree
 
 import tempita
+from functools import reduce
 
 from benchexec import __version__
 import benchexec.result as result
@@ -114,6 +117,8 @@ def parse_table_definition_file(file, options):
         exit(1)
 
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(
+        defaultColumnsToShow)
 
     return Util.flatten(
         parallel.map(
@@ -121,6 +126,7 @@ def parse_table_definition_file(file, options):
             tableGenFile,
             itertools.repeat(file),
             itertools.repeat(defaultColumnsToShow),
+            itertools.repeat(columns_relevant_for_diff),
             itertools.repeat(options)))
 
 
@@ -134,8 +140,27 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"), handle_path(c.get("href")), None, c.get("displayUnit"), c.get("scaleFactor"))
+    return [Column(c.get("title"), c.text, c.get("numberOfDigits"),
+                   handle_path(c.get("href")), None, c.get("displayUnit"),
+                   c.get("scaleFactor"), c.get("relevantForDiff"), c.get("displayTitle"))
             for c in xmltag.findall('column')]
+
+
+def _get_columns_relevant_for_diff(columns_to_show):
+    """
+    Extract columns that are relevant for the diff table.
+
+    @param columns_to_show: (list) A list of columns that should be shown
+    @return: (set) Set of columns that are relevant for the diff table. If
+             none is marked relevant, the column named "status" will be
+             returned in the set.
+    """
+    cols = set([col.title for col in columns_to_show if col.relevant_for_diff])
+    if len(cols) == 0:
+        return set(
+            [col.title for col in columns_to_show if col.title == "status"])
+    else:
+        return cols
 
 
 def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
@@ -298,7 +323,9 @@ def get_column_type(column, result_set):
     return _get_column_type_heur(column, column_values)
 
 
-def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, options):
+def handle_tag_in_table_definition_file(tag, table_file,
+                                        defaultColumnsToShow,
+                                        columns_relevant_for_diff, options):
     def get_file_list(result_tag):
         if not 'filename' in result_tag.attrib:
             logging.warning("Result tag without filename attribute in file '%s'.", table_file)
@@ -310,7 +337,9 @@ def handle_tag_in_table_definition_file(tag, table_file, defaultColumnsToShow, o
         columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
         run_set_id = tag.get('id')
         for resultsFile in get_file_list(tag):
-            results.append(load_result(resultsFile, options, run_set_id, columnsToShow))
+            results.append(
+                load_result(resultsFile, options, run_set_id, columnsToShow,
+                            columns_relevant_for_diff))
 
     elif tag.tag == 'union':
         columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
@@ -389,11 +418,13 @@ class RunSetResult(object):
     the sourcefiles tags (with sourcefiles + values), the columns to show
     and the benchmark attributes.
     """
-    def __init__(self, xml_results, attributes, columns, summary={}):
+    def __init__(self, xml_results, attributes, columns, summary={},
+                 columns_relevant_for_diff=set()):
         self._xml_results = xml_results
         self.attributes = attributes
         self.columns = copy.deepcopy(columns)  # Copy the columns since they may be modified
         self.summary = summary
+        self.columns_relevant_for_diff = columns_relevant_for_diff
 
     def get_tasks(self):
         """
@@ -432,7 +463,8 @@ class RunSetResult(object):
         try:
             for xml_result in self._xml_results:
                 self.results.append(RunResult.create_from_xml(
-                    xml_result, get_value_from_logfile, self.columns, correct_only, log_zip_cache))
+                    xml_result, get_value_from_logfile, self.columns,
+                    correct_only, log_zip_cache, self.columns_relevant_for_diff))
         finally:
             for file in log_zip_cache.values():
                 file.close()
@@ -444,7 +476,8 @@ class RunSetResult(object):
         del self._xml_results
 
     @staticmethod
-    def create_from_xml(resultFile, resultElem, columns=None, all_columns=False):
+    def create_from_xml(resultFile, resultElem, columns=None,
+                        all_columns=False, columns_relevant_for_diff=set()):
         '''
         This function extracts everything necessary for creating a RunSetResult object
         from the "result" XML tag of a benchmark result file.
@@ -461,7 +494,7 @@ class RunSetResult(object):
         summary = RunSetResult._extract_summary_from_result(resultElem, columns)
 
         return RunSetResult(_get_run_tags_from_xml(resultElem),
-                attributes, columns, summary)
+                attributes, columns, summary, columns_relevant_for_diff)
 
     @staticmethod
     def _extract_existing_columns_from_result(resultFile, resultElem, all_columns):
@@ -478,7 +511,7 @@ class RunSetResult(object):
                     if not title in columnNames \
                             and (all_columns or c.get('hidden') != 'true'):
                         columnNames.add(title)
-                        columns.append(Column(title, None, None, None))
+                        columns.append(Column(title, None, None, None, None))
             return columns
 
     @staticmethod
@@ -526,47 +559,55 @@ def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
 
-def load_result(result_file, options, run_set_id=None, columns=None):
+def load_result(result_file, options, run_set_id=None, columns=None,
+                columns_relevant_for_diff=set()):
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
+    @param options additional options
+    @param run_set_id the identifier of the run set
+    @param columns the list of columns
+    @param columns_relevant_for_diff a set of columns that is relevant for
+                                     the diff table
     @return a fully ready RunSetResult instance or None
     """
     xml = parse_results_file(result_file, run_set_id=run_set_id, ignore_errors=options.ignore_errors)
     if xml is None:
         return None
 
-    result = RunSetResult.create_from_xml(result_file, xml, columns=columns, all_columns=options.all_columns)
+    result = RunSetResult.create_from_xml(
+        result_file, xml, columns=columns, all_columns=options.all_columns,
+        columns_relevant_for_diff=columns_relevant_for_diff)
     result.collect_data(options.correct_only)
     return result
 
 
 def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     '''
-    This function parses a XML file with the results of the execution of a run set.
+    This function parses an XML file that contains the results of the execution of a run set.
     It returns the "result" XML tag.
-    @param resultFile: The file name of the XML file with the results.
+    @param resultFile: The file name of the XML file that contains the results.
     @param run_set_id: An optional identifier of this set of results.
     '''
-    if not os.path.isfile(resultFile):
-        logging.error("File '%s' not found.", resultFile)
-        exit(1)
-
     logging.info('    %s', resultFile)
+    url = Util.make_url(resultFile)
 
     parse = ElementTree.ElementTree().parse
-
     try:
-        try:
+        with Util.open_url_seekable(url, mode='rb') as f:
             try:
-                with gzip.open(resultFile) as f:
-                    resultElem = parse(f)
+                try:
+                    resultElem = parse(gzip.GzipFile(fileobj=f))
+                except IOError:
+                    f.seek(0)
+                    try:
+                        resultElem = parse(bz2.BZ2File(f))
+                    except TypeError:
+                        # Python 3.2 does not support giving a file-like object to BZ2File
+                        resultElem = parse(io.BytesIO(bz2.decompress(f.read())))
             except IOError:
-                with bz2.BZ2File(resultFile) as f:
-                    resultElem = parse(f)
-        except IOError:
-            resultElem = parse(resultFile)
-
+                f.seek(0)
+                resultElem = parse(f)
     except IOError as e:
         logging.error('Could not read result file %s: %s', resultFile, e)
         exit(1)
@@ -614,8 +655,11 @@ def insert_logfile_names(resultFile, resultElem):
 
     # for each file: append original filename and insert log_file_name into sourcefileElement
     for sourcefile in _get_run_tags_from_xml(resultElem):
-        log_file_name = os.path.basename(sourcefile.get('name')) + ".log"
-        sourcefile.set('logfile', log_folder + log_file_name)
+        if 'logfile' in sourcefile.attrib:
+            log_file = urllib.parse.urljoin(resultFile, sourcefile.get('logfile'))
+        else:
+            log_file = log_folder + os.path.basename(sourcefile.get('name')) + ".log"
+        sourcefile.set('logfile', log_file)
 
 
 def merge_tasks(runset_results):
@@ -684,7 +728,8 @@ class RunResult(object):
     """
     The class RunResult contains the results of a single verification run.
     """
-    def __init__(self, task_id, status, category, score, log_file, columns, values):
+    def __init__(self, task_id, status, category, score, log_file, columns,
+                 values, columns_relevant_for_diff=set()):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -693,45 +738,53 @@ class RunResult(object):
         self.values = values
         self.category = category
         self.score = score
+        self.columns_relevant_for_diff = columns_relevant_for_diff
 
     @staticmethod
-    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns, correct_only,
-                        log_zip_cache):
+    def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
+                        correct_only, log_zip_cache, columns_relevant_for_diff):
         '''
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
         '''
 
-        def read_logfile_lines(logfilename):
-            if not logfilename:
+        def read_logfile_lines(log_file):
+            if not log_file:
                 return []
-            log_zip_name = os.path.dirname(logfilename) + ".zip"
+            log_file_url = Util.make_url(log_file)
+            url_parts = urllib.parse.urlparse(log_file_url, allow_fragments=False)
+            log_zip_path = os.path.dirname(url_parts.path) + ".zip"
+            log_zip_url = urllib.parse.urlunparse((url_parts.scheme, url_parts.netloc,
+                log_zip_path, url_parts.params, url_parts.query, url_parts.fragment))
+            path_in_zip = urllib.parse.unquote(
+                os.path.relpath(url_parts.path, os.path.dirname(log_zip_path)))
+            if log_zip_url.startswith("file:///") and not log_zip_path.startswith("/"):
+                # Replace file:/// with file: for relative paths,
+                # otherwise opening fails.
+                log_zip_url = "file:" + log_zip_url[8:]
+
             try:
-                if os.path.exists(logfilename):
-                    with open(logfilename, 'rt') as logfile:
-                        return logfile.readlines()
+                with Util.open_url_seekable(log_file_url, 'rt') as logfile:
+                    return logfile.readlines()
+            except IOError as unused_e1:
+                try:
+                    if log_zip_url not in log_zip_cache:
+                        log_zip_cache[log_zip_url] = zipfile.ZipFile(
+                            Util.open_url_seekable(log_zip_url, 'rb'))
+                    log_zip = log_zip_cache[log_zip_url]
 
-                elif os.path.exists(log_zip_name):
-                    if log_zip_name not in log_zip_cache:
-                        log_zip_cache[log_zip_name] = zipfile.ZipFile(log_zip_name)
-                    log_zip = log_zip_cache[log_zip_name]
-
-                    path_in_zip = os.path.relpath(logfilename, os.path.dirname(log_zip_name))
                     try:
                         with io.TextIOWrapper(log_zip.open(path_in_zip)) as logfile:
                             return logfile.readlines()
                     except KeyError:
                         logging.warning("Could not find logfile '%s' in archive '%s'.",
-                                        logfilename, log_zip_name)
+                                        log_file, log_zip_url)
                         return []
 
-                else:
+                except IOError as unused_e2:
                     logging.warning("Could not find logfile '%s' nor log archive '%s'.",
-                                    logfilename, log_zip_name)
+                                    log_file, log_zip_url)
                     return []
-            except IOError as e:
-                logging.warning("Could not read value from logfile: %s", e)
-                return []
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
@@ -763,7 +816,9 @@ class RunResult(object):
 
             values.append(value)
 
-        return RunResult(get_task_id(sourcefileTag), status, category, score, sourcefileTag.get('logfile'), listOfColumns, values)
+        return RunResult(get_task_id(sourcefileTag), status, category, score,
+                         sourcefileTag.get('logfile'), listOfColumns, values,
+                         columns_relevant_for_diff)
 
 
 class Row(object):
@@ -821,14 +876,38 @@ def filter_rows_with_differences(rows):
         # table with single column
         return []
 
+
+    def get_index_of_column(name, cols):
+        for i in range(0, len(cols)):
+            if cols[i].title == name:
+                return i
+        return -1
+
+
     def all_equal_result(listOfResults):
-        allStatus = set(result.status for result in listOfResults)
-        return len(allStatus) <= 1
+        relevant_columns = set()
+        for res in listOfResults:
+            for relevant_column in res.columns_relevant_for_diff:
+                relevant_columns.add(relevant_column)
+        if len(relevant_columns) == 0:
+            relevant_columns.add("status")
+
+        status = []
+        for col in relevant_columns:
+            # It's necessary to search for the index of a column every time
+            # because they can differ between results
+            status.append(
+                set(
+                    res.values[get_index_of_column(col, res.columns)]
+                    for res in listOfResults))
+
+        return reduce(lambda x, y: x and (len(y) <= 1), status, True)
+
 
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
 
     if len(rowsDiff) == 0:
-        logging.info("---> NO DIFFERENCE FOUND IN COLUMN 'STATUS'")
+        logging.info("---> NO DIFFERENCE FOUND IN SELECTED COLUMNS")
     elif len(rowsDiff) == len(rows):
         logging.info("---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE")
         return []
@@ -882,6 +961,9 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     except ValueError:
                         return value
                 runSetResult.attributes[key] = Util.prettylist(map(round_to_MHz, values))
+
+            elif key == 'host':
+                runSetResult.attributes[key] = Util.prettylist(Util.merge_entries_with_common_prefixes(values))
 
             else:
                 runSetResult.attributes[key] = Util.prettylist(values)
@@ -940,12 +1022,7 @@ def select_relevant_id_columns(rows):
 
 
 def get_stats_of_rows(rows):
-    stats_and_col_types = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
-    stats = [s[0] for s in stats_and_col_types]  # first tuple returned by get_stats_of_run_set
-    stats_columns = [s[1] for s in stats_and_col_types]  # second tuple returned by get_stats_of_run_set
-    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
-
-    # Calculate maximal score and number of true/false files for the given properties
+    """Calculcate number of true/false tasks and maximum achievable score."""
     count_true = count_false = max_score = 0
     for row in rows:
         if not row.properties:
@@ -960,30 +1037,61 @@ def get_stats_of_rows(rows):
             count_false += 1
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
 
-    return rowsForStats, max_score, count_true, count_false, stats_columns
+    return max_score, count_true, count_false
 
-def get_stats(rows):
-    rowsForStats, max_score, count_true, count_false, stats_columns = get_stats_of_rows(rows)
+def get_stats(rows, local_summary):
+    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
+    # find out column types for statistics columns
+    if local_summary:
+        rowsForStats.append(local_summary)
+    columns = Util.flatten(run_result.columns for run_result in rows[0].results)
+    stats_columns = []
+    for i, column in enumerate(columns):
+        column_values = [row[i] for row in rowsForStats]
+        column_type, column_unit = _get_column_type_heur(column, column_values)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor, column.display_title)
+        stats_columns.append(new_column)
+
+    max_score, count_true, count_false = get_stats_of_rows(rows)
     task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
 
     if max_score:
         score_row = tempita.bunch(id='score',
                                   title='score ({0} tasks, max score: {1})'.format(len(rows), max_score),
                                   description=task_counts,
-                                  content=rowsForStats[7])
+                                  content=rowsForStats[10])
+
+    if local_summary:
+        summary_row = tempita.bunch(id=None, title='local summary',
+            description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
+            content=local_summary)
 
     def indent(n):
         return '&nbsp;'*(n*4)
 
-    return [tempita.bunch(id=None, title='total tasks', description=task_counts, content=rowsForStats[0]),
+    stats_info_correct = [
             tempita.bunch(id=None, title=indent(1)+'correct results', description='(property holds + result is true) OR (property does not hold + result is false)', content=rowsForStats[1]),
             tempita.bunch(id=None, title=indent(2)+'correct true', description='property holds + result is true', content=rowsForStats[2]),
             tempita.bunch(id=None, title=indent(2)+'correct false', description='property does not hold + result is false', content=rowsForStats[3]),
-            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[4]),
-            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[5]),
-            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[6]),
-            ] + ([score_row] if max_score else []), stats_columns
+            ]
+    stats_info_correct_unconfirmed = [
+            tempita.bunch(id=None, title=indent(1)+'correct-unconfimed results', description='(property holds + result is true) OR (property does not hold + result is false), but unconfirmed', content=rowsForStats[4]),
+            tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed true', description='property holds + result is true, but unconfirmed', content=rowsForStats[5]),
+            tempita.bunch(id=None, title=indent(2)+'correct-unconfirmed false', description='property does not hold + result is false, but unconfirmed', content=rowsForStats[6]),
+            ]
+    stats_info_wrong = [
+            tempita.bunch(id=None, title=indent(1)+'incorrect results', description='(property holds + result is false) OR (property does not hold + result is true)', content=rowsForStats[7]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[8]),
+            tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[9]),
+            ]
+    if float(rowsForStats[4][0].__str__()) > 0:
+        stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
+    else:
+        stats_info = stats_info_correct + stats_info_wrong
+    return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
+            ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
 
 def get_stats_of_run_set(runResults):
@@ -1006,6 +1114,9 @@ def get_stats_of_run_set(runResults):
     correctRow = []
     correctTrueRow = []
     correctFalseRow = []
+    correctUnconfirmedRow = []
+    correctUnconfirmedTrueRow = []
+    correctUnconfirmedFalseRow = []
     incorrectRow = []
     wrongTrueRow = []
     wrongFalseRow = []
@@ -1028,34 +1139,46 @@ def get_stats_of_run_set(runResults):
 
                 counts = collections.Counter((category, result.get_result_classification(status))
                                              for category, status in curr_status_list)
-                countCorrectTrue  = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
-                countCorrectFalse = counts[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
-                countWrongTrue    = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-                countWrongFalse   = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
+                countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
+                countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
+                countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                countCorrectUnconfirmedFalse = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]
+                countWrongTrue               = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_TRUE]
+                countWrongFalse              = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_FALSE]
 
-                correct = StatValue(countCorrectTrue + countCorrectFalse)
-                correctTrue = StatValue(countCorrectTrue)
-                correctFalse = StatValue(countCorrectFalse)
-                incorrect = StatValue(countWrongTrue + countWrongFalse)
-                wrongTrue   = StatValue(countWrongTrue)
-                wrongFalse = StatValue(countWrongFalse)
+                correct                 = StatValue(countCorrectTrue + countCorrectFalse)
+                correctTrue             = StatValue(countCorrectTrue)
+                correctFalse            = StatValue(countCorrectFalse)
+                correctUnconfirmed      = StatValue(countCorrectUnconfirmedTrue + countCorrectUnconfirmedFalse)
+                correctUnconfirmedTrue  = StatValue(countCorrectUnconfirmedTrue)
+                correctUnconfirmedFalse = StatValue(countCorrectUnconfirmedFalse)
+                incorrect               = StatValue(countWrongTrue + countWrongFalse)
+                wrongTrue               = StatValue(countWrongTrue)
+                wrongFalse              = StatValue(countWrongFalse)
 
             else:
                 assert column.is_numeric()
-                total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
+                total, correct, correctTrue, correctFalse,\
+                       correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
+                       incorrect, wrongTrue, wrongFalse =\
                     get_stats_of_number_column(values, main_status_list, column.title)
 
                 score = None
 
         else:
-            total, correct, correctTrue, correctFalse, incorrect, wrongTrue, wrongFalse =\
-                (None, None, None, None, None, None, None)
+            total, correct, correctTrue, correctFalse,\
+                   correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
+                   incorrect, wrongTrue, wrongFalse =\
+                (None, None, None, None, None, None, None, None, None, None)
             score = None
 
         totalRow.append(total)
         correctRow.append(correct)
         correctTrueRow.append(correctTrue)
         correctFalseRow.append(correctFalse)
+        correctUnconfirmedRow.append(correctUnconfirmed)
+        correctUnconfirmedTrueRow.append(correctUnconfirmedTrue)
+        correctUnconfirmedFalseRow.append(correctUnconfirmedFalse)
         incorrectRow.append(incorrect)
         wrongTrueRow.append(wrongTrue)
         wrongFalseRow.append(wrongFalse)
@@ -1073,21 +1196,19 @@ def get_stats_of_run_set(runResults):
     replace_irrelevant(correctRow)
     replace_irrelevant(correctTrueRow)
     replace_irrelevant(correctFalseRow)
+    replace_irrelevant(correctUnconfirmedRow)
+    replace_irrelevant(correctUnconfirmedTrueRow)
+    replace_irrelevant(correctUnconfirmedFalseRow)
     replace_irrelevant(incorrectRow)
     replace_irrelevant(wrongTrueRow)
     replace_irrelevant(wrongFalseRow)
     replace_irrelevant(scoreRow)
 
-    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow, incorrectRow, wrongTrueRow, wrongFalseRow, scoreRow)
-
-    stats_columns = []
-    for i, column in enumerate(columns):
-        column_values = [totalRow[i], correctRow[i], correctTrueRow[i], correctFalseRow[i], incorrectRow[i], wrongTrueRow[i], wrongFalseRow[i], scoreRow[i]]
-        column_type, column_unit = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor)
-        stats_columns.append(new_column)
-
-    return stats, stats_columns
+    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow,\
+                       correctUnconfirmedRow, correctUnconfirmedTrueRow, correctUnconfirmedFalseRow,\
+                       incorrectRow, wrongTrueRow, wrongFalseRow,\
+             scoreRow)
+    return stats
 
 
 class StatValue(object):
@@ -1141,7 +1262,9 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     except InvalidOperation as e:
         if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
-        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0), StatValue(0))
+        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0),\
+                              StatValue(0), StatValue(0), StatValue(0),\
+                              StatValue(0), StatValue(0), StatValue(0))
 
     valuesPerCategory = collections.defaultdict(list)
     for value, catStat in zip(valueList, categoryList):
@@ -1155,6 +1278,10 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
                               + valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                              + valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]),
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
                               + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]),
@@ -1239,12 +1366,7 @@ def get_summary(runSetResults):
                 value = None
             summaryStats.append(value)
 
-    if available:
-        return tempita.bunch(id=None, title='local summary',
-            description='(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)',
-            content=summaryStats)
-    else:
-        return None
+    return summaryStats if available else None
 
 
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
@@ -1289,16 +1411,10 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     def write_table(table_type, title, rows, use_local_summary):
         # calculate statistics if necessary
         if not options.format == ['csv']:
-            stats, stats_columns = get_stats(rows)
-            if use_local_summary:
-                summary = get_summary(runSetResults)
-                if summary:
-                    stats.insert(1, summary)
-
-            template_values.foot_columns = stats_columns
+            local_summary = get_summary(runSetResults) if use_local_summary else None
+            stats, stats_columns = get_stats(rows, local_summary)
         else:
-            stats = None
-            template_values.foot_columns = None
+            stats = stats_columns = None
 
         for template_format in (options.format or TEMPLATE_FORMATS):
             if outputFilePattern == '-':
@@ -1308,7 +1424,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
                 outfile = os.path.join(outputPath, outputFilePattern.format(name=name, type=table_type, ext=template_format))
                 logging.info('Writing %s into %s ...', template_format.upper().ljust(4), outfile)
 
-            this_template_values = dict(title=title, body=rows, foot=stats)
+            this_template_values = dict(title=title, body=rows, foot=stats, foot_columns=stats_columns)
             this_template_values.update(template_values.__dict__)
 
             futures.append(parallel.submit(
@@ -1439,7 +1555,8 @@ def create_argument_parser():
         action="store_const", dest="lib_url",
         const=LIB_URL_OFFLINE,
         default=LIB_URL,
-        help="Don't insert links to http://www.sosy-lab.org, instead expect JS libs in libs/javascript."
+        help="Expect JS libs in libs/javascript/ instead of retrieving them from a CDN. "
+            "Currently does not work for all libs."
     )
     parser.add_argument("--show",
         action="store_true", dest="show_table",
@@ -1465,7 +1582,8 @@ def main(args=None):
         sys.exit('table-generator needs Python 3 to run.')
     signal.signal(signal.SIGINT, sigint_handler)
 
-    options = create_argument_parser().parse_args((args or sys.argv)[1:])
+    arg_parser = create_argument_parser()
+    options = arg_parser.parse_args((args or sys.argv)[1:])
 
     logging.basicConfig(format="%(levelname)s: %(message)s",
                         level=logging.WARNING if options.quiet else logging.INFO)
@@ -1491,8 +1609,7 @@ def main(args=None):
 
     if options.xmltablefile:
         if options.tables:
-            logging.error("Invalid additional arguments '%s'.", " ".join(options.tables))
-            exit(1)
+            arg_parser.error("Invalid additional arguments '{}'.".format(" ".join(options.tables)))
         runSetResults = parse_table_definition_file(options.xmltablefile, options)
         if not name:
             name = basename_without_ending(options.xmltablefile)
@@ -1523,7 +1640,7 @@ def main(args=None):
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
-            if all(path == os.path.dirname(file) for file in inputFiles):
+            if not "://" in path and all(path == os.path.dirname(file) for file in inputFiles):
                 outputPath = path
             else:
                 outputPath = DEFAULT_OUTPUT_PATH

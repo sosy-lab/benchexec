@@ -1,8 +1,8 @@
 # Gnuplot definition for a scatter plot where color indicates frequency of data points
 
 # set axis labels
-set xlabel 'Configuration 1'
-set ylabel 'Configuration 2' offset 2
+set xlabel 'Value "foo" for Tool 1'
+set ylabel 'Value "foo" for Tool 2' offset 2
 set cblabel 'Number of results'
 
 # set value range

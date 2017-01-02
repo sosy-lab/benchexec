@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import collections
 import logging
 import os
 import time
@@ -113,10 +114,10 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
     args = tool.cmdline(
-        rel_executable, options,
+        rel_executable, list(options),
         list(map(relpath, sourcefiles)),
         relpath(propertyfile) if propertyfile else None,
-        rlimits)
+        rlimits.copy())
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
@@ -152,6 +153,7 @@ class Benchmark(object):
         self.output_base_name = config.output_path + self.name + "." + self.instance
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
         self.log_zip = self.output_base_name + ".logfiles.zip"
+        self.result_files_folder = self.output_base_name + ".files"
 
         # parse XML
         try:
@@ -253,13 +255,16 @@ class Benchmark(object):
         # get requirements
         self.requirements = Requirements(rootTag.findall("require"), self.rlimits, config)
 
-        self.result_files_pattern = None
-        resultFilesTags = rootTag.findall("resultfiles")
-        if resultFilesTags:
-            if len(resultFilesTags) > 1:
-                logging.warning("Benchmark file has multiple <resultfiles> tags, "
-                                "ignoring all but the first.")
-            self.result_files_pattern = resultFilesTags[0].text
+        result_files_tags = rootTag.findall("resultfiles")
+        if result_files_tags:
+            self.result_files_patterns = [
+                os.path.normpath(p.text) for p in result_files_tags if p.text]
+            for pattern in self.result_files_patterns:
+                if pattern.startswith(".."):
+                    sys.exit("Invalid relative result-files pattern '{}'.".format(pattern))
+        else:
+            # default is "everything below current directory"
+            self.result_files_patterns = ["."]
 
         # get benchmarks
         self.run_sets = []
@@ -286,7 +291,7 @@ class Benchmark(object):
                                 [runSet.real_name for runSet in self.run_sets])
         elif config.selected_run_definitions:
             for selected in config.selected_run_definitions:
-                if not any((selected == run_set.real_name) for run_set in self.run_sets):
+                if not any(util.wildcard_match(run_set.real_name, selected) for run_set in self.run_sets):
                     logging.warning(
                         'The selected run definition "%s" is not present in the input file, '
                         'skipping it.',
@@ -296,11 +301,6 @@ class Benchmark(object):
     def required_files(self):
         assert self.executable is not None, "executor needs to set tool executable"
         return self._required_files.union(self.tool.program_files(self.executable))
-
-
-    def add_required_file(self, filename=None):
-        if filename is not None:
-            self._required_files.add(filename)
 
 
     def working_directory(self):
@@ -356,8 +356,10 @@ class RunSet(object):
         self.index = index
 
         self.log_folder = benchmark.log_folder
+        self.result_files_folder = benchmark.result_files_folder
         if self.real_name:
             self.log_folder += self.real_name + "."
+            self.result_files_folder = os.path.join(self.result_files_folder, self.real_name)
 
         # get all run-set-specific options from rundefinitionTag
         self.options = benchmark.options + util.get_list_from_xml(rundefinitionTag)
@@ -400,7 +402,7 @@ class RunSet(object):
 
     def should_be_executed(self):
         return not self.benchmark.config.selected_run_definitions \
-            or self.real_name in self.benchmark.config.selected_run_definitions
+            or any(util.wildcard_match(self.real_name, run_definition) for run_definition in self.benchmark.config.selected_run_definitions)
 
 
     def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern):
@@ -415,7 +417,7 @@ class RunSet(object):
             sourcefileSetName = sourcefilesTag.get("name")
             matchName = sourcefileSetName or str(index)
             if self.benchmark.config.selected_sourcefile_sets \
-                and matchName not in self.benchmark.config.selected_sourcefile_sets:
+                and not any(util.wildcard_match(matchName, sourcefile_set) for sourcefile_set in self.benchmark.config.selected_sourcefile_sets):
                     continue
 
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
@@ -436,7 +438,7 @@ class RunSet(object):
 
         if self.benchmark.config.selected_sourcefile_sets:
             for selected in self.benchmark.config.selected_sourcefile_sets:
-                if not any((selected == sourcefile_set.real_name) for sourcefile_set in blocks):
+                if not any(util.wildcard_match(sourcefile_set.real_name, selected) for sourcefile_set in blocks):
                     logging.warning(
                         'The selected tasks "%s" are not present in the input file, '
                         'skipping them.',
@@ -572,6 +574,7 @@ class Run(object):
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
+        self.result_files_folder = os.path.join(runSet.result_files_folder, os.path.basename(self.identifier))
 
         self.required_files = set()
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
@@ -582,7 +585,6 @@ class Run(object):
                     'Pattern %s in requiredfiles tag did not match any file for task %s.',
                     pattern, self.identifier)
             self.required_files.update(this_required_files)
-        self.required_files = list(self.required_files)
 
         # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
         self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
@@ -599,7 +601,7 @@ class Run(object):
 
         # replace run-specific stuff in the propertyfile and add it to the set of required files
         if self.propertyfile is None:
-            log_property_file_once('No propertyfile specified. Results for C programs will be handled as UNKNOWN.')
+            log_property_file_once('No propertyfile specified. Score computation will ignore the results.')
         else:
             # we check two cases: direct filename or user-defined substitution, one of them must be a 'file'
             # TODO: do we need the second case? it is equal to previous used option "-spec ${sourcefile_path}/ALL.prp"
@@ -620,10 +622,12 @@ class Run(object):
                 self.propertyfile = None
 
         if self.propertyfile:
-            self.runSet.benchmark.add_required_file(self.propertyfile)
+            self.required_files.add(self.propertyfile)
             self.properties = result.properties_of_file(self.propertyfile)
         else:
             self.properties = []
+            
+        self.required_files = list(self.required_files)
 
         # Copy columns for having own objects in run
         # (we need this for storing the results in them).
@@ -631,7 +635,7 @@ class Run(object):
 
         # here we store the optional result values, e.g. memory usage, energy, host name
         # keys need to be strings, if first character is "@" the value is marked as hidden (e.g., debug info)
-        self.values = {}
+        self.values = collections.OrderedDict()
 
         # dummy values, for output in case of interrupt
         self.status = ""
@@ -708,14 +712,14 @@ class Run(object):
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 
-        self.status = self._analyse_result(exitcode, output, isTimeout, termination_reason)
+        self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
         self.category = result.get_result_category(self.identifier, self.status, self.properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
             column.value = self.runSet.benchmark.tool.get_value_from_output(output, substitutedColumnText)
 
-    def _analyse_result(self, exitcode, output, isTimeout, termination_reason):
+    def _analyze_result(self, exitcode, output, isTimeout, termination_reason):
         """Return status according to result and output of tool."""
         status = ""
 

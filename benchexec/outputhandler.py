@@ -36,8 +36,8 @@ from benchexec import filewriter
 from benchexec import result
 from benchexec import util
 
-RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.3//EN'
-RESULT_XML_SYSTEM_ID = 'http://www.sosy-lab.org/benchexec/result-1.3.dtd'
+RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
+RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.9.dtd'
 
 # colors for column status in terminal
 USE_COLORS = True

@@ -28,6 +28,7 @@ import re
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
+                  "boogie",
                   "corral",
                   "llvm",
                   "lockpwn",
@@ -71,10 +72,21 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a BenchExec result status based on the output of SMACK
         """
         splitout = "\n".join(output)
-        if re.search(r'SMACK found no errors.', splitout):
-            return result.RESULT_TRUE_PROP
-        elif re.search(r'SMACK found an error.*', splitout):
+        if 'SMACK found no errors' in splitout:
+          return result.RESULT_TRUE_PROP
+        errmsg = re.search(r'SMACK found an error(:\s+([^\.]+))?\.', splitout)
+        if errmsg:
+          errtype = errmsg.group(2)
+          if errtype:
+            if 'invalid pointer dereference' == errtype:
+              return result.RESULT_FALSE_DEREF
+            elif 'invalid memory deallocation' == errtype:
+              return result.RESULT_FALSE_FREE
+            elif 'memory leak' == errtype:
+              return result.RESULT_FALSE_MEMTRACK
+            elif 'signed integer overflow' == errtype:
+              return result.RESULT_FALSE_OVERFLOW
+          else:
             return result.RESULT_FALSE_REACH
-        else:
-            return result.RESULT_UNKNOWN
+        return result.RESULT_UNKNOWN
 

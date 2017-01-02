@@ -33,6 +33,7 @@ import time
 
 from benchexec import __version__
 from benchexec.model import Benchmark
+from benchexec import containerexecutor
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
 
@@ -103,18 +104,18 @@ class BenchExec(object):
                           help="XML file with benchmark definition")
         parser.add_argument("-d", "--debug",
                           action="store_true",
-                          help="Enable debug output")
+                          help="Enable debug output and a debugging helper on signal USR1")
 
         parser.add_argument("-r", "--rundefinition", dest="selected_run_definitions",
                           action="append",
                           help="Run only the specified RUN_DEFINITION from the benchmark definition file. "
-                                + "This option can be specified several times.",
+                                + "This option can be specified several times and can contain wildcards.",
                           metavar="RUN_DEFINITION")
 
         parser.add_argument("-t", "--tasks", dest="selected_sourcefile_sets",
                           action="append",
                           help="Run only the tasks from the tasks tag with TASKS as name. "
-                                + "This option can be specified several times.",
+                                + "This option can be specified several times and can contain wildcards.",
                           metavar="TASKS")
 
         parser.add_argument("-n", "--name",
@@ -202,6 +203,14 @@ class BenchExec(object):
                             action="version",
                             version="%(prog)s " + __version__)
 
+        container_args = parser.add_argument_group("optional arguments for run container")
+        container_on_args = container_args.add_mutually_exclusive_group()
+        container_on_args.add_argument("--container", action='store_true',
+            help="force isolation of run in container (future default starting with BenchExec 2.0)")
+        container_on_args.add_argument("--no-container", action='store_true',
+            help="disable use of containers for isolation of runs (current default)")
+        containerexecutor.add_basic_container_args(container_args)
+
         return parser
 
 
@@ -212,6 +221,7 @@ class BenchExec(object):
         if self.config.debug:
             logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                                 level=logging.DEBUG)
+            util.activate_debug_shell_on_signal()
         else:
             logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
                                 level=logging.INFO)

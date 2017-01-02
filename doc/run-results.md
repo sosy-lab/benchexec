@@ -13,7 +13,7 @@ General rules:
 - Numeric values are reported with the standard [BenchExec units](INDEX.md#units).
 - Values are reported as measured without rounding,
   thus the number of digits does not indicate significance.
-  This is to prevent he proliferation of rounding errors when using the data in calculations.
+  This is to prevent the proliferation of rounding errors when using the data in calculations.
 
 The meanings of the current possible result values are as follows:
 

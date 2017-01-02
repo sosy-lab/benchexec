@@ -23,37 +23,33 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-REQUIRED_PATHS = [
-                  "etv",
-                  "bin",
-                  ]
-
 class Tool(benchexec.tools.template.BaseTool):
 
+    REQUIRED_PATHS = [
+                      "etv",
+                      "bin",
+                     ]
+
+    def blast_exe(self):
+        return 'pblast.opt'
+
+
     def executable(self):
-        return util.find_executable('pblast.opt', 'bin/pblast.opt')
+        return util.find_executable('svcomprunner', 'bin/svcomprunner')
 
 
     def program_files(self, executable):
         installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in REQUIRED_PATHS)
-
-
-    def working_directory(self, executable):
-        return os.path.dirname(executable)
-
-
-    def environment(self, executable):
-        return {"additionalEnv" : {'PATH' :  ':.'}}
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
 
     def version(self, executable):
-        return self._version_from_tool(executable)[6:11]
+        return self._version_from_tool(os.path.join(os.path.dirname(executable), self.blast_exe()))[6:11]
 
 
-    def cmdline(self, blastExe, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         spec = ["-propertyfile", propertyfile] if propertyfile is not None else []
-        return ['svcomprunner', 'ocamltune', os.path.basename(blastExe)] + options + spec + tasks
+        return [executable] + ['ocamltune', self.blast_exe()] + options + spec + tasks
 
 
     def name(self):

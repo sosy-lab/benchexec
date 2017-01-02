@@ -1,7 +1,7 @@
 # Gnuplot definition for a quantile plot, with linear scale below 1s
 
 # set value range
-set xrange [0:500]
+set xrange [0:1600]
 
 # legend (choose one of two positions)
 set key left top Left reverse
@@ -28,8 +28,8 @@ unset xtics
 
 # plot with data points from prepared CSV files (more lines can be added here)
 plot \
-     "config1.results.quantile.csv" using 1:4 title "Configuration 1", \
-     "config2.results.quantile.csv" using 1:4 title "Configuration 2"
+     "example-tool1.quantile.csv" using 1:4 title "Tool 1", \
+     "example-tool2.quantile.csv" using 1:4 title "Tool 2"
 
 # configure lower plot and x-axis
 set yrange [0:1]
@@ -47,5 +47,5 @@ unset logscale
 
 # same plot definition as above
 plot \
-     "config1.results.quantile.csv" using 1:4 title "Configuration 1", \
-     "config2.results.quantile.csv" using 1:4 title "Configuration 2"
+     "example-tool1.quantile.csv" using 1:4 title "Tool 1", \
+     "example-tool2.quantile.csv" using 1:4 title "Tool 2"

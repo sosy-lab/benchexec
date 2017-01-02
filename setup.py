@@ -75,6 +75,7 @@ setuptools.setup(
     entry_points = {
         "console_scripts": [
             'runexec = benchexec.runexecutor:main',
+            'containerexec = benchexec.containerexecutor:main',
             ] + ([
             'benchexec = benchexec.benchexec:main',
             'table-generator = benchexec.tablegenerator:main',

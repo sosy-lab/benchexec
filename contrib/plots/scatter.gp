@@ -1,12 +1,12 @@
 # Gnuplot definition for a scatter plot
 
 # set axis labels
-set xlabel 'Configuration 1'
-set ylabel 'Configuration 2' offset 2
+set xlabel 'CPU Time for Tool 1 (s)'
+set ylabel 'CPU Time for Tool 2 (s)' offset 2
 
 # set value range
-set xrange [1:100]
-set yrange [1:100]
+set xrange [0.01:1000]
+set yrange [0.01:1000]
 
 # use logscale
 set logscale

@@ -12,16 +12,20 @@ The documentation for BenchExec is available in the following files:
 - [benchexec](benchexec.md)
 - [table-generator](table-generator.md)
 - [runexec](runexec.md)
+- [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
 
 More on the background of BenchExec can also be found in our paper
-[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
 
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),
 for example [files for generating plots](../contrib/plots/README.md).
 
 Information for developers and maintainers of BenchExec is available
 in the [development documentation](DEVELOPMENT.md).
+
+Information for users of BenchExec on how to [integrate a tool](tool-integration.md).
+
 
 ## Definitions
 
@@ -37,6 +41,8 @@ BenchExec always uses the SI standard units:
 - **executable**: The executable file that is used to start a tool.
 
 - **option**: A command-line argument for a tool.
+
+- **result file**: A file written by a tool during a run.
 
 - **run**: A single execution of a tool.
   It consists of the full command-line arguments (including input file)

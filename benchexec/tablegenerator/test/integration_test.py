@@ -29,7 +29,7 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import util
 
-here = os.path.dirname(__file__)
+here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, '..', '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
 tablegenerator = os.path.join(bin_dir, 'table-generator')
@@ -352,6 +352,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='multi-table-with-columns.diff',
             )
 
+    def test_multi_table_xml_with_diff_over_column(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'multi-table-with-diff-over-'
+                                      'column.xml')],
+            table_prefix='multi-table-with-diff-over-column.table',
+            diff_prefix='multi-table-with-diff-over-column.diff',
+            )
+
     def test_multi_table_xml_with_wildcards(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'multi-table-with-wildcards.xml')],
@@ -480,3 +488,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             table_prefix='smt.table',
             diff_prefix='smt.diff',
             )
+
+    def test_results_via_url(self):
+        try:
+            self.generate_tables_and_compare_content(
+                ["https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.results.Simple.xml"],
+                table_prefix="cbmc.2015-12-11_1211.results.Simple",
+                )
+        except subprocess.CalledProcessError as e:
+            if "HTTP Error" or "urlopen error" in e.output.decode():
+                self.skipTest("HTTP access to GitHub failed")
+            else:
+                raise

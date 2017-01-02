@@ -5,8 +5,8 @@ set xlabel 'Accumulated score'
 set ylabel "CPU time (s)" offset 2
 
 # set value range
-set xrange [-100:500]
-set yrange [1:100]
+set xrange [-500:2600]
+set yrange [0.01:1000]
 
 # use logscale
 set logscale y 10
@@ -22,5 +22,5 @@ set style data linespoints
 
 # plot with data points from prepared CSV files (more lines can be added here)
 plot \
-     "config1.results.quantile-score.csv" using 1:4 title "Configuration 1" with linespoints pointinterval -50, \
-     "config2.results.quantile-score.csv" using 1:4 title "Configuration 2" with linespoints pointinterval -50
+     "example-tool1.quantile-score.csv" using 1:4 title "Tool 1" with linespoints pointinterval -500, \
+     "example-tool2.quantile-score.csv" using 1:4 title "Tool 2" with linespoints pointinterval -500

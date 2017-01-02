@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.4//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.4.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
            timelimit="*optional CPU time limit, use unit 's', 'min', etc. (default: none)*"
@@ -39,4 +39,9 @@
 
   <!-- <option> may be used here, too. -->
   <!-- <propertyfile> may be used here, too. -->
+
+  <!-- Copy all result files from below the working directory to the output directory
+       (this is redundant because it is the default). -->
+  <resultfiles>.</resultfiles>
+
 </benchmark>

@@ -23,8 +23,20 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
 
+    REQUIRED_PATHS = [
+                      "fixcalc",
+                      "hip",
+                      "hiptnt",
+                      "hiptnt.sh",
+                      "oc",
+                      "prelude.ss",
+                      "run_hiptnt",
+                      "stdlib.h",
+                      "z3-4.3.2",
+                      ]
+
     def executable(self):
-        return util.find_executable('HipTNT.sh')
+        return util.find_executable('hiptnt.sh')
 
 
     def name(self):
@@ -33,14 +45,15 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
-        if "YES" in output:
-            return result.RESULT_TRUE_PROP
+        status = result.RESULT_UNKNOWN
+        if "error" in output:
+            status = result.RESULT_UNKNOWN
+        elif "UNKNOWN" in output:
+            status = result.RESULT_UNKNOWN
         elif "TRUE" in output:
-            return result.RESULT_TRUE_PROP
+            status = result.RESULT_TRUE_PROP
         elif "FALSE" in output:
-            return result.RESULT_FALSE_TERMINATION
-        elif "NO" in output:
-            return result.RESULT_FALSE_TERMINATION
+            status = result.RESULT_FALSE_TERMINATION
         else:
-            return result.RESULT_UNKNOWN
+            status = result.RESULT_UNKNOWN
         return status

@@ -34,10 +34,12 @@ base_dir = os.path.join(here, '..')
 bin_dir = os.path.join(base_dir, 'bin')
 benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
-result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.3//EN'
+result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
 
+benchmark_test_name = 'benchmark-example-rand'
 benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
+benchmark_test_rundefs = None
 
 class BenchExecIntegrationTests(unittest.TestCase):
 
@@ -61,9 +63,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
         print(output)
         return output
 
-    def run_benchexec_and_compare_expected_files(self, *args, tasks=benchmark_test_tasks, name=None,
+    def run_benchexec_and_compare_expected_files(self, *args, name=None,
+                                                 tasks=benchmark_test_tasks,
+                                                 rundefs=benchmark_test_rundefs,
+                                                 test_name=benchmark_test_name,
+                                                 test_file=benchmark_test_file,
                                                  compress=False):
-        self.run_cmd(*[benchexec, benchmark_test_file,
+        self.run_cmd(*[benchexec, test_file,
                        '--outputpath', self.tmp,
                        '--startTime', '2015-01-01 00:00',
                        ]
@@ -72,13 +78,29 @@ class BenchExecIntegrationTests(unittest.TestCase):
         generated_files = set(os.listdir(self.tmp))
 
         xml_suffix = '.xml.bz2' if compress else '.xml'
-        expected_files = ['logfiles.zip' if compress else 'logfiles',
-                          'results.txt', 'results'+xml_suffix] \
-                       + ['results.'+files+xml_suffix for files in tasks]
-        if name is None:
-            basename = 'benchmark-example-rand.2015-01-01_0000.'
+
+        if rundefs == []:
+            expected_files = []
         else:
-            basename = 'benchmark-example-rand.' + name + '.2015-01-01_0000.'
+            expected_files = ['logfiles.zip' if compress else 'logfiles']
+
+        if rundefs is None or len(rundefs) != 1:
+            expected_files += ['results.txt']
+        else:
+            expected_files += ['results.' + rundefs[0] + '.txt']
+
+        if rundefs is None:
+            expected_files += ['results.'+task+xml_suffix for task in tasks]
+            expected_files += ['results'+xml_suffix]
+        else:
+            expected_files += ['results.'+rundef+'.'+task+xml_suffix for task in tasks for rundef in rundefs]
+            expected_files += ['results.'+rundef+xml_suffix for rundef in rundefs]
+
+        if name is None:
+            basename = test_name + '.2015-01-01_0000.'
+        else:
+            basename = test_name + '.' + name + '.2015-01-01_0000.'
+
         expected_files = set(map(lambda x : basename + x, expected_files))
         self.assertSetEqual(generated_files, expected_files, 'Set of generated files differs from set of expected files')
         # TODO find way to compare expected output to generated output
@@ -111,6 +133,57 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
     def test_simple_parallel(self):
         self.run_benchexec_and_compare_expected_files('--numOfThreads', '12')
+
+    def test_wildcard_tasks_1(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '*', tasks=['DTD files', 'Markdown files', 'XML files', 'Dummy tasks'])
+
+    def test_wildcard_tasks_2(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '* files', tasks=['DTD files', 'Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_3(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '*M* files', tasks=['Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_4(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '??? files', tasks=['DTD files', 'XML files'])
+
+    def test_wildcard_tasks_5(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '[MD]* files', tasks=['DTD files', 'Markdown files'])
+
+    def test_wildcard_tasks_6(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', '[!D]*', tasks=['Markdown files', 'XML files'])
+
+    def test_wildcard_tasks_7(self):
+        self.run_benchexec_and_compare_expected_files('--tasks', 'D*', tasks=['DTD files', 'Dummy tasks'])
+
+    def test_wildcard_rundefinition_1(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options', 'other options'])
+
+    def test_wildcard_rundefinition_2(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options', 'other options'])
+
+    def test_wildcard_rundefinition_3(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?o* options',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['no options', 'some options'])
+
+    def test_wildcard_rundefinition_4(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?[!o]*',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=['other options'])
+
+    def test_wildcard_rundefinition_5(self):
+        self.run_benchexec_and_compare_expected_files('--rundefinition', '?',
+                 test_name='benchmark-example-true',
+                 test_file=os.path.join(base_dir, 'doc', 'benchmark-example-true.xml'),
+                 rundefs=[])
 
     def test_simple_compressed_results(self):
         self.run_benchexec_and_compare_expected_files(compress=True)

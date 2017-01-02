@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+<!-- Example file for benchmark definition for BenchExec
+     with dummy tool "true" that simply returns TRUE.
+     No resource limits are specified. -->
+<benchmark tool="true">
+
+  <!-- <rundefinition> defines a tool configuration to benchmark,
+       tool true ignores all options. -->
+  <rundefinition name="no options"/>
+
+  <rundefinition name="some options">
+    <option name="opt1">value1</option>
+    <option name="opt2">value2</option>
+  </rundefinition>
+
+  <rundefinition name="other options">
+    <option name="opt3"/>
+    <option name="opt4"/>
+  </rundefinition>
+
+  <!-- <tasks> defines a set of tasks:
+       we define three sets of some arbitrary example files here. -->
+  <tasks name="DTD files">
+    <include>*.dtd</include>
+  </tasks>
+
+  <tasks name="Markdown files">
+    <include>*.md</include>
+  </tasks>
+
+  <tasks name="XML files">
+    <include>*.xml</include>
+  </tasks>
+
+  <!-- <tasks> with <withoutfile> allows to define tasks without input files,
+       if the tool supports this. -->
+  <tasks name="Dummy tasks">
+    <withoutfile>dummy task 1</withoutfile>
+    <withoutfile>dummy task 2</withoutfile>
+    <withoutfile>dummy task 3</withoutfile>
+  </tasks>
+</benchmark>

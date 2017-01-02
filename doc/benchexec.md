@@ -14,7 +14,7 @@ and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml),
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.4//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.4.dtd">
+    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
 
 A document-type definition with a formal specification of input files can be found in
 [doc/benchmark.dtd](benchmark.dtd).
@@ -70,6 +70,10 @@ that is in the same directory as each input file, use
 
     <option name="-f">${inputfile_path}/additional-file.txt</option>
 
+The tag `<resultfiles>` inside the `<benchmark>` tag specifies
+[which files should be copied to the output directory](container.md#retrieving-result-files)
+(only supported in [container mode](container.md)).
+
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:
@@ -88,6 +92,7 @@ Example:
     benchexec doc/benchmark-example-rand.xml --tasks "XML files" --limitCores 1 --timelimit 10s --numOfThreads 4
 
 The full set of available parameters can be seen with `benchexec -h`.
+For explanation of the parameters for containers, please see [container mode](container.md).
 For executing benchmarks under a different user account with the parameter `--user`,
 please check the [respective documentation](separate-user.md).
 
@@ -145,7 +150,7 @@ One can use this to create a reliable archive of experimental results.
 in the best possible way.
 More information on what should be considered when allocating hardware resources such as CPU cores
 can be found in our paper
-[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
 Some additional technical information is also present in the documentation on [resource handling](resources.md).
 
 

@@ -8,7 +8,9 @@
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
     
 **News**:
-- BenchExec 1.8 stores results in ZIP archives to save space and make their handling easier.
+- BenchExec 1.9 adds a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
+  that isolates each run from the host system and from other runs
+  (disabled by now, will become default in BenchExec 2.0).
 - We have published a paper titled
 [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf)
 on BenchExec and its background
@@ -19,7 +21,8 @@ It also contains a list of rules that you should always follow when doing benchm
 BenchExec provides three major features:
 
 - execution of arbitrary commands with precise and reliable measurement
-  and limitation of resource usage (e.g., CPU time and memory)
+  and limitation of resource usage (e.g., CPU time and memory),
+  and isolation against other running processes
 - an easy way to define benchmarks with specific tool configurations
   and resource limits,
   and automatically executing them on large sets of input files
@@ -31,11 +34,16 @@ of the benchmarked tool even if it spawns subprocesses.
 In order to achieve this,
 it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroups/cgroups.txt)
 of the Linux kernel to correctly handle groups of processes.
-Optionally, it can execute benchmarks under a separate user account.
+For proper isolation of the benchmarks, it uses (if available)
+Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
+and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+to create a [container](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
+that restricts interference of the executed tool with the benchmarking host.
 BenchExec is intended for benchmarking non-interactive tools on Linux systems.
 It measures CPU time, wall time, and memory usage of a tool,
 and allows to specify limits for these resources.
-It also allows to limit the CPU cores and (on NUMA systems) memory regions.
+It also allows to limit the CPU cores and (on NUMA systems) memory regions,
+and the container mode allows to restrict filesystem and network access.
 In addition to measuring resource usage,
 BenchExec can verify that the result of the tool was as expected,
 and extract further statistical data from the output.
@@ -61,6 +69,26 @@ at the [Software Systems Lab](http://www.sosy-lab.org) at the [University of Pas
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - Paper [Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf) about BenchExec ([supplementary webpage](http://www.sosy-lab.org/~dbeyer/benchmarking/))
+
+### Authors
+Maintainer: [Philipp Wendler](http://www.philippwendler.de)
+
+Contributors:
+- [Dirk Beyer](https://www.sosy-lab.org/~dbeyer)
+- [Montgomery Carter](https://github.com/MontyCarter)
+- [Andreas Donig](https://github.com/adonig)
+- [Karlheinz Friedberger](http://www.sosy-lab.org/people-friedberger.php)
+- Peter Häring
+- [George Karpenkov](http://metaworld.me/)
+- [Mike Kazantsev](http://fraggod.net/)
+- Thomas Lemberger
+- Stefan Löwe
+- Stephan Lukasczyk
+- [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
+- [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
+- [Andreas Stahlbauer](http://stahlbauer.net/)
+- [Thomas Stieglmaier](https://stieglmaier.me/)
+- and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
 

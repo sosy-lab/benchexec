@@ -176,9 +176,14 @@ class BaseTool(object):
     def environment(self, executable):
         """
         OPTIONAL, this method is only necessary for tools
-        that needs special environment variable.
-        Returns a dict, that contains several further dicts.
-        All keys and values have to be Strings!
+        that needs special environment variable, such as a modified PATH.
+        However, for usability of the tool it is in general not recommended to require
+        additional variables (tool uses outside of BenchExec would need to have them specified
+        manually), but instead change the tool such that it does not need additional variables.
+        For example, instead of requiring the tool directory to be added to PATH,
+        the tool can be changed to call binaries from its own directory directly.
+        This also has the benefit of not confusing bundled binaries
+        with existing binaries of the system.
 
         Note that when executing benchmarks under a separate user account (with flag --user),
         the environment of the tool is a fresh almost-empty one.
@@ -190,6 +195,8 @@ class BaseTool(object):
         This is not recommended, however, because it means that runs may be influenced
         by files in the home directory, which hinders reproducibility.
 
+        This method returns a dict that contains several further dicts.
+        All keys and values have to be strings.
         Currently we support 3 identifiers in the outer dict:
 
         "keepEnv": If specified, the run gets initialized with a fresh environment and only

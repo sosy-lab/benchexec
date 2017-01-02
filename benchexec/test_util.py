@@ -50,8 +50,12 @@ class TestParse(unittest.TestCase):
         self.assertRaises(ValueError, util.split_number_and_unit, "")
         self.assertRaises(ValueError, util.split_number_and_unit, "abc")
         self.assertRaises(ValueError, util.split_number_and_unit, "s")
-        self.assertRaises(ValueError, util.split_number_and_unit, "- 1")
         self.assertRaises(ValueError, util.split_number_and_unit, "a1a")
+
+        try:
+            self.assertEqualNumberAndUnit("- 1", -1, "")
+        except ValueError:
+            pass # Python 2 accepts this syntax, Python 3 does not
 
 
     def test_parse_memory_value(self):

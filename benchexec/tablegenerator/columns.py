@@ -88,6 +88,9 @@ class ColumnMeasureType(object):
     def max_decimal_digits(self):
         return self._max_decimal_digits
 
+    def __str__(self):
+        return "{}({})".format(self._type, self._max_decimal_digits)
+
 
 class Column(object):
     """
@@ -97,7 +100,8 @@ class Column(object):
     and href (to create a link to a resource).
     It does NOT contain the value of a column.
     """
-    def __init__(self, title, pattern, num_of_digits, href, col_type=None, unit=None, scale_factor=1):
+    def __init__(self, title, pattern, num_of_digits, href, col_type=None,
+                 unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None
@@ -105,15 +109,22 @@ class Column(object):
         self.unit = unit
         self.scale_factor = float(scale_factor) if scale_factor else 1
         self.href = href
+        if relevant_for_diff is None:
+            self.relevant_for_diff = False
+        else:
+            self.relevant_for_diff = True \
+                if relevant_for_diff.lower() == "true" else False
+        self.display_title = display_title
 
     def is_numeric(self):
         return self.type.type == ColumnType.measure or self.type.type == ColumnType.count
 
     def format_title(self):
+        title = self.display_title or self.title
         if self.is_numeric() and self.unit:
-            return "{} ({})".format(self.title, self.unit)
+            return "{} ({})".format(title, self.unit)
         else:
-            return self.title
+            return title
 
     def format_value(self, value, isToAlign=False, format_target="html"):
         """
@@ -163,6 +174,10 @@ class Column(object):
             if int(number) == number:
                 number = int(number)
             return str(number)
+
+    def __str__(self):
+        return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
+            self.__class__.__name__, self.title, self.pattern, self.number_of_significant_digits, self.href, self.type, self.unit, self.scale_factor)
 
 
 def _format_number_align(formattedValue, max_number_of_dec_digits, format_target="html"):
@@ -216,7 +231,7 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     with the specified number of significant digits,
     optionally aligned at the decimal point.
     """
-    assert format_target in POSSIBLE_FORMAT_TARGETS
+    assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
@@ -239,7 +254,10 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     digits_to_add = intended_digits - current_sig_digits
 
     if digits_to_add > 0:
-        assert '.' in formatted_value
+        if '.' not in formatted_value:
+            raise AssertionError(
+                "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'"
+                .format(formatted_value, number, float_value, intended_digits, max_digits_to_display, format_target))
         formatted_value += "".join(['0'] * digits_to_add)
     elif digits_to_add < 0:
         if '.' in formatted_value[:digits_to_add]:

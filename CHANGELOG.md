@@ -1,5 +1,25 @@
 # BenchExec Changelog
 
+## BenchExec 1.9
+
+The main feature of this release is the addition of a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
+that allows to isolate runs from each other and from the host,
+for example preventing filesystem and network accesses.
+It also allows to collect and store all files created by the tool in a run.
+The container mode is still in beta and disabled by default for now,
+it will be enabled by default in BenchExec 2.0.
+Please try it out and tell us your experiences!
+
+Further changes:
+- `table-generator` now supports HTTP(S) URLs to be given for result XML files
+  to allow generating tables for results without needing to download them first.
+  The HTML tables will contain correct links to the log files.
+- New SV-COMP property deadlock supported by `benchexec`.
+- The parameters `--rundefinition` and `--tasks` of `benchexec` now support wildcards.
+- Rounding of very small and very large values in `table-generator` has been fixed.
+- The default font for HTML tables has changed,
+  it is now a font that supports correctly aligned digits.
+
 ## BenchExec 1.8
 
 - `benchexec` now compresses results by default: XML result files

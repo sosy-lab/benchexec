@@ -25,14 +25,22 @@ import sys
 # CONSTANTS
 
 # categorization of a run result
+# 'correct' and 'wrong' refer to whether the tool's result matches the expected result.
+# 'confirmed' and 'unconfirmed' refer to whether the tool's result was confirmed (e.g., by witness validation)
 CATEGORY_CORRECT = 'correct'
-"""run result given by tool was correct"""
+"""run result given by tool is correct (we use 'correct' instead of 'correct-confirmed')"""
+
+CATEGORY_CORRECT_UNCONFIRMED = 'correct-unconfirmed'
+"""run result given by tool is correct but not confirmed"""
 
 CATEGORY_WRONG   = 'wrong'
-"""run result given by tool was wrong"""
+"""run result given by tool is wrong (we use 'wrong' instead of 'wrong-unconfirmed')"""
+
+#CATEGORY_WRONG_CONFIRMED   = 'wrong-confirmed'
+"""run result given by tool is wrong but confirmed by result validation"""
 
 CATEGORY_UNKNOWN = 'unknown'
-"""run result given by tool was "unknown" (i.e., no answer)"""
+"""run result given by tool is "unknown" (i.e., no answer)"""
 
 CATEGORY_ERROR   = 'error'
 """tool failed, crashed, or hit a resource limit"""
@@ -49,6 +57,7 @@ _PROP_LABEL =        'unreach-label'
 _PROP_CALL =         'unreach-call'
 _PROP_TERMINATION =  'termination'
 _PROP_OVERFLOW =     'no-overflow'
+_PROP_DEADLOCK =     'no-deadlock'
 _PROP_DEREF =        'valid-deref'
 _PROP_FREE =         'valid-free'
 _PROP_MEMTRACK =     'valid-memtrack'
@@ -69,12 +78,15 @@ RESULT_ERROR =              'ERROR' # or any other value not listed here
 (it is recommended to instead use a string with more details about the error)"""
 RESULT_TRUE_PROP =          'true'
 """property holds"""
-RESULT_FALSE_REACH =        STR_FALSE + '(reach)'
+RESULT_FALSE_REACH =        STR_FALSE + '(' + _PROP_CALL + ')'
+_RESULT_FALSE_REACH_OLD =   STR_FALSE + '(reach)'
 """SV-COMP reachability property violated"""
 RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
 """SV-COMP termination property violated"""
 RESULT_FALSE_OVERFLOW =     STR_FALSE + '(' + _PROP_OVERFLOW    + ')'
 """SV-COMP overflow property violated"""
+RESULT_FALSE_DEADLOCK =     STR_FALSE + '(' + _PROP_DEADLOCK    + ')'
+"""deadlock property violated""" # not yet part of SV-COMP
 RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
 """SV-COMP valid-deref property violated"""
 RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
@@ -91,11 +103,13 @@ RESULT_UNSAT =              'unsat'
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
-               RESULT_FALSE_REACH, RESULT_FALSE_TERMINATION,
+               RESULT_FALSE_REACH,
+               _RESULT_FALSE_REACH_OLD,
+               RESULT_FALSE_TERMINATION,
                RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
-               RESULT_FALSE_OVERFLOW
+               RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
                ]
 
 # Classification of results
@@ -114,6 +128,7 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'OBSERVER AUTOMATON':                _PROP_AUTOMATON,
                    'SATISFIABLE':                       _PROP_SAT,
                    'LTL(G ! overflow)':                 _PROP_OVERFLOW,
+                   'LTL(G ! deadlock)':                 _PROP_DEADLOCK,
                   }
 
 # This maps a possible result substring of a file name
@@ -129,6 +144,7 @@ _FILE_RESULTS = {
               '_true-valid-memtrack':  (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
               '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
               '_true-no-overflow':     (RESULT_TRUE_PROP, {_PROP_OVERFLOW}),
+              '_true-no-deadlock':     (RESULT_TRUE_PROP, {_PROP_DEADLOCK}),
 
               '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
               '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
@@ -138,6 +154,7 @@ _FILE_RESULTS = {
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
               '_false-valid-memtrack': (RESULT_FALSE_MEMTRACK,    {_PROP_MEMTRACK}),
               '_false-no-overflow':    (RESULT_FALSE_OVERFLOW,    {_PROP_OVERFLOW}),
+              '_false-no-deadlock':    (RESULT_FALSE_DEADLOCK,    {_PROP_DEADLOCK}),
 
               '_sat':                  (RESULT_SAT,   {_PROP_SAT}),
               '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
@@ -153,6 +170,7 @@ _VALID_RESULTS_PER_PROPERTY = {
     _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_FREE},
     _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_MEMTRACK},
     _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_OVERFLOW},
+    _PROP_DEADLOCK:    {RESULT_TRUE_PROP, RESULT_FALSE_DEADLOCK},
     _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_TERMINATION},
     _PROP_SAT:         {RESULT_SAT, RESULT_UNSAT},
     }
@@ -162,7 +180,9 @@ _VALID_RESULTS_PER_PROPERTY = {
 # change score_for_task() appropriately
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
+_SCORE_CORRECT_UNCONFIRMED_TRUE = 1
 _SCORE_CORRECT_FALSE = 1
+_SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
@@ -212,10 +232,11 @@ def properties_of_file(propertyfile):
 
 def satisfies_file_property(filename, properties):
     """
-    Tell whether the given property is violated or satisfied in a given file.
+    Tell whether the given properties are violated or satisfied in a given file.
+    Assumption: Currently, only one expected result per set of properties is supported.
     @param filename: The file name of the input file.
     @param properties: The list of properties to check (as returned by properties_of_file()).
-    @return True if the property is satisfied; False if it is violated; None if it is unknown
+    @return True if the properties are satisfied; False if it is violated; None if it is unknown
     """
     expected_result = _expected_result(filename, properties)
     if not expected_result:
@@ -233,6 +254,12 @@ def score_for_task(filename, properties, category, result):
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
+
+    if category == CATEGORY_CORRECT_UNCONFIRMED:
+        if satisfies_file_property(filename, properties):
+            return _SCORE_CORRECT_UNCONFIRMED_TRUE
+        else:
+            return _SCORE_CORRECT_UNCONFIRMED_FALSE
     if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
         return 0
     if _PROP_SAT in properties:
@@ -260,8 +287,6 @@ def score_for_task(filename, properties, category, result):
                 return _SCORE_WRONG_FALSE
             else:
                 assert False, "unexpected result classification " + result_class + " for result " + result
-
-        return _SCORE_CORRECT_FALSE if correct else _SCORE_WRONG_TRUE
     else:
         assert False, "unexpected return value from satisfies_file_property: " + expected
 

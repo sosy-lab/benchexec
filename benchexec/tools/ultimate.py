@@ -34,17 +34,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        # search for witness in options and put it at the end / together with tasks
-        for option in options:
-            if option.endswith('.graphml'):
-                options.remove(option)
-                return [executable] + [spec] + options + ['--full-output'] + tasks + [option]
         return [executable] + [spec] + options + ['--full-output'] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if (returnsignal == 9):
-            return 'TIMEOUT'
-
         status = result.RESULT_UNKNOWN
         for line in output:
             if line.startswith('FALSE(valid-free)'):
@@ -76,7 +68,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 break
 
         return status
-    
+
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
         # stop after the first line, that contains the searched text
