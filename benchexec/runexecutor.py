@@ -36,6 +36,7 @@ import time
 import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
+import benchexec.resources
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
@@ -251,9 +252,12 @@ def main(argv=None):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
     if 'energy' in result:
-        for cpu, domains in result['energy'].items():
+        _, packages = benchexec.resources.get_cpus(executor.cgroups)
+        for cpu in packages.keys():
+            domains = result['energy'][cpu]
             for domain, value in domains.items():
                 print("energy-{0}-{1}={2}J".format(cpu, domain, value))
+
 
 class RunExecutor(containerexecutor.ContainerExecutor):
 
