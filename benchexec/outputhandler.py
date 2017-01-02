@@ -524,8 +524,7 @@ class OutputHandler(object):
         self.add_column_to_xml(runSet.xml, 'cputime', cputime)
         self.add_column_to_xml(runSet.xml, 'walltime', walltime)
         for cpu, domains in energy.items():
-            self.add_column_to_xml(runSet.xml, 'energy-{}'.format(cpu), domains['package'])
-
+            self.add_column_to_xml(runSet.xml, 'energy-cpu{}'.format(cpu), domains['package'])
 
     def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:
