@@ -557,9 +557,11 @@ class OutputHandler(object):
         else:
             hidden = False
 
-        if title.startswith('cputime') or title.startswith('walltime'):
-            if not value_suffix and not isinstance(value, (str, bytes)):
+        if not value_suffix and not isinstance(value, (str, bytes)):
+            if title.startswith('cputime') or title.startswith('walltime'):
                 value_suffix = 's'
+            elif title.startswith('cpuenergy'):
+                value_suffix = 'J'
 
         value = "{}{}".format(value, value_suffix)
 
