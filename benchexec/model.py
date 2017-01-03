@@ -680,12 +680,14 @@ class Run(object):
                 self.cputime = value
             elif key == 'memory':
                 self.values['memUsage'] = value
-            elif key == 'cpuenergy':
+            elif key == 'cpuenergy' and not isinstance(value, (str, bytes)):
                 energy = intel_cpu_energy.format_energy_results(value)
                 for energy_key, energy_value in energy.items():
                     if energy_key != 'cpuenergy':
                         energy_key = '@' + energy_key
                     self.values[energy_key] = energy_value
+            elif key == 'cpuenergy':
+                self.values[key] = value
             elif key in visible_columns:
                 self.values[key] = value
             else:
