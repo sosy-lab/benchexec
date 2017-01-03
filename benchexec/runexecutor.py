@@ -808,6 +808,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
+        result = collections.OrderedDict()
 
         throttle_check = systeminfo.CPUThrottleCheck(cores)
         swap_check = systeminfo.SwapCheck()
@@ -831,15 +832,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
 
             returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
-
-            result = collections.OrderedDict()
             result['walltime'] = walltime
-            if energy:
-                result['energy'] = energy
-
-            # needs to come before cgroups.remove()
-            self._get_cgroup_measurements(cgroups, ru_child, result)
-
         finally:
             # cleanup steps that need to get executed even in case of failure
             logging.debug('Process terminated, exit code %s.', returnvalue)
@@ -853,14 +846,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oomThread:
                 oomThread.cancel()
 
-            # Kill all remaining processes if some managed to survive.
-            # Because we send signals to all processes anyway we use the
-            # internal function.
+            # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
             cgroups.kill_all_tasks(self._kill_process0)
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
 
+            # measurements are not relevant in case of failure, but need to come before cgroup cleanup
+            self._get_cgroup_measurements(cgroups, ru_child, result)
             logging.debug("Cleaning up cgroups.")
             cgroups.remove()
 
@@ -885,6 +878,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             _get_debug_output_after_crash(output_filename)
 
         result['exitcode'] = returnvalue
+        if energy:
+            result['energy'] = energy
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
         elif memlimit and 'memory' in result and result['memory'] >= memlimit:
@@ -972,7 +967,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         logging.debug(
             'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            result['walltime'], cputime_wait, cputime_cgroups, result.get('memory', None))
+            result.get('walltime'), cputime_wait, cputime_cgroups, result.get('memory', None))
 
 
     # --- other public functions ---
