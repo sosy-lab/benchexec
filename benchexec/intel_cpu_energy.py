@@ -53,7 +53,9 @@ class EnergyMeasurement(object):
         self.measurementProcess.send_signal(signal.SIGINT)
         (out, err) = self.measurementProcess.communicate()
         for line in out.splitlines():
-            match = re.match('cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line.decode('UTF-8'))
+            line = line.decode('ASCII')
+            logging.debug("energy measurement output: %s", line)
+            match = re.match('cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line)
             if not match:
                 continue
 
