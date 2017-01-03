@@ -40,7 +40,7 @@ class EnergyMeasurement(object):
     measurementProcess = None
 
     def start(self):
-        """Starts the external measurement program. Raises a warning if it is already running."""
+        """Starts the external measurement program."""
         assert not self.is_running(), 'Attempted to start an energy measurement while one was already running.'
 
         executable = find_executable('cpu-energy-meter', exitOnError=False)
@@ -57,9 +57,11 @@ class EnergyMeasurement(object):
             )
 
     def stop(self):
-        """Stops the external measurement program and adds its measurement result to the internal buffer."""
+        """Stops the external measurement program and returns the measurement result,
+        if the measurement was running."""
         consumed_energy = collections.defaultdict(dict)
-        assert self.is_running(), 'Attempted to stop an energy measurement while none was running.'
+        if not self.is_running():
+            return None
         # cpu-energy-meter expects SIGINT to stop and report its result
         self.measurementProcess.send_signal(signal.SIGINT)
         (out, err) = self.measurementProcess.communicate()
