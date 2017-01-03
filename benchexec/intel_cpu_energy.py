@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
+import collections
 import logging
 import subprocess
 import signal
@@ -28,14 +29,13 @@ import re
 from benchexec.util import find_executable
 
 
-class EnergyMeasurement:
+class EnergyMeasurement(object):
 
-    cumulativeEnergy = {} # cE[cpuNum][domainName]
     measurementProcess = None
 
     def start(self):
         """Starts the external measurement program. Raises a warning if it is already running."""
-        assert not self.isRunning(), 'Attempted to start an energy measurement while one was already running.'
+        assert not self.is_running(), 'Attempted to start an energy measurement while one was already running.'
 
         executable = find_executable('cpu-energy-meter', exitOnError=False)
         if executable is None: # not available on current system
@@ -44,12 +44,10 @@ class EnergyMeasurement:
 
         self.measurementProcess = subprocess.Popen([executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10000)
 
-        return self.cumulativeEnergy
-
     def stop(self):
         """Stops the external measurement program and adds its measurement result to the internal buffer."""
-        consumed_energy = {}
-        assert self.isRunning(), 'Attempted to stop an energy measurement while none was running.'
+        consumed_energy = collections.defaultdict(dict)
+        assert self.is_running(), 'Attempted to stop an energy measurement while none was running.'
         # cpu-energy-meter expects SIGINT to stop and report its result
         self.measurementProcess.send_signal(signal.SIGINT)
         (out, err) = self.measurementProcess.communicate()
@@ -62,45 +60,10 @@ class EnergyMeasurement:
             cpu = int(cpu)
             energy = float(energy)
 
-            if not cpu in self.cumulativeEnergy:
-                self.cumulativeEnergy[cpu] = {}
-            if not cpu in consumed_energy:
-                consumed_energy[cpu] = {}
-
-            if not domain in self.cumulativeEnergy[cpu]:
-                self.cumulativeEnergy[cpu][domain] = 0
             consumed_energy[cpu][domain] = energy
-
-            self.cumulativeEnergy[cpu][domain] += energy
         return consumed_energy
 
 
-    def isRunning(self):
+    def is_running(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
         return (self.measurementProcess is not None and self.measurementProcess.poll() is None)
-
-    def getEnergyPerCPU(self):
-        """Returns the measured energy usage for each CPU and domain (as a list of dicts, where the list index corresponds to the CPU ID and the dict contains an entry for each supported energy domain)."""
-        return self.cumulativeEnergy
-
-    def getEnergySum(self):
-        """Returns the measured energy usage for each domain, summed across all CPUs (as a dict of domains, where each entry represents the measured energy of that domain across all CPUs)."""
-        energySum = {}
-        for cpu in self.cumulativeEnergy:
-            for domain in self.cumulativeEnergy[cpu]:
-                if domain not in energySum:
-                    energySum[domain] = 0
-                energySum[domain] += self.cumulativeEnergy[cpu][domain]
-
-        return energySum
-
-    def clear(self):
-        """Removes all measurements from the internal buffer."""
-        cumulativeEnergy = {}
-
-    def __add__(self, other):
-        for cpu in cumulativeEnergy:
-            for domain in cumulativeEnergy[cpu]:
-                if domain not in energySum:
-                    energySum[domain] = 0
-                energySum[domain] += cumulativeEnergy[cpu][domain]
