@@ -140,13 +140,19 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'JAVA HEAP ERROR'
             elif line.startswith('Error: ') and not status:
                 status = result.RESULT_ERROR
-                if 'Unsupported' in line:
+                if 'Cannot parse witness' in line:
+                    status += '(invalid witness file)'
+                elif 'Unsupported' in line:
                     if 'recursion' in line:
                         status += ' (recursion)'
                     elif 'threads' in line:
                         status += ' (threads)'
                 elif 'Parsing failed' in line:
                     status += ' (parsing failed)'
+            elif line.startswith('Invalid configuration: ') and not status:
+                if 'Cannot parse witness' in line:
+                    status = result.RESULT_ERROR
+                    status += '(invalid witness file)'
             elif line.startswith('For your information: CPAchecker is currently hanging at') and not status and isTimeout:
                 status = 'TIMEOUT'
 
