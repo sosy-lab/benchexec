@@ -29,6 +29,10 @@ import re
 from benchexec.util import find_executable
 from decimal import Decimal
 
+DOMAIN_PACKAGE = "package"
+DOMAIN_CORE = "core"
+DOMAIN_UNCORE = "uncore"
+DOMAIN_DRAM = "dram"
 
 class EnergyMeasurement(object):
 

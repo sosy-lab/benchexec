@@ -33,6 +33,7 @@ import zipfile
 import benchexec
 from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
 from benchexec import filewriter
+from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
@@ -523,8 +524,14 @@ class OutputHandler(object):
         """
         self.add_column_to_xml(runSet.xml, 'cputime', cputime)
         self.add_column_to_xml(runSet.xml, 'walltime', walltime)
-        for cpu, domains in energy.items():
-            self.add_column_to_xml(runSet.xml, 'energy-cpu{}'.format(cpu), domains['package'])
+        for pkg, domains in energy.items():
+            for domain, value in domains.items():
+                if domain == intel_cpu_energy.DOMAIN_PACKAGE:
+                    self.add_column_to_xml(
+                        runSet.xml, 'cpuenergy-pkg{}'.format(pkg), value)
+                else:
+                    self.add_column_to_xml(
+                        runSet.xml, 'cpuenergy-pkg{}-{}'.format(pkg, domain), value)
 
     def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:

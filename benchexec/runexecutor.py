@@ -36,16 +36,14 @@ import time
 import tempfile
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
-import benchexec.resources
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
 from benchexec.cgroups import *
+from benchexec import intel_cpu_energy
 from benchexec import oomhandler
 from benchexec import systeminfo
 from benchexec import util
-
-from benchexec.intel_cpu_energy import EnergyMeasurement
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
@@ -252,11 +250,12 @@ def main(argv=None):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
     if 'energy' in result:
-        _, packages = benchexec.resources.get_cpus(executor.cgroups)
-        for cpu in packages.keys():
-            domains = result['energy'][cpu]
+        for pkg, domains in result['energy'].items():
             for domain, value in domains.items():
-                print("energy-{0}-{1}={2}J".format(cpu, domain, value))
+                if domain == intel_cpu_energy.DOMAIN_PACKAGE:
+                    print('cpuenergy-pkg{}={}J'.format(pkg, value))
+                else:
+                    print('cpuenergy-pkg{}-{}={}J'.format(pkg, domain, value))
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
@@ -313,7 +312,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'recommended to do benchmarks with empty home to prevent undesired influences.',
                     self._home_dir, user)
 
-        self._energy_measurement = EnergyMeasurement()
+        self._energy_measurement = intel_cpu_energy.EnergyMeasurement()
 
         self._init_cgroups()
 

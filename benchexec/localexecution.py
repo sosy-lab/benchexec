@@ -29,7 +29,6 @@ import threading
 import time
 from queue import Queue
 
-import benchexec.resources
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
 from benchexec import cgroups
 from benchexec import containerexecutor
@@ -176,10 +175,6 @@ def execute_benchmark(benchmark, output_handler):
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \
                         - (ruBefore.ru_utime + ruBefore.ru_stime)
-
-            # Only include energy measurement for cpus used in runs
-            _, packages = benchexec.resources.get_cpus(my_cgroups)
-            energy = {cpu: energy[cpu] for cpu in packages.keys()}
 
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error('interrupted', runSet)
