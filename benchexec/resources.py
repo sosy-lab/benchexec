@@ -39,7 +39,6 @@ __all__ = [
            'get_memory_banks_per_run',
            ]
 
-
 def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
     """
     Calculate an assignment of the available CPU cores to a number
@@ -71,35 +70,27 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
     @return a list of lists, where each inner list contains the cores for one run
     """
     try:
-        all_cpus, cores_of_package = get_cpus(my_cgroups)
+        # read list of available CPU cores
+        allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
+        logging.debug("List of available CPU cores is %s.", allCpus)
+
+        # read mapping of core to CPU ("physical package")
+        physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))) for core in allCpus]
+        cores_of_package = collections.defaultdict(list)
+        for core, package in zip(allCpus, physical_packages):
+            cores_of_package[package].append(core)
+        logging.debug("Physical packages of cores are %s.", cores_of_package)
 
         # read hyper-threading information (sibling cores sharing the same physical core)
         siblings_of_core = {}
-        for core in all_cpus:
+        for core in allCpus:
             siblings = util.parse_int_list(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/thread_siblings_list'.format(core)))
             siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
 
-    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, all_cpus, cores_of_package, siblings_of_core)
-
-
-def get_cpus(my_cgroups):
-    # read list of available CPU cores
-    allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
-    logging.debug("List of available CPU cores is %s.", allCpus)
-
-    # read mapping of core to CPU ("physical package")
-    physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core)))
-                         for core in allCpus]
-    cores_of_package = collections.defaultdict(list)
-    for core, package in zip(allCpus, physical_packages):
-        cores_of_package[package].append(core)
-    logging.debug("Physical packages of cores are %s.", cores_of_package)
-
-    return allCpus, cores_of_package
-
+    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core)
 
 def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core):
     """This method does the actual work of _get_cpu_cores_per_run
