@@ -524,14 +524,9 @@ class OutputHandler(object):
         """
         self.add_column_to_xml(runSet.xml, 'cputime', cputime)
         self.add_column_to_xml(runSet.xml, 'walltime', walltime)
-        for pkg, domains in energy.items():
-            for domain, value in domains.items():
-                if domain == intel_cpu_energy.DOMAIN_PACKAGE:
-                    self.add_column_to_xml(
-                        runSet.xml, 'cpuenergy-pkg{}'.format(pkg), value)
-                else:
-                    self.add_column_to_xml(
-                        runSet.xml, 'cpuenergy-pkg{}-{}'.format(pkg, domain), value)
+        energy = intel_cpu_energy.format_energy_results(energy)
+        for energy_key, energy_value in energy.items():
+            self.add_column_to_xml(runSet.xml, energy_key, energy_value)
 
     def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:

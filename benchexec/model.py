@@ -681,12 +681,11 @@ class Run(object):
             elif key == 'memory':
                 self.values['memUsage'] = value
             elif key == 'energy':
-                for pkg, domains in value.items():
-                    for domain, value in domains.items():
-                        if domain == intel_cpu_energy.DOMAIN_PACKAGE:
-                            self.values['cpuenergy-pkg{}'.format(pkg)] = value
-                        else:
-                            self.values['@cpuenergy-pkg{}-{}'.format(pkg, domain)] = value
+                energy = intel_cpu_energy.format_energy_results(value)
+                for energy_key, energy_value in energy.items():
+                    if energy_key != 'cpuenergy':
+                        energy_key = '@' + energy_key
+                    self.values[energy_key] = energy_value
             elif key in visible_columns:
                 self.values[key] = value
             else:

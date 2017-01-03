@@ -250,13 +250,9 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
-    if 'energy' in result:
-        for pkg, domains in result['energy'].items():
-            for domain, value in domains.items():
-                if domain == intel_cpu_energy.DOMAIN_PACKAGE:
-                    print('cpuenergy-pkg{}={}J'.format(pkg, value))
-                else:
-                    print('cpuenergy-pkg{}-{}={}J'.format(pkg, domain, value))
+    energy = intel_cpu_energy.format_energy_results(result['energy'])
+    for energy_key, energy_value in energy.items():
+        print('{}={}J'.format(energy_key, energy_value))
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):

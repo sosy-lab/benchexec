@@ -90,3 +90,19 @@ class EnergyMeasurement(object):
     def is_running(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
         return (self._measurement_process is not None and self._measurement_process.poll() is None)
+
+def format_energy_results(energy):
+    """Take the result of an energy measurement and return a flat dictionary that contains all values."""
+    if not energy:
+        return {}
+    result = collections.OrderedDict()
+    cpuenergy = Decimal(0)
+    for pkg, domains in energy.items():
+        for domain, value in domains.items():
+            if domain == DOMAIN_PACKAGE:
+                cpuenergy += value
+                result['cpuenergy-pkg{}'.format(pkg)] = value
+            else:
+                result['cpuenergy-pkg{}-{}'.format(pkg, domain)] = value
+    result['cpuenergy'] = cpuenergy
+    return result
