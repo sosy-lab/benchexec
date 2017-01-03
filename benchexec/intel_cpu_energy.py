@@ -37,19 +37,25 @@ DOMAIN_DRAM = "dram"
 
 class EnergyMeasurement(object):
 
-    measurementProcess = None
+    def __init__(self, executable):
+        self._executable = executable
+        self._measurement_process = None
+
+    @classmethod
+    def create_if_supported(cls):
+        executable = find_executable('cpu-energy-meter', exitOnError=False)
+        if executable is None: # not available on current system
+            logging.debug('Energy measurement not available because cpu-energy-meter binary could not be found.')
+            return None
+
+        return cls(executable)
 
     def start(self):
         """Starts the external measurement program."""
         assert not self.is_running(), 'Attempted to start an energy measurement while one was already running.'
 
-        executable = find_executable('cpu-energy-meter', exitOnError=False)
-        if executable is None: # not available on current system
-            logging.debug('Energy measurement not available because cpu-energy-meter binary could not be found.')
-            return
-
-        self.measurementProcess = subprocess.Popen(
-            [executable],
+        self._measurement_process = subprocess.Popen(
+            [self._executable],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             bufsize=10000,
@@ -63,8 +69,9 @@ class EnergyMeasurement(object):
         if not self.is_running():
             return None
         # cpu-energy-meter expects SIGINT to stop and report its result
-        self.measurementProcess.send_signal(signal.SIGINT)
-        (out, err) = self.measurementProcess.communicate()
+        self._measurement_process.send_signal(signal.SIGINT)
+        (out, err) = self._measurement_process.communicate()
+        self._measurement_process = None
         for line in out.splitlines():
             line = line.decode('ASCII')
             logging.debug("energy measurement output: %s", line)
@@ -82,4 +89,4 @@ class EnergyMeasurement(object):
 
     def is_running(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
-        return (self.measurementProcess is not None and self.measurementProcess.poll() is None)
+        return (self._measurement_process is not None and self._measurement_process.poll() is None)

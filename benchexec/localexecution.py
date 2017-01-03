@@ -137,10 +137,11 @@ def execute_benchmark(benchmark, output_handler):
         else:
             run_sets_executed += 1
             # get times before runSet
-            energy_measurement = EnergyMeasurement()
+            energy_measurement = EnergyMeasurement.create_if_supported()
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
             walltime_before = util.read_monotonic_time()
-            energy_measurement.start()
+            if energy_measurement:
+                energy_measurement.start()
 
             output_handler.output_before_run_set(runSet)
 
@@ -172,7 +173,7 @@ def execute_benchmark(benchmark, output_handler):
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
-            energy = energy_measurement.stop()
+            energy = energy_measurement.stop() if energy_measurement else None
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \

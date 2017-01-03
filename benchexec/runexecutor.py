@@ -313,7 +313,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'recommended to do benchmarks with empty home to prevent undesired influences.',
                     self._home_dir, user)
 
-        self._energy_measurement = intel_cpu_energy.EnergyMeasurement()
+        self._energy_measurement = intel_cpu_energy.EnergyMeasurement.create_if_supported()
 
         self._init_cgroups()
 
@@ -788,21 +788,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
             if self._energy_measurement is not None:
-                energy_before = self._energy_measurement.start()
-            else:
-                energy_before = None
+                self._energy_measurement.start()
             walltime_before = util.read_monotonic_time()
-            return (walltime_before, energy_before)
+            return walltime_before
 
         def postParent(preParent_result):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before, _ = preParent_result
+            walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            if self._energy_measurement is not None:
-                energy = self._energy_measurement.stop()
-            else:
-                energy = None
+            energy = self._energy_measurement.stop() if self._energy_measurement else None
             return (walltime, energy)
 
         def preSubprocess():
