@@ -23,6 +23,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import collections
 import logging
+import os
 import subprocess
 import signal
 import re
@@ -47,7 +48,13 @@ class EnergyMeasurement(object):
             logging.debug('Energy measurement not available because cpu-energy-meter binary could not be found.')
             return
 
-        self.measurementProcess = subprocess.Popen([executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10000)
+        self.measurementProcess = subprocess.Popen(
+            [executable],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=10000,
+            preexec_fn=os.setpgrp, # Prevent delivery of Ctrl+C to subprocess
+            )
 
     def stop(self):
         """Stops the external measurement program and adds its measurement result to the internal buffer."""
