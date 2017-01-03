@@ -250,7 +250,7 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
-    energy = intel_cpu_energy.format_energy_results(result['cpuenergy'])
+    energy = intel_cpu_energy.format_energy_results(result.get('cpuenergy'))
     for energy_key, energy_value in energy.items():
         print('{}={}J'.format(energy_key, energy_value))
 
