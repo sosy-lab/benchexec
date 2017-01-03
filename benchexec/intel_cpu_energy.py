@@ -27,6 +27,7 @@ import subprocess
 import signal
 import re
 from benchexec.util import find_executable
+from decimal import Decimal
 
 
 class EnergyMeasurement(object):
@@ -58,7 +59,7 @@ class EnergyMeasurement(object):
 
             cpu, domain, energy = match.groups()
             cpu = int(cpu)
-            energy = float(energy)
+            energy = Decimal(energy)
 
             consumed_energy[cpu][domain] = energy
         return consumed_energy
