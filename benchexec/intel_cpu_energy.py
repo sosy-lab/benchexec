@@ -21,7 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
-import warnings
+import logging
 import subprocess
 import signal
 import re
@@ -35,9 +35,7 @@ class EnergyMeasurement:
 
     def start(self):
         """Starts the external measurement program. Raises a warning if it is already running."""
-        if self.isRunning():
-            warnings.warn('Attempted to start an energy measurement while one was already running.')
-            return
+        assert not self.isRunning(), 'Attempted to start an energy measurement while one was already running.'
 
         executable = find_executable('cpu-energy-meter', exitOnError=False)
         if executable is None: # not available on current system
@@ -49,10 +47,9 @@ class EnergyMeasurement:
         return self.cumulativeEnergy
 
     def stop(self):
-        """Stops the external measurement program and adds its measurement result to the internal buffer. Raises a warning if the external program isn't running."""
+        """Stops the external measurement program and adds its measurement result to the internal buffer."""
         consumed_energy = {}
-        if not self.isRunning():
-            warnings.warn('Attempted to stop an energy measurement while none was running.')
+        assert self.isRunning(), 'Attempted to stop an energy measurement while none was running.'
         # cpu-energy-meter expects SIGINT to stop and report its result
         self.measurementProcess.send_signal(signal.SIGINT)
         (out, err) = self.measurementProcess.communicate()
