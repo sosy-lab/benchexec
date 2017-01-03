@@ -141,7 +141,7 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith('Error: ') and not status:
                 status = result.RESULT_ERROR
                 if 'Cannot parse witness' in line:
-                    status += '(invalid witness file)'
+                    status += ' (invalid witness file)'
                 elif 'Unsupported' in line:
                     if 'recursion' in line:
                         status += ' (recursion)'
@@ -152,7 +152,7 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith('Invalid configuration: ') and not status:
                 if 'Cannot parse witness' in line:
                     status = result.RESULT_ERROR
-                    status += '(invalid witness file)'
+                    status += ' (invalid witness file)'
             elif line.startswith('For your information: CPAchecker is currently hanging at') and not status and isTimeout:
                 status = 'TIMEOUT'
 
