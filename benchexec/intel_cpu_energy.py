@@ -71,7 +71,14 @@ class EnergyMeasurement(object):
         # cpu-energy-meter expects SIGINT to stop and report its result
         self._measurement_process.send_signal(signal.SIGINT)
         (out, err) = self._measurement_process.communicate()
+        assert self._measurement_process.returncode is not None
+        if self._measurement_process.returncode:
+            logging.debug(
+                "Energy measurement terminated with return code %s",
+                self._measurement_process.returncode)
         self._measurement_process = None
+        for line in err.splitlines():
+            logging.debug("energy measurement stderr: %s", line)
         for line in out.splitlines():
             line = line.decode('ASCII')
             logging.debug("energy measurement output: %s", line)
@@ -89,7 +96,7 @@ class EnergyMeasurement(object):
 
     def is_running(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
-        return (self._measurement_process is not None and self._measurement_process.poll() is None)
+        return self._measurement_process is not None
 
 def format_energy_results(energy):
     """Take the result of an energy measurement and return a flat dictionary that contains all values."""
