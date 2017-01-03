@@ -250,7 +250,7 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
-    energy = intel_cpu_energy.format_energy_results(result['energy'])
+    energy = intel_cpu_energy.format_energy_results(result['cpuenergy'])
     for energy_key, energy_value in energy.items():
         print('{}={}J'.format(energy_key, energy_value))
 
@@ -843,9 +843,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if energy:
                 if cores:
                     packages = set(resources.get_cpu_package_for_core(core) for core in cores)
-                    result['energy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
+                    result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
                 else:
-                    result['energy'] = energy
+                    result['cpuenergy'] = energy
 
             # needs to come before cgroups.remove()
             self._get_cgroup_measurements(cgroups, ru_child, result)
