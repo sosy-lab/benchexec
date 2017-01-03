@@ -37,6 +37,7 @@ __all__ = [
            'check_memory_size',
            'get_cpu_cores_per_run',
            'get_memory_banks_per_run',
+           'get_cpu_package_for_core',
            ]
 
 def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
@@ -75,7 +76,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
         logging.debug("List of available CPU cores is %s.", allCpus)
 
         # read mapping of core to CPU ("physical package")
-        physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))) for core in allCpus]
+        physical_packages = [get_cpu_package_for_core(core) for core in allCpus]
         cores_of_package = collections.defaultdict(list)
         for core, package in zip(allCpus, physical_packages):
             cores_of_package[package].append(core)
@@ -308,3 +309,7 @@ def _get_memory_bank_size(memBank):
                 logging.debug("Memory bank %s has size %s bytes.", memBank, size)
                 return size
     raise ValueError('Failed to read total memory from {}.'.format(fileName))
+
+def get_cpu_package_for_core(core):
+    """Get the number of the physical package (socket) a core belongs to."""
+    return int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core)))
