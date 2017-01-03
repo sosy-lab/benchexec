@@ -676,7 +676,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes in a NUMA system to use
         @param environments: special environments for running the command
-        @param energy_measurement: None or energy measurement to use
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)

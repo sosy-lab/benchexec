@@ -62,8 +62,6 @@ else:
     maybe_recursive_iglob = glob.iglob
 
 
-ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
-
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
 
