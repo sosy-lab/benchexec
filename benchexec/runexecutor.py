@@ -40,7 +40,9 @@ from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
 from benchexec.cgroups import *
+from benchexec import intel_cpu_energy
 from benchexec import oomhandler
+from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
 
@@ -248,9 +250,10 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
-    if 'energy' in result:
-        for key, value in result['energy'].items():
-            print("energy-{0}={1}".format(key, value))
+    energy = intel_cpu_energy.format_energy_results(result.get('cpuenergy'))
+    for energy_key, energy_value in energy.items():
+        print('{}={}J'.format(energy_key, energy_value))
+
 
 class RunExecutor(containerexecutor.ContainerExecutor):
 
@@ -305,6 +308,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'Home directory %s of user %s contains files and/or directories, it is '
                     'recommended to do benchmarks with empty home to prevent undesired influences.',
                     self._home_dir, user)
+
+        self._energy_measurement = intel_cpu_energy.EnergyMeasurement.create_if_supported()
 
         self._init_cgroups()
 
@@ -364,7 +369,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 logging.warning("Could not read available memory nodes from kernel: %s",
                                 e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
-
 
     # --- utility functions ---
 
@@ -778,16 +782,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preParent():
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
-            energy_before = util.measure_energy()
+            if self._energy_measurement is not None:
+                self._energy_measurement.start()
             walltime_before = util.read_monotonic_time()
-            return (walltime_before, energy_before)
+            return walltime_before
 
         def postParent(preParent_result):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before, energy_before = preParent_result
+            walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            energy = util.measure_energy(energy_before)
+            energy = self._energy_measurement.stop() if self._energy_measurement else None
             return (walltime, energy)
 
         def preSubprocess():
@@ -864,6 +869,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oomThread:
                 _try_join_cancelled_thread(oomThread)
 
+            if self._energy_measurement:
+                self._energy_measurement.stop()
+
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. '
@@ -879,7 +887,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         result['exitcode'] = returnvalue
         if energy:
-            result['energy'] = energy
+            if cores:
+                packages = set(resources.get_cpu_package_for_core(core) for core in cores)
+                result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
+            else:
+                result['cpuenergy'] = energy
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
         elif memlimit and 'memory' in result and result['memory'] >= memlimit:

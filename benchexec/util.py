@@ -62,8 +62,6 @@ else:
     maybe_recursive_iglob = glob.iglob
 
 
-ENERGY_TYPES = ['cpu', 'core', 'uncore', 'external']
-
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
 
@@ -509,52 +507,6 @@ def add_files_to_git_repository(base_dir, files, description):
         printOut('Git commit failed!')
         return
 
-
-
-def measure_energy(oldEnergy=None):
-    '''
-    returns a dictionary with the currently available values of energy consumptions (like a time-stamp).
-    If oldEnergy is not None, the difference (currentValue - oldEnergy) is returned.
-    '''
-    newEnergy = {}
-
-    executable = find_executable('read-energy.sh', exitOnError=False)
-    if executable is None: # not available on current system
-        logging.debug(
-            'Energy measurement not available because read-energy.sh could not be found.')
-        return newEnergy
-
-    for energyType in ENERGY_TYPES:
-        logging.debug('Reading %s energy measurement for value.', energyType)
-        energysh = subprocess.Popen([executable, energyType], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, stderr) = energysh.communicate()
-        if energysh.returncode or stderr:
-            logging.debug('Error while reading %s energy measurement: retval=%s, out=%s, err=%s',
-                          energyType, energysh.returncode, stdout, stderr)
-        try:
-            newEnergy[energyType] = int(stdout)
-        except ValueError:
-            logging.debug('Invalid value while reading %s energy measurement: %s',
-                          energyType, stdout)
-
-    logging.debug('Finished reading energy measurements.')
-
-    if oldEnergy is None:
-        return newEnergy
-    else:
-        return _energy_difference(newEnergy, oldEnergy)
-
-
-def _energy_difference(newEnergy, oldEnergy):
-    '''
-    returns a dict with (newEnergy - oldEnergy) for each type (=key) of energy,
-    but only, if both values exist
-    '''
-    diff = {}
-    for key in newEnergy:
-        if key in oldEnergy:
-            diff[key] = newEnergy[key] - oldEnergy[key]
-    return diff
 
 def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)

@@ -26,6 +26,7 @@ import time
 import sys
 from xml.etree import ElementTree
 
+from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
@@ -626,7 +627,7 @@ class Run(object):
             self.properties = result.properties_of_file(self.propertyfile)
         else:
             self.properties = []
-            
+
         self.required_files = list(self.required_files)
 
         # Copy columns for having own objects in run
@@ -679,9 +680,12 @@ class Run(object):
                 self.cputime = value
             elif key == 'memory':
                 self.values['memUsage'] = value
-            elif key == 'energy':
-                for ekey, evalue in value.items():
-                    self.values['energy-'+ekey] = evalue
+            elif key == 'cpuenergy':
+                energy = intel_cpu_energy.format_energy_results(value)
+                for energy_key, energy_value in energy.items():
+                    if energy_key != 'cpuenergy':
+                        energy_key = '@' + energy_key
+                    self.values[energy_key] = energy_value
             elif key in visible_columns:
                 self.values[key] = value
             else:
