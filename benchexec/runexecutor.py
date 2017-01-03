@@ -885,6 +885,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oomThread:
                 _try_join_cancelled_thread(oomThread)
 
+            if self._energy_measurement:
+                self._energy_measurement.stop()
+
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
             logging.warning('CPU throttled itself during benchmarking due to overheating. '
