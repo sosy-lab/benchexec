@@ -42,6 +42,7 @@ from benchexec import containerexecutor
 from benchexec.cgroups import *
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
+from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
 
@@ -849,7 +850,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             result = collections.OrderedDict()
             result['walltime'] = walltime
             if energy:
-                result['energy'] = energy
+                if cores:
+                    packages = set(resources.get_cpu_package_for_core(core) for core in cores)
+                    result['energy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
+                else:
+                    result['energy'] = energy
 
             # needs to come before cgroups.remove()
             self._get_cgroup_measurements(cgroups, ru_child, result)

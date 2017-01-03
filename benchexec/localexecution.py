@@ -90,11 +90,13 @@ def execute_benchmark(benchmark, output_handler):
 
     coreAssignment = None # cores per run
     memoryAssignment = None # memory banks per run
+    cpu_packages = None
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit("Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes.")
         coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
+        cpu_packages = set(get_cpu_package_for_core(core) for cores_of_run in coreAssignment for core in cores_of_run)
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
@@ -175,6 +177,8 @@ def execute_benchmark(benchmark, output_handler):
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \
                         - (ruBefore.ru_utime + ruBefore.ru_stime)
+            if energy and cpu_packages:
+                energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
 
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error('interrupted', runSet)
