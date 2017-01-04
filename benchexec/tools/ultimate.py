@@ -64,7 +64,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_UNKNOWN
                 break
             elif line.startswith('ERROR'):
-                status = 'ERROR'
+                if line.startswith('ERROR: INVALID WITNESS FILE'):
+                    status = line
+                else:
+                    status = 'ERROR'
                 break
 
         return status
