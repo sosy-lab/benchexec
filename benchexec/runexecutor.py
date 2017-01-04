@@ -548,7 +548,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
-            logging.debug('Cleaning up temporary directory.')
+            logging.debug('Cleaning up temporary directory %s.', base_dir)
             if self._user is None:
                 util.rmtree(base_dir, onerror=util.log_rmtree_error)
             else:

@@ -789,6 +789,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if (os.path.isfile(abs_file) and not os.path.islink(abs_file) and
                     not container.is_container_system_config_file(file)):
                 target = output_dir + file
+                logging.debug("Transferring output file %s to %s", abs_file, target)
                 try:
                     os.makedirs(os.path.dirname(target))
                 except EnvironmentError:
