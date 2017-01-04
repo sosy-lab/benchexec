@@ -439,6 +439,9 @@ class OutputHandler(object):
         else:
             self.all_created_files.add(run.log_file)
 
+        if os.path.isdir(run.result_files_folder):
+            self.all_created_files.add(run.result_files_folder)
+
 
     def output_after_run_set(self, runSet, cputime=None, walltime=None, energy={}):
         """

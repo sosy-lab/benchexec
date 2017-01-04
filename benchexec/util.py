@@ -491,7 +491,8 @@ def add_files_to_git_repository(base_dir, files, description):
 
     # add files to staging area
     files = [os.path.realpath(file) for file in files]
-    gitAdd = subprocess.Popen(['git', 'add', '--'] + files,
+    # Use --force to add all files in result-files directory even if .gitignore excludes them
+    gitAdd = subprocess.Popen(['git', 'add', '--force', '--'] + files,
                                cwd=gitRootDir)
     if gitAdd.wait() != 0:
         printOut('Git add failed, will not commit results!')
