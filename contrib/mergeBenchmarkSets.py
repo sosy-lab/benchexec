@@ -110,9 +110,6 @@ def main(argv=None):
         run = result.get('name')
         basename = os.path.basename(run)
         if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
-                properties = result.get('properties').split(' ');
-                expected_result = Result.satisfies_file_property(basename, properties);
-
                 statusWit, categoryWit = (None, None)
                 i = 0
                 for witnessSet in witnessSets:
