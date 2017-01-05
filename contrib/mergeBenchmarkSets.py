@@ -127,7 +127,6 @@ def main(argv=None):
                                  'hidden': column.get('hidden','false')
                                  })
                             result.append(newColumn)
-                        witnessSet.pop(run)
                         statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                         if (
                              categoryWit is None or
