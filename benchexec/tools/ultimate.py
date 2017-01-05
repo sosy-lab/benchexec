@@ -37,39 +37,29 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return [executable] + [spec] + options + ['--full-output'] + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        status = result.RESULT_UNKNOWN
         for line in output:
             if line.startswith('FALSE(valid-free)'):
-                status = result.RESULT_FALSE_FREE
-                break
+                return result.RESULT_FALSE_FREE
             elif line.startswith('FALSE(valid-deref)'):
-                status = result.RESULT_FALSE_DEREF
-                break
+                return result.RESULT_FALSE_DEREF
             elif line.startswith('FALSE(valid-memtrack)'):
-                status = result.RESULT_FALSE_MEMTRACK
-                break
+                return result.RESULT_FALSE_MEMTRACK
             elif line.startswith('FALSE(TERM)'):
-                status = result.RESULT_FALSE_TERMINATION
-                break
+                return result.RESULT_FALSE_TERMINATION
             elif line.startswith('FALSE(OVERFLOW)'):
-                status = result.RESULT_FALSE_OVERFLOW
-                break
+                return result.RESULT_FALSE_OVERFLOW
             elif line.startswith('FALSE'):
-                status = result.RESULT_FALSE_REACH
-                break
+                return result.RESULT_FALSE_REACH
             elif line.startswith('TRUE'):
-                status = result.RESULT_TRUE_PROP
-                break
+                return result.RESULT_TRUE_PROP
             elif line.startswith('UNKNOWN'):
-                status = result.RESULT_UNKNOWN
-                break
+                return result.RESULT_UNKNOWN
             elif line.startswith('ERROR'):
                 status = result.RESULT_ERROR
                 if line.startswith('ERROR: INVALID WITNESS FILE'):
                     status += ' (invalid witness file)'
-                break
-
-        return status
+                return status
+        return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
