@@ -108,7 +108,6 @@ def main(argv=None):
 
     for result in resultXML.findall('run'):
         run = result.get('name')
-        basename = os.path.basename(run)
         if 'correct' == result.findall('column[@title="category"]')[0].get('value'):
                 statusWit, categoryWit = (None, None)
                 i = 0
