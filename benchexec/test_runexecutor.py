@@ -107,6 +107,9 @@ class TestRunExecutor(unittest.TestCase):
             if key.startswith('cputime-cpu'):
                 self.assertRegex(key, '^cputime-cpu[0-9]+$',
                                  "unexpected result entry '{}={}'".format(key, result[key]))
+            elif key.startswith('cpuenergy-'):
+                self.assertRegex(key, '^cpuenergy-pkg[0-9]+(-(core|uncore|dram))?$',
+                                 "unexpected result entry '{}={}'".format(key, result[key]))
             else:
                 self.assertIn(key, expected_keys,
                               "unexpected result entry '{}={}'".format(key, result[key]))
