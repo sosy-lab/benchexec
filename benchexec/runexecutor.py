@@ -232,10 +232,10 @@ def main(argv=None):
     # exit_code is a special number:
     exit_code = util.ProcessExitCode.from_raw(result['exitcode'])
 
-    def print_optional_result(key):
+    def print_optional_result(key, unit=''):
         if key in result:
             # avoid unicode literals such that the string can be parsed by Python 3.2
-            print(key + "=" + str(result[key]).replace("'u", ''))
+            print(key + "=" + str(result[key]).replace("'u", '') + unit)
 
     # output results
     print_optional_result('terminationreason')
@@ -250,6 +250,8 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
+    print_optional_result('blkio-read', 'B')
+    print_optional_result('blkio-write', 'B')
     energy = intel_cpu_energy.format_energy_results(result.get('cpuenergy'))
     for energy_key, energy_value in energy.items():
         print('{}={}J'.format(energy_key, energy_value))
@@ -323,6 +325,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             self.cgroups.require_subsystem(subsystem)
             if subsystem not in self.cgroups:
                 sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
+
+        self.cgroups.require_subsystem(BLKIO)
+        if BLKIO not in self.cgroups:
+            # Feature is still experimental, do not warn loudly
+            logging.debug('Cannot measure I/O without blkio cgroup.')
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
@@ -456,7 +463,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Setting up cgroups for run.")
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
-        subsystems = [CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
+        subsystems = [BLKIO, CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
         if my_cpus is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
@@ -976,6 +983,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                             " Please set swapaccount=1 on your kernel command line.")
                     else:
                         raise e
+
+        if BLKIO in cgroups:
+            blkio_bytes_file = 'throttle.io_service_bytes'
+            if cgroups.has_value(BLKIO, blkio_bytes_file):
+                bytes_read = 0
+                bytes_written = 0
+                for blkio_line in cgroups.get_file_lines(BLKIO, blkio_bytes_file):
+                    try:
+                        dev_no, io_type, bytes_amount = blkio_line.split(' ')
+                        if io_type == "Read":
+                            bytes_read += int(bytes_amount)
+                        elif io_type == "Write":
+                            bytes_written += int(bytes_amount)
+                    except ValueError:
+                        pass # There are irrelevant lines in this file with a different structure
+                result['blkio-read'] = bytes_read
+                result['blkio-write'] = bytes_written
 
         logging.debug(
             'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',

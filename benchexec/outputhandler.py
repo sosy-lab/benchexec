@@ -560,6 +560,8 @@ class OutputHandler(object):
                 value_suffix = 's'
             elif title.startswith('cpuenergy'):
                 value_suffix = 'J'
+            elif title.startswith('blkio-'):
+                value_suffix = 'B'
 
         value = "{}{}".format(value, value_suffix)
 

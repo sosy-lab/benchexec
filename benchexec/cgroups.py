@@ -33,6 +33,7 @@ from benchexec import util
 __all__ = [
            'find_my_cgroups',
            'find_cgroups_of_process',
+           'BLKIO',
            'CPUACCT',
            'CPUSET',
            'FREEZER',
@@ -41,15 +42,16 @@ __all__ = [
 
 CGROUP_NAME_PREFIX='benchmark_'
 
+BLKIO = 'blkio'
 CPUACCT = 'cpuacct'
 CPUSET = 'cpuset'
 FREEZER = 'freezer'
 MEMORY = 'memory'
 ALL_KNOWN_SUBSYSTEMS = set([
     # cgroups for BenchExec
-    CPUACCT, CPUSET, FREEZER, MEMORY,
+    BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY,
     # other cgroups users might want
-    'cpu', 'devices', 'blkio', 'net_cls', 'net_prio', 'hugetlb', 'perf_event', 'pids',
+    'cpu', 'devices', 'net_cls', 'net_prio', 'hugetlb', 'perf_event', 'pids',
     ])
 
 
