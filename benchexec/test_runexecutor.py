@@ -102,7 +102,7 @@ class TestRunExecutor(unittest.TestCase):
     def check_result_keys(self, result, *additional_keys):
         expected_keys = {'cputime', 'walltime', 'memory', 'exitcode',
                          'cpuenergy',
-                         'blkio-read', 'blkio-written',
+                         'blkio-read', 'blkio-write',
                          }
         expected_keys.update(additional_keys)
         for key in result.keys():
