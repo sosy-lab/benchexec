@@ -53,12 +53,12 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        lines = " ".join(output[-10:])
-        if "SUCCESS" in lines:
+        lines = " ".join(output)
+        if "VERIABS_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
-        elif "FAILED" in lines:
+        elif "VERIABS_VERIFICATION_FAILED" in lines:
             return result.RESULT_FALSE_REACH
-        elif "NOT SUPPORTED" in lines or "UNKNOWN" in lines:
+        elif "NOT SUPPORTED" in lines or "VERIABS_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
         else:
             return result.RESULT_ERROR
