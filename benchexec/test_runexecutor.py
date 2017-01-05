@@ -33,6 +33,7 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import container
 from benchexec import containerexecutor
+from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
 
@@ -648,6 +649,34 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_result_file_illegal_relative_traversal(self):
         self.assertRaises(ValueError,
             lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []))
+
+    def test_file_count_limit(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
+        (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 10000); do touch $i; done',
+                                            files_count_limit=100, result_files_patterns=None)
+
+        self.check_exitcode(result, 9, 'exit code of killed process is not 15')
+        self.assertEqual(result['terminationreason'], 'files-count', 'termination reason is not "files-count"')
+        self.check_result_keys(result, 'terminationreason')
+
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+    def test_file_size_limit(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
+        (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 100000); do echo $i >> TEST_FILE; done',
+                                            files_size_limit=100, result_files_patterns=None)
+
+        self.check_exitcode(result, 9, 'exit code of killed process is not 15')
+        self.assertEqual(result['terminationreason'], 'files-size', 'termination reason is not "files-size"')
+        self.check_result_keys(result, 'terminationreason')
+
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
 
 class _StopRunThread(threading.Thread):

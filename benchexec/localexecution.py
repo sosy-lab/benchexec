@@ -271,7 +271,9 @@ class _Worker(threading.Thread):
                 memlimit=memlimit,
                 environments=benchmark.environment(),
                 workingDir=benchmark.working_directory(),
-                maxLogfileSize=benchmark.config.maxLogfileSize)
+                maxLogfileSize=benchmark.config.maxLogfileSize,
+                files_count_limit=benchmark.config.filesCountLimit,
+                files_size_limit=benchmark.config.filesSizeLimit)
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.

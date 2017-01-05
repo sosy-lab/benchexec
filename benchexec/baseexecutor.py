@@ -88,6 +88,11 @@ class BaseExecutor(object):
         """Build the final command line for executing the given command."""
         return args
 
+    def _get_result_files_base(self, temp_dir):
+        """Given the temp directory that is created for each run, return the path to the directory
+        where files created by the tool are stored."""
+        return temp_dir
+
     def _start_execution(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
                          parent_setup_fn, child_setup_fn, parent_cleanup_fn):
         """Actually start the tool and the measurements.

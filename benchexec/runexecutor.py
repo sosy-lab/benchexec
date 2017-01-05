@@ -40,6 +40,7 @@ from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
 from benchexec.cgroups import *
+from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
 from benchexec import resources
@@ -96,6 +97,10 @@ def main(argv=None):
     io_args.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
         help="shrink output file to approximately this size if necessary "
             "(by removing lines from the middle of the output)")
+    io_args.add_argument("--filesCountLimit", type=int, metavar="COUNT",
+        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+    io_args.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
+        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
@@ -222,6 +227,8 @@ def main(argv=None):
                             environments=env,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize,
+                            files_count_limit=options.filesCountLimit,
+                            files_size_limit=options.filesSizeLimit,
                             **container_output_options)
     finally:
         if stdin:
@@ -661,6 +668,22 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 ulimit = hardtimelimit
             resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
+    def _setup_file_hierarchy_limit(
+            self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill):
+        """Start thread that enforces any file-hiearchy limits."""
+        if files_count_limit is not None or files_size_limit is not None:
+            file_hierarchy_limit_thread = FileHierarchyLimitThread(
+                self._get_result_files_base(temp_dir),
+                files_count_limit=files_count_limit,
+                files_size_limit=files_size_limit,
+                cgroups=cgroups,
+                pid_to_kill=pid_to_kill,
+                callbackFn=self._set_termination_reason,
+                kill_process_fn=self._kill_process)
+            file_hierarchy_limit_thread.start()
+            return file_hierarchy_limit_thread
+        return None
+
 
     # --- run execution ---
 
@@ -669,6 +692,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
+                   files_count_limit=None, files_size_limit=None,
                    **kwargs):
         """
         This function executes a given command with resource limits,
@@ -686,6 +710,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
+        @param files_count_limit: None or maximum number of files that may be written.
+        @param files_size_limit: None or maximum size of files that may be written.
         @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
@@ -755,12 +781,20 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit('Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'
                          .format(option=option, subsystem=subsystem))
 
+        if files_count_limit is not None:
+            if files_count_limit < 0:
+                sys.exit("Invalid files-count limit {0}.".format(files_count_limit))
+        if files_size_limit is not None:
+            if files_size_limit < 0:
+                sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
+
         try:
             return self._execute(args, output_filename, stdin,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
                                  environments, workingDir, maxLogfileSize,
+                                 files_count_limit, files_size_limit,
                                  **kwargs)
 
         except BenchExecException as e:
@@ -780,6 +814,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                  cores, memory_nodes,
                  cgroup_values,
                  environments, workingDir, max_output_size,
+                 files_count_limit, files_size_limit,
                  **kwargs):
         """
         This method executes the command line and waits for the termination of it,
@@ -816,6 +851,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         timelimitThread = None
         oomThread = None
+        file_hierarchy_limit_thread = None
         pid = None
         returnvalue = 0
         ru_child = None
@@ -842,6 +878,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             timelimitThread = self._setup_cgroup_time_limit(
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid)
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
+            file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
+                files_count_limit, files_size_limit, temp_dir, cgroups, pid)
 
             returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
             result['walltime'] = walltime
@@ -857,6 +895,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             if oomThread:
                 oomThread.cancel()
+
+            if file_hierarchy_limit_thread:
+                file_hierarchy_limit_thread.cancel()
 
             # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
             cgroups.kill_all_tasks(self._kill_process0)
@@ -875,6 +916,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 _try_join_cancelled_thread(timelimitThread)
             if oomThread:
                 _try_join_cancelled_thread(oomThread)
+            if file_hierarchy_limit_thread:
+                _try_join_cancelled_thread(file_hierarchy_limit_thread)
 
             if self._energy_measurement:
                 self._energy_measurement.stop()

@@ -281,6 +281,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             key=lambda tupl : len(tupl[0]))
         self._dir_modes = collections.OrderedDict(sorted_special_dirs)
 
+    def _get_result_files_base(self, temp_dir):
+        """Given the temp directory that is created for each run, return the path to the directory
+        where files created by the tool are stored."""
+        if not self._use_namespaces:
+            return super(ContainerExecutor, self)._get_result_files_base(temp_dir)
+        else:
+            return os.path.join(temp_dir, "temp")
 
     # --- run execution ---
 
@@ -605,9 +612,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param temp_dir: The base directory under which all our directories should be created.
         """
         # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
+        temp_base = self._get_result_files_base(temp_dir).encode() # directory with files created by tool
         temp_dir = temp_dir.encode()
         mount_base = os.path.join(temp_dir, b"mount") # base dir for container mounts
-        temp_base = os.path.join(temp_dir, b"temp") # directory with files created by tool
         os.mkdir(mount_base)
         os.mkdir(temp_base)
 

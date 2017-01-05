@@ -53,3 +53,39 @@ e.g., due to a deadlock of the tool.
 The wall-time limit is set to value that is slightly higher than the CPU-time limit.
 For `runexec` this can be changed by explicitly specifying a wall-time limit,
 though the wall-time limit cannot be disabled completely if a CPU-time limit is given.
+
+
+## Disk Space and I/O
+
+BenchExec does not limit or influence I/O in any way by default.
+This is acceptable for benchmarking if the benchmarked tool uses only little I/O,
+but for I/O-heavy tools this means that the benchmarking may be non-deterministic and unreliable.
+
+Currently, BenchExec has an experimental feature for measuring the I/O of the benchmarked process.
+This is reported as the values `blkio-read` and `blkio-write` (in bytes),
+if the `blkio` cgroup is usable by BenchExec.
+Note that because of the experimental nature the values are not shown by default in tables,
+use an appropriate `<column>` tag to select them or the command-line parameter `--all-columns` for `table-generator`.
+The two values only measure I/O that actually touches a block device,
+so any reads and writes that are satisfied by the file-system cache are not measured.
+In certain system configurations involving LVM, RAID, encrypted disks or similar virtual block devices,
+the kernel will also not manage to account disk I/O to a certain process,
+so such I/O will also not be measured.
+On the other hand, not all I/O to block devices is actually disk I/O,
+because for example RAM disks are also counted.
+So this measure may only be an approximation of disk I/O.
+
+To prevent the benchmarked tool from filling up the whole disk
+(which could make the system unusable for other users),
+BenchExec can limit the number and size of the files written by the benchmarked tool
+with the command-line parameters `--filesCountLimit` and ``--filesSizeLimit`.
+Both limits are off by default, though this may change in a future release.
+There are a few restrictions, however:
+- These limits are checked only periodically (currently every 60s),
+  so intermediate violations are possible.
+- With [container mode](container.md), files written directly into the host file system
+  due to the use of `--full-access-dir` are not limited.
+  If the tool modifies an existing file, the full file size is counted against the limit.
+- Without container mode, almost no files are limited, only those that the tool
+  writes to `$HOME` and `$TMPDIR` (which are fresh directories created by BenchExec).
+So the recommendation is (as always) to use the container mode and not use the `--full-access-dir` flag.

@@ -182,6 +182,11 @@ class BenchExec(object):
                             help="Shrink logfiles to given size if they are too big. "
                                  "(-1 to disable, default value: 20 MB).")
 
+        parser.add_argument("--filesCountLimit", type=int, metavar="COUNT",
+            help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+        parser.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
+            help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
+
         parser.add_argument("--commit", dest="commit",
                           action="store_true",
                           help="If the output path is a git repository without local changes, "
