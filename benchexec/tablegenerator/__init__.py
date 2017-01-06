@@ -141,7 +141,7 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
         return os.path.join(os.path.dirname(table_definition_file), path)
 
     return [Column(c.get("title"), c.text, c.get("numberOfDigits"),
-                   handle_path(c.get("href")), None, c.get("displayUnit"),
+                   handle_path(c.get("href")), None, c.get("displayUnit"), c.get("sourceUnit"),
                    c.get("scaleFactor"), c.get("relevantForDiff"), c.get("displayTitle"))
             for c in xmltag.findall('column')]
 
@@ -206,6 +206,13 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     return curr_dec_digits
 
 
+def _check_unit_consistency(actual_unit, wanted_unit):
+    if wanted_unit is None:
+        raise TypeError("Trying to convert from one unit to another but, source unit not specified")
+    elif wanted_unit != actual_unit:
+        raise TypeError("Source value of different unit than specified source unit: " +
+                        actual_unit + " and " + wanted_unit)
+
 def _get_column_type_heur(column, column_values):
     text_type_tuple = ColumnType.text, None
 
@@ -217,6 +224,7 @@ def _get_column_type_heur(column, column_values):
 
     column_type = None
     column_unit = column.unit
+    column_source_unit = column.source_unit
 
     if column_unit:
         explicit_unit_defined = True
@@ -243,13 +251,13 @@ def _get_column_type_heur(column, column_values):
             # if the units in two different rows of the same column differ, handle the column as 'text' type
             if column_unit and curr_column_unit and curr_column_unit != column_unit:
                 if explicit_unit_defined:
-                    raise TypeError("Values of different units in same column: " +
-                                    column_unit + " and " + curr_column_unit)
+                    _check_unit_consistency(curr_column_unit, column_source_unit)
+
                 else:
                     return text_type_tuple
-            else:
-                column_type = ColumnType.count
-                column_unit = curr_column_unit
+
+            column_type = ColumnType.count
+            column_unit = curr_column_unit
 
         # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
         elif not (column_type and column_type.type == ColumnType.text):
@@ -259,12 +267,11 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
-                        raise TypeError("Values of different units in same column: " +
-                                        column_unit + " and " + curr_column_unit)
+                        _check_unit_consistency(curr_column_unit, column_source_unit)
                     else:
                         return text_type_tuple
-                else:
-                    column_unit = curr_column_unit
+
+                column_unit = curr_column_unit
 
             # Compute the number of decimal digits of the current value, considering the number of significant
             # digits for this column.
@@ -1051,7 +1058,7 @@ def get_stats(rows, local_summary):
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
         column_type, column_unit = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.scale_factor, column.display_title)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.source_unit, column.scale_factor, column.display_title)
         stats_columns.append(new_column)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)

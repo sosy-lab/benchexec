@@ -101,12 +101,13 @@ class Column(object):
     It does NOT contain the value of a column.
     """
     def __init__(self, title, pattern, num_of_digits, href, col_type=None,
-                 unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
+                 unit=None, source_unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None
         self.type = col_type
         self.unit = unit
+        self.source_unit = source_unit
         self.scale_factor = float(scale_factor) if scale_factor else 1
         self.href = href
         if relevant_for_diff is None:
