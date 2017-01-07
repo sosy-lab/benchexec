@@ -208,7 +208,7 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
 
 def _check_unit_consistency(actual_unit, wanted_unit):
     if wanted_unit is None:
-        raise TypeError("Trying to convert from one unit to another but, source unit not specified")
+        raise TypeError("Trying to convert from one unit to another, but source unit not specified")
     elif wanted_unit != actual_unit:
         raise TypeError("Source value of different unit than specified source unit: " +
                         actual_unit + " and " + wanted_unit)
