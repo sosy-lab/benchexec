@@ -146,8 +146,10 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
         display_unit = c.get("displayUnit")
         source_unit = c.get("sourceUnit")
 
+        # If a scale factor is defined, a display unit must be defined, too
         if scale_factor is not None and display_unit is None:
             raise AttributeError("Attribute scaleFactor is defined, but displayUnit is not")
+        # If the display unit is different from the source unit, a scale factor must be given explicitly
         if display_unit is not None and display_unit != source_unit and scale_factor is None:
             raise AttributeError("Attribute displayUnit is different from sourceUnit,"
                                  + " but scaleFactor is not defined")
@@ -238,8 +240,8 @@ def _get_column_type_heur(column, column_values):
             return ColumnType.status, None
 
     column_type = None
-    column_unit = column.unit
-    column_source_unit = column.source_unit
+    column_unit = column.unit  # May be None
+    column_source_unit = column.source_unit  # May be None
 
     if column_unit:
         explicit_unit_defined = True
@@ -263,7 +265,11 @@ def _get_column_type_heur(column, column_values):
         elif not value_match.group(GROUP_DEC_PART) and (not column_type or column_type.type == ColumnType.count):
             curr_column_unit = value_match.group(GROUP_UNIT)
 
-            # if the units in two different rows of the same column differ, handle the column as 'text' type
+            # If the units in two different rows of the same column differ,
+            # 1. Raise an error if an explicit unit is defined by the displayUnit attribute
+            #    and the unit in the column cell differs from the defined sourceUnit, or
+            # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
+            #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
             if column_unit and curr_column_unit and curr_column_unit != column_unit:
                 if explicit_unit_defined:
                     _check_unit_consistency(curr_column_unit, column_source_unit)
@@ -278,7 +284,11 @@ def _get_column_type_heur(column, column_values):
         elif not (column_type and column_type.type == ColumnType.text):
             curr_column_unit = value_match.group(GROUP_UNIT)
 
-            # if the units in two different rows of the same column differ, handle the column as 'text' type
+            # If the units in two different rows of the same column differ,
+            # 1. Raise an error if an explicit unit is defined by the displayUnit attribute
+            #    and the unit in the column cell differs from the defined sourceUnit, or
+            # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
+            #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
