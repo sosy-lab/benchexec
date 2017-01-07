@@ -148,6 +148,9 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
 
         if scale_factor is not None and display_unit is None:
             raise AttributeError("Attribute scaleFactor is defined, but displayUnit is not")
+        if display_unit is not None and display_unit != source_unit and scale_factor is None:
+            raise AttributeError("Attribute displayUnit is different from sourceUnit,"
+                                 + " but scaleFactor is not defined")
 
         new_column = Column(c.get("title"), c.text, c.get("numberOfDigits"),
                    handle_path(c.get("href")), None, display_unit, source_unit,
