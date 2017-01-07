@@ -12,6 +12,7 @@
                  displayTitlle CDATA #IMPLIED
                  href CDATA #IMPLIED
                  numberOfDigits CDATA #IMPLIED
+                 sourceUnit CDATA #IMPLIED
                  displayUnit CDATA #IMPLIED
                  scaleFactor CDATA #IMPLIED
                  relevantForDiff (true|false) #IMPLIED>

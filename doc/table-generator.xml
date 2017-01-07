@@ -15,6 +15,8 @@
   <column title="..." numberOfDigits="*optional number of significant digits for presenting the value*">...</column>
   <!-- If input value has no unit, unit for output and conversion factor can be specified: -->
   <column title="..." displayUnit="*unit*" scaleFactor="*number*">...</column>
+  <!-- If input value has a unit, source unit must be specified for conversion to another unit: -->
+  <column title="..." sourceUnit="*source unit*" displayUnit="*unit*" scaleFactor="*number*">...</column>
   <!-- Table cells can contain configurable link: -->
   <column title="..." href="*path relative to this file or absolute URL*">*(optional) text to appear in all cells of the column*</column>
   <!-- Using a different column to calculate the differences table is also

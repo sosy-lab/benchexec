@@ -81,11 +81,12 @@ If `href` specifies a relative path, it is interpreted as relative to the direct
 of the table-definition file and will be converted appropriately for the location of the output files.
 An absolute URL can also be given.
 
-The attributes `numberOfDigits`, `displayUnit`, and `scaleFactor`
+The attributes `numberOfDigits`, `sourceUnit`, `displayUnit`, and `scaleFactor`
 change how numeric values are treated.
 `numberOfDigits` specifies the number of significant digits to which a value should be rounded.
-The other two attributes allow to convert the value into a different unit (given with `displayUnit`)
-by applying the given `scaleFactor`. Currently this is only possible for values without a unit.
+The other three attributes allow to convert the value into a different unit (given with `displayUnit`)
+by applying the given `scaleFactor` to the source unit (given with `sourceUnit`).
+If the value has no unit, `sourceUnit` may be omitted.
 For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
