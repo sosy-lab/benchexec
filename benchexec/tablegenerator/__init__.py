@@ -140,10 +140,21 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
-    return [Column(c.get("title"), c.text, c.get("numberOfDigits"),
-                   handle_path(c.get("href")), None, c.get("displayUnit"), c.get("sourceUnit"),
-                   c.get("scaleFactor"), c.get("relevantForDiff"), c.get("displayTitle"))
-            for c in xmltag.findall('column')]
+    columns = list()
+    for c in xmltag.findall('column'):
+        scale_factor = c.get("scaleFactor")
+        display_unit = c.get("displayUnit")
+        source_unit = c.get("sourceUnit")
+
+        if scale_factor is not None and display_unit is None:
+            raise AttributeError("Attribute scaleFactor is defined, but displayUnit is not")
+
+        new_column = Column(c.get("title"), c.text, c.get("numberOfDigits"),
+                   handle_path(c.get("href")), None, display_unit, source_unit,
+                   scale_factor, c.get("relevantForDiff"), c.get("displayTitle"))
+        columns.append(new_column)
+
+    return columns
 
 
 def _get_columns_relevant_for_diff(columns_to_show):
