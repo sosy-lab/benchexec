@@ -262,15 +262,15 @@ def _get_column_type_heur(column, column_values):
             #    and the unit in the column cell differs from the defined sourceUnit, or
             # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
             #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
-            if column_unit and curr_column_unit and curr_column_unit != column_unit:
-                if explicit_unit_defined:
-                    _check_unit_consistency(curr_column_unit, column_source_unit)
-
+            if curr_column_unit:
+                if column_unit and curr_column_unit != column_unit:
+                    if explicit_unit_defined:
+                        _check_unit_consistency(curr_column_unit, column_source_unit)
+                    else:
+                        return text_type_tuple
                 else:
-                    return text_type_tuple
-
+                    column_unit = curr_column_unit
             column_type = ColumnType.count
-            column_unit = curr_column_unit
 
         # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
         elif not (column_type and column_type.type == ColumnType.text):
@@ -287,8 +287,8 @@ def _get_column_type_heur(column, column_values):
                         _check_unit_consistency(curr_column_unit, column_source_unit)
                     else:
                         return text_type_tuple
-
-                column_unit = curr_column_unit
+                else:
+                    column_unit = curr_column_unit
 
             # Compute the number of decimal digits of the current value, considering the number of significant
             # digits for this column.
