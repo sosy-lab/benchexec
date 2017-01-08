@@ -99,6 +99,15 @@ class Column(object):
     their unit, a scale factor to apply to all values of the column (mostly to fit the unit)
     and href (to create a link to a resource).
     It does NOT contain the value of a column.
+
+    The following conditions must be kept, but cannot be checked in the constructor.
+    If they are violated, they may lead to errors in other parts of the program.
+    * If 'scale_factor' is a value other than the default, 'unit' must be set.
+    * If 'unit' and 'scale_factor' are set, 'source_unit' must be set, or the column's cells must not have a
+      source unit, i.e. the source unit "".
+    * If set, 'source_unit' must fit the source unit of the column's cells.
+    * In addition, if 'unit' and 'source_unit' are set and of different values,
+      'scale_factor' must be a value other than 'None'.
     """
     def __init__(self, title, pattern, num_of_digits, href, col_type=None,
                  unit=None, source_unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
