@@ -66,6 +66,7 @@ If only the attribute `title` is given and no content of the tag,
 the value is taken from the BenchExec result file if present
 (this can be used for the default BenchExec columns like `status`, `cputime`, etc.,
 but also for additional columns like `score`).
+The attribute `displayTitle` can be used to overwrite the default column title.
 If some content is given for a `<column>` tag,
 the respective value is extracted from the tool output of each run
 (this needs specific support from the tool-info module that is responsible for this tool).
@@ -87,10 +88,11 @@ change how numeric values are treated.
 The other three attributes allow to convert the value into a different unit (given with `displayUnit`)
 by applying the given `scaleFactor` to the source unit (given with `sourceUnit`).
 If the value has no unit, `sourceUnit` may be omitted.
+For some common unit conversions, the `scaleFactor` can be omitted because `table-generator` has it builtin.
 For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
-    <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+    <column title="memUsage" sourceUnit="B" displayUnit="MB"/>
 
 Additionally, it is possible to specify columns that should be considered when comparing different
 results. In this case, `table-generator` produces an additional table with all rows the columns

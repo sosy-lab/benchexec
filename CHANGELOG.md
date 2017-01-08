@@ -1,5 +1,28 @@
 # BenchExec Changelog
 
+## BenchExec 1.10 (to be released)
+
+This release brings several smaller and medium-sized features:
+
+- Tool-info modules for all participants of [SV-COMP'17](https://sv-comp.sosy-lab.org/2017/),
+  and support for results of the category `correct-unconfirmed`,
+  which is used by SV-COMP if witness validation was not successful.
+  To conform with SV-COMP's definitions, violations of the SV-COMP reachability property `unreach-call`
+  will now be reported as `false(unreach-call)` instead of `false(reach)`.
+- [Measurement of block I/O](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) if the `blkio` cgroup controller is available
+  (experimental, please read the [documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io)!).
+- [Measurement of the energy used by the CPU](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy) for a run,
+  if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system
+  (experimental and still undocumented).
+- [Ability to limit the disk space](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) a tool can occupy in container mode.
+- Various minor improvements to make container mode more robust.
+- `table-generator` is now more flexible:
+  - Builtin support for certain unit conversions,
+    such that the scale factor does not always need to be explicitly specified.
+    Furthermore, unit conversions now work even if the values already have a unit.
+  - Column titles can be manually specified with the `displayTitle` attribute`.
+  - What columns are relevant for the "diff" table can be configured.
+
 ## BenchExec 1.9
 
 The main feature of this release is the addition of a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
