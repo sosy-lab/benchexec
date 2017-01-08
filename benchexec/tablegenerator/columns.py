@@ -39,6 +39,14 @@ GROUP_EXP_SIGN = 6
 GROUP_EXP_VAL = 7
 POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip', 'tooltip_stochastic', 'csv']
 
+UNIT_CONVERSION = {
+    's': {'ms': 1000, 'min': 1.0/60, 'h': 1.0/3600},
+    'B': {'kB': 1.0/10**3, 'MB': 1.0/10**6, 'GB': 1.0/10**9},
+    'J': {'kJ': 1.0/10**3, 'Ws': 1, 'kWs': 1.0/1000,
+          'Wh': 1.0/3600, 'kWh': 1.0/(1000*3600), 'mWh': 1.0/(1000*1000*3600)}
+}
+
+
 def enum(**enums):
     return type('Enum', (), enums)
 
@@ -92,6 +100,21 @@ class ColumnMeasureType(object):
         return "{}({})".format(self._type, self._max_decimal_digits)
 
 
+# This function assumes that scale_factor is not defined.
+# Because of this, an error is raised if unit is defined, different from the source_unit, and
+# no conversion for these two units is known.
+# (Since a scale_factor must be given explicitly, then)
+def _get_scale_factor(unit, source_unit):
+    if source_unit in UNIT_CONVERSION.keys() and unit in UNIT_CONVERSION[source_unit].keys():
+        return UNIT_CONVERSION[source_unit][unit]
+    elif unit is None or unit == source_unit:
+        return 1
+    else:
+        # If the display unit is different from the source unit, a scale factor must be given explicitly
+        raise AttributeError("Attribute displayUnit is different from sourceUnit,"
+                             + " but scaleFactor is not defined")
+
+
 class Column(object):
     """
     The class Column contains title, pattern (to identify a line in log_file),
@@ -117,7 +140,7 @@ class Column(object):
         self.type = col_type
         self.unit = unit
         self.source_unit = source_unit
-        self.scale_factor = float(scale_factor) if scale_factor else 1
+        self.scale_factor = float(scale_factor) if scale_factor else _get_scale_factor(unit, source_unit)
         self.href = href
         if relevant_for_diff is None:
             self.relevant_for_diff = False
