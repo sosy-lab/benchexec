@@ -134,6 +134,11 @@ class Column(object):
     """
     def __init__(self, title, pattern, num_of_digits, href, col_type=None,
                  unit=None, source_unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
+
+        # If scaling on the variables is performed, a display unit must be defined, explicitly
+        if scale_factor is not None and scale_factor != 1 and unit is None:
+            raise AttributeError("Scale factor is defined, but display unit is not")
+
         self.title = title
         self.pattern = pattern
         self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None

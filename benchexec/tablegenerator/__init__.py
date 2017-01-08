@@ -146,10 +146,6 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
         display_unit = c.get("displayUnit")
         source_unit = c.get("sourceUnit")
 
-        # If a scale factor is defined, a display unit must be defined, too
-        if scale_factor is not None and display_unit is None:
-            raise AttributeError("Attribute scaleFactor is defined, but displayUnit is not")
-
         new_column = Column(c.get("title"), c.text, c.get("numberOfDigits"),
                    handle_path(c.get("href")), None, display_unit, source_unit,
                    scale_factor, c.get("relevantForDiff"), c.get("displayTitle"))
