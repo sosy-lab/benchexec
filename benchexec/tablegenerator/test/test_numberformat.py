@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 from benchexec.tablegenerator.columns import Column, ColumnType, ColumnMeasureType
+from benchexec.tablegenerator.util import TableDefinitionError
 
 
 class FormatValueTests(unittest.TestCase):
@@ -123,10 +124,10 @@ class FormatValueTests(unittest.TestCase):
         self.assertEqual(formatted_value_scaled, "12300")
 
     def test_column_init_error_on_missing_unit(self):
-        self.assertRaises(AttributeError, Column, "memUsed", None, None, None, self.measure_type, None, None, 1000)
+        self.assertRaises(TableDefinitionError, Column, "memUsed", None, None, None, self.measure_type, None, None, 1000)
 
     def test_column_init_error_on_missing_scale(self):
-        self.assertRaises(AttributeError, Column, "memUsed", None, None, None, self.measure_type, 'kB', None, None)
+        self.assertRaises(TableDefinitionError, Column, "memUsed", None, None, None, self.measure_type, 'kB', None, None)
 
     def test_column_init_no_error_on_default_scale(self):
         Column("memUsed", None, None, None, self.measure_type, 'B')

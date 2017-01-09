@@ -275,3 +275,12 @@ class DummyExecutor(object):
 
     def shutdown(self, wait=None):
         pass
+
+
+class TableDefinitionError(Exception):
+    """Exception raised for errors in the table definition.
+
+    :param message Error message
+    """
+    def __init__(self, message):
+        self.message = message

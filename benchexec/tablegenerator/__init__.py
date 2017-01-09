@@ -214,12 +214,14 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     return curr_dec_digits
 
 
-def _check_unit_consistency(actual_unit, wanted_unit):
+def _check_unit_consistency(actual_unit, wanted_unit, column):
     if actual_unit and wanted_unit is None:
-        raise TypeError("Trying to convert from one unit to another, but source unit not specified")
+        raise Util.TableDefinitionError("Trying to convert from one unit to another, but source unit not specified"
+                                        " (in column {})".format(column.title))
     elif wanted_unit != actual_unit:
-        raise TypeError("Source value of different unit than specified source unit: " +
-                        actual_unit + " and " + wanted_unit)
+        raise Util.TableDefinitionError("Source value of different unit than specified source unit: " +
+                                        "{} and {}"
+                                        " (in column {})".format(actual_unit, wanted_unit, column.title))
 
 
 def _get_column_type_heur(column, column_values):
@@ -265,7 +267,7 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
-                        _check_unit_consistency(curr_column_unit, column_source_unit)
+                        _check_unit_consistency(curr_column_unit, column_source_unit, column)
                     else:
                         return text_type_tuple
                 else:
@@ -284,7 +286,7 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
-                        _check_unit_consistency(curr_column_unit, column_source_unit)
+                        _check_unit_consistency(curr_column_unit, column_source_unit, column)
                     else:
                         return text_type_tuple
                 else:
@@ -1634,7 +1636,11 @@ def main(args=None):
     if options.xmltablefile:
         if options.tables:
             arg_parser.error("Invalid additional arguments '{}'.".format(" ".join(options.tables)))
-        runSetResults = parse_table_definition_file(options.xmltablefile, options)
+        try:
+            runSetResults = parse_table_definition_file(options.xmltablefile, options)
+        except Util.TableDefinitionError as e:
+            logging.error('Fault in {}: {}'.format(options.xmltablefile, e.message))
+            exit(1)
         if not name:
             name = basename_without_ending(options.xmltablefile)
 

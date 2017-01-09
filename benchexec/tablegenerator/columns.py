@@ -104,15 +104,16 @@ class ColumnMeasureType(object):
 # Because of this, an error is raised if unit is defined, different from the source_unit, and
 # no conversion for these two units is known.
 # (Since a scale_factor must be given explicitly, then)
-def _get_scale_factor(unit, source_unit):
+def _get_scale_factor(unit, source_unit, column_title):
     if source_unit in UNIT_CONVERSION.keys() and unit in UNIT_CONVERSION[source_unit].keys():
         return UNIT_CONVERSION[source_unit][unit]
     elif unit is None or unit == source_unit:
         return 1
     else:
         # If the display unit is different from the source unit, a scale factor must be given explicitly
-        raise AttributeError("Attribute displayUnit is different from sourceUnit,"
-                             + " but scaleFactor is not defined")
+        raise util.TableDefinitionError("Attribute displayUnit is different from sourceUnit," +
+                                        " but scaleFactor is not defined (in column {})"
+                                        .format(column_title))
 
 
 class Column(object):
@@ -137,7 +138,8 @@ class Column(object):
 
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
-            raise AttributeError("Scale factor is defined, but display unit is not")
+            raise util.TableDefinitionError("Scale factor is defined, but display unit is not (in column {})"
+                                            .format(title))
 
         self.title = title
         self.pattern = pattern
@@ -145,7 +147,7 @@ class Column(object):
         self.type = col_type
         self.unit = unit
         self.source_unit = source_unit
-        self.scale_factor = float(scale_factor) if scale_factor else _get_scale_factor(unit, source_unit)
+        self.scale_factor = float(scale_factor) if scale_factor else _get_scale_factor(unit, source_unit, title)
         self.href = href
         if relevant_for_diff is None:
             self.relevant_for_diff = False
