@@ -280,7 +280,8 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_source_unit is None and not explicit_scale_defined:
                     column_source_unit = curr_column_unit
-                elif column_source_unit != curr_column_unit:
+                elif column_source_unit != curr_column_unit and\
+                        not (column_scale_factor == 1 and explicit_unit_defined and column_unit == curr_column_unit):
                     raise Util.TableDefinitionError("Attribute sourceUnit different from real source unit: {} and {} (in column {})"
                                                     .format(column_source_unit, curr_column_unit, column.title))
                 if column_unit and curr_column_unit != column_unit:
@@ -307,7 +308,8 @@ def _get_column_type_heur(column, column_values):
             if curr_column_unit:
                 if column_source_unit is None and not explicit_scale_defined:
                     column_source_unit = curr_column_unit
-                elif column_source_unit != curr_column_unit:
+                elif column_source_unit != curr_column_unit and\
+                        not (column_scale_factor == 1 and explicit_unit_defined and column_unit == curr_column_unit):
                     raise Util.TableDefinitionError("Attribute sourceUnit different from real source unit: {} and {} (in column {})"
                                                     .format(column_source_unit, curr_column_unit, column.title))
                 if column_unit and curr_column_unit != column_unit:
