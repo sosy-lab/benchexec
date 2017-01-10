@@ -161,8 +161,10 @@ class Column(object):
 
     def format_title(self):
         title = self.display_title or self.title
-        if self.is_numeric() and self.unit:
-            return "{} ({})".format(title, self.unit)
+        if self.is_numeric() and (self.unit or self.source_unit):
+            used_unit = self.unit or self.source_unit
+            return "{} ({})".format(title, used_unit)
+
         else:
             return title
 
