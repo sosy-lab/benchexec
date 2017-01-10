@@ -87,6 +87,13 @@ GROUP_EXPONENT_SIGN = 7
 GROUP_EXPONENT_VALUE = 8
 GROUP_UNIT = 9
 
+UNIT_CONVERSION = {
+    's': {'ms': 1000, 'min': 1.0/60, 'h': 1.0/3600},
+    'B': {'kB': 1.0/10**3, 'MB': 1.0/10**6, 'GB': 1.0/10**9},
+    'J': {'kJ': 1.0/10**3, 'Ws': 1, 'kWs': 1.0/1000,
+          'Wh': 1.0/3600, 'kWh': 1.0/(1000*3600), 'mWh': 1.0/(1000*1000*3600)}
+}
+
 
 def parse_table_definition_file(file, options):
     '''
@@ -225,25 +232,31 @@ def _check_unit_consistency(actual_unit, wanted_unit, column):
 
 
 def _get_column_type_heur(column, column_values):
-    text_type_tuple = ColumnType.text, None
+    text_type_tuple = ColumnType.text, None, None, None
 
     if "status" in column.title:
         if column.title == "status":
-            return ColumnType.main_status, None
+            return ColumnType.main_status, None, None, 1
         else:
-            return ColumnType.status, None
+            return ColumnType.status, None, None, 1
 
     column_type = None
     column_unit = column.unit  # May be None
     column_source_unit = column.source_unit  # May be None
+    column_scale_factor = column.scale_factor  # May be None
 
     if column_unit:
         explicit_unit_defined = True
     else:
         explicit_unit_defined = False
 
-    if int(column.scale_factor) != column.scale_factor:
-        column_type = ColumnMeasureType(0)
+    if column_scale_factor is None:
+        explicit_scale_defined = False
+    else:
+        explicit_scale_defined = True
+        if int(column_scale_factor) != column_scale_factor:
+            column_type = ColumnMeasureType(0)
+
     for value in column_values:
 
         if value is None or value == '':
@@ -265,6 +278,11 @@ def _get_column_type_heur(column, column_values):
             # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
             #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
             if curr_column_unit:
+                if column_source_unit is None and not explicit_scale_defined:
+                    column_source_unit = curr_column_unit
+                elif column_source_unit != curr_column_unit:
+                    raise Util.TableDefinitionError("Attribute sourceUnit different from real source unit: {} and {} (in column {})"
+                                                    .format(column_source_unit, curr_column_unit, column.title))
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
                         _check_unit_consistency(curr_column_unit, column_source_unit, column)
@@ -272,7 +290,10 @@ def _get_column_type_heur(column, column_values):
                         return text_type_tuple
                 else:
                     column_unit = curr_column_unit
+
             column_type = ColumnType.count
+            if column_scale_factor is None:
+                column_scale_factor = _get_scale_factor(column_unit, column_source_unit, column)
 
         # If at least one row contains a decimal and all rows are numbers, column type is 'measure'
         elif not (column_type and column_type.type == ColumnType.text):
@@ -284,6 +305,11 @@ def _get_column_type_heur(column, column_values):
             # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
             #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
             if curr_column_unit:
+                if column_source_unit is None and not explicit_scale_defined:
+                    column_source_unit = curr_column_unit
+                elif column_source_unit != curr_column_unit:
+                    raise Util.TableDefinitionError("Attribute sourceUnit different from real source unit: {} and {} (in column {})"
+                                                    .format(column_source_unit, curr_column_unit, column.title))
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
                         _check_unit_consistency(curr_column_unit, column_source_unit, column)
@@ -292,11 +318,14 @@ def _get_column_type_heur(column, column_values):
                 else:
                     column_unit = curr_column_unit
 
+            if column_scale_factor is None:
+                column_scale_factor = _get_scale_factor(column_unit, column_source_unit, column)
+
             # Compute the number of decimal digits of the current value, considering the number of significant
             # digits for this column.
             # Use the column's scale factor for computing the decimal digits of the current value.
             # Otherwise, they might be different from output.
-            scaled_value = float(Util.remove_unit(str(value))) * column.scale_factor
+            scaled_value = float(Util.remove_unit(str(value))) * column_scale_factor
 
             # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
             # special cases, immediately convert the value back to decimal notation.
@@ -304,7 +333,7 @@ def _get_column_type_heur(column, column_values):
                 dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1  # - 1 since GROUP_DEC_PART includes the point
             else:
                 dec_digits_before_scale = 0
-            max_number_of_dec_digits_after_scale = dec_digits_before_scale - math.ceil(math.log10(column.scale_factor))
+            max_number_of_dec_digits_after_scale = dec_digits_before_scale - math.ceil(math.log10(column_scale_factor))
 
             scaled_value = "{0:.{1}f}".format(scaled_value, max_number_of_dec_digits_after_scale)
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
@@ -322,9 +351,25 @@ def _get_column_type_heur(column, column_values):
             column_type = ColumnMeasureType(max_dec_digits)
 
     if column_type:
-        return column_type, column_unit
+        return column_type, column_unit, column_source_unit, column_scale_factor
     else:
         return text_type_tuple
+
+
+# This function assumes that scale_factor is not defined.
+# Because of this, an error is raised if unit is defined, different from the source_unit, and
+# no conversion for these two units is known.
+# (Since a scale_factor must be given explicitly, then)
+def _get_scale_factor(unit, source_unit, column):
+    if unit is None or unit == source_unit:
+        return 1
+    elif source_unit in UNIT_CONVERSION.keys() and unit in UNIT_CONVERSION[source_unit].keys():
+        return UNIT_CONVERSION[source_unit][unit]
+    else:
+        # If the display unit is different from the source unit, a scale factor must be given explicitly
+        raise Util.TableDefinitionError("Attribute displayUnit is different from sourceUnit," +
+                                        " but scaleFactor is not defined (in column {})"
+                                        .format(column.title))
 
 
 def get_column_type(column, result_set):
@@ -332,17 +377,20 @@ def get_column_type(column, result_set):
     Returns the type of the given column based on its row values on the given RunSetResult.
     @param column: the column to return the correct ColumnType for
     @param result_set: the RunSetResult to consider
-    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type'
-        - and the unit of the column, which may be None.
+    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type',
+        the display unit of the column, which may be None,
+        the source unit of the column, which may be None,
+        and the scale factor to convert from the source unit to the display unit.
+        If no scaling is necessary for conversion, this value is 1.
     """
 
     # This is actually checked in _get_column_type_heur(..), too.
     # But we do this here already so we do not have to create the column_values list for status columns unnecessarily.
     if "status" in column.title:
         if column.title == "status":
-            return ColumnType.main_status, None
+            return ColumnType.main_status, None, None, 1
         else:
-            return ColumnType.status, None
+            return ColumnType.status, None, None, 1
 
     # If the column is not a 'status' column, we have to guess the type based on its rows' values.
     column_values = [run_result.values[run_result.columns.index(column)] for run_result in result_set.results if column in run_result.columns]
@@ -496,7 +544,7 @@ class RunSetResult(object):
                 file.close()
 
         for column in self.columns:
-            column.type, column.unit = get_column_type(column, self)
+            column.type, column.unit, column.source_unit, column.scale_factor = get_column_type(column, self)
 
 
         del self._xml_results
@@ -1076,8 +1124,9 @@ def get_stats(rows, local_summary):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
-        column_type, column_unit = _get_column_type_heur(column, column_values)
-        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type, column_unit, column.source_unit, column.scale_factor, column.display_title)
+        column_type, column_unit, column_source_unit, column_scale_factor = _get_column_type_heur(column, column_values)
+        new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type,
+                            column_unit, column_source_unit, column_scale_factor, column.display_title)
         stats_columns.append(new_column)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)

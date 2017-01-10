@@ -126,9 +126,6 @@ class FormatValueTests(unittest.TestCase):
     def test_column_init_error_on_missing_unit(self):
         self.assertRaises(TableDefinitionError, Column, "memUsed", None, None, None, self.measure_type, None, None, 1000)
 
-    def test_column_init_error_on_missing_scale(self):
-        self.assertRaises(TableDefinitionError, Column, "memUsed", None, None, None, self.measure_type, 'kB', None, None)
-
     def test_column_init_no_error_on_default_scale(self):
         Column("memUsed", None, None, None, self.measure_type, 'B')
 
