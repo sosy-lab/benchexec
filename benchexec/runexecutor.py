@@ -333,9 +333,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if subsystem not in self.cgroups:
                 sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
 
-        self.cgroups.require_subsystem(BLKIO)
+        # Feature is still experimental, do not warn loudly
+        self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
         if BLKIO not in self.cgroups:
-            # Feature is still experimental, do not warn loudly
             logging.debug('Cannot measure I/O without blkio cgroup.')
 
         self.cgroups.require_subsystem(CPUACCT)

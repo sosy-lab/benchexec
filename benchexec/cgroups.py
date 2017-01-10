@@ -230,7 +230,7 @@ class Cgroup(object):
     def __str__(self):
         return str(self.paths)
 
-    def require_subsystem(self, subsystem):
+    def require_subsystem(self, subsystem, log_method=logging.warning):
         """
         Check whether the given subsystem is enabled and is writable
         (i.e., new cgroups can be created for it).
@@ -240,9 +240,10 @@ class Cgroup(object):
         @return A boolean value.
         """
         if not subsystem in self:
-            logging.warning('Cgroup subsystem %s is not enabled. Please enable it with '
-                            '"sudo mount -t cgroup none /sys/fs/cgroup".',
-                            subsystem)
+            log_method(
+                'Cgroup subsystem %s is not enabled. '
+                'Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".',
+                subsystem)
             return False
 
         try:
@@ -250,10 +251,10 @@ class Cgroup(object):
             test_cgroup.remove()
         except OSError as e:
             self.paths = set(self.per_subsystem.values())
-            logging.warning('Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, '
-                            'reason: {2}. '
-                            'If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'
-                            .format(self.per_subsystem[subsystem], subsystem, e.strerror))
+            log_method(
+                'Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. '
+                'If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'
+                .format(self.per_subsystem[subsystem], subsystem, e.strerror))
             del self.per_subsystem[subsystem]
             return False
 
