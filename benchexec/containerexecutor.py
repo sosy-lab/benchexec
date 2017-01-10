@@ -815,7 +815,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             else:
                 pattern = tool_output_dir + os.path.join(working_dir, pattern)
             # normalize pattern for preventing directory traversal attacks:
-            for abs_file in util.maybe_recursive_iglob(os.path.normpath(pattern)):
+            for abs_file in util.maybe_recursive_iglob(os.path.normpath(pattern), recursive=True):
                 # Recursive matching is only supported starting with Python 3.5,
                 # so we allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):

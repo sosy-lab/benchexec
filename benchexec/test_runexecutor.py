@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import glob
 import logging
 import os
 import re
@@ -36,6 +37,7 @@ from benchexec import containerexecutor
 from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
+from benchexec import util
 
 try:
     from subprocess import DEVNULL
@@ -649,6 +651,17 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_result_file_illegal_relative_traversal(self):
         self.assertRaises(ValueError,
             lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []))
+
+    def test_result_file_recursive_pattern(self):
+        if not util.maybe_recursive_iglob == glob.iglob:
+            self.skipTest("missing recursive glob.iglob")
+        self.check_result_files(
+            "mkdir -p TEST_DIR/TEST_DIR; "
+            "echo TEST_TOKEN > TEST_FILE.txt; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_FILE.txt; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_DIR/TEST_FILE.txt; ",
+            ["**/*.txt"],
+            ["TEST_FILE.txt", "TEST_DIR/TEST_FILE.txt", "TEST_DIR/TEST_DIR/TEST_FILE.txt"])
 
     def test_file_count_limit(self):
         if not os.path.exists('/bin/sh'):
