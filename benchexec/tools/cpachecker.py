@@ -173,6 +173,11 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
 
+        if (not status or status == result.RESULT_UNKNOWN) and isTimeout and returncode in [15, 143]:
+            # The JVM sets such an returncode if it receives signal 15
+            # (143 is 15+128)
+            status = 'TIMEOUT'
+
         if not status:
             status = result.RESULT_ERROR
         return status
