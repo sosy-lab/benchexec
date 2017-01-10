@@ -727,13 +727,27 @@ class Run(object):
 
     def _analyze_result(self, exitcode, output, isTimeout, termination_reason):
         """Return status according to result and output of tool."""
-        status = ""
 
         # Ask tool info.
+        tool_status = None
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
-            status = self.runSet.benchmark.tool.determine_result(
+            tool_status = self.runSet.benchmark.tool.determine_result(
                 exitcode.value or 0, exitcode.signal or 0, output, isTimeout)
+
+            if tool_status in [result.RESULT_ERROR, result.RESULT_UNKNOWN]:
+                # provide some more information if possible
+                if exitcode.signal == 6:
+                    tool_status = 'ABORTED'
+                elif exitcode.signal == 11:
+                    tool_status = 'SEGMENTATION FAULT'
+                elif exitcode.signal == 15:
+                    tool_status = 'KILLED'
+                elif exitcode.signal:
+                    tool_status = 'KILLED BY SIGNAL '+str(exitcode.signal)
+
+                elif exitcode.value:
+                    tool_status = '{} ({})'.format(result.RESULT_ERROR, exitcode.value)
 
         # Tools sometimes produce a result even after violating a resource limit.
         # This should not be counted, so we overwrite the result with TIMEOUT/OOM
@@ -741,42 +755,33 @@ class Run(object):
         # However, we don't want to forget more specific results like SEGFAULT,
         # so we do this only if the result is a "normal" one like TRUE/FALSE
         # or an unspecific one like UNKNOWN/ERROR.
-        if status in result.RESULT_LIST or status in [result.RESULT_ERROR, result.RESULT_UNKNOWN]:
-            tool_status = status
-            if isTimeout:
-                status = "TIMEOUT"
-            elif termination_reason == 'memory':
-                status = 'OUT OF MEMORY'
-            else:
-                # TODO probably this is not necessary anymore
-                rlimits = self.runSet.benchmark.rlimits
-                guessed_OOM = exitcode is not None \
-                        and exitcode.signal == 9 \
-                        and MEMLIMIT in rlimits \
-                        and 'memUsage' in self.values \
-                        and not self.values['memUsage'] is None \
-                        and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * 0.99)
-                if guessed_OOM:
-                    # Set status to a special marker.
-                    # If we see this in the results, we know that we need to do more work to set
-                    # termination_reason properly.
-                    status = 'PROBABLY OUT OF MEMORY'
-            if tool_status not in [status, result.RESULT_ERROR, result.RESULT_UNKNOWN]:
-                status = '{} ({})'.format(status, tool_status)
+        status = None
+        if isTimeout:
+            status = "TIMEOUT"
+        elif termination_reason == 'memory':
+            status = 'OUT OF MEMORY'
+        else:
+            # TODO probably this is not necessary anymore
+            rlimits = self.runSet.benchmark.rlimits
+            guessed_OOM = exitcode is not None \
+                    and exitcode.signal == 9 \
+                    and MEMLIMIT in rlimits \
+                    and 'memUsage' in self.values \
+                    and not self.values['memUsage'] is None \
+                    and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * 0.99)
+            if guessed_OOM:
+                # Set status to a special marker.
+                # If we see this in the results, we know that we need to do more work to set
+                # termination_reason properly.
+                status = 'PROBABLY OUT OF MEMORY'
 
-        if status in [result.RESULT_ERROR, result.RESULT_UNKNOWN] and exitcode is not None:
-            # provide some more information if possible
-            if exitcode.signal == 6:
-                status = 'ABORTED'
-            elif exitcode.signal == 11:
-                status = 'SEGMENTATION FAULT'
-            elif exitcode.signal == 15:
-                status = 'KILLED'
-            elif exitcode.signal:
-                status = 'KILLED BY SIGNAL '+str(exitcode.signal)
-
-            elif exitcode.value:
-                status = '{} ({})'.format(result.RESULT_ERROR, exitcode.value)
+        if not status:
+            # regular termination
+            status = tool_status
+        elif tool_status and tool_status not in [
+                status, result.RESULT_ERROR, result.RESULT_UNKNOWN, 'KILLED', 'KILLED BY SIGNAL 9']:
+            # timeout/OOM but tool still returned some result
+            status = '{} ({})'.format(status, tool_status)
 
         return status
 
