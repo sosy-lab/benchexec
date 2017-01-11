@@ -50,15 +50,21 @@ def init(config, benchmark):
             sys.exit("Cannot use --user in combination with --container.")
         config.containerargs = containerexecutor.handle_basic_container_args(config)
         config.containerargs["use_namespaces"] = True
-    elif not config.no_container:
-        logging.warning(
-            "Neither --container or --no-container was specified, "
-            "not using containers for isolation of runs. "
-            "Either specify --no-container to silence this warning, "
-            "or specify --container to use containers for better isolation of runs "
-            "(this will be the default starting with BenchExec 2.0). "
-            "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-            "for more information.")
+    else:
+        if config.users is not None:
+            logging.warning(
+                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
+                "Consider using the container mode instead for isolating runs "
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+        elif not config.no_container:
+            logging.warning(
+                "Neither --container or --no-container was specified, "
+                "not using containers for isolation of runs. "
+                "Either specify --no-container to silence this warning, "
+                "or specify --container to use containers for better isolation of runs "
+                "(this will be the default starting with BenchExec 2.0). "
+                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
+                "for more information.")
 
     try:
         processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]

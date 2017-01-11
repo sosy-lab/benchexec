@@ -139,7 +139,12 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if not options.no_container:
+        if options.user is not None:
+            logging.warning(
+                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
+                "Consider using the container mode instead for isolating runs "
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+        elif not options.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
                 "not using containers for isolation of runs. "

@@ -16,6 +16,10 @@ This release brings several smaller and medium-sized features:
   (experimental and still undocumented).
 - [Ability to limit the disk space](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) a tool can occupy in container mode.
 - Various minor improvements to make container mode more robust.
+- The feature for executing benchmarks under different user accounts with sudo
+  is now marked as deprecated and may be removed in the future,
+  consider using the container mode instead for isolating runs
+  (cf. https://github.com/sosy-lab/benchexec/issues/215).
 - `table-generator` is now more flexible:
   - Builtin support for certain unit conversions,
     such that the scale factor does not always need to be explicitly specified.
