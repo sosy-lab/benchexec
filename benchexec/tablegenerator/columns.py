@@ -111,7 +111,7 @@ class Column(object):
       'scale_factor' must be a value other than 'None'.
     """
     def __init__(self, title, pattern, num_of_digits, href, col_type=None,
-                 unit=None, source_unit=None, scale_factor=1, relevant_for_diff=None, display_title=None):
+                 unit=None, source_unit=None, scale_factor=None, relevant_for_diff=None, display_title=None):
 
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
