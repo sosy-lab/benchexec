@@ -240,7 +240,9 @@ def _get_column_type_heur(column, column_values):
         else:
             return ColumnType.status, None, None, 1
 
-    column_type = ColumnType.count
+    column_type = column.type or None
+    if column_type and column_type.type == ColumnType.measure:
+        column_type = ColumnMeasureType(0)
     column_unit = column.unit  # May be None
     column_source_unit = column.source_unit  # May be None
     column_scale_factor = column.scale_factor  # May be None
@@ -320,7 +322,7 @@ def _get_column_type_heur(column, column_values):
             if curr_dec_digits > max_dec_digits:
                 max_dec_digits = curr_dec_digits
 
-            if column_type.type == ColumnType.measure or \
+            if (column_type and column_type.type == ColumnType.measure) or\
                             scaled_value_match.group(GROUP_DEC_PART) is not None or\
                             value_match.group(GROUP_DEC_PART) is not None:
                 column_type = ColumnMeasureType(max_dec_digits)
@@ -1096,6 +1098,7 @@ def get_stats_of_rows(rows):
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
 
     return max_score, count_true, count_false
+
 
 def get_stats(rows, local_summary):
     stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
