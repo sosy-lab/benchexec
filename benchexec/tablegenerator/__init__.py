@@ -232,7 +232,7 @@ def _check_unit_consistency(actual_unit, wanted_unit, column):
 
 
 def _get_column_type_heur(column, column_values):
-    text_type_tuple = ColumnType.text, None, None, None
+    text_type_tuple = ColumnType.text, None, None, 1
 
     if "status" in column.title:
         if column.title == "status":
@@ -374,7 +374,11 @@ def get_column_type(column, result_set):
 
     # If the column is not a 'status' column, we have to guess the type based on its rows' values.
     column_values = [run_result.values[run_result.columns.index(column)] for run_result in result_set.results if column in run_result.columns]
-    return _get_column_type_heur(column, column_values)
+    try:
+        return _get_column_type_heur(column, column_values)
+    except Util.TableDefinitionError as e:
+        logging.error("Column type couldn't be determined: {}".format(e.message))
+        return ColumnType.text, None, None, 1
 
 
 def handle_tag_in_table_definition_file(tag, table_file,
