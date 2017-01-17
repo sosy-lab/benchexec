@@ -111,5 +111,8 @@ class Tool(benchexec.tools.template.BaseTool):
                         status = result.RESULT_FALSE_REACH
                 elif 'UNKNOWN' in output:
                     status = result.RESULT_UNKNOWN
+        elif (output and
+             re.match(r'^INVALID WITNESS FILE', output[-1].strip()) is not None):
+            status += ' (invalid witness file)'
 
         return status
