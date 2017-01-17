@@ -6,5 +6,5 @@
   <column title="status"/>
   <column title="cputime"/>
   <column title="walltime"/>
-  <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+  <column title="memUsage" sourceUnit="B" displayUnit="MB"/>
 </table>
