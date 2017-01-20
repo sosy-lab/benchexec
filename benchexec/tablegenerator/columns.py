@@ -171,7 +171,8 @@ class Column(object):
             return value
 
         # Apply the scale factor to the value
-        number = number * self.scale_factor
+        if self.scale_factor is not None:
+            number *= self.scale_factor
 
         number_of_significant_digits = self.number_of_significant_digits
         max_dec_digits = 0
