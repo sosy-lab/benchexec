@@ -762,11 +762,8 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                assert len(runset.attributes['tool']) == 1\
-                       and len(runset.attributes['name']) == 1\
-                       and len(runset.attributes['benchmarkname']) == 1
-                logging.info("    no result for task '%s' (tool='%s', benchmark='%s', benchmark name='%s').",
-                             task[0], runset.attributes['tool'][0], runset.attributes['name'][0], runset.attributes['benchmarkname'][0])
+                logging.info("    no result for task '%s'. (Tool=%s, benchmark=%s, benchmark name=%s",
+                             task[0], runset.attributes['tool'], runset.attributes['name'], runset.attributes['benchmarkname'])
                 # create an empty dummy element
                 run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
                                        runset.columns, [None]*len(runset.columns))
