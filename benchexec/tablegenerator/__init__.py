@@ -762,8 +762,7 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                assert len(task) == 1\
-                       and len(runset.attributes['tool']) == 1\
+                assert len(runset.attributes['tool']) == 1\
                        and len(runset.attributes['name']) == 1\
                        and len(runset.attributes['benchmarkname']) == 1
                 logging.info("    no result for task '%s' (tool='%s', benchmark='%s', benchmark name='%s').",
