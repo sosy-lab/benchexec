@@ -1101,6 +1101,13 @@ def get_stats_of_rows(rows):
     return max_score, count_true, count_false
 
 
+def _contains_unconfirmed_results(rows_for_stats):
+    for unconfirmed_stat in rows_for_stats[4]:  # 5th position in rows_for_stats is 'unconfirmed_results'
+        if unconfirmed_stat and unconfirmed_stat.sum > 0:
+            return True
+    return False
+
+
 def get_stats(rows, local_summary):
     stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
@@ -1149,7 +1156,7 @@ def get_stats(rows, local_summary):
             tempita.bunch(id=None, title=indent(2)+'incorrect true', description='property does not hold + result is true', content=rowsForStats[8]),
             tempita.bunch(id=None, title=indent(2)+'incorrect false', description='property holds + result is false', content=rowsForStats[9]),
             ]
-    if float(rowsForStats[4][0].__str__()) > 0:
+    if _contains_unconfirmed_results(rowsForStats):
         stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
     else:
         stats_info = stats_info_correct + stats_info_wrong
