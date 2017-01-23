@@ -283,6 +283,12 @@ class TestResult(unittest.TestCase):
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category('test_false-valid-memtrack.c', RESULT_FALSE_MEMTRACK, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(CATEGORY_WRONG,
+                         get_result_category('test_false-valid-deref.c',    RESULT_FALSE_FREE, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category('test_false-valid-free.c',     RESULT_FALSE_MEMTRACK, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category('test_false-valid-memtrack.c', RESULT_FALSE_DEREF, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
+        self.assertEqual(CATEGORY_WRONG,
                          get_result_category('test_true-termination.c',     RESULT_FALSE_TERMINATION, [_PROP_TERMINATION]))
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category('test_false-termination.c',    RESULT_FALSE_TERMINATION, [_PROP_TERMINATION]))
