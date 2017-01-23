@@ -559,6 +559,9 @@ class OutputHandler(object):
         for column in run.columns:
             self.add_column_to_xml(runElem, column.title, column.value)
 
+        # Sort child elements by hidden and title attributes
+        runElem[:] = sorted(runElem, key=lambda elem : (elem.get('hidden', ''), elem.get('title')))
+
     def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy):
         """
         This function adds the result values to the XML representation of a runSet.

@@ -102,7 +102,7 @@ def format_energy_results(energy):
     """Take the result of an energy measurement and return a flat dictionary that contains all values."""
     if not energy:
         return {}
-    result = collections.OrderedDict()
+    result = {}
     cpuenergy = Decimal(0)
     for pkg, domains in energy.items():
         for domain, value in domains.items():
@@ -112,4 +112,5 @@ def format_energy_results(energy):
             else:
                 result['cpuenergy-pkg{}-{}'.format(pkg, domain)] = value
     result['cpuenergy'] = cpuenergy
+    result = collections.OrderedDict(sorted(result.items()))
     return result

@@ -637,7 +637,7 @@ class Run(object):
 
         # here we store the optional result values, e.g. memory usage, energy, host name
         # keys need to be strings, if first character is "@" the value is marked as hidden (e.g., debug info)
-        self.values = collections.OrderedDict()
+        self.values = {}
 
         # dummy values, for output in case of interrupt
         self.status = ""
