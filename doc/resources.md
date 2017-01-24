@@ -55,13 +55,46 @@ For `runexec` this can be changed by explicitly specifying a wall-time limit,
 though the wall-time limit cannot be disabled completely if a CPU-time limit is given.
 
 
+## Energy
+
+BenchExec attempts to measure the energy consumption of a run where possible.
+Currently measurements are implemented for the energy consumption of the CPU
+(not the whole system), and only for modern Intel CPUs (since SandyBridge),
+however, this feature is still *experimental*.
+
+For energy measurements to work,
+the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) needs to be installed.
+It will measure up to four values for each of the CPUs:
+
+- `cpuenergy-pkg<i>` is the energy consumption of the CPU `<i>` (whole "package").
+- `cpuenergy-pkg<i>-core` is only the consumption of the CPU cores.
+- `cpuenergy-pkg<i>-uncore` is the consumption of the so-called "uncore" parts of the CPU (this may include an integrated graphics card).
+- `cpuenergy-pkg<i>-dram` is the consumption of the memory attached to CPU `<i>`.
+
+The "core" and "uncore" values are included in the "package" value,
+whereas for the "dram" value this is unclear.
+Not all of these values may be measurable on all systems,
+this depends on the CPU model.
+Also the precision of the measurements
+[varies across CPU models](https://tu-dresden.de/zih/forschung/ressourcen/dateien/laufende-projekte/firestarter/2015_hackenberg_hppac.pdf).
+For further information about the meaning of these values,
+please consult the [Intel Software Developers Manual Volume 3B Chapter 14.9](https://software.intel.com/sites/default/files/managed/7c/f1/253669-sdm-vol-3b.pdf).
+
+BenchExec will additionally compute a value named `cpuenergy`,
+which is the sum of the `cpuenergy-pkg<i>` values for all CPUs
+that are used by a run.
+However, note that BenchExec can only measure the energy consumption of each CPU as a whole.
+Thus, if a run does not use all cores of a CPU (e.g., because of parallel runs on the same CPU),
+the measurements are too high.
+
+
 ## Disk Space and I/O
 
 BenchExec does not limit or influence I/O in any way by default.
 This is acceptable for benchmarking if the benchmarked tool uses only little I/O,
 but for I/O-heavy tools this means that the benchmarking may be non-deterministic and unreliable.
 
-Currently, BenchExec has an experimental feature for measuring the I/O of the benchmarked process.
+Currently, BenchExec has an *experimental* feature for measuring the I/O of the benchmarked process.
 This is reported as the values `blkio-read` and `blkio-write` (in bytes),
 if the `blkio` cgroup is usable by BenchExec.
 Note that because of the experimental nature the values are not shown by default in tables,

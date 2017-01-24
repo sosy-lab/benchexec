@@ -13,13 +13,13 @@ This release brings several smaller and medium-sized features:
   (experimental, please read the [documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io)!).
 - [Measurement of the energy used by the CPU](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy) for a run,
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system
-  (experimental and still undocumented).
+  (experimental, please read the [documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)!).
 - [Ability to limit the disk space](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) a tool can occupy in container mode.
 - Various minor improvements to make container mode more robust.
 - The feature for executing benchmarks under different user accounts with sudo
   is now marked as deprecated and may be removed in the future,
   consider using the container mode instead for isolating runs
-  (cf. https://github.com/sosy-lab/benchexec/issues/215).
+  (cf. [issue #215](https://github.com/sosy-lab/benchexec/issues/215).
 - `table-generator` is now more flexible:
   - Builtin support for certain unit conversions,
     such that the scale factor does not always need to be explicitly specified.

@@ -43,6 +43,8 @@ The meanings of the current possible result values are as follows:
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
     This depends on the `blkio` cgroup and is still experimental.
     The value might not accurately represent disk I/O due to caches or if virtual block devices such as LVM, RAID, RAM disks etc. are used.
+- **cpuenergy-pkg`<n>`**: Energy consumption of the CPU ([more information](resources.md#energy)).
+    This is still experimental.
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
