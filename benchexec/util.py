@@ -278,12 +278,13 @@ def get_files(paths):
     return result if changed else paths
 
 
-def find_executable(program, fallback=None, exitOnError=True):
+def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
     def is_executable(programPath):
         return os.path.isfile(programPath) and os.access(programPath, os.X_OK)
 
     dirs = os.environ['PATH'].split(os.path.pathsep)
-    dirs.append(os.path.curdir)
+    if use_current_dir:
+        dirs.append(os.path.curdir)
 
     for dir_ in dirs:
         name = os.path.join(dir_, program)
