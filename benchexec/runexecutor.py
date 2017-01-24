@@ -826,10 +826,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         handling all setup and cleanup, but does not check whether arguments are valid.
         """
 
+        if self._energy_measurement is not None:
+            # Calculate which packages we should use for energy measurements
+            if cores is None:
+                packages = True # We use all cores and thus all packages
+            else:
+                all_siblings = set(util.flatten(
+                    resources.get_cores_of_same_package_as(core) for core in cores))
+                if all_siblings == set(cores):
+                    packages = set(resources.get_cpu_package_for_core(core) for core in cores)
+                else:
+                    # Disable energy measurements because we use only parts of a CPU
+                    packages = None
+
         def preParent():
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
-            if self._energy_measurement is not None:
+            if self._energy_measurement is not None and packages:
                 self._energy_measurement.start()
             walltime_before = util.read_monotonic_time()
             return walltime_before
@@ -942,11 +955,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         result['exitcode'] = returnvalue
         if energy:
-            if cores:
-                packages = set(resources.get_cpu_package_for_core(core) for core in cores)
-                result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
-            else:
+            if packages == True:
                 result['cpuenergy'] = energy
+            else:
+                result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
         elif memlimit and 'memory' in result and result['memory'] >= memlimit:

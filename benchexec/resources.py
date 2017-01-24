@@ -313,3 +313,6 @@ def _get_memory_bank_size(memBank):
 def get_cpu_package_for_core(core):
     """Get the number of the physical package (socket) a core belongs to."""
     return int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core)))
+
+def get_cores_of_same_package_as(core):
+    return util.parse_int_list(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/core_siblings_list'.format(core)))

@@ -84,8 +84,8 @@ BenchExec will additionally compute a value named `cpuenergy`,
 which is the sum of the `cpuenergy-pkg<i>` values for all CPUs
 that are used by a run.
 However, note that BenchExec can only measure the energy consumption of each CPU as a whole.
-Thus, if a run does not use all cores of a CPU (e.g., because of parallel runs on the same CPU),
-the measurements are too high.
+Thus energy will be measured only if each run uses all cores of one or more CPUs,
+and not if only a subset of the CPU's cores is used per run.
 
 
 ## Disk Space and I/O
