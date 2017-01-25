@@ -1,6 +1,6 @@
 # BenchExec Changelog
 
-## BenchExec 1.10 (to be released)
+## BenchExec 1.10
 
 This release brings several smaller and medium-sized features:
 
@@ -26,6 +26,11 @@ This release brings several smaller and medium-sized features:
     Furthermore, unit conversions now work even if the values already have a unit.
   - Column titles can be manually specified with the `displayTitle` attribute`.
   - What columns are relevant for the "diff" table can be configured.
+
+Please also note that we are considering dropping the support for Python 3.2
+and maybe 3.3 in BenchExec 2.0 (to be released in a few weeks).
+If this is a problem for you, please tell us in [issue #207](https://github.com/sosy-lab/benchexec/issues/207).
+
 
 ## BenchExec 1.9
 
