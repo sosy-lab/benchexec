@@ -92,12 +92,9 @@ then BenchExec should also be able to successfully run the tool.
 
 #### Examples
 If you have installed BenchExec successfully, the following command
-should always work and print information about the fake tool `rand` supplied with BenchExec:
+should always work and print information about the fake tool `dummy` supplied with BenchExec:
 
-    python3 -m benchexec.test_tool_info rand
-
-(Note that there are some warnings are expected in this case
-because the simplistic tool info for `rand` ignores some irrelevant details.)
+    python3 -m benchexec.test_tool_info dummy
 
 If you have written your own info for a tool `foobar` as a Python module named `tools.foobar`
 (this means you have created a directory `tools` with an empty file `__init__.py`

@@ -2,7 +2,7 @@
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
 
-Copyright (C) 2007-2015  Dirk Beyer
+Copyright (C) 2007-2017  Dirk Beyer
 All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,21 +19,35 @@ limitations under the License.
 """
 import benchexec.tools.template
 import benchexec.result as result
+import benchexec.util as util
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    This tool is an imaginary tool that returns always SAFE.
-    To use it you need a normal benchmark-xml-file
-    with the tool and tasks, however options are ignored.
+    This tool is an imaginary tool that can be made to output any result.
+    It may be useful for debugging.
+    To use it specify tool="dummy" in a benchmark-definition file
+    and <option>RESULT</option> to set the output to "RESULT".
+    It multiple options are given, the result will be randomly chosen between them
+    (the tool prints all options to stdout in random order, and determine_result
+    picks the first line that looks like a result).
     """
+
     def executable(self):
-        return '/bin/true'
+        return util.find_executable('shuf')
 
     def name(self):
-        return 'AlwaysTrue'
+        return 'DummyTool'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + tasks
+        return ([executable, '--echo', '--'] +
+                options +
+                ["Input file: " + f for f in tasks] +
+                ["Property file: " + (propertyfile or "None")]
+                )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        return result.RESULT_TRUE_PROP
+        for line in output:
+            line = line.strip()
+            if line in result.RESULT_LIST:
+                return line
+        return result.RESULT_UNKNOWN
