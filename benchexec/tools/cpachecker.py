@@ -196,7 +196,7 @@ class Tool(benchexec.tools.template.BaseTool):
             if match:
                 foundProperty = match.group(1)
                 verdict = match.group(2)
-                if foundProperty == requiredProperty:
+                if foundProperty in requiredProperty:
                     if verdict == 'TRUE':
                         verdict = result.RESULT_TRUE_PROP
                     elif verdict == 'FALSE':

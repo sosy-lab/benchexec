@@ -727,9 +727,8 @@ class Run(object):
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
         if self.multiproperty:
             for property in self.properties:
-                short_property = property.replace(result._PROP_CALL_SPECIFIC, '')
                 status = self.runSet.benchmark.tool.determine_result_for_property(
-                    exitcode.value or 0, exitcode.signal or 0, output, isTimeout, short_property)
+                    exitcode.value or 0, exitcode.signal or 0, output, isTimeout, property)
                 self.multiproperty_statuses[property] = status
         self.category = result.get_result_category(self.identifier, self.status, self.properties,
                                                    self.multiproperty_statuses)
