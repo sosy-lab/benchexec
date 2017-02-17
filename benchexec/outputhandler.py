@@ -512,6 +512,9 @@ class OutputHandler(object):
         runElem = run.xml
         for elem in list(runElem):
             runElem.remove(elem)
+        if run.multiproperty_statuses:
+            for (property, verdict) in run.multiproperty_statuses.items():
+                self.add_column_to_xml(runElem, 'status ({0})'.format(property), verdict)
         self.add_column_to_xml(runElem, 'status',    run.status)
         self.add_column_to_xml(runElem, 'cputime', run.cputime)
         self.add_column_to_xml(runElem, 'walltime', run.walltime)
@@ -731,9 +734,11 @@ class Statistics(object):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
-        self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status)
+        self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status,
+                                            run.multiproperty_statuses)
         #if run.properties:
-        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None)
+        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None,
+                                                run.multiproperty_statuses)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]

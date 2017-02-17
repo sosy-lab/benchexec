@@ -21,6 +21,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import sys
+import re
+import yaml
 
 # CONSTANTS
 
@@ -55,6 +57,8 @@ because no property was defined, and no other categories apply."""
 _PROP_LABEL =        'unreach-label'
 # currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php):
 _PROP_CALL =         'unreach-call'
+# extends _PROP_CALL for any error function:
+_PROP_CALL_SPECIFIC ='unreach-call,'
 _PROP_TERMINATION =  'termination'
 _PROP_OVERFLOW =     'no-overflow'
 _PROP_DEADLOCK =     'no-deadlock'
@@ -129,7 +133,11 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'SATISFIABLE':                       _PROP_SAT,
                    'LTL(G ! overflow)':                 _PROP_OVERFLOW,
                    'LTL(G ! deadlock)':                 _PROP_DEADLOCK,
+                   'LTL(G ! call(':                     _PROP_CALL_SPECIFIC,
                   }
+
+# Regular expression for  with specific function property.
+_REGEXP_PROP_CALL_SPECIFIC = "LTL\(G ! call\(([_a-zA-Z][_a-zA-Z0-9]*)\(\)\)\)"
 
 # This maps a possible result substring of a file name
 # to the expected result string of the tool and the set of properties
@@ -187,6 +195,8 @@ _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
 
+_YAML_EXTENSION = ".yml"
+
 
 def _expected_result(filename, checked_properties):
     results = []
@@ -211,19 +221,23 @@ def properties_of_file(propertyfile):
     """
     assert os.path.isfile(propertyfile)
 
-    with open(propertyfile) as f:
-        content = f.read().strip()
-    if not( 'CHECK' in content
-            or content == 'OBSERVER AUTOMATON'
-            or content == 'SATISFIABLE'
-            ):
-        sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
-
     properties = []
-    # TODO: should we switch to regex or line-based reading?
-    for substring, status in _PROPERTY_NAMES.items():
-        if substring in content:
-            properties.append(status)
+
+    with open(propertyfile) as f:
+        for content in f:
+            if not('CHECK' in content
+                   or content == 'OBSERVER AUTOMATON'
+                   or content == 'SATISFIABLE'
+                   ):
+                sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
+
+            for substring, status in _PROPERTY_NAMES.items():
+                if substring in content:
+                    if status == _PROP_CALL_SPECIFIC:
+                        match = re.search(_REGEXP_PROP_CALL_SPECIFIC, content)
+                        if match and match.group(1):
+                            status = _PROP_CALL_SPECIFIC + match.group(1)
+                    properties.append(status)
 
     if not properties:
         sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))
@@ -249,11 +263,15 @@ def satisfies_file_property(filename, properties):
     return None
 
 
-def score_for_task(filename, properties, category, result):
+def score_for_task(filename, properties, category, result, multiproperty_statuses={}):
     """
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
+
+    if multiproperty_statuses:
+        ideal_statuses = _get_yaml_ideal_statuses(filename)
+        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses, result)
 
     if category == CATEGORY_CORRECT_UNCONFIRMED:
         if satisfies_file_property(filename, properties):
@@ -314,16 +332,93 @@ def get_result_classification(result):
         return RESULT_CLASS_FALSE
 
 
-def get_result_category(filename, result, properties):
+def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
+    assert not (bool(ideal_statuses.keys() - actual_statuses.keys()))
+    is_correct = True
+    is_error = False
+    is_unknown = False
+    for property in ideal_statuses.keys():
+        actual_status = str(actual_statuses[property]).lower()
+        ideal_status = str(ideal_statuses[property]).lower()
+        if actual_status == RESULT_CLASS_TRUE and ideal_status == RESULT_CLASS_FALSE or \
+                                actual_status == RESULT_CLASS_FALSE and ideal_status == RESULT_CLASS_TRUE:
+            is_correct = False
+        if actual_status == RESULT_CLASS_ERROR and \
+                (ideal_status == RESULT_CLASS_FALSE or ideal_status == RESULT_CLASS_TRUE):
+            is_error = True
+        if actual_status == RESULT_CLASS_UNKNOWN and \
+                (ideal_status == RESULT_CLASS_FALSE or ideal_status == RESULT_CLASS_TRUE):
+            is_unknown = True
+    if not is_correct:
+        return CATEGORY_WRONG
+    if is_error:
+        return CATEGORY_ERROR
+    if is_unknown:
+        return CATEGORY_UNKNOWN
+    return CATEGORY_CORRECT
+
+
+def _score_for_multiproperty(actual_statuses, ideal_statuses, result):
+    assert not (bool(ideal_statuses.keys() - actual_statuses.keys()))
+    score = 0
+    for property in ideal_statuses.keys():
+        actual_status = str(actual_statuses[property]).lower()
+        ideal_status = str(ideal_statuses[property]).lower()
+
+        if ideal_status == RESULT_CLASS_TRUE:
+            if not result:
+                score += _SCORE_CORRECT_TRUE
+            elif actual_status == RESULT_CLASS_TRUE:
+                score += _SCORE_CORRECT_TRUE
+            elif actual_status == RESULT_CLASS_FALSE:
+                score += _SCORE_WRONG_FALSE
+            else:
+                score += _SCORE_UNKNOWN
+        elif ideal_status == RESULT_CLASS_FALSE:
+            if not result:
+                score += _SCORE_CORRECT_FALSE
+            elif actual_status == RESULT_CLASS_TRUE:
+                score += _SCORE_WRONG_TRUE
+            elif actual_status == RESULT_CLASS_FALSE:
+                score += _SCORE_CORRECT_FALSE
+            else:
+                score += _SCORE_UNKNOWN
+        else:
+            score += _SCORE_UNKNOWN
+    return score
+
+
+def _get_yaml_ideal_statuses(filename):
+    # Multiple properties are being checked.
+    # We need to get results from specific YAML file.
+    ideal_statuses = {}
+    specification_file = filename + _YAML_EXTENSION
+    with open(specification_file, 'r') as f:
+        try:
+            content = yaml.load(f)
+            for (property, status) in content.get("correct results").items():
+                ideal_statuses[property] = status
+        except yaml.YAMLError as exc:
+            # Wrong format, ideal statuses were failed to obtained.
+            pass
+    return ideal_statuses
+
+
+def get_result_category(filename, result, properties, multiproperty_statuses={}):
     '''
     This function determines the relation between actual result and expected result
     for the given file and properties.
     @param filename: The file name of the input file.
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @param properties: The list of properties to check (as returned by properties_of_file()).
+    @param multiproperty_statuses: The map of properties to their statuses (for multi-property verification only).
     @return One of the CATEGORY_* strings.
     '''
-    assert set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())
+    if multiproperty_statuses:
+        ideal_statuses = _get_yaml_ideal_statuses(filename)
+        return _compare_multiproperty_statuses(multiproperty_statuses, ideal_statuses)
+    if not(set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())):
+        return CATEGORY_MISSING
 
     if result not in RESULT_LIST:
         return CATEGORY_ERROR

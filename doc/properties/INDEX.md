@@ -33,6 +33,15 @@ Note that you can use variables in this tag,
 for example `<propertyfile>${inputfile_path}/ALL.prp</propertyfile>`
 refers to the file `ALL.prp` in the same directory as each input file.
 
+In general case the property file may consist of several properties.
+By default `benchexec` considers them as a single composite property
+(for example, the property `valid-memsafety`) and thus expects
+from verification tool a single status as a result. 
+If tag `<multiproperty>` was set to `true`, then `benchexec` expects 
+from verification tool separated status for each property.
+In this case expected results are placed in YAML configuration file
+`<task_file_name>.yml`. For more information see [multi-property verification](../multiproperty.md).
+
 The expected result is encoded in the file name of the input file
 in the format `_(true|false)-prop` with `prop` as listed above.
 Examples can be seen in the [benchmarks of SV-Comp](https://github.com/sosy-lab/sv-benchmarks/tree/master/c).

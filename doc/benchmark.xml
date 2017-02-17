@@ -29,6 +29,9 @@
     <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
     <!-- <propertyfile>*file.prp*</propertyfile> -->
 
+    <!-- <multiproperty> if set each property will be considered separately (for multi-property software verification). -->
+    <!-- <multiproperty>true</multiproperty> -->
+
     <!-- <option> may be used here, too. -->
   </tasks>
 
@@ -39,6 +42,7 @@
 
   <!-- <option> may be used here, too. -->
   <!-- <propertyfile> may be used here, too. -->
+  <!-- <multiproperty> may be used here, too. -->
 
   <!-- Copy all result files from below the working directory to the output directory
        (this is redundant because it is the default). -->

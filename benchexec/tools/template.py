@@ -151,6 +151,24 @@ class BaseTool(object):
         """
         return result.RESULT_UNKNOWN
 
+    def determine_result_for_property(self, returncode, returnsignal, output, isTimeout, property):
+        """
+        Parse the output of the tool and extract the verification result for specified property.
+        This method always needs to be overridden for multi-property verification.
+        If the tool gave a result, this method needs to return one of the
+        benchexec.result.RESULT_* strings.
+        Otherwise an arbitrary string can be returned that will be shown to the user
+        and should give some indication of the failure reason
+        (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
+        @param returncode: the exit code of the program, 0 if the program was killed
+        @param returnsignal: the signal that killed the program, 0 if program exited itself
+        @param output: a list of strings of output lines of the tool (both stdout and stderr)
+        @param isTimeout: whether the result is a timeout
+        (useful to distinguish between program killed because of error and timeout)
+        @param property: property, for which status is expected
+        @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
+        """
+        return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         """

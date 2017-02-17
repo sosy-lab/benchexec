@@ -82,6 +82,7 @@ More complex values are represented as a `dict`.
     If the `category` is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,
     e.g., whether the tool terminated with an error code, the time limit was hit, etc.
+    In case of multi-property verification status is expected for each property.
 
 Furthermore, `benchexec` allows the user to specify arbitrary additional result values
 by defining them with a `<column>` tag in the benchmark-definition file.

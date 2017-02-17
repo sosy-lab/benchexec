@@ -1,7 +1,7 @@
-<!ELEMENT benchmark ((rundefinition | option | propertyfile | tasks | requiredfiles | resultfiles | require )*, columns?)>
-<!ELEMENT rundefinition (tasks | option | propertyfile | requiredfiles)*>
+<!ELEMENT benchmark ((rundefinition | option | propertyfile | multiproperty | tasks | requiredfiles | resultfiles | require )*, columns?)>
+<!ELEMENT rundefinition (tasks | option | propertyfile | multiproperty | requiredfiles)*>
 
-<!ELEMENT tasks (include | includesfile | exclude | excludesfile | append | withoutfile | option | propertyfile | requiredfiles)*>
+<!ELEMENT tasks (include | includesfile | exclude | excludesfile | append | withoutfile | option | propertyfile | multiproperty | requiredfiles)*>
 <!ELEMENT include (#PCDATA)>
 <!ELEMENT includesfile (#PCDATA)>
 <!ELEMENT exclude (#PCDATA)>
@@ -15,6 +15,7 @@
 
 <!ELEMENT option (#PCDATA)>
 <!ELEMENT propertyfile (#PCDATA)>
+<!ELEMENT multiproperty (#PCDATA)>
 <!ELEMENT columns (column*)>
 <!ELEMENT column (#PCDATA)>
 

@@ -182,6 +182,30 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_ERROR
         return status
 
+    def determine_result_for_property(self, returncode, returnsignal, output, isTimeout, requiredProperty):
+        """
+        @param returncode: code returned by CPAchecker
+        @param returnsignal: signal, which terminated CPAchecker
+        @param output: the output of CPAchecker
+        @param requiredProperty: property, for which status is expected
+        @return: status of CPAchecker after executing a run for specified property
+        """
+        for line in output:
+            # 	Property __VERIFIER_error_linux_kernel_rcu_srcu: UNKNOWN
+            match = re.match('.*Property (.*): (TRUE|FALSE|UNKNOWN).*', line)
+            if match:
+                foundProperty = match.group(1)
+                verdict = match.group(2)
+                if foundProperty == requiredProperty:
+                    if verdict == 'TRUE':
+                        verdict = result.RESULT_TRUE_PROP
+                    elif verdict == 'FALSE':
+                        verdict = result.STR_FALSE
+                    else:
+                        verdict = result.RESULT_UNKNOWN
+                    return verdict
+        # If status for requiredProperty was not found (e.g., parsing failed), returns Unknown
+        return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
