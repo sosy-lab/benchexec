@@ -81,7 +81,7 @@ setuptools.setup(
             'table-generator = benchexec.tablegenerator:main',
             ] if not PY2 else []),
         },
-    install_requires = ['tempita==0.5.2'],
+    install_requires = ['tempita==0.5.2', 'pyyaml==3.12'],
     setup_requires=['nose>=1.0'] + ['lxml'] if not PY2 else [],
     test_suite = 'nose.collector' if not PY2 else 'benchexec.test_python2.Python2Tests',
     zip_safe = True,

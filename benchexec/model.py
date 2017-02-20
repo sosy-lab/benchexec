@@ -432,7 +432,7 @@ class RunSet(object):
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
-            multiproperty = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, MULTIPROPERTY_TAG))
+            multiproperty = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, MULTIPROPERTY_TAG)) or False
 
             currentRuns = []
             for sourcefile in sourcefiles:
@@ -598,7 +598,9 @@ class Run(object):
             self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
-        self.multiproperty = multiproperty or runSet.multiproperty
+        self.multiproperty = multiproperty
+        if hasattr(runSet, 'multiproperty') and not self.multiproperty:
+            self.multiproperty = runSet.multiproperty
 
         def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
