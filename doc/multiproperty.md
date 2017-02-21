@@ -47,10 +47,6 @@ gets unknown status.
 Correct results for each task are placed in YAML configuration file
 `<task_file_name>.yml` in the following format:
 
-    name:
-      - <...>
-    sources:
-      - <...>
     correct results:
       property1: true|false|unknown
       ...
