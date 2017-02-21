@@ -728,7 +728,7 @@ class Run(object):
             output = []
 
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
-        if self.properties_kind == MULTIPROPERTY:
+        if self.is_multiproperty():
             for property in self.properties:
                 status = self.runSet.benchmark.tool.determine_result_for_property(
                     exitcode.value or 0, exitcode.signal or 0, output, isTimeout, property)
@@ -813,6 +813,9 @@ class Run(object):
             limit = float('inf')
 
         return self.cputime > limit
+
+    def is_multiproperty(self):
+        return self.properties_kind == MULTIPROPERTY
 
 
 class Column(object):

@@ -266,13 +266,13 @@ def satisfies_file_property(filename, properties):
     return None
 
 
-def score_for_task(filename, properties, category, result, multiproperty_statuses={}):
+def score_for_task(filename, properties, category, result, is_multiproperty=False, multiproperty_statuses={}):
     """
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
 
-    if multiproperty_statuses:
+    if is_multiproperty:
         ideal_statuses = _get_yaml_ideal_statuses(filename)
         return _score_for_multiproperty(multiproperty_statuses, ideal_statuses)
 
