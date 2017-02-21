@@ -38,7 +38,9 @@ SOFTTIMELIMIT = 'softtimelimit'
 HARDTIMELIMIT = 'hardtimelimit'
 
 PROPERTY_TAG = "propertyfile"
-MULTIPROPERTY_TAG = "multiproperty"
+PROPERTIES_KIND_TAG = "kind"
+
+MULTIPROPERTY = "multiproperty"
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
@@ -238,7 +240,7 @@ class Benchmark(object):
         # get global options and property file
         self.options = util.get_list_from_xml(rootTag)
         self.propertyfile = util.text_or_none(util.get_single_child_from_xml(rootTag, PROPERTY_TAG))
-        self.multiproperty = util.text_or_none(util.get_single_child_from_xml(rootTag, MULTIPROPERTY_TAG)) or False
+        self.properties_kind = util.get_attr_of_single_child_from_xml(rootTag, PROPERTY_TAG, PROPERTIES_KIND_TAG) or None
 
         # get columns
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
@@ -367,7 +369,7 @@ class RunSet(object):
         # get all run-set-specific options from rundefinitionTag
         self.options = benchmark.options + util.get_list_from_xml(rundefinitionTag)
         self.propertyfile = util.text_or_none(util.get_single_child_from_xml(rundefinitionTag, PROPERTY_TAG)) or benchmark.propertyfile
-        self.multiproperty = util.text_or_none(util.get_single_child_from_xml(rundefinitionTag, MULTIPROPERTY_TAG)) or benchmark.multiproperty
+        self.properties_kind = util.get_attr_of_single_child_from_xml(rundefinitionTag, PROPERTY_TAG, PROPERTIES_KIND_TAG) or benchmark.properties_kind
 
         # get run-set specific required files
         required_files_pattern = set(tag.text for tag in rundefinitionTag.findall('requiredfiles'))
@@ -432,11 +434,10 @@ class RunSet(object):
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
-            multiproperty = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, MULTIPROPERTY_TAG)) or False
-
+            properties_kind = util.get_attr_of_single_child_from_xml(sourcefilesTag, PROPERTY_TAG, PROPERTIES_KIND_TAG) or None
             currentRuns = []
             for sourcefile in sourcefiles:
-                currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile, multiproperty,
+                currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile, properties_kind,
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -572,7 +573,7 @@ class Run(object):
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, multiproperty=False, required_files_patterns=[]):
+    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, properties_kind=None, required_files_patterns=[]):
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -598,9 +599,9 @@ class Run(object):
             self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
-        self.multiproperty = multiproperty
-        if hasattr(runSet, 'multiproperty') and not self.multiproperty:
-            self.multiproperty = runSet.multiproperty
+        self.properties_kind = properties_kind
+        if hasattr(runSet, 'properties_kind') and not self.properties_kind:
+            self.properties_kind = runSet.properties_kind
 
         def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
@@ -727,7 +728,7 @@ class Run(object):
             output = []
 
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
-        if self.multiproperty:
+        if self.properties_kind == MULTIPROPERTY:
             for property in self.properties:
                 status = self.runSet.benchmark.tool.determine_result_for_property(
                     exitcode.value or 0, exitcode.signal or 0, output, isTimeout, property)

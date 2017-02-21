@@ -26,11 +26,10 @@
          This can be used for example to define multiple tasks for the same input file but with different entry points. -->
     <withoutfile>*identifier of task*</withoutfile>
 
-    <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
+    <!-- <propertyfile kind="multiproperty"> defines a property file with the specification to check (for software verification). -->
+    <!-- If attribute "kind" is set to "multyproperty" value, then multi-property verification will be used. -->
+    <!-- Otherwise all specified properties in a property file will be considered as a single composite property. -->
     <!-- <propertyfile>*file.prp*</propertyfile> -->
-
-    <!-- <multiproperty> if set each property will be considered separately (for multi-property software verification). -->
-    <!-- <multiproperty>true</multiproperty> -->
 
     <!-- <option> may be used here, too. -->
   </tasks>
@@ -42,7 +41,6 @@
 
   <!-- <option> may be used here, too. -->
   <!-- <propertyfile> may be used here, too. -->
-  <!-- <multiproperty> may be used here, too. -->
 
   <!-- Copy all result files from below the working directory to the output directory
        (this is redundant because it is the default). -->

@@ -6,8 +6,8 @@ For more information about multi-property verification
 please read our paper [On-The-Fly Decomposition of Specifications in Software Model Checking](https://www.sosy-lab.org/~dbeyer/spec-decomposition/2016-FSE.On-the-Fly_Decomposition_of_Specifications_in_Software_Model_Checking.pdf).
 
 ### Set multi-property verification mode
-In order to use multi-property verification in `benchexec` 
-tag `<multiproperty>` should be set to `true`.
+In order to use multi-property verification in `benchexec`
+attribute `kind` of `<propertyfile>` tag should be set to `multiproperty` value.
 Note that verification tool also should support multi-property verification
 in order to provide any meaningful results.
 If this flag is not set (by default) then all specified properties 
