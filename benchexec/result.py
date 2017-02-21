@@ -274,7 +274,7 @@ def score_for_task(filename, properties, category, result, multiproperty_statuse
 
     if multiproperty_statuses:
         ideal_statuses = _get_yaml_ideal_statuses(filename)
-        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses, result)
+        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses)
 
     if category == CATEGORY_CORRECT_UNCONFIRMED:
         if satisfies_file_property(filename, properties):
@@ -363,17 +363,20 @@ def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     return CATEGORY_CORRECT
 
 
-def _score_for_multiproperty(actual_statuses, ideal_statuses, result):
+def _score_for_multiproperty(actual_statuses, ideal_statuses):
     score = 0
     if not ideal_statuses:
         # Ideal statuses were not specified.
         return score
     for property in ideal_statuses.keys():
-        actual_status = str(actual_statuses[property]).lower()
+        if property in actual_statuses:
+            actual_status = str(actual_statuses[property]).lower()
+        else:
+            actual_status = None
         ideal_status = str(ideal_statuses[property]).lower()
 
         if ideal_status == RESULT_CLASS_TRUE:
-            if not result:
+            if not actual_status:
                 score += _SCORE_CORRECT_TRUE
             elif actual_status == RESULT_CLASS_TRUE:
                 score += _SCORE_CORRECT_TRUE
@@ -382,7 +385,7 @@ def _score_for_multiproperty(actual_statuses, ideal_statuses, result):
             else:
                 score += _SCORE_UNKNOWN
         elif ideal_status == RESULT_CLASS_FALSE:
-            if not result:
+            if not actual_status:
                 score += _SCORE_CORRECT_FALSE
             elif actual_status == RESULT_CLASS_TRUE:
                 score += _SCORE_WRONG_TRUE
