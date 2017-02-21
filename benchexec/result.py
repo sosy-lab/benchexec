@@ -23,6 +23,7 @@ import os
 import sys
 import re
 import yaml
+import logging
 
 # CONSTANTS
 
@@ -197,6 +198,8 @@ _SCORE_WRONG_TRUE = -32
 
 _YAML_EXTENSION = ".yml"
 
+_CORRECT_RESULTS_YAML_TAG = "correct results"
+
 
 def _expected_result(filename, checked_properties):
     results = []
@@ -333,7 +336,9 @@ def get_result_classification(result):
 
 
 def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
-    assert not (bool(ideal_statuses.keys() - actual_statuses.keys()))
+    if not ideal_statuses:
+        # Ideal statuses were not specified.
+        return CATEGORY_MISSING
     is_correct = True
     is_error = False
     is_unknown = False
@@ -359,8 +364,10 @@ def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
 
 
 def _score_for_multiproperty(actual_statuses, ideal_statuses, result):
-    assert not (bool(ideal_statuses.keys() - actual_statuses.keys()))
     score = 0
+    if not ideal_statuses:
+        # Ideal statuses were not specified.
+        return score
     for property in ideal_statuses.keys():
         actual_status = str(actual_statuses[property]).lower()
         ideal_status = str(ideal_statuses[property]).lower()
@@ -393,14 +400,22 @@ def _get_yaml_ideal_statuses(filename):
     # We need to get results from specific YAML file.
     ideal_statuses = {}
     specification_file = filename + _YAML_EXTENSION
-    with open(specification_file, 'r') as f:
-        try:
-            content = yaml.load(f)
-            for (property, status) in content.get("correct results").items():
-                ideal_statuses[property] = status
-        except yaml.YAMLError as exc:
-            # Wrong format, ideal statuses were failed to obtained.
-            pass
+    try:
+        with open(specification_file, 'r') as f:
+            try:
+                content = yaml.load(f)
+                if _CORRECT_RESULTS_YAML_TAG in content:
+                    for (property, status) in content.get(_CORRECT_RESULTS_YAML_TAG).items():
+                        ideal_statuses[property] = status
+                else:
+                    logging.warning('File "{0}" does not contain "{1}" tag. Score computation will ignore the results.'.
+                                    format(specification_file, _CORRECT_RESULTS_YAML_TAG))
+            except yaml.YAMLError as e:
+                logging.warning('Error during reading file "{0}": {1}. Score computation will ignore the results.'.
+                                format(specification_file, e))
+    except IOError:
+        logging.warning('Cannot read file with ideal results "{0}". Score computation will ignore the results.'.
+                        format(specification_file))
     return ideal_statuses
 
 
