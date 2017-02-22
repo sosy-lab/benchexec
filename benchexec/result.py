@@ -274,7 +274,7 @@ def score_for_task(filename, properties, category, result, is_multiproperty=Fals
 
     if is_multiproperty:
         ideal_statuses = _get_yaml_ideal_statuses(filename)
-        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses)
+        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses, result)
 
     if category == CATEGORY_CORRECT_UNCONFIRMED:
         if satisfies_file_property(filename, properties):
@@ -343,7 +343,11 @@ def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     is_error = False
     is_unknown = False
     for property in ideal_statuses.keys():
-        actual_status = str(actual_statuses[property]).lower()
+        if property in actual_statuses:
+            actual_status = str(actual_statuses[property]).lower()
+        else:
+            # Some expected property is missing.
+            return CATEGORY_MISSING
         ideal_status = str(ideal_statuses[property]).lower()
         if actual_status == RESULT_CLASS_TRUE and ideal_status == RESULT_CLASS_FALSE or \
                                 actual_status == RESULT_CLASS_FALSE and ideal_status == RESULT_CLASS_TRUE:
@@ -363,7 +367,7 @@ def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     return CATEGORY_CORRECT
 
 
-def _score_for_multiproperty(actual_statuses, ideal_statuses):
+def _score_for_multiproperty(actual_statuses, ideal_statuses, is_max_score):
     score = 0
     if not ideal_statuses:
         # Ideal statuses were not specified.
@@ -376,7 +380,7 @@ def _score_for_multiproperty(actual_statuses, ideal_statuses):
         ideal_status = str(ideal_statuses[property]).lower()
 
         if ideal_status == RESULT_CLASS_TRUE:
-            if not actual_status:
+            if not is_max_score:
                 score += _SCORE_CORRECT_TRUE
             elif actual_status == RESULT_CLASS_TRUE:
                 score += _SCORE_CORRECT_TRUE
@@ -385,7 +389,7 @@ def _score_for_multiproperty(actual_statuses, ideal_statuses):
             else:
                 score += _SCORE_UNKNOWN
         elif ideal_status == RESULT_CLASS_FALSE:
-            if not actual_status:
+            if not is_max_score:
                 score += _SCORE_CORRECT_FALSE
             elif actual_status == RESULT_CLASS_TRUE:
                 score += _SCORE_WRONG_TRUE
