@@ -43,21 +43,9 @@ class Tool(cpachecker.Tool):
         return 'CPA-Witness-Exec'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        added_options = []
-        if SOFTTIMELIMIT in rlimits:
-            if "-timelimit" in options:
-                logging.warning('Time limit already specified in command-line options,' +
-                                ' not adding time limit from benchmark definition to the command line.')
-            else:
-                added_options += ["-timelimit", str(rlimits[SOFTTIMELIMIT]) + 's']  # benchmark-xml uses seconds as unit
-
-        if "-stats" not in options:
-            added_options.append("-stats")
-
-        spec = ["-spec", propertyfile] if propertyfile is not None else []
-        added_options += spec
+        additional_options = super(Tool, self)._get_additional_options(options, propertyfile, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
-        return [executable] + added_options + options + tasks
+        return [executable] + additional_options + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """

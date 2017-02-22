@@ -83,8 +83,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'CPAchecker'
 
-
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def _get_additional_options(self, existing_options, propertyfile, rlimits):
+        options = []
         if SOFTTIMELIMIT in rlimits:
             if "-timelimit" in options:
                 logging.warning('Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line.')
@@ -100,7 +100,12 @@ class Tool(benchexec.tools.template.BaseTool):
             options = options + ["-stats"]
 
         spec = ["-spec", propertyfile] if propertyfile is not None else []
-        return [executable] + options + spec + tasks
+
+        return options + spec
+
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        additional_options = self._get_additional_options(options, propertyfile, rlimits)
+        return [executable] + options + additional_options + tasks
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
