@@ -27,6 +27,8 @@
 <!ATTLIST benchmark cpuCores CDATA #IMPLIED>
 <!ATTLIST benchmark threads CDATA #IMPLIED>
 
+<!ATTLIST propertyfile type (composite|multiproperty) "composite">
+
 <!ATTLIST tasks name CDATA #IMPLIED>
 
 <!ATTLIST require cpuModel CDATA #IMPLIED>

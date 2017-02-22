@@ -40,7 +40,13 @@ HARDTIMELIMIT = 'hardtimelimit'
 PROPERTY_TAG = "propertyfile"
 PROPERTIES_KIND_TAG = "kind"
 
-MULTIPROPERTY = "multiproperty"
+_KIND_DEFAULT = "composite"
+_KIND_MULTIPROPERTY = "multiproperty"
+
+# List of all know property kinds.
+_KIND_LIST = [_KIND_DEFAULT,
+              _KIND_MULTIPROPERTY
+              ]
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
@@ -603,6 +609,8 @@ class Run(object):
         if hasattr(runSet, 'properties_kind') and not self.properties_kind:
             self.properties_kind = runSet.properties_kind
 
+        self._check_property_kind()
+
         def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
                 _logged_missing_property_files.add(self.propertyfile)
@@ -815,7 +823,14 @@ class Run(object):
         return self.cputime > limit
 
     def is_multiproperty(self):
-        return self.properties_kind == MULTIPROPERTY
+        return self.properties_kind == _KIND_MULTIPROPERTY
+
+    def _check_property_kind(self):
+        if not self.properties_kind:
+            # Use default properties kind (composite).
+            self.properties_kind = _KIND_DEFAULT
+        if self.properties_kind not in _KIND_LIST:
+            sys.exit('Unsupported properties kind "{0}" specified.'.format(self.properties_kind))
 
 
 class Column(object):
