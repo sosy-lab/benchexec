@@ -405,3 +405,85 @@ class TestResult(unittest.TestCase):
                          get_result_category('test_true-unreach-call.c',    'TIMEOUT', [_PROP_CALL]))
         self.assertEqual(CATEGORY_ERROR,
                          get_result_category('test_true-unreach-call.c',    '', [_PROP_CALL]))
+
+    def test_compare_multiproperty_statuses(self):
+        self.assertEqual(CATEGORY_MISSING,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE},
+                                                        {}))
+        self.assertEqual(CATEGORY_MISSING,
+                         compare_multiproperty_statuses({},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_MISSING,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+
+        self.assertEqual(CATEGORY_ERROR,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_ERROR, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_ERROR,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_ERROR},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_ERROR,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_ERROR, "prop2": RESULT_CLASS_UNKNOWN},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_UNKNOWN},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+
+        self.assertEqual(CATEGORY_WRONG,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_TRUE, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_WRONG,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_FALSE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_WRONG,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_ERROR, "prop2": RESULT_CLASS_FALSE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_WRONG,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_FALSE},
+                                                        {"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE}))
+
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_ERROR, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_ERROR},
+                                                        {"prop1": RESULT_CLASS_UNKNOWN, "prop2": RESULT_CLASS_UNKNOWN}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop1": RESULT_CLASS_FALSE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE, "prop2": RESULT_CLASS_TRUE},
+                                                        {"prop2": RESULT_CLASS_TRUE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE,
+                                                         "prop2": RESULT_CLASS_TRUE,
+                                                         "prop3": RESULT_CLASS_UNKNOWN,
+                                                         "prop4": RESULT_CLASS_ERROR},
+                                                        {"prop3": RESULT_CLASS_UNKNOWN,
+                                                         "prop4": RESULT_CLASS_UNKNOWN,
+                                                         "prop2": RESULT_CLASS_TRUE,
+                                                         "prop1": RESULT_CLASS_FALSE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE,
+                                                         "prop2": RESULT_CLASS_TRUE,
+                                                         "prop3": RESULT_CLASS_UNKNOWN,
+                                                         "prop4": RESULT_CLASS_ERROR},
+                                                        {"prop2": RESULT_CLASS_TRUE,
+                                                         "prop1": RESULT_CLASS_FALSE}))
+        self.assertEqual(CATEGORY_CORRECT,
+                         compare_multiproperty_statuses({"prop1": RESULT_CLASS_FALSE,
+                                                         "prop2": RESULT_CLASS_TRUE,
+                                                         "prop3": RESULT_CLASS_TRUE,
+                                                         "prop4": RESULT_CLASS_FALSE},
+                                                        {"prop3": RESULT_CLASS_UNKNOWN,
+                                                         "prop4": RESULT_CLASS_UNKNOWN,
+                                                         "prop2": RESULT_CLASS_TRUE,
+                                                         "prop1": RESULT_CLASS_FALSE}))

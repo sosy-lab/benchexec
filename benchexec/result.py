@@ -335,7 +335,7 @@ def get_result_classification(result):
         return RESULT_CLASS_FALSE
 
 
-def _compare_multiproperty_statuses(actual_statuses, ideal_statuses):
+def compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     if not ideal_statuses:
         # Ideal statuses were not specified.
         return CATEGORY_MISSING
@@ -438,7 +438,7 @@ def get_result_category(filename, result, properties, multiproperty_statuses={})
     '''
     if multiproperty_statuses:
         ideal_statuses = _get_yaml_ideal_statuses(filename)
-        return _compare_multiproperty_statuses(multiproperty_statuses, ideal_statuses)
+        return compare_multiproperty_statuses(multiproperty_statuses, ideal_statuses)
     if not(set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())):
         return CATEGORY_MISSING
 
