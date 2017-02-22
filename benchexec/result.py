@@ -334,6 +334,16 @@ def get_result_classification(result):
         return RESULT_CLASS_FALSE
 
 
+def _preprocess_actual_status_multiproperty(actual_status):
+    # Actual status should be one of the following: RESULT_CLASS_TRUE, RESULT_CLASS_FALSE,
+    # RESULT_CLASS_UNKNOWN or RESULT_CLASS_ERROR.
+    match = re.match("{0}\(.*\)".format(RESULT_CLASS_FALSE), actual_status)
+    if match:
+        return RESULT_CLASS_FALSE
+    else:
+        return actual_status
+
+
 def compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     if not ideal_statuses:
         # Ideal statuses were not specified.
@@ -343,7 +353,7 @@ def compare_multiproperty_statuses(actual_statuses, ideal_statuses):
     is_unknown = False
     for property in ideal_statuses.keys():
         if property in actual_statuses:
-            actual_status = str(actual_statuses[property]).lower()
+            actual_status = _preprocess_actual_status_multiproperty(actual_statuses[property])
         else:
             # Some expected property is missing.
             return CATEGORY_MISSING
@@ -373,7 +383,7 @@ def _score_for_multiproperty(actual_statuses, ideal_statuses, is_max_score):
         return score
     for property in ideal_statuses.keys():
         if property in actual_statuses:
-            actual_status = str(actual_statuses[property]).lower()
+            actual_status = _preprocess_actual_status_multiproperty(actual_statuses[property])
         else:
             actual_status = None
         ideal_status = str(ideal_statuses[property]).lower()

@@ -41,6 +41,8 @@ class Tool(benchexec.tools.template.BaseTool):
     for adding it to the result tables.
     """
 
+    NON_DEFAULT_PROPERTIES = ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow', 'no-deadlock', 'termination']
+
     REQUIRED_PATHS = [
                   "lib/java/runtime",
                   "lib/*.jar",
@@ -163,7 +165,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif line.startswith('FALSE'):
                     newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow', 'no-deadlock', 'termination']:
+                    if match and match.group(1) in self.NON_DEFAULT_PROPERTIES:
                         newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
                 else:
                     newStatus = result.RESULT_UNKNOWN
@@ -190,20 +192,31 @@ class Tool(benchexec.tools.template.BaseTool):
         @param requiredProperty: property, for which status is expected
         @return: status of CPAchecker after executing a run for specified property
         """
+        match = re.match('{0}\((\S+)\)'.format(result._PROP_CALL), requiredProperty)
+        if match:
+            # By default properties are considered as result._PROP_CALL.
+            property = match.group(1)
+        else:
+            property = requiredProperty
         for line in output:
             # 	Property __VERIFIER_error_linux_kernel_rcu_srcu: UNKNOWN
             match = re.match('.*Property (.*): (TRUE|FALSE|UNKNOWN).*', line)
             if match:
                 foundProperty = match.group(1)
-                verdict = match.group(2)
-                if foundProperty in requiredProperty:
-                    if verdict == 'TRUE':
-                        verdict = result.RESULT_TRUE_PROP
-                    elif verdict == 'FALSE':
-                        verdict = result.STR_FALSE
+                status = match.group(2)
+                if foundProperty == property:
+                    if status == 'TRUE':
+                        status = result.RESULT_TRUE_PROP
+                    elif status == 'FALSE':
+                        if foundProperty in self.NON_DEFAULT_PROPERTIES:
+                            # Use non-default property name for false status.
+                            status = result.STR_FALSE + '(' + status + ')'
+                        else:
+                            # Otherwise use result.RESULT_FALSE_REACH
+                            status = result.RESULT_FALSE_REACH
                     else:
-                        verdict = result.RESULT_UNKNOWN
-                    return verdict
+                        status = result.RESULT_UNKNOWN
+                    return status
         # If status for requiredProperty was not found (e.g., parsing failed), returns Unknown
         return result.RESULT_UNKNOWN
 
