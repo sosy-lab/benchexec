@@ -50,6 +50,9 @@ Overwriting the function `get_value_from_output` will allow you to add
 and `table-generator` will extract the respective values from the output of
 your tool using this function.
 
+Overwriting the function `determine_result_for_property` will add
+support of [multi-property verification](multiproperty.md).
+
 #### Specifying a Tool for BenchExec
 The name of the tool-info module needs to be given to `benchexec` as the value
 of the attribute `tool` of the tag `<benchmark>` of a benchmark-definition file
