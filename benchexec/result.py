@@ -58,8 +58,6 @@ because no property was defined, and no other categories apply."""
 _PROP_LABEL =        'unreach-label'
 # currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php):
 _PROP_CALL =         'unreach-call'
-# extends _PROP_CALL for any error function:
-_PROP_CALL_SPECIFIC ='unreach-call,'
 _PROP_TERMINATION =  'termination'
 _PROP_OVERFLOW =     'no-overflow'
 _PROP_DEADLOCK =     'no-deadlock'
@@ -125,7 +123,7 @@ RESULT_CLASS_ERROR   = 'error'
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
-                   'LTL(G ! call(__VERIFIER_error()))': _PROP_CALL,
+                   'LTL(G ! call(':                     _PROP_CALL,
                    'LTL(F end)':                        _PROP_TERMINATION,
                    'LTL(G valid-free)':                 _PROP_FREE,
                    'LTL(G valid-deref)':                _PROP_DEREF,
@@ -134,7 +132,6 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'SATISFIABLE':                       _PROP_SAT,
                    'LTL(G ! overflow)':                 _PROP_OVERFLOW,
                    'LTL(G ! deadlock)':                 _PROP_DEADLOCK,
-                   'LTL(G ! call(':                     _PROP_CALL_SPECIFIC,
                   }
 
 # Regular expression for  with specific function property.
@@ -216,10 +213,11 @@ def _expected_result(filename, checked_properties):
     return results[0]
 
 
-def properties_of_file(propertyfile):
+def properties_of_file(propertyfile, is_multiproperty=False):
     """
     Return a list of property names that should be checked according to the given property file.
     @param propertyfile: None or a file name of a property file.
+    @param is_multiproperty: True if multi-property verification is used.
     @return: A possibly empty list of property names.
     """
     assert os.path.isfile(propertyfile)
@@ -234,13 +232,14 @@ def properties_of_file(propertyfile):
                    ):
                 sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
 
-            for substring, status in _PROPERTY_NAMES.items():
+            for substring, property in _PROPERTY_NAMES.items():
                 if substring in content:
-                    if status == _PROP_CALL_SPECIFIC:
+                    if is_multiproperty and property == _PROP_CALL:
                         match = re.search(_REGEXP_PROP_CALL_SPECIFIC, content)
                         if match and match.group(1):
-                            status = _PROP_CALL_SPECIFIC + match.group(1)
-                    properties.append(status)
+                            property = "{0}({1})".format(_PROP_CALL, match.group(1))
+                    if is_multiproperty or property not in properties:
+                        properties.append(property)
 
     if not properties:
         sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))

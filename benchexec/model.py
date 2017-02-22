@@ -640,7 +640,7 @@ class Run(object):
 
         if self.propertyfile:
             self.required_files.add(self.propertyfile)
-            self.properties = result.properties_of_file(self.propertyfile)
+            self.properties = result.properties_of_file(self.propertyfile, self.is_multiproperty())
         else:
             self.properties = []
 
