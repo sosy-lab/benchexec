@@ -46,28 +46,3 @@ class Tool(cpachecker.Tool):
         additional_options = super(Tool, self)._get_additional_options(options, propertyfile, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
         return [executable] + additional_options + options + tasks
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        """
-        @param returncode: code returned by CPA-witness2test
-        @param returnsignal: signal, which terminated CPA-witness2test
-        @param output: the output of CPA-witness2test
-        @return: status of CPA-witness2test after executing a run
-        """
-
-        status = None
-        for line in reversed(output):
-            if line.startswith('Verification result: '):
-                line = line[21:].strip()
-                if line.startswith('TRUE'):
-                    status = result.RESULT_TRUE_PROP
-                elif line.startswith('FALSE'):
-                    status = result.RESULT_FALSE_REACH
-                else:
-                    status = result.RESULT_UNKNOWN
-                break
-
-        if not status:
-            status = result.RESULT_ERROR
-        return status
-
