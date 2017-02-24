@@ -28,19 +28,19 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(cpachecker.Tool):
     """
-    Tool info for CPA-witness-exec.
+    Tool info for CPA-witness2test.
     """
 
     def executable(self):
         super(Tool, self).executable()  # Makes sure that CPAchecker can be called, shows a warning otherwise
-        return util.find_executable('cpa_witness_exec.py', 'scripts/cpa_witness_exec.py')
+        return util.find_executable('cpa_witness2test.py', 'scripts/cpa_witness2test.py')
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, '-version')
         return stdout
 
     def name(self):
-        return 'CPA-Witness-Exec'
+        return 'CPA-witness2test'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         additional_options = super(Tool, self)._get_additional_options(options, propertyfile, rlimits)
@@ -49,10 +49,10 @@ class Tool(cpachecker.Tool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
-        @param returncode: code returned by CPA-witness-exec
-        @param returnsignal: signal, which terminated CPA-witness-exec
-        @param output: the output of CPA-witness-exec
-        @return: status of CPA-witness-exec after executing a run
+        @param returncode: code returned by CPA-witness2test
+        @param returnsignal: signal, which terminated CPA-witness2test
+        @param output: the output of CPA-witness2test
+        @return: status of CPA-witness2test after executing a run
         """
 
         status = None
