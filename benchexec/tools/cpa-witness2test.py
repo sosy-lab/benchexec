@@ -59,7 +59,7 @@ class Tool(cpachecker.Tool):
         for line in reversed(output):
             if line.startswith('Verification result: '):
                 line = line[21:].strip()
-                if line.startswth('TRUE'):
+                if line.startswith('TRUE'):
                     status = result.RESULT_TRUE_PROP
                 elif line.startswith('FALSE'):
                     status = result.RESULT_FALSE_REACH
