@@ -18,6 +18,7 @@
 
 import os
 import logging
+import re
 import subprocess
 
 import benchexec.result as result
