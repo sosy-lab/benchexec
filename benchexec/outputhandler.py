@@ -41,7 +41,6 @@ RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
 RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.9.dtd'
 
 # colors for column status in terminal
-USE_COLORS = True
 COLOR_GREEN   = "\033[32;1m{0}\033[m"
 COLOR_RED     = "\033[31;1m{0}\033[m"
 COLOR_ORANGE  = "\033[33;1m{0}\033[m"
@@ -49,21 +48,24 @@ COLOR_MAGENTA = "\033[35;1m{0}\033[m"
 COLOR_DEFAULT = "{0}"
 UNDERLINE     = "\033[4m{0}\033[0m"
 
-COLOR_DIC = {result.CATEGORY_CORRECT: COLOR_GREEN,
-             result.CATEGORY_WRONG:   COLOR_RED,
-             result.CATEGORY_UNKNOWN: COLOR_ORANGE,
-             result.CATEGORY_ERROR:   COLOR_MAGENTA,
-             result.CATEGORY_MISSING: COLOR_DEFAULT,
-             None: COLOR_DEFAULT}
+COLOR_DIC = collections.defaultdict(lambda key: COLOR_DEFAULT)
+TERMINAL_TITLE=''
+
+if sys.stdout.isatty():
+    COLOR_DIC.update({
+        result.CATEGORY_CORRECT: COLOR_GREEN,
+        result.CATEGORY_WRONG:   COLOR_RED,
+        result.CATEGORY_UNKNOWN: COLOR_ORANGE,
+        result.CATEGORY_ERROR:   COLOR_MAGENTA,
+        result.CATEGORY_MISSING: COLOR_DEFAULT,
+        })
+    _term = os.environ.get('TERM', '')
+    if _term.startswith(('xterm', 'rxvt')):
+        TERMINAL_TITLE = "\033]0;Task {0}\007"
+    elif _term.startswith('screen'):
+        TERMINAL_TITLE = "\033kTask {0}\033\\"
 
 LEN_OF_STATUS = 22
-
-TERMINAL_TITLE=''
-_term = os.environ.get('TERM', '')
-if _term.startswith(('xterm', 'rxvt')):
-    TERMINAL_TITLE = "\033]0;Task {0}\007"
-elif _term.startswith('screen'):
-    TERMINAL_TITLE = "\033kTask {0}\033\\"
 
 # the number of digits after the decimal separator for text output of time columns with times
 TIME_PRECISION = 2
@@ -271,7 +273,7 @@ class OutputHandler(object):
         util.printOut("\nexecuting run set"
             + (" '" + runSet.name + "'" if runSet.name else "")
             + numberOfFilesStr
-            + (TERMINAL_TITLE.format(runSet.full_name) if USE_COLORS and sys.stdout.isatty() else ""))
+            + TERMINAL_TITLE.format(runSet.full_name))
 
         # write information about the run set into txt_file
         self.writeRunSetInfoToLog(runSet)
@@ -364,7 +366,7 @@ class OutputHandler(object):
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
             progressIndicator = " ({0}/{1})".format(runSet.started_runs, len(runSet.runs))
-            terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator) if USE_COLORS and sys.stdout.isatty() else ""
+            terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator)
             if self.benchmark.num_of_threads == 1:
                 util.printOut(terminalTitle + timeStr + self.format_sourcefile_name(run.identifier, runSet), '')
             else:
@@ -404,10 +406,7 @@ class OutputHandler(object):
         self.add_values_to_run_xml(run)
 
         # output in terminal/console
-        if USE_COLORS and sys.stdout.isatty(): # is terminal, not file
-            statusStr = COLOR_DIC[run.category].format(run.status.ljust(LEN_OF_STATUS))
-        else:
-            statusStr = run.status.ljust(LEN_OF_STATUS)
+        statusStr = COLOR_DIC[run.category].format(run.status.ljust(LEN_OF_STATUS))
 
         try:
             OutputHandler.print_lock.acquire()
