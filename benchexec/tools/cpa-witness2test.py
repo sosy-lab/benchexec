@@ -28,7 +28,7 @@ class Tool(cpachecker.Tool):
     """
 
     def executable(self):
-        self.executable()  # Makes sure that CPAchecker can be called, shows a warning otherwise
+        super(Tool, self).executable()  # Makes sure that CPAchecker can be called, shows a warning otherwise
         return util.find_executable('cpa_witness2test.py', 'scripts/cpa_witness2test.py')
 
     def version(self, executable):
