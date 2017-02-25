@@ -18,12 +18,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import logging
-
-import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.cpachecker as cpachecker
-from benchexec.model import SOFTTIMELIMIT
+import benchexec.util as util
 
 
 class Tool(cpachecker.Tool):
@@ -32,7 +28,7 @@ class Tool(cpachecker.Tool):
     """
 
     def executable(self):
-        super(Tool, self).executable()  # Makes sure that CPAchecker can be called, shows a warning otherwise
+        self.executable()  # Makes sure that CPAchecker can be called, shows a warning otherwise
         return util.find_executable('cpa_witness2test.py', 'scripts/cpa_witness2test.py')
 
     def version(self, executable):
@@ -43,6 +39,6 @@ class Tool(cpachecker.Tool):
         return 'CPA-witness2test'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        additional_options = super(Tool, self)._get_additional_options(options, propertyfile, rlimits)
+        additional_options = self._get_additional_options(options, propertyfile, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
         return [executable] + additional_options + options + tasks
