@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from xml.etree import ElementTree
 import bz2
 import os
 import shutil
@@ -27,6 +28,9 @@ import sys
 import tempfile
 import unittest
 import zipfile
+
+import benchexec.result as result
+
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
@@ -220,3 +224,33 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
         for xml_file in xml_files:
             etree.parse(xml_file, parser=parser)
+
+    def run_benchmark_and_check_category(self, test_file, correct_category):
+        self.run_cmd(*[benchexec, test_file,
+                       '--outputpath', self.tmp,
+                       '--startTime', '2015-01-01 00:00',
+                       '--no-compress-results'])
+        generated_files = set(os.listdir(self.tmp))
+        for file in generated_files:
+            if file.endswith('.xml'):
+                rootTag = ElementTree.ElementTree().parse(os.path.join(self.tmp, file))
+                for elem in rootTag.findall('run')[0].findall('column'):
+                    if elem.get('title').startswith('status'):
+                        status = elem.get('value')
+                        # Check that statuses are valid.
+                        self.assertIn(status, result.RESULT_LIST)
+                    if elem.get('title') == "category":
+                        category = elem.get('value')
+                        self.assertEqual(correct_category, category)
+
+    def test_multiproperty_as_composite(self):
+        self.run_benchmark_and_check_category(os.path.join(base_dir, 'doc', 'benchmark-example-multiproperty-composite.xml'),
+                                              result.CATEGORY_CORRECT)
+
+    def test_multiproperty_correct(self):
+        self.run_benchmark_and_check_category(os.path.join(base_dir, 'doc', 'benchmark-example-multiproperty-correct.xml'),
+                                              result.CATEGORY_CORRECT)
+
+    def test_multiproperty_wrong(self):
+        self.run_benchmark_and_check_category(os.path.join(base_dir, 'doc', 'benchmark-example-multiproperty-wrong.xml'),
+                                              result.CATEGORY_WRONG)

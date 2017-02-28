@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<benchmark tool="dummy">
+<!-- Example file for benchmark definition for BenchExec
+     with dummy tool that takes several properties in the property file
+     and processes them as a single composite property.
+     Correct result is obtained from the task name. -->
+  <rundefinition name="composite">
+    <option>false(unreach-call)</option>
+  </rundefinition>
+  
+  <propertyfile kind="composite">properties/multiproperty-example.prp</propertyfile>
+
+  <tasks name="Dummy multiproperty task treated as composite">
+    <include>dummy_false-unreach-call.c</include>
+  </tasks>
+</benchmark>

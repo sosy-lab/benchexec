@@ -1,0 +1,13 @@
+correct results:
+  unreach-call(error_function_1): false
+  unreach-call(error_function_2): true
+  unreach-call(error_function_3): true
+  valid-deref: true
+  valid-free: false
+  no-overflow: true
+  no-deadlock: false
+  termination: true
+  unreach-call(error_function_4): false
+  unreach-call(error_function_5): true
+comments: |
+  TODO: update format

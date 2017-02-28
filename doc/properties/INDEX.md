@@ -33,7 +33,8 @@ Note that you can use variables in this tag,
 for example `<propertyfile>${inputfile_path}/ALL.prp</propertyfile>`
 refers to the file `ALL.prp` in the same directory as each input file.
 
-In general case the property file may consist of several properties.
+In general case the property file may consist of several properties
+(for example, [file with several properties](multiproperty-example.prp)).
 By default `benchexec` considers them as a single composite property
 (for example, the property `valid-memsafety`) and thus expects
 from verification tool a single status as a result. 

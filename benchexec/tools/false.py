@@ -38,3 +38,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         return result.RESULT_FALSE_REACH
+
+    def determine_result_for_property(self, returncode, returnsignal, output, isTimeout, requiredProperty):
+        return result.RESULT_FALSE_REACH

@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<benchmark tool="false">
+<!-- Example file for benchmark definition for BenchExec
+     with false tool that takes several properties in the property file
+     and uses multi-property verification. This example simulates situation
+     in which tool fails to find correct results for multi-property verification. -->
+  <rundefinition name="multiproperty">
+  </rundefinition>
+  
+  <propertyfile kind="multiproperty">properties/multiproperty-example.prp</propertyfile>
+
+  <tasks name="Dummy multiproperty task">
+    <include>dummy_false-unreach-call.c</include>
+  </tasks>
+</benchmark>

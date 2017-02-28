@@ -17,6 +17,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+import re
+
 import benchexec.tools.template
 import benchexec.result as result
 import benchexec.util as util
@@ -50,4 +53,14 @@ class Tool(benchexec.tools.template.BaseTool):
             line = line.strip()
             if line in result.RESULT_LIST:
                 return line
+        return result.RESULT_UNKNOWN
+
+    def determine_result_for_property(self, returncode, returnsignal, output, isTimeout, requiredProperty):
+        for line in output:
+            match = re.match('Property (.*): (.*)', line)
+            if match:
+                foundProperty = match.group(1)
+                status = match.group(2)
+                if foundProperty == requiredProperty:
+                    return status
         return result.RESULT_UNKNOWN
