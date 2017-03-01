@@ -44,6 +44,7 @@ from functools import reduce
 
 from benchexec import __version__
 import benchexec.result as result
+import benchexec.model as model
 from benchexec.tablegenerator import util as Util
 from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
 import zipfile
@@ -790,7 +791,7 @@ class RunResult(object):
     The class RunResult contains the results of a single verification run.
     """
     def __init__(self, task_id, status, category, score, log_file, columns,
-                 values, columns_relevant_for_diff=set()):
+                 values, columns_relevant_for_diff=set(), is_multiproperty=False, multiproperty_statuses={}):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -800,6 +801,8 @@ class RunResult(object):
         self.category = category
         self.score = score
         self.columns_relevant_for_diff = columns_relevant_for_diff
+        self.is_multiproperty = is_multiproperty
+        self.multiproperty_statuses = multiproperty_statuses
 
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
@@ -849,10 +852,21 @@ class RunResult(object):
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
+        multiproperty_statuses = {}
+        is_multiproperty = Util.get_column_value(sourcefileTag, 'property_kind', '') == model._KIND_MULTIPROPERTY
+        if is_multiproperty:
+            for column in sourcefileTag.findall('column'):
+                title = column.get("title")
+                if title:
+                    match = re.match("status \((.+)\)", title)
+                    if match:
+                        multiproperty_statuses[match.group(1)] = column.get('value')
         score = result.score_for_task(sourcefileTag.get('name'),
                                       sourcefileTag.get('properties', '').split(),
                                       category,
-                                      status)
+                                      status,
+                                      is_multiproperty,
+                                      multiproperty_statuses)
         logfileLines = None
 
         values = []
@@ -879,7 +893,7 @@ class RunResult(object):
 
         return RunResult(get_task_id(sourcefileTag), status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
-                         columns_relevant_for_diff)
+                         columns_relevant_for_diff, is_multiproperty, multiproperty_statuses)
 
 
 class Row(object):
@@ -1096,7 +1110,9 @@ def get_stats_of_rows(rows):
             count_true += 1
         elif correct_result is False:
             count_false += 1
-        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
+        run_result = row.results[0]
+        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None,
+                                           run_result.is_multiproperty, run_result.multiproperty_statuses)
 
     return max_score, count_true, count_false
 
