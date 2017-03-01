@@ -49,7 +49,9 @@ and a complete definition can be found in the file
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+```XML
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+```
 
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
@@ -74,7 +76,9 @@ For example, the following line can be used to extract values for a column "anal
 by letting the tool info look for the given pattern in the output
 (pattern format is tool specific):
 
-    <column title="analysis time">Total time for analysis: </column>
+```XML
+<column title="analysis time">Total time for analysis: </column>
+```
 
 If the attribute `href` is given, the column will contain a link to the respective target
 (variables such as `${inputfile_name}` can be used to customize this link per task).
@@ -92,7 +96,9 @@ For some common unit conversions, the `scaleFactor` can be omitted because `tabl
 For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
-    <column title="memUsage" sourceUnit="B" displayUnit="MB"/>
+```XML
+<column title="memUsage" sourceUnit="B" displayUnit="MB"/>
+```
 
 Additionally, it is possible to specify columns that should be considered when comparing different
 results. In this case, `table-generator` produces an additional table with all rows the columns

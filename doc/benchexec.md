@@ -14,7 +14,9 @@ and examples in [doc/benchmark-example-rand.xml](benchmark-example-rand.xml),
 and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+```XML
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+```
 
 A document-type definition with a formal specification of input files can be found in
 [doc/benchmark.dtd](benchmark.dtd).
@@ -68,7 +70,9 @@ that will be expanded by BenchExec. The following variables are supported:
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use
 
-    <option name="-f">${inputfile_path}/additional-file.txt</option>
+```XML
+<option name="-f">${inputfile_path}/additional-file.txt</option>
+```
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 [which files should be copied to the output directory](container.md#retrieving-result-files)
