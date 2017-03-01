@@ -18,7 +18,7 @@ set size square
 
 set palette defined (0 'green', 0.25 'orange', 0.5 'red', 0.75 'dark-red', 1 'black')
 
-set output "scatter-counted.pdf"
+set output "scatter-counted.gp.pdf"
 set terminal pdf size 11.5cm,10cm
 
 # plot with 3 diagonal lines and data points from columns 4 and 8 in table
