@@ -48,7 +48,7 @@ COLOR_MAGENTA = "\033[35;1m{0}\033[m"
 COLOR_DEFAULT = "{0}"
 UNDERLINE     = "\033[4m{0}\033[0m"
 
-COLOR_DIC = collections.defaultdict(lambda key: COLOR_DEFAULT)
+COLOR_DIC = collections.defaultdict(lambda: COLOR_DEFAULT)
 TERMINAL_TITLE=''
 
 if sys.stdout.isatty():
