@@ -519,7 +519,6 @@ class OutputHandler(object):
         self.add_column_to_xml(runElem, 'cputime', run.cputime)
         self.add_column_to_xml(runElem, 'walltime', run.walltime)
         self.add_column_to_xml(runElem, '@category', run.category) # hidden
-        self.add_column_to_xml(runElem, '@property_kind', run.properties_kind)
         self.add_column_to_xml(runElem, '',          run.values)
 
         for column in run.columns:

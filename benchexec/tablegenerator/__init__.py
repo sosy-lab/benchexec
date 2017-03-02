@@ -44,7 +44,6 @@ from functools import reduce
 
 from benchexec import __version__
 import benchexec.result as result
-import benchexec.model as model
 from benchexec.tablegenerator import util as Util
 from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
 import zipfile
@@ -853,14 +852,13 @@ class RunResult(object):
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
         multiproperty_statuses = {}
-        is_multiproperty = Util.get_column_value(sourcefileTag, 'property_kind', '') == model._KIND_MULTIPROPERTY
-        if is_multiproperty:
-            for column in sourcefileTag.findall('column'):
-                title = column.get("title")
-                if title:
-                    match = re.match("status \((.+)\)", title)
-                    if match:
-                        multiproperty_statuses[match.group(1)] = column.get('value')
+        for column in sourcefileTag.findall('column'):
+            title = column.get("title")
+            if title:
+                match = re.match("status \((.+)\)", title)
+                if match:
+                    multiproperty_statuses[match.group(1)] = column.get('value')
+        is_multiproperty = bool(multiproperty_statuses)
         score = result.score_for_task(sourcefileTag.get('name'),
                                       sourcefileTag.get('properties', '').split(),
                                       category,
