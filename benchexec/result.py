@@ -22,8 +22,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import sys
 import re
-import yaml
-import logging
 
 # CONSTANTS
 
@@ -193,10 +191,6 @@ _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
 
-_YAML_EXTENSION = ".yml"
-
-_CORRECT_RESULTS_YAML_TAG = "correct results"
-
 
 def _expected_result(filename, checked_properties):
     results = []
@@ -265,15 +259,15 @@ def satisfies_file_property(filename, properties):
     return None
 
 
-def score_for_task(filename, properties, category, result, is_multiproperty=False, multiproperty_statuses={}):
+def score_for_task(filename, properties, category, result, is_multiproperty=False, multiproperty_statuses={},
+                   correct_statuses={}):
     """
     Return the possible score of task, depending on whether the result is correct or not.
     Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
 
     if is_multiproperty:
-        ideal_statuses = _get_yaml_ideal_statuses(filename)
-        return _score_for_multiproperty(multiproperty_statuses, ideal_statuses, result)
+        return _score_for_multiproperty(multiproperty_statuses, correct_statuses, result)
 
     if category == CATEGORY_CORRECT_UNCONFIRMED:
         if satisfies_file_property(filename, properties):
@@ -411,31 +405,7 @@ def _score_for_multiproperty(actual_statuses, ideal_statuses, is_max_score):
     return score
 
 
-def _get_yaml_ideal_statuses(filename):
-    # Multiple properties are being checked.
-    # We need to get results from specific YAML file.
-    ideal_statuses = {}
-    specification_file = filename + _YAML_EXTENSION
-    try:
-        with open(specification_file, 'r') as f:
-            try:
-                content = yaml.load(f)
-                if _CORRECT_RESULTS_YAML_TAG in content:
-                    for (property, status) in content.get(_CORRECT_RESULTS_YAML_TAG).items():
-                        ideal_statuses[property] = status
-                else:
-                    logging.warning('File "{0}" does not contain "{1}" tag. Score computation will ignore the results.'.
-                                    format(specification_file, _CORRECT_RESULTS_YAML_TAG))
-            except yaml.YAMLError as e:
-                logging.warning('Error during reading file "{0}": {1}. Score computation will ignore the results.'.
-                                format(specification_file, e))
-    except IOError:
-        logging.warning('Cannot read file with ideal results "{0}". Score computation will ignore the results.'.
-                        format(specification_file))
-    return ideal_statuses
-
-
-def get_result_category(filename, result, properties, multiproperty_statuses={}):
+def get_result_category(filename, result, properties, multiproperty_statuses={}, correct_statuses={}):
     '''
     This function determines the relation between actual result and expected result
     for the given file and properties.
@@ -446,8 +416,7 @@ def get_result_category(filename, result, properties, multiproperty_statuses={})
     @return One of the CATEGORY_* strings.
     '''
     if multiproperty_statuses:
-        ideal_statuses = _get_yaml_ideal_statuses(filename)
-        return compare_multiproperty_statuses(multiproperty_statuses, ideal_statuses)
+        return compare_multiproperty_statuses(multiproperty_statuses, correct_statuses)
     if not(set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())):
         return CATEGORY_MISSING
 

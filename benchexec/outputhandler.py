@@ -515,6 +515,9 @@ class OutputHandler(object):
         if run.multiproperty_statuses:
             for (property, verdict) in run.multiproperty_statuses.items():
                 self.add_column_to_xml(runElem, 'status ({0})'.format(property), verdict)
+        if run.expected_statuses:
+            for (property, verdict) in run.expected_statuses.items():
+                self.add_column_to_xml(runElem, '@expected ({0})'.format(property), str(verdict).lower())
         self.add_column_to_xml(runElem, 'status',    run.status)
         self.add_column_to_xml(runElem, 'cputime', run.cputime)
         self.add_column_to_xml(runElem, 'walltime', run.walltime)
@@ -735,10 +738,10 @@ class Statistics(object):
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
         self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status,
-                                            run.is_multiproperty(), run.multiproperty_statuses)
+                                            run.is_multiproperty(), run.multiproperty_statuses, run.expected_statuses)
         #if run.properties:
         self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None,
-                                                run.is_multiproperty(), {})
+                                                run.is_multiproperty(), {}, run.expected_statuses)
 
     def print_to_terminal(self):
         correct = self.dic[result.CATEGORY_CORRECT]

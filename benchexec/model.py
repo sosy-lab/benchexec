@@ -24,6 +24,7 @@ import logging
 import os
 import time
 import sys
+import yaml
 from xml.etree import ElementTree
 
 from benchexec import intel_cpu_energy
@@ -49,6 +50,12 @@ _KIND_LIST = [_KIND_DEFAULT,
               ]
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
+
+_YAML_EXTENSION = ".yml"
+_INPUT_FILES_YAML_TAG = "input_files"
+_EXPECTED_STATUSES_YAML_TAG = "expected_results"
+_CORRECT_YAML_TAG = "correct"
+
 
 def substitute_vars(oldList, runSet=None, sourcefile=None):
     """
@@ -442,9 +449,9 @@ class RunSet(object):
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
             properties_kind = util.get_attr_of_single_child_from_xml(sourcefilesTag, PROPERTY_TAG, PROPERTIES_KIND_TAG) or None
             currentRuns = []
-            for sourcefile in sourcefiles:
+            for sourcefile, expected_statuses in sourcefiles:
                 currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile, properties_kind,
-                                       global_required_files_pattern.union(required_files_pattern)))
+                                       global_required_files_pattern.union(required_files_pattern), expected_statuses))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
 
@@ -525,11 +532,14 @@ class RunSet(object):
         sourcefilesLists = []
         appendFileTags = sourcefilesTag.findall("append")
         for sourcefile in sourcefiles:
-            files = [sourcefile]
+            if sourcefile.endswith(_YAML_EXTENSION):
+                input_files, expected_statuses = self.parse_yaml_file(sourcefile)
+            else:
+                expected_statuses = {}
+                input_files = [sourcefile]
             for appendFile in appendFileTags:
-                files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
-            sourcefilesLists.append(files)
-
+                input_files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
+            sourcefilesLists.append((input_files, expected_statuses))
         return sourcefilesLists
 
 
@@ -560,6 +570,30 @@ class RunSet(object):
 
         return fileList
 
+    def parse_yaml_file(self, filename):
+        """
+        The function parses specified YAML configuration file and returns list of input files and
+        expected statuses for each checked property.
+        """
+        input_files = []
+        expected_statuses = {}
+        try:
+            with open(filename, 'r') as f:
+                try:
+                    content = yaml.load(f)
+                    if _INPUT_FILES_YAML_TAG in content:
+                        input_files += content[_INPUT_FILES_YAML_TAG]
+                    if _EXPECTED_STATUSES_YAML_TAG in content:
+                        for (property, status) in content.get(_EXPECTED_STATUSES_YAML_TAG).items():
+                            expected_statuses[property] = status[_CORRECT_YAML_TAG]
+                except yaml.YAMLError as e:
+                    logging.error('Error during reading YAML file "{0}": {1}.'.format(filename, e))
+                    sys.exit()
+        except IOError as e:
+            logging.error('Cannot read YAML file "{0}": {1}.'.format(filename, e))
+            sys.exit()
+        return input_files, expected_statuses
+
 
 class SourcefileSet(object):
     """
@@ -579,7 +613,8 @@ class Run(object):
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, properties_kind=None, required_files_patterns=[]):
+    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, properties_kind=None,
+                 required_files_patterns=[], expected_statuses={}):
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -660,6 +695,7 @@ class Run(object):
         self.walltime = None
         self.category = result.CATEGORY_UNKNOWN
         self.multiproperty_statuses = {}
+        self.expected_statuses = expected_statuses
 
 
     def cmdline(self):
@@ -742,7 +778,8 @@ class Run(object):
                     exitcode.value or 0, exitcode.signal or 0, output, isTimeout, property)
                 self.multiproperty_statuses[property] = status
         self.category = result.get_result_category(self.identifier, self.status, self.properties,
-                                                   self.multiproperty_statuses)
+                                                   self.multiproperty_statuses,
+                                                   self.expected_statuses)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]

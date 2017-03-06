@@ -1,0 +1,23 @@
+input_files:
+  - dummy_false-unreach-call.c
+expected_results:
+  unreach-call(error_function_1):
+    correct:  false
+  unreach-call(error_function_2):
+    correct:  true
+  unreach-call(error_function_3):
+    correct:  true
+  valid-deref:
+    correct:  true
+  valid-free:
+    correct:  false
+  no-overflow:
+    correct:  true
+  no-deadlock:
+    correct:  false
+  termination:
+    correct:  true
+  unreach-call(error_function_4):
+    correct:  false
+  unreach-call(error_function_5):
+    correct:  true

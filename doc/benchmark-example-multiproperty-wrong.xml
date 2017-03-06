@@ -10,6 +10,6 @@
   <propertyfile kind="multiproperty">properties/multiproperty-example.prp</propertyfile>
 
   <tasks name="Dummy multiproperty task">
-    <include>dummy_false-unreach-call.c</include>
+    <include>dummy_false-unreach-call.yml</include>
   </tasks>
 </benchmark>
