@@ -791,7 +791,7 @@ class RunResult(object):
     """
     def __init__(self, task_id, status, category, score, log_file, columns,
                  values, columns_relevant_for_diff=set(), is_multiproperty=False,
-                 multiproperty_statuses={}, expected_statuses={}):
+                 multiproperty_statuses={}, expected_statuses={}, multiproperty_categories={}):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -804,6 +804,7 @@ class RunResult(object):
         self.is_multiproperty = is_multiproperty
         self.multiproperty_statuses = multiproperty_statuses
         self.expected_statuses = expected_statuses
+        self.multiproperty_categories = multiproperty_categories
 
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
@@ -854,7 +855,8 @@ class RunResult(object):
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
         multiproperty_statuses = {}
-        expected_statuses={}
+        expected_statuses = {}
+        multiproperty_categories = {}
 
         for column in sourcefileTag.findall('column'):
             title = column.get("title")
@@ -866,6 +868,13 @@ class RunResult(object):
                 if match:
                     expected_statuses[match.group(1)] = column.get('value')
         is_multiproperty = bool(multiproperty_statuses)
+
+        if is_multiproperty:
+            # Define category per each property.
+            for property, actual_status in multiproperty_statuses.items():
+                expected_status = expected_statuses[property]
+                multiproperty_categories[property] = result.compare_multiproperty_statuses({property: actual_status},
+                                                                                           {property: expected_status})
 
         score = result.score_for_task(sourcefileTag.get('name'),
                                       sourcefileTag.get('properties', '').split(),
@@ -900,7 +909,8 @@ class RunResult(object):
 
         return RunResult(get_task_id(sourcefileTag), status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
-                         columns_relevant_for_diff, is_multiproperty, multiproperty_statuses, expected_statuses)
+                         columns_relevant_for_diff, is_multiproperty, multiproperty_statuses, expected_statuses,
+                         multiproperty_categories)
 
 
 class Row(object):
