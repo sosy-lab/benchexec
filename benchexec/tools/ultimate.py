@@ -34,7 +34,25 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        return [executable] + [spec] + options + ['--full-output'] + tasks
+        if executable == None: 
+            raise Exception('No executable specified')
+        
+        cmdline = [executable] + ['--full-output']
+        
+        if spec != None: 
+            cmdline = cmdline + ['--spec'] + [spec]
+            
+        if tasks:
+            cmdline = cmdline + ['--file'] + tasks            
+            
+        if options:
+            for option in options:
+                if option in ['32bit','64bit']:
+                    cmdline = cmdline + ['--architecture'] + [option]
+                else:
+                    cmdline = cmdline + [option]
+
+        return cmdline
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
