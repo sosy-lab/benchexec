@@ -95,16 +95,10 @@ UNIT_CONVERSION = {
 }
 
 
-def parse_table_definition_file(file, options):
+def parse_table_definition_file(file):
     '''
-    This function parses the input to get run sets and columns.
-    The param 'file' is an XML file defining the result files and columns.
-
-    If column titles are given in the XML file,
-    they will be searched in the result files.
-    If no title is given, all columns of the result file are taken.
-
-    @return: a list of RunSetResult objects
+    Read an parse the XML of a table-definition file.
+    @return: an ElementTree object for the table definition
     '''
     logging.info("Reading table definition from '%s'...", file)
     if not os.path.isfile(file):
@@ -122,7 +116,14 @@ def parse_table_definition_file(file, options):
     if 'table' != tableGenFile.tag:
         logging.error("Table file %s is invalid: It's root element is not named 'table'.", file)
         exit(1)
+    return tableGenFile
 
+
+def load_results_from_table_definition(tableGenFile, file, options):
+    """
+    Load all results in files that are listed in the given table-definition file.
+    @return: a list of RunSetResult objects
+    """
     defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
     columns_relevant_for_diff = _get_columns_relevant_for_diff(
         defaultColumnsToShow)
@@ -135,6 +136,21 @@ def parse_table_definition_file(file, options):
             itertools.repeat(defaultColumnsToShow),
             itertools.repeat(columns_relevant_for_diff),
             itertools.repeat(options)))
+
+
+def load_results_with_table_definition(result_files, table_definition, table_definition_file, options):
+    """
+    Load results from given files with column definitions taken from a table-definition file.
+    @return: a list of RunSetResult objects
+    """
+    columns = extract_columns_from_table_definition_file(table_definition, table_definition_file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(columns)
+
+    return load_results(
+        result_files,
+        options=options,
+        columns=columns,
+        columns_relevant_for_diff=columns_relevant_for_diff)
 
 
 def extract_columns_from_table_definition_file(xmltag, table_definition_file):
@@ -383,6 +399,10 @@ def get_column_type(column, result_set):
         return ColumnType.text, None, None, 1
 
 
+def table_definition_lists_result_files(table_definition):
+    return any(tag.tag in ['result', 'union'] for tag in table_definition)
+
+
 def handle_tag_in_table_definition_file(tag, table_file,
                                         defaultColumnsToShow,
                                         columns_relevant_for_diff, options):
@@ -618,6 +638,17 @@ class RunSetResult(object):
 def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
+
+def load_results(result_files, options, run_set_id=None, columns=None,
+                 columns_relevant_for_diff=set()):
+    """Version of load_result for multiple input files that will be loaded concurrently."""
+    return parallel.map(
+        load_result,
+        result_files,
+        itertools.repeat(options),
+        itertools.repeat(run_set_id),
+        itertools.repeat(columns),
+        itertools.repeat(columns_relevant_for_diff))
 
 def load_result(result_file, options, run_set_id=None, columns=None,
                 columns_relevant_for_diff=set()):
@@ -1678,13 +1709,31 @@ def main(args=None):
         outputFilePattern = "{name}.{type}.{ext}"
 
     if options.xmltablefile:
-        if options.tables:
-            arg_parser.error("Invalid additional arguments '{}'.".format(" ".join(options.tables)))
         try:
-            runSetResults = parse_table_definition_file(options.xmltablefile, options)
+            table_definition = parse_table_definition_file(options.xmltablefile)
+
+            if table_definition_lists_result_files(table_definition):
+                if options.tables:
+                    arg_parser.error(
+                        "Invalid additional arguments '{}'.".format(" ".join(options.tables)))
+
+                runSetResults = load_results_from_table_definition(
+                    table_definition, options.xmltablefile, options)
+
+            else:
+                if not options.tables:
+                    arg_parser.error(
+                        "No result files given. Either list them on the command line "
+                        "or with <result> tags in the table-definiton file.")
+
+                result_files = Util.extend_file_list(options.tables) # expand wildcards
+                runSetResults = load_results_with_table_definition(
+                    result_files, table_definition, options.xmltablefile, options)
+
         except Util.TableDefinitionError as e:
             logging.error('Fault in {}: {}'.format(options.xmltablefile, e.message))
             exit(1)
+
         if not name:
             name = basename_without_ending(options.xmltablefile)
 
@@ -1700,8 +1749,7 @@ def main(args=None):
             inputFiles = [os.path.join(searchDir, '*.results*.xml')]
 
         inputFiles = Util.extend_file_list(inputFiles) # expand wildcards
-        runSetResults = parallel.map(load_result,
-                                     inputFiles, itertools.repeat(options))
+        runSetResults = load_results(inputFiles, options)
 
         if len(inputFiles) == 1:
             if not name:

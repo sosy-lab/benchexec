@@ -56,7 +56,8 @@ The document type of these files should be
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
 To use such files pass them with the parameter `-x` to `table-generator`
-(no result files can be given as these are referenced within the table-definition file):
+(and either specify the result files to use inside the table-definition file,
+or pass them on the command line):
 
     table-generator -x doc/table-generator-example.xml
 
