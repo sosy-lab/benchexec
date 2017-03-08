@@ -119,23 +119,60 @@ def parse_table_definition_file(file):
     return tableGenFile
 
 
-def load_results_from_table_definition(tableGenFile, file, options):
+def table_definition_lists_result_files(table_definition):
+    return any(tag.tag in ['result', 'union'] for tag in table_definition)
+
+
+def load_results_from_table_definition(table_definition, table_definition_file, options):
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
     """
-    defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
-    columns_relevant_for_diff = _get_columns_relevant_for_diff(
-        defaultColumnsToShow)
+    default_columns = extract_columns_from_table_definition_file(table_definition, table_definition_file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(default_columns)
 
-    return Util.flatten(
-        parallel.map(
-            handle_tag_in_table_definition_file,
-            tableGenFile,
-            itertools.repeat(file),
-            itertools.repeat(defaultColumnsToShow),
-            itertools.repeat(columns_relevant_for_diff),
-            itertools.repeat(options)))
+    results = []
+    for tag in table_definition:
+        if tag.tag == 'result':
+            columns = extract_columns_from_table_definition_file(tag, table_definition_file) or default_columns
+            run_set_id = tag.get('id')
+            for resultsFile in get_file_list_from_result_tag(tag, table_definition_file):
+                results.append(parallel.submit(
+                    load_result, resultsFile, options, run_set_id, columns, columns_relevant_for_diff))
+
+        elif tag.tag == 'union':
+            results.append(parallel.submit(
+                handle_union_tag, tag, table_definition_file, options, default_columns, columns_relevant_for_diff))
+
+    return [future.result() for future in results]
+
+
+def handle_union_tag(tag, table_definition_file, options, default_columns, columns_relevant_for_diff):
+    columns = extract_columns_from_table_definition_file(tag, table_definition_file) or default_columns
+    result = RunSetResult([], collections.defaultdict(list), columns)
+
+    for resultTag in tag.findall('result'):
+        run_set_id = resultTag.get('id')
+        for resultsFile in get_file_list_from_result_tag(resultTag, table_definition_file):
+            result_xml = parse_results_file(resultsFile, run_set_id)
+            if result_xml is not None:
+                result.append(resultsFile, result_xml, options.all_columns)
+
+    if not result._xml_results:
+        return None
+
+    name = tag.get('title', tag.get('name'))
+    if name:
+        result.attributes['name'] = [name]
+    result.collect_data(options.correct_only)
+    return result
+
+
+def get_file_list_from_result_tag(result_tag, table_definition_file):
+    if not 'filename' in result_tag.attrib:
+        logging.warning("Result tag without filename attribute in file '%s'.", table_definition_file)
+        return []
+    return Util.get_file_list(os.path.join(os.path.dirname(table_definition_file), result_tag.get('filename'))) # expand wildcards
 
 
 def load_results_with_table_definition(result_files, table_definition, table_definition_file, options):
@@ -397,50 +434,6 @@ def get_column_type(column, result_set):
     except Util.TableDefinitionError as e:
         logging.error("Column type couldn't be determined: {}".format(e.message))
         return ColumnType.text, None, None, 1
-
-
-def table_definition_lists_result_files(table_definition):
-    return any(tag.tag in ['result', 'union'] for tag in table_definition)
-
-
-def handle_tag_in_table_definition_file(tag, table_file,
-                                        defaultColumnsToShow,
-                                        columns_relevant_for_diff, options):
-    def get_file_list(result_tag):
-        if not 'filename' in result_tag.attrib:
-            logging.warning("Result tag without filename attribute in file '%s'.", table_file)
-            return []
-        return Util.get_file_list(os.path.join(os.path.dirname(table_file), result_tag.get('filename'))) # expand wildcards
-
-    results = [] # default value for results
-    if tag.tag == 'result':
-        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
-        run_set_id = tag.get('id')
-        for resultsFile in get_file_list(tag):
-            results.append(
-                load_result(resultsFile, options, run_set_id, columnsToShow,
-                            columns_relevant_for_diff))
-
-    elif tag.tag == 'union':
-        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
-        result = RunSetResult([], collections.defaultdict(list), columnsToShow)
-
-        for resultTag in tag.findall('result'):
-            run_set_id = resultTag.get('id')
-            for resultsFile in get_file_list(resultTag):
-                result_xml = parse_results_file(resultsFile, run_set_id)
-                if result_xml is not None:
-                    result.append(resultsFile, result_xml, options.all_columns)
-
-        if result._xml_results:
-            name = tag.get('title', tag.get('name'))
-            if name:
-                result.attributes['name'] = [name]
-            result.collect_data(options.correct_only)
-            results = [result]
-        else:
-            return []
-    return results
 
 
 def get_task_id(task):
