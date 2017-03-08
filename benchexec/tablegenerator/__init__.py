@@ -592,6 +592,7 @@ class RunSetResult(object):
         attributes = collections.defaultdict(list)
 
         # Defaults
+        attributes['filename'] = [resultFile]
         attributes['branch'] = [os.path.basename(resultFile).split('#')[0] if '#' in resultFile else '']
         attributes['timelimit'] = ['-']
         attributes['memlimit'] = ['-']
@@ -786,8 +787,8 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                logging.info("    no result for task '%s' (tool=%s, benchmark=%s, benchmark name=%s).",
-                             task[0], runset.attributes['tool'], runset.attributes['name'], runset.attributes['benchmarkname'])
+                logging.info("    No result for task '%s' in '%s'.",
+                             task[0], Util.prettylist(runset.attributes['filename']))
                 # create an empty dummy element
                 run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
                                        runset.columns, [None]*len(runset.columns))
