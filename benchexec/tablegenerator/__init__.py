@@ -785,13 +785,72 @@ def find_common_tasks(runset_results):
         merge_task_lists(runset_results, task_list)
 
 
+class MultipropertyResult(object):
+    """
+    The class MultipropertyResult contains result of multi-property run.
+    """
+    def __init__(self, sourcefileTag):
+        self.actual_statuses = {}
+        self.expected_statuses = {}
+        self.categories = {}
+        self.scores = {}
+
+        for column in sourcefileTag.findall('column'):
+            title = column.get("title")
+            if title:
+                match = re.match("status \((.+)\)", title)
+                if match:
+                    self.actual_statuses[match.group(1)] = column.get('value')
+                match = re.match("expected \((.+)\)", title)
+                if match:
+                    self.expected_statuses[match.group(1)] = column.get('value')
+        self.is_multiproperty = bool(self.actual_statuses) and bool(self.expected_statuses)
+
+        if self.is_multiproperty:
+            # Define category per each property.
+            for property, actual_status in self.actual_statuses.items():
+                expected_status_for_property = {}
+                if property in self.expected_statuses:
+                    expected_status_for_property = {property: self.expected_statuses[property]}
+
+                self.categories[property] = result.compare_multiproperty_statuses({property: actual_status},
+                                                                                           expected_status_for_property)
+                self.scores[property] = result.score_for_task(sourcefileTag.get('name'),
+                                      sourcefileTag.get('properties', '').split(),
+                                      None,
+                                      True,
+                                      self.is_multiproperty,
+                                      {property: actual_status},
+                                      expected_status_for_property)
+
+    def get_expected_status_for_property(self, column_title):
+        property = self.__get_property_name_from_column(column_title)
+        if property in self.expected_statuses:
+            return self.expected_statuses[property]
+        return result.RESULT_CLASS_UNKNOWN
+
+    def get_category_for_property(self, column_title):
+        property = self.__get_property_name_from_column(column_title)
+        if property in self.categories:
+            return self.categories[property]
+        return result.CATEGORY_MISSING
+
+    def get_score_for_property(self, column_title):
+        property = self.__get_property_name_from_column(column_title)
+        if property in self.scores:
+            return self.scores[property]
+        return 0
+
+    def __get_property_name_from_column(self, column_title):
+        return column_title.replace('status (', '')[:-1]
+
+
 class RunResult(object):
     """
     The class RunResult contains the results of a single verification run.
     """
     def __init__(self, task_id, status, category, score, log_file, columns,
-                 values, columns_relevant_for_diff=set(), is_multiproperty=False,
-                 multiproperty_statuses={}, expected_statuses={}, multiproperty_categories={}):
+                 values, columns_relevant_for_diff=set(), multiproperty=None):
         assert(len(columns) == len(values))
         self.task_id = task_id
         self.status = status
@@ -801,10 +860,22 @@ class RunResult(object):
         self.category = category
         self.score = score
         self.columns_relevant_for_diff = columns_relevant_for_diff
-        self.is_multiproperty = is_multiproperty
-        self.multiproperty_statuses = multiproperty_statuses
-        self.expected_statuses = expected_statuses
-        self.multiproperty_categories = multiproperty_categories
+        self.multiproperty = multiproperty
+
+    def is_multiproperty(self):
+        if self.multiproperty:
+            return self.multiproperty.is_multiproperty
+        return False
+
+    def get_multiproperty_actual_statuses(self):
+        if self.multiproperty:
+            return self.multiproperty.actual_statuses
+        return {}
+
+    def get_multiproperty_expected_statuses(self):
+        if self.multiproperty:
+            return self.multiproperty.expected_statuses
+        return {}
 
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
@@ -854,35 +925,15 @@ class RunResult(object):
 
         status = Util.get_column_value(sourcefileTag, 'status', '')
         category = Util.get_column_value(sourcefileTag, 'category', result.CATEGORY_MISSING)
-        multiproperty_statuses = {}
-        expected_statuses = {}
-        multiproperty_categories = {}
 
-        for column in sourcefileTag.findall('column'):
-            title = column.get("title")
-            if title:
-                match = re.match("status \((.+)\)", title)
-                if match:
-                    multiproperty_statuses[match.group(1)] = column.get('value')
-                match = re.match("expected \((.+)\)", title)
-                if match:
-                    expected_statuses[match.group(1)] = column.get('value')
-        is_multiproperty = bool(multiproperty_statuses)
-
-        if is_multiproperty:
-            # Define category per each property.
-            for property, actual_status in multiproperty_statuses.items():
-                expected_status = expected_statuses[property]
-                multiproperty_categories[property] = result.compare_multiproperty_statuses({property: actual_status},
-                                                                                           {property: expected_status})
-
+        multiproperty_result = MultipropertyResult(sourcefileTag)
         score = result.score_for_task(sourcefileTag.get('name'),
                                       sourcefileTag.get('properties', '').split(),
                                       category,
                                       status,
-                                      is_multiproperty,
-                                      multiproperty_statuses,
-                                      expected_statuses)
+                                      multiproperty_result.is_multiproperty,
+                                      multiproperty_result.actual_statuses,
+                                      multiproperty_result.expected_statuses)
         logfileLines = None
 
         values = []
@@ -909,8 +960,7 @@ class RunResult(object):
 
         return RunResult(get_task_id(sourcefileTag), status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
-                         columns_relevant_for_diff, is_multiproperty, multiproperty_statuses, expected_statuses,
-                         multiproperty_categories)
+                         columns_relevant_for_diff, multiproperty_result)
 
 
 class Row(object):
@@ -1129,8 +1179,9 @@ def get_stats_of_rows(rows):
             count_false += 1
         run_result = row.results[0]
         max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None,
-                                           run_result.is_multiproperty, run_result.multiproperty_statuses,
-                                           run_result.expected_statuses)
+                                           run_result.is_multiproperty(),
+                                           run_result.get_multiproperty_actual_statuses(),
+                                           run_result.get_multiproperty_expected_statuses())
 
     return max_score, count_true, count_false
 
@@ -1235,7 +1286,11 @@ def get_stats_of_run_set(runResults):
                     status_col_index = index
                     score = StatValue(sum(run_result.score for run_result in runResults))
                 else:
-                    score = None
+                    score = 0
+                    for run_result in runResults:
+                        if run_result.is_multiproperty():
+                            score += run_result.multiproperty.get_score_for_property(column.title)
+                    score = StatValue(score)
 
                 total   = StatValue(len([runResult.values[index] for runResult in runResults if runResult.status]))
 

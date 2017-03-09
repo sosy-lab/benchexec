@@ -251,9 +251,9 @@
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
   {{else}}
-    {{if "status " in column.title}}
-      {{py:ccsclass = runResult.multiproperty_categories[column.title.replace('status (', '')[:-1]] + ' ' + str(column.type.type)}}
-      {{py:expected_status = runResult.expected_statuses[column.title.replace('status (', '')[:-1]]}}
+    {{if "status " in column.title and runResult.is_multiproperty()}}
+      {{py:ccsclass = runResult.multiproperty.get_category_for_property(column.title) + ' ' + str(column.type.type)}}
+      {{py:expected_status = runResult.multiproperty.get_expected_status_for_property(column.title)}}
 <td title="Expected status is '{{expected_status}}'" class="{{ccsclass}}{{' novalue' if value is None or value == '' else ''}}">{{column.format_value(value, True, 'html_cell')|html}}</td>
     {{else}}
 <td class="{{ccsclass}}{{' novalue' if value is None or value == '' else ''}}">{{column.format_value(value, True, 'html_cell')|html}}</td>
