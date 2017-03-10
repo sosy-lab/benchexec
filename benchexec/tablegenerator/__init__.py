@@ -1374,8 +1374,10 @@ def get_stats_of_run_set(runResults):
             return
         count = row[status_col_index]
         if not count or not count.sum:
-            for i in range(1, len(row)):
-                if not row[i] or row[i].sum == 0:
+            for i in range(0, len(row)):
+                if i == status_col_index:
+                    continue
+                if not row[i] or not row[i].sum:
                     row[i] = None
 
     replace_irrelevant(totalRow)
