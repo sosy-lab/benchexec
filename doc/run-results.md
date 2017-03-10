@@ -82,7 +82,6 @@ More complex values are represented as a `dict`.
     If the `category` is `CATEGORY_ERROR`, the `status` is a human-readable string with more information
     about which kind of error occurred,
     e.g., whether the tool terminated with an error code, the time limit was hit, etc.
-    In case of multi-property verification status is expected for each property.
 
 Furthermore, `benchexec` allows the user to specify arbitrary additional result values
 by defining them with a `<column>` tag in the benchmark-definition file.
@@ -113,3 +112,8 @@ but with `<column>` tags directly inside the `<rundefinition>` root tag.
 Note that this CPU-time value is not measured with cgroups currently and may be incomplete.
 The wall-time value can be used for example to calculate the speedup of executing runs in parallel
 (this value is simply the time difference between the end and the start of executing all runs).
+
+In case of [multi-property verification](multiproperty.md) status is presented for each property in the following format:
+`<column title="status (property_name)" value="actual_status"/>`, `property_name` is the name of property,
+`actual_status` can be one of the `RESULT_*` constants of the 
+[`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py).

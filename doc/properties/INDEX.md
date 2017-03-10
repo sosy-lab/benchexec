@@ -40,8 +40,7 @@ By default `benchexec` considers them as a single composite property
 from verification tool a single status as a result. 
 If attribute `kind` of `<propertyfile>` tag is set to `multiproperty` value, 
 then `benchexec` expects from verification tool separated status for each property.
-In this case expected results are placed in YAML configuration file
-`<task_file_name>.yml`. For more information see [multi-property verification](../multiproperty.md).
+For more information see [multi-property verification](../multiproperty.md).
 
 The expected result is encoded in the file name of the input file
 in the format `_(true|false)-prop` with `prop` as listed above.

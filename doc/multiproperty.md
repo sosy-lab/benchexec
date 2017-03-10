@@ -15,8 +15,7 @@ please read our paper [On-The-Fly Decomposition of Specifications in Software Mo
 ### Set multi-property verification mode
 In order to use multi-property verification in `benchexec`
 attribute `kind` of `<propertyfile>` tag should be set to `multiproperty` value.
-If this attribute is not set (by default) or set to the other value then all specified properties 
-will be considered as a single composite property.
+By default value `composite` (check all specified properties as a single composite property) is used.
 
 ### Specify several properties
 The property file (which is specified by `<propertyfile>` tag) 
@@ -26,36 +25,53 @@ may contain several properties, for example:
     CHECK( init(main()), LTL(G valid-deref) )
     CHECK( init(main()), LTL(G valid-memtrack) )
 
-In this case property name is equal to corresponding SV-Comp category:
-`valid-deref`, `valid-free`, `valid-memtrack`, `no-overflow`, `no-deadlock`, `termination`.
+Currently only the following properties are supported (each property is defined [here](properties/INDEX.md))
+ 
+ * `termination`;
+ * `no-overflow`;
+ * `no-deadlock`;
+ * `valid-deref`;
+ * `valid-free`;
+ * `valid-memtrack`;
+ * `unreach-call`.
 
-Also different error functions may be used in `unreach-call` properties:
+For properties `unreach-call` different error functions may be specified, for example:
 
     CHECK( init(main()), LTL(G ! call(error_function_1())) )
     CHECK( init(main()), LTL(G ! call(error_function_2())) )
 
-In this case property name contains error function name: `unreach-call,error_function_1`.
+In this case property name contains error function name, for example: `unreach-call(error_function_1)`.
 
 In general case it is possible to specify any combination of properties in the property file.
 Note that verification tool may not support each combination.
 
-### Provide results in xml file
+### Get correct results
+In order to provide expected statuses for each property, verification tasks
+for multi-property verification has to be specified in YAML configuration files in the following format:
+
+    input_files:
+      - <...>
+    expected_results:
+      property_name_1:
+        correct: true|false
+      property_name_2:
+        correct: true|false
+
+Tag `input_files` specifies one or more source file for verification;
+tag `expected_results` provides expected status (`true` or `false`)
+for each property.
+
+Note that this file should be specified in `benchexec` as a source file:
+`<include>*.yml</include>`.
+
+### Provide results for runs
 For each given property `benchexec` provides separated status as a result
 in the following format:
 
-    <column title="status (<property_name>)" value="true|false|unknown"/>
+    <column title="status (<property_name>)" value="actual_status"/>
+
+Note that `actual_status` can be one of the `RESULT_*` constants of the 
+[`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py).
 
 In case of global errors (parsing failed, out of memory, etc.) each property
 gets unknown status.
-
-### Get correct results
-Correct results for each task are placed in YAML configuration file
-`<task_file_name>.yml` in the following format:
-
-    correct results:
-      property1: true|false|unknown
-      ...
-      propertyN: true|false|unknown
-
-`benchexec` uses information from this configuration file to decide 
-whether obtained results are correct or not and to compute a score.
