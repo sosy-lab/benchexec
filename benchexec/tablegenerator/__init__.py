@@ -829,6 +829,12 @@ class MultipropertyResult(object):
             return self.expected_statuses[property]
         return result.RESULT_CLASS_UNKNOWN
 
+    def get_actual_status_for_property(self, column_title):
+        property = self.__get_property_name_from_column(column_title)
+        if property in self.actual_statuses:
+            return self.actual_statuses[property]
+        return result.RESULT_CLASS_UNKNOWN
+
     def get_category_for_property(self, column_title):
         property = self.__get_property_name_from_column(column_title)
         if property in self.categories:
@@ -1293,17 +1299,37 @@ def get_stats_of_run_set(runResults):
                     score = StatValue(score)
 
                 total   = StatValue(len([runResult.values[index] for runResult in runResults if runResult.status]))
-
-                curr_status_list = [(runResult.category, runResult.values[index]) for runResult in runResults]
-
-                counts = collections.Counter((category, result.get_result_classification(status))
-                                             for category, status in curr_status_list)
-                countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
-                countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
-                countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
-                countCorrectUnconfirmedFalse = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]
-                countWrongTrue               = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_TRUE]
-                countWrongFalse              = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_FALSE]
+                if col_type == ColumnType.main_status:
+                    curr_status_list = [(runResult.category, runResult.values[index]) for runResult in runResults]
+                    counts = collections.Counter((category, result.get_result_classification(status))
+                                                 for category, status in curr_status_list)
+                    countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
+                    countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
+                    countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                    countCorrectUnconfirmedFalse = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]
+                    countWrongTrue               = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_TRUE]
+                    countWrongFalse              = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_FALSE]
+                else:
+                    countCorrectTrue             = 0
+                    countCorrectFalse            = 0
+                    countCorrectUnconfirmedTrue  = 0  # TODO: confirmed results for multi-property verification.
+                    countCorrectUnconfirmedFalse = 0
+                    countWrongTrue               = 0
+                    countWrongFalse              = 0
+                    for run_result in runResults:
+                        if run_result.is_multiproperty():
+                            status = run_result.multiproperty.get_actual_status_for_property(column.title)
+                            category = run_result.multiproperty.get_category_for_property(column.title)
+                            if result.RESULT_CLASS_FALSE in status:
+                                if category == result.CATEGORY_CORRECT:
+                                    countCorrectFalse += 1
+                                elif category == result.CATEGORY_WRONG:
+                                    countWrongFalse += 1
+                            elif status == result.RESULT_CLASS_TRUE:
+                                if category == result.CATEGORY_CORRECT:
+                                    countCorrectTrue += 1
+                                elif category == result.CATEGORY_WRONG:
+                                    countWrongTrue += 1
 
                 correct                 = StatValue(countCorrectTrue + countCorrectFalse)
                 correctTrue             = StatValue(countCorrectTrue)
@@ -1349,7 +1375,8 @@ def get_stats_of_run_set(runResults):
         count = row[status_col_index]
         if not count or not count.sum:
             for i in range(1, len(row)):
-                row[i] = None
+                if not row[i] or row[i].sum == 0:
+                    row[i] = None
 
     replace_irrelevant(totalRow)
     replace_irrelevant(correctRow)
