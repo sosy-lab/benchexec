@@ -107,7 +107,7 @@ class OutputHandler(object):
         os.makedirs(benchmark.log_folder, exist_ok=True)
 
         self.store_header_in_xml(version, memlimit, timelimit, corelimit)
-        self.write_header_to_log(version, memlimit, timelimit, corelimit, sysinfo)
+        self.write_header_to_log(sysinfo)
 
         if sysinfo:
             # store systemInfo in XML
@@ -204,45 +204,71 @@ class OutputHandler(object):
                         {"title": column.title, "value": ""}))
 
 
-    def write_header_to_log(self, version, memlimit, timelimit, corelimit, sysinfo):
+    def write_header_to_log(self, sysinfo):
         """
         This method writes information about benchmark and system into txt_file.
         """
-
-        columnWidth = 20
-        simpleLine = "-" * (60) + "\n\n"
-
-        header = "   BENCHMARK INFORMATION\n"\
-                + "benchmark:".ljust(columnWidth) + self.benchmark.name + "\n"\
-                + "date:".ljust(columnWidth) +  time.strftime("%a, %Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time) + "\n"\
-                + "tool:".ljust(columnWidth) + self.benchmark.tool_name\
-                + " " + version + "\n"
-
-        if memlimit:
-            header += "memlimit:".ljust(columnWidth) + str(memlimit/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"
-        if timelimit:
-            header += "timelimit:".ljust(columnWidth) + timelimit + "\n"
-        if corelimit:
-            header += "CPU cores used:".ljust(columnWidth) + corelimit + "\n"
-        header += simpleLine
-
-        if sysinfo:
-            header += "   SYSTEM INFORMATION\n"\
-                    + "host:".ljust(columnWidth) + sysinfo.hostname + "\n"\
-                    + "os:".ljust(columnWidth) + sysinfo.os + "\n"\
-                    + "cpu:".ljust(columnWidth) + sysinfo.cpu_model + "\n"\
-                    + "- cores:".ljust(columnWidth) + sysinfo.cpu_number_of_cores + "\n"\
-                    + "- max frequency:".ljust(columnWidth) + str(sysinfo.cpu_max_frequency/1000/1000) + " MHz\n"\
-                    + "ram:".ljust(columnWidth) + str(sysinfo.memory/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"\
-                    + simpleLine
-
-        self.description = header
-
         runSetName = None
         run_sets = [runSet for runSet in self.benchmark.run_sets if runSet.should_be_executed()]
         if len(run_sets) == 1:
             # in case there is only a single run set to to execute, we can use its name
             runSetName = run_sets[0].name
+
+        columnWidth = 25
+        simpleLine = "-" * (60) + "\n\n"
+
+        def format_line(key, value):
+            if value is None:
+                return ""
+            return (key +":").ljust(columnWidth) + str(value).strip() + "\n"
+
+        def format_byte(key, value):
+            if value is None:
+                return ""
+            return format_line(key, str(value/_BYTE_FACTOR/_BYTE_FACTOR) + " MB")
+
+        def format_time(key, value):
+            if value is None:
+                return ""
+            return format_line(key, str(value) + " s")
+
+        header = ("   BENCHMARK INFORMATION\n"
+            + format_line("benchmark definition", self.benchmark.benchmark_file)
+            + format_line("name", self.benchmark.name)
+            + format_line("run sets", ", ".join(run_set.name for run_set in run_sets))
+            + format_line("date", time.strftime("%a, %Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time))
+            + format_line("tool", self.benchmark.tool_name + " " + self.benchmark.tool_version)
+            + format_line("tool executable", self.benchmark.executable)
+            + format_line("options", " ".join(map(util.escape_string_shell, self.benchmark.options)))
+            + format_line("property file", self.benchmark.propertyfile)
+            )
+        if self.benchmark.num_of_threads > 1:
+            header += format_line("parallel runs", self.benchmark.num_of_threads)
+
+        header += ("resource limits:\n"
+            + format_byte("- memory", self.benchmark.rlimits.get(MEMLIMIT))
+            + format_time("- time", self.benchmark.rlimits.get(SOFTTIMELIMIT) or self.benchmark.rlimits.get(TIMELIMIT))
+            + format_line("- cpu cores", self.benchmark.rlimits.get(CORELIMIT))
+            )
+
+        header += ("hardware requirements:\n"
+            + format_line("- cpu model", self.benchmark.requirements.cpu_model)
+            + format_line("- cpu cores", self.benchmark.requirements.cpu_cores)
+            + format_byte("- memory", self.benchmark.requirements.memory)
+            + simpleLine)
+
+        if sysinfo:
+            header += ("   SYSTEM INFORMATION\n"\
+                + format_line("host", sysinfo.hostname)
+                + format_line("os", sysinfo.os)
+                + format_line("cpu", sysinfo.cpu_model)
+                + format_line("- cores", sysinfo.cpu_number_of_cores)
+                + format_line("- max frequency", str(sysinfo.cpu_max_frequency/1000/1000) + " MHz")
+                + format_line("- turbo boost enabled", sysinfo.cpu_turboboost)
+                + format_byte("ram", sysinfo.memory)
+                + simpleLine)
+
+        self.description = header
 
         # write to file
         txt_file_name = self.get_filename(runSetName, "txt")
