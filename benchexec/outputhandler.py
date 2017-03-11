@@ -631,7 +631,9 @@ class OutputHandler(object):
 
 
     def output_after_benchmark(self, isStoppedByInterrupt):
-        self.statistics.print_to_terminal()
+        stats = str(self.statistics)
+        util.printOut(stats)
+        self.txt_file.append(stats)
 
         if self.xml_file_names:
 
@@ -760,7 +762,7 @@ class Statistics(object):
         #if run.properties:
         self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None)
 
-    def print_to_terminal(self):
+    def __str__(self):
         correct = self.dic[result.CATEGORY_CORRECT]
         correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)]
         correct_false = correct - correct_true
@@ -783,4 +785,5 @@ class Statistics(object):
             output.append(
                  '  Score:            ' + str(self.score).rjust(width) + ' (max: ' + str(self.max_score) + ')'
                  )
-        util.printOut('\n'.join(output)+'\n')
+        output.append('')
+        return '\n'.join(output)
