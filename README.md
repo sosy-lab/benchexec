@@ -93,8 +93,8 @@ Contributors:
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all four instances
-of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org)
+BenchExec was successfully used for benchmarking in all six instances
+of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org) (2012-2017)
 with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
 
 The developers of the following tools use BenchExec:
