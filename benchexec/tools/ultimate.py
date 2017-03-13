@@ -27,6 +27,26 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     Abstract tool info for Ultimate-based tools.
     """
 
+    REQUIRED_PATHS = [
+              "artifacts.xml",
+              "config",
+              "configuration",
+              "data",
+              "features",
+              "p2",
+              "plugins",
+              "LICENSE",
+              "LICENSE.GPL",
+              "LICENSE.GPL.LESSER",
+              "README",
+              "Ultimate",
+              "Ultimate.ini",
+              "Ultimate.py",
+              "z3",
+              "mathsat",
+              "cvc4",
+              ]
+
     def executable(self):
         return util.find_executable('Ultimate.py')
 
