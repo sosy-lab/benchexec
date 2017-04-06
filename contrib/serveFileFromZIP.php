@@ -73,6 +73,10 @@ function handleError($message) {
   exit();
 }
 
+function strEndsWith($str, $end) {
+  return substr_compare($str, $end, -strlen($end)) === 0;
+}
+
 /* Read a file from a ZIP archive and send content to client. */
 function serveFileFromZIP($baseDir, $zipName, $fileName) {
   $zip = new ZipArchive();
@@ -89,7 +93,7 @@ function serveFileFromZIP($baseDir, $zipName, $fileName) {
   $fileSize = $zip->statName($fileName)['size'];
   header('Content-Length: ' . $fileSize);
   $contentType = "text/plain";
-  if (preg_match("/.graphml$/", $fileName)) {
+  if (endsWith($fileName, ".graphml")) {
     $contentType = "text/xml";
   }
   header('Content-Type: ' . $contentType);
