@@ -673,6 +673,17 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             container.setup_container_system_config(temp_base)
 
         # Create a copy of host's mountpoints.
+        # Setting MS_PRIVATE flag discouples our mount namespace from the hosts's,
+        # i.e., mounts we do are not seen by the host, and any (un)mounts the host does afterward
+        # are not seen by us. The latter is desired such that new mounts (e.g.,
+        # USB sticks being plugged in) do not appear in the container.
+        # Blocking host-side unmounts from being propagated has the disadvantage
+        # that any unmounts done by the sysadmin won't really unmount the device
+        # because it stays mounted in the container and thus keep the device busy
+        # (cf. https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=739593#85).
+        # We could allow unmounts being propated with MS_SLAVE instead of MS_PRIVATE,
+        # but we prefer to have the mount namespace of the container being
+        # unchanged during run execution.
         container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
         # Ensure each special dir is a mountpoint such that the next loop covers it.
