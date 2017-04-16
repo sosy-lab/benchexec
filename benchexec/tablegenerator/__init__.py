@@ -840,8 +840,7 @@ class RunResult(object):
             log_file_url = Util.make_url(log_file)
             url_parts = urllib.parse.urlparse(log_file_url, allow_fragments=False)
             log_zip_path = os.path.dirname(url_parts.path) + ".zip"
-            log_zip_url = urllib.parse.urlunparse((url_parts.scheme, url_parts.netloc,
-                log_zip_path, url_parts.params, url_parts.query, url_parts.fragment))
+            log_zip_url = Util.make_url(log_zip_path)
             path_in_zip = urllib.parse.unquote(
                 os.path.relpath(url_parts.path, os.path.dirname(log_zip_path)))
             if log_zip_url.startswith("file:///") and not log_zip_path.startswith("/"):
