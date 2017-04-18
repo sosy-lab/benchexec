@@ -38,7 +38,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if any('__VERIFIER_error() is called.' in s for s in output):
-            status = result.RESULT_FALSE_REACH
+            if any('certainty: MAYBE' in s for s in output):
+                status = result.RESULT_UNKNOWN
+            else:
+                status = result.RESULT_FALSE_REACH
         elif any('The standard properties hold for all executions.' in s for s in output):
             status = result.RESULT_TRUE_PROP
         else:
