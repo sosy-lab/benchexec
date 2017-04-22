@@ -111,14 +111,14 @@ So this measure may only be an approximation of disk I/O.
 To prevent the benchmarked tool from filling up the whole disk
 (which could make the system unusable for other users),
 BenchExec can limit the number and size of the files written by the benchmarked tool
-with the command-line parameters `--filesCountLimit` and ``--filesSizeLimit`.
+with the command-line parameters `--filesCountLimit` and `--filesSizeLimit`.
 Both limits are off by default, though this may change in a future release.
 There are a few restrictions, however:
 - These limits are checked only periodically (currently every 60s),
   so intermediate violations are possible.
 - With [container mode](container.md), files written directly into the host file system
   due to the use of `--full-access-dir` are not limited.
-  If the tool modifies an existing file, the full file size is counted against the limit.
+  If the tool modifies an existing file in a directory with overlay mode, the full file size is counted against the limit.
 - Without container mode, almost no files are limited, only those that the tool
   writes to `$HOME` and `$TMPDIR` (which are fresh directories created by BenchExec).
 So the recommendation is (as always) to use the container mode and not use the `--full-access-dir` flag.

@@ -19,12 +19,12 @@ This release brings several smaller and medium-sized features:
 - The feature for executing benchmarks under different user accounts with sudo
   is now marked as deprecated and may be removed in the future,
   consider using the container mode instead for isolating runs
-  (cf. [issue #215](https://github.com/sosy-lab/benchexec/issues/215).
+  (cf. [issue #215](https://github.com/sosy-lab/benchexec/issues/215)).
 - `table-generator` is now more flexible:
   - Builtin support for certain unit conversions,
     such that the scale factor does not always need to be explicitly specified.
     Furthermore, unit conversions now work even if the values already have a unit.
-  - Column titles can be manually specified with the `displayTitle` attribute`.
+  - Column titles can be manually specified with the `displayTitle` attribute.
   - What columns are relevant for the "diff" table can be configured.
 
 Please also note that we are considering dropping the support for Python 3.2
