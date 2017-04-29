@@ -78,7 +78,7 @@ def main(args=None):
     # load results
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
             options.result, tablegenerator.parse_results_file(options.result))
-    run_set_result.collect_data(options.correct_only)
+    run_set_result.collect_data(options.correct_only or options.scored_based)
 
     # select appropriate results
     if options.score_based:
