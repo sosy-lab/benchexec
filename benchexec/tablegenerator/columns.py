@@ -20,7 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
-import math
+from math import floor, log10
 
 from benchexec.tablegenerator import util
 
@@ -258,7 +258,7 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     if number == 0:
         float_value = 0
     else:
-        float_value = round(number, - int(math.floor(math.log10(number))) + (number_of_significant_digits - 1))
+        float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
 
     if not format_target.startswith('tooltip'):
         max_digits_to_display = max_digits_after_decimal
