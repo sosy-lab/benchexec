@@ -289,6 +289,25 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='big-table.diff',
             )
 
+    def test_single_table_validation_unconfirmed(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-validation-unconfirmed.xml')],
+            table_prefix='simple-table-with-validation-unconfirmed.table'
+        )
+
+    def test_single_table_validation_all_confirmed(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-validation-all-confirmed.xml')],
+            table_prefix='simple-table-with-validation-all-confirmed.table'
+        )
+
+    def test_multi_table_validation(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'multi-table-with-validation.xml')],
+            table_prefix='multi-table-with-validation.table',
+            diff_prefix='multi-table-with-validation.diff',
+        )
+
     def test_dump_count_single_table(self):
         self.generate_tables_and_compare_content(
             ['--dump',
