@@ -424,15 +424,15 @@ class RunSet(object):
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
 
             # get lists of filenames
-            sourcefiles = self.get_sourcefiles_from_xml(sourcefilesTag, self.benchmark.base_dir)
+            tasks = self.get_tasks_from_xml(sourcefilesTag, self.benchmark.base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
 
             currentRuns = []
-            for sourcefile in sourcefiles:
-                currentRuns.append(Run(sourcefile[0], sourcefile, fileOptions, self, propertyfile,
+            for identifier, sourcefiles in tasks:
+                currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -447,7 +447,7 @@ class RunSet(object):
         return blocks
 
 
-    def get_sourcefiles_from_xml(self, sourcefilesTag, base_dir):
+    def get_tasks_from_xml(self, sourcefilesTag, base_dir):
         sourcefiles = []
 
         # get included sourcefiles
@@ -504,20 +504,21 @@ class RunSet(object):
 
                 fileWithList.close()
 
-        # add runs for cases without source files
-        for run in sourcefilesTag.findall("withoutfile"):
-            sourcefiles.append(run.text)
-
         # some runs need more than one sourcefile,
         # the first sourcefile is a normal 'include'-file, we use its name as identifier for logfile and result-category
         # all other files are 'append'ed.
+        # We use a list of tuples instead of a dict here to have a deterministic order of tasks.
         sourcefilesLists = []
         appendFileTags = sourcefilesTag.findall("append")
         for sourcefile in sourcefiles:
             files = [sourcefile]
             for appendFile in appendFileTags:
                 files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
-            sourcefilesLists.append(files)
+            sourcefilesLists.append((sourcefile, files))  # Use sourcefile as identifier
+
+        # add runs for cases without source files
+        for run in sourcefilesTag.findall("withoutfile"):
+            sourcefilesLists.append((run.text, []))
 
         return sourcefilesLists
 
@@ -569,8 +570,8 @@ class Run(object):
     """
 
     def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
-        assert sourcefiles
-        self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
+        assert identifier
+        self.identifier = identifier  # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run

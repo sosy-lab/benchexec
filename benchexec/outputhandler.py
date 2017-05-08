@@ -310,7 +310,13 @@ class OutputHandler(object):
             run.resultline = self.format_sourcefile_name(run.identifier, runSet)
 
             adjusted_sourcefiles = [util.relative_path(s, xml_file_name) for s in run.sourcefiles]
-            adjusted_identifier = util.relative_path(run.identifier, xml_file_name)
+            if adjusted_sourcefiles:
+                adjusted_identifier = util.relative_path(run.identifier, xml_file_name)
+            else:
+                # If no source files exist the task doesn't point to any file that could be downloaded.
+                # In this case, the name doesn't have to be adjusted because it's no path.
+                adjusted_identifier = run.identifier
+
         # prepare XML structure for each run and runSet
             run.xml = ET.Element("run",
                                  {"name": adjusted_identifier, "files": "[" + ", ".join(adjusted_sourcefiles) + "]"})

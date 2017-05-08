@@ -815,9 +815,10 @@ class RunResult(object):
     The class RunResult contains the results of a single verification run.
     """
     def __init__(self, task_id, status, category, score, log_file, columns,
-                 values, columns_relevant_for_diff=set()):
+                 values, columns_relevant_for_diff=set(), sourcefiles_exist=True):
         assert(len(columns) == len(values))
         self.task_id = task_id
+        self.sourcefiles_exist = sourcefiles_exist
         self.status = status
         self.log_file = log_file
         self.columns = columns
@@ -902,9 +903,19 @@ class RunResult(object):
 
             values.append(value)
 
+        sourcefiles = sourcefileTag.get('files')
+        if sourcefiles:
+            if sourcefiles.startswith('['):
+                sourcefileList = [s.strip() for s in sourcefiles[1:-1].split(',') if s.strip()]
+                sourcefiles_exist = True if sourcefileList else False
+            else:
+                raise AssertionError('Unknown format for files tag:')
+        else:
+            sourcefiles_exist = False
+
         return RunResult(get_task_id(sourcefileTag), status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
-                         columns_relevant_for_diff)
+                         columns_relevant_for_diff, sourcefiles_exist=sourcefiles_exist)
 
 
 class Row(object):
@@ -918,6 +929,7 @@ class Row(object):
         assert results
         self.results = results
         self.id = results[0].task_id
+        self.has_sourcefile = results[0].sourcefiles_exist
         assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
         self.filename = self.id[0]
         self.properties = self.id[1].split() if self.id[1] else []
