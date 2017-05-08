@@ -275,7 +275,6 @@ class OutputHandler(object):
         self.txt_file = filewriter.FileWriter(txt_file_name, self.description)
         self.all_created_files.add(txt_file_name)
 
-
     def output_before_run_set(self, runSet):
         """
         The method output_before_run_set() calculates the length of the
@@ -283,7 +282,9 @@ class OutputHandler(object):
         about the runSet in XML.
         @param runSet: current run set
         """
-        identifier_names = [run.identifier for run in runSet.runs]
+        xml_file_name = self.get_filename(runSet.name, "xml")
+
+        identifier_names = [util.relative_path(run.identifier, xml_file_name) for run in runSet.runs]
 
         # common prefix of file names
         runSet.common_prefix = util.common_base_dir(identifier_names) + os.path.sep
@@ -308,9 +309,11 @@ class OutputHandler(object):
         for run in runSet.runs:
             run.resultline = self.format_sourcefile_name(run.identifier, runSet)
 
+            adjusted_sourcefiles = [util.relative_path(s, xml_file_name) for s in run.sourcefiles]
+            adjusted_identifier = util.relative_path(run.identifier, xml_file_name)
         # prepare XML structure for each run and runSet
             run.xml = ET.Element("run",
-                                 {"name": run.identifier, "files": "[" + ", ".join(run.sourcefiles) + "]"})
+                                 {"name": adjusted_identifier, "files": "[" + ", ".join(adjusted_sourcefiles) + "]"})
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
@@ -321,7 +324,7 @@ class OutputHandler(object):
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
-        runSet.xml_file_name = self.get_filename(runSet.name, "xml")
+        runSet.xml_file_name = xml_file_name
         self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
         runSet.xml_file_last_modified_time = util.read_monotonic_time()
         self.all_created_files.add(runSet.xml_file_name)
