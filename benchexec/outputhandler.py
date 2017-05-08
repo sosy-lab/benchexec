@@ -283,13 +283,13 @@ class OutputHandler(object):
         about the runSet in XML.
         @param runSet: current run set
         """
-        sourcefiles = [run.identifier for run in runSet.runs]
+        identifier_names = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
-        runSet.common_prefix = util.common_base_dir(sourcefiles) + os.path.sep
+        runSet.common_prefix = util.common_base_dir(identifier_names) + os.path.sep
 
         # length of the first column in terminal
-        runSet.max_length_of_filename = max(len(file) for file in sourcefiles) if sourcefiles else 20
+        runSet.max_length_of_filename = max(len(file) for file in identifier_names) if identifier_names else 20
         runSet.max_length_of_filename = max(20, runSet.max_length_of_filename - len(runSet.common_prefix))
 
         # write run set name to terminal
