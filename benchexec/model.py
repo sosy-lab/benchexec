@@ -432,7 +432,7 @@ class RunSet(object):
 
             currentRuns = []
             for sourcefile in sourcefiles:
-                currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile,
+                currentRuns.append(Run(sourcefile[0], sourcefile, fileOptions, self, propertyfile,
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -568,7 +568,7 @@ class Run(object):
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
+    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
         assert sourcefiles
         self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
