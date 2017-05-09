@@ -27,11 +27,15 @@ import sys
 import tempfile
 import unittest
 import zipfile
+
+from xml.etree import ElementTree
+
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, '..')
 bin_dir = os.path.join(base_dir, 'bin')
+tmp_dir = os.path.join(here, 'test_integration')
 benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
 result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
@@ -49,7 +53,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         cls.maxDiff = None
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
+        self.tmp = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test", dir=tmp_dir)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -118,6 +122,35 @@ class BenchExecIntegrationTests(unittest.TestCase):
                     with bz2.BZ2File(os.path.join(self.tmp, file)) as bz2file:
                         bz2file.read()
 
+    def _assertEqualXmlTree(self, actual_tree, expected_tree):
+        actual = ElementTree.tostring(actual_tree).splitlines()
+        expected = ElementTree.tostring(expected_tree).splitlines()
+
+        for actual_line, expected_line in zip(actual, expected):
+            self.assertEqual(actual_line, expected_line)
+
+    def assertSameRunResults(self, actual_result_xml, other_result_xml):
+        actual_result = ElementTree.ElementTree().parse(actual_result_xml)
+        expected_result = ElementTree.ElementTree().parse(other_result_xml)
+
+        self.assertEqual(actual_result.tag, expected_result.tag)
+        self._assertEqualXmlTree(actual_result.find('columns'), expected_result.find('columns'))
+        actual_runs = actual_result.findall('run')
+        expected_runs = expected_result.findall('run')
+        for actual, expected in zip(actual_runs, expected_runs):
+            self.assertEqual(actual.get('files'), expected.get('files'))
+            self.assertEqual(actual.get('name'), expected.get('name'))
+
+            comparable_columns = ['status', 'category', 'exitcode', 'returnvalue']
+            for actual_column, expected_column in zip(actual.findall('column'), expected.findall('column')):
+                if actual_column.get('title') in comparable_columns:
+                    self.assertEqual(actual_column.get('title'), expected_column.get('title'))
+                    self.assertEqual(actual_column.get('value'), expected_column.get('value'))
+
+
+    def test_same_results_file(self):
+        results_file = os.path.join(here, 'test_integration/expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        self.assertSameRunResults(results_file, results_file)
 
     def test_simple(self):
         self.run_benchexec_and_compare_expected_files()
@@ -220,3 +253,15 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
         for xml_file in xml_files:
             etree.parse(xml_file, parser=parser)
+
+    def test_run_results_information(self):
+        expected_xml = os.path.join(here, 'test_integration/expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        benchmark_xml = os.path.join(base_dir, 'doc', 'benchmark-example-true.xml')
+        self.run_cmd(benchexec, benchmark_xml,
+                     '--outputpath', self.tmp,
+                     '--startTime', '2015-01-01 00:00',
+                     '--no-compress-results',
+                     '--rundefinition', 'no options')
+        actual_xml = os.path.join(self.tmp, 'benchmark-example-true.2015-01-01_0000.results.no options.xml')
+
+        self.assertSameRunResults(actual_xml, expected_xml)
