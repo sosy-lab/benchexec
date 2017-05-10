@@ -33,15 +33,15 @@ from xml.etree import ElementTree
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
-base_dir = os.path.join(here, '..')
+base_dir = os.path.join(here, '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
-benchmarks_dir = os.path.join(base_dir, 'doc')
+benchmarks_dir = here
 benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
 result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
 
 benchmark_test_name = 'benchmark-example-rand'
-benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
+benchmark_test_file = os.path.join(here, 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
 benchmark_test_rundefs = None
 
@@ -57,13 +57,16 @@ class BenchExecIntegrationTests(unittest.TestCase):
         Initializes the temporary directory structure for testing.
         Current structure:
             $TMP_DIR$
-                |-- doc                                # contains benchmark definitions
-                |-- benchexec/test_integration/actual  # output directory for benchexec runs
+                |-- doc                                # contains some files used as pseudo-benchmark tasks
+                |-- benchexec/test_integration
+                     |-- actual                        # output directory for benchexec runs
+                     |-- *.xml                         # benchmark definitions used
         """
         tmp_dir = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
         relative_benchmark_dir = os.path.relpath(benchmarks_dir, base_dir)
         tmp_benchmarks_dir = os.path.join(tmp_dir, relative_benchmark_dir)
         shutil.copytree(benchmarks_dir, tmp_benchmarks_dir)
+        shutil.copytree(os.path.join(base_dir, 'doc'), os.path.join(tmp_dir, 'doc'))
         output_dir = os.path.join(tmp_dir, 'benchexec', 'test_integration', 'actual')
         os.makedirs(output_dir)
         self.tmp = tmp_dir
@@ -170,7 +173,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
 
     def test_same_results_file(self):
-        results_file = os.path.join(here, 'test_integration/expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        results_file = os.path.join(here, 'expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
         self.assertSameRunResults(results_file, results_file)
 
     def test_simple(self):
@@ -276,7 +279,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             etree.parse(xml_file, parser=parser)
 
     def test_run_results_information(self):
-        expected_xml = os.path.join(here, 'test_integration/expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        expected_xml = os.path.join(here, 'expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
         benchmark_xml = os.path.join(self.benchmarks_dir, 'benchmark-example-true.xml')
         self.run_cmd(benchexec, benchmark_xml,
                      '--outputpath', self.output_dir,
