@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.9.dtd'>
+<result benchmarkname="benchmark-example-true" date="2015-01-01 00:00:00 " generator="BenchExec 1.11-dev" name="no options" options="true" tool="DummyTool" toolmodule="benchexec.tools.dummy" version="">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo hostname="cortana-ubuntu-vm">
+    <os name="Linux-4.4.0-75-generic-x86_64-with-Ubuntu-16.04-xenial"/>
+    <cpu cores="2" frequency="2494000000" model="Intel Core i7-4870HQ CPU @ 2.50GHz"/>
+    <ram size="8172240896"/>
+    <environment>
+      <var name="CLUTTER_BACKEND">x11</var>
+      <var name="COLORTERM">mate-terminal</var>
+      <var name="COMPIZ_CONFIG_PROFILE">mate</var>
+      <var name="DBUS_SESSION_BUS_ADDRESS">unix:abstract=/tmp/dbus-7PFlAjDDhL,guid=3314dd936c9265ec2e10f78459103285</var>
+      <var name="DEFAULTS_PATH">/usr/share/gconf/mate.default.path</var>
+      <var name="DESKTOP_SESSION">mate</var>
+      <var name="DISPLAY">:0.0</var>
+      <var name="GDMSESSION">mate</var>
+      <var name="GDM_LANG">en_US</var>
+      <var name="GTK_MODULES">gail:atk-bridge:canberra-gtk-module:topmenu-gtk-module</var>
+      <var name="GTK_OVERLAY_SCROLLING">0</var>
+      <var name="LANG">en_US.UTF-8</var>
+      <var name="LANGUAGE">en_US</var>
+      <var name="LC_ADDRESS">de_DE.UTF-8</var>
+      <var name="LC_IDENTIFICATION">de_DE.UTF-8</var>
+      <var name="LC_MEASUREMENT">de_DE.UTF-8</var>
+      <var name="LC_MONETARY">de_DE.UTF-8</var>
+      <var name="LC_NAME">de_DE.UTF-8</var>
+      <var name="LC_NUMERIC">de_DE.UTF-8</var>
+      <var name="LC_PAPER">de_DE.UTF-8</var>
+      <var name="LC_TELEPHONE">de_DE.UTF-8</var>
+      <var name="LC_TIME">de_DE.UTF-8</var>
+      <var name="LESSCLOSE">/usr/bin/lesspipe %s %s</var>
+      <var name="LESSOPEN">| /usr/bin/lesspipe %s</var>
+      <var name="LOGNAME">leostrakosch</var>
+      <var name="LS_COLORS">rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:</var>
+      <var name="MANDATORY_PATH">/usr/share/gconf/mate.mandatory.path</var>
+      <var name="MATE_DESKTOP_SESSION_ID">this-is-deprecated</var>
+      <var name="PATH">/home/leostrakosch/bin:/home/leostrakosch/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</var>
+      <var name="PS1">\[\e[38;5;26m\]@\h: \[\e[38;5;106m\]\u\[\e[38;5;239m\]:\[\e[38;5;106m\]\w\[\e[38;5;239m\]${text}$\[\e[m\] </var>
+      <var name="PWD">/home/leostrakosch/Documents/SV/benchexec-fork</var>
+      <var name="QT_ACCESSIBILITY">1</var>
+      <var name="QT_LINUX_ACCESSIBILITY_ALWAYS_ON">1</var>
+      <var name="QT_STYLE_OVERRIDE">gtk</var>
+      <var name="SESSION_MANAGER">local/cortana-ubuntu-vm:@/tmp/.ICE-unix/977,unix/cortana-ubuntu-vm:/tmp/.ICE-unix/977</var>
+      <var name="SHELL">/bin/bash</var>
+      <var name="SHLVL">1</var>
+      <var name="SSH_AGENT_PID">1196</var>
+      <var name="SSH_AUTH_SOCK">/run/user/1000/keyring/ssh</var>
+      <var name="TERM">xterm</var>
+      <var name="USER">leostrakosch</var>
+      <var name="WINDOWID">56700873</var>
+      <var name="XAUTHORITY">/home/leostrakosch/.Xauthority</var>
+      <var name="XDG_CONFIG_DIRS">/etc/xdg/xdg-mate:/etc/xdg</var>
+      <var name="XDG_CURRENT_DESKTOP">MATE</var>
+      <var name="XDG_DATA_DIRS">/usr/share/mate:/usr/share/mate:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop</var>
+      <var name="XDG_GREETER_DATA_DIR">/var/lib/lightdm-data/leostrakosch</var>
+      <var name="XDG_RUNTIME_DIR">/run/user/1000</var>
+      <var name="XDG_SEAT">seat0</var>
+      <var name="XDG_SEAT_PATH">/org/freedesktop/DisplayManager/Seat0</var>
+      <var name="XDG_SESSION_DESKTOP">mate</var>
+      <var name="XDG_SESSION_ID">c1</var>
+      <var name="XDG_SESSION_PATH">/org/freedesktop/DisplayManager/Session0</var>
+      <var name="XDG_SESSION_TYPE">x11</var>
+      <var name="XDG_VTNR">7</var>
+      <var name="_">bin/benchexec</var>
+    </environment>
+  </systeminfo>
+  <run files="[../../../doc/benchmark.dtd]" name="../../../doc/benchmark.dtd">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001260699s"/>
+    <column title="walltime" value="0.016400819004047662s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001260699s"/>
+  </run>
+  <run files="[../../../doc/result.dtd]" name="../../../doc/result.dtd">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001240142s"/>
+    <column title="walltime" value="0.016066495001723524s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001033569s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000206573s"/>
+  </run>
+  <run files="[../../../doc/table.dtd]" name="../../../doc/table.dtd">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.00134092s"/>
+    <column title="walltime" value="0.012851725005020853s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu1" value="0.00134092s"/>
+  </run>
+  <run files="[../../../doc/DEVELOPMENT.md]" name="../../../doc/DEVELOPMENT.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001674691s"/>
+    <column title="walltime" value="0.02337122099561384s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001145824s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000528867s"/>
+  </run>
+  <run files="[../../../doc/INDEX.md]" name="../../../doc/INDEX.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.00154363s"/>
+    <column title="walltime" value="0.01897307499893941s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000300951s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001242679s"/>
+  </run>
+  <run files="[../../../doc/INSTALL.md]" name="../../../doc/INSTALL.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.002223072s"/>
+    <column title="walltime" value="0.02362731599714607s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000453064s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001770008s"/>
+  </run>
+  <run files="[../../../doc/benchexec.md]" name="../../../doc/benchexec.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001475503s"/>
+    <column title="walltime" value="0.013747818004048895s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000251865s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001223638s"/>
+  </run>
+  <run files="[../../../doc/benchmarking.md]" name="../../../doc/benchmarking.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001427537s"/>
+    <column title="walltime" value="0.013341778998437803s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000250596s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001176941s"/>
+  </run>
+  <run files="[../../../doc/container.md]" name="../../../doc/container.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001358947s"/>
+    <column title="walltime" value="0.017253097998036537s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000274527s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.00108442s"/>
+  </run>
+  <run files="[../../../doc/resources.md]" name="../../../doc/resources.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001409421s"/>
+    <column title="walltime" value="0.01802882099582348s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.00023835s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001171071s"/>
+  </run>
+  <run files="[../../../doc/run-results.md]" name="../../../doc/run-results.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001348846s"/>
+    <column title="walltime" value="0.011520747000759002s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000264745s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001084101s"/>
+  </run>
+  <run files="[../../../doc/runexec.md]" name="../../../doc/runexec.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001532083s"/>
+    <column title="walltime" value="0.019191640996723436s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000272383s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.0012597s"/>
+  </run>
+  <run files="[../../../doc/separate-user.md]" name="../../../doc/separate-user.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001868046s"/>
+    <column title="walltime" value="0.024449299002299085s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.000317561s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001550485s"/>
+  </run>
+  <run files="[../../../doc/table-generator.md]" name="../../../doc/table-generator.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.00148108s"/>
+    <column title="walltime" value="0.013145516000804491s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001228005s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000253075s"/>
+  </run>
+  <run files="[../../../doc/tool-integration.md]" name="../../../doc/tool-integration.md">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001560931s"/>
+    <column title="walltime" value="0.013174797997635324s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001231552s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000329379s"/>
+  </run>
+  <run files="[../../../doc/benchmark-example-calculatepi.xml]" name="../../../doc/benchmark-example-calculatepi.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001621305s"/>
+    <column title="walltime" value="0.015723706004791893s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001621305s"/>
+  </run>
+  <run files="[../../../doc/benchmark-example-cbmc.xml]" name="../../../doc/benchmark-example-cbmc.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001558586s"/>
+    <column title="walltime" value="0.020105710995267145s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001287119s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000271467s"/>
+  </run>
+  <run files="[../../../doc/benchmark-example-rand.xml]" name="../../../doc/benchmark-example-rand.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001525362s"/>
+    <column title="walltime" value="0.01601748199755093s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001236029s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000289333s"/>
+  </run>
+  <run files="[../../../doc/benchmark-example-true.xml]" name="../../../doc/benchmark-example-true.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001461364s"/>
+    <column title="walltime" value="0.020981645997380838s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001174937s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000286427s"/>
+  </run>
+  <run files="[../../../doc/benchmark.xml]" name="../../../doc/benchmark.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001430293s"/>
+    <column title="walltime" value="0.01755224200314842s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001151359s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000278934s"/>
+  </run>
+  <run files="[../../../doc/table-generator-example.xml]" name="../../../doc/table-generator-example.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001738972s"/>
+    <column title="walltime" value="0.020196247998683248s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001449767s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000289205s"/>
+  </run>
+  <run files="[../../../doc/table-generator.xml]" name="../../../doc/table-generator.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001582704s"/>
+    <column title="walltime" value="0.013517523002519738s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001327093s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000255611s"/>
+  </run>
+  <run name="dummy task 1">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.00140483s"/>
+    <column title="walltime" value="0.015512489000684582s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001133126s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000271704s"/>
+  </run>
+  <run name="dummy task 2">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001430999s"/>
+    <column title="walltime" value="0.014083044996368699s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.0011589s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000272099s"/>
+  </run>
+  <run name="dummy task 3">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001451007s"/>
+    <column title="walltime" value="0.011977390000538435s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001198229s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000252778s"/>
+  </run>
+  <column title="cputime" value="0.004s"/>
+  <column title="walltime" value="3.3272243259998504s"/>
+</result>

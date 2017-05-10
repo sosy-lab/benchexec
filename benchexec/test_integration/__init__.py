@@ -27,17 +27,21 @@ import sys
 import tempfile
 import unittest
 import zipfile
+
+from xml.etree import ElementTree
+
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
-base_dir = os.path.join(here, '..')
+base_dir = os.path.join(here, '..', '..')
 bin_dir = os.path.join(base_dir, 'bin')
+benchmarks_dir = here
 benchexec = os.path.join(bin_dir, 'benchexec')
 result_dtd = os.path.join(base_dir, 'doc', 'result.dtd')
 result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
 
 benchmark_test_name = 'benchmark-example-rand'
-benchmark_test_file = os.path.join(base_dir, 'doc', 'benchmark-example-rand.xml')
+benchmark_test_file = os.path.join(here, 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
 benchmark_test_rundefs = None
 
@@ -48,8 +52,30 @@ class BenchExecIntegrationTests(unittest.TestCase):
         cls.longMessage = True
         cls.maxDiff = None
 
+    def _build_tmp_dir(self):
+        """
+        Initializes the temporary directory structure for testing.
+        Current structure:
+            $TMP_DIR$
+                |-- doc                                # contains some files used as pseudo-benchmark tasks
+                |-- benchexec/test_integration
+                     |-- actual                        # output directory for benchexec runs
+                     |-- *.xml                         # benchmark definitions used
+        """
+        tmp_dir = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
+        relative_benchmark_dir = os.path.relpath(benchmarks_dir, base_dir)
+        tmp_benchmarks_dir = os.path.join(tmp_dir, relative_benchmark_dir)
+        shutil.copytree(benchmarks_dir, tmp_benchmarks_dir)
+        shutil.copytree(os.path.join(base_dir, 'doc'), os.path.join(tmp_dir, 'doc'))
+        output_dir = os.path.join(tmp_dir, 'benchexec', 'test_integration', 'actual')
+        os.makedirs(output_dir)
+        self.tmp = tmp_dir
+        self.benchmarks_dir = tmp_benchmarks_dir
+        self.output_dir = output_dir
+        self.benchmark_test_file = os.path.join(self.tmp, os.path.relpath(benchmark_test_file, base_dir))
+
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
+        self._build_tmp_dir()
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
@@ -67,15 +93,17 @@ class BenchExecIntegrationTests(unittest.TestCase):
                                                  tasks=benchmark_test_tasks,
                                                  rundefs=benchmark_test_rundefs,
                                                  test_name=benchmark_test_name,
-                                                 test_file=benchmark_test_file,
+                                                 test_file=None,
                                                  compress=False):
+        if not test_file:  # Assign default test file
+            test_file = self.benchmark_test_file
         self.run_cmd(*[benchexec, test_file,
-                       '--outputpath', self.tmp,
+                       '--outputpath', self.output_dir,
                        '--startTime', '2015-01-01 00:00',
                        ]
                        + ([] if compress else ['--no-compress-results'])
                        + list(args))
-        generated_files = set(os.listdir(self.tmp))
+        generated_files = set(os.listdir(self.output_dir))
 
         xml_suffix = '.xml.bz2' if compress else '.xml'
 
@@ -106,7 +134,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         # TODO find way to compare expected output to generated output
 
         if compress:
-            with zipfile.ZipFile(os.path.join(self.tmp, basename + "logfiles.zip")) as log_zip:
+            with zipfile.ZipFile(os.path.join(self.output_dir, basename + "logfiles.zip")) as log_zip:
                 self.assertIsNone(log_zip.testzip(), "Logfiles zip archive is broken")
                 for file in log_zip.namelist():
                     self.assertTrue(file.startswith(basename + "logfiles" + os.sep),
@@ -115,9 +143,38 @@ class BenchExecIntegrationTests(unittest.TestCase):
             for file in generated_files:
                 if file.endswith(".bz2"):
                     # try to decompress and read to see if there are any errors with it
-                    with bz2.BZ2File(os.path.join(self.tmp, file)) as bz2file:
+                    with bz2.BZ2File(os.path.join(self.output_dir, file)) as bz2file:
                         bz2file.read()
 
+    def _assertEqualXmlTree(self, actual_tree, expected_tree):
+        actual = ElementTree.tostring(actual_tree).splitlines()
+        expected = ElementTree.tostring(expected_tree).splitlines()
+
+        for actual_line, expected_line in zip(actual, expected):
+            self.assertEqual(actual_line, expected_line)
+
+    def assertSameRunResults(self, actual_result_xml, other_result_xml):
+        actual_result = ElementTree.ElementTree().parse(actual_result_xml)
+        expected_result = ElementTree.ElementTree().parse(other_result_xml)
+
+        self.assertEqual(actual_result.tag, expected_result.tag)
+        self._assertEqualXmlTree(actual_result.find('columns'), expected_result.find('columns'))
+        actual_runs = actual_result.findall('run')
+        expected_runs = expected_result.findall('run')
+        for actual, expected in zip(actual_runs, expected_runs):
+            self.assertEqual(actual.get('files'), expected.get('files'))
+            self.assertEqual(actual.get('name'), expected.get('name'))
+
+            comparable_columns = ['status', 'category', 'exitcode', 'returnvalue']
+            for actual_column, expected_column in zip(actual.findall('column'), expected.findall('column')):
+                if actual_column.get('title') in comparable_columns:
+                    self.assertEqual(actual_column.get('title'), expected_column.get('title'))
+                    self.assertEqual(actual_column.get('value'), expected_column.get('value'))
+
+
+    def test_same_results_file(self):
+        results_file = os.path.join(here, 'expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        self.assertSameRunResults(results_file, results_file)
 
     def test_simple(self):
         self.run_benchexec_and_compare_expected_files()
@@ -199,14 +256,14 @@ class BenchExecIntegrationTests(unittest.TestCase):
             raise e
 
     def test_validate_result_xml(self):
-        self.run_cmd(benchexec, benchmark_test_file,
-                     '--outputpath', self.tmp,
+        self.run_cmd(benchexec, self.benchmark_test_file,
+                     '--outputpath', self.output_dir,
                      '--startTime', '2015-01-01 00:00',
                      '--no-compress-results',
                      )
         basename = 'benchmark-example-rand.2015-01-01_0000.'
         xml_files = ['results.xml'] + ['results.'+files+'.xml' for files in benchmark_test_tasks]
-        xml_files = map(lambda x : os.path.join(self.tmp, basename + x), xml_files)
+        xml_files = map(lambda x : os.path.join(self.output_dir, basename + x), xml_files)
 
         # setup parser with DTD validation
         from lxml import etree
@@ -220,3 +277,15 @@ class BenchExecIntegrationTests(unittest.TestCase):
 
         for xml_file in xml_files:
             etree.parse(xml_file, parser=parser)
+
+    def test_run_results_information(self):
+        expected_xml = os.path.join(here, 'expected/benchmark-example-true.2015-01-01_0000.results.no options.xml')
+        benchmark_xml = os.path.join(self.benchmarks_dir, 'benchmark-example-true.xml')
+        self.run_cmd(benchexec, benchmark_xml,
+                     '--outputpath', self.output_dir,
+                     '--startTime', '2015-01-01 00:00',
+                     '--no-compress-results',
+                     '--rundefinition', 'no options')
+        actual_xml = os.path.join(self.output_dir, 'benchmark-example-true.2015-01-01_0000.results.no options.xml')
+
+        self.assertSameRunResults(actual_xml, expected_xml)

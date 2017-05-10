@@ -304,6 +304,11 @@ def common_base_dir(l):
     # os.path.commonprefix returns the common prefix, not the common directory
     return os.path.dirname(os.path.commonprefix(l))
 
+
+def relative_path(destination, start):
+    return os.path.relpath(destination, os.path.dirname(start))
+
+
 def log_rmtree_error(func, arg, exc_info):
     """Suited as onerror handler for (sh)util.rmtree() that logs a warning."""
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])

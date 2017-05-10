@@ -58,7 +58,7 @@ class TestResult(unittest.TestCase):
             return info_result
         runSet.benchmark.tool.determine_result = determine_result
 
-        return Run(sourcefiles=['test.c'], fileOptions=[], runSet=runSet)
+        return Run(identifier='test.c', sourcefiles=['test.c'], fileOptions=[], runSet=runSet)
 
     def test_simple(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
