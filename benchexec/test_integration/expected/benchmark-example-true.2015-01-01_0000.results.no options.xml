@@ -288,7 +288,7 @@
     <column hidden="true" title="cputime-cpu0" value="0.001327093s"/>
     <column hidden="true" title="cputime-cpu1" value="0.000255611s"/>
   </run>
-  <run files="[]" name="dummy task 1">
+  <run name="dummy task 1">
     <column title="status" value="true"/>
     <column title="cputime" value="0.00140483s"/>
     <column title="walltime" value="0.015512489000684582s"/>
@@ -298,7 +298,7 @@
     <column hidden="true" title="cputime-cpu0" value="0.001133126s"/>
     <column hidden="true" title="cputime-cpu1" value="0.000271704s"/>
   </run>
-  <run files="[]" name="dummy task 2">
+  <run name="dummy task 2">
     <column title="status" value="true"/>
     <column title="cputime" value="0.001430999s"/>
     <column title="walltime" value="0.014083044996368699s"/>
@@ -308,7 +308,7 @@
     <column hidden="true" title="cputime-cpu0" value="0.0011589s"/>
     <column hidden="true" title="cputime-cpu1" value="0.000272099s"/>
   </run>
-  <run files="[]" name="dummy task 3">
+  <run name="dummy task 3">
     <column title="status" value="true"/>
     <column title="cputime" value="0.001451007s"/>
     <column title="walltime" value="0.011977390000538435s"/>
