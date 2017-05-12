@@ -57,7 +57,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         if executable == None: 
             raise Exception('No executable specified')
         
-        cmdline = [executable] + ['--full-output']
+        cmdline = [executable]
         
         if spec != None: 
             cmdline = cmdline + ['--spec'] + [spec]
@@ -67,10 +67,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             
         if options:
             for option in options:
-                if option in ['32bit','64bit']:
-                    cmdline = cmdline + ['--architecture'] + [option]
-                else:
-                    cmdline = cmdline + [option]
+                cmdline = cmdline + [option]
 
         return cmdline
 
