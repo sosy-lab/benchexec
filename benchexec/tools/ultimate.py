@@ -54,20 +54,19 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        if executable == None: 
+        if executable == None:
             raise Exception('No executable specified')
-        
+
         cmdline = [executable]
-        
-        if spec != None: 
+
+        if spec != None:
             cmdline = cmdline + ['--spec'] + [spec]
-            
+
         if tasks:
-            cmdline = cmdline + ['--file'] + tasks            
-            
+            cmdline = cmdline + ['--file'] + tasks
+
         if options:
-            for option in options:
-                cmdline = cmdline + [option]
+            cmdline = cmdline + options
 
         return cmdline
 
