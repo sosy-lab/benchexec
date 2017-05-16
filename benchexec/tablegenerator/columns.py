@@ -255,12 +255,7 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-    if number == 0:
-        formatted_value = '0'
-        if initial_value_sig_digits > 1:
-            formatted_value = '.' + '0' * (initial_value_sig_digits - 1)
-
-    else:
+    if number != 0:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
 
         if not format_target.startswith('tooltip'):
@@ -290,6 +285,10 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
             if formatted_value.endswith('.'):
                 formatted_value = formatted_value[:-1]
+    else:
+        formatted_value = '0'
+        if initial_value_sig_digits > 1:
+            formatted_value = '.' + '0' * (initial_value_sig_digits - 1)
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
