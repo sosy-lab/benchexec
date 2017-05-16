@@ -256,37 +256,40 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
     if number == 0:
-        float_value = 0
+        formatted_value = '0'
+        if initial_value_sig_digits > 1:
+            formatted_value = '.' + '0' * (initial_value_sig_digits - 1)
+
     else:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
 
-    if not format_target.startswith('tooltip'):
-        max_digits_to_display = max_digits_after_decimal
-    else:
-        max_digits_to_display = len(str(float_value))  # This value may be too big, but extra digits will be cut below
-    formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
-
-    # Get the number of intended significant digits and the number of current significant digits.
-    # If we have not enough digits due to rounding, 0's have to be re-added.
-    # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
-    current_sig_digits = _get_significant_digits(formatted_value)
-
-    digits_to_add = intended_digits - current_sig_digits
-
-    if digits_to_add > 0:
-        if '.' not in formatted_value:
-            raise AssertionError(
-                "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'"
-                .format(formatted_value, number, float_value, intended_digits, max_digits_to_display, format_target))
-        formatted_value += "".join(['0'] * digits_to_add)
-    elif digits_to_add < 0:
-        if '.' in formatted_value[:digits_to_add]:
-            formatted_value = formatted_value[:digits_to_add]
+        if not format_target.startswith('tooltip'):
+            max_digits_to_display = max_digits_after_decimal
         else:
-            formatted_value = str(round(float_value))
+            max_digits_to_display = len(str(float_value))  # This value may be too big, but extra digits will be cut below
+        formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
 
-        if formatted_value.endswith('.'):
-            formatted_value = formatted_value[:-1]
+        # Get the number of intended significant digits and the number of current significant digits.
+        # If we have not enough digits due to rounding, 0's have to be re-added.
+        # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
+        current_sig_digits = _get_significant_digits(formatted_value)
+
+        digits_to_add = intended_digits - current_sig_digits
+
+        if digits_to_add > 0:
+            if '.' not in formatted_value:
+                raise AssertionError(
+                    "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'"
+                    .format(formatted_value, number, float_value, intended_digits, max_digits_to_display, format_target))
+            formatted_value += "".join(['0'] * digits_to_add)
+        elif digits_to_add < 0:
+            if '.' in formatted_value[:digits_to_add]:
+                formatted_value = formatted_value[:digits_to_add]
+            else:
+                formatted_value = str(round(float_value))
+
+            if formatted_value.endswith('.'):
+                formatted_value = formatted_value[:-1]
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
