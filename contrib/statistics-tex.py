@@ -21,6 +21,7 @@ limitations under the License.
 
 import argparse
 import collections
+import itertools
 import re
 import string
 import sys
@@ -37,15 +38,21 @@ r"""% The following definition defines a command for each value.
 % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}""")
 
-def extract_cputime(run_result):
+def extract_time(column_title, time_name, run_result):
     pos = None
     for i, column in enumerate(run_result.columns):
-        if column.title == "cputime":
+        if column.title == column_title:
             pos = i
             break
     if pos is None:
-        sys.exit("CPU time missing for task {0}.".format(run_result.task_id[0]))
+        sys.exit("{0} time missing for task {1}.".format(time_name, run_result.task_id[0]))
     return Util.to_decimal(run_result.values[pos])
+
+def extract_cputime(run_result):
+    return extract_time("cputime", "CPU", run_result)
+
+def extract_walltime(run_result):
+    return extract_time("walltime", "Wall", run_result)
 
 def format_command_part(name):
     name = re.sub("[^a-zA-Z]", "-", name)
@@ -58,25 +65,33 @@ class StatAccumulator(object):
     def __init__(self):
         self.count = 0
         self.cputime_values = []
+        self.walltime_values = []
 
     def add(self, result):
         self.count += 1
         self.cputime_values.append(extract_cputime(result))
+        self.walltime_values.append(extract_walltime(result))
 
     def to_latex(self, name_parts):
         cputime_stats = tablegenerator.StatValue.from_list(self.cputime_values)
+        walltime_stats = tablegenerator.StatValue.from_list(self.walltime_values)
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts)) # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
-        return "\n".join([
-            r"\StoreBenchExecResult{%s}{Count}{}{%s}" % (name, self.count),
-            r"\StoreBenchExecResult{%s}{Cputime}{}{%s}" % (name, cputime_stats.sum),
-            r"\StoreBenchExecResult{%s}{Cputime}{Avg}{%s}" % (name, cputime_stats.avg),
-            r"\StoreBenchExecResult{%s}{Cputime}{Median}{%s}" % (name, cputime_stats.median),
-            r"\StoreBenchExecResult{%s}{Cputime}{Min}{%s}" % (name, cputime_stats.min),
-            r"\StoreBenchExecResult{%s}{Cputime}{Max}{%s}" % (name, cputime_stats.max),
-            r"\StoreBenchExecResult{%s}{Cputime}{Stdev}{%s}" % (name, cputime_stats.stdev)
-            ])
+        return "\n".join(itertools.chain.from_iterable(
+            [["\StoreBenchExecResult{%s}{Count}{}{%s}" % (name, self.count)]]
+          + [[
+                r"\StoreBenchExecResult{%s}{%s}{}{%s}" % (name, time_name, time_stats.sum),
+                r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}" % (name, time_name, time_stats.avg),
+                r"\StoreBenchExecResult{%s}{%s}{Median}{%s}" % (name, time_name, time_stats.median),
+                r"\StoreBenchExecResult{%s}{%s}{Min}{%s}" % (name, time_name, time_stats.min),
+                r"\StoreBenchExecResult{%s}{%s}{Max}{%s}" % (name, time_name, time_stats.max),
+                r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}" % (name, time_name, time_stats.stdev)
+              ] for (time_name, time_stats) in [
+                  ("Cputime", cputime_stats),
+                  ("Walltime", walltime_stats)
+                ]]
+            ))
 
 def main(args=None):
     if args is None:
