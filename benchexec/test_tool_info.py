@@ -127,7 +127,7 @@ def print_tool_info(name):
         if not 'PROPERTY.PRP' in ' '.join(cmdline):
             logging.warning('Tool module ignores property file.')
     except:
-        logging.warning('Tool module does not support tasks with property file: %s', exc_info=1)
+        logging.warning('Tool module does not support tasks with property file:', exc_info=1)
 
     try:
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT1.FILE', 'INPUT2.FILE'], None, {})
