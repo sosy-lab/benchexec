@@ -36,7 +36,7 @@ r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
-\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}""")
+\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%""")
 
 def extract_time(column_title, time_name, run_result):
     pos = None
@@ -79,14 +79,14 @@ class StatAccumulator(object):
         name_parts += [""] * (4 - len(name_parts)) # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
         return "\n".join(itertools.chain.from_iterable(
-            [["\StoreBenchExecResult{%s}{Count}{}{%s}" % (name, self.count)]]
+            [["\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
           + [[
-                r"\StoreBenchExecResult{%s}{%s}{}{%s}" % (name, time_name, time_stats.sum),
-                r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}" % (name, time_name, time_stats.avg),
-                r"\StoreBenchExecResult{%s}{%s}{Median}{%s}" % (name, time_name, time_stats.median),
-                r"\StoreBenchExecResult{%s}{%s}{Min}{%s}" % (name, time_name, time_stats.min),
-                r"\StoreBenchExecResult{%s}{%s}{Max}{%s}" % (name, time_name, time_stats.max),
-                r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}" % (name, time_name, time_stats.stdev)
+                r"\StoreBenchExecResult{%s}{%s}{}{%s}%%" % (name, time_name, time_stats.sum),
+                r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}%%" % (name, time_name, time_stats.avg),
+                r"\StoreBenchExecResult{%s}{%s}{Median}{%s}%%" % (name, time_name, time_stats.median),
+                r"\StoreBenchExecResult{%s}{%s}{Min}{%s}%%" % (name, time_name, time_stats.min),
+                r"\StoreBenchExecResult{%s}{%s}{Max}{%s}%%" % (name, time_name, time_stats.max),
+                r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%" % (name, time_name, time_stats.stdev)
               ] for (time_name, time_stats) in [
                   ("Cputime", cputime_stats),
                   ("Walltime", walltime_stats)
