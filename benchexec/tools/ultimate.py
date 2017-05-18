@@ -18,23 +18,82 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import functools
+import os
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
+
+_SVCOMP17_VERSIONS = {"f7c3ed31"}
+_SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
     Abstract tool info for Ultimate-based tools.
     """
 
+    REQUIRED_PATHS = [
+              "artifacts.xml",
+              "config",
+              "configuration",
+              "data",
+              "features",
+              "p2",
+              "plugins",
+              "LICENSE",
+              "LICENSE.GPL",
+              "LICENSE.GPL.LESSER",
+              "README",
+              "Ultimate",
+              "Ultimate.ini",
+              "Ultimate.py",
+              "z3",
+              "mathsat",
+              "cvc4",
+              ]
+
     def executable(self):
         return util.find_executable('Ultimate.py')
 
+    @functools.lru_cache()
     def version(self, executable):
+        # Would be good if this method could get the real Ultimate version
+        # number, too, not only the git hash.
         return self._version_from_tool(executable)
 
+    def _is_svcomp17_version(self, executable):
+        return self.version(executable) in _SVCOMP17_VERSIONS
+
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        return [executable] + [spec] + options + ['--full-output'] + tasks
+        if self._is_svcomp17_version(executable):
+            assert spec
+            cmdline = [executable, spec]
+
+            cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
+
+            cmdlinea.append("--full-output")
+
+            cmdline += tasks
+            return cmdline
+        else:
+            cmdline = [executable]
+
+            if spec:
+                cmdline += ['--spec', spec]
+
+            if tasks:
+                cmdline += ['--file'] + tasks
+
+            # Not sure if we should append --full-output for new Ultimate, too
+
+            cmdline += options
+            return cmdline
+
+    def program_files(self, executable):
+        installDir = os.path.dirname(executable)
+        paths = self.REQUIRED_PATHS_SVCOMP17 if self._is_svcomp17_version(executable) else self.REQUIRED_PATHS
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in paths)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
