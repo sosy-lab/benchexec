@@ -22,39 +22,5 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
-    REQUIRED_PATHS = [
-                  "artifacts.xml",
-                  "AutomizerTermination.xml",
-                  "AutomizerWitnessValidation.xml",
-                  "AutomizerReach.xml",
-                  "AutomizerMemDerefMemtrack.xml",
-                  "configuration",
-                  "cvc4",
-                  "features",
-                  "LICENSE",
-                  "LICENSE.GPL",
-                  "LICENSE.GPL.LESSER",
-                  "p2",
-                  "plugins",
-                  "README",
-                  "svcomp-DerefFreeMemtrack-32bit-Automizer_Bitvector.epf",
-                  "svcomp-DerefFreeMemtrack-32bit-Automizer_Default.epf",
-                  "svcomp-DerefFreeMemtrack-64bit-Automizer_Bitvector.epf",
-                  "svcomp-DerefFreeMemtrack-64bit-Automizer_Default.epf",
-                  "svcomp-Overflow-32bit-Automizer_Default.epf",
-                  "svcomp-Overflow-64bit-Automizer_Default.epf",
-                  "svcomp-Reach-32bit-Automizer_Bitvector.epf",
-                  "svcomp-Reach-32bit-Automizer_Default.epf",
-                  "svcomp-Reach-64bit-Automizer_Bitvector.epf",
-                  "svcomp-Reach-64bit-Automizer_Default.epf",
-                  "svcomp-Termination-32bit-Automizer_Default.epf",                  
-                  "svcomp-Termination-64bit-Automizer_Default.epf",
-                  "Ultimate",
-                  "Ultimate.ini",
-                  "Ultimate.py",
-                  "z3",
-                  "mathsat"
-                  ]
-
     def name(self):
         return 'ULTIMATE Automizer'

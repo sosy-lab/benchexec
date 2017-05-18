@@ -21,11 +21,136 @@ limitations under the License.
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
+import os.path
+import subprocess
+import logging
+import re
+from functools import lru_cache
 
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
     Abstract tool info for Ultimate-based tools.
     """
+
+    REQUIRED_PATHS = [
+              "artifacts.xml",
+              "config",
+              "configuration",
+              "data",
+              "features",
+              "p2",
+              "plugins",
+              "LICENSE",
+              "LICENSE.GPL",
+              "LICENSE.GPL.LESSER",
+              "README",
+              "Ultimate",
+              "Ultimate.ini",
+              "Ultimate.py",
+              "z3",
+              "mathsat",
+              "cvc4",
+              ]
+
+    REQUIRED_PATHS_AUTOMIZER_SVCOMP17 = [
+              "artifacts.xml",
+              "AutomizerTermination.xml",
+              "AutomizerWitnessValidation.xml",
+              "AutomizerReach.xml",
+              "AutomizerMemDerefMemtrack.xml",
+              "configuration",
+              "cvc4",
+              "features",
+              "LICENSE",
+              "LICENSE.GPL",
+              "LICENSE.GPL.LESSER",
+              "p2",
+              "plugins",
+              "README",
+              "svcomp-DerefFreeMemtrack-32bit-Automizer_Bitvector.epf",
+              "svcomp-DerefFreeMemtrack-32bit-Automizer_Default.epf",
+              "svcomp-DerefFreeMemtrack-64bit-Automizer_Bitvector.epf",
+              "svcomp-DerefFreeMemtrack-64bit-Automizer_Default.epf",
+              "svcomp-Overflow-32bit-Automizer_Default.epf",
+              "svcomp-Overflow-64bit-Automizer_Default.epf",
+              "svcomp-Reach-32bit-Automizer_Bitvector.epf",
+              "svcomp-Reach-32bit-Automizer_Default.epf",
+              "svcomp-Reach-64bit-Automizer_Bitvector.epf",
+              "svcomp-Reach-64bit-Automizer_Default.epf",
+              "svcomp-Termination-32bit-Automizer_Default.epf",
+              "svcomp-Termination-64bit-Automizer_Default.epf",
+              "Ultimate",
+              "Ultimate.ini",
+              "Ultimate.py",
+              "z3",
+              "mathsat"
+              ]
+
+    REQUIRED_PATHS_KOJAK_SVCOMP17 = [
+                  "artifacts.xml",
+                  "configuration",
+                  "cvc4",
+                  "features",
+                  "KojakMemDerefMemtrack.xml",
+                  "KojakReach.xml",
+                  "LICENSE",
+                  "LICENSE.GPL",
+                  "LICENSE.GPL.LESSER",
+                  "p2",
+                  "plugins",
+                  "README",
+                  "svcomp-DerefFreeMemtrack-32bit-Kojak_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-32bit-Kojak_Default.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Default.epf",
+                  "svcomp-Overflow-32bit-Kojak_Default.epf",
+                  "svcomp-Overflow-64bit-Kojak_Default.epf",
+                  "svcomp-Reach-32bit-Kojak_Bitvector.epf",
+                  "svcomp-Reach-32bit-Kojak_Default.epf",
+                  "svcomp-Reach-64bit-Kojak_Bitvector.epf",
+                  "svcomp-Reach-64bit-Kojak_Default.epf",
+                  "Ultimate",
+                  "Ultimate.ini",
+                  "Ultimate.py",
+                  "z3",
+                  "mathsat"
+                  ]
+
+    REQUIRED_PATHS_TAIPAN_SVCOMP17 = [
+                  "artifacts.xml",
+                  "configuration",
+                  "cvc4",
+                  "features",
+                  "LICENSE",
+                  "LICENSE.GPL",
+                  "LICENSE.GPL.LESSER",
+                  "p2",
+                  "plugins",
+                  "README",
+                  "svcomp-DerefFreeMemtrack-32bit-Taipan_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-32bit-Taipan_Default.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Taipan_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Taipan_Default.epf",
+                  "svcomp-Overflow-32bit-Taipan_Default.epf",
+                  "svcomp-Overflow-64bit-Taipan_Default.epf",
+                  "svcomp-Reach-32bit-Taipan_Bitvector.epf",
+                  "svcomp-Reach-32bit-Taipan_Default.epf",
+                  "svcomp-Reach-64bit-Taipan_Bitvector.epf",
+                  "svcomp-Reach-64bit-Taipan_Default.epf",
+                  "TaipanMemDerefMemtrack.xml",
+                  "TaipanReach.xml",
+                  "TaipanWitnessValidation.xml",
+                  "Ultimate",
+                  "Ultimate.ini",
+                  "Ultimate.py",
+                  "z3",
+                  "mathsat"
+                  ]
+
+    SVCOMP17_WRAPPER_VERSIONS = {'f7c3ed31'}
+    SVCOMP17_ULTIMATE_VERSIONS = {'0.0.1'}
+    SVCOMP17_FORBIDDEN_FLAGS = {'--full-output', '--architecture'}
+    ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
 
     def executable(self):
         return util.find_executable('Ultimate.py')
@@ -34,7 +159,80 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
+        return self.determine_commandline_version(executable)[0](executable, options, tasks, spec, rlimits)
+
+    def program_files(self, executable):
+        installDir = os.path.dirname(executable)
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.determine_commandline_version(executable)[1])
+
+    @lru_cache(maxsize=None)
+    def determine_commandline_version(self, executable):
+        bin_python_wrapper = [util.find_executable('Ultimate.py')]
+        bin_ultimate = ['java', '-jar' , os.path.join(os.path.dirname(os.path.realpath(bin_python_wrapper[0])), 'plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar')]
+        version_wrapper = self.get_version(bin_python_wrapper + ['--version'])
+        version_ultimate = self.get_version(bin_ultimate + ['--version'])
+        version_ultimate_match = self.ULTIMATE_VERSION_REGEX.search(version_ultimate)
+        if not version_ultimate_match:
+            raise RuntimeError('Could not obtain Ultimate version')
+
+        version_ultimate = version_ultimate_match.group(1)
+
+        msg = 'Detected Ultimate version {0} / {1}'.format(version_ultimate, version_wrapper)
+        if version_wrapper in self.SVCOMP17_WRAPPER_VERSIONS and version_ultimate in self.SVCOMP17_ULTIMATE_VERSIONS:
+            logging.debug('{0}. Using SVCOMP17 compatibility mode'.format(msg))
+
+            if 'Automizer' in self.name():
+                paths = self.REQUIRED_PATHS_AUTOMIZER_SVCOMP17
+            elif 'Kojak' in self.name():
+                paths = self.REQUIRED_PATHS_KOJAK_SVCOMP17
+            elif 'Taipan' in self.name():
+                paths = self.REQUIRED_PATHS_TAIPAN_SVCOMP17
+            else:
+                raise RuntimeError('Unknown Ultimate tool ' + self.name())
+
+            return (self.cmdline_svcomp17, paths)
+        else:
+            logging.debug(msg)
+            return (self.cmdline_current, self.REQUIRED_PATHS)
+
+    def cmdline_svcomp17(self, executable, options, tasks, spec, rlimits):
+        for flag in self.SVCOMP17_FORBIDDEN_FLAGS:
+            if flag in options:
+                options.remove(flag)
+
         return [executable] + [spec] + options + ['--full-output'] + tasks
+
+    def cmdline_current(self, executable, options, tasks, spec, rlimits):
+        if executable == None:
+            raise Exception('No executable specified')
+
+        cmdline = [executable]
+
+        if spec != None:
+            cmdline = cmdline + ['--spec'] + [spec]
+
+        if tasks:
+            cmdline = cmdline + ['--file'] + tasks
+
+        if options:
+            cmdline = cmdline + options
+
+        return cmdline
+
+    def get_version(self, command):
+        try:
+            process = subprocess.Popen(command,
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = process.communicate()
+        except OSError as e:
+            logging.warning('Cannot run {0} to determine version: {1}'.
+                            format(command, e.strerror))
+            return ''
+        if process.returncode:
+            logging.warning('Cannot determine {0} version, exit code {1}'.
+                            format(command, process.returncode))
+            return ''
+        return util.decode_to_string(stdout).strip()
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
