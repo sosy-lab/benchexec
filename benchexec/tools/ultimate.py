@@ -19,6 +19,7 @@ limitations under the License.
 """
 
 import functools
+import logging
 import os
 import re
 import subprocess
@@ -112,7 +113,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
 
-            cmdlinea.append("--full-output")
+            cmdline.append("--full-output")
 
             cmdline += tasks
             return cmdline
