@@ -51,7 +51,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
               "mathsat",
               "cvc4",
               ]
-    
+
     REQUIRED_PATHS_AUTOMIZER_SVCOMP17 = [
               "artifacts.xml",
               "AutomizerTermination.xml",
@@ -146,7 +146,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                   "z3",
                   "mathsat"
                   ]
-    
+
     SVCOMP17_WRAPPER_VERSIONS = {'f7c3ed31'}
     SVCOMP17_ULTIMATE_VERSIONS = {'0.0.1'}
     SVCOMP17_FORBIDDEN_FLAGS = {'--full-output', '--architecture'}
@@ -164,7 +164,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def program_files(self, executable):
         installDir = os.path.dirname(executable)
         return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.determine_commandline_version(executable)[1])
-    
+
     @lru_cache(maxsize=None)
     def determine_commandline_version(self, executable):
         bin_python_wrapper = [util.find_executable('Ultimate.py')]
@@ -176,32 +176,32 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             raise RuntimeError('Could not obtain Ultimate version')
 
         version_ultimate = version_ultimate_match.group(1)
-        
+
         msg = 'Detected Ultimate version {0} / {1}'.format(version_ultimate, version_wrapper)
         if version_wrapper in self.SVCOMP17_WRAPPER_VERSIONS and version_ultimate in self.SVCOMP17_ULTIMATE_VERSIONS:
             logging.debug('{0}. Using SVCOMP17 compatibility mode'.format(msg))
-            
+
             if 'Automizer' in self.name():
                 paths = self.REQUIRED_PATHS_AUTOMIZER_SVCOMP17
             elif 'Kojak' in self.name():
                 paths = self.REQUIRED_PATHS_KOJAK_SVCOMP17
             elif 'Taipan' in self.name():
                 paths = self.REQUIRED_PATHS_TAIPAN_SVCOMP17
-            else: 
+            else:
                 raise RuntimeError('Unknown Ultimate tool ' + self.name())
-            
+
             return (self.cmdline_svcomp17, paths)
         else:
             logging.debug(msg)
             return (self.cmdline_current, self.REQUIRED_PATHS)
-    
+
     def cmdline_svcomp17(self, executable, options, tasks, spec, rlimits):
         for flag in self.SVCOMP17_FORBIDDEN_FLAGS:
             if flag in options:
                 options.remove(flag)
 
         return [executable] + [spec] + options + ['--full-output'] + tasks
-    
+
     def cmdline_current(self, executable, options, tasks, spec, rlimits):
         if executable == None:
             raise Exception('No executable specified')
@@ -218,7 +218,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             cmdline = cmdline + options
 
         return cmdline
-    
+
     def get_version(self, command):
         try:
             process = subprocess.Popen(command,
@@ -233,7 +233,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                             format(command, process.returncode))
             return ''
         return util.decode_to_string(stdout).strip()
-    
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
             if line.startswith('FALSE(valid-free)'):
