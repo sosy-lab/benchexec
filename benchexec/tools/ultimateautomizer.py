@@ -22,7 +22,7 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
-    REQUIRED_PATHS = [
+    REQUIRED_PATHS_SVCOMP17 = [
                   "artifacts.xml",
                   "AutomizerTermination.xml",
                   "AutomizerWitnessValidation.xml",
@@ -47,7 +47,7 @@ class Tool(ultimate.UltimateTool):
                   "svcomp-Reach-32bit-Automizer_Default.epf",
                   "svcomp-Reach-64bit-Automizer_Bitvector.epf",
                   "svcomp-Reach-64bit-Automizer_Default.epf",
-                  "svcomp-Termination-32bit-Automizer_Default.epf",                  
+                  "svcomp-Termination-32bit-Automizer_Default.epf",
                   "svcomp-Termination-64bit-Automizer_Default.epf",
                   "Ultimate",
                   "Ultimate.ini",
