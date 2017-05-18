@@ -20,6 +20,8 @@ limitations under the License.
 
 import functools
 import os
+import re
+import subprocess
 
 import benchexec.util as util
 import benchexec.tools.template
@@ -27,6 +29,8 @@ import benchexec.result as result
 
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
+_ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
+_LAUNCHER_JAR = "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"
 
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
@@ -56,11 +60,47 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('Ultimate.py')
 
+    def _ultimate_version(self, executable):
+        launcher_jar = os.path.join(os.path.dirname(executable), _LAUNCHER_JAR)
+        if not os.path.isfile(launcher_jar):
+            logging.warning('Cannot find {0} to determine Ultimate version'.
+                            format(_LAUNCHER_JAR))
+            return ''
+
+        try:
+            process = subprocess.Popen(["java", "-jar", launcher_jar, "--version"],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = process.communicate()
+        except OSError as e:
+            logging.warning('Cannot run Java to determine Ultimate version: {0}'.
+                            format(e.strerror))
+            return ''
+        if stderr and not use_stderr:
+            logging.warning('Cannot determine Ultimate version, error output: {0}'.
+                            format(util.decode_to_string(stderr)))
+            return ''
+        if process.returncode:
+            logging.warning('Cannot determine Ultimate version, exit code {0}'.
+                            format(process.returncode))
+            return ''
+
+        version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
+        if not version_ultimate_match:
+            logging.warning('Cannot determine Ultimate version, output: {0}'.
+                            format(util.decode_to_string(stdout)))
+            return ''
+
+        return version_ultimate_match.group(1)
+
     @functools.lru_cache()
     def version(self, executable):
-        # Would be good if this method could get the real Ultimate version
-        # number, too, not only the git hash.
-        return self._version_from_tool(executable)
+        wrapper_version = self._version_from_tool(executable)
+        if wrapper_version in _SVCOMP17_VERSIONS:
+            # Keep reported version number for old versions as they were before
+            return wrapper_version
+
+        ultimate_version = self._ultimate_version(executable)
+        return ultimate_version + '-' + wrapper_version
 
     def _is_svcomp17_version(self, executable):
         return self.version(executable) in _SVCOMP17_VERSIONS
