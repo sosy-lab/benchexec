@@ -287,7 +287,9 @@ class OutputHandler(object):
         identifier_names = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
-        runSet.common_prefix = util.common_base_dir(identifier_names) + os.path.sep
+        runSet.common_prefix = util.common_base_dir(identifier_names)
+        if runSet.common_prefix:
+            runSet.common_prefix += os.path.sep
 
         # length of the first column in terminal
         runSet.max_length_of_filename = max(len(file) for file in identifier_names) if identifier_names else 20
