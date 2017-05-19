@@ -284,7 +284,7 @@ class OutputHandler(object):
         """
         xml_file_name = self.get_filename(runSet.name, "xml")
 
-        identifier_names = [util.relative_path(run.identifier, xml_file_name) for run in runSet.runs]
+        identifier_names = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
         runSet.common_prefix = util.common_base_dir(identifier_names) + os.path.sep
