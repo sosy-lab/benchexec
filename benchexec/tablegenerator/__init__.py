@@ -95,16 +95,10 @@ UNIT_CONVERSION = {
 }
 
 
-def parse_table_definition_file(file, options):
+def parse_table_definition_file(file):
     '''
-    This function parses the input to get run sets and columns.
-    The param 'file' is an XML file defining the result files and columns.
-
-    If column titles are given in the XML file,
-    they will be searched in the result files.
-    If no title is given, all columns of the result file are taken.
-
-    @return: a list of RunSetResult objects
+    Read an parse the XML of a table-definition file.
+    @return: an ElementTree object for the table definition
     '''
     logging.info("Reading table definition from '%s'...", file)
     if not os.path.isfile(file):
@@ -122,19 +116,78 @@ def parse_table_definition_file(file, options):
     if 'table' != tableGenFile.tag:
         logging.error("Table file %s is invalid: It's root element is not named 'table'.", file)
         exit(1)
+    return tableGenFile
 
-    defaultColumnsToShow = extract_columns_from_table_definition_file(tableGenFile, file)
-    columns_relevant_for_diff = _get_columns_relevant_for_diff(
-        defaultColumnsToShow)
 
-    return Util.flatten(
-        parallel.map(
-            handle_tag_in_table_definition_file,
-            tableGenFile,
-            itertools.repeat(file),
-            itertools.repeat(defaultColumnsToShow),
-            itertools.repeat(columns_relevant_for_diff),
-            itertools.repeat(options)))
+def table_definition_lists_result_files(table_definition):
+    return any(tag.tag in ['result', 'union'] for tag in table_definition)
+
+
+def load_results_from_table_definition(table_definition, table_definition_file, options):
+    """
+    Load all results in files that are listed in the given table-definition file.
+    @return: a list of RunSetResult objects
+    """
+    default_columns = extract_columns_from_table_definition_file(table_definition, table_definition_file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(default_columns)
+
+    results = []
+    for tag in table_definition:
+        if tag.tag == 'result':
+            columns = extract_columns_from_table_definition_file(tag, table_definition_file) or default_columns
+            run_set_id = tag.get('id')
+            for resultsFile in get_file_list_from_result_tag(tag, table_definition_file):
+                results.append(parallel.submit(
+                    load_result, resultsFile, options, run_set_id, columns, columns_relevant_for_diff))
+
+        elif tag.tag == 'union':
+            results.append(parallel.submit(
+                handle_union_tag, tag, table_definition_file, options, default_columns, columns_relevant_for_diff))
+
+    return [future.result() for future in results]
+
+
+def handle_union_tag(tag, table_definition_file, options, default_columns, columns_relevant_for_diff):
+    columns = extract_columns_from_table_definition_file(tag, table_definition_file) or default_columns
+    result = RunSetResult([], collections.defaultdict(list), columns)
+
+    for resultTag in tag.findall('result'):
+        run_set_id = resultTag.get('id')
+        for resultsFile in get_file_list_from_result_tag(resultTag, table_definition_file):
+            result_xml = parse_results_file(resultsFile, run_set_id)
+            if result_xml is not None:
+                result.append(resultsFile, result_xml, options.all_columns)
+
+    if not result._xml_results:
+        return None
+
+    name = tag.get('title', tag.get('name'))
+    if name:
+        result.attributes['name'] = [name]
+    result.collect_data(options.correct_only)
+    return result
+
+
+def get_file_list_from_result_tag(result_tag, table_definition_file):
+    if not 'filename' in result_tag.attrib:
+        logging.warning("Result tag without filename attribute in file '%s'.", table_definition_file)
+        return []
+    return Util.get_file_list(os.path.join(os.path.dirname(table_definition_file), result_tag.get('filename'))) # expand wildcards
+
+
+def load_results_with_table_definition(result_files, table_definition, table_definition_file, options):
+    """
+    Load results from given files with column definitions taken from a table-definition file.
+    @return: a list of RunSetResult objects
+    """
+    columns = extract_columns_from_table_definition_file(table_definition, table_definition_file)
+    columns_relevant_for_diff = _get_columns_relevant_for_diff(columns)
+
+    return load_results(
+        result_files,
+        options=options,
+        columns=columns,
+        columns_relevant_for_diff=columns_relevant_for_diff)
 
 
 def extract_columns_from_table_definition_file(xmltag, table_definition_file):
@@ -383,46 +436,6 @@ def get_column_type(column, result_set):
         return ColumnType.text, None, None, 1
 
 
-def handle_tag_in_table_definition_file(tag, table_file,
-                                        defaultColumnsToShow,
-                                        columns_relevant_for_diff, options):
-    def get_file_list(result_tag):
-        if not 'filename' in result_tag.attrib:
-            logging.warning("Result tag without filename attribute in file '%s'.", table_file)
-            return []
-        return Util.get_file_list(os.path.join(os.path.dirname(table_file), result_tag.get('filename'))) # expand wildcards
-
-    results = [] # default value for results
-    if tag.tag == 'result':
-        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
-        run_set_id = tag.get('id')
-        for resultsFile in get_file_list(tag):
-            results.append(
-                load_result(resultsFile, options, run_set_id, columnsToShow,
-                            columns_relevant_for_diff))
-
-    elif tag.tag == 'union':
-        columnsToShow = extract_columns_from_table_definition_file(tag, table_file) or defaultColumnsToShow
-        result = RunSetResult([], collections.defaultdict(list), columnsToShow)
-
-        for resultTag in tag.findall('result'):
-            run_set_id = resultTag.get('id')
-            for resultsFile in get_file_list(resultTag):
-                result_xml = parse_results_file(resultsFile, run_set_id)
-                if result_xml is not None:
-                    result.append(resultsFile, result_xml, options.all_columns)
-
-        if result._xml_results:
-            name = tag.get('title', tag.get('name'))
-            if name:
-                result.attributes['name'] = [name]
-            result.collect_data(options.correct_only)
-            results = [result]
-        else:
-            return []
-    return results
-
-
 def get_task_id(task):
     """
     Return a unique identifier for a given task.
@@ -579,6 +592,7 @@ class RunSetResult(object):
         attributes = collections.defaultdict(list)
 
         # Defaults
+        attributes['filename'] = [resultFile]
         attributes['branch'] = [os.path.basename(resultFile).split('#')[0] if '#' in resultFile else '']
         attributes['timelimit'] = ['-']
         attributes['memlimit'] = ['-']
@@ -618,6 +632,17 @@ class RunSetResult(object):
 def _get_run_tags_from_xml(result_elem):
     return result_elem.findall('run') + result_elem.findall('sourcefile')
 
+
+def load_results(result_files, options, run_set_id=None, columns=None,
+                 columns_relevant_for_diff=set()):
+    """Version of load_result for multiple input files that will be loaded concurrently."""
+    return parallel.map(
+        load_result,
+        result_files,
+        itertools.repeat(options),
+        itertools.repeat(run_set_id),
+        itertools.repeat(columns),
+        itertools.repeat(columns_relevant_for_diff))
 
 def load_result(result_file, options, run_set_id=None, columns=None,
                 columns_relevant_for_diff=set()):
@@ -762,8 +787,8 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                logging.info("    no result for task '%s' (tool=%s, benchmark=%s, benchmark name=%s).",
-                             task[0], runset.attributes['tool'], runset.attributes['name'], runset.attributes['benchmarkname'])
+                logging.info("    No result for task '%s' in '%s'.",
+                             task[0], Util.prettylist(runset.attributes['filename']))
                 # create an empty dummy element
                 run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
                                        runset.columns, [None]*len(runset.columns))
@@ -856,9 +881,11 @@ class RunResult(object):
     The class RunResult contains the results of a single verification run.
     """
     def __init__(self, task_id, status, category, score, log_file, columns,
-                 values, columns_relevant_for_diff=set(), multiproperty=None):
+                 values, columns_relevant_for_diff=set(), sourcefiles_exist=True,
+                 multiproperty=None):
         assert(len(columns) == len(values))
         self.task_id = task_id
+        self.sourcefiles_exist = sourcefiles_exist
         self.status = status
         self.log_file = log_file
         self.columns = columns
@@ -964,9 +991,20 @@ class RunResult(object):
 
             values.append(value)
 
+        sourcefiles = sourcefileTag.get('files')
+        if sourcefiles:
+            if sourcefiles.startswith('['):
+                sourcefileList = [s.strip() for s in sourcefiles[1:-1].split(',') if s.strip()]
+                sourcefiles_exist = True if sourcefileList else False
+            else:
+                raise AssertionError('Unknown format for files tag:')
+        else:
+            sourcefiles_exist = False
+
         return RunResult(get_task_id(sourcefileTag), status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
-                         columns_relevant_for_diff, multiproperty_result)
+                         columns_relevant_for_diff, sourcefiles_exist=sourcefiles_exist,
+                         multiproperty=multiproperty_result)
 
 
 class Row(object):
@@ -980,6 +1018,7 @@ class Row(object):
         assert results
         self.results = results
         self.id = results[0].task_id
+        self.has_sourcefile = results[0].sourcefiles_exist
         assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
         self.filename = self.id[0]
         self.properties = self.id[1].split() if self.id[1] else []
@@ -1796,13 +1835,31 @@ def main(args=None):
         outputFilePattern = "{name}.{type}.{ext}"
 
     if options.xmltablefile:
-        if options.tables:
-            arg_parser.error("Invalid additional arguments '{}'.".format(" ".join(options.tables)))
         try:
-            runSetResults = parse_table_definition_file(options.xmltablefile, options)
+            table_definition = parse_table_definition_file(options.xmltablefile)
+
+            if table_definition_lists_result_files(table_definition):
+                if options.tables:
+                    arg_parser.error(
+                        "Invalid additional arguments '{}'.".format(" ".join(options.tables)))
+
+                runSetResults = load_results_from_table_definition(
+                    table_definition, options.xmltablefile, options)
+
+            else:
+                if not options.tables:
+                    arg_parser.error(
+                        "No result files given. Either list them on the command line "
+                        "or with <result> tags in the table-definiton file.")
+
+                result_files = Util.extend_file_list(options.tables) # expand wildcards
+                runSetResults = load_results_with_table_definition(
+                    result_files, table_definition, options.xmltablefile, options)
+
         except Util.TableDefinitionError as e:
             logging.error('Fault in {}: {}'.format(options.xmltablefile, e.message))
             exit(1)
+
         if not name:
             name = basename_without_ending(options.xmltablefile)
 
@@ -1818,8 +1875,7 @@ def main(args=None):
             inputFiles = [os.path.join(searchDir, '*.results*.xml')]
 
         inputFiles = Util.extend_file_list(inputFiles) # expand wildcards
-        runSetResults = parallel.map(load_result,
-                                     inputFiles, itertools.repeat(options))
+        runSetResults = load_results(inputFiles, options)
 
         if len(inputFiles) == 1:
             if not name:

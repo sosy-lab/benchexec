@@ -18,6 +18,7 @@
 
 import os
 import logging
+import re
 import subprocess
 
 import benchexec.result as result
@@ -30,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
     (https://github.com/diffblue/cprover-sv-comp/pull/14).
     """
 
-    REQUIRED_PATHS = ['test-gen.sh', 'process_witness.py', 'TestEnvGenerator.pl']
+    REQUIRED_PATHS = ['test-gen.sh', 'process_witness.py', 'TestEnvGenerator.pl', 'pycparser-master']
 
     def executable(self):
         """

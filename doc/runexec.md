@@ -68,9 +68,11 @@ You can also execute `runexec` directly from the `.egg` file with the following 
 
 From within Python, BenchExec can be used to execute a command as in the following example:
 
-    from benchexec.runexecutor import RunExecutor
-    executor = RunExecutor()
-    result = executor.execute_run(args=[<TOOL_CMD>], ...)
+```python
+from benchexec.runexecutor import RunExecutor
+executor = RunExecutor()
+result = executor.execute_run(args=[<TOOL_CMD>], ...)
+```
 
 Further parameters for `execute_run` can be used to specify resource limits
 (c.f. [runexecutor.py](../benchexec/runexecutor.py)).

@@ -442,16 +442,17 @@ class RunSet(object):
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
 
             # get lists of filenames
-            sourcefiles = self.get_sourcefiles_from_xml(sourcefilesTag, self.benchmark.base_dir)
+            tasks = self.get_tasks_from_xml(sourcefilesTag, self.benchmark.base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
             properties_kind = util.get_attr_of_single_child_from_xml(sourcefilesTag, PROPERTY_TAG, PROPERTIES_KIND_TAG) or None
             currentRuns = []
-            for sourcefile, expected_statuses in sourcefiles:
-                currentRuns.append(Run(sourcefile, fileOptions, self, propertyfile, properties_kind,
-                                       global_required_files_pattern.union(required_files_pattern), expected_statuses))
+            for identifier, sourcefiles, expected_statuses in tasks:
+                currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
+                                       global_required_files_pattern.union(required_files_pattern),
+                                       properties_kind, expected_statuses))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
 
@@ -465,7 +466,7 @@ class RunSet(object):
         return blocks
 
 
-    def get_sourcefiles_from_xml(self, sourcefilesTag, base_dir):
+    def get_tasks_from_xml(self, sourcefilesTag, base_dir):
         sourcefiles = []
 
         # get included sourcefiles
@@ -522,24 +523,26 @@ class RunSet(object):
 
                 fileWithList.close()
 
-        # add runs for cases without source files
-        for run in sourcefilesTag.findall("withoutfile"):
-            sourcefiles.append(run.text)
-
         # some runs need more than one sourcefile,
         # the first sourcefile is a normal 'include'-file, we use its name as identifier for logfile and result-category
         # all other files are 'append'ed.
+        # We use a list of tuples instead of a dict here to have a deterministic order of tasks.
         sourcefilesLists = []
         appendFileTags = sourcefilesTag.findall("append")
         for sourcefile in sourcefiles:
             if sourcefile.endswith(_YAML_EXTENSION):
-                input_files, expected_statuses = self.parse_yaml_file(sourcefile)
+                files, expected_statuses = self.parse_yaml_file(sourcefile)
             else:
                 expected_statuses = {}
-                input_files = [sourcefile]
+                files = [sourcefile]
             for appendFile in appendFileTags:
-                input_files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
-            sourcefilesLists.append((input_files, expected_statuses))
+                files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
+            sourcefilesLists.append((sourcefile, files, expected_statuses))  # Use sourcefile as identifier
+
+        # add runs for cases without source files
+        for run in sourcefilesTag.findall("withoutfile"):
+            sourcefilesLists.append((run.text, [], {}))
+
         return sourcefilesLists
 
 
@@ -612,11 +615,10 @@ class Run(object):
     """
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
-
-    def __init__(self, sourcefiles, fileOptions, runSet, propertyfile=None, properties_kind=None,
-                 required_files_patterns=[], expected_statuses={}):
-        assert sourcefiles
-        self.identifier = sourcefiles[0] # used for name of logfile, substitution, result-category
+    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[],
+                 properties_kind=None, expected_statuses={}):
+        assert identifier
+        self.identifier = identifier  # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run

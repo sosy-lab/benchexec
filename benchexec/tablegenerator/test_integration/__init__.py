@@ -139,6 +139,28 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         return content
 
 
+    def test_no_files_given(self):
+        self.assertEqual(
+            1,
+            subprocess.call([tablegenerator], stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            "expected error return code")
+
+    def test_files_and_table_definition_given(self):
+        cmdline = [tablegenerator,
+                   '-x', os.path.join(here, 'simple-table.xml'),
+                   result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')]
+        self.assertEqual(
+            2,
+            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            "expected error return code")
+
+    def test_empty_table_definition_given(self):
+        cmdline = [tablegenerator, '-x', os.path.join(here, 'table-only-columns.xml')]
+        self.assertEqual(
+            2,
+            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            "expected error return code")
+
     def test_simple_table(self):
         self.generate_tables_and_compare_content(
             [result_file('test.2015-03-03_1613.results.predicateAnalysis.xml')],
@@ -267,6 +289,25 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='big-table.diff',
             )
 
+    def test_single_table_validation_unconfirmed(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-validation-unconfirmed.xml')],
+            table_prefix='simple-table-with-validation-unconfirmed.table'
+        )
+
+    def test_single_table_validation_all_confirmed(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'simple-table-with-validation-all-confirmed.xml')],
+            table_prefix='simple-table-with-validation-all-confirmed.table'
+        )
+
+    def test_multi_table_validation(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'multi-table-with-validation.xml')],
+            table_prefix='multi-table-with-validation.table',
+            diff_prefix='multi-table-with-validation.diff',
+        )
+
     def test_dump_count_single_table(self):
         self.generate_tables_and_compare_content(
             ['--dump',
@@ -365,6 +406,19 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ['-x', os.path.join(here, 'multi-table-with-wildcards.xml')],
             table_prefix='multi-table-with-wildcards.table',
             diff_prefix='multi-table-with-wildcards.diff',
+            )
+
+    def test_multi_table_only_columns_in_xml(self):
+        self.generate_tables_and_compare_content(
+            ['-x', os.path.join(here, 'table-only-columns.xml'),
+                '--name', 'multi-table-with-columns',
+                result_file('test.2015-03-03_1613.results.predicateAnalysis.xml'),
+                result_file('test.2015-03-03_1613.results.valueAnalysis.xml'),
+                result_file('test.2015-03-03_1815.results.predicateAnalysis.xml'),
+                result_file('test.2015-03-03_1815.results.valueAnalysis.xml'),
+            ],
+            table_prefix='multi-table-with-columns.table',
+            diff_prefix='multi-table-with-columns.diff',
             )
 
     def test_union_table(self):

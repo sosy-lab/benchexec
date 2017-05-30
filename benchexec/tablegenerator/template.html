@@ -234,7 +234,7 @@
 
 <tbody>
 {{for line in body}}
-<tr><td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a></td>
+<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
   {{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}
     {{if show}}
 <td>{{id}}</td>

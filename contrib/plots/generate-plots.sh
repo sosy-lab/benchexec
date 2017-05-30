@@ -33,3 +33,8 @@ pdflatex scatter.tex
 pdflatex scatter-counted.tex
 pdflatex quantile.tex
 pdflatex quantile-score.tex
+
+# Special command for generating plots as PNG files (just for recreating the demo files)
+# for f in *.tex; do
+#   pdflatex -shell-escape "\PassOptionsToClass{convert}{standalone}\input{$f}"
+# done

@@ -24,7 +24,8 @@
        considered for the differences table. -->
   <column title="..." relevantForDiff="true">...</column>
 
-  <!-- <result> defines from which files to take the benchmark results (can appear multiple times). -->
+  <!-- <result> defines from which files to take the benchmark results (can appear multiple times).
+       If <result> is not used, the files need to be passed as command-line arguments to table-generator. -->
   <result filename="*file-name pattern or URL for XML files produced by BenchExec*">
     <!-- <column> can be used here to override the global set of columns.  -->
   </result>

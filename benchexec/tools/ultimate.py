@@ -18,23 +18,123 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import functools
+import logging
+import os
+import re
+import subprocess
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
+
+_SVCOMP17_VERSIONS = {"f7c3ed31"}
+_SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
+_ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
+_LAUNCHER_JAR = "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"
 
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
     Abstract tool info for Ultimate-based tools.
     """
 
+    REQUIRED_PATHS = [
+              "artifacts.xml",
+              "config",
+              "configuration",
+              "data",
+              "features",
+              "p2",
+              "plugins",
+              "LICENSE",
+              "LICENSE.GPL",
+              "LICENSE.GPL.LESSER",
+              "README",
+              "Ultimate",
+              "Ultimate.ini",
+              "Ultimate.py",
+              "z3",
+              "mathsat",
+              "cvc4",
+              ]
+
     def executable(self):
         return util.find_executable('Ultimate.py')
 
+    def _ultimate_version(self, executable):
+        launcher_jar = os.path.join(os.path.dirname(executable), _LAUNCHER_JAR)
+        if not os.path.isfile(launcher_jar):
+            logging.warning('Cannot find {0} to determine Ultimate version'.
+                            format(_LAUNCHER_JAR))
+            return ''
+
+        try:
+            process = subprocess.Popen(["java", "-jar", launcher_jar, "--version"],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = process.communicate()
+        except OSError as e:
+            logging.warning('Cannot run Java to determine Ultimate version: {0}'.
+                            format(e.strerror))
+            return ''
+        if stderr and not use_stderr:
+            logging.warning('Cannot determine Ultimate version, error output: {0}'.
+                            format(util.decode_to_string(stderr)))
+            return ''
+        if process.returncode:
+            logging.warning('Cannot determine Ultimate version, exit code {0}'.
+                            format(process.returncode))
+            return ''
+
+        version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
+        if not version_ultimate_match:
+            logging.warning('Cannot determine Ultimate version, output: {0}'.
+                            format(util.decode_to_string(stdout)))
+            return ''
+
+        return version_ultimate_match.group(1)
+
+    @functools.lru_cache()
     def version(self, executable):
-        return self._version_from_tool(executable)
+        wrapper_version = self._version_from_tool(executable)
+        if wrapper_version in _SVCOMP17_VERSIONS:
+            # Keep reported version number for old versions as they were before
+            return wrapper_version
+
+        ultimate_version = self._ultimate_version(executable)
+        return ultimate_version + '-' + wrapper_version
+
+    def _is_svcomp17_version(self, executable):
+        return self.version(executable) in _SVCOMP17_VERSIONS
 
     def cmdline(self, executable, options, tasks, spec, rlimits):
-        return [executable] + [spec] + options + ['--full-output'] + tasks
+        if self._is_svcomp17_version(executable):
+            assert spec
+            cmdline = [executable, spec]
+
+            cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
+
+            cmdline.append("--full-output")
+
+            cmdline += tasks
+            return cmdline
+        else:
+            cmdline = [executable]
+
+            if spec:
+                cmdline += ['--spec', spec]
+
+            if tasks:
+                cmdline += ['--file'] + tasks
+
+            # Not sure if we should append --full-output for new Ultimate, too
+
+            cmdline += options
+            return cmdline
+
+    def program_files(self, executable):
+        installDir = os.path.dirname(executable)
+        paths = self.REQUIRED_PATHS_SVCOMP17 if self._is_svcomp17_version(executable) else self.REQUIRED_PATHS
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in paths)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:

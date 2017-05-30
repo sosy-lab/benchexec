@@ -22,7 +22,7 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
-    REQUIRED_PATHS = [
+    REQUIRED_PATHS_SVCOMP17 = [
                   "artifacts.xml",
                   "configuration",
                   "cvc4",

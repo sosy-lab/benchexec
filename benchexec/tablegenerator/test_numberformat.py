@@ -88,6 +88,19 @@ class FormatValueTests(unittest.TestCase):
         formatted_value_rounding = self.measure_column_no_sigs.format_value("9999.12015s", *self.default_optionals)
         self.assertEqual(formatted_value_rounding,   "10000")
 
+    def test_format_value_negative_float(self):
+        formatted_value = self.measure_column.format_value("-0.05559")
+        self.assertEqual(formatted_value, "-0.05559")
+
+        formatted_value = self.measure_column.format_value("-0.055593")
+        self.assertEqual(formatted_value, "-0.05559")
+
+        formatted_value = self.measure_column.format_value("-0.055598")
+        self.assertEqual(formatted_value, "-0.05560")
+
+        formatted_value = self.measure_column.format_value("-0.0555")
+        self.assertEqual(formatted_value, "-0.0555")
+
     def test_format_value_tooltip_explicit_sigs(self):
         formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value("9999.125s", None, 'tooltip_stochastic')
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs,   "9999")

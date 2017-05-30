@@ -16,6 +16,16 @@ but the accumulated score achieved with these results.
 Such plots are for example used by the
 [International Competition on Software Verification](http://sv-comp.sosy-lab.org/2015/results/).
 
+Here are four example plots, generated with LaTeX and [PGFPlots](http://pgfplots.sourceforge.net/):
+
+Quantile plot | Score-based quantile plot
+--- | ---
+<img src="quantile.png"> | <img src="quantile-score.png">
+
+Scatter plot | Scatter plot with color as 3rd axis
+--- | ---
+<img src="scatter.png"> | <img src="scatter-counted.png">
+
 ### Preparation
 Most tools for producing plots can use CSV files as input,
 and BenchExec can generate such files for benchmark results
