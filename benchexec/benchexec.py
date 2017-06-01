@@ -152,6 +152,13 @@ class BenchExec(object):
                           metavar="N",
                           help="Limit each run of the tool to N CPU cores (-1 to disable).")
 
+        parser.add_argument("-s", "--allowedCores", dest="coreset",
+                            default=None,
+                            metavar="n",
+                            nargs='+',
+                            type=int,
+                            help="Limit each run of the tool to a subset of particular CPU cores.")
+
         parser.add_argument("--user",
                             dest="users",
                             action="append",
