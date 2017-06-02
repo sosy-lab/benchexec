@@ -113,22 +113,6 @@ def get_list_from_xml(elem, tag="option", attributes=["name"]):
     return flatten(([option.get(attr) for attr in attributes] + [option.text] for option in elem.findall(tag)), exclude=[None])
 
 
-def get_attr_of_single_child_from_xml(elem, tag="option", attribute="name"):
-    '''
-    Get an attribute of a single child tag from an XML element.
-    Similar to "elem.find(tag).get(attribute)", but warns if there are multiple child tags with the given name
-    and checks if child tag exists.
-    '''
-    children = elem.findall(tag)
-    if not children:
-        return None
-    if len(children) > 1:
-        logging.warning('Tag "%s" has more than one child tags with name "%s" in input file, '
-                        'ignoring all but the first.',
-                        elem.tag, tag)
-    return children[0].get(attribute)
-
-
 def get_single_child_from_xml(elem, tag):
     """
     Get a single child tag from an XML element.
@@ -142,6 +126,15 @@ def get_single_child_from_xml(elem, tag):
                         'ignoring all but the first.',
                         elem.tag, tag)
     return children[0]
+
+def get_all_children_from_xml(elem, tag):
+    """
+    Get all children tags from an XML element and retrieve their text content of an XML tag.
+    """
+    children = []
+    for child in elem.findall(tag):
+        children.append(child.text)
+    return children
 
 def text_or_none(elem):
     """

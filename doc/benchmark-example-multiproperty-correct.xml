@@ -5,20 +5,21 @@
      and uses multi-property verification.
      Correct results are placed in options. -->
   <rundefinition name="multiproperty">
-    <option>Property unreach-call(error_function_1): false(unreach-call)</option>
-    <option>Property valid-free: false(valid-free)</option>
-    <option>Property unreach-call(error_function_4): false(unreach-call)</option>
+    <option>Property unreach-call-error-function-1: false(unreach-call)</option>
+    <option>Property valid-memsafety: false(valid-free)</option>
     <option>Property no-deadlock: false(no-deadlock)</option>
-    <option>Property unreach-call(error_function_5): true</option>
-    <option>Property unreach-call(error_function_2): true</option>
-    <option>Property valid-deref: true</option>
+    <option>Property unreach-call-error-function-2: true</option>
     <option>Property no-overflow: true</option>
-    <option>Property unreach-call(error_function_3): true</option>
     <option>Property termination: true</option>
     <option>false(unreach-call)</option>
   </rundefinition>
   
-  <propertyfile kind="multiproperty">properties/multiproperty-example.prp</propertyfile>
+  <propertyfile>properties/no-deadlock.prp</propertyfile>
+  <propertyfile>properties/no-overflow.prp</propertyfile>
+  <propertyfile>properties/termination.prp</propertyfile>
+  <propertyfile>properties/unreach-call-error-function-1.prp</propertyfile>
+  <propertyfile>properties/unreach-call-error-function-2.prp</propertyfile>
+  <propertyfile>properties/valid-memsafety.prp</propertyfile>
 
   <tasks name="Dummy multiproperty task">
     <include>dummy_false-unreach-call.yml</include>

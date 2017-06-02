@@ -7,7 +7,12 @@
   <rundefinition name="multiproperty">
   </rundefinition>
   
-  <propertyfile kind="multiproperty">properties/multiproperty-example.prp</propertyfile>
+  <propertyfile>properties/no-deadlock.prp</propertyfile>
+  <propertyfile>properties/no-overflow.prp</propertyfile>
+  <propertyfile>properties/termination.prp</propertyfile>
+  <propertyfile>properties/unreach-call-error-function-1.prp</propertyfile>
+  <propertyfile>properties/unreach-call-error-function-2.prp</propertyfile>
+  <propertyfile>properties/valid-memsafety.prp</propertyfile>
 
   <tasks name="Dummy multiproperty task">
     <include>dummy_false-unreach-call.yml</include>

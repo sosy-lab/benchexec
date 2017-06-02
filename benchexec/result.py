@@ -68,7 +68,8 @@ _PROP_ASSERT =       'assert'
 _PROP_AUTOMATON =    'observer-automaton'
 # for solvers:
 _PROP_SAT =          'sat'
-
+# special "composite" property:
+_PROP_MEMSAFETY =   'valid-memsafety'
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
 # possible run results (output of a tool)
@@ -132,8 +133,6 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
                    'LTL(G ! deadlock)':                 _PROP_DEADLOCK,
                   }
 
-# Regular expression for  with specific function property.
-_REGEXP_PROP_CALL_SPECIFIC = "LTL\(G ! call\(([_a-zA-Z][_a-zA-Z0-9]*)\(\)\)\)"
 
 # This maps a possible result substring of a file name
 # to the expected result string of the tool and the set of properties
@@ -220,23 +219,9 @@ def properties_of_file(propertyfile, is_multiproperty=False):
 
     with open(propertyfile) as f:
         for content in f:
-            if not('CHECK' in content
-                   or content == 'OBSERVER AUTOMATON'
-                   or content == 'SATISFIABLE'
-                   ):
-                sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
-
-            for substring, property in _PROPERTY_NAMES.items():
-                if substring in content:
-                    if is_multiproperty and property == _PROP_CALL:
-                        match = re.search(_REGEXP_PROP_CALL_SPECIFIC, content)
-                        if match and match.group(1):
-                            property = "{0}({1})".format(_PROP_CALL, match.group(1))
-                    if is_multiproperty or property not in properties:
-                        properties.append(property)
-
+            properties.append(content.rstrip())
     if not properties:
-        sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))
+        sys.exit('File "{0}" is empty.'.format(propertyfile))
     return properties
 
 
@@ -259,6 +244,14 @@ def satisfies_file_property(filename, properties):
     return None
 
 
+def __check_for_memsafety(properties):
+    # Workaround for "composite" memory safety property.
+    # Only one potential property.
+    if properties and properties[0] == _PROP_MEMSAFETY:
+        properties = [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]
+    return properties
+
+
 def score_for_task(filename, properties, category, result, is_multiproperty=False, multiproperty_statuses={},
                    correct_statuses={}):
     """
@@ -268,6 +261,8 @@ def score_for_task(filename, properties, category, result, is_multiproperty=Fals
 
     if is_multiproperty:
         return _score_for_multiproperty(multiproperty_statuses, correct_statuses, result)
+
+    properties = __check_for_memsafety(properties)
 
     if category == CATEGORY_CORRECT_UNCONFIRMED:
         if satisfies_file_property(filename, properties):
@@ -417,6 +412,9 @@ def get_result_category(filename, result, properties, multiproperty_statuses={},
     '''
     if multiproperty_statuses:
         return compare_multiproperty_statuses(multiproperty_statuses, correct_statuses)
+
+    properties = __check_for_memsafety(properties)
+
     if not(set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())):
         return CATEGORY_MISSING
 

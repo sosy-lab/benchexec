@@ -1335,13 +1335,17 @@ def get_stats_of_run_set(runResults):
                     for run_result in runResults:
                         if run_result.is_multiproperty():
                             score += run_result.multiproperty.get_score_for_property(column.title)
-                    score = StatValue(score)
+                        else:
+                            score = None
+                    if score:
+                        score = StatValue(score)
 
                 total   = StatValue(len([runResult.values[index] for runResult in runResults if runResult.status]))
+
+                curr_status_list = [(runResult.category, runResult.values[index]) for runResult in runResults]
+                counts = collections.Counter((category, result.get_result_classification(status))
+                                              for category, status in curr_status_list)
                 if col_type == ColumnType.main_status:
-                    curr_status_list = [(runResult.category, runResult.values[index]) for runResult in runResults]
-                    counts = collections.Counter((category, result.get_result_classification(status))
-                                                 for category, status in curr_status_list)
                     countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
                     countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
                     countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
@@ -1369,6 +1373,13 @@ def get_stats_of_run_set(runResults):
                                     countCorrectTrue += 1
                                 elif category == result.CATEGORY_WRONG:
                                     countWrongTrue += 1
+                        else:
+                            countCorrectTrue             = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_TRUE]
+                            countCorrectFalse            = counts[result.CATEGORY_CORRECT,             result.RESULT_CLASS_FALSE]
+                            countCorrectUnconfirmedTrue  = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]
+                            countCorrectUnconfirmedFalse = counts[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]
+                            countWrongTrue               = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_TRUE]
+                            countWrongFalse              = counts[result.CATEGORY_WRONG,               result.RESULT_CLASS_FALSE]
 
                 correct                 = StatValue(countCorrectTrue + countCorrectFalse)
                 correctTrue             = StatValue(countCorrectTrue)

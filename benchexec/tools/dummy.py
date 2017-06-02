@@ -42,10 +42,18 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'DummyTool'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        spec = []
+        try:
+            for file in propertyfile:
+                spec.append("Property file: " + file)
+        except TypeError:
+            spec.append("Property file: " + str(propertyfile))
+        if not spec:
+            spec.append("Property file: None")
         return ([executable, '--echo', '--'] +
                 options +
                 ["Input file: " + f for f in tasks] +
-                ["Property file: " + (propertyfile or "None")]
+                spec
                 )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):

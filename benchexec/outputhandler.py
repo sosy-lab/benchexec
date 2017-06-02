@@ -777,10 +777,10 @@ class Statistics(object):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
-        self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status,
+        self.score += result.score_for_task(run.identifier, list(run.properties.keys()), run.category, run.status,
                                             run.is_multiproperty(), run.multiproperty_statuses, run.expected_statuses)
         #if run.properties:
-        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None,
+        self.max_score += result.score_for_task(run.identifier, list(run.properties.keys()), result.CATEGORY_CORRECT, None,
                                                 run.is_multiproperty(), {}, run.expected_statuses)
 
     def __str__(self):

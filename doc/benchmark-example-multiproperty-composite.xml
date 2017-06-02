@@ -5,12 +5,12 @@
      and processes them as a single composite property.
      Correct result is obtained from the task name. -->
   <rundefinition name="composite">
-    <option>false(unreach-call)</option>
+    <option>false(valid-deref)</option>
   </rundefinition>
   
-  <propertyfile kind="composite">properties/multiproperty-example.prp</propertyfile>
+  <propertyfile>properties/valid-memsafety.prp</propertyfile>
 
   <tasks name="Dummy multiproperty task treated as composite">
-    <include>dummy_false-unreach-call.yml</include>
+    <withoutfile>dummy_false-valid-deref.c</withoutfile>
   </tasks>
 </benchmark>
