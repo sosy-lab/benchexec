@@ -68,7 +68,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
 
     @param coreLimit: the number of cores for each run
     @param num_of_threads: the number of parallel benchmark executions
-    @param coreSet: the list of CPU cores identifiers provided by a user
+    @param coreSet: the list of CPU cores identifiers provided by a user, None makes benchexec using all cores
     @return a list of lists, where each inner list contains the cores for one run
     """
     try:
@@ -77,7 +77,7 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
 
         # Filter CPU cores according to the list of identifiers provided by a user
         if coreSet:
-            invalid_cores = list(map(str, sorted(set(coreSet).difference(set(allCpus)))))
+            invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
             if len(invalid_cores) > 0:
                 raise ValueError("The following provided CPU cores are not available: {}".format(', '.join(map(str, invalid_cores))))
             allCpus = [core for core in allCpus if core in coreSet]
