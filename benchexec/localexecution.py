@@ -103,6 +103,8 @@ def execute_benchmark(benchmark, output_handler):
         coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups, benchmark.config.coreset)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
         cpu_packages = set(get_cpu_package_for_core(core) for cores_of_run in coreAssignment for core in cores_of_run)
+    elif benchmark.config.coreset:
+        sys.exit('Please limit the number of cores first if you also want to limit the set of available cores.')
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
