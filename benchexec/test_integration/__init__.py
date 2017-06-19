@@ -175,11 +175,12 @@ class BenchExecIntegrationTests(unittest.TestCase):
             self.assertEqual(actual.get('files'), expected.get('files'))
             self.assertEqual(actual.get('name'), expected.get('name'))
 
+            actual_columns = {column.get('title'): column for column in actual.findall('column')}
+            expected_columns = {column.get('title'): column for column in expected.findall('column')}
             comparable_columns = ['status', 'category', 'exitcode', 'returnvalue']
-            for actual_column, expected_column in zip(actual.findall('column'), expected.findall('column')):
-                if actual_column.get('title') in comparable_columns:
-                    self.assertEqual(actual_column.get('title'), expected_column.get('title'))
-                    self.assertEqual(actual_column.get('value'), expected_column.get('value'))
+            for column in comparable_columns:
+                self.assertEqual(actual_columns.get(column).get('value'),
+                                 expected_columns.get(column).get('value'))
 
 
     def test_same_results_file(self):
