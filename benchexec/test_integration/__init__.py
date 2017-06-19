@@ -45,6 +45,12 @@ benchmark_test_file = os.path.join(here, 'benchmark-example-rand.xml')
 benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
 benchmark_test_rundefs = None
 
+# Set to True to let tests overwrite the expected result with the actual result
+# instead of letting them fail.
+# Use this to update expected files if necessary. Do not commit this flag set to True!
+OVERWRITE_MODE = False
+
+
 class BenchExecIntegrationTests(unittest.TestCase):
 
     @classmethod
@@ -154,6 +160,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
             self.assertEqual(actual_line, expected_line)
 
     def assertSameRunResults(self, actual_result_xml, other_result_xml):
+        if OVERWRITE_MODE and not actual_result_xml == other_result_xml:
+            shutil.copyfile(actual_result_xml, other_result_xml)
+            return
+
         actual_result = ElementTree.ElementTree().parse(actual_result_xml)
         expected_result = ElementTree.ElementTree().parse(other_result_xml)
 
