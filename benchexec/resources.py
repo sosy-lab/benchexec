@@ -40,7 +40,7 @@ __all__ = [
            'get_cpu_package_for_core',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -68,11 +68,20 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
 
     @param coreLimit: the number of cores for each run
     @param num_of_threads: the number of parallel benchmark executions
+    @param coreSet: the list of CPU cores identifiers provided by a user, None makes benchexec using all cores
     @return a list of lists, where each inner list contains the cores for one run
     """
     try:
         # read list of available CPU cores
         allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
+
+        # Filter CPU cores according to the list of identifiers provided by a user
+        if coreSet:
+            invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
+            if len(invalid_cores) > 0:
+                raise ValueError("The following provided CPU cores are not available: {}".format(', '.join(map(str, invalid_cores))))
+            allCpus = [core for core in allCpus if core in coreSet]
+
         logging.debug("List of available CPU cores is %s.", allCpus)
 
         # read mapping of core to CPU ("physical package")
