@@ -693,7 +693,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             try:
                 container.make_bind_mount(mount_path, mount_path)
             except OSError as e:
-                logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
+                # on btrfs, non-recursive bind mounts faitl
+                if e.errno == errno.EINVAL:
+                    try:
+                        container.make_bind_mount(mount_path, mount_path, recursive=True)
+                    except OSError as e2:
+                        logging.debug("Failed to make %s a (recursive) bind mount: %s", mount_path, e2)
+                else:
+                    logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
             if not os.path.exists(temp_path):
                 os.makedirs(temp_path)
 
