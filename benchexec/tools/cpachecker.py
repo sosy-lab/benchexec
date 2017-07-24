@@ -101,8 +101,13 @@ class Tool(benchexec.tools.template.BaseTool):
         if ("-stats" not in options):
             options = options + ["-stats"]
 
-        spec = ["-spec", propertyfile] if propertyfile is not None else []
-
+        spec = []
+        if isinstance(propertyfile, list):
+            for file in propertyfile:
+                spec.append("-spec")
+                spec.append(file)
+        else:
+            spec = ["-spec", propertyfile] if propertyfile is not None else []
         return options + spec
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
@@ -207,7 +212,7 @@ class Tool(benchexec.tools.template.BaseTool):
             # 	Property __VERIFIER_error_linux_kernel_rcu_srcu: UNKNOWN
             match = re.match('.*Property (.*): (TRUE|FALSE|UNKNOWN).*', line)
             if match:
-                foundProperty = match.group(1)
+                foundProperty = match.group(1)[:-4]  # Remove .prp or .spc in property name.
                 status = match.group(2)
                 if foundProperty == property:
                     if status == 'TRUE':
