@@ -121,10 +121,18 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     rel_executable = relpath(executable)
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
+
+    if not propertyfile:
+        property_options = None
+    elif len(propertyfile) == 1:
+        property_options = relpath(propertyfile[0])
+    else:
+        property_options = [relpath(file) for file in propertyfile]
+
     args = tool.cmdline(
         rel_executable, list(options),
         list(map(relpath, sourcefiles)),
-        [relpath(file) for file in propertyfile] if propertyfile else None,
+        property_options,
         rlimits.copy())
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
