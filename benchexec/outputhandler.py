@@ -71,6 +71,9 @@ LEN_OF_STATUS = 22
 TIME_PRECISION = 2
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
+# Separates several property names in result xml file. Property names can not contain such separator.
+PROPERTIES_SEPARATOR = ";"
+
 
 class OutputHandler(object):
     """
@@ -327,7 +330,7 @@ class OutputHandler(object):
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                run.xml.set("properties", " ".join(sorted(run.properties)))
+                run.xml.set("properties", PROPERTIES_SEPARATOR.join(sorted(run.properties)))
             run.xml.extend(self.xml_dummy_elements)
 
         runSet.xml = self.runs_to_xml(runSet, runSet.runs)
