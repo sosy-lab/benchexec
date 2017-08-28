@@ -147,7 +147,8 @@ def main(args=None):
 
     for (category, counts) in sorted(category_stats.items()):
         print(counts.to_latex(basenames + [category]))
-        for (status, counts2) in sorted(status_stats[category].items()):
+        categories = [(s, c) for (s, c) in status_stats[category].items() if s]
+        for (status, counts2) in sorted(categories):
             print(counts2.to_latex(basenames + [category, status]))
             if category == "correct" and status_stats["wrong"].get(status) is None:
                 print(StatAccumulator().to_latex(basenames + ["wrong", status]))
