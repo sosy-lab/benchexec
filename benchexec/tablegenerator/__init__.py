@@ -315,7 +315,7 @@ def _get_column_type_heur(column, column_values):
         if value is None or value == '':
             continue
 
-        value_match = REGEX_MEASURE.match(str(value))
+        value_match = REGEX_MEASURE.fullmatch(str(value))
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
