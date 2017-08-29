@@ -76,7 +76,7 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*')
+REGEX_MEASURE = re.compile('\s*([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*$')
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
 GROUP_DEC_PART = 3
@@ -315,7 +315,7 @@ def _get_column_type_heur(column, column_values):
         if value is None or value == '':
             continue
 
-        value_match = REGEX_MEASURE.fullmatch(str(value))
+        value_match = REGEX_MEASURE.match(str(value))
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
