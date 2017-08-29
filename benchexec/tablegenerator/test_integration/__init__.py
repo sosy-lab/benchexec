@@ -289,6 +289,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix='big-table.diff',
             )
 
+    def test_table_all_columns(self):
+        self.generate_tables_and_check_produced_files(
+            [result_file('integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2'),
+             '-f', 'html', '--all-columns',
+             '-n', 'integration-predicateAnalysis.2015-10-20_1355.all-columns'],
+            table_prefix='integration-predicateAnalysis.2015-10-20_1355.all-columns',
+            formats=['html']
+            )
+
     def test_single_table_validation_unconfirmed(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table-with-validation-unconfirmed.xml')],
