@@ -76,7 +76,7 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z]*)')
+REGEX_MEASURE = re.compile('\s*([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*$')
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
 GROUP_DEC_PART = 3
