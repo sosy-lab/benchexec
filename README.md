@@ -9,15 +9,13 @@
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
     
 **News**:
+- An extended version of our paper on BenchExec and its background gets published in [STTT](http://sttt.cs.uni-dortmund.de/index.html),
+  you can now read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+  In addition to the [previous version from SPIN'15](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf),
+  it also describes the container mode and how to present result data.
 - BenchExec 1.9 adds a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
   that isolates each run from the host system and from other runs
   (disabled by now, will become default in BenchExec 2.0).
-- We have published a paper titled
-[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf)
-on BenchExec and its background
-at [SPIN 2015](http://www.spin2015.org/).
-It also contains a list of rules that you should always follow when doing benchmarking
-(and which BenchExec handles for you).
 
 BenchExec provides three major features:
 
@@ -69,7 +67,7 @@ at the [Software Systems Lab](https://www.sosy-lab.org) at the [Ludwig-Maximilia
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- Paper [Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/~dbeyer/benchmarking/))
+- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/~dbeyer/benchmarking/))
 
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)

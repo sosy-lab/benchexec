@@ -4,7 +4,7 @@ Please check the following guidelines for advice
 on how to get reliable benchmark results when using BenchExec.
 For more general guidelines about benchmarking,
 e.g., what to do when implementing a benchmarking tool,
-please read our paper [Benchmarking and Resource Measurement](https://www.sosy-lab.org/%7Edbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+please read our paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 
 ### Use the latest version of BenchExec
 New versions of BenchExec might contain features or bug fixes

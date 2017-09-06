@@ -154,7 +154,7 @@ One can use this to create a reliable archive of experimental results.
 in the best possible way.
 More information on what should be considered when allocating hardware resources such as CPU cores
 can be found in our paper
-[Benchmarking and Resource Measurement](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 Some additional technical information is also present in the documentation on [resource handling](resources.md).
 
 
