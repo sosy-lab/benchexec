@@ -93,6 +93,39 @@ class StatAccumulator(object):
                 ]]
             ))
 
+
+class StatsCollection(object):
+    def __init__(self, prefix_list, total_stats, category_stats, status_stats):
+        self.prefix_list = prefix_list
+        self.total_stats = total_stats
+        self.category_stats = category_stats
+        self.status_stats = status_stats
+
+
+def load_results(result_file, status_print):
+    run_set_result = tablegenerator.RunSetResult.create_from_xml(
+            result_file, tablegenerator.parse_results_file(result_file))
+    run_set_result.collect_data(False)
+
+    total_stats = StatAccumulator()
+    category_stats = collections.defaultdict(StatAccumulator)
+    status_stats = collections.defaultdict(lambda: collections.defaultdict(StatAccumulator))
+    for run_result in run_set_result.results:
+        total_stats.add(run_result)
+        category_stats[run_result.category].add(run_result)
+        if status_print == "full":
+            status_stats[run_result.category][run_result.status].add(run_result)
+        elif status_print == "short":
+            short_status = re.sub(r" *\(.*", "", run_result.status)
+            status_stats[run_result.category][short_status].add(run_result)
+    assert len(run_set_result.results) == total_stats.count
+
+    basenames = [Util.prettylist(run_set_result.attributes.get("benchmarkname")),
+                 Util.prettylist(run_set_result.attributes.get("name"))]
+
+    return StatsCollection(basenames, total_stats, category_stats, status_stats)
+
+
 def main(args=None):
     if args is None:
         args = sys.argv
@@ -109,7 +142,8 @@ def main(args=None):
     parser.add_argument("result",
         metavar="RESULT",
         type=str,
-        help="XML file with result produced by benchexec"
+        nargs='+',
+        help="XML file(s) with result produced by benchexec"
         )
     parser.add_argument("--status",
         action="store",
@@ -122,38 +156,28 @@ def main(args=None):
     options = parser.parse_args(args[1:])
 
     # load results
-    run_set_result = tablegenerator.RunSetResult.create_from_xml(
-            options.result, tablegenerator.parse_results_file(options.result))
-    run_set_result.collect_data(False)
-
-    total_stats = StatAccumulator()
-    category_stats = collections.defaultdict(StatAccumulator)
-    status_stats = collections.defaultdict(lambda: collections.defaultdict(StatAccumulator))
-    for run_result in run_set_result.results:
-        total_stats.add(run_result)
-        category_stats[run_result.category].add(run_result)
-        if options.status == "full":
-            status_stats[run_result.category][run_result.status].add(run_result)
-        elif options.status == "short":
-            short_status = re.sub(r" *\(.*", "", run_result.status)
-            status_stats[run_result.category][short_status].add(run_result)
-    assert len(run_set_result.results) == total_stats.count
-
-    basenames = [Util.prettylist(run_set_result.attributes.get("benchmarkname")),
-                 Util.prettylist(run_set_result.attributes.get("name"))]
+    stats = list()
+    for result in options.result:
+        stats.append(load_results(result, stats))
 
     print(HEADER)
-    print(total_stats.to_latex(basenames + ["total"]))
+    for curr_stats in stats:
+        basenames = curr_stats.prefix_list
+        total_stats = curr_stats.total_stats
+        category_stats = curr_stats.category_stats
+        status_stats = curr_stats.status_stats
 
-    for (category, counts) in sorted(category_stats.items()):
-        print(counts.to_latex(basenames + [category]))
-        categories = [(s, c) for (s, c) in status_stats[category].items() if s]
-        for (status, counts2) in sorted(categories):
-            print(counts2.to_latex(basenames + [category, status]))
-            if category == "correct" and status_stats["wrong"].get(status) is None:
-                print(StatAccumulator().to_latex(basenames + ["wrong", status]))
-            elif category == "wrong" and status_stats["correct"].get(status) is None:
-                print(StatAccumulator().to_latex(basenames + ["correct", status]))
+        print(total_stats.to_latex(basenames + ["total"]))
+
+        for (category, counts) in sorted(category_stats.items()):
+            print(counts.to_latex(basenames + [category]))
+            categories = [(s, c) for (s, c) in status_stats[category].items() if s]
+            for (status, counts2) in sorted(categories):
+                print(counts2.to_latex(basenames + [category, status]))
+                if category == "correct" and status_stats["wrong"].get(status) is None:
+                    print(StatAccumulator().to_latex(basenames + ["wrong", status]))
+                elif category == "wrong" and status_stats["correct"].get(status) is None:
+                    print(StatAccumulator().to_latex(basenames + ["correct", status]))
 
 if __name__ == "__main__":
     try:
