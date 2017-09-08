@@ -824,20 +824,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # Create an empty proc folder into the root dir. The grandchild still needs a view of
         # the old /proc, therefore we do not mount a fresh /proc here.
         proc_base = os.path.join(root_dir, b"proc")
-        try:
-            os.makedirs(proc_base)
-            #os.makedirs(proc_base, exist_ok=True)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+        util.makedirs(proc_base, exist_ok=True)
 
         dev_base = os.path.join(root_dir, b"dev")
-        try:
-            os.makedirs(dev_base)
-            #os.makedirs(dev_base, exist_ok=True)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+        util.makedirs(dev_base, exist_ok=True)
 
         # Create a copy of the host's dev- and proc-mountpoints.
         # They are marked as private in order to not being changed
