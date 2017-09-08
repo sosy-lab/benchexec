@@ -291,8 +291,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, rootDir=None, workingDir=None, output_dir=None,
-                    environ=os.environ.copy(), result_files_patterns=[]):
+    def execute_run(self, args, workingDir=None, output_dir=None, result_files_patterns=[],
+                    rootDir=None, environ=os.environ.copy()):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
