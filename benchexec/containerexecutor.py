@@ -386,7 +386,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         assert self._use_namespaces
 
-        env.update(self._env_override)
+        if root_dir is None:
+            env.update(self._env_override)
 
         args = self._build_cmdline(args, env=env)
 
