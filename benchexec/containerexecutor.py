@@ -334,17 +334,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.discard(pid)
 
-            if rootDir is None:
+            if temp_dir is not None:
                 logging.debug('Cleaning up temporary directory.')
                 util.rmtree(temp_dir, onerror=util.log_rmtree_error)
-            else:
-                logging.info('Removing proc and dev folders in root dir')
-                rootDir = os.path.abspath(rootDir)
-                dirs = [b"proc", b"dev"]
-                for dir in dirs:
-                    dir = os.path.join(rootDir, dir)
-                    if os.path.exists(dir):
-                        util.rmtree(dir, onerror=util.log_rmtree_error)
 
         # cleanup steps that are only relevant in case of success
         return util.ProcessExitCode.from_raw(returnvalue)
