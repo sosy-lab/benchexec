@@ -1,5 +1,31 @@
 # BenchExec Changelog
 
+## BenchExec 1.11
+
+- `table-generator` can now be given result XML files as arguments
+  in addition to a table-definition XML file (with parameter `-x`).
+  In this case, it will use the column definitions from the latter
+  for tables with the separately given results.
+- The directory `contrib` of the repository now contains a script
+  [`statistics-tex.py`](https://github.com/sosy-lab/benchexec/blob/master/contrib/statistics-tex.py),
+  which can export summary data for benchmark results
+  (e.g., number of solved tasks, average CPU time, etc.)
+  to LaTeX.
+- The dummy tools `true` and `false`, which could be used for testing
+  a BenchExec installation, are replaced with a more generic dummy tool
+  called `dummy`.
+- A few minor bug fixes and performance optimizations.
+
+A new paper about BenchExec called
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf)
+is now available.
+
+Please note that support for Python 3.2 and 3.3 is deprecated.
+Furthermore, the support for "sudo mode" (parameter `--user`/`--users`)
+is also deprecated.
+All deprecated features will be removed in BenchExec 2.0.
+
+
 ## BenchExec 1.10
 
 This release brings several smaller and medium-sized features:
