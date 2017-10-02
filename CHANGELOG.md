@@ -1,5 +1,11 @@
 # BenchExec Changelog
 
+## BenchExec 1.12
+
+- Fix execution of runs specified with `<withoutfile>` tags
+  in the benchmark definition: the name of the run was missing
+  from the command-line in BenchExec 1.11.
+
 ## BenchExec 1.11
 
 - `table-generator` can now be given result XML files as arguments
