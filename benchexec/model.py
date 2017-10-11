@@ -405,6 +405,7 @@ class RunSet(object):
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
         '''
+        base_dir = self.benchmark.base_dir
         # runs are structured as sourcefile sets, one set represents one sourcefiles tag
         blocks = []
 
@@ -418,15 +419,28 @@ class RunSet(object):
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
 
             # get lists of filenames
-            tasks = self.get_tasks_from_xml(sourcefilesTag, self.benchmark.base_dir)
+            task_template_files = self.get_task_template_files_from_xml(sourcefilesTag, base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
 
+            # some runs need more than one sourcefile,
+            # the first sourcefile is a normal 'include'-file, we use its name as identifier
+            # for logfile and result-category all other files are 'append'ed.
+            appendFileTags = sourcefilesTag.findall("append")
+
             currentRuns = []
-            for identifier, sourcefiles in tasks:
+            for identifier in task_template_files:
+                sourcefiles = ([identifier] +
+                    [self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=identifier)
+                        for appendFile in appendFileTags])
                 currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
+                                       global_required_files_pattern.union(required_files_pattern)))
+
+            # add runs for cases without source files
+            for run in sourcefilesTag.findall("withoutfile"):
+                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile,
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -441,7 +455,10 @@ class RunSet(object):
         return blocks
 
 
-    def get_tasks_from_xml(self, sourcefilesTag, base_dir):
+    def get_task_template_files_from_xml(self, sourcefilesTag, base_dir):
+        """Get the task-template files from the XML definition. Task-template files are files
+        for which we create a run (typically a source file).
+        """
         sourcefiles = []
 
         # get included sourcefiles
@@ -498,23 +515,7 @@ class RunSet(object):
 
                 fileWithList.close()
 
-        # some runs need more than one sourcefile,
-        # the first sourcefile is a normal 'include'-file, we use its name as identifier for logfile and result-category
-        # all other files are 'append'ed.
-        # We use a list of tuples instead of a dict here to have a deterministic order of tasks.
-        sourcefilesLists = []
-        appendFileTags = sourcefilesTag.findall("append")
-        for sourcefile in sourcefiles:
-            files = [sourcefile]
-            for appendFile in appendFileTags:
-                files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
-            sourcefilesLists.append((sourcefile, files))  # Use sourcefile as identifier
-
-        # add runs for cases without source files
-        for run in sourcefilesTag.findall("withoutfile"):
-            sourcefilesLists.append((run.text, []))
-
-        return sourcefilesLists
+        return sourcefiles
 
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
