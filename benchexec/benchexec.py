@@ -32,6 +32,7 @@ import sys
 import time
 
 from benchexec import __version__
+from benchexec import BenchExecException
 from benchexec.model import Benchmark
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
@@ -359,6 +360,8 @@ def main(benchexec=None, argv=None):
         if not benchexec:
             benchexec = BenchExec()
         sys.exit(benchexec.start(argv or sys.argv))
+    except BenchExecException as e:
+        sys.exit('Error: ' + str(e))
     except KeyboardInterrupt: # this block is reached, when interrupt is thrown before or after a run set execution
         benchexec.stop()
         util.printOut("\n\nScript was interrupted by user, some runs may not be done.")

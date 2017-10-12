@@ -1,0 +1,5 @@
+format_version: "0.1" # still in beta
+input_files:
+  # List of file name patterns
+  - '*.md'
+required_files: [] # List of file name patterns

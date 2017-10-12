@@ -24,8 +24,10 @@ import logging
 import os
 import time
 import sys
+import yaml
 from xml.etree import ElementTree
 
+from benchexec import BenchExecException
 from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
@@ -416,7 +418,8 @@ class RunSet(object):
                 and not any(util.wildcard_match(matchName, sourcefile_set) for sourcefile_set in self.benchmark.config.selected_sourcefile_sets):
                     continue
 
-            required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
+            required_files_pattern = global_required_files_pattern.union(
+                set(tag.text for tag in sourcefilesTag.findall('requiredfiles')))
 
             # get lists of filenames
             task_template_files = self.get_task_template_files_from_xml(sourcefilesTag, base_dir)
@@ -432,16 +435,20 @@ class RunSet(object):
 
             currentRuns = []
             for identifier in task_template_files:
-                sourcefiles = ([identifier] +
-                    [self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=identifier)
-                        for appendFile in appendFileTags])
-                currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
-                                       global_required_files_pattern.union(required_files_pattern)))
+                if identifier.endswith('.yml'):
+                    if appendFileTags:
+                        raise BenchExecException(
+                            "Cannot combine <append> and task templates in the same <tasks> tag.")
+                    run = self.create_run_from_template_file(
+                        identifier, fileOptions, propertyfile, required_files_pattern)
+                else:
+                    run = self.create_run_for_input_file(
+                        identifier, fileOptions, propertyfile, required_files_pattern, appendFileTags)
+                currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
-                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile,
-                                       global_required_files_pattern.union(required_files_pattern)))
+                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile, required_files_pattern))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
 
@@ -518,6 +525,66 @@ class RunSet(object):
         return sourcefiles
 
 
+    def create_run_for_input_file(
+            self, input_file, options, property_file, required_files_pattern, append_file_tags):
+        """Create a Run from a direct definition of the main input file (without task template)"""
+        input_files = [input_file]
+        base_dir = os.path.dirname(input_file)
+        for append_file in append_file_tags:
+            input_files.extend(
+                self.expand_filename_pattern(append_file.text, base_dir, sourcefile=input_file))
+        return Run(input_file, input_files, options, self, property_file, required_files_pattern)
+
+
+    def create_run_from_template_file(
+            self, template_file, options, propertyfile, required_files_pattern):
+        """Create a Run from a task template in yaml format"""
+        try:
+            with open(template_file) as f:
+                template = yaml.safe_load(f)
+        except OSError as e:
+            raise BenchExecException("Cannot open task template: " + str(e))
+        except yaml.YAMLError as e:
+            raise BenchExecException("Invalid task template: " + str(e))
+
+        if str(template.get("format_version")) != "0.1":
+            raise BenchExecException(
+                "Task template {} specifies invalid format_version '{}'."
+                .format(template_file, template.get("format_version")))
+
+        def expand_patterns_from_tag(tag):
+            result = []
+            patterns = template.get(tag, [])
+            if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
+                # accept single string in addition to list of strings
+                patterns = [patterns]
+            for pattern in patterns:
+                expanded = util.expand_filename_pattern(
+                    str(pattern), os.path.dirname(template_file))
+                if not expanded:
+                    raise BenchExecException(
+                        "Pattern '{}' in task template {} did not match any paths."
+                        .format(pattern, template_file))
+                result.extend(expanded)
+            result.sort()
+            return result
+
+        input_files = expand_patterns_from_tag("input_files")
+        if not input_files:
+            raise BenchExecException(
+                "Task template {} does not define any input files.".format(template_file))
+        required_files = expand_patterns_from_tag("required_files")
+
+        return Run(
+            template_file,
+            input_files,
+            options,
+            self,
+            propertyfile,
+            required_files_pattern,
+            required_files)
+
+
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
         """
         The function expand_filename_pattern expands a filename pattern to a sorted list
@@ -564,7 +631,8 @@ class Run(object):
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
+    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None,
+                 required_files_patterns=[], required_files=[]):
         assert identifier
         self.identifier = identifier  # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -573,7 +641,7 @@ class Run(object):
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
         self.result_files_folder = os.path.join(runSet.result_files_folder, os.path.basename(self.identifier))
 
-        self.required_files = set()
+        self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
         for pattern in required_files_patterns:
             this_required_files = runSet.expand_filename_pattern(pattern, runSet.benchmark.base_dir, rel_sourcefile)
