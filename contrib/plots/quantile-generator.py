@@ -81,7 +81,7 @@ def main(args=None):
             options.result[0], tablegenerator.parse_results_file(options.result[0]))
     for results_file in options.result[1:]:
         run_set_result.append(results_file, tablegenerator.parse_results_file(results_file))
-    run_set_result.collect_data(options.correct_only or options.scored_based)
+    run_set_result.collect_data(options.correct_only or options.score_based)
 
     # select appropriate results
     if options.score_based:
