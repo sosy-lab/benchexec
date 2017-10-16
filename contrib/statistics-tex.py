@@ -158,7 +158,7 @@ def main(args=None):
     # load results
     stats = list()
     for result in options.result:
-        stats.append(load_results(result, stats))
+        stats.append(load_results(result, options.status))
 
     print(HEADER)
     for curr_stats in stats:
