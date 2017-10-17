@@ -25,6 +25,8 @@ import itertools
 import re
 import string
 import sys
+import multiprocessing
+from functools import partial
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 import benchexec.tablegenerator as tablegenerator
@@ -123,7 +125,8 @@ def load_results(result_file, status_print):
     basenames = [Util.prettylist(run_set_result.attributes.get("benchmarkname")),
                  Util.prettylist(run_set_result.attributes.get("name"))]
 
-    return StatsCollection(basenames, total_stats, category_stats, status_stats)
+    # status_stats must be transformed to a dictionary to get rid of the lambda-factory used above (can't be pickled)
+    return StatsCollection(basenames, total_stats, category_stats, dict(status_stats))
 
 
 def main(args=None):
@@ -155,10 +158,8 @@ def main(args=None):
 
     options = parser.parse_args(args[1:])
 
-    # load results
-    stats = list()
-    for result in options.result:
-        stats.append(load_results(result, options.status))
+    pool = multiprocessing.Pool()
+    stats = pool.map(partial(load_results, status_print=options.status), options.result)
 
     print(HEADER)
     for curr_stats in stats:
