@@ -22,43 +22,34 @@ import benchexec.result as result
 import os
 class Tool(benchexec.tools.template.BaseTool):
 
-
     REQUIRED_PATHS = ["viap_tool.py","viap_svcomp.py","config.properties","SyntaxFilter.py","graphclass.py","commandclass.py","packages"]
 
     def executable(self):
-        return 'viap_tool.py'
-    
+        return 'viap_tool.py'    
     
     def version(self, executable):
-        
         stdout = self._version_from_tool(executable, '-version')
-        
         return stdout
     
-
     def name(self):
-        return 'VerifierIntegerAssignment'
+        return 'VerifierIntegerAssignmentPrograms'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        
         assert len(tasks) == 1
-        
         assert propertyfile is not None
-        
         spec = ['--spec=' + propertyfile]
-        
         return [executable] + options + spec + tasks
-
     
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        
         status = result.RESULT_UNKNOWN
-        
         stroutput = str(output)
         if "True" in stroutput:
             status = result.RESULT_TRUE_PROP
         elif "False" in stroutput:
             status = result.RESULT_FALSE_REACH
         return status
+
+
+
 
 
