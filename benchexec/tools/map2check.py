@@ -51,14 +51,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def program_files(self, executable):
-        executableDir = os.path.dirname(executable)
+        #executableDir = os.path.dirname(executable)
 
         if self._get_version() == 6:
             paths = REQUIRED_PATHS_6
         elif self._get_version() > 6:
             paths = REQUIRED_PATHS_7_1
 
-        return [executableDir] + paths
+        return paths
 
     def _get_version(self):
         """
