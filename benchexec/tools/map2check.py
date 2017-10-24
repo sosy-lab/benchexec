@@ -51,8 +51,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def program_files(self, executable):
-        #executableDir = os.path.dirname(executable)
-
+        """
+        Determine the file paths to be adopted
+        """
         if self._get_version() == 6:
             paths = REQUIRED_PATHS_6
         elif self._get_version() > 6:
