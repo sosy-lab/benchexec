@@ -1394,14 +1394,21 @@ function addButtons(target, callback, showQuantileButton) {
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
 }
 
-function isValidStatisticsColumn(columnIndex) {
+function isValidStatisticsColumn(columnIndex, allowStatus) {
   var firstRow = $('#dataTable').find('> tbody > tr:visible')[0];
   var firstColumnEntry = firstRow.cells[dataColumnsOffset + columnIndex];
   var columnClasses = firstColumnEntry.classList;
 
-  return $(columnTitleCells[columnIndex]).is(':visible')
-          && (columnClasses.contains('status') || columnClasses.contains('main_status')
-            || columnClasses.contains('measure') || columnClasses.contains('count'));
+  if (!$(columnTitleCells[columnIndex]).is(':visible')) {
+    return false;
+  }
+  if (columnClasses.contains('measure') || columnClasses.contains('count')) {
+    return true;
+  }
+  if (allowStatus && (columnClasses.contains('status') || columnClasses.contains('main_status'))) {
+    return true;
+  }
+  return false;
 }
 
 function getSelectorForScatter(identifier) {
@@ -1412,7 +1419,7 @@ function getSelectorForScatter(identifier) {
         var group = $('<optgroup>', {label:getNameOfTestDirect(runSet)})
                 .appendTo(select);
         for (var j = 0; j < runSet.columns.length; j++, columnIndex++) {
-          if (isValidStatisticsColumn(columnIndex)) {
+          if (isValidStatisticsColumn(columnIndex, true)) {
                 var column = runSet.columns[j];
                 var option = $('<option>', {
                                 value:columnIndex,
@@ -1552,7 +1559,7 @@ function getSelectorForQuantile() {
         var run_set = run_sets[i];
         for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
             var column = run_set.columns[j];
-            if (columns[column] == null && isValidStatisticsColumn(columnIndex)) {
+            if (columns[column] == null && isValidStatisticsColumn(columnIndex, true)) {
               $('<option>', { value:'column' + columnIndex, selected:(!graphData.isRunSet && graphData.target.textContent == column) })
                   .text(column).appendTo(group);
               columns[column] = column;
@@ -1647,9 +1654,18 @@ function showQuantilePlot() {
   });
 };
 
+function findFirstStatisticsColumn() {
+  for (var i = 0; i < columnTitleCells.length; i++) {
+    if (isValidStatisticsColumn(i, false)) {
+      return i;
+    }
+  }
+  return 0;
+}
+
 function createQuantilePlotView(event) {
   if (event == undefined) {
-    graphData.target = columnTitleCells[1]; // second column is default
+    graphData.target = columnTitleCells[findFirstStatisticsColumn()];
   } else {
     graphData.target = event.target;
   }
@@ -1658,7 +1674,8 @@ function createQuantilePlotView(event) {
 };
 
 function createScatterPlotView() {
-  graphData.target = [1,1]; // default indices of the columns in the plot
+  var i = findFirstStatisticsColumn(); // default indices of the columns in the plot
+  graphData.target = [i, i];
   graphData.isRunSet = false;
   showScatterPlot();
 };
