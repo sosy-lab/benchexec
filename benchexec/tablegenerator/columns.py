@@ -287,8 +287,8 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
                 formatted_value = formatted_value[:-1]
     else:
         formatted_value = '0'
-        if initial_value_sig_digits > 1:
-            formatted_value += '.' + '0' * (initial_value_sig_digits - 1)
+        if max_digits_after_decimal > 0:
+            formatted_value += '.' + '0' * max_digits_after_decimal
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
