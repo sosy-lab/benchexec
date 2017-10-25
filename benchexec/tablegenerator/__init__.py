@@ -57,8 +57,7 @@ parallel = Util.DummyExecutor()
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
 # Most important columns that should be shown first in tables (in the given order)
-MAIN_COLUMNS = ['status', 'cputime', 'walltime', 'category', 'exitcode', 'memUsage', 'cpuenergy',
-                'host', 'energy-uncore', 'energy-external', 'energy-cpu', 'energy-core']
+MAIN_COLUMNS = ['status', 'category', 'cputime', 'walltime', 'memUsage', 'cpuenergy']
 
 NAME_START = "results" # first part of filename of table
 
