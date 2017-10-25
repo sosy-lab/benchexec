@@ -41,6 +41,11 @@ class FormatValueTests(unittest.TestCase):
         formatted_value_none = self.measure_column.format_value(None, *self.default_optionals)
         self.assertEqual(formatted_value_none, '')
 
+    def test_format_value_only_starts_with_measurement(self):
+        value = "1,2,3"
+        formatted_value = self.measure_column.format_value(value, *self.default_optionals)
+        self.assertEqual(formatted_value, value)
+
     def test_format_value_no_align(self):
         formatted_value_no_align = self.measure_column.format_value("1.555s", *self.default_optionals)
         self.assertEqual(formatted_value_no_align,   "1.555")

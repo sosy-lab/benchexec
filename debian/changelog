@@ -1,3 +1,15 @@
+benchexec (1.12-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 02 Oct 2017 16:06:14 +0200
+
+benchexec (1.11-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 02 Oct 2017 14:30:05 +0200
+
 benchexec (1.10-1) xenial; urgency=medium
 
   * New upstream version.

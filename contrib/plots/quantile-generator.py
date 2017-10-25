@@ -62,7 +62,8 @@ def main(args=None):
     parser.add_argument("result",
         metavar="RESULT",
         type=str,
-        help="XML file with result produced by benchexec"
+        nargs="+",
+        help="XML files with result produced by benchexec"
     )
     parser.add_argument("--correct-only",
         action="store_true", dest="correct_only",
@@ -77,8 +78,10 @@ def main(args=None):
 
     # load results
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
-            options.result, tablegenerator.parse_results_file(options.result))
-    run_set_result.collect_data(options.correct_only)
+            options.result[0], tablegenerator.parse_results_file(options.result[0]))
+    for results_file in options.result[1:]:
+        run_set_result.append(results_file, tablegenerator.parse_results_file(results_file))
+    run_set_result.collect_data(options.correct_only or options.score_based)
 
     # select appropriate results
     if options.score_based:

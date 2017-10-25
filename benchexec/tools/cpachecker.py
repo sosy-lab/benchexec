@@ -86,17 +86,17 @@ class Tool(benchexec.tools.template.BaseTool):
     def _get_additional_options(self, existing_options, propertyfile, rlimits):
         options = []
         if SOFTTIMELIMIT in rlimits:
-            if "-timelimit" in options:
+            if "-timelimit" in existing_options:
                 logging.warning('Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line.')
             else:
                 options = options + ["-timelimit", str(rlimits[SOFTTIMELIMIT]) + "s"] # benchmark-xml uses seconds as unit
 
         # if data.MEMLIMIT in rlimits:
-        #     if "-heap" not in options:
+        #     if "-heap" not in existing_options:
         #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
         #         options = options + ["-heap", str(int(heapsize))]
 
-        if ("-stats" not in options):
+        if ("-stats" not in existing_options):
             options = options + ["-stats"]
 
         spec = ["-spec", propertyfile] if propertyfile is not None else []

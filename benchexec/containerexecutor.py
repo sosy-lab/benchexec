@@ -291,17 +291,21 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, workingDir=None, output_dir=None, result_files_patterns=[]):
+    def execute_run(self, args, workingDir=None, output_dir=None, result_files_patterns=[],
+                    rootDir=None, environ=os.environ.copy()):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
         @param args: the command line to run
+        @param rootDir: None or a root directory that contains all relevant files for starting a new process
         @param workingDir: None or a directory which the execution should use as working directory
         @param output_dir: the directory where to write result files (required if result_files_pattern)
         @param result_files_patterns: a list of patterns of files to retrieve as result files
         """
         # preparations
-        temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        temp_dir = None
+        if rootDir is None:
+            temp_dir = tempfile.mkdtemp(prefix="Benchexec_run_")
 
         pid = None
         returnvalue = 0
@@ -311,7 +315,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         try:
             pid, result_fn = self._start_execution(args=args,
                 stdin=None, stdout=None, stderr=None,
-                env=os.environ.copy(), cwd=workingDir, temp_dir=temp_dir,
+                env=environ, root_dir=rootDir, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
                 output_dir=output_dir, result_files_patterns=result_files_patterns,
                 child_setup_fn=lambda: None,
@@ -330,13 +334,15 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.discard(pid)
 
-            logging.debug('Cleaning up temporary directory.')
-            util.rmtree(temp_dir, onerror=util.log_rmtree_error)
+            if temp_dir is not None:
+                logging.debug('Cleaning up temporary directory.')
+                util.rmtree(temp_dir, onerror=util.log_rmtree_error)
 
         # cleanup steps that are only relevant in case of success
         return util.ProcessExitCode.from_raw(returnvalue)
 
-    def _start_execution(self, output_dir=None, result_files_patterns=[], *args, **kwargs):
+    def _start_execution(self, root_dir=None, output_dir=None, result_files_patterns=[],
+                         *args, **kwargs):
         if not self._use_namespaces:
             return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
         else:
@@ -354,15 +360,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                                          .format(pattern))
 
             return self._start_execution_in_container(
-                output_dir=output_dir, result_files_patterns=result_files_patterns, *args, **kwargs)
+                root_dir=root_dir, output_dir=output_dir,
+                result_files_patterns=result_files_patterns, *args, **kwargs)
 
 
     # --- container implementation with namespaces ---
 
     def _start_execution_in_container(
-            self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
-            output_dir, result_files_patterns,
-            parent_setup_fn, child_setup_fn, parent_cleanup_fn):
+            self, args, stdin, stdout, stderr, env, root_dir, cwd, temp_dir,
+            cgroups, output_dir, result_files_patterns, parent_setup_fn,
+            child_setup_fn, parent_cleanup_fn):
         """Execute the given command and measure its resource usage similarly to super()._start_execution(),
         but inside a container implemented using Linux namespaces.
         The command has no network access (only loopback),
@@ -371,7 +378,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         assert self._use_namespaces
 
-        env.update(self._env_override)
+        if root_dir is None:
+            env.update(self._env_override)
 
         args = self._build_cmdline(args, env=env)
 
@@ -404,7 +412,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the bind mount,
         # but the directory behind it. Thus we always set cwd to force a change of directory.
-        cwd = os.path.abspath(cwd or os.curdir)
+        if root_dir is None:
+            cwd = os.path.abspath(cwd or os.curdir)
+        else:
+            root_dir = os.path.abspath(root_dir)
+            cwd = os.path.abspath(cwd)
 
         def grandchild():
             """Setup everything inside the process that finally exec()s the tool."""
@@ -456,7 +468,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if not self._allow_network:
                         container.activate_network_interface("lo")
-                    self._setup_container_filesystem(temp_dir)
+
+                    if root_dir is not None:
+                        self._setup_root_filesystem(root_dir)
+                    else:
+                        self._setup_container_filesystem(temp_dir)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
@@ -602,10 +618,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         Then we chroot into the new mount hierarchy.
 
         The new filesystem layout still has a view of the host's /proc.
-        We do not mount a fresh /proc here because the grandchild still needs old the /proc.
+        We do not mount a fresh /proc here because the grandchild still needs the old /proc.
 
         We do simply iterate over all existing mount points and set them to read-only/overlay them,
-        because it is easier create a new hierarchy and chroot into it.
+        because it is easier to create a new hierarchy and chroot into it.
         First, we still have access to the original mountpoints while doing so,
         and second, we avoid race conditions if someone else changes the existing mountpoints.
 
@@ -673,6 +689,17 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             container.setup_container_system_config(temp_base)
 
         # Create a copy of host's mountpoints.
+        # Setting MS_PRIVATE flag discouples our mount namespace from the hosts's,
+        # i.e., mounts we do are not seen by the host, and any (un)mounts the host does afterward
+        # are not seen by us. The latter is desired such that new mounts (e.g.,
+        # USB sticks being plugged in) do not appear in the container.
+        # Blocking host-side unmounts from being propagated has the disadvantage
+        # that any unmounts done by the sysadmin won't really unmount the device
+        # because it stays mounted in the container and thus keep the device busy
+        # (cf. https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=739593#85).
+        # We could allow unmounts being propated with MS_SLAVE instead of MS_PRIVATE,
+        # but we prefer to have the mount namespace of the container being
+        # unchanged during run execution.
         container.make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
         # Ensure each special dir is a mountpoint such that the next loop covers it.
@@ -682,7 +709,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             try:
                 container.make_bind_mount(mount_path, mount_path)
             except OSError as e:
-                logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
+                # on btrfs, non-recursive bind mounts faitl
+                if e.errno == errno.EINVAL:
+                    try:
+                        container.make_bind_mount(mount_path, mount_path, recursive=True)
+                    except OSError as e2:
+                        logging.debug("Failed to make %s a (recursive) bind mount: %s", mount_path, e2)
+                else:
+                    logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
             if not os.path.exists(temp_path):
                 os.makedirs(temp_path)
 
@@ -769,6 +803,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
         os.chroot(mount_base)
+
+
+    def _setup_root_filesystem(self, root_dir):
+        """Setup the filesystem layout in the given root directory.
+        Create a copy of the existing proc- and dev-mountpoints in the specified root
+        directory. Afterwards we chroot into it.
+
+        @param root_dir: The path of the root directory that is used to execute the process.
+        """
+        root_dir = root_dir.encode()
+
+        # Create an empty proc folder into the root dir. The grandchild still needs a view of
+        # the old /proc, therefore we do not mount a fresh /proc here.
+        proc_base = os.path.join(root_dir, b"proc")
+        util.makedirs(proc_base, exist_ok=True)
+
+        dev_base = os.path.join(root_dir, b"dev")
+        util.makedirs(dev_base, exist_ok=True)
+
+        # Create a copy of the host's dev- and proc-mountpoints.
+        # They are marked as private in order to not being changed
+        # by existing mounts during run execution.
+        container.make_bind_mount(b"/dev/", dev_base, recursive=True, private=True)
+        container.make_bind_mount(b"/proc/", proc_base, recursive=True, private=True)
+
+        os.chroot(root_dir)
 
 
     def _transfer_output_files(self, temp_dir, working_dir, output_dir, patterns):

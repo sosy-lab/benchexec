@@ -284,10 +284,12 @@ class OutputHandler(object):
         """
         xml_file_name = self.get_filename(runSet.name, "xml")
 
-        identifier_names = [util.relative_path(run.identifier, xml_file_name) for run in runSet.runs]
+        identifier_names = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
-        runSet.common_prefix = util.common_base_dir(identifier_names) + os.path.sep
+        runSet.common_prefix = util.common_base_dir(identifier_names)
+        if runSet.common_prefix:
+            runSet.common_prefix += os.path.sep
 
         # length of the first column in terminal
         runSet.max_length_of_filename = max(len(file) for file in identifier_names) if identifier_names else 20
@@ -556,6 +558,9 @@ class OutputHandler(object):
 
         for column in run.columns:
             self.add_column_to_xml(runElem, column.title, column.value)
+
+        # Sort child elements by hidden and title attributes
+        runElem[:] = sorted(runElem, key=lambda elem : (elem.get('hidden', ''), elem.get('title')))
 
     def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy):
         """

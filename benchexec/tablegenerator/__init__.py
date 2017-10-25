@@ -56,6 +56,9 @@ parallel = Util.DummyExecutor()
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
+# Most important columns that should be shown first in tables (in the given order)
+MAIN_COLUMNS = ['status', 'category', 'cputime', 'walltime', 'memUsage', 'cpuenergy']
+
 NAME_START = "results" # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results/"
@@ -76,7 +79,7 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z]*)')
+REGEX_MEASURE = re.compile('\s*([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*$')
 GROUP_SIGN = 1
 GROUP_INT_PART = 2
 GROUP_DEC_PART = 3
@@ -576,16 +579,14 @@ class RunSetResult(object):
             logging.warning("Result file '%s' is empty.", resultFile)
             return []
         else: # show all available columns
-            columnNames = set()
-            columns = []
-            for s in run_results:
-                for c in s.findall('column'):
-                    title = c.get('title')
-                    if not title in columnNames \
-                            and (all_columns or c.get('hidden') != 'true'):
-                        columnNames.add(title)
-                        columns.append(Column(title, None, None, None, None))
-            return columns
+            column_names = set(
+                c.get('title') for s in run_results for c in s.findall('column')
+                    if all_columns or c.get('hidden') != 'true')
+
+            # Put main columns first, then rest sorted alphabetically
+            columns = ([column for column in MAIN_COLUMNS if column in column_names] +
+                       sorted(column_names.difference(MAIN_COLUMNS)))
+            return [Column(title, None, None, None) for title in columns]
 
     @staticmethod
     def _extract_attributes_from_result(resultFile, resultTag):

@@ -637,7 +637,7 @@ class Run(object):
 
         # here we store the optional result values, e.g. memory usage, energy, host name
         # keys need to be strings, if first character is "@" the value is marked as hidden (e.g., debug info)
-        self.values = collections.OrderedDict()
+        self.values = {}
 
         # dummy values, for output in case of interrupt
         self.status = ""
@@ -651,7 +651,7 @@ class Run(object):
         return cmdline_for_run(self.runSet.benchmark.tool,
                                self.runSet.benchmark.executable,
                                self.options,
-                               self.sourcefiles,
+                               self.sourcefiles or [self.identifier], # identifier for <withoutfile>
                                self.propertyfile,
                                self.runSet.benchmark.rlimits)
 
