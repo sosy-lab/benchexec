@@ -27,10 +27,6 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         return util.find_executable('viap_tool.py')
-
-    def program_files(self, executable):
-        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
     
     def version(self, executable):
         stdout = self._version_from_tool(executable, '-version')
