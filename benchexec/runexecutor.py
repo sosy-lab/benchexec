@@ -692,8 +692,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, stdin=None,
-                   hardtimelimit=None, softtimelimit=None, walltimelimit=None,
+    def execute_run(self, args, output_filename, error_filename=None, stdin=None,
+                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
@@ -704,6 +704,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         and writes the output to a file.
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
+        @param error_filename: the file where the error output should be written to (default: same as output_filename)
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
@@ -794,7 +795,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
 
         try:
-            return self._execute(args, output_filename, stdin,
+            return self._execute(args, output_filename, error_filename, stdin,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
@@ -814,7 +815,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _execute(self, args, output_filename, stdin,
+    def _execute(self, args, output_filename, error_filename, stdin,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
@@ -866,6 +867,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         temp_dir = self._create_temp_dir()
         run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(output_filename, args)
+        if error_filename is None:
+            errorFile = output_filename
+        else:
+            errorFile = self._setup_output_file(error_filename, args)
 
         timelimitThread = None
         oomThread = None
@@ -883,7 +888,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         try:
             pid, result_fn = self._start_execution(args=args,
-                stdin=stdin, stdout=outputFile, stderr=outputFile,
+                stdin=stdin, stdout=outputFile, stderr=errorFile,
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
