@@ -1308,9 +1308,9 @@ def get_stats_of_run_set(runResults):
     replace_irrelevant(wrongFalseRow)
     replace_irrelevant(scoreRow)
 
-    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow,\
-                       correctUnconfirmedRow, correctUnconfirmedTrueRow, correctUnconfirmedFalseRow,\
-                       incorrectRow, wrongTrueRow, wrongFalseRow,\
+    stats = (totalRow, correctRow, correctTrueRow, correctFalseRow,
+             correctUnconfirmedRow, correctUnconfirmedTrueRow, correctUnconfirmedFalseRow,
+             incorrectRow, wrongTrueRow, wrongFalseRow,
              scoreRow)
     return stats
 
@@ -1366,9 +1366,9 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
     except InvalidOperation as e:
         if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
-        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0),\
-                              StatValue(0), StatValue(0), StatValue(0),\
-                              StatValue(0), StatValue(0), StatValue(0))
+        return (StatValue(0), StatValue(0), StatValue(0), StatValue(0),
+                StatValue(0), StatValue(0), StatValue(0),
+                StatValue(0), StatValue(0), StatValue(0))
 
     valuesPerCategory = collections.defaultdict(list)
     for value, catStat in zip(valueList, categoryList):

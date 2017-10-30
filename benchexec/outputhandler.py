@@ -258,8 +258,8 @@ class OutputHandler(object):
             + simpleLine)
 
         if sysinfo:
-            header += ("   SYSTEM INFORMATION\n"\
-                + format_line("host", sysinfo.hostname)
+            header += ("   SYSTEM INFORMATION\n"
+                       + format_line("host", sysinfo.hostname)
                 + format_line("os", sysinfo.os)
                 + format_line("cpu", sysinfo.cpu_model)
                 + format_line("- cores", sysinfo.cpu_number_of_cores)
