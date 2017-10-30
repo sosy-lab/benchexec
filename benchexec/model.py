@@ -122,7 +122,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
-    return args;
+    return args
 
 
 class Benchmark(object):
