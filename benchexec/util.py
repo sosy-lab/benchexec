@@ -107,9 +107,9 @@ def flatten(iterable, exclude=[]):
 
 
 def get_list_from_xml(elem, tag="option", attributes=["name"]):
-    '''
+    """
     This function searches for all "option"-tags and returns a list with all attributes and texts.
-    '''
+    """
     return flatten(([option.get(attr) for attr in attributes] + [option.text] for option in elem.findall(tag)), exclude=[None])
 
 def get_single_child_from_xml(elem, tag):

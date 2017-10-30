@@ -342,11 +342,11 @@ class OutputHandler(object):
 
 
     def output_for_skipping_run_set(self, runSet, reason=None):
-        '''
+        """
         This function writes a simple message to terminal and logfile,
         when a run set is skipped.
         There is no message about skipping a run set in the xml-file.
-        '''
+        """
 
         # print to terminal
         util.printOut("\nSkipping run set" +
@@ -691,10 +691,10 @@ class OutputHandler(object):
 
 
     def get_filename(self, runSetName, fileExtension):
-        '''
+        """
         This function returns the name of the file for a run set
         with an extension ("txt", "xml").
-        '''
+        """
 
         fileName = self.benchmark.output_base_name + ".results."
 
@@ -705,9 +705,9 @@ class OutputHandler(object):
 
 
     def format_sourcefile_name(self, fileName, runSet):
-        '''
+        """
         Formats the file name of a program for printing on console.
-        '''
+        """
         if fileName.startswith(runSet.common_prefix):
             fileName = fileName[len(runSet.common_prefix):]
         return fileName.ljust(runSet.max_length_of_filename + 4)

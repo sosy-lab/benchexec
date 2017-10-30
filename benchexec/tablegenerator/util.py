@@ -62,10 +62,10 @@ def get_file_list(shortFile):
 
 
 def extend_file_list(filelist):
-    '''
+    """
     This function takes a list of files, expands wildcards
     and returns a new list of files.
-    '''
+    """
     return [file for wildcardFile in filelist for file in get_file_list(wildcardFile)]
 
 
@@ -146,7 +146,7 @@ def create_link(runResult, base_dir, column):
 
 
 def format_options(options):
-    '''Helper function for formatting the content of the options line'''
+    """Helper function for formatting the content of the options line"""
     # split on one of the following tokens: ' -' or '[[' or ']]'
     lines = ['']
     for token in re.split('( -|\[\[|\]\])', options):

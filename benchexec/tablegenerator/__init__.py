@@ -99,10 +99,10 @@ UNIT_CONVERSION = {
 
 
 def parse_table_definition_file(file):
-    '''
+    """
     Read an parse the XML of a table-definition file.
     @return: an ElementTree object for the table definition
-    '''
+    """
     logging.info("Reading table definition from '%s'...", file)
     if not os.path.isfile(file):
         logging.error("File '%s' does not exist.", file)
@@ -554,14 +554,14 @@ class RunSetResult(object):
     @staticmethod
     def create_from_xml(resultFile, resultElem, columns=None,
                         all_columns=False, columns_relevant_for_diff=set()):
-        '''
+        """
         This function extracts everything necessary for creating a RunSetResult object
         from the "result" XML tag of a benchmark result file.
         It returns a RunSetResult object, which is not yet fully initialized.
         To finish initializing the object, call collect_data()
         before using it for anything else
         (this is to separate the possibly costly collect_data() call from object instantiation).
-        '''
+        """
         attributes = RunSetResult._extract_attributes_from_result(resultFile, resultElem)
 
         if not columns:
@@ -669,12 +669,12 @@ def load_result(result_file, options, run_set_id=None, columns=None,
 
 
 def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
-    '''
+    """
     This function parses an XML file that contains the results of the execution of a run set.
     It returns the "result" XML tag.
     @param resultFile: The file name of the XML file that contains the results.
     @param run_set_id: An optional identifier of this set of results.
-    '''
+    """
     logging.info('    %s', resultFile)
     url = Util.make_url(resultFile)
 
@@ -827,10 +827,10 @@ class RunResult(object):
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
                         correct_only, log_zip_cache, columns_relevant_for_diff):
-        '''
+        """
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
-        '''
+        """
 
         def read_logfile_lines(log_file):
             if not log_file:
@@ -1474,10 +1474,10 @@ def get_summary(runSetResults):
 
 
 def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options):
-    '''
+    """
     Create tables and write them to files.
     @return a list of futures to allow waiting for completion
-    '''
+    """
 
     # get common folder of sourcefiles
     common_prefix = os.path.commonprefix([r.filename for r in rows]) # maybe with parts of filename

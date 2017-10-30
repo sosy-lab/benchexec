@@ -296,12 +296,12 @@ def _file_is_java(filename):
 
 
 def get_result_classification(result):
-    '''
+    """
     Classify the given result into "true" (property holds),
     "false" (property does not hold), "unknown", and "error".
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @return One of RESULT_CLASS_* strings
-    '''
+    """
     if result not in RESULT_LIST:
         return RESULT_CLASS_ERROR
 
@@ -315,14 +315,14 @@ def get_result_classification(result):
 
 
 def get_result_category(filename, result, properties):
-    '''
+    """
     This function determines the relation between actual result and expected result
     for the given file and properties.
     @param filename: The file name of the input file.
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @param properties: The list of properties to check (as returned by properties_of_file()).
     @return One of the CATEGORY_* strings.
-    '''
+    """
     assert set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())
 
     if result not in RESULT_LIST:

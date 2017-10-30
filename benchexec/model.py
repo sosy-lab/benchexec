@@ -407,10 +407,10 @@ class RunSet(object):
 
 
     def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern):
-        '''
+        """
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
-        '''
+        """
         # runs are structured as sourcefile sets, one set represents one sourcefiles tag
         blocks = []
 
@@ -787,7 +787,7 @@ class Run(object):
         return status
 
     def _is_timeout(self):
-        ''' try to find out whether the tool terminated because of a timeout '''
+        """ try to find out whether the tool terminated because of a timeout """
         if self.cputime is None:
             return False
         rlimits = self.runSet.benchmark.rlimits
@@ -814,12 +814,12 @@ class Column(object):
 
 
 class Requirements(object):
-    '''
+    """
     This class wrappes the values for the requirements.
     It parses the tags from XML to get those values.
     If no values are found, at least the limits are used as requirements.
     If the user gives a cpu_model in the config, it overrides the previous cpu_model.
-    '''
+    """
     def __init__(self, tags, rlimits, config):
 
         self.cpu_model = None
