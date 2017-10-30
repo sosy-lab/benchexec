@@ -53,7 +53,7 @@ setuptools.setup(
     name = 'BenchExec',
     version = version,
     author = 'Dirk Beyer',
-    description = ('A Framework for Reliable Benchmarking and Resource Measurement.'),
+    description ='A Framework for Reliable Benchmarking and Resource Measurement.',
     long_description = long_description,
     url = 'https://github.com/sosy-lab/benchexec/',
     license = 'Apache 2.0 License',

@@ -215,7 +215,7 @@ class OutputHandler(object):
             runSetName = run_sets[0].name
 
         columnWidth = 25
-        simpleLine = "-" * (60) + "\n\n"
+        simpleLine = "-" * 60 + "\n\n"
 
         def format_line(key, value):
             if value is None:

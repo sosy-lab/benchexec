@@ -852,7 +852,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
             energy = self._energy_measurement.stop() if self._energy_measurement else None
-            return (walltime, energy)
+            return walltime, energy
 
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""

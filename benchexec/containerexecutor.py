@@ -641,7 +641,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             return path.startswith(target_path)
 
         def find_mode_for_dir(path, fstype):
-            if (path == b"/proc"):
+            if path == b"/proc":
                 # /proc is necessary for the grandchild to read PID, will be replaced later.
                 return DIR_READ_ONLY
             if _is_below(path, b"/proc"):

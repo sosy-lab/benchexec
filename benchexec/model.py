@@ -102,7 +102,7 @@ def load_tool_info(tool_name):
     except AttributeError:
         sys.exit('The module "{0}" does not define the necessary class "Tool", '
                  'it cannot be used as tool info for BenchExec.'.format(tool_module))
-    return (tool_module, tool)
+    return tool_module, tool
 
 
 def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):

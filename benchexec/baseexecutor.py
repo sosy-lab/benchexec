@@ -169,7 +169,7 @@ class BaseExecutor(object):
 
             logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
                              e.errno, name, pid, e.strerror)
-            return (0, None)
+            return 0, None
 
     def stop(self):
         self.PROCESS_KILLED = True

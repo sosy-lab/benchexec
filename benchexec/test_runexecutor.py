@@ -75,7 +75,7 @@ class TestRunExecutor(unittest.TestCase):
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
             output_lines = os.read(output_fd, 4096).decode().splitlines()
-            return (result, output_lines)
+            return result, output_lines
         finally:
             os.close(output_fd)
             os.remove(output_filename)
@@ -97,7 +97,7 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
-        return (result, output_lines)
+        return result, output_lines
 
     def check_command_in_output(self, output, cmd):
         self.assertEqual(output[0], cmd, 'run output misses executed command')

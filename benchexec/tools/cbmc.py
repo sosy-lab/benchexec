@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
             options = options + ['--propertyfile', propertyfile]
-        elif ("--xml-ui" not in options):
+        elif "--xml-ui" not in options:
             options = options + ["--xml-ui"]
 
         self.options = options
@@ -121,7 +121,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             status = result.RESULT_ERROR
-            if ('--xml-ui' in self.options):
+            if '--xml-ui' in self.options:
                 status = self.parse_XML(output, returncode, isTimeout)
             elif len(output) > 0:
                 # SV-COMP mode

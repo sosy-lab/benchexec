@@ -64,7 +64,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             for core in allCpus:
                 siblings_of_core[core].append((core + ht_spread) % core_count)
                 siblings_of_core[core].sort()
-        return (allCpus, cores_of_package, siblings_of_core)
+        return allCpus, cores_of_package, siblings_of_core
 
 
     def test_singleThread(self):
@@ -299,4 +299,4 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         self.assertInvalid(5, 16)
 
 # prevent execution of base class as its own test
-del(TestCpuCoresPerRun)
+del TestCpuCoresPerRun

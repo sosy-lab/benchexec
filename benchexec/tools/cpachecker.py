@@ -96,7 +96,7 @@ class Tool(benchexec.tools.template.BaseTool):
         #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
         #         options = options + ["-heap", str(int(heapsize))]
 
-        if ("-stats" not in existing_options):
+        if "-stats" not in existing_options:
             options = options + ["-stats"]
 
         spec = ["-spec", propertyfile] if propertyfile is not None else []
@@ -195,7 +195,7 @@ class Tool(benchexec.tools.template.BaseTool):
             if identifier in line:
                 startPosition = line.find(':') + 1
                 endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
-                if (endPosition == -1):
+                if endPosition == -1:
                     return line[startPosition:].strip()
                 else:
                     return line[startPosition: endPosition].strip()

@@ -57,7 +57,7 @@ def getWitnessResult(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
-        return ('witness missing', Result.CATEGORY_ERROR)
+        return 'witness missing', Result.CATEGORY_ERROR
 
     sourcefile = witness.get('name')
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
@@ -68,15 +68,15 @@ def getWitnessResult(witness, verification_result):
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
-        return (status_from_validation, category_from_validation)
+        return status_from_validation, category_from_validation
     # An invalid witness counts as error of the verifier.
     if status_from_validation == 'ERROR (invalid witness file)':
-        return ('witness invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR)
+        return 'witness invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == Result.CATEGORY_CORRECT:
-        return (status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED)
+        return status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED
 
-    return ('result invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR)
+    return 'result invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR
 
 def main(argv=None):
 

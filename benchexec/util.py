@@ -203,7 +203,7 @@ def split_number_and_unit(s):
         pos -= 1
     number = int(s[:pos])
     unit = s[pos:].strip()
-    return (number, unit)
+    return number, unit
 
 def parse_memory_value(s):
     """Parse a string that contains a number of bytes, optionally with a unit like MB.
