@@ -81,7 +81,7 @@ that is printed to stdout by the `runexec` command-line tool (cf. [Run Results](
 
 ## Python 2 Compatibility
 
-While BenchExec in general requires at least Python 3.2,
+While BenchExec in general requires at least Python 3.4,
 `runexec` should also work with Python 2.7,
 both when run as a stand-alone tool and when used as a Python module.
 This is also true for the `benchexc.check_cgroups` command

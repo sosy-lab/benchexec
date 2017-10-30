@@ -731,10 +731,9 @@ class OutputHandler(object):
         """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
         if self.compress_results:
             actual_filename = filename + ".bz2"
-            # Use BZ2File directly or our hack for Python 3.2
-            open_func = bz2.BZ2File if hasattr(bz2.BZ2File, 'writable') else util.BZ2FileHack
+            open_func = bz2.BZ2File
         else:
-            # write content to temp file first to prevent loosing data
+            # write content to temp file first to prevent losing data
             # in existing file if writing fails
             actual_filename = filename + ".tmp"
             open_func = open

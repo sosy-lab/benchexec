@@ -2,7 +2,7 @@
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.2.
+BenchExec requires at least Python 3.4.
 (Then [runexec](runexec.md) tool and module also work with Python 2.7.)
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.

@@ -686,11 +686,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
                     resultElem = parse(gzip.GzipFile(fileobj=f))
                 except IOError:
                     f.seek(0)
-                    try:
-                        resultElem = parse(bz2.BZ2File(f))
-                    except TypeError:
-                        # Python 3.2 does not support giving a file-like object to BZ2File
-                        resultElem = parse(io.BytesIO(bz2.decompress(f.read())))
+                    resultElem = parse(bz2.BZ2File(f))
             except IOError:
                 f.seek(0)
                 resultElem = parse(f)

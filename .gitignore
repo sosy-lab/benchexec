@@ -5,3 +5,4 @@ dist
 BenchExec.egg-info
 .coverage.*
 coverage
+.idea

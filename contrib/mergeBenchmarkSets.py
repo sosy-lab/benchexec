@@ -140,8 +140,7 @@ def main(argv=None):
 
     filename = resultFile + '.merged.xml.bz2'
     print ('    ' + filename)
-    open_func = bz2.BZ2File if hasattr(bz2.BZ2File, 'writable') else util.BZ2FileHack
-    with io.TextIOWrapper(open_func(filename, 'wb'), encoding='utf-8') as xml_file:
+    with io.TextIOWrapper(bz2.BZ2File(filename, 'wb'), encoding='utf-8') as xml_file:
         xml_file.write(xml_to_string(resultXML).replace('    \n','').replace('  \n',''))
 
 if __name__ == '__main__':

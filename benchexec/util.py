@@ -420,27 +420,6 @@ def read_key_value_pairs_from_file(*path):
             yield line.split(' ', 1) #maxsplit=1
 
 
-class BZ2FileHack(bz2.BZ2File):
-    """Hack for Python 3.2, where BZ2File cannot be used in a io.TextIOWrapper
-    because it lacks several functions.
-    """
-    def __init__(self, filename, mode, *args, **kwargs):
-        assert mode == "wb"
-        bz2.BZ2File.__init__(self, filename, mode, *args, **kwargs)
-
-    def readable(self):
-        return False
-
-    def seekable(self):
-        return False
-
-    def writable(self):
-        return True
-
-    def flush(self):
-        pass
-
-
 ProcessExitCode = collections.namedtuple('ProcessExitCode', 'raw value signal')
 """Tuple for storing the exit status indication given by a os.wait() call.
 Only value or signal are present, not both
