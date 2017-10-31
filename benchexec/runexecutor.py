@@ -608,7 +608,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args):
+    def _setup_output_file(self, output_filename, args, write_header = True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -616,9 +616,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
-                          + '\n\n\n' + '-' * 80 + '\n\n\n')
-        output_file.flush()
+
+        if write_header:
+            output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+                              + '\n\n\n' + '-' * 80 + '\n\n\n')
+            output_file.flush()
+
         return output_file
 
 
@@ -692,7 +695,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, error_filename=None, stdin=None,
+    def execute_run(self, args, output_filename, error_filename=None, stdin=None, write_header = True,
                     hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
@@ -706,6 +709,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param output_filename: the file where the output should be written to
         @param error_filename: the file where the error output should be written to (default: same as output_filename)
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
+        @param stdin: Write informational headers to the output and the error file
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param walltimelimit: None or the wall time in seconds after which the tool is forcefully killed (default: hardtimelimit + a few seconds)
@@ -795,7 +799,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
 
         try:
-            return self._execute(args, output_filename, error_filename, stdin,
+            return self._execute(args, output_filename, error_filename, stdin, write_header,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
@@ -815,7 +819,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _execute(self, args, output_filename, error_filename, stdin,
+    def _execute(self, args, output_filename, error_filename, stdin, write_header,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
@@ -866,11 +870,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         temp_dir = self._create_temp_dir()
         run_environment = self._setup_environment(environments)
-        outputFile = self._setup_output_file(output_filename, args)
+        outputFile = self._setup_output_file(output_filename, args, write_header=write_header)
         if error_filename is None:
             errorFile = output_filename
         else:
-            errorFile = self._setup_output_file(error_filename, args)
+            errorFile = self._setup_output_file(error_filename, args, write_header=write_header)
 
         timelimitThread = None
         oomThread = None
