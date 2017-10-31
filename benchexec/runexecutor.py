@@ -608,7 +608,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args, write_header = True):
+    def _setup_output_file(self, output_filename, args, write_header=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -695,7 +695,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, error_filename=None, stdin=None, write_header = True,
+    def execute_run(self, args, output_filename, error_filename=None, stdin=None, write_header=True,
                     hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
@@ -872,7 +872,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(output_filename, args, write_header=write_header)
         if error_filename is None:
-            errorFile = output_filename
+            errorFile = outputFile
         else:
             errorFile = self._setup_output_file(error_filename, args, write_header=write_header)
 
