@@ -695,21 +695,20 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, error_filename=None, stdin=None, write_header=True,
+    def execute_run(self, args, output_filename, stdin=None,
                     hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
                    files_count_limit=None, files_size_limit=None,
+                   error_filename=None, write_header=True,
                    **kwargs):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
-        @param error_filename: the file where the error output should be written to (default: same as output_filename)
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)
-        @param stdin: Write informational headers to the output and the error file
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param walltimelimit: None or the wall time in seconds after which the tool is forcefully killed (default: hardtimelimit + a few seconds)
@@ -722,6 +721,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
         @param files_count_limit: None or maximum number of files that may be written.
         @param files_size_limit: None or maximum size of files that may be written.
+        @param error_filename: the file where the error output should be written to (default: same as output_filename)
+        @param write_headers: Write informational headers to the output and the error file if separate (default: True)
         @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
@@ -956,6 +957,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if swap_check.has_swapped():
             logging.warning('System has swapped during benchmarking. '
                             'Benchmark results are unreliable!')
+
+        if error_filename is not None:
+            _reduce_file_size_if_necessary(error_filename, max_output_size)
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
