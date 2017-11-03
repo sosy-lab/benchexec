@@ -608,7 +608,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args):
+    def _setup_output_file(self, output_filename, args, write_header=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -616,9 +616,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
-                          + '\n\n\n' + '-' * 80 + '\n\n\n')
-        output_file.flush()
+
+        if write_header:
+            output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+                              + '\n\n\n' + '-' * 80 + '\n\n\n')
+            output_file.flush()
+
         return output_file
 
 
@@ -693,11 +696,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     # --- run execution ---
 
     def execute_run(self, args, output_filename, stdin=None,
-                   hardtimelimit=None, softtimelimit=None, walltimelimit=None,
+                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
                    files_count_limit=None, files_size_limit=None,
+                   error_filename=None, write_header=True,
                    **kwargs):
         """
         This function executes a given command with resource limits,
@@ -717,6 +721,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
         @param files_count_limit: None or maximum number of files that may be written.
         @param files_size_limit: None or maximum size of files that may be written.
+        @param error_filename: the file where the error output should be written to (default: same as output_filename)
+        @param write_headers: Write informational headers to the output and the error file if separate (default: True)
         @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
@@ -794,7 +800,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
 
         try:
-            return self._execute(args, output_filename, stdin,
+            return self._execute(args, output_filename, error_filename, stdin, write_header,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
@@ -814,7 +820,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _execute(self, args, output_filename, stdin,
+    def _execute(self, args, output_filename, error_filename, stdin, write_header,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
@@ -865,7 +871,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         temp_dir = self._create_temp_dir()
         run_environment = self._setup_environment(environments)
-        outputFile = self._setup_output_file(output_filename, args)
+        outputFile = self._setup_output_file(output_filename, args, write_header=write_header)
+        if error_filename is None:
+            errorFile = outputFile
+        else:
+            errorFile = self._setup_output_file(error_filename, args, write_header=write_header)
 
         timelimitThread = None
         oomThread = None
@@ -883,7 +893,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         try:
             pid, result_fn = self._start_execution(args=args,
-                stdin=stdin, stdout=outputFile, stderr=outputFile,
+                stdin=stdin, stdout=outputFile, stderr=errorFile,
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
@@ -947,6 +957,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if swap_check.has_swapped():
             logging.warning('System has swapped during benchmarking. '
                             'Benchmark results are unreliable!')
+
+        if error_filename is not None:
+            _reduce_file_size_if_necessary(error_filename, max_output_size)
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
