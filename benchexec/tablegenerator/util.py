@@ -73,7 +73,7 @@ def make_url(path_or_url):
     """Make a URL from a string which is either a URL or a local path,
     by adding "file:" if necessary.
     """
-    if not "://" in path_or_url and not path_or_url.startswith("file:"):
+    if not is_url(path_or_url):
         return "file:" + urllib.request.pathname2url(path_or_url)
     return path_or_url
 
@@ -130,11 +130,15 @@ def remove_unit(s):
     return suffix if prefix == '' else prefix
 
 
+def is_url(path_or_url):
+    return "://" in path_or_url or path_or_url.startswith("file:")
+
+
 def create_link(runResult, base_dir, column):
     source_file = runResult.task_id[0]
     href = column.href or runResult.log_file
 
-    if href.startswith("http://") or href.startswith("https://") or href.startswith("file:"):
+    if is_url(href):
         # quote special characters only in inserted variable values, not full URL
         source_file = url_quote(source_file)
         href = model.substitute_vars([href], None, source_file)[0]
