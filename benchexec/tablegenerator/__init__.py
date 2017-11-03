@@ -939,10 +939,6 @@ class Row(object):
         """
         generate output representation of rows
         """
-        # make path relative to directory of output file if necessary
-        self.file_path = self.filename if os.path.isabs(self.filename) \
-                                 else os.path.relpath(self.filename, base_dir)
-
         self.short_filename = self.filename.replace(common_prefix, '', 1)
 
 

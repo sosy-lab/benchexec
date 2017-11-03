@@ -133,19 +133,19 @@ def remove_unit(s):
 def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
-
-def create_link(runResult, base_dir, column):
-    source_file = runResult.task_id[0]
-    href = column.href or runResult.log_file
+def create_link(href, base_dir, runResult=None):
+    source_file = runResult.task_id[0] if runResult else None
 
     if is_url(href):
         # quote special characters only in inserted variable values, not full URL
-        source_file = url_quote(source_file)
-        href = model.substitute_vars([href], None, source_file)[0]
+        if source_file:
+            source_file = url_quote(source_file)
+            href = model.substitute_vars([href], None, source_file)[0]
         return href
 
     # quote special characters everywhere (but not twice in source_file!)
-    href = model.substitute_vars([href], None, source_file)[0]
+    if source_file:
+        href = model.substitute_vars([href], None, source_file)[0]
     return url_quote(os.path.relpath(href, base_dir))
 
 

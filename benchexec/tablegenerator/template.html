@@ -234,7 +234,7 @@
 
 <tbody>
 {{for line in body}}
-<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
+<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{create_link(line.filename, base_dir)}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
   {{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}
     {{if show}}
 <td>{{id}}</td>
@@ -246,7 +246,7 @@
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
