@@ -1150,8 +1150,9 @@ def _contains_unconfirmed_results(rows_for_stats):
     return False
 
 
-def get_stats(rows, local_summary):
-    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+def get_stats(rows, local_summary, correct_only):
+    result_cols = list(rows_to_columns(rows))  # column-wise
+    stats = list(parallel.map(get_stats_of_run_set, result_cols, [correct_only] * len(result_cols)))
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
     # find out column types for statistics columns
@@ -1206,7 +1207,7 @@ def get_stats(rows, local_summary):
             ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
 
-def get_stats_of_run_set(runResults):
+def get_stats_of_run_set(runResults, correct_only):
     """
     This function returns the numbers of the statistics.
     @param runResults: All the results of the execution of one run set (as list of RunResult objects)
@@ -1273,7 +1274,7 @@ def get_stats_of_run_set(runResults):
                 total, correct, correctTrue, correctFalse,\
                        correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
                        incorrect, wrongTrue, wrongFalse =\
-                    get_stats_of_number_column(values, main_status_list, column.title)
+                    get_stats_of_number_column(values, main_status_list, column.title, correct_only)
 
                 score = None
 
@@ -1367,7 +1368,7 @@ class StatValue(object):
                          )
 
 
-def get_stats_of_number_column(values, categoryList, columnTitle):
+def get_stats_of_number_column(values, categoryList, columnTitle, correct_only):
     assert len(values) == len(categoryList)
     try:
         valueList = [Util.to_decimal(v) for v in values]
@@ -1395,9 +1396,9 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-                              + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
+                              + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]) if not correct_only else None,
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]) if not correct_only else None,
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]) if not correct_only else None,
             )
 
 
@@ -1524,7 +1525,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
         # calculate statistics if necessary
         if not options.format == ['csv']:
             local_summary = get_summary(runSetResults) if use_local_summary else None
-            stats, stats_columns = get_stats(rows, local_summary)
+            stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
         else:
             stats = stats_columns = None
 
