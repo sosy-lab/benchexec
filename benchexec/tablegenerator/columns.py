@@ -237,7 +237,11 @@ def _get_significant_digits(value):
         sig_digits = len(match.group(GROUP_SIG_DEC_DIGITS))
 
     else:
-        sig_digits = len(match.group(GROUP_INT_PART))
+        if float(value) != 0:
+            sig_digits = len(match.group(GROUP_INT_PART))
+        else:
+            # If the value consists of only zeros, do not count the 0 in front of the decimal
+            sig_digits = 0
         if match.group(GROUP_DEC_PART):
             sig_digits += len(match.group(GROUP_DEC_PART))
 
@@ -287,8 +291,8 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
                 formatted_value = formatted_value[:-1]
     else:
         formatted_value = '0'
-        if max_digits_after_decimal > 0:
-            formatted_value += '.' + '0' * max_digits_after_decimal
+        if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
+            formatted_value += '.' + '0' * min(max_digits_after_decimal, initial_value_sig_digits)
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
