@@ -80,13 +80,11 @@ class FormatValueTests(unittest.TestCase):
 
     def test_format_value_zero(self):
         formatted_value = self.measure_column.format_value("0", *self.default_optionals)
-        # FIXME: Should be "0" (never add digits that were not in the input)
-        self.assertEqual(formatted_value, "0.000000")
+        self.assertEqual(formatted_value, "0")
 
     def test_format_value_precise_zero(self):
         formatted_value = self.measure_column.format_value("0.0000", *self.default_optionals)
-        # FIXME: Should be "0.0000" (never add digits that were not in the input)
-        self.assertEqual(formatted_value, "0.000000")
+        self.assertEqual(formatted_value, "0.0000")
 
     def test_format_value_more_precise_zero(self):
         formatted_value = self.measure_column.format_value("0.0000000", *self.default_optionals)
