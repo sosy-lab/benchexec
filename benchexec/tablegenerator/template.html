@@ -380,7 +380,9 @@ function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
   // or when pressing the "Esc" key with the content pane focused
   if (event.type == "click" || escKeyPressed(event)) {
-    hideContentPane();
+    $('#contentPaneBackground').hide();
+    $('#contentPane').hide().empty();
+    isRowFilterPaneActive = false;
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -391,9 +393,8 @@ function catchHideContentPane(event) {
 }
 
 function hideContentPane() {
-  $('#contentPaneBackground').hide();
-  $('#contentPane').hide().empty();
-  isRowFilterPaneActive = false;
+  // Execute catchHideContentPane and any other registered cleanup functions
+  $('#contentPaneBackground').trigger('click');
 }
 
 function escKeyPressed(event) {
@@ -715,6 +716,7 @@ function range(start, end) {
 
 
 function createColumnToggleView() {
+    hideContentPane(); // cleanup
     // Turn the float-thead on and off.
     $("#dataTable").floatThead('destroy');
 
@@ -803,7 +805,7 @@ function createStatsView(statistics, currentIndex) {
              .appendTo(rowHeader)
              .addClass('clickable')
              .click(function(event) { // iterate through statistics
-                 $('#contentPaneBackground').click(); // cleanup
+                 hideContentPane(); // cleanup
                  createStatsView(statistics, (currentIndex + 1) % statistics.length);
              } )
              .attr('title', originalCell.attr('title'));
@@ -865,12 +867,11 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
+  hideContentPane(); // cleanup
   if (isRowFilterPaneActive) {
     return;
   }
   isRowFilterPaneActive = true;
-
-  $("#contentPane").empty();
 
   var buttonList = $('<form>', {id:'rowFilterButtons', onsubmit:'return false'})
         .appendTo($("#contentPane"));
@@ -1441,7 +1442,7 @@ function getSelectorForScatter(identifier) {
 }
 
 function showScatterPlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   var contentPane = $('#contentPane').append('<div id="chart"></div>');
   addButtons(contentPane, showScatterPlot, false);
   showContentPane();
@@ -1588,7 +1589,7 @@ function getSelectorForQuantile() {
 }
 
 function showQuantilePlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   $('#contentPane').append('<div id="chart"></div>');
   addButtons($('#contentPane'), showQuantilePlot, true);
   showContentPane();
