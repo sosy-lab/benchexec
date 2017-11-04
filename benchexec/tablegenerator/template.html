@@ -185,9 +185,7 @@
   .jqplot-table-legend { text-align: left; }
   table.jqplot-table-legend[style] { position:absolute; left:auto !important; right:0px !important; } /* overrides inner css-style */
   #chart { height:100%; width:100%; overflow:hidden; }
-  #button-quantile { position:absolute; bottom:50px; }
-  #button-logScale { position:absolute; bottom:25px; }
-  #button-showCorrectOnly { position:absolute; bottom:0px; }
+  #contentPane #buttons { position: absolute; bottom: 0px; z-index: 4; }
   .plot-selector { width:30%; }
   -->
 </style>
@@ -1379,19 +1377,23 @@ function getYTicksFormat() {
 
 
 function addButtons(target, callback, showQuantileButton) {
+    target = $('<div>', {id: 'buttons'}).appendTo(target);
     if (showQuantileButton) {
         $('<button>', {id:'button-quantile'}).appendTo(target)
             .click(function() { graphData.isQuantile = !graphData.isQuantile; callback();})
             .text(graphData.isQuantile ? 'Switch to Direct Plot' : 'Switch to Quantile Plot');
+        $('<br>').appendTo(target);
     }
 
     $('<button>', {id:'button-logScale'}).appendTo(target)
         .click(function() { graphData.isLogScale = !graphData.isLogScale; callback();})
         .text(graphData.isLogScale ?  'Switch to Linear Scale' : 'Switch to Logarithmic Scale');
+    $('<br>').appendTo(target);
 
     $('<button>', {id:'button-showCorrectOnly'}).appendTo(target)
         .click(function() { graphData.showCorrectOnly = !graphData.showCorrectOnly; callback();})
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
+    $('<br>').appendTo(target);
 }
 
 function isValidStatisticsColumn(columnIndex, allowStatus) {
