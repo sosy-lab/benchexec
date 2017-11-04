@@ -1132,7 +1132,7 @@ function collectTableDataForQuantile() {
       var currentCell = $(currentRow.cells[index + dataColumnsOffset]);
       var value = getValue(currentCell, graphData.target.textContent);
       var filename = currentRow.cells[0].textContent;
-      if (!graphData.isQuantile && i == 0 && j == 0 && isNaN(value)) {
+      if (i == 0 && j == 0 && isNaN(value)) {
         // Having NaN as the first value of the first data set is a problem for Jqplot.
         // We replace it with an invalid fake value (depending on scale).
         value = graphData.isLogScale ? 0 : Number.NEGATIVE_INFINITY;
