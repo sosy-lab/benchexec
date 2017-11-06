@@ -932,6 +932,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
+            if errorFile is not outputFile:
+                errorFile.close()
 
             # measurements are not relevant in case of failure, but need to come before cgroup cleanup
             self._get_cgroup_measurements(cgroups, ru_child, result)
