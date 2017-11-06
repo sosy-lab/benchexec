@@ -140,7 +140,7 @@ class TestRunExecutor(unittest.TestCase):
         def execute_Run_intern(*args, **kwargs):
             (error_fd, error_filename) = tempfile.mkstemp('.log', 'error_', text=True)
             try:
-                (_, output_lines) = self.execute_run(*args, **kwargs, error_filename=error_filename)
+                (_, output_lines) = self.execute_run(*args, error_filename=error_filename, **kwargs)
                 error_lines = os.read(error_fd, 4096).decode().splitlines()
                 return (output_lines, error_lines)
             finally:
