@@ -43,7 +43,6 @@ class UltimateTool(benchexec.tools.template.BaseTool):
               "artifacts.xml",
               "config",
               "configuration",
-              "data",
               "features",
               "p2",
               "plugins",
