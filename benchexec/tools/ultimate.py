@@ -71,14 +71,16 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return util.find_executable('Ultimate.py')
 
     def _ultimate_version(self, executable):
-        launcher_jar = os.path.join(os.path.dirname(executable), _LAUNCHER_JAR)
+        ultimatedir = os.path.dirname(executable)
+        launcher_jar = os.path.join(ultimatedir, _LAUNCHER_JAR)
+        data_dir = os.path.join(ultimatedir, 'data')
         if not os.path.isfile(launcher_jar):
             logging.warning('Cannot find {0} to determine Ultimate version'.
                             format(_LAUNCHER_JAR))
             return ''
 
         try:
-            process = subprocess.Popen(["java", "-jar", launcher_jar, "--version"],
+            process = subprocess.Popen(["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
@@ -162,13 +164,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             if tasks:
                 cmdline += ['-i'] + tasks
-            self.__assert_cmdline(cmdline,"cmdline contains empty or None argument when using Ultimate raw mode: ")
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using Ultimate raw mode: ")
             return cmdline
 
         # there is no way to run ultimate; not enough parameters 
         raise NameError("Unsupported argument combination")
 
-    def __assert_cmdline(self,cmdline,msg):
+    def __assert_cmdline(self, cmdline, msg):
         assert all(cmdline), msg + str(cmdline)
         pass
 
