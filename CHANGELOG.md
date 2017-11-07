@@ -12,7 +12,12 @@
   for systems with systemd, there is no need anymore to manually
   put your shell into the correct cgroup.
 - Several smaller bug fixes for table-generator:
-  #249, #250, #259, #260, #271, #272
+  [#249](https://github.com/sosy-lab/benchexec/issues/249),
+  [#250](https://github.com/sosy-lab/benchexec/issues/250),
+  [#259](https://github.com/sosy-lab/benchexec/issues/259),
+  [#260](https://github.com/sosy-lab/benchexec/issues/260),
+  [#271](https://github.com/sosy-lab/benchexec/issues/271),
+  [#272](https://github.com/sosy-lab/benchexec/issues/272)
 - For users of the Python API of RunExecutor,
   different file names can now be specified for stdout and stderr
   of the tool.

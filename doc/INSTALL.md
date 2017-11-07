@@ -123,7 +123,7 @@ The following steps are necessary:
 
  * Put [the file `benchexec-cgroup.service`](../debian/benchexec-cgroup.service)
    into `/etc/systemd/system/`
-   and enable the service with `systemctl enable --now benchexec-cgroup`.
+   and enable the service with `systemctl daemon-reload; systemctl enable --now benchexec-cgroup`.
 
    By default, this gives permissions to use the BenchExec cgroup to users of
    the group `benchexec`, please adjust this as necessary or create this group
