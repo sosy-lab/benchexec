@@ -129,13 +129,16 @@ The following steps are necessary:
    the group `benchexec`, please adjust this as necessary or create this group
    by running `groupadd benchexec` command beforehand.
 
-Before running BenchExec, you now need to ensure it runs in the correct cgroup
+By default, BenchExec will automatically attempt to use the cgroup
+`system.slice/benchexec-cgroup.service` that is created by this service file.
+If you use a different cgroup structure,
+you need to ensure that BenchExec runs in the correct cgroup
 by executing the following commands once per terminal session:
 ```
-echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuset/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/memory/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/freezer/<CGROUP>/tasks
 ```
 
 In any case, please check whether everything works
