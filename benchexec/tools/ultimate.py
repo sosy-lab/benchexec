@@ -130,6 +130,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             cmdline.append("--full-output")
 
             cmdline += tasks
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using SVCOMP17 mode: ")
             return cmdline
 
         if propertyfile:
@@ -139,6 +140,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if tasks:
                 cmdline += ['--file'] + tasks
             cmdline += options
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using default SVCOMP mode: ")
             return cmdline
 
         # if no property file is given and toolchain (-tc) is, use ultimate directly 
@@ -160,11 +162,15 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             if tasks:
                 cmdline += ['-i'] + tasks
-
+            self.__assert_cmdline(cmdline,"cmdline contains empty or None argument when using Ultimate raw mode: ")
             return cmdline
 
         # there is no way to run ultimate; not enough parameters 
-        return None
+        raise NameError("Unsupported argument combination")
+
+    def __assert_cmdline(self,cmdline,msg):
+        assert all(cmdline), msg + str(cmdline)
+        pass
 
     def program_files(self, executable):
         install_dir = os.path.dirname(executable)
