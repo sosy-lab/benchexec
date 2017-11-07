@@ -44,19 +44,22 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "artifacts.xml",
         "config",
         "configuration",
+        "cvc4",
+        "cvc4-LICENSE",
+        "data",
         "features",
-        "p2",
-        "plugins",
         "LICENSE",
         "LICENSE.GPL",
         "LICENSE.GPL.LESSER",
+        "mathsat",
+        "p2",
+        "plugins",
         "README",
         "Ultimate",
         "Ultimate.ini",
         "Ultimate.py",
         "z3",
-        "mathsat",
-        "cvc4",
+        "z3-LICENSE"
     ]
 
     REQUIRED_PATHS_SVCOMP17 = []
