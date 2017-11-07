@@ -119,6 +119,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         self._uses_propertyfile = False
         if self._is_svcomp17_version(executable):
             assert propertyfile
+            self._uses_propertyfile = True
             cmdline = [executable, propertyfile]
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
