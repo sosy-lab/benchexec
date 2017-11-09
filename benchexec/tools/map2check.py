@@ -55,9 +55,9 @@ class Tool(benchexec.tools.template.BaseTool):
         Determine the file paths to be adopted
         """
         if self._get_version() == 6:
-            paths = REQUIRED_PATHS_6
+            paths = self.REQUIRED_PATHS_6
         elif self._get_version() > 6:
-            paths = REQUIRED_PATHS_7_1
+            paths = self.REQUIRED_PATHS_7_1
 
         return paths
 
