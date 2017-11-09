@@ -35,7 +35,7 @@ class Tool(benchexec.tools.template.BaseTool):
                   "modules"
                   ]
 
-    REQUIRED_PATHS_7_1 = [                  
+    REQUIRED_PATHS_7_1 = [
                   "map2check",
                   "map2check-wrapper.py",
                   "bin",
