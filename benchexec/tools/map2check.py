@@ -35,11 +35,12 @@ class Tool(benchexec.tools.template.BaseTool):
                   "modules"
                   ]
 
-    REQUIRED_PATHS_7_1 = [
-                  "__init__.py",
+    REQUIRED_PATHS_7_1 = [                  
                   "map2check",
                   "map2check-wrapper.py",
-                  "modules"
+                  "bin",
+                  "include",
+                  "lib"
                   ]
 
     def executable(self):
