@@ -30,9 +30,12 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
                       "bin",
-                      "cpac",
+                      "cpact",
                       "jars",
+                      "exp-in",
                       "prism",
+                      "lib",
+                      "afl-2.35b",
                       "scripts",
                       "supportFiles",
                       ]
