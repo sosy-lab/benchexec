@@ -1,5 +1,29 @@
 # BenchExec Changelog
 
+## BenchExec 1.13
+
+- For Debian/Ubuntu, the `.deb` package is now the recommended way
+  of [installation](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md),
+  because it automatically configures cgroups as necessary.
+- BenchExec now automatically attempts to use the sub-cgroup
+  `system.slice/benchexec-cgroup.service` if it does not have access
+  to the current cgroup.
+  This means that if you followed our installation instructions
+  for systems with systemd, there is no need anymore to manually
+  put your shell into the correct cgroup.
+- Several smaller bug fixes for table-generator:
+  [#249](https://github.com/sosy-lab/benchexec/issues/249),
+  [#250](https://github.com/sosy-lab/benchexec/issues/250),
+  [#259](https://github.com/sosy-lab/benchexec/issues/259),
+  [#260](https://github.com/sosy-lab/benchexec/issues/260),
+  [#271](https://github.com/sosy-lab/benchexec/issues/271),
+  [#272](https://github.com/sosy-lab/benchexec/issues/272)
+- For users of the Python API of RunExecutor,
+  different file names can now be specified for stdout and stderr
+  of the tool.
+- Some new tool-info modules and updates for SV-COMP'18.
+
+
 ## BenchExec 1.12
 
 - Fix execution of runs specified with `<withoutfile>` tags

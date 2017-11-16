@@ -439,13 +439,19 @@ def get_column_type(column, result_set):
         return ColumnType.text, None, None, 1
 
 
-def get_task_id(task):
+def get_task_id(task, base_path_or_url):
     """
     Return a unique identifier for a given task.
     @param task: the XML element that represents a task
     @return a tuple with filename of task as first element
     """
-    task_id = [task.get('name'),
+    name = task.get('name')
+    if base_path_or_url:
+        if Util.is_url(base_path_or_url):
+            name = urllib.parse.urljoin(base_path_or_url, name)
+        else:
+            name = os.path.normpath(os.path.join(os.path.dirname(base_path_or_url), name))
+    task_id = [name,
                task.get('properties'),
                task.get('runset'),
                ]
@@ -513,7 +519,7 @@ class RunSetResult(object):
         """
         Append the result for one run. Needs to be called before collect_data().
         """
-        self._xml_results += _get_run_tags_from_xml(resultElem)
+        self._xml_results += [(result, resultFile) for result in _get_run_tags_from_xml(resultElem)]
         for attrib, values in RunSetResult._extract_attributes_from_result(resultFile, resultElem).items():
             self.attributes[attrib].extend(values)
 
@@ -537,10 +543,10 @@ class RunSetResult(object):
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
         try:
-            for xml_result in self._xml_results:
+            for xml_result, result_file in self._xml_results:
                 self.results.append(RunResult.create_from_xml(
                     xml_result, get_value_from_logfile, self.columns,
-                    correct_only, log_zip_cache, self.columns_relevant_for_diff))
+                    correct_only, log_zip_cache, self.columns_relevant_for_diff, result_file))
         finally:
             for file in log_zip_cache.values():
                 file.close()
@@ -569,7 +575,7 @@ class RunSetResult(object):
 
         summary = RunSetResult._extract_summary_from_result(resultElem, columns)
 
-        return RunSetResult(_get_run_tags_from_xml(resultElem),
+        return RunSetResult([(result, resultFile) for result in _get_run_tags_from_xml(resultElem)],
                 attributes, columns, summary, columns_relevant_for_diff)
 
     @staticmethod
@@ -826,7 +832,8 @@ class RunResult(object):
 
     @staticmethod
     def create_from_xml(sourcefileTag, get_value_from_logfile, listOfColumns,
-                        correct_only, log_zip_cache, columns_relevant_for_diff):
+                        correct_only, log_zip_cache, columns_relevant_for_diff,
+                        result_file_or_url):
         """
         This function collects the values from one run.
         Only columns that should be part of the table are collected.
@@ -910,7 +917,8 @@ class RunResult(object):
         else:
             sourcefiles_exist = False
 
-        return RunResult(get_task_id(sourcefileTag), status, category, score,
+        return RunResult(get_task_id(sourcefileTag, result_file_or_url if sourcefiles_exist else None),
+                         status, category, score,
                          sourcefileTag.get('logfile'), listOfColumns, values,
                          columns_relevant_for_diff, sourcefiles_exist=sourcefiles_exist)
 
@@ -935,10 +943,6 @@ class Row(object):
         """
         generate output representation of rows
         """
-        # make path relative to directory of output file if necessary
-        self.file_path = self.filename if os.path.isabs(self.filename) \
-                                 else os.path.relpath(self.filename, base_dir)
-
         self.short_filename = self.filename.replace(common_prefix, '', 1)
 
 
@@ -1142,8 +1146,9 @@ def _contains_unconfirmed_results(rows_for_stats):
     return False
 
 
-def get_stats(rows, local_summary):
-    stats = list(parallel.map(get_stats_of_run_set, rows_to_columns(rows)))  # column-wise
+def get_stats(rows, local_summary, correct_only):
+    result_cols = list(rows_to_columns(rows))  # column-wise
+    stats = list(parallel.map(get_stats_of_run_set, result_cols, [correct_only] * len(result_cols)))
     rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
 
     # find out column types for statistics columns
@@ -1198,7 +1203,7 @@ def get_stats(rows, local_summary):
             ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
 
-def get_stats_of_run_set(runResults):
+def get_stats_of_run_set(runResults, correct_only):
     """
     This function returns the numbers of the statistics.
     @param runResults: All the results of the execution of one run set (as list of RunResult objects)
@@ -1265,7 +1270,7 @@ def get_stats_of_run_set(runResults):
                 total, correct, correctTrue, correctFalse,\
                        correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse,\
                        incorrect, wrongTrue, wrongFalse =\
-                    get_stats_of_number_column(values, main_status_list, column.title)
+                    get_stats_of_number_column(values, main_status_list, column.title, correct_only)
 
                 score = None
 
@@ -1359,7 +1364,7 @@ class StatValue(object):
                          )
 
 
-def get_stats_of_number_column(values, categoryList, columnTitle):
+def get_stats_of_number_column(values, categoryList, columnTitle, correct_only):
     assert len(values) == len(categoryList)
     try:
         valueList = [Util.to_decimal(v) for v in values]
@@ -1387,9 +1392,9 @@ def get_stats_of_number_column(values, categoryList, columnTitle):
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE]),
             StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-                              + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]),
-            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]),
+                              + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]) if not correct_only else None,
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]) if not correct_only else None,
+            StatValue.from_list(valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]) if not correct_only else None,
             )
 
 
@@ -1516,7 +1521,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
         # calculate statistics if necessary
         if not options.format == ['csv']:
             local_summary = get_summary(runSetResults) if use_local_summary else None
-            stats, stats_columns = get_stats(rows, local_summary)
+            stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
         else:
             stats = stats_columns = None
 

@@ -3,22 +3,34 @@
 ## Download and Installation
 
 BenchExec requires at least Python 3.4.
-(Then [runexec](runexec.md) tool and module also work with Python 2.7.)
+(The [runexec](runexec.md) tool and module also works with Python 2.7.)
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
-To install BenchExec we recommend to use the Python package installer pip
-(installable for example with `sudo apt-get install pip3` on Debian/Ubuntu).
+### Debian/Ubuntu
 
+For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
+that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
+
+    apt install python3-tempita
+    dpkg -i benchexec_*.deb
+
+This package also automatically configures the necessary cgroup permissions.
+Just add your user to the group `benchexec` and reboot:
+
+    adduser <USER> benchexec
+
+Afterwards, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+### Other Distributions
+
+For other distributions we recommend to use the Python package installer pip.
 To automatically download and install the latest stable version and its dependencies
-from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec),
+from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec) with pip,
 run this command:
 
     sudo pip3 install benchexec
-
-Users of Debian and related distributions like Ubuntu can also download
-a Debian package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
-and install it with `dpkg -i` (after installing the package `python3-tempita`).
 
 You can also install BenchExec only for your user with
 
@@ -30,6 +42,10 @@ to the PATH environment by adding the following line to your `~/.profile` file:
     export PATH=~/.local/bin:$PATH
 
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
+
+Please make sure to configure cgroups as [described below](#setting-up-cgroups).
+
+### Development version
 
 To install the latest development version from the
 [GitHub repository](https://github.com/sosy-lab/benchexec), run this command:
@@ -43,8 +59,10 @@ which needs a compiler and several development header packages.
 If you want to run benchmarks under different user account than your own,
 please check the [respective documentation](separate-user.md) for how to setup sudo.
 
+Please make sure to configure cgroups as [described below](#setting-up-cgroups).
 
-## System Requirements
+
+## Kernel Requirements
 
 To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
@@ -79,6 +97,13 @@ For Ubuntu 14.04, upgrading can be done using the officially supported
 
 ## Setting up Cgroups
 
+If you have installed the Debian package and you are running systemd
+(default since Debian 8 and Ubuntu 15.04),
+the package should have configured everything automatically.
+Just add your user to the group `benchexec` and reboot:
+
+    adduser <USER> benchexec
+
 ### Setting up Cgroups on Machines with systemd
 
 This is relevant for most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
@@ -90,59 +115,30 @@ By using a fake service we can let systemd create an appropriate cgroup for Benc
 and prevent interference.
 The following steps are necessary:
 
- * Add `JoinControllers=cpuset,cpuacct,memory,freezer` to `/etc/systemd/system.conf`
-   to ensure systemd creates a cgroup for all of these controllers for us.
-   This setting needs a reboot to take effect,
+ * Put [the file `benchexec-cgroup.conf`](../debian/additional_files/lib/systemd/system.conf.d/benchexec-cgroup.conf)
+   into `/etc/systemd/system.conf.d`
+   to ensure systemd creates a cgroup for all our controllers.
+   The setting in this file needs a reboot to take effect,
    and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
 
- * Put the following into a file `/etc/systemd/system/benchexec-cgroup.service`
-   and enable the service with `systemctl enable benchexec-cgroup; systemctl start benchexec-cgroup`.
+ * Put [the file `benchexec-cgroup.service`](../debian/benchexec-cgroup.service)
+   into `/etc/systemd/system/`
+   and enable the service with `systemctl daemon-reload; systemctl enable --now benchexec-cgroup`.
 
    By default, this gives permissions to use the BenchExec cgroup to users of
    the group `benchexec`, please adjust this as necessary or create this group
    by running `groupadd benchexec` command beforehand.
 
-
-```
-[Unit]
-Description=Cgroup setup for BenchExec
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
-
-[Service]
-# Adjust the following line to configure permissions for cgroup usage.
-# The default gives permissions to users in group "benchexec".
-# You can change the group name, or give permissions to everybody by
-# setting BENCHEXEC_CGROUP_PERM to "a+w".
-Environment=BENCHEXEC_CGROUP_GROUP=benchexec BENCHEXEC_CGROUP_PERM=g+w
-
-Restart=always
-Delegate=true
-CPUAccounting=true
-MemoryAccounting=true
-ExecStart=/bin/bash -c '\
-set -e;\
-cd /sys/fs/cgroup/cpuset/;\
-cp cpuset.cpus system.slice/;\
-cp cpuset.mems system.slice/;\
-cp cpuset.cpus system.slice/benchexec-cgroup.service/;\
-cp cpuset.mems system.slice/benchexec-cgroup.service/;\
-echo $$$$ > system.slice/benchexec-cgroup.service/tasks;\
-[ -z "${BENCHEXEC_CGROUP_GROUP}" ] || chgrp -R ${BENCHEXEC_CGROUP_GROUP} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
-[ -z "${BENCHEXEC_CGROUP_PERM}" ] || chmod -R ${BENCHEXEC_CGROUP_PERM} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
-exec sleep $(( 10 * 365 * 24 * 3600 ))'
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Before running BenchExec, you now need to ensure it runs in the correct cgroup
+By default, BenchExec will automatically attempt to use the cgroup
+`system.slice/benchexec-cgroup.service` that is created by this service file.
+If you use a different cgroup structure,
+you need to ensure that BenchExec runs in the correct cgroup
 by executing the following commands once per terminal session:
 ```
-echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
+echo $$ > /sys/fs/cgroup/cpuset/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/memory/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/freezer/<CGROUP>/tasks
 ```
 
 In any case, please check whether everything works

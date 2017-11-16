@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Philipp Wendler <debian@philippwendler.de>
 Build-Depends: debhelper (>= 9),
                dh-python,
+               dh-systemd (>= 1.5),
                python3 (>= 3.4),
                python3-setuptools,
                python3-lxml,

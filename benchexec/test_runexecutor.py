@@ -131,6 +131,38 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
+    def test_command_error_output(self):
+        if not os.path.exists('/bin/echo'):
+            self.skipTest('missing /bin/echo')
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+
+        def execute_Run_intern(*args, **kwargs):
+            (error_fd, error_filename) = tempfile.mkstemp('.log', 'error_', text=True)
+            try:
+                (_, output_lines) = self.execute_run(*args, error_filename=error_filename, **kwargs)
+                error_lines = os.read(error_fd, 4096).decode().splitlines()
+                return (output_lines, error_lines)
+            finally:
+                os.close(error_fd)
+                os.remove(error_filename)
+
+        (output_lines, error_lines) = execute_Run_intern('/bin/sh', '-c', '/bin/echo ERROR_TOKEN >&2')
+        self.assertEqual(error_lines[-1], 'ERROR_TOKEN', 'run error output misses command output')
+        for line in output_lines[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+        for line in error_lines[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run error output')
+
+        (output_lines, error_lines) = execute_Run_intern('/bin/echo', 'OUT_TOKEN')
+        self.check_command_in_output(output_lines, '/bin/echo OUT_TOKEN')
+        self.check_command_in_output(error_lines, '/bin/echo OUT_TOKEN')
+        self.assertEqual(output_lines[-1], 'OUT_TOKEN', 'run output misses command output')
+        for line in output_lines[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+        for line in error_lines[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run error output')
+
     def test_command_result(self):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')

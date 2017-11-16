@@ -58,6 +58,38 @@ class FormatValueTests(unittest.TestCase):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value("9.599999", *self.default_optionals)
         self.assertEqual(formatted_value_no_align_zeros_cut,   "9.600")
 
+    def test_format_value_trailing_zeros(self):
+        formatted_value = self.measure_column.format_value("1.600", *self.default_optionals)
+        self.assertEqual(formatted_value, "1.600")
+
+    def test_format_value_more_trailing_zeros(self):
+        formatted_value = self.measure_column.format_value("1.60000", *self.default_optionals)
+        self.assertEqual(formatted_value, "1.600")
+
+    def test_format_value_less_trailing_zeros(self):
+        formatted_value = self.measure_column.format_value("1.6", *self.default_optionals)
+        self.assertEqual(formatted_value, "1.6")
+
+    def test_format_value_more_trailing_zeros2(self):
+        formatted_value = self.measure_column.format_value("160.00", *self.default_optionals)
+        self.assertEqual(formatted_value, "160.0")
+
+    def test_format_value_less_trailing_zeros2(self):
+        formatted_value = self.measure_column.format_value("160", *self.default_optionals)
+        self.assertEqual(formatted_value, "160")
+
+    def test_format_value_zero(self):
+        formatted_value = self.measure_column.format_value("0", *self.default_optionals)
+        self.assertEqual(formatted_value, "0")
+
+    def test_format_value_precise_zero(self):
+        formatted_value = self.measure_column.format_value("0.0000", *self.default_optionals)
+        self.assertEqual(formatted_value, "0.0000")
+
+    def test_format_value_more_precise_zero(self):
+        formatted_value = self.measure_column.format_value("0.0000000", *self.default_optionals)
+        self.assertEqual(formatted_value, "0.000000")
+
     def test_format_value_align_decimal(self):
         formatted_value_aligned = self.measure_column.format_value("1.555s", True, 'html')
         self.assertEqual(formatted_value_aligned,   "1.555&#x2007;&#x2007;&#x2007;")

@@ -34,43 +34,52 @@ _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
 _LAUNCHER_JAR = "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"
 
+
 class UltimateTool(benchexec.tools.template.BaseTool):
     """
     Abstract tool info for Ultimate-based tools.
     """
 
     REQUIRED_PATHS = [
-              "artifacts.xml",
-              "config",
-              "configuration",
-              "data",
-              "features",
-              "p2",
-              "plugins",
-              "LICENSE",
-              "LICENSE.GPL",
-              "LICENSE.GPL.LESSER",
-              "README",
-              "Ultimate",
-              "Ultimate.ini",
-              "Ultimate.py",
-              "z3",
-              "mathsat",
-              "cvc4",
-              ]
+        "artifacts.xml",
+        "config",
+        "configuration",
+        "cvc4",
+        "cvc4-LICENSE",
+        "features",
+        "LICENSE",
+        "LICENSE.GPL",
+        "LICENSE.GPL.LESSER",
+        "mathsat",
+        "p2",
+        "plugins",
+        "README",
+        "Ultimate",
+        "Ultimate.ini",
+        "Ultimate.py",
+        "z3",
+        "z3-LICENSE"
+    ]
+
+    REQUIRED_PATHS_SVCOMP17 = []
+
+    def __init__(self):
+        self._uses_propertyfile = False
 
     def executable(self):
         return util.find_executable('Ultimate.py')
 
     def _ultimate_version(self, executable):
-        launcher_jar = os.path.join(os.path.dirname(executable), _LAUNCHER_JAR)
+        ultimatedir = os.path.dirname(executable)
+        launcher_jar = os.path.join(ultimatedir, _LAUNCHER_JAR)
+        data_dir = os.path.join(ultimatedir, 'data')
         if not os.path.isfile(launcher_jar):
             logging.warning('Cannot find {0} to determine Ultimate version'.
                             format(_LAUNCHER_JAR))
             return ''
 
         try:
-            process = subprocess.Popen(["java", "-jar", launcher_jar, "--version"],
+            process = subprocess.Popen(["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
@@ -107,28 +116,34 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def _is_svcomp17_version(self, executable):
         return self.version(executable) in _SVCOMP17_VERSIONS
 
-    def cmdline(self, executable, options, tasks, spec, rlimits):
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits=None):
+        if rlimits is None:
+            rlimits = {}
+
         self._uses_propertyfile = False
         if self._is_svcomp17_version(executable):
-            assert spec
-            cmdline = [executable, spec]
+            assert propertyfile
+            self._uses_propertyfile = True
+            cmdline = [executable, propertyfile]
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
 
             cmdline.append("--full-output")
 
             cmdline += tasks
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using SVCOMP17 mode: ")
             return cmdline
-        
-        if spec:
+
+        if propertyfile:
             # use the old wrapper script if a property file is given
             self._uses_propertyfile = True
-            cmdline = [executable, '--spec', spec] 
+            cmdline = [executable, '--spec', propertyfile]
             if tasks:
                 cmdline += ['--file'] + tasks
             cmdline += options
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using default SVCOMP mode: ")
             return cmdline
-        
+
         # if no property file is given and toolchain (-tc) is, use ultimate directly 
         if '-tc' in options or '--toolchain' in options:
             # ignore executable (old executable is just around for backwards compatibility) 
@@ -136,35 +151,39 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             cmdline = ['java']
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
-    
+
             ultimatedir = os.path.dirname(executable)
-            launcher = os.path.join(ultimatedir, _LAUNCHER_JAR)            
+            launcher = os.path.join(ultimatedir, _LAUNCHER_JAR)
             cmdline += ['-jar', launcher]
-    
-            if not '-data' in options:
+
+            if '-data' not in options:
                 cmdline += ['-data', os.path.join(ultimatedir, 'data')]
-    
+
             cmdline += options
-            
+
             if tasks:
                 cmdline += ['-i'] + tasks
-            
+            self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using Ultimate raw mode: ")
             return cmdline
-        
+
         # there is no way to run ultimate; not enough parameters 
-        return None
+        raise NameError("Unsupported argument combination")
+
+    def __assert_cmdline(self, cmdline, msg):
+        assert all(cmdline), msg + str(cmdline)
+        pass
 
     def program_files(self, executable):
-        installDir = os.path.dirname(executable)
+        install_dir = os.path.dirname(executable)
         paths = self.REQUIRED_PATHS_SVCOMP17 if self._is_svcomp17_version(executable) else self.REQUIRED_PATHS
-        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in paths)
+        return [executable] + util.flatten(util.expand_filename_pattern(path, install_dir) for path in paths)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, returncode, returnsignal, output, is_timeout):
         if self._uses_propertyfile:
-            return self._determine_result_with_propertyfile(returncode, returnsignal, output, isTimeout)
-        return self._determine_result_without_propertyfile(returncode, returnsignal, output, isTimeout)
+            return self._determine_result_with_propertyfile(returncode, returnsignal, output, is_timeout)
+        return self._determine_result_without_propertyfile(returncode, returnsignal, output, is_timeout)
 
-    def _determine_result_without_propertyfile(self, returncode, returnsignal, output, isTimeout):
+    def _determine_result_without_propertyfile(self, returncode, returnsignal, output, is_timeout):
         # special strings in ultimate output
         unsupported_syntax_errorstring = 'ShortDescription: Unsupported Syntax'
         incorrect_syntax_errorstring = 'ShortDescription: Incorrect Syntax'
@@ -178,12 +197,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         mem_deref_false_string_2 = 'array index can be out of bounds'
         mem_free_false_string = 'free of unallocated memory possible'
         mem_memtrack_false_string = 'not all allocated memory was freed'
-        termination_false_string = 'Found a nonterminating execution for the following lasso shaped sequence of statements'
+        termination_false_string = 'Found a nonterminating execution for the following ' \
+                                   'lasso shaped sequence of statements'
         termination_true_string = 'TerminationAnalysisResult: Termination proven'
         ltl_false_string = 'execution that violates the LTL property'
         ltl_true_string = 'Buchi Automizer proved that the LTL property'
         overflow_false_string = 'overflow possible'
-       
+
         for line in output:
             if line.find(unsupported_syntax_errorstring) != -1:
                 return 'ERROR: UNSUPPORTED SYNTAX'
@@ -220,26 +240,26 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if line.find(overflow_false_string) != -1:
                 return 'FALSE(OVERFLOW)'
 
-        return result.RESULT_UNKNOWN        
+        return result.RESULT_UNKNOWN
 
     def _contains_overapproximation_result(self, line):
         triggers = [
-                    'Reason: overapproximation of',
-                    'Reason: overapproximation of bitwiseAnd',
-                    'Reason: overapproximation of bitwiseOr',
-                    'Reason: overapproximation of bitwiseXor',
-                    'Reason: overapproximation of shiftLeft',
-                    'Reason: overapproximation of shiftRight',
-                    'Reason: overapproximation of bitwiseComplement'
-                    ]
-        
+            'Reason: overapproximation of',
+            'Reason: overapproximation of bitwiseAnd',
+            'Reason: overapproximation of bitwiseOr',
+            'Reason: overapproximation of bitwiseXor',
+            'Reason: overapproximation of shiftLeft',
+            'Reason: overapproximation of shiftRight',
+            'Reason: overapproximation of bitwiseComplement'
+        ]
+
         for trigger in triggers:
             if line.find(trigger) != -1:
                 return True
-        
+
         return False
 
-    def _determine_result_with_propertyfile(self, returncode, returnsignal, output, isTimeout):
+    def _determine_result_with_propertyfile(self, returncode, returnsignal, output, is_timeout):
         for line in output:
             if line.startswith('FALSE(valid-free)'):
                 return result.RESULT_FALSE_FREE
@@ -262,13 +282,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 if line.startswith('ERROR: INVALID WITNESS FILE'):
                     status += ' (invalid witness file)'
                 return status
-        return result.RESULT_UNKNOWN        
+        return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
         # stop after the first line, that contains the searched text
         for line in lines:
             if identifier in line:
-                startPosition = line.find('=') + 1
-                return line[startPosition:].strip()
+                start_position = line.find('=') + 1
+                return line[start_position:].strip()
         return None

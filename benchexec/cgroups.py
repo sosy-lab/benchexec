@@ -40,6 +40,10 @@ __all__ = [
            'MEMORY',
            ]
 
+CGROUP_FALLBACK_PATH='system.slice/benchexec-cgroup.service'
+"""If we do not have write access to the current cgroup,
+attempt to use this sub-cgroup as fallback."""
+
 CGROUP_NAME_PREFIX='benchmark_'
 
 BLKIO = 'blkio'
@@ -74,7 +78,11 @@ def find_my_cgroups(cgroup_paths=None):
         # e.g. because a parent directory has insufficient permissions
         # (lxcfs mounts cgroups under /run/lxcfs in such a way).
         if os.access(mount, os.F_OK):
-            cgroupsParents[subsystem] = os.path.join(mount, my_cgroups[subsystem])
+            cgroupPath = os.path.join(mount, my_cgroups[subsystem])
+            if (not os.access(cgroupPath, os.W_OK) and
+                    os.access(os.path.join(cgroupPath, CGROUP_FALLBACK_PATH), os.W_OK)):
+                cgroupPath = os.path.join(cgroupPath, CGROUP_FALLBACK_PATH)
+            cgroupsParents[subsystem] = cgroupPath
 
     return Cgroup(cgroupsParents)
 

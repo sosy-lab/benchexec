@@ -185,9 +185,7 @@
   .jqplot-table-legend { text-align: left; }
   table.jqplot-table-legend[style] { position:absolute; left:auto !important; right:0px !important; } /* overrides inner css-style */
   #chart { height:100%; width:100%; overflow:hidden; }
-  #button-quantile { position:absolute; bottom:50px; }
-  #button-logScale { position:absolute; bottom:25px; }
-  #button-showCorrectOnly { position:absolute; bottom:0px; }
+  #contentPane #buttons { position: absolute; bottom: 0px; z-index: 4; }
   .plot-selector { width:30%; }
   -->
 </style>
@@ -234,7 +232,7 @@
 
 <tbody>
 {{for line in body}}
-<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
+<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{create_link(line.filename, base_dir)}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
   {{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}
     {{if show}}
 <td>{{id}}</td>
@@ -246,7 +244,7 @@
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
@@ -382,7 +380,9 @@ function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
   // or when pressing the "Esc" key with the content pane focused
   if (event.type == "click" || escKeyPressed(event)) {
-    hideContentPane();
+    $('#contentPaneBackground').hide();
+    $('#contentPane').hide().empty();
+    isRowFilterPaneActive = false;
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -393,9 +393,8 @@ function catchHideContentPane(event) {
 }
 
 function hideContentPane() {
-  $('#contentPaneBackground').hide();
-  $('#contentPane').hide().empty();
-  isRowFilterPaneActive = false;
+  // Execute catchHideContentPane and any other registered cleanup functions
+  $('#contentPaneBackground').trigger('click');
 }
 
 function escKeyPressed(event) {
@@ -717,6 +716,7 @@ function range(start, end) {
 
 
 function createColumnToggleView() {
+    hideContentPane(); // cleanup
     // Turn the float-thead on and off.
     $("#dataTable").floatThead('destroy');
 
@@ -805,7 +805,7 @@ function createStatsView(statistics, currentIndex) {
              .appendTo(rowHeader)
              .addClass('clickable')
              .click(function(event) { // iterate through statistics
-                 $('#contentPaneBackground').click(); // cleanup
+                 hideContentPane(); // cleanup
                  createStatsView(statistics, (currentIndex + 1) % statistics.length);
              } )
              .attr('title', originalCell.attr('title'));
@@ -867,12 +867,11 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
+  hideContentPane(); // cleanup
   if (isRowFilterPaneActive) {
     return;
   }
   isRowFilterPaneActive = true;
-
-  $("#contentPane").empty();
 
   var buttonList = $('<form>', {id:'rowFilterButtons', onsubmit:'return false'})
         .appendTo($("#contentPane"));
@@ -1132,7 +1131,7 @@ function collectTableDataForQuantile() {
       var currentCell = $(currentRow.cells[index + dataColumnsOffset]);
       var value = getValue(currentCell, graphData.target.textContent);
       var filename = currentRow.cells[0].textContent;
-      if (!graphData.isQuantile && i == 0 && j == 0 && isNaN(value)) {
+      if (i == 0 && j == 0 && isNaN(value)) {
         // Having NaN as the first value of the first data set is a problem for Jqplot.
         // We replace it with an invalid fake value (depending on scale).
         value = graphData.isLogScale ? 0 : Number.NEGATIVE_INFINITY;
@@ -1379,19 +1378,23 @@ function getYTicksFormat() {
 
 
 function addButtons(target, callback, showQuantileButton) {
+    target = $('<div>', {id: 'buttons'}).appendTo(target);
     if (showQuantileButton) {
         $('<button>', {id:'button-quantile'}).appendTo(target)
             .click(function() { graphData.isQuantile = !graphData.isQuantile; callback();})
             .text(graphData.isQuantile ? 'Switch to Direct Plot' : 'Switch to Quantile Plot');
+        $('<br>').appendTo(target);
     }
 
     $('<button>', {id:'button-logScale'}).appendTo(target)
         .click(function() { graphData.isLogScale = !graphData.isLogScale; callback();})
         .text(graphData.isLogScale ?  'Switch to Linear Scale' : 'Switch to Logarithmic Scale');
+    $('<br>').appendTo(target);
 
     $('<button>', {id:'button-showCorrectOnly'}).appendTo(target)
         .click(function() { graphData.showCorrectOnly = !graphData.showCorrectOnly; callback();})
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
+    $('<br>').appendTo(target);
 }
 
 function isValidStatisticsColumn(columnIndex, allowStatus) {
@@ -1439,7 +1442,7 @@ function getSelectorForScatter(identifier) {
 }
 
 function showScatterPlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   var contentPane = $('#contentPane').append('<div id="chart"></div>');
   addButtons(contentPane, showScatterPlot, false);
   showContentPane();
@@ -1586,7 +1589,7 @@ function getSelectorForQuantile() {
 }
 
 function showQuantilePlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   $('#contentPane').append('<div id="chart"></div>');
   addButtons($('#contentPane'), showQuantilePlot, true);
   showContentPane();
