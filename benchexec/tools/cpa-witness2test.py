@@ -33,7 +33,8 @@ class Tool(cpachecker.Tool):
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, '-version')
-        return stdout
+        version = stdout.split("(")[0].strip()
+        return version
 
     def name(self):
         return 'CPA-witness2test'
