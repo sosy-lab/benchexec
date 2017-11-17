@@ -244,7 +244,7 @@
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult, href_base)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}

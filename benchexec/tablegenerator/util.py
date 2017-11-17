@@ -133,7 +133,7 @@ def remove_unit(s):
 def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
-def create_link(href, base_dir, runResult=None):
+def create_link(href, base_dir, runResult=None, href_base=None):
     def get_replacements(source_file):
         return [
             ('inputfile_name', os.path.basename(source_file)),
@@ -145,7 +145,7 @@ def create_link(href, base_dir, runResult=None):
             ('sourcefile_path_abs', os.path.dirname(os.path.abspath(source_file))),
         ]
 
-    source_file = runResult.task_id[0] if runResult else None
+    source_file = os.path.relpath(runResult.task_id[0], href_base or '.') if runResult else None
 
     if is_url(href):
         # quote special characters only in inserted variable values, not full URL
