@@ -3,7 +3,7 @@
 # BenchExec is a framework for reliable benchmarking.
 # This file is part of BenchExec.
 #
-# Copyright (C) 2007-2016  Dirk Beyer
+# Copyright (C) 2007-2017  Dirk Beyer
 # All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,8 +104,6 @@ def main(argv=None):
             sys.exit('File {0} does not exist.'.format(repr(witnessFile)))
         witnessXML = TableGenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
-        resultXML.set('options', '' + resultXML.get('options', default='') + ' [[ ' + witnessXML.get('options', default='') + ' ]]')
-        resultXML.set('date',    '' + resultXML.get('date', default='')    + ' [[ ' + witnessXML.get('date', default='')    + ' ]]')
 
     for result in resultXML.findall('run'):
         run = result.get('name')
@@ -116,13 +114,6 @@ def main(argv=None):
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None:
-                for column in witness:
-                    newColumn = ET.Element('column', {
-                         'title': 'wit' + str(i) + '_' + column.get('title'),
-                         'value':  column.get('value'),
-                         'hidden': column.get('hidden','false')
-                         })
-                    result.append(newColumn)
                 statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                 if (
                      categoryWit is None or
