@@ -34,7 +34,7 @@ from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
 
-from benchexec import model
+import benchexec.util
 
 
 def get_file_list(shortFile):
@@ -134,18 +134,29 @@ def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
 def create_link(href, base_dir, runResult=None):
+    def get_replacements(source_file):
+        return [
+            ('inputfile_name', os.path.basename(source_file)),
+            ('inputfile_path', os.path.dirname(source_file) or '.'),
+            ('inputfile_path_abs', os.path.dirname(os.path.abspath(source_file))),
+            # The following are deprecated: do not use anymore.
+            ('sourcefile_name', os.path.basename(source_file)),
+            ('sourcefile_path', os.path.dirname(source_file) or '.'),
+            ('sourcefile_path_abs', os.path.dirname(os.path.abspath(source_file))),
+        ]
+
     source_file = runResult.task_id[0] if runResult else None
 
     if is_url(href):
         # quote special characters only in inserted variable values, not full URL
         if source_file:
             source_file = url_quote(source_file)
-            href = model.substitute_vars([href], None, source_file)[0]
+            href = benchexec.util.substitute_vars(href, get_replacements(source_file))
         return href
 
     # quote special characters everywhere (but not twice in source_file!)
     if source_file:
-        href = model.substitute_vars([href], None, source_file)[0]
+        href = benchexec.util.substitute_vars(href, get_replacements(source_file))
     return url_quote(os.path.relpath(href, base_dir))
 
 
