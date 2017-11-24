@@ -61,14 +61,13 @@ def getWitnessResult(witness, verification_result):
 
     sourcefile = witness.get('name')
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
-    category_from_validation   = witness.findall('column[@title="category"]')[0].get('value')
     status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
     category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
-        return (status_from_validation, category_from_validation)
+        return (status_from_verification, category_from_verification)
     # An invalid witness counts as error of the verifier.
     if status_from_validation == 'ERROR (invalid witness file)':
         return ('witness invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR)
