@@ -59,7 +59,6 @@ def getWitnessResult(witness, verification_result):
         # If there is no witness, then this is an error of the verifier.
         return ('witness missing', Result.CATEGORY_ERROR)
 
-    sourcefile = witness.get('name')
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
     status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
     category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
@@ -83,7 +82,7 @@ def main(argv=None):
         argv = sys.argv
 
     if len(argv) < 3:
-        sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status].\n')
+        sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status-true].\n')
 
     resultFile   = argv[1]
     witnessFiles = []
@@ -91,7 +90,7 @@ def main(argv=None):
     for i in range(2, len(argv)):
         if len(argv) > i and not argv[i].startswith('--'):
             witnessFiles.append(argv[i])
-        if argv[i] == '--no-overwrite-status':
+        if argv[i] == '--no-overwrite-status-true':
             isOverwrite = False
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
@@ -122,7 +121,16 @@ def main(argv=None):
                    ):
                     statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
-        if isOverwrite and 'correct' == result.findall('column[@title="category"]')[0].get('value') and statusWit is not None and categoryWit is not None:
+        if (
+                 (    isOverwrite
+                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(
+                                                       result.findall('column[@title="status"]')[0].get('value'))
+                 )
+             and 'correct' == result.findall('column[@title="category"]')[0].get('value')
+             and statusWit is not None
+             and categoryWit is not None
+           ):
+            #print(run, statusWit, categoryWit)
             result.findall('column[@title="status"]')[0].set('value', statusWit)
             result.findall('column[@title="category"]')[0].set('value', categoryWit)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
