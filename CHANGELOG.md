@@ -1,5 +1,12 @@
 # BenchExec Changelog
 
+## BenchExec 1.14
+
+- Updated tool-info modules for all participants of [SV-COMP'18](https://sv-comp.sosy-lab.org/2018/).
+- Extended support for variable replacements in table-definitions
+  of table-generator.
+
+
 ## BenchExec 1.13
 
 - For Debian/Ubuntu, the `.deb` package is now the recommended way
