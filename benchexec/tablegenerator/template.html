@@ -1542,7 +1542,7 @@ function showScatterPlot() {
         objects: [
             {line: {
                 name: 'diagonalLine',
-                lineWidth: 2,
+                lineWidth: 1,
                 color: 'red',
                 shadow: false,
                 start: [minValue, minValue],
@@ -1550,7 +1550,7 @@ function showScatterPlot() {
             } },
             {line: {
                 name: 'diagonalLineAbove',
-                lineWidth: 1,
+                lineWidth: .5,
                 color: 'red',
                 shadow: false,
                 start: [minValue, minValue*graphData.secondLineFactor],
@@ -1558,7 +1558,7 @@ function showScatterPlot() {
             } },
             {line: {
                 name: 'diagonalLineBelow',
-                lineWidth: 1,
+                lineWidth: .5,
                 color: 'red',
                 shadow: false,
                 start: [minValue, minValue/graphData.secondLineFactor],
