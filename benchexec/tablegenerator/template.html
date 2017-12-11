@@ -1416,7 +1416,7 @@ function isValidStatisticsColumn(columnIndex, allowStatus) {
 }
 
 function getSelectorForScatter(identifier) {
-    var select = $('<select>', {class:'plot-selector'});
+    var select = $('<select title="select an axis for the plot">', {class:'plot-selector'});
     var columnIndex = 0;
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
@@ -1443,7 +1443,7 @@ function getSelectorForScatter(identifier) {
 }
 
 function getSecondLineFactorForScatter() {
-    var select = $('<select>', {class:'plot-second-line-factor'});
+    var select = $('<select title="select a factor for additional lines in the plot">', {class:'plot-second-line-factor'});
     for (var number = 1; number < Math.pow(10,10);
             number = (number < 10) ? (number + 1) : (number * 10)) {
         select.append($('<option>', {
