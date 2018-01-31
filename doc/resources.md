@@ -59,8 +59,7 @@ though the wall-time limit cannot be disabled completely if a CPU-time limit is 
 
 BenchExec attempts to measure the energy consumption of a run where possible.
 Currently measurements are implemented for the energy consumption of the CPU
-(not the whole system), and only for modern Intel CPUs (since SandyBridge),
-however, this feature is still *experimental*.
+(not the whole system), and only for modern Intel CPUs (since SandyBridge).
 
 For energy measurements to work,
 the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) needs to be installed.

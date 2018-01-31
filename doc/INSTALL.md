@@ -7,6 +7,10 @@ BenchExec requires at least Python 3.2.
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
+Note that we recommend to additionally install
+[cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter)
+in order to get energy measurements on Intel CPUs.
+
 ### Debian/Ubuntu
 
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
