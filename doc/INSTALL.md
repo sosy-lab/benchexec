@@ -40,7 +40,7 @@ You can also install BenchExec only for your user with
 
     pip3 install --user benchexec
 
-In this case you probably need to add the directory where pip installs the commands
+In the latter case you probably need to add the directory where pip installs the commands
 to the PATH environment by adding the following line to your `~/.profile` file:
 
     export PATH=~/.local/bin:$PATH
