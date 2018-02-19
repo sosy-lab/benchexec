@@ -116,6 +116,13 @@
     z-index:5;
   }
 
+  #gobackbtn {
+    position: fixed;
+    top:6%; left:90.2%;
+    z-index: 6;
+    display: none;
+  }
+
   .scriptonly {
     display: none; // only enabled via JavaScript
   }
@@ -154,12 +161,12 @@
   /* UI for filtering rows */
   button:hover { cursor: pointer; }
   #rowFilterButtons ul { list-style-type:none }
-  #rowFilterSelector   { position:absolute; top:20px; right:140px; width:100px; height:300px; }
-  #button-filter-reset { position:absolute; top:20px; right:20px; width:100px; height:30px; }
-  #button-filter-all   { position:absolute; top:60px; right:20px; width:100px; height:30px; }
-  #button-filter-none  { position:absolute; top:100px; right:20px; width:100px; height:30px; }
-  #button-filter-start { position:absolute; top:140px; right:20px; width:100px; height:30px; }
-  #button-inverse-filter-start { position:absolute; top:180px; right:20px; width:100px; height:30px; }
+  #rowFilterSelector   { position:absolute; top:20px; right:210px; width:100px; height:300px; }
+  #button-filter-reset { position:absolute; top:20px; right:100px; width:100px; height:30px; }
+  #button-filter-all   { position:absolute; top:60px; right:100px; width:100px; height:30px; }
+  #button-filter-none  { position:absolute; top:100px; right:100px; width:100px; height:30px; }
+  #button-filter-start { position:absolute; top:140px; right:100px; width:100px; height:30px; }
+  #button-inverse-filter-start { position:absolute; top:180px; right:100px; width:100px; height:30px; }
 
   /* plots */
   .jqplot-title { font-size:large; z-index:10 }
@@ -202,8 +209,12 @@
   </div>
 </div>
 
-<div id="contentPaneBackground"></div>
-<div id="contentPane"></div>
+<div id="contentPaneBackground">
+</div>
+
+<button id="gobackbtn" onclick="goBack()">Go Back</button>
+<div id="contentPane">
+</div>
 
 <table id="dataTable">
 <thead>
@@ -898,10 +909,21 @@ function debug(logInfo) {
   }
 }
 
+
+function goBack(){
+  $('#contentPane').hide();
+  $('#contentPaneBackground').hide();
+  $('#gobackbtn').hide();
+}
+
+
+
+
 function showContentPane() {
   // add function for cleanup, first unbind any old function
   $('#contentPaneBackground').unbind().click(catchHideContentPane).show();
   $('#contentPane').show().focus();
+  $('#gobackbtn').show();
 }
 
 function catchHideContentPane(event) {
@@ -910,6 +932,7 @@ function catchHideContentPane(event) {
   if (event.type == "click" || escKeyPressed(event)) {
     $('#contentPaneBackground').hide();
     $('#contentPane').hide().empty();
+    $('#gobackbtn').hide();
     isRowFilterPaneActive = false;
   }
 
@@ -1043,6 +1066,8 @@ function loadContent(url) {
         "Firefox can access files from local directories by default,<br>" +
         "but this does not work for files that are not beneath the same directory as this HTML page.<br><br>");
     }
+
+
     _contentPane.append("You can try to download the file: <a href=" + url + ">" + url + "</a>");
   }
 
@@ -2276,6 +2301,8 @@ $(document).ready(function() {
 });
 
 </script>
+
+
 
 </body>
 </html>
