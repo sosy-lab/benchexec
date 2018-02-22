@@ -201,9 +201,6 @@
     <a href="javascript:createScatterPlotView()">Scatter Plot</a>
     <a href="javascript:toggleHeader()" id="toggleHeaderButton" data-shown-text="Shrink Header" data-hidden-text="Expand Header">Shrink Header</a>
   </span>
-  <span class="noscript">
-    Please enable JavaScript for advanced features.
-  </span>
   <div id="attribution">
     Generated with <a href="https://github.com/sosy-lab/benchexec" target="_blank">BenchExec</a>
   </div>
@@ -212,7 +209,6 @@
 <div id="contentPaneBackground">
 </div>
 
-<button id="gobackbtn" onclick="goBack()">Go Back</button>
 <div id="contentPane">
 </div>
 
@@ -910,20 +906,13 @@ function debug(logInfo) {
 }
 
 
-function goBack(){
-  $('#contentPane').hide();
-  $('#contentPaneBackground').hide();
-  $('#gobackbtn').hide();
-}
-
-
 
 
 function showContentPane() {
   // add function for cleanup, first unbind any old function
   $('#contentPaneBackground').unbind().click(catchHideContentPane).show();
   $('#contentPane').show().focus();
-  $('#gobackbtn').show();
+  /*$('#gobackbtn').show();*/
 }
 
 function catchHideContentPane(event) {
@@ -1024,10 +1013,12 @@ $(document).ready(function() {
 
 
 <!-- ################## Make links load via AJAX and show content in extra panel ################## -->
-
+/* kalpit */
 <script type="text/javascript" src="https://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/zip.js" integrity="sha384-MeRnH55Zif/L4RFyjHhP84qa2UZNBaCtvqLwd2wSLHxvsIVFyqlfnA4M4A+Jh9Nf" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/zip-ext.js" integrity="sha384-5XVhUBjSICwNlApchJ6WQL+IWtZ37toeXJF4liYi1v3YgkxARSHsJfhCKch0xBcq" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://www.sosy-lab.org/lib/zip.js/0.1-1bead0a-sosy0/inflate.js" integrity="sha384-YaI2tf97t7If3Fzl+vd3knFT+VMvkEjE+AhkDl/1vyKvag+6oPuqeF4NkzE04JrF" crossorigin="anonymous"></script>
+
+
 
 <script type="text/javascript">
 // We cannot use web workers and need to load inflate.js manually,
@@ -1598,15 +1589,47 @@ $(document).ready(function() {
 
 <!-- ################## Everything related to showing plots of the data ################## -->
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.min.js" integrity="sha384-Cot3a3N4r3N6yp30lGlCz4AsOgpGZ3WBUg9DD2Majz+yHKihiZM6MHVRJhcFfIKi" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.highlighter.min.js" integrity="sha384-UE85H+y7D+rTEtprYLVMyLWQ7Ds3VNnNjMqASQ7hDxY6pqybhmRT4mwUXQuaUpxZ" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor.min.js" integrity="sha384-/68UL5p7BH6UnGcjgfGbymVfV4GLIXdNS4KIi09AuXAFcIcj6la5aHRvIlUNiNLr" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js" integrity="sha384-gzWzw3zuzyvbr7RattOQstuVsCW85k0S8jM5tIrZxHDQxjs1+QRV3Lc1iqfBQljA" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js" integrity="sha384-T19JwedA1njhdPBkCFHbcc8MUFPeYR9kpbLLwm7Lg5cl5xxtTUF2+FSBYI80SdpY" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.min.js" integrity="sha384-0FX6sPZL1VtirdP+aMBU9aHca2BVXpV7zJWE6IRPBNocH0zfQsmSS2TOtcatFz3t" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.logAxisRenderer.min.js" integrity="sha384-1/rMlDir6Jep4M3CoOPHs8Q8iCO0HaT4eK4+QgFcE9QgpljyXA1yIIr41V2vVVI9" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasAxisLabelRenderer.min.js" integrity="sha384-z70jpazZYUFjpwVirGWZdsJ6rV8hKjEF+908tI73NI4xB6k8J7ZqyoSiEJf4fUSh" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasOverlay.min.js" integrity="sha384-/mPWjuZVALjPSyaQu/leRTo+xIvnkHsUTXlji5tfGuqaOsrxtH4IzTBx2QnoUDWQ" crossorigin="anonymous"></script>
+<script type="text/javascript">
+function script(url) {
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = true;
+    s.src = url;
+    var x = document.getElementsByTagName('script')[0];
+    x.appendChild(s);
+}
+</script>
+
+<script integrity="sha384-Cot3a3N4r3N6yp30lGlCz4AsOgpGZ3WBUg9DD2Majz+yHKihiZM6MHVRJhcFfIKi", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.min.js");
+</script>
+<script integrity="sha384-UE85H+y7D+rTEtprYLVMyLWQ7Ds3VNnNjMqASQ7hDxY6pqybhmRT4mwUXQuaUpxZ", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.highlighter.min.js");
+</script>
+<script integrity="sha384-/68UL5p7BH6UnGcjgfGbymVfV4GLIXdNS4KIi09AuXAFcIcj6la5aHRvIlUNiNLr", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor.min.js");
+</script>
+<script integrity="sha384-gzWzw3zuzyvbr7RattOQstuVsCW85k0S8jM5tIrZxHDQxjs1+QRV3Lc1iqfBQljA", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js");
+</script>
+<script integrity="sha384-T19JwedA1njhdPBkCFHbcc8MUFPeYR9kpbLLwm7Lg5cl5xxtTUF2+FSBYI80SdpY", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js");
+</script>
+<script integrity="sha384-0FX6sPZL1VtirdP+aMBU9aHca2BVXpV7zJWE6IRPBNocH0zfQsmSS2TOtcatFz3t", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.min.js");
+</script>
+<script integrity="sha384-1/rMlDir6Jep4M3CoOPHs8Q8iCO0HaT4eK4+QgFcE9QgpljyXA1yIIr41V2vVVI9", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.logAxisRenderer.min.js");
+</script>
+<script integrity="sha384-z70jpazZYUFjpwVirGWZdsJ6rV8hKjEF+908tI73NI4xB6k8J7ZqyoSiEJf4fUSh", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasAxisLabelRenderer.min.js");
+</script>
+
+<script integrity="sha384-/mPWjuZVALjPSyaQu/leRTo+xIvnkHsUTXlji5tfGuqaOsrxtH4IzTBx2QnoUDWQ", crossorigin = "anonymous">
+script("https://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasOverlay.min.js");
+</script>
+
+
 
 <script type="text/javascript">
 // Load JQPlot CSS lazily
