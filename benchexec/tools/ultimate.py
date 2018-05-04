@@ -24,15 +24,16 @@ import os
 import re
 import subprocess
 
-import benchexec.util as util
-import benchexec.tools.template
 import benchexec.result as result
+import benchexec.tools.template
+import benchexec.util as util
 from benchexec.model import MEMLIMIT
 
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
-_LAUNCHER_JAR = "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"
+# .jar files that are used as launcher arguments with most recent .jar first
+_LAUNCHER_JARS = ["plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"]
 
 
 class UltimateTool(benchexec.tools.template.BaseTool):
@@ -70,38 +71,54 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         return util.find_executable('Ultimate.py')
 
     def _ultimate_version(self, executable):
-        ultimatedir = os.path.dirname(executable)
-        launcher_jar = os.path.join(ultimatedir, _LAUNCHER_JAR)
-        data_dir = os.path.join(ultimatedir, 'data')
-        if not os.path.isfile(launcher_jar):
-            logging.warning('Cannot find {0} to determine Ultimate version'.
-                            format(_LAUNCHER_JAR))
-            return ''
+        data_dir = os.path.join(os.path.dirname(executable), 'data')
+        launcher_jar = self._get_current_launcher_jar(executable)
 
+        cmds = [
+            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
+            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
+        ]
+
+        api = len(cmds)
+        for cmd in cmds:
+            version = self._query_ultimate_version(cmd, api)
+            if version != '':
+                return version
+            api = api - 1
+        return ''
+
+    def _query_ultimate_version(self, cmd, api):
         try:
-            process = subprocess.Popen(["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
-            logging.warning('Cannot run Java to determine Ultimate version: {0}'.
-                            format(e.strerror))
+            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'.
+                            api, format(e.strerror))
             return ''
         if stderr:
-            logging.warning('Cannot determine Ultimate version, error output: {0}'.
-                            format(util.decode_to_string(stderr)))
+            logging.warning('Cannot determine Ultimate version, error output (API {0}): {1}'.
+                            api, format(util.decode_to_string(stderr)))
             return ''
         if process.returncode:
-            logging.warning('Cannot determine Ultimate version, exit code {0}'.
-                            format(process.returncode))
+            logging.warning('Cannot determine Ultimate version, exit code (API {0}): {1}'.
+                            api, format(process.returncode))
             return ''
 
         version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
         if not version_ultimate_match:
-            logging.warning('Cannot determine Ultimate version, output: {0}'.
-                            format(util.decode_to_string(stdout)))
+            logging.warning('Cannot determine Ultimate version, output (API {0}): {1}'.
+                            api, format(util.decode_to_string(stdout)))
             return ''
-
         return version_ultimate_match.group(1)
+
+    @functools.lru_cache()
+    def _get_current_launcher_jar(self, executable):
+        ultimatedir = os.path.dirname(executable)
+        for jar in _LAUNCHER_JARS:
+            launcher_jar = os.path.join(ultimatedir, jar)
+            if os.path.isfile(launcher_jar):
+                return launcher_jar
+        raise FileNotFoundError('No suitable launcher jar found')
 
     @functools.lru_cache()
     def version(self, executable):
@@ -113,8 +130,19 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         ultimate_version = self._ultimate_version(executable)
         return ultimate_version + '-' + wrapper_version
 
+    @functools.lru_cache()
     def _is_svcomp17_version(self, executable):
         return self.version(executable) in _SVCOMP17_VERSIONS
+
+    @functools.lru_cache()
+    def _requires_ultimate_data(self, executable):
+        if self._is_svcomp17_version(executable):
+            return False;
+
+        version = self.version(executable)
+        ult, wrapper = version.split("-")
+        major, minor, patch = ult.split(".")
+        return not (major == 0 and minor < 2 and patch < 24)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits=None):
         if rlimits is None:
@@ -152,12 +180,17 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
 
-            ultimatedir = os.path.dirname(executable)
-            launcher = os.path.join(ultimatedir, _LAUNCHER_JAR)
-            cmdline += ['-jar', launcher]
+            cmdline += ['-jar', self._get_current_launcher_jar(executable)]
 
-            if '-ultimatedata' not in options:
-                cmdline += ['-data', '@noDefault', '-ultimatedata', os.path.join(ultimatedir, 'data')]
+            if self._requires_ultimate_data(executable):
+                if '-ultimatedata' not in options and '-data' not in options:
+                    cmdline += ['-data', '@noDefault', '-ultimatedata',
+                                os.path.join(os.path.dirname(executable), 'data')]
+                elif '-ultimatedata' in options and '-data' not in options:
+                    cmdline += ['-data', '@noDefault']
+            else:
+                if '-data' not in options:
+                    cmdline += ['-data', os.path.join(os.path.dirname(executable), 'data')]
 
             cmdline += options
 
