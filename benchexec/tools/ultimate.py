@@ -79,7 +79,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return ''
 
         try:
-            process = subprocess.Popen(["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
+            process = subprocess.Popen(["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
@@ -156,8 +156,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             launcher = os.path.join(ultimatedir, _LAUNCHER_JAR)
             cmdline += ['-jar', launcher]
 
-            if '-data' not in options:
-                cmdline += ['-data', os.path.join(ultimatedir, 'data')]
+            if '-ultimatedata' not in options:
+                cmdline += ['-data', '@noDefault', '-ultimatedata', os.path.join(ultimatedir, 'data')]
 
             cmdline += options
 
