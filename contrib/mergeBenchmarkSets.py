@@ -3,7 +3,7 @@
 # BenchExec is a framework for reliable benchmarking.
 # This file is part of BenchExec.
 #
-# Copyright (C) 2007-2016  Dirk Beyer
+# Copyright (C) 2007-2017  Dirk Beyer
 # All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,16 +59,14 @@ def getWitnessResult(witness, verification_result):
         # If there is no witness, then this is an error of the verifier.
         return ('witness missing', Result.CATEGORY_ERROR)
 
-    sourcefile = witness.get('name')
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
-    category_from_validation   = witness.findall('column[@title="category"]')[0].get('value')
     status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
     category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
-        return (status_from_validation, category_from_validation)
+        return (status_from_verification, category_from_verification)
     # An invalid witness counts as error of the verifier.
     if status_from_validation == 'ERROR (invalid witness file)':
         return ('witness invalid (' + status_from_verification + ')', Result.CATEGORY_ERROR)
@@ -84,7 +82,7 @@ def main(argv=None):
         argv = sys.argv
 
     if len(argv) < 3:
-        sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status].\n')
+        sys.exit('Usage: ' + argv[0] + ' <results-xml> [<witness-xml>]* [--no-overwrite-status-true].\n')
 
     resultFile   = argv[1]
     witnessFiles = []
@@ -92,7 +90,7 @@ def main(argv=None):
     for i in range(2, len(argv)):
         if len(argv) > i and not argv[i].startswith('--'):
             witnessFiles.append(argv[i])
-        if argv[i] == '--no-overwrite-status':
+        if argv[i] == '--no-overwrite-status-true':
             isOverwrite = False
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
@@ -104,8 +102,6 @@ def main(argv=None):
             sys.exit('File {0} does not exist.'.format(repr(witnessFile)))
         witnessXML = TableGenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
-        resultXML.set('options', '' + resultXML.get('options', default='') + ' [[ ' + witnessXML.get('options', default='') + ' ]]')
-        resultXML.set('date',    '' + resultXML.get('date', default='')    + ' [[ ' + witnessXML.get('date', default='')    + ' ]]')
 
     for result in resultXML.findall('run'):
         run = result.get('name')
@@ -116,13 +112,6 @@ def main(argv=None):
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None:
-                for column in witness:
-                    newColumn = ET.Element('column', {
-                         'title': 'wit' + str(i) + '_' + column.get('title'),
-                         'value':  column.get('value'),
-                         'hidden': column.get('hidden','false')
-                         })
-                    result.append(newColumn)
                 statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                 if (
                      categoryWit is None or
@@ -132,7 +121,16 @@ def main(argv=None):
                    ):
                     statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
-        if isOverwrite and 'correct' == result.findall('column[@title="category"]')[0].get('value') and statusWit is not None and categoryWit is not None:
+        if (
+                 (    isOverwrite
+                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(
+                                                       result.findall('column[@title="status"]')[0].get('value'))
+                 )
+             and 'correct' == result.findall('column[@title="category"]')[0].get('value')
+             and statusWit is not None
+             and categoryWit is not None
+           ):
+            #print(run, statusWit, categoryWit)
             result.findall('column[@title="status"]')[0].set('value', statusWit)
             result.findall('column[@title="category"]')[0].set('value', categoryWit)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion

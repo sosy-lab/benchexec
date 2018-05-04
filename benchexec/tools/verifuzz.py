@@ -25,43 +25,33 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    VeriAbs
+    VeriFuzz
     """
 
-    REQUIRED_PATHS = [
-                      "bin",
-                      "cpact",
-                      "jars",
-                      "exp-in",
-                      "prism",
-                      "lib",
-                      "afl-2.35b",
-                      "scripts",
-                      "supportFiles",
-                      ]
+    REQUIRED_PATHS = ["lib", "exp-in", "afl-2.35b", "scripts", "supportFiles", "prism", "bin", "jars"]
 
     def executable(self):
-        return util.find_executable('scripts/veriabs')
+        return util.find_executable('scripts/verifuzz.py')
 
     def program_files(self, executable):
         installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
         return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
     def name(self):
-        return 'VeriAbs'
+        return 'VeriFuzz'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
-            options = options + ['--property-file', propertyfile]
+            options = options + ['--propertyFile', propertyfile]
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
-        if "VERIABS_VERIFICATION_SUCCESSFUL" in lines:
+        if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
-        elif "VERIABS_VERIFICATION_FAILED" in lines:
+        elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
             return result.RESULT_FALSE_REACH
-        elif "NOT SUPPORTED" in lines or "VERIABS_UNKNOWN" in lines:
+        elif "NOT SUPPORTED" in lines or "VERIFUZZ_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
         else:
             return result.RESULT_ERROR

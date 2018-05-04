@@ -9,6 +9,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
     
 **News**:
+- BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
+  if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
 - An extended version of our paper on BenchExec and its background gets published in [STTT](http://sttt.cs.uni-dortmund.de/index.html),
   you can now read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
   In addition to the [previous version from SPIN'15](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf),
@@ -92,8 +94,8 @@ Contributors:
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all six instances
-of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org) (2012-2017)
+BenchExec was successfully used for benchmarking in all seven instances
+of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org) (2012-2018)
 with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
 
 The developers of the following tools use BenchExec:

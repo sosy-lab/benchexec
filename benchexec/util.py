@@ -278,6 +278,19 @@ def get_files(paths):
     return result if changed else paths
 
 
+def substitute_vars(template, replacements):
+    """Replace certain keys with respective values in a string.
+    @param template: the string in which replacements should be made
+    @param replacements: a dict or a list of pairs of keys and values
+    """
+    result = template
+    for (key, value) in replacements:
+        result = result.replace('${' + key + '}' , value)
+    if '${' in result:
+        logging.warning("A variable was not replaced in '%s'.", result)
+    return result
+
+
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
     def is_executable(programPath):
         return os.path.isfile(programPath) and os.access(programPath, os.X_OK)

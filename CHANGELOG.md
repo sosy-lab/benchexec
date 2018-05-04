@@ -1,5 +1,22 @@
 # BenchExec Changelog
 
+## BenchExec 1.16
+
+- Support for [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
+  if [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed.
+- Several small bug fixes and improvements
+
+
+## BenchExec 1.15 (skipped)
+
+
+## BenchExec 1.14
+
+- Updated tool-info modules for all participants of [SV-COMP'18](https://sv-comp.sosy-lab.org/2018/).
+- Extended support for variable replacements in table-definitions
+  of table-generator.
+
+
 ## BenchExec 1.13
 
 - For Debian/Ubuntu, the `.deb` package is now the recommended way

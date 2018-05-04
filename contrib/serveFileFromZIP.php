@@ -93,7 +93,7 @@ function serveFileFromZIP($baseDir, $zipName, $fileName) {
   $fileSize = $zip->statName($fileName)['size'];
   header('Content-Length: ' . $fileSize);
   $contentType = "text/plain";
-  if (endsWith($fileName, ".graphml")) {
+  if (strEndsWith($fileName, ".graphml")) {
     $contentType = "text/xml";
   }
   header('Content-Type: ' . $contentType);
