@@ -49,8 +49,18 @@ class Tool(benchexec.tools.template.BaseTool):
         lines = " ".join(output)
         if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
-        elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
+        elif "FALSE(unreach-call)" in lines:
             return result.RESULT_FALSE_REACH
+        elif "FALSE(no-overflow)" in lines:
+            return result.RESULT_FALSE_OVERFLOW
+        elif "FALSE(termination)" in lines:
+            return result.RESULT_FALSE_TERMINATION
+        elif "FALSE(valid-deref)" in lines:
+            return result.RESULT_FALSE_DEREF
+        elif "FALSE(valid-free)" in lines:
+            return result.RESULT_FALSE_FREE
+        elif "FALSE(valid-memtrack)" in lines:
+            return result.RESULT_FALSE_MEMTRACK
         elif "NOT SUPPORTED" in lines or "VERIFUZZ_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
         else:
