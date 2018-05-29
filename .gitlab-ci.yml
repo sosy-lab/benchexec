@@ -76,10 +76,10 @@ deploy-coverage:
   script:
     - sudo -u $PRIMARY_USER python-codacy-coverage -r coverage.xml
   dependencies:
-    - unit-tests:python-${PYTHON_VERSION}
+    - unit-tests:python-3.6
   only:
     refs:
       - master
     variables:
-      - $GH_TOKEN # required for job
+      - $CODACY_PROJECT_TOKEN # required for job
       - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
