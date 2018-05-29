@@ -76,7 +76,7 @@ deploy-coverage:
     - adduser --disabled-login --gecos "" $PRIMARY_USER
     - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
   script:
-    - sudo -u $PRIMARY_USER python-codacy-coverage -r coverage.xml
+    - sudo -u $PRIMARY_USER CODACY_PROJECT_TOKEN=$CODACY_PROJECT_TOKEN python-codacy-coverage -r coverage.xml
   dependencies:
     - unit-tests:python-3.6
   only:
