@@ -308,7 +308,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/cat')
 
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
-        cmd = [runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
+        cmd = [python, runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
         try:
             process = subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=DEVNULL)
