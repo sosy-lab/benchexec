@@ -72,6 +72,8 @@ deploy-coverage:
   variables:
     PYTHON_VERSION: '3.6'
   before_script:
+    # Create user to avoid running this tool as root in a privileged container
+    - adduser --disabled-login --gecos "" $PRIMARY_USER
     - sudo -u $PRIMARY_USER pip install --user -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
   script:
     - sudo -u $PRIMARY_USER python-codacy-coverage -r coverage.xml
