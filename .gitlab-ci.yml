@@ -33,6 +33,8 @@ before_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report
     - sudo -u $PRIMARY_USER coverage xml
+  tags:
+    - privileged
   artifacts:
     paths:
       - coverage.xml
@@ -72,11 +74,9 @@ deploy-coverage:
   variables:
     PYTHON_VERSION: '3.6'
   before_script:
-    # Create user to avoid running this tool as root in a privileged container
-    - adduser --disabled-login --gecos "" $PRIMARY_USER
     - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
   script:
-    - sudo -u $PRIMARY_USER CODACY_PROJECT_TOKEN=$CODACY_PROJECT_TOKEN python-codacy-coverage -r coverage.xml
+    - python-codacy-coverage -r coverage.xml
   dependencies:
     - unit-tests:python-3.6
   only:
