@@ -113,7 +113,7 @@ class TestRunExecutor(unittest.TestCase):
                 self.assertRegex(key, '^cputime-cpu[0-9]+$',
                                  "unexpected result entry '{}={}'".format(key, result[key]))
             elif key.startswith('cpuenergy-'):
-                self.assertRegex(key, '^cpuenergy-pkg[0-9]+(-(core|uncore|dram))?$',
+                self.assertRegex(key, '^cpuenergy-pkg[0-9]+(-(core|uncore|dram|psys))?$',
                                  "unexpected result entry '{}={}'".format(key, result[key]))
             else:
                 self.assertIn(key, expected_keys,
@@ -308,7 +308,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/cat')
 
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
-        cmd = [runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
+        cmd = [python, runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
         try:
             process = subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=DEVNULL)
@@ -550,16 +550,17 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         self.assertTrue(output[0].endswith(cmd), 'run output misses executed command')
 
     def test_detect_new_files_in_home(self):
-        if not os.path.exists('/usr/bin/mktemp'):
-            self.skipTest('missing /usr/bin/mktemp')
+        if not os.path.exists('/bin/mktemp'):
+            self.skipTest('missing /bin/mktemp')
         home_dir = runexecutor._get_user_account_info(self.user).pw_dir
-        tmp_file_pattern = '.BenchExec_test_runexecutor_'+unichr(0xe4)+unichr(0xf6)+unichr(0xfc)+'_XXXXXXXXXX'
+        tmp_file_pattern = '.BenchExec_test_runexecutor_XXXXXXXXXX'
         (result, output) = self.execute_run(
-            '/usr/bin/mktemp', '--tmpdir=' + home_dir, tmp_file_pattern)
+            '/bin/mktemp', '--tmpdir=' + home_dir, tmp_file_pattern)
         try:
-            self.check_exitcode(result, 0, 'exit code of /usr/bin/mktemp is not zero')
+            self.check_exitcode(result, 0, 'exit code of /bin/mktemp is not zero')
             tmp_file = output[-1]
-            self.assertIn(tmp_file, self.runexecutor.check_for_new_files_in_home(),
+            self.assertIn(os.path.relpath(tmp_file, home_dir),
+                          self.runexecutor.check_for_new_files_in_home(),
                           'runexecutor failed to detect new temporary file in home directory')
         finally:
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))

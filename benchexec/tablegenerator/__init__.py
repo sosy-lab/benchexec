@@ -1513,6 +1513,7 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
 
     template_values.lib_url = options.lib_url
     template_values.base_dir = outputPath
+    template_values.href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
     template_values.version = __version__
 
     futures = []

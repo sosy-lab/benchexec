@@ -51,40 +51,32 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
         benchmark = runSet.benchmark
 
         # list with tuples (key, value): 'key' is replaced by 'value'
-        keyValueList = [('${benchmark_name}',     benchmark.name),
-                        ('${benchmark_date}',     benchmark.instance),
-                        ('${benchmark_path}',     benchmark.base_dir or '.'),
-                        ('${benchmark_path_abs}', os.path.abspath(benchmark.base_dir)),
-                        ('${benchmark_file}',     os.path.basename(benchmark.benchmark_file)),
-                        ('${benchmark_file_abs}', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
-                        ('${logfile_path}',       os.path.dirname(runSet.log_folder) or '.'),
-                        ('${logfile_path_abs}',   os.path.abspath(runSet.log_folder)),
-                        ('${rundefinition_name}', runSet.real_name if runSet.real_name else ''),
-                        ('${test_name}',          runSet.real_name if runSet.real_name else '')]
+        keyValueList = [
+            ('benchmark_name',     benchmark.name),
+            ('benchmark_date',     benchmark.instance),
+            ('benchmark_path',     benchmark.base_dir or '.'),
+            ('benchmark_path_abs', os.path.abspath(benchmark.base_dir)),
+            ('benchmark_file',     os.path.basename(benchmark.benchmark_file)),
+            ('benchmark_file_abs', os.path.abspath(os.path.basename(benchmark.benchmark_file))),
+            ('logfile_path',       os.path.dirname(runSet.log_folder) or '.'),
+            ('logfile_path_abs',   os.path.abspath(runSet.log_folder)),
+            ('rundefinition_name', runSet.real_name if runSet.real_name else ''),
+            ('test_name',          runSet.real_name if runSet.real_name else ''),
+        ]
 
     if sourcefile:
-        keyValueList.append(('${inputfile_name}', os.path.basename(sourcefile)))
-        keyValueList.append(('${inputfile_path}', os.path.dirname(sourcefile) or '.'))
-        keyValueList.append(('${inputfile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
+        keyValueList.append(('inputfile_name', os.path.basename(sourcefile)))
+        keyValueList.append(('inputfile_path', os.path.dirname(sourcefile) or '.'))
+        keyValueList.append(('inputfile_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
         # The following are deprecated: do not use anymore.
-        keyValueList.append(('${sourcefile_name}', os.path.basename(sourcefile)))
-        keyValueList.append(('${sourcefile_path}', os.path.dirname(sourcefile) or '.'))
-        keyValueList.append(('${sourcefile_path_abs}', os.path.dirname(os.path.abspath(sourcefile))))
+        keyValueList.append(('sourcefile_name', os.path.basename(sourcefile)))
+        keyValueList.append(('sourcefile_path', os.path.dirname(sourcefile) or '.'))
+        keyValueList.append(('sourcefile_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
 
     # do not use keys twice
     assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
 
-    newList = []
-
-    for oldStr in oldList:
-        newStr = oldStr
-        for (key, value) in keyValueList:
-            newStr = newStr.replace(key, value)
-        if '${' in newStr:
-            logging.warning("A variable was not replaced in '%s'.", newStr)
-        newList.append(newStr)
-
-    return newList
+    return [util.substitute_vars(s, keyValueList) for s in oldList]
 
 
 def load_tool_info(tool_name):

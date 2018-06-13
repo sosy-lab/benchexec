@@ -17,46 +17,41 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import benchexec.tools.template
-import benchexec.util as util
-import benchexec.result as result
-
 import os
+
+import benchexec.util as util
+import benchexec.tools.template
+import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool wrapper for the Vienna Verification Toolkit
+    VeriFuzz
     """
 
-    REQUIRED_PATHS = [
-                  "bin",
-                  "clang",
-                  "include"
-                  ]
+    REQUIRED_PATHS = ["lib", "exp-in", "afl-2.35b", "scripts", "supportFiles", "prism", "bin", "jars"]
 
     def executable(self):
-        return util.find_executable('vvt-svcomp-bench.sh', os.path.join("bin", 'vvt-svcomp-bench.sh'))
+        return util.find_executable('scripts/verifuzz.py')
 
     def program_files(self, executable):
         installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
         return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
-    def version(self,executable):
-        return 'prerelease'
-
     def name(self):
-        return 'VVT'
+        return 'VeriFuzz'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + tasks
+        if propertyfile:
+            options = options + ['--propertyFile', propertyfile]
+        return [executable] + options + tasks
 
-    def determine_result(self, returncode, returnsignal, output, isTimeOut):
-        try:
-            for line in output:
-                if line.startswith("No bug found"):
-                    return result.RESULT_TRUE_PROP
-                elif line.startswith("Bug found:"):
-                    return result.RESULT_FALSE_REACH
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        lines = " ".join(output)
+        if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
+            return result.RESULT_TRUE_PROP
+        elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
+            return result.RESULT_FALSE_REACH
+        elif "NOT SUPPORTED" in lines or "VERIFUZZ_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
-        except Exception:
-            return result.RESULT_UNKNOWN
+        else:
+            return result.RESULT_ERROR

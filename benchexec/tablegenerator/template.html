@@ -244,7 +244,7 @@
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult, href_base)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
@@ -1078,6 +1078,7 @@ var graphData = {
   isQuantile : true,
   isLogScale : true,
   showCorrectOnly : true,
+  secondLineFactor : 10,
 };
 
 // this function collects the indices of columns with target as cell above the column
@@ -1415,7 +1416,7 @@ function isValidStatisticsColumn(columnIndex, allowStatus) {
 }
 
 function getSelectorForScatter(identifier) {
-    var select = $('<select>', {class:'plot-selector'});
+    var select = $('<select title="select an axis for the plot">', {class:'plot-selector'});
     var columnIndex = 0;
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
@@ -1441,6 +1442,25 @@ function getSelectorForScatter(identifier) {
     return select;
 }
 
+function getSecondLineFactorForScatter() {
+  var select = $('<select title="select a factor for additional lines in the plot" style="direction: rtl;">', {class:'plot-second-line-factor'});
+    for (var number = 2; number < Math.pow(10,9);
+            number = (number < 10) ? (number + 1) : (number * 10)) {
+        select.append($('<option>', {
+            value:number,
+            selected:(graphData.secondLineFactor == number),
+            text: number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f'),
+            }));
+    }
+    select.change(function(){
+        var selectedValue = Number(select.find(':selected')[0].value);
+        graphData.secondLineFactor = selectedValue;
+        showScatterPlot();
+    });
+
+    return select;
+}
+
 function showScatterPlot() {
   hideContentPane(); // cleanup
   var contentPane = $('#contentPane').append('<div id="chart"></div>');
@@ -1451,6 +1471,7 @@ function showScatterPlot() {
   // it identifies the first and second selector
   var selector0 = getSelectorForScatter(0);
   var selector1 = getSelectorForScatter(1);
+  var selectorSecondLineFactor = getSecondLineFactorForScatter();
   var index0 = graphData.target[0];
   var index1 = graphData.target[1];
   var title0 = columnTitleCells[index0].textContent;
@@ -1522,11 +1543,27 @@ function showScatterPlot() {
         objects: [
             {line: {
                 name: 'diagonalLine',
-                lineWidth: 1,
+                lineWidth: 2,
                 color: 'red',
                 shadow: false,
                 start: [minValue, minValue],
                 stop: [maxValue, maxValue],
+            } },
+            {line: {
+                name: 'diagonalLineAbove',
+                lineWidth: .5,
+                color: 'red',
+                shadow: false,
+                start: [minValue, minValue*graphData.secondLineFactor],
+                stop: [maxValue, maxValue*graphData.secondLineFactor],
+            } },
+            {line: {
+                name: 'diagonalLineBelow',
+                lineWidth: .5,
+                color: 'red',
+                shadow: false,
+                start: [minValue, minValue/graphData.secondLineFactor],
+                stop: [maxValue, maxValue/graphData.secondLineFactor],
             } },
         ]
     }
@@ -1535,7 +1572,9 @@ function showScatterPlot() {
   $('.jqplot-title').empty()
         .append('X: ').append(selector0)
         .append('<span style="padding-left:50px"></span>') // some space between the selectors
-        .append('Y: ').append(selector1);
+        .append('Y: ').append(selector1)
+        .append('<span style="padding-left:50px"></span>') // some space between the selectors
+        .append('line: ').append(selectorSecondLineFactor);
 
   $('#contentPaneBackground').click(function(event) {
     plot.destroy();

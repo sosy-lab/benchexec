@@ -143,8 +143,11 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif 'UNKNOWN' in output:
                     status = result.RESULT_UNKNOWN
 
-        elif returncode == 64 and 'Usage error!' in output:
+        elif returncode == 64 and 'Usage error!\n' in output:
             status = 'INVALID ARGUMENTS'
+
+        elif returncode == 6 and 'Out of memory\n' in output:
+            status = 'OUT OF MEMORY'
 
         else:
             status = result.RESULT_ERROR
