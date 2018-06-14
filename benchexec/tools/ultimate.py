@@ -218,6 +218,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     def _determine_result_without_propertyfile(self, returncode, returnsignal, output, is_timeout):
         # special strings in ultimate output
+        treeautomizer_sat = 'TreeAutomizerSatResult'
+        treeautomizer_unsat = 'TreeAutomizerUnsatResult'
         unsupported_syntax_errorstring = 'ShortDescription: Unsupported Syntax'
         incorrect_syntax_errorstring = 'ShortDescription: Incorrect Syntax'
         type_errorstring = 'Type Error'
@@ -250,15 +252,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'ERROR: EXCEPTION'
             if self._contains_overapproximation_result(line):
                 return 'UNKNOWN: OverapproxCex'
-            if line.find(termination_true_string) != -1:
-                return 'TRUE'
             if line.find(termination_false_string) != -1:
                 return 'FALSE(TERM)'
+            if line.find(termination_true_string) != -1:
+                return 'TRUE'
             if line.find(ltl_false_string) != -1:
                 return 'FALSE(valid-ltl)'
             if line.find(ltl_true_string) != -1:
-                return 'TRUE'
-            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
                 return 'TRUE'
             if line.find(unsafety_string) != -1:
                 return 'FALSE'
@@ -272,6 +272,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'FALSE(valid-memtrack)'
             if line.find(overflow_false_string) != -1:
                 return 'FALSE(OVERFLOW)'
+            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
+                return 'TRUE'
+            if line.find(treeautomizer_unsat) != -1:
+                return 'unsat'
+            if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
+                return 'sat'
 
         return result.RESULT_UNKNOWN
 
