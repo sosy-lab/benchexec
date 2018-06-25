@@ -136,6 +136,13 @@ class BenchExec(object):
                                'use "-1" to disable time limits completely)',
                           metavar="SECONDS")
 
+        parser.add_argument("-W", "--walltimelimit",
+                            dest="walltimelimit", default=None,
+                            help='Wall time limit for each run, e.g. "90s" '
+                                 '(overwrites wall time limit from XML file, '
+                                 'use "-1" to disable time limits completely)',
+                            metavar="SECONDS")
+
         parser.add_argument("-M", "--memorylimit",
                           dest="memorylimit", default=None,
                           help="Memory limit, if no unit is given MB are assumed (-1 to disable)",

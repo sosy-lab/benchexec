@@ -36,6 +36,7 @@ CORELIMIT = "cpuCores"
 
 SOFTTIMELIMIT = 'softtimelimit'
 HARDTIMELIMIT = 'hardtimelimit'
+WALLTIMELIMIT = 'walltimelimit'
 
 PROPERTY_TAG = "propertyfile"
 
@@ -114,7 +115,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
-    return args;
+    return args
 
 
 class Benchmark(object):
@@ -202,6 +203,7 @@ class Benchmark(object):
         keys = list(rootTag.keys())
         handle_limit_value("Time", TIMELIMIT, config.timelimit, util.parse_timespan_value)
         handle_limit_value("Hard time", HARDTIMELIMIT, config.timelimit, util.parse_timespan_value)
+        handle_limit_value("Wall time", WALLTIMELIMIT, config.walltimelimit, util.parse_timespan_value)
         handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
         handle_limit_value("Core", CORELIMIT, config.corelimit, int)
 
@@ -781,16 +783,28 @@ class Run(object):
     def _is_timeout(self):
         ''' try to find out whether the tool terminated because of a timeout '''
         if self.cputime is None:
-            return False
-        rlimits = self.runSet.benchmark.rlimits
-        if SOFTTIMELIMIT in rlimits:
-            limit = rlimits[SOFTTIMELIMIT]
-        elif TIMELIMIT in rlimits:
-            limit = rlimits[TIMELIMIT]
+            is_cpulimit = False
         else:
-            limit = float('inf')
+            rlimits = self.runSet.benchmark.rlimits
+            if SOFTTIMELIMIT in rlimits:
+                limit = rlimits[SOFTTIMELIMIT]
+            elif TIMELIMIT in rlimits:
+                limit = rlimits[TIMELIMIT]
+            else:
+                limit = float('inf')
+            is_cpulimit = self.cputime > limit
 
-        return self.cputime > limit
+        if self.walltime is None:
+            is_walllimit = False
+        else:
+            rlimits = self.runSet.benchmark.rlimits
+            if WALLTIMELIMIT in rlimits:
+                limit = rlimits[WALLTIMELIMIT]
+            else:
+                limit = float('inf')
+            is_walllimit = self.walltime > limit
+
+        return is_cpulimit or is_walllimit
 
 
 class Column(object):
