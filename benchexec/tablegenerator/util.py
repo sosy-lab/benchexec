@@ -180,10 +180,13 @@ def format_options(options):
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
 def to_decimal(s):
-    # remove whitespaces and trailing units (e.g., in '1.23s')
     if s:
-        s, _ = split_number_and_unit(s.strip())
-        return Decimal(s) if s else None
+        if s.lower() == 'nan':
+            return Decimal(s)
+        else:
+            # remove whitespaces and trailing units (e.g., in '1.23s')
+            s, _ = split_number_and_unit(s.strip())
+            return Decimal(s) if s else None
     else:
         return None
 
