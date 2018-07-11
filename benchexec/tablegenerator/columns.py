@@ -155,6 +155,10 @@ class Column(object):
         @param format_target the target the value should be formatted for
         @return: a formatted String representation of the given value.
         """
+        # Only format counts and measures
+        if self.type.type != ColumnType.count and self.type.type != ColumnType.measure:
+            return value
+
         if format_target not in POSSIBLE_FORMAT_TARGETS:
             raise ValueError('Unknown format target')
 
