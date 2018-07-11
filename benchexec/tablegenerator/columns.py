@@ -168,11 +168,7 @@ class Column(object):
         # If the number ends with "s" or another unit, remove it.
         # Units should not occur in table cells, but in the table head.
         number_str = util.remove_unit(str(value).strip())
-
-        try:
-            number = float(number_str)
-        except ValueError:  # If value is no float, don't format it.
-            return value
+        number = float(number_str)
 
         # Apply the scale factor to the value
         if self.scale_factor is not None:
