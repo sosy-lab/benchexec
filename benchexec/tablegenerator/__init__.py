@@ -332,8 +332,7 @@ class RunSetResult(object):
                 file.close()
 
         for column in self.columns:
-            column_values = [run_result.values[run_result.columns.index(column)] for run_result in self.results
-                             if column in run_result.columns]
+            column_values = (run_result.values[run_result.columns.index(column)] for run_result in self.results)
             column.type, column.unit, column.source_unit, column.scale_factor = get_column_type(column, column_values)
 
 
