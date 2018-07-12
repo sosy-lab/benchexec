@@ -24,7 +24,8 @@ import unittest
 from benchexec.tablegenerator.columns import Column, ColumnType, ColumnMeasureType, get_column_type
 from benchexec.tablegenerator.util import TableDefinitionError
 
-from math import nan, inf
+nan = float('nan')
+inf = float('inf')
 
 
 class ColumnsTest(unittest.TestCase):

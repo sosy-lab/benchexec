@@ -79,7 +79,7 @@ class TestStatValue(unittest.TestCase):
 
     def test_nan(self):
         import math
-        nan = Decimal(math.nan)
+        nan = Decimal(float('nan'))
         v = Decimal(0.123)
 
         s = StatValue.from_list([nan])
