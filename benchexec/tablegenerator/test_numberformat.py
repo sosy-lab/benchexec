@@ -138,6 +138,10 @@ class FormatValueTests(unittest.TestCase):
         formatted_value = self.measure_column.format_value("-0.0555")
         self.assertEqual(formatted_value, "-0.0555")
 
+    def test_format_value_NaN(self):
+        formatted_value = self.measure_column.format_value("Nan")
+        self.assertEqual(formatted_value, "NaN")
+
     def test_format_value_tooltip_explicit_sigs(self):
         formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value("9999.125s", None, 'tooltip_stochastic')
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs,   "9999")

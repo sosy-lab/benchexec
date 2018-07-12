@@ -20,7 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
-from math import floor, log10
+from math import floor, log10, isnan
 
 from benchexec.tablegenerator import util
 
@@ -188,7 +188,7 @@ class Column(object):
             current_significant_digits = _get_significant_digits(number_str)
             return _format_number(number, current_significant_digits, number_of_significant_digits, max_dec_digits, isToAlign, format_target)
         else:
-            if number == float(number_str):
+            if number == float(number_str) or isnan(number):
                 # TODO remove as soon as scaled values are handled correctly
                 return number_str
             if int(number) == number:
@@ -220,6 +220,9 @@ def _format_number_align(formattedValue, max_number_of_dec_digits, format_target
 
 
 def _get_significant_digits(value):
+    if isnan(float(value)):
+        return 0
+
     # Regular expression returns multiple groups:
     #
     # Group GROUP_SIGN: Optional sign of value
@@ -259,7 +262,15 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-    if number != 0:
+    if number == 0:
+        formatted_value = '0'
+        if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
+            formatted_value += '.' + '0' * min(max_digits_after_decimal, initial_value_sig_digits)
+
+    elif isnan(number):
+        formatted_value = 'NaN'
+
+    else:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
 
         if not format_target.startswith('tooltip'):
@@ -289,10 +300,6 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
             if formatted_value.endswith('.'):
                 formatted_value = formatted_value[:-1]
-    else:
-        formatted_value = '0'
-        if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
-            formatted_value += '.' + '0' * min(max_digits_after_decimal, initial_value_sig_digits)
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002

@@ -544,6 +544,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             formats=['csv', 'html'],
             )
 
+    def test_table_with_nan(self):
+        self.generate_tables_and_check_produced_files(
+            [result_file('nan.xml'),
+             '-f', 'csv', '-f', 'html'],
+            table_prefix="nan",
+            formats=['csv', 'html'],
+        )
+
     def test_smt_results(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'smt.xml'),

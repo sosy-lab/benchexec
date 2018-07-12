@@ -79,16 +79,17 @@ TEMPLATE_NAMESPACE={
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('\s*([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*$')
+REGEX_MEASURE = re.compile('\s*([-\+])?(?:([Nn][aA][Nn])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*))\s*$')
 GROUP_SIGN = 1
-GROUP_INT_PART = 2
-GROUP_DEC_PART = 3
-GROUP_ZEROES = 4
-GROUP_SIG_DEC_PART = 5
-GROUP_EXPONENT_PART = 6
-GROUP_EXPONENT_SIGN = 7
-GROUP_EXPONENT_VALUE = 8
-GROUP_UNIT = 9
+GROUP_NAN_PART = 2
+GROUP_INT_PART = 3
+GROUP_DEC_PART = 4
+GROUP_ZEROES = 5
+GROUP_SIG_DEC_PART = 6
+GROUP_EXPONENT_PART = 7
+GROUP_EXPONENT_SIGN = 8
+GROUP_EXPONENT_VALUE = 9
+GROUP_UNIT = 10
 
 UNIT_CONVERSION = {
     's': {'ms': 1000, 'min': 1.0/60, 'h': 1.0/3600},
@@ -380,7 +381,8 @@ def _get_column_type_heur(column, column_values):
 
             if (column_type and column_type.type == ColumnType.measure) or\
                             scaled_value_match.group(GROUP_DEC_PART) is not None or\
-                            value_match.group(GROUP_DEC_PART) is not None:
+                            value_match.group(GROUP_DEC_PART) is not None or\
+                            value_match.group(GROUP_NAN_PART) is not None:
                 column_type = ColumnMeasureType(max_dec_digits)
 
             elif int(column_scale_factor) != column_scale_factor:
@@ -1338,6 +1340,9 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
+        if any([math.isnan(v) for v in values if v is not None]):
+            return StatValue(math.nan, math.nan, math.nan, math.nan, math.nan, math.nan)
+
         values = sorted(v for v in values if v is not None)
         if not values:
             return StatValue(0)

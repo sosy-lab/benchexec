@@ -76,3 +76,24 @@ class TestStatValue(unittest.TestCase):
             self.assertEqual(s.min, v1)
             self.assertEqual(s.median, v2)
             self.assertAlmostEqual(s.stdev, Decimal(370.83879721))
+
+    def test_nan(self):
+        import math
+        nan = Decimal(math.nan)
+        v = Decimal(0.123)
+
+        s = StatValue.from_list([nan])
+        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
+        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
+        self.assertTrue(math.isnan(s.max), "Not NaN, but " + str(s.max))
+        self.assertTrue(math.isnan(s.min), "Not NaN, but " + str(s.min))
+        self.assertTrue(math.isnan(s.median), "Not NaN, but " + str(s.median))
+        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
+
+        s = StatValue.from_list([nan, v])
+        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
+        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
+        self.assertTrue(math.isnan(s.max), "Not NaN, but " + str(s.max))
+        self.assertTrue(math.isnan(s.min), "Not NaN, but " + str(s.min))
+        self.assertTrue(math.isnan(s.median), "Not NaN, but " + str(s.median))
+        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
