@@ -162,7 +162,7 @@ class Column(object):
         if format_target not in POSSIBLE_FORMAT_TARGETS:
             raise ValueError('Unknown format target')
 
-        if value is None:
+        if value is None or value == '':
             return ''
 
         # If the number ends with "s" or another unit, remove it.
