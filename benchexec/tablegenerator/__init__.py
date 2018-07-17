@@ -82,6 +82,8 @@ UNIT_CONVERSION = {
           'Wh': 1.0/3600, 'kWh': 1.0/(1000*3600), 'mWh': 1.0/(1000*1000*3600)}
 }
 
+nan = float('nan')
+
 
 def parse_table_definition_file(file):
     '''
@@ -1120,7 +1122,7 @@ class StatValue(object):
     @classmethod
     def from_list(cls, values):
         if any([math.isnan(v) for v in values if v is not None]):
-            return StatValue(math.nan, math.nan, math.nan, math.nan, math.nan, math.nan)
+            return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)
         if not values:
