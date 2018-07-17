@@ -187,6 +187,13 @@ class Column(object):
         number_str = util.remove_unit(str(value).strip())
         number = float(number_str)
 
+        if isnan(number):
+            return 'NaN'
+        elif number == inf:
+            return 'Inf'
+        elif number == -inf:
+            return '-Inf'
+
         # Apply the scale factor to the value
         if self.scale_factor is not None:
             number *= self.scale_factor
@@ -286,13 +293,6 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
         formatted_value = '0'
         if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
             formatted_value += '.' + '0' * min(max_digits_after_decimal, initial_value_sig_digits)
-
-    elif isnan(number):
-        formatted_value = 'NaN'
-    elif number == inf:
-        formatted_value = 'Inf'
-    elif number == -inf:
-        formatted_value = '-Inf'
 
     else:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
