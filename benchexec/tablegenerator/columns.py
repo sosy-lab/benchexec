@@ -52,6 +52,8 @@ UNIT_CONVERSION = {
           'Wh': 1.0 / 3600, 'kWh': 1.0 / (1000 * 3600), 'mWh': 1.0 / (1000 * 1000 * 3600)}
 }
 
+inf = float('inf')
+
 
 def enum(**enums):
     return type('Enum', (), enums)
@@ -287,8 +289,10 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     elif isnan(number):
         formatted_value = 'NaN'
-    elif isinf(number):
+    elif number == inf:
         formatted_value = 'Inf'
+    elif number == -inf:
+        formatted_value = '-Inf'
 
     else:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
