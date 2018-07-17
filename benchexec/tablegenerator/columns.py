@@ -20,7 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
-from math import floor, ceil, log10, isnan
+from math import floor, ceil, log10, isnan, isinf
 import logging
 
 from benchexec.tablegenerator import util
@@ -204,7 +204,7 @@ class Column(object):
             return _format_number(number, current_significant_digits, number_of_significant_digits, max_dec_digits,
                                   isToAlign, format_target)
         else:
-            if number == float(number_str) or isnan(number):
+            if number == float(number_str) or isnan(number) or isinf(number):
                 # TODO remove as soon as scaled values are handled correctly
                 return number_str
             if int(number) == number:
@@ -237,7 +237,7 @@ def _format_number_align(formattedValue, max_number_of_dec_digits, format_target
 
 
 def _get_significant_digits(value):
-    if isnan(float(value)):
+    if isnan(float(value)) or isinf(float(value)):
         return 0
 
     # Regular expression returns multiple groups:
@@ -287,6 +287,8 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
 
     elif isnan(number):
         formatted_value = 'NaN'
+    elif isinf(number):
+        formatted_value = 'Inf'
 
     else:
         float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
