@@ -544,11 +544,11 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             formats=['csv', 'html'],
             )
 
-    def test_table_with_nan(self):
+    def test_table_with_nan_and_infinity(self):
         self.generate_tables_and_check_produced_files(
-            [result_file('nan.xml'),
+            [result_file('nan_and_inf.xml'),
              '-f', 'csv', '-f', 'html'],
-            table_prefix="nan",
+            table_prefix="nan_and_inf",
             formats=['csv', 'html'],
         )
 
