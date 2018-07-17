@@ -1121,7 +1121,7 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
-        if any([math.isnan(v) for v in values if v is not None]):
+        if any(math.isnan(v) for v in values if v is not None):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)
