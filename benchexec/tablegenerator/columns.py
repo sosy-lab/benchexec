@@ -452,7 +452,8 @@ def _get_column_type_heur(column, column_values):
 
             if (column_type and column_type.type == ColumnType.measure) or \
                     scaled_value_match.group(GROUP_DEC_PART) is not None or \
-                    value_match.group(GROUP_DEC_PART) is not None:
+                    value_match.group(GROUP_DEC_PART) is not None or \
+                    scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None:
                 column_type = ColumnMeasureType(max_dec_digits)
 
             elif int(column_scale_factor) != column_scale_factor:
