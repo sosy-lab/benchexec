@@ -142,6 +142,74 @@ class ColumnsTest(unittest.TestCase):
         formatted_value = self.measure_column.format_value("Nan")
         self.assertEqual(formatted_value, "NaN")
 
+    def test_format_value_inf(self):
+        formatted_value = self.measure_column.format_value("InF")
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("inf")
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("inF")
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("+Inf")
+        self.assertEqual(formatted_value, "Inf")
+
+    def test_format_value_negative_inf(self):
+        formatted_value = self.measure_column.format_value("-InF")
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inf")
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inF")
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-Inf")
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inf")
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-INF")
+        self.assertEqual(formatted_value, "-Inf")
+
+    def test_format_value_NaN_for_csv(self):
+        formatted_value = self.measure_column.format_value("Nan", format_target='csv')
+        self.assertEqual(formatted_value, "NaN")
+
+    def test_format_value_inf_for_csv(self):
+        formatted_value = self.measure_column.format_value("InF", format_target='csv')
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("inf", format_target='csv')
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("inF", format_target='csv')
+        self.assertEqual(formatted_value, "Inf")
+
+        formatted_value = self.measure_column.format_value("+Inf", format_target='csv')
+        self.assertEqual(formatted_value, "Inf")
+
+    def test_format_value_negative_inf_for_csv(self):
+        formatted_value = self.measure_column.format_value("-InF", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inf", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inF", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-Inf", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-inf", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
+        formatted_value = self.measure_column.format_value("-INF", format_target='csv')
+        self.assertEqual(formatted_value, "-Inf")
+
     def test_format_value_tooltip_explicit_sigs(self):
         formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value("9999.125s", None, 'tooltip_stochastic')
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs,   "9999")
