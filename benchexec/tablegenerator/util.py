@@ -181,7 +181,7 @@ def format_options(options):
 
 def to_decimal(s):
     if s:
-        if s.lower() == 'nan':
+        if s.lower() in ['nan', 'inf', '-inf']:
             return Decimal(s)
         else:
             # remove whitespaces and trailing units (e.g., in '1.23s')

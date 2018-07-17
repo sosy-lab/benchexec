@@ -83,6 +83,7 @@ UNIT_CONVERSION = {
 }
 
 nan = float('nan')
+inf = float('inf')
 
 
 def parse_table_definition_file(file):
@@ -1129,21 +1130,34 @@ class StatValue(object):
             return StatValue(0)
 
         values_len = len(values)
-        values_sum = sum(values)
 
-        mean = values_sum / values_len
+        if inf in values and -inf in values:
+            values_sum = nan
+            mean = nan
+            stdev = nan
+        elif inf in values:
+            values_sum = inf
+            mean = inf
+            stdev = inf
+        elif -inf in values:
+            values_sum = -inf
+            mean = -inf
+            stdev = inf
+        else:
+            values_sum = sum(values)
+            mean = values_sum / values_len
+
+            stdev = Decimal(0)
+            for v in values:
+                diff = v - mean
+                stdev += diff * diff
+            stdev = (stdev / values_len).sqrt()
 
         half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
             median = values[half]
         else:
             median = (values[half-1] + values[half]) / Decimal(2)
-
-        stdev = Decimal(0)
-        for v in values:
-            diff = v - mean
-            stdev += diff*diff
-        stdev = (stdev / values_len).sqrt()
 
         return StatValue(values_sum,
                          min    = values[0],

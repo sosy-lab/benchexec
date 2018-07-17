@@ -97,3 +97,103 @@ class TestStatValue(unittest.TestCase):
         self.assertTrue(math.isnan(s.min), "Not NaN, but " + str(s.min))
         self.assertTrue(math.isnan(s.median), "Not NaN, but " + str(s.median))
         self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
+
+    def test_one_inf(self):
+        inf = Decimal(float('inf'))
+        v = Decimal(0.123)
+
+        s = StatValue.from_list([inf])
+        self.assertEqual(s.sum, inf, "Not Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, inf, "Not Inf, but " + str(s.avg))
+        self.assertEqual(s.max, inf, "Not Inf, but " + str(s.max))
+        self.assertEqual(s.min, inf, "Not Inf, but " + str(s.min))
+        self.assertEqual(s.median, inf, "Not Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+        s = StatValue.from_list([inf, v])
+        self.assertEqual(s.sum, inf, "Not Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, inf, "Not NaN, but " + str(s.avg))
+        self.assertEqual(s.max, inf, "Not NaN, but " + str(s.max))
+        self.assertEqual(s.min, v, "Not NaN, but " + str(s.min))
+        self.assertEqual(s.median, inf, "Not NaN, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not NaN, but " + str(s.stdev))
+
+    def test_one_negative_inf(self):
+        ninf = Decimal(float('-inf'))
+        inf = Decimal(float('inf'))
+        v = Decimal(0.123)
+
+        s = StatValue.from_list([ninf])
+        self.assertEqual(s.sum, ninf, "Not -Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, ninf, "Not -Inf, but " + str(s.avg))
+        self.assertEqual(s.max, ninf, "Not -Inf, but " + str(s.max))
+        self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
+        self.assertEqual(s.median, ninf, "Not -Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+        s = StatValue.from_list([ninf, v])
+        self.assertEqual(s.sum, ninf, "Not -Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, ninf, "Not -Inf, but " + str(s.avg))
+        self.assertEqual(s.max, v, "Not 0.123, but " + str(s.max))
+        self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
+        self.assertEqual(s.median, ninf, "Not -Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+    def test_multiple_positive_inf(self):
+        inf = Decimal(float('inf'))
+        v = Decimal(0.123)
+
+        # Equal number of infs
+        s = StatValue.from_list([inf, inf, v])
+        self.assertEqual(s.sum, inf, "Not Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, inf, "Not Inf, but " + str(s.avg))
+        self.assertEqual(s.max, inf, "Not Inf, but " + str(s.max))
+        self.assertEqual(s.min, v, "Not 0.123, but " + str(s.min))
+        self.assertEqual(s.median, inf, "Not Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+        # Unequal number of infs
+        s = StatValue.from_list([inf, inf, inf, v])
+        self.assertEqual(s.sum, inf, "Not Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, inf, "Not Inf, but " + str(s.avg))
+        self.assertEqual(s.max, inf, "Not Inf, but " + str(s.max))
+        self.assertEqual(s.min, v, "Not 0.123, but " + str(s.min))
+        self.assertEqual(s.median, inf, "Not Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+    def test_multiple_negative_inf(self):
+        ninf = Decimal(float('-inf'))
+        inf = Decimal(float('inf'))
+        v = Decimal(0.123)
+
+        # Equal number of negative infs
+        s = StatValue.from_list([ninf, ninf, v])
+        self.assertEqual(s.sum, ninf, "Not -Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, ninf, "Not -Inf, but " + str(s.avg))
+        self.assertEqual(s.max, v, "Not 0.123, but " + str(s.max))
+        self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
+        self.assertEqual(s.median, ninf, "Not -Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+        # Unequal number of negative infs
+        s = StatValue.from_list([ninf, ninf, ninf, v])
+        self.assertEqual(s.sum, ninf, "Not -Inf, but " + str(s.sum))
+        self.assertEqual(s.avg, ninf, "Not -Inf, but " + str(s.avg))
+        self.assertEqual(s.max, v, "Not 0.123, but " + str(s.max))
+        self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
+        self.assertEqual(s.median, ninf, "Not -Inf, but " + str(s.median))
+        self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
+
+    def test_multiple_positive_and_negative_inf(self):
+        import math
+        inf = Decimal(float('inf'))
+        ninf = Decimal(float('-inf'))
+        v = Decimal(0.123)
+
+        s = StatValue.from_list([inf, ninf, v])
+        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
+        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
+        self.assertEqual(s.max, inf, "Not Inf, but " + str(s.max))
+        self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
+        self.assertEqual(s.median, v, "Not 0.123, but " + str(s.median))
+        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
