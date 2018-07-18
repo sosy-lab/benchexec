@@ -1131,7 +1131,7 @@ class StatValue(object):
 
         values_len = len(values)
         min_value = values[0]
-        max_value = values[-1],
+        max_value = values[-1]
 
         if min_value == -inf and max_value == +inf:
             values_sum = nan
