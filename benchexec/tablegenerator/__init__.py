@@ -1130,16 +1130,18 @@ class StatValue(object):
             return StatValue(0)
 
         values_len = len(values)
+        min_value = values[0]
+        max_value = values[-1],
 
-        if inf in values and -inf in values:
+        if min_value == -inf and max_value == +inf:
             values_sum = nan
             mean = nan
             stdev = nan
-        elif inf in values:
+        elif max_value == inf:
             values_sum = inf
             mean = inf
             stdev = inf
-        elif -inf in values:
+        elif min_value == -inf:
             values_sum = -inf
             mean = -inf
             stdev = inf
@@ -1160,8 +1162,8 @@ class StatValue(object):
             median = (values[half-1] + values[half]) / Decimal(2)
 
         return StatValue(values_sum,
-                         min    = values[0],
-                         max    = values[-1],
+                         min    = min_value,
+                         max    = max_value,
                          avg    = mean,
                          median = median,
                          stdev = stdev,
