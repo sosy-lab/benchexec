@@ -18,15 +18,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import functools
 import logging
-import os
-import re
 import subprocess
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
+import functools
+import os
+import re
 from benchexec.model import MEMLIMIT
 
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -67,8 +67,21 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def __init__(self):
         self._uses_propertyfile = False
 
+    @functools.lru_cache()
     def executable(self):
-        return util.find_executable('Ultimate.py')
+        exec = util.find_executable('Ultimate.py')
+        for (dirpath, dirnames, filenames) in os.walk(exec):
+            if 'Ultimate' in filenames and 'plugins' in dirnames:
+                return exec
+            break
+        # possibly another Ultimate.py was found, check in the current dir
+        current = os.getcwd()
+        for (dirpath, dirnames, filenames) in os.walk(current):
+            if 'Ultimate' in filenames and 'Ultimate.py' in filenames and 'plugins' in dirnames:
+                return os.path.join(current, 'Ultimate.py')
+            break
+
+        sys.exit("ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(str(exec), str(current)))
 
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), 'data')
