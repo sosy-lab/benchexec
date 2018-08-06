@@ -18,15 +18,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import functools
 import logging
-import os
-import re
 import subprocess
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
+import functools
+import os
+import re
 from benchexec.model import MEMLIMIT
 
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -92,22 +92,22 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
-            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'.
-                            api, format(e.strerror))
+            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'.format(api, e.strerror))
             return ''
         if stderr:
-            logging.warning('Cannot determine Ultimate version, error output (API {0}): {1}'.
-                            api, format(util.decode_to_string(stderr)))
+            logging.warning('Cannot determine Ultimate version, error output (API {0}): {1}'.format(api,
+                                                                                                    util.decode_to_string(
+                                                                                                        stderr)))
             return ''
         if process.returncode:
-            logging.warning('Cannot determine Ultimate version, exit code (API {0}): {1}'.
-                            api, format(process.returncode))
+            logging.warning(
+                'Cannot determine Ultimate version, exit code (API {0}): {1}'.format(api, process.returncode))
             return ''
 
         version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
         if not version_ultimate_match:
-            logging.warning('Cannot determine Ultimate version, output (API {0}): {1}'.
-                            api, format(util.decode_to_string(stdout)))
+            logging.warning(
+                'Cannot determine Ultimate version, output (API {0}): {1}'.format(api, util.decode_to_string(stdout)))
             return ''
         return version_ultimate_match.group(1)
 
