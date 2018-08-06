@@ -29,6 +29,7 @@ import os
 import re
 from benchexec.model import MEMLIMIT
 
+_OPTION_NO_WRAPPER = '--force-no-wrapper'
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
@@ -161,10 +162,15 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         if rlimits is None:
             rlimits = {}
 
-        self._uses_propertyfile = False
+        self._uses_propertyfile = (propertyfile is not None)
+        if _OPTION_NO_WRAPPER in options:
+            # do not use old wrapper script even if property file is given
+            self._uses_propertyfile = False
+            propertyfile = None
+            options.remove(_OPTION_NO_WRAPPER)
+
         if self._is_svcomp17_version(executable):
             assert propertyfile
-            self._uses_propertyfile = True
             cmdline = [executable, propertyfile]
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
@@ -175,9 +181,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using SVCOMP17 mode: ")
             return cmdline
 
-        if propertyfile:
+        if self._uses_propertyfile:
             # use the old wrapper script if a property file is given
-            self._uses_propertyfile = True
             cmdline = [executable, '--spec', propertyfile]
             if tasks:
                 cmdline += ['--file'] + tasks
