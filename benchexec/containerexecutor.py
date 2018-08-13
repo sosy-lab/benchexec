@@ -121,10 +121,13 @@ def handle_basic_container_args(options, parser=None):
                 "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
     else:
+        # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
+        # to either /run/resolvconf/resolv.conf or /run/systemd/resolve/sub-resolve.conf,
+        # so we keep that directory accessible as well.
         if not "/run/resolvconf" in dir_modes and os.path.isdir("/run/resolvconf"):
-            # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
-            # to /run/resolvconf/resolv.conf, so we keep that directory accessible as well.
             dir_modes["/run/resolvconf"] = DIR_READ_ONLY
+        if not "/run/systemd/resolve" in dir_modes and os.path.isdir("/run/systemd/resolve"):
+            dir_modes["/run/systemd/resolve"] = DIR_READ_ONLY
 
     return {
         'network_access': options.network_access,
