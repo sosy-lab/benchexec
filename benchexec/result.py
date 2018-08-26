@@ -120,6 +120,7 @@ RESULT_CLASS_ERROR   = 'error'
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
+                   'LTL(G assert)':                     _PROP_ASSERT,
                    'LTL(G ! call(__VERIFIER_error()))': _PROP_CALL,
                    'LTL(F end)':                        _PROP_TERMINATION,
                    'LTL(G valid-free)':                 _PROP_FREE,
@@ -137,7 +138,7 @@ _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
 _FILE_RESULTS = {
               '_true-unreach-label':   (RESULT_TRUE_PROP, {_PROP_LABEL}),
               '_true-unreach-call':    (RESULT_TRUE_PROP, {_PROP_CALL}),
-              '_true_assert':          (RESULT_TRUE_PROP, {_PROP_ASSERT}),
+              '_true-assert':          (RESULT_TRUE_PROP, {_PROP_ASSERT}),
               '_true-termination':     (RESULT_TRUE_PROP, {_PROP_TERMINATION}),
               '_true-valid-deref':     (RESULT_TRUE_PROP, {_PROP_DEREF}),
               '_true-valid-free':      (RESULT_TRUE_PROP, {_PROP_FREE}),
@@ -148,7 +149,7 @@ _FILE_RESULTS = {
 
               '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
               '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
-              '_false_assert':         (RESULT_FALSE_REACH,       {_PROP_ASSERT}),
+              '_false-assert':         (RESULT_FALSE_REACH,       {_PROP_ASSERT}),
               '_false-termination':    (RESULT_FALSE_TERMINATION, {_PROP_TERMINATION}),
               '_false-valid-deref':    (RESULT_FALSE_DEREF,       {_PROP_DEREF}),
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
@@ -290,10 +291,6 @@ def score_for_task(filename, properties, category, result):
     else:
         assert False, "unexpected return value from satisfies_file_property: " + expected
 
-def _file_is_java(filename):
-    # Java benchmarks have as filename their main class, so we cannot check for '.java'
-    return '_assert' in filename
-
 
 def get_result_classification(result):
     '''
@@ -330,11 +327,6 @@ def get_result_category(filename, result, properties):
 
     if result == RESULT_UNKNOWN:
         return CATEGORY_UNKNOWN
-
-    if _file_is_java(filename) and not properties:
-        # Currently, no property files for checking Java programs exist,
-        # so we hard-code a check for _PROP_ASSERT for these
-        properties = [_PROP_ASSERT]
 
     if not properties:
         # Without property we cannot return correct or wrong results.
