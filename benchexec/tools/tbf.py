@@ -46,8 +46,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('tbf', 'bin/tbf')
 
     def version(self, executable):
-        stdout = self._version_from_tool(executable)
-        return stdout.strip()
+        return self._version_from_tool(executable)
 
     def name(self):
         return 'TBF'
