@@ -36,9 +36,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def program_files(self, executable):
         files = super().program_files(executable)
 
-        if 'bin/' in executable:
-            # Get parent of directory of `executable`
-            base_dir = os.path.dirname(os.path.dirname(executable))
+        # Get parent of directory of `executable`
+        dir_of_exec = os.path.dirname(os.path.abspath(executable))
+        base_dir = os.path.dirname(dir_of_exec)
 
         return files + [os.path.join(base_dir, p) for p in self.REQUIRED_PATHS]
 
