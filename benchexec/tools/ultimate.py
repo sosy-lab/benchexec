@@ -29,6 +29,7 @@ import os
 import re
 from benchexec.model import MEMLIMIT
 
+_OPTION_NO_WRAPPER = '--force-no-wrapper'
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
@@ -67,8 +68,21 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def __init__(self):
         self._uses_propertyfile = False
 
+    @functools.lru_cache()
     def executable(self):
-        return util.find_executable('Ultimate.py')
+        exec = util.find_executable('Ultimate.py')
+        for (dirpath, dirnames, filenames) in os.walk(exec):
+            if 'Ultimate' in filenames and 'plugins' in dirnames:
+                return exec
+            break
+        # possibly another Ultimate.py was found, check in the current dir
+        current = os.getcwd()
+        for (dirpath, dirnames, filenames) in os.walk(current):
+            if 'Ultimate' in filenames and 'Ultimate.py' in filenames and 'plugins' in dirnames:
+                return os.path.join(current, 'Ultimate.py')
+            break
+
+        sys.exit("ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(str(exec), str(current)))
 
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), 'data')
@@ -118,7 +132,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             launcher_jar = os.path.join(ultimatedir, jar)
             if os.path.isfile(launcher_jar):
                 return launcher_jar
-        raise FileNotFoundError('No suitable launcher jar found')
+        raise FileNotFoundError('No suitable launcher jar found in {0}'.format(ultimatedir))
 
     @functools.lru_cache()
     def version(self, executable):
@@ -148,10 +162,15 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         if rlimits is None:
             rlimits = {}
 
-        self._uses_propertyfile = False
+        self._uses_propertyfile = (propertyfile is not None)
+        if _OPTION_NO_WRAPPER in options:
+            # do not use old wrapper script even if property file is given
+            self._uses_propertyfile = False
+            propertyfile = None
+            options.remove(_OPTION_NO_WRAPPER)
+
         if self._is_svcomp17_version(executable):
             assert propertyfile
-            self._uses_propertyfile = True
             cmdline = [executable, propertyfile]
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
@@ -162,9 +181,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using SVCOMP17 mode: ")
             return cmdline
 
-        if propertyfile:
+        if self._uses_propertyfile:
             # use the old wrapper script if a property file is given
-            self._uses_propertyfile = True
             cmdline = [executable, '--spec', propertyfile]
             if tasks:
                 cmdline += ['--file'] + tasks
@@ -218,6 +236,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     def _determine_result_without_propertyfile(self, returncode, returnsignal, output, is_timeout):
         # special strings in ultimate output
+        treeautomizer_sat = 'TreeAutomizerSatResult'
+        treeautomizer_unsat = 'TreeAutomizerUnsatResult'
         unsupported_syntax_errorstring = 'ShortDescription: Unsupported Syntax'
         incorrect_syntax_errorstring = 'ShortDescription: Incorrect Syntax'
         type_errorstring = 'Type Error'
@@ -250,15 +270,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'ERROR: EXCEPTION'
             if self._contains_overapproximation_result(line):
                 return 'UNKNOWN: OverapproxCex'
-            if line.find(termination_true_string) != -1:
-                return 'TRUE'
             if line.find(termination_false_string) != -1:
                 return 'FALSE(TERM)'
+            if line.find(termination_true_string) != -1:
+                return 'TRUE'
             if line.find(ltl_false_string) != -1:
                 return 'FALSE(valid-ltl)'
             if line.find(ltl_true_string) != -1:
-                return 'TRUE'
-            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
                 return 'TRUE'
             if line.find(unsafety_string) != -1:
                 return 'FALSE'
@@ -272,6 +290,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'FALSE(valid-memtrack)'
             if line.find(overflow_false_string) != -1:
                 return 'FALSE(OVERFLOW)'
+            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
+                return 'TRUE'
+            if line.find(treeautomizer_unsat) != -1:
+                return 'unsat'
+            if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
+                return 'sat'
 
         return result.RESULT_UNKNOWN
 
