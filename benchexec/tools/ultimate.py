@@ -18,15 +18,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import functools
 import logging
+import os
+import re
 import subprocess
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
-import functools
-import os
-import re
 from benchexec.model import MEMLIMIT
 
 _OPTION_NO_WRAPPER = '--force-no-wrapper'
@@ -195,6 +195,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             # ignore executable (old executable is just around for backwards compatibility) 
             mem_bytes = rlimits.get(MEMLIMIT, None)
             cmdline = ['java']
+
+            # -ea has to be given directly to java
+            if '-ea' in options:
+                options = [e for e in options if e != '-ea']
+                cmdline += ['-ea']
+
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
 
