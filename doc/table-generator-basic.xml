@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+<table>
+
+  <!-- This is a basic table-definition that provides nicer column titles
+       and a better unit for memory consumption than plain table-generator.
+       Use it like this:
+       table-generator -x .../table-generator-basic.xml RESULT [RESULT ...]
+  -->
+  <column title="status"/>
+  <column title="cputime" displayTitle="CPU Time"/>
+  <column title="walltime" displayTitle="Wall Time"/>
+  <column title="memUsage" displayTitle="Memory" sourceUnit="B" displayUnit="MB"/>
+</table>

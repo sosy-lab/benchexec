@@ -268,6 +268,16 @@
     <column hidden="true" title="cputime-cpu0" value="0.001151359s"/>
     <column hidden="true" title="cputime-cpu1" value="0.000278934s"/>
   </run>
+  <run files="[../../../doc/table-generator-basic.xml]" name="../../../doc/table-generator-basic.xml">
+    <column title="status" value="true"/>
+    <column title="cputime" value="0.001738972s"/>
+    <column title="walltime" value="0.020196247998683248s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001449767s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.000289205s"/>
+  </run>
   <run files="[../../../doc/table-generator-example.xml]" name="../../../doc/table-generator-example.xml">
     <column title="status" value="true"/>
     <column title="cputime" value="0.001738972s"/>
