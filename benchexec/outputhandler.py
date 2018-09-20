@@ -489,15 +489,15 @@ class OutputHandler(object):
 
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
 
-        # write results to files
+        # write results to the one file with overall results
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
-        if len(runSet.blocks) > 1:
-            for block in runSet.blocks:
-                blockFileName = self.get_filename(runSet.name, block.name + ".xml")
-                self._write_pretty_result_xml_to_file(
-                    self.runs_to_xml(runSet, block.runs, block.name),
-                    blockFileName)
+        # write results divided by blocks
+        for block in runSet.blocks:
+            blockFileName = self.get_filename(runSet.name, block.name + ".xml")
+            self._write_pretty_result_xml_to_file(
+                self.runs_to_xml(runSet, block.runs, block.name),
+                blockFileName)
 
         self.txt_file.append(self.run_set_to_text(runSet, True, cputime, walltime, energy))
 
