@@ -330,7 +330,8 @@ class OutputHandler(object):
                 run.xml.set("properties", " ".join(sorted(run.properties)))
             run.xml.extend(self.xml_dummy_elements)
 
-        runSet.xml = self.runs_to_xml(runSet, runSet.runs)
+        block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
+        runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
