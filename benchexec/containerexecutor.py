@@ -728,12 +728,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if not _is_below(full_mountpoint, mount_base):
                 continue
             mountpoint = full_mountpoint[len(mount_base):] or b"/"
+            mode = find_mode_for_dir(mountpoint, fstype)
+            if not mode:
+                continue
+
+            if not os.access(os.path.dirname(mountpoint), os.X_OK):
+                # If parent is not accessible we cannot mount something on mountpoint.
+                # We mark the inaccessible directory as hidden because otherwise the mountpoint
+                # could become accessible (directly!) if the permissions on the parent
+                # are relaxed during container execution.
+                original_mountpoint = mountpoint
+                parent = os.path.dirname(mountpoint)
+                while not os.access(parent, os.X_OK):
+                    mountpoint = parent
+                    parent = os.path.dirname(mountpoint)
+                mode = DIR_HIDDEN
+                logging.debug(
+                    "Marking inaccessible directory '%s' as hidden "
+                    "because it contains a mountpoint at '%s'",
+                    mountpoint.decode(), original_mountpoint.decode())
+            else:
+                logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
 
             mount_path = mount_base + mountpoint
             temp_path = temp_base + mountpoint
             work_path = work_base + mountpoint
 
-            mode = find_mode_for_dir(mountpoint, fstype)
             if mode == DIR_OVERLAY:
                 if not os.path.exists(temp_path):
                     os.makedirs(temp_path)
@@ -791,9 +811,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
                         container.make_bind_mount(
                             mountpoint, mount_path, recursive=True, private=True)
-
-            elif mode is None:
-                pass
 
             else:
                 assert False
