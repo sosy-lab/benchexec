@@ -3,3 +3,6 @@ input_files:
   # List of file name patterns
   - '*.md'
 required_files: [] # List of file name patterns
+properties:
+  - property_file: properties/unreach-call.prp
+    expected_result: true

@@ -444,7 +444,8 @@ class RunSet(object):
                 else:
                     run = self.create_run_for_input_file(
                         identifier, fileOptions, propertyfile, required_files_pattern, appendFileTags)
-                currentRuns.append(run)
+                if run:
+                    currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
@@ -575,14 +576,54 @@ class RunSet(object):
                 "Task template {} does not define any input files.".format(template_file))
         required_files = expand_patterns_from_tag("required_files")
 
-        return Run(
+        expected_results = dict()
+        for prop_dict in template.get("properties", []):
+            if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
+                raise BenchExecException(
+                    "Missing property file for property in task template {}."
+                    .format(template_file))
+            expanded = util.expand_filename_pattern(
+                prop_dict["property_file"], os.path.dirname(template_file))
+            if len(expanded) != 1:
+                raise BenchExecException(
+                    "Property pattern '{}' in task template {} does not refer to exactly one file."
+                    .format(prop_dict["property_file"], template_file))
+
+            # TODO: select run only if expected results for property exists
+            expected_result = prop_dict.get("expected_result")
+            if expected_result is not None and not isinstance(expected_result, bool):
+                raise BenchExecException(
+                    "Invalid expected result '{}' for property {} in task template {}."
+                    .format(expected_result, prop_dict["property_file"], template_file))
+            expected_results[expanded[0]] = result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
+
+        run = Run(
             template_file,
             input_files,
             options,
             self,
             propertyfile,
             required_files_pattern,
-            required_files)
+            required_files,
+            expected_results)
+
+        def contains_same_file(candidates, f):
+            """Check if a given file is contained in a list as determined by os.path.samefile"""
+            # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
+            # with cached stat calls.
+            if f in candidates:
+                return True
+            return any(os.path.samefile(f, candidate) for candidate in candidates)
+
+        # propertyfile of Run is fully determined only after Run is created, thus we check it here.
+        # If there is a property file, ignore run if it does not have this property.
+        # Note that we do not require a known expected result.
+        if run.propertyfile and contains_same_file(run.expected_results, run.propertyfile):
+            logging.warning(
+                "Ignoring run '%s' because it does not have the property from %s.",
+                run.identifier, run.propertyfile)
+            return None
+        return run
 
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
@@ -632,7 +673,8 @@ class Run(object):
     """
 
     def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None,
-                 required_files_patterns=[], required_files=[]):
+                 required_files_patterns=[], required_files=[],
+                 expected_results={}):
         assert identifier
         self.identifier = identifier  # used for name of logfile, substitution, result-category
         self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
@@ -640,6 +682,7 @@ class Run(object):
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
         self.result_files_folder = os.path.join(runSet.result_files_folder, os.path.basename(self.identifier))
+        self.expected_results = expected_results
 
         self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)

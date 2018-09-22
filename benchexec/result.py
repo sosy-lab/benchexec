@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import collections
 import os
 import sys
 
@@ -189,6 +190,10 @@ _SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
+
+
+ExpectedResult = collections.namedtuple("ExpectedResult", "result subproperty")
+"""Stores the expected result and respective information for a task"""
 
 
 def _expected_result(filename, checked_properties):
