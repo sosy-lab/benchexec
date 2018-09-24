@@ -534,7 +534,17 @@ class RunSet(object):
         for append_file in append_file_tags:
             input_files.extend(
                 self.expand_filename_pattern(append_file.text, base_dir, sourcefile=input_file))
-        return Run(input_file, input_files, options, self, property_file, required_files_pattern)
+        expected_results = result.expected_results_of_file(input_file)
+        # We do not check here if there is an expected result for the given propertfile
+        # like we do in create_run_from_template_file, to keep backwards compatibility.
+        return Run(
+            input_file,
+            input_files,
+            options,
+            self,
+            property_file,
+            required_files_pattern,
+            expected_results=expected_results)
 
 
     def create_run_from_template_file(

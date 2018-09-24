@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 import os
 import sys
+from benchexec.model import BenchExecException
 
 # CONSTANTS
 
@@ -68,6 +69,8 @@ _PROP_ASSERT =       'assert'
 _PROP_AUTOMATON =    'observer-automaton'
 # for solvers:
 _PROP_SAT =          'sat'
+# internal meta property
+_PROP_MEMSAFETY =    'valid-memsafety'
 
 STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
 
@@ -164,6 +167,8 @@ _FILE_RESULTS = {
               '_unsat':                (RESULT_UNSAT, {_PROP_SAT}),
               }
 
+_MEMSAFETY_SUBPROPERTIES = {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}
+
 # Map a property to all possible results for it.
 _VALID_RESULTS_PER_PROPERTY = {
     _PROP_ASSERT:      {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
@@ -195,6 +200,27 @@ _SCORE_WRONG_TRUE = -32
 ExpectedResult = collections.namedtuple("ExpectedResult", "result subproperty")
 """Stores the expected result and respective information for a task"""
 
+
+def expected_results_of_file(filename):
+    """Create a dict of property->ExpectedResult from information encoded in a filename."""
+    results = {}
+    for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
+        if filename_part in filename:
+            expected_result = (expected_result == RESULT_TRUE_PROP)
+            subproperty = None
+            if len(for_properties) > 1:
+                assert for_properties == _MEMSAFETY_SUBPROPERTIES and expected_result
+                property = _PROP_MEMSAFETY
+            else:
+                property = next(iter(for_properties))
+                if property in _MEMSAFETY_SUBPROPERTIES:
+                    subproperty = property
+                    property = _PROP_MEMSAFETY
+            if property in results:
+                raise BenchExecException(
+                    "Duplicate property {} in filename {}".format(property, filename))
+            results[property] = ExpectedResult(expected_result, subproperty)
+    return results
 
 def _expected_result(filename, checked_properties):
     results = []
