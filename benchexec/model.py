@@ -600,7 +600,7 @@ class RunSet(object):
                     .format(prop_dict["property_file"], template_file))
 
             # TODO: select run only if expected results for property exists
-            expected_result = prop_dict.get("expected_result")
+            expected_result = prop_dict.get("expected_verdict")
             if expected_result is not None and not isinstance(expected_result, bool):
                 raise BenchExecException(
                     "Invalid expected result '{}' for property {} in task template {}."

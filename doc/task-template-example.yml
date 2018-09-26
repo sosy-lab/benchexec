@@ -5,4 +5,4 @@ input_files:
 required_files: [] # List of file name patterns
 properties:
   - property_file: properties/unreach-call.prp
-    expected_result: true
+    expected_verdict: true
