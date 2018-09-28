@@ -627,7 +627,7 @@ class RunSet(object):
         # propertyfile of Run is fully determined only after Run is created, thus we check it here.
         # If there is a property file, ignore run if it does not have this property.
         # Note that we do not require a known expected result.
-        if run.propertyfile and contains_same_file(run.expected_results, run.propertyfile):
+        if run.propertyfile and not contains_same_file(run.expected_results, run.propertyfile):
             logging.warning(
                 "Ignoring run '%s' because it does not have the property from %s.",
                 run.identifier, run.propertyfile)
