@@ -42,7 +42,7 @@ result_dtd_public_id = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
 
 benchmark_test_name = 'benchmark-example-rand'
 benchmark_test_file = os.path.join(here, 'benchmark-example-rand.xml')
-benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks']
+benchmark_test_tasks = ['DTD files', 'Markdown files', 'XML files', 'Dummy tasks', 'Tasks from templates']
 benchmark_test_rundefs = None
 
 # Set to True to let tests overwrite the expected result with the actual result
@@ -203,7 +203,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_benchexec_and_compare_expected_files('--numOfThreads', '12')
 
     def test_wildcard_tasks_1(self):
-        self.run_benchexec_and_compare_expected_files('--tasks', '*', tasks=['DTD files', 'Markdown files', 'XML files', 'Dummy tasks'])
+        self.run_benchexec_and_compare_expected_files('--tasks', '*', tasks=benchmark_test_tasks)
 
     def test_wildcard_tasks_2(self):
         self.run_benchexec_and_compare_expected_files('--tasks', '* files', tasks=['DTD files', 'Markdown files', 'XML files'])
@@ -218,7 +218,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_benchexec_and_compare_expected_files('--tasks', '[MD]* files', tasks=['DTD files', 'Markdown files'])
 
     def test_wildcard_tasks_6(self):
-        self.run_benchexec_and_compare_expected_files('--tasks', '[!D]*', tasks=['Markdown files', 'XML files'])
+        self.run_benchexec_and_compare_expected_files('--tasks', '[!D]*', tasks=['Markdown files', 'XML files', 'Tasks from templates'])
 
     def test_wildcard_tasks_7(self):
         self.run_benchexec_and_compare_expected_files('--tasks', 'D*', tasks=['DTD files', 'Dummy tasks'])
