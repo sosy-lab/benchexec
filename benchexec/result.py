@@ -237,6 +237,16 @@ def _expected_result(filename, checked_properties):
     return results[0]
 
 
+def ensure_single_property(properties):
+    """Return a single property string for a list of properties, if there is exactly one."""
+    if len(properties) == 1:
+        return properties[0]
+    elif set(properties) == _MEMSAFETY_SUBPROPERTIES:
+        return _PROP_MEMSAFETY
+    else:
+        raise BenchExecException(
+            "Unsupported combination of properties {}".format(properties))
+
 def properties_of_file(propertyfile):
     """
     Return a list of property names that should be checked according to the given property file.

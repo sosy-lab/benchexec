@@ -534,17 +534,25 @@ class RunSet(object):
         for append_file in append_file_tags:
             input_files.extend(
                 self.expand_filename_pattern(append_file.text, base_dir, sourcefile=input_file))
-        expected_results = result.expected_results_of_file(input_file)
-        # We do not check here if there is an expected result for the given propertfile
-        # like we do in create_run_from_template_file, to keep backwards compatibility.
-        return Run(
+
+        run = Run(
             input_file,
             input_files,
             options,
             self,
             property_file,
-            required_files_pattern,
-            expected_results=expected_results)
+            required_files_pattern)
+
+        if not run.propertyfile:
+            return run
+
+        expected_results = result.expected_results_of_file(input_file)
+        prop = result.ensure_single_property(result.properties_of_file(run.propertyfile))
+        if prop in expected_results:
+            run.expected_results[run.propertyfile] = expected_results[prop]
+        # We do not check here if there is an expected result for the given propertyfile
+        # like we do in create_run_from_template_file, to keep backwards compatibility.
+        return run
 
 
     def create_run_from_template_file(
@@ -586,7 +594,20 @@ class RunSet(object):
                 "Task template {} does not define any input files.".format(template_file))
         required_files = expand_patterns_from_tag("required_files")
 
-        expected_results = dict()
+        run = Run(
+            template_file,
+            input_files,
+            options,
+            self,
+            propertyfile,
+            required_files_pattern,
+            required_files)
+
+        # run.propertyfile of Run is fully determined only after Run is created,
+        # thus we handle it and the expected results here.
+        if not run.propertyfile:
+            return run
+
         for prop_dict in template.get("properties", []):
             if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
                 raise BenchExecException(
@@ -599,40 +620,28 @@ class RunSet(object):
                     "Property pattern '{}' in task template {} does not refer to exactly one file."
                     .format(prop_dict["property_file"], template_file))
 
-            expected_result = prop_dict.get("expected_verdict")
-            if expected_result is not None and not isinstance(expected_result, bool):
-                raise BenchExecException(
-                    "Invalid expected result '{}' for property {} in task template {}."
-                    .format(expected_result, prop_dict["property_file"], template_file))
-            expected_results[expanded[0]] = result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
-
-        run = Run(
-            template_file,
-            input_files,
-            options,
-            self,
-            propertyfile,
-            required_files_pattern,
-            required_files,
-            expected_results)
-
-        def contains_same_file(candidates, f):
-            """Check if a given file is contained in a list as determined by os.path.samefile"""
             # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
             # with cached stat calls.
-            if f in candidates:
-                return True
-            return any(os.path.samefile(f, candidate) for candidate in candidates)
+            if run.propertyfile == expanded[0] or os.path.samefile(run.propertyfile, expanded[0]):
+                expected_result = prop_dict.get("expected_verdict")
+                if expected_result is not None and not isinstance(expected_result, bool):
+                    raise BenchExecException(
+                        "Invalid expected result '{}' for property {} in task template {}."
+                        .format(expected_result, prop_dict["property_file"], template_file))
+                run.expected_results[run.propertyfile] = \
+                    result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
 
-        # propertyfile of Run is fully determined only after Run is created, thus we check it here.
-        # If there is a property file, ignore run if it does not have this property.
-        # Note that we do not require a known expected result.
-        if run.propertyfile and not contains_same_file(run.expected_results, run.propertyfile):
+        if not run.expected_results:
             logging.warning(
                 "Ignoring run '%s' because it does not have the property from %s.",
                 run.identifier, run.propertyfile)
             return None
-        return run
+        elif len(run.expected_results) > 1:
+            raise BenchExecException(
+                "Property '{}' specified multiple times in task template {}."
+                .format(run.propertyfile, template_file))
+        else:
+            return run
 
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
@@ -691,7 +700,7 @@ class Run(object):
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
         self.result_files_folder = os.path.join(runSet.result_files_folder, os.path.basename(self.identifier))
-        self.expected_results = expected_results
+        self.expected_results = expected_results or {} # filled externally
 
         self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
