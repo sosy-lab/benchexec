@@ -28,7 +28,7 @@ class Tool(benchexec.tools.template.BaseTool):
     VeriFuzz
     """
 
-    REQUIRED_PATHS = ["lib", "exp-in", "afl-2.35b", "scripts", "supportFiles", "prism", "bin", "jars"]
+    REQUIRED_PATHS = ["lib", "exp-in", "fuzzEngine", "scripts", "supportFiles", "prism", "bin", "jars"]
 
     def executable(self):
         return util.find_executable('scripts/verifuzz.py')
