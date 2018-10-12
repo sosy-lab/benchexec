@@ -24,17 +24,16 @@ import bz2
 import collections
 import copy
 from decimal import Decimal, InvalidOperation
-import math
 import gzip
 import io
 import itertools
 import logging
 import os.path
-import re
 import signal
 import subprocess
 import sys
 import time
+import math
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -45,7 +44,7 @@ from functools import reduce
 from benchexec import __version__
 import benchexec.result as result
 from benchexec.tablegenerator import util as Util
-from benchexec.tablegenerator.columns import Column, ColumnMeasureType, ColumnType
+from benchexec.tablegenerator.columns import Column, ColumnType, get_column_type
 import zipfile
 
 # Process pool for parallel work.
@@ -53,8 +52,6 @@ import zipfile
 # processes, not threads.
 # Fully initialized only in main() because we cannot do so in the worker processes.
 parallel = Util.DummyExecutor()
-
-DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
 # Most important columns that should be shown first in tables (in the given order)
 MAIN_COLUMNS = ['status', 'category', 'cputime', 'walltime', 'memUsage', 'cpuenergy']
@@ -78,24 +75,15 @@ TEMPLATE_NAMESPACE={
 
 _BYTE_FACTOR = 1000 # bytes in a kilobyte
 
-# Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile('\s*([-\+])?(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*)\s*$')
-GROUP_SIGN = 1
-GROUP_INT_PART = 2
-GROUP_DEC_PART = 3
-GROUP_ZEROES = 4
-GROUP_SIG_DEC_PART = 5
-GROUP_EXPONENT_PART = 6
-GROUP_EXPONENT_SIGN = 7
-GROUP_EXPONENT_VALUE = 8
-GROUP_UNIT = 9
-
 UNIT_CONVERSION = {
     's': {'ms': 1000, 'min': 1.0/60, 'h': 1.0/3600},
     'B': {'kB': 1.0/10**3, 'MB': 1.0/10**6, 'GB': 1.0/10**9},
     'J': {'kJ': 1.0/10**3, 'Ws': 1, 'kWs': 1.0/1000,
           'Wh': 1.0/3600, 'kWh': 1.0/(1000*3600), 'mWh': 1.0/(1000*1000*3600)}
 }
+
+nan = float('nan')
+inf = float('inf')
 
 
 def parse_table_definition_file(file):
@@ -234,211 +222,6 @@ def _get_columns_relevant_for_diff(columns_to_show):
         return cols
 
 
-def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
-    """
-    Returns the amount of decimal digits of the given regex match, considering the number of significant
-    digits for the provided column.
-
-    @param decimal_number_match: a regex match of a decimal number, resulting from REGEX_MEASURE.match(x).
-    @param column: the Column the decimal number is a part of. The column's information is used to compute
-        the number of decimal digits.
-    @return: the number of decimal digits of the given decimal number match's representation, after expanding
-        the number to the required amount of significant digits
-    """
-
-    assert 'e' not in decimal_number_match.group()  # check that only decimal notation is used
-
-    try:
-        num_of_digits = int(number_of_significant_digits)
-    except TypeError:
-        num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
-
-    if not decimal_number_match.group(GROUP_DEC_PART):
-        return 0
-
-    # If 1 > value > 0, only look at the decimal digits.
-    # In the second condition, we have to remove the first character from the decimal part group because the
-    # first character always is '.'
-    if int(decimal_number_match.group(GROUP_INT_PART)) == 0\
-            and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0:
-
-        max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
-        num_of_digits = min(num_of_digits, max_num_of_digits)
-        # number of needed decimal digits = number of zeroes after decimal point + significant digits
-        curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(num_of_digits)
-
-    else:
-        max_num_of_digits =\
-            len(decimal_number_match.group(GROUP_INT_PART)) + len(decimal_number_match.group(GROUP_DEC_PART))
-        num_of_digits = min(num_of_digits, max_num_of_digits)
-        # number of needed decimal digits = significant digits - number of digits in front of decimal point
-        curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(GROUP_INT_PART))
-
-    return curr_dec_digits
-
-
-def _check_unit_consistency(actual_unit, wanted_unit, column):
-    if actual_unit and wanted_unit is None:
-        raise Util.TableDefinitionError("Trying to convert from one unit to another, but source unit not specified"
-                                        " (in column {})".format(column.title))
-    elif wanted_unit != actual_unit:
-        raise Util.TableDefinitionError("Source value of different unit than specified source unit: " +
-                                        "{} and {}"
-                                        " (in column {})".format(actual_unit, wanted_unit, column.title))
-
-
-def _get_column_type_heur(column, column_values):
-    text_type_tuple = ColumnType.text, None, None, 1
-
-    if "status" in column.title:
-        if column.title == "status":
-            return ColumnType.main_status, None, None, 1
-        else:
-            return ColumnType.status, None, None, 1
-
-    column_type = column.type or None
-    if column_type and column_type.type == ColumnType.measure:
-        column_type = ColumnMeasureType(0)
-    column_unit = column.unit  # May be None
-    column_source_unit = column.source_unit  # May be None
-    column_scale_factor = column.scale_factor  # May be None
-
-    if column_unit:
-        explicit_unit_defined = True
-    else:
-        explicit_unit_defined = False
-
-    if column_scale_factor is None:
-        explicit_scale_defined = False
-    else:
-        explicit_scale_defined = True
-
-    for value in column_values:
-
-        if value is None or value == '':
-            continue
-
-        value_match = REGEX_MEASURE.match(str(value))
-
-        # As soon as one row's value is no number, the column type is 'text'
-        if value_match is None:
-            return text_type_tuple
-        else:
-            curr_column_unit = value_match.group(GROUP_UNIT)
-
-            # If the units in two different rows of the same column differ,
-            # 1. Raise an error if an explicit unit is defined by the displayUnit attribute
-            #    and the unit in the column cell differs from the defined sourceUnit, or
-            # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
-            #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
-            if curr_column_unit:
-                if column_source_unit is None and not explicit_scale_defined:
-                    column_source_unit = curr_column_unit
-                elif column_source_unit != curr_column_unit:
-                    raise Util.TableDefinitionError(
-                        "Attribute sourceUnit different from real source unit: {} and {} (in column {})"
-                        .format(column_source_unit, curr_column_unit, column.title))
-                if column_unit and curr_column_unit != column_unit:
-                    if explicit_unit_defined:
-                        _check_unit_consistency(curr_column_unit, column_source_unit, column)
-                    else:
-                        return text_type_tuple
-                else:
-                    column_unit = curr_column_unit
-
-            if column_scale_factor is None:
-                column_scale_factor = _get_scale_factor(column_unit, column_source_unit, column)
-
-            # Compute the number of decimal digits of the current value, considering the number of significant
-            # digits for this column.
-            # Use the column's scale factor for computing the decimal digits of the current value.
-            # Otherwise, they might be different from output.
-            scaled_value = float(Util.remove_unit(str(value))) * column_scale_factor
-
-            # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
-            # special cases, immediately convert the value back to decimal notation.
-            if value_match.group(GROUP_DEC_PART):
-                dec_digits_before_scale = len(
-                    value_match.group(GROUP_DEC_PART)) - 1  # - 1 since GROUP_DEC_PART includes the point
-            else:
-                dec_digits_before_scale = 0
-            max_number_of_dec_digits_after_scale = max(0, dec_digits_before_scale - math.ceil(
-                math.log10(column_scale_factor)))
-
-            scaled_value = "{0:.{1}f}".format(scaled_value, max_number_of_dec_digits_after_scale)
-            scaled_value_match = REGEX_MEASURE.match(scaled_value)
-
-            curr_dec_digits = _get_decimal_digits(scaled_value_match, column.number_of_significant_digits)
-
-            try:
-                max_dec_digits = column_type.max_decimal_digits
-            except AttributeError or TypeError:
-                max_dec_digits = 0
-
-            if curr_dec_digits > max_dec_digits:
-                max_dec_digits = curr_dec_digits
-
-            if (column_type and column_type.type == ColumnType.measure) or\
-                            scaled_value_match.group(GROUP_DEC_PART) is not None or\
-                            value_match.group(GROUP_DEC_PART) is not None:
-                column_type = ColumnMeasureType(max_dec_digits)
-
-            elif int(column_scale_factor) != column_scale_factor:
-                column_type = ColumnMeasureType(0)
-            else:
-                column_type = ColumnType.count
-
-    if column_type:
-        return column_type, column_unit, column_source_unit, column_scale_factor
-    else:
-        return text_type_tuple
-
-
-# This function assumes that scale_factor is not defined.
-# Because of this, an error is raised if unit is defined, different from the source_unit, and
-# no conversion for these two units is known.
-# (Since a scale_factor must be given explicitly, then)
-def _get_scale_factor(unit, source_unit, column):
-    if unit is None or unit == source_unit:
-        return 1
-    elif source_unit in UNIT_CONVERSION.keys() and unit in UNIT_CONVERSION[source_unit].keys():
-        return UNIT_CONVERSION[source_unit][unit]
-    else:
-        # If the display unit is different from the source unit, a scale factor must be given explicitly
-        raise Util.TableDefinitionError("Attribute displayUnit is different from sourceUnit," +
-                                        " but scaleFactor is not defined (in column {})"
-                                        .format(column.title))
-
-
-def get_column_type(column, result_set):
-    """
-    Returns the type of the given column based on its row values on the given RunSetResult.
-    @param column: the column to return the correct ColumnType for
-    @param result_set: the RunSetResult to consider
-    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type',
-        the display unit of the column, which may be None,
-        the source unit of the column, which may be None,
-        and the scale factor to convert from the source unit to the display unit.
-        If no scaling is necessary for conversion, this value is 1.
-    """
-
-    # This is actually checked in _get_column_type_heur(..), too.
-    # But we do this here already so we do not have to create the column_values list for status columns unnecessarily.
-    if "status" in column.title:
-        if column.title == "status":
-            return ColumnType.main_status, None, None, 1
-        else:
-            return ColumnType.status, None, None, 1
-
-    # If the column is not a 'status' column, we have to guess the type based on its rows' values.
-    column_values = [run_result.values[run_result.columns.index(column)] for run_result in result_set.results if column in run_result.columns]
-    try:
-        return _get_column_type_heur(column, column_values)
-    except Util.TableDefinitionError as e:
-        logging.error("Column type couldn't be determined: {}".format(e.message))
-        return ColumnType.text, None, None, 1
-
-
 def get_task_id(task, base_path_or_url):
     """
     Return a unique identifier for a given task.
@@ -552,7 +335,8 @@ class RunSetResult(object):
                 file.close()
 
         for column in self.columns:
-            column.type, column.unit, column.source_unit, column.scale_factor = get_column_type(column, self)
+            column_values = (run_result.values[run_result.columns.index(column)] for run_result in self.results)
+            column.type, column.unit, column.source_unit, column.scale_factor = get_column_type(column, column_values)
 
 
         del self._xml_results
@@ -1162,7 +946,7 @@ def get_stats(rows, local_summary, correct_only):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
-        column_type, column_unit, column_source_unit, column_scale_factor = _get_column_type_heur(column, column_values)
+        column_type, column_unit, column_source_unit, column_scale_factor = get_column_type(column, column_values)
         new_column = Column(column.title, column.pattern, column.number_of_significant_digits, column.href, column_type,
                             column_unit, column_source_unit, column_scale_factor, column.display_title)
         stats_columns.append(new_column)
@@ -1338,14 +1122,38 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
+        if any(math.isnan(v) for v in values if v is not None):
+            return StatValue(nan, nan, nan, nan, nan, nan)
+
         values = sorted(v for v in values if v is not None)
         if not values:
             return StatValue(0)
 
         values_len = len(values)
-        values_sum = sum(values)
+        min_value = values[0]
+        max_value = values[-1]
 
-        mean = values_sum / values_len
+        if min_value == -inf and max_value == +inf:
+            values_sum = nan
+            mean = nan
+            stdev = nan
+        elif max_value == inf:
+            values_sum = inf
+            mean = inf
+            stdev = inf
+        elif min_value == -inf:
+            values_sum = -inf
+            mean = -inf
+            stdev = inf
+        else:
+            values_sum = sum(values)
+            mean = values_sum / values_len
+
+            stdev = Decimal(0)
+            for v in values:
+                diff = v - mean
+                stdev += diff * diff
+            stdev = (stdev / values_len).sqrt()
 
         half, len_is_odd = divmod(values_len, 2)
         if len_is_odd:
@@ -1353,15 +1161,9 @@ class StatValue(object):
         else:
             median = (values[half-1] + values[half]) / Decimal(2)
 
-        stdev = Decimal(0)
-        for v in values:
-            diff = v - mean
-            stdev += diff*diff
-        stdev = (stdev / values_len).sqrt()
-
         return StatValue(values_sum,
-                         min    = values[0],
-                         max    = values[-1],
+                         min    = min_value,
+                         max    = max_value,
                          avg    = mean,
                          median = median,
                          stdev = stdev,

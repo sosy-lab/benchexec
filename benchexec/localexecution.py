@@ -29,7 +29,7 @@ import threading
 import time
 from queue import Queue
 
-from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
+from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import cgroups
 from benchexec import containerexecutor
 from benchexec.resources import *
@@ -274,6 +274,7 @@ class _Worker(threading.Thread):
                 result_files_patterns=benchmark.result_files_patterns,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
                 softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
+                walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
                 cores=self.my_cpus,
                 memory_nodes=self.my_memory_nodes,
                 memlimit=memlimit,

@@ -36,6 +36,7 @@ CORELIMIT = "cpuCores"
 
 SOFTTIMELIMIT = 'softtimelimit'
 HARDTIMELIMIT = 'hardtimelimit'
+WALLTIMELIMIT = 'walltimelimit'
 
 PROPERTY_TAG = "propertyfile"
 
@@ -114,7 +115,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
-    return args;
+    return args
 
 
 class Benchmark(object):
@@ -202,6 +203,7 @@ class Benchmark(object):
         keys = list(rootTag.keys())
         handle_limit_value("Time", TIMELIMIT, config.timelimit, util.parse_timespan_value)
         handle_limit_value("Hard time", HARDTIMELIMIT, config.timelimit, util.parse_timespan_value)
+        handle_limit_value("Wall time", WALLTIMELIMIT, config.walltimelimit, util.parse_timespan_value)
         handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
         handle_limit_value("Core", CORELIMIT, config.corelimit, int)
 
@@ -403,6 +405,7 @@ class RunSet(object):
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
         '''
+        base_dir = self.benchmark.base_dir
         # runs are structured as sourcefile sets, one set represents one sourcefiles tag
         blocks = []
 
@@ -416,15 +419,28 @@ class RunSet(object):
             required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
 
             # get lists of filenames
-            tasks = self.get_tasks_from_xml(sourcefilesTag, self.benchmark.base_dir)
+            task_template_files = self.get_task_template_files_from_xml(sourcefilesTag, base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
             propertyfile = util.text_or_none(util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG))
 
+            # some runs need more than one sourcefile,
+            # the first sourcefile is a normal 'include'-file, we use its name as identifier
+            # for logfile and result-category all other files are 'append'ed.
+            appendFileTags = sourcefilesTag.findall("append")
+
             currentRuns = []
-            for identifier, sourcefiles in tasks:
+            for identifier in task_template_files:
+                sourcefiles = ([identifier] +
+                    [self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=identifier)
+                        for appendFile in appendFileTags])
                 currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
+                                       global_required_files_pattern.union(required_files_pattern)))
+
+            # add runs for cases without source files
+            for run in sourcefilesTag.findall("withoutfile"):
+                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile,
                                        global_required_files_pattern.union(required_files_pattern)))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
@@ -439,7 +455,10 @@ class RunSet(object):
         return blocks
 
 
-    def get_tasks_from_xml(self, sourcefilesTag, base_dir):
+    def get_task_template_files_from_xml(self, sourcefilesTag, base_dir):
+        """Get the task-template files from the XML definition. Task-template files are files
+        for which we create a run (typically a source file).
+        """
         sourcefiles = []
 
         # get included sourcefiles
@@ -496,23 +515,7 @@ class RunSet(object):
 
                 fileWithList.close()
 
-        # some runs need more than one sourcefile,
-        # the first sourcefile is a normal 'include'-file, we use its name as identifier for logfile and result-category
-        # all other files are 'append'ed.
-        # We use a list of tuples instead of a dict here to have a deterministic order of tasks.
-        sourcefilesLists = []
-        appendFileTags = sourcefilesTag.findall("append")
-        for sourcefile in sourcefiles:
-            files = [sourcefile]
-            for appendFile in appendFileTags:
-                files.extend(self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=sourcefile))
-            sourcefilesLists.append((sourcefile, files))  # Use sourcefile as identifier
-
-        # add runs for cases without source files
-        for run in sourcefilesTag.findall("withoutfile"):
-            sourcefilesLists.append((run.text, []))
-
-        return sourcefilesLists
+        return sourcefiles
 
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
@@ -781,16 +784,28 @@ class Run(object):
     def _is_timeout(self):
         ''' try to find out whether the tool terminated because of a timeout '''
         if self.cputime is None:
-            return False
-        rlimits = self.runSet.benchmark.rlimits
-        if SOFTTIMELIMIT in rlimits:
-            limit = rlimits[SOFTTIMELIMIT]
-        elif TIMELIMIT in rlimits:
-            limit = rlimits[TIMELIMIT]
+            is_cpulimit = False
         else:
-            limit = float('inf')
+            rlimits = self.runSet.benchmark.rlimits
+            if SOFTTIMELIMIT in rlimits:
+                limit = rlimits[SOFTTIMELIMIT]
+            elif TIMELIMIT in rlimits:
+                limit = rlimits[TIMELIMIT]
+            else:
+                limit = float('inf')
+            is_cpulimit = self.cputime > limit
 
-        return self.cputime > limit
+        if self.walltime is None:
+            is_walllimit = False
+        else:
+            rlimits = self.runSet.benchmark.rlimits
+            if WALLTIMELIMIT in rlimits:
+                limit = rlimits[WALLTIMELIMIT]
+            else:
+                limit = float('inf')
+            is_walllimit = self.walltime > limit
+
+        return is_cpulimit or is_walllimit
 
 
 class Column(object):

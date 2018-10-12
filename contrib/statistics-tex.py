@@ -172,12 +172,12 @@ def main(args=None):
 
         for (category, counts) in sorted(category_stats.items()):
             print(counts.to_latex(basenames + [category]))
-            categories = [(s, c) for (s, c) in status_stats[category].items() if s]
+            categories = [(s, c) for (s, c) in status_stats.get(category, {}).items() if s]
             for (status, counts2) in sorted(categories):
                 print(counts2.to_latex(basenames + [category, status]))
-                if category == "correct" and status_stats["wrong"].get(status) is None:
+                if category == "correct" and status_stats.get("wrong", {}).get(status) is None:
                     print(StatAccumulator().to_latex(basenames + ["wrong", status]))
-                elif category == "wrong" and status_stats["correct"].get(status) is None:
+                elif category == "wrong" and status_stats.get("correct", {}).get(status) is None:
                     print(StatAccumulator().to_latex(basenames + ["correct", status]))
 
 if __name__ == "__main__":

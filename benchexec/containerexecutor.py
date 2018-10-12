@@ -121,10 +121,13 @@ def handle_basic_container_args(options, parser=None):
                 "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
     else:
+        # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
+        # to either /run/resolvconf/resolv.conf or /run/systemd/resolve/sub-resolve.conf,
+        # so we keep that directory accessible as well.
         if not "/run/resolvconf" in dir_modes and os.path.isdir("/run/resolvconf"):
-            # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
-            # to /run/resolvconf/resolv.conf, so we keep that directory accessible as well.
             dir_modes["/run/resolvconf"] = DIR_READ_ONLY
+        if not "/run/systemd/resolve" in dir_modes and os.path.isdir("/run/systemd/resolve"):
+            dir_modes["/run/systemd/resolve"] = DIR_READ_ONLY
 
     return {
         'network_access': options.network_access,
@@ -725,12 +728,32 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if not _is_below(full_mountpoint, mount_base):
                 continue
             mountpoint = full_mountpoint[len(mount_base):] or b"/"
+            mode = find_mode_for_dir(mountpoint, fstype)
+            if not mode:
+                continue
+
+            if not os.access(os.path.dirname(mountpoint), os.X_OK):
+                # If parent is not accessible we cannot mount something on mountpoint.
+                # We mark the inaccessible directory as hidden because otherwise the mountpoint
+                # could become accessible (directly!) if the permissions on the parent
+                # are relaxed during container execution.
+                original_mountpoint = mountpoint
+                parent = os.path.dirname(mountpoint)
+                while not os.access(parent, os.X_OK):
+                    mountpoint = parent
+                    parent = os.path.dirname(mountpoint)
+                mode = DIR_HIDDEN
+                logging.debug(
+                    "Marking inaccessible directory '%s' as hidden "
+                    "because it contains a mountpoint at '%s'",
+                    mountpoint.decode(), original_mountpoint.decode())
+            else:
+                logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
 
             mount_path = mount_base + mountpoint
             temp_path = temp_base + mountpoint
             work_path = work_base + mountpoint
 
-            mode = find_mode_for_dir(mountpoint, fstype)
             if mode == DIR_OVERLAY:
                 if not os.path.exists(temp_path):
                     os.makedirs(temp_path)
@@ -788,9 +811,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         # If this mountpoint is below an overlay/hidden dir re-create mountpoint.
                         container.make_bind_mount(
                             mountpoint, mount_path, recursive=True, private=True)
-
-            elif mode is None:
-                pass
 
             else:
                 assert False

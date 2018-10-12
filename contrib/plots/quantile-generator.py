@@ -32,17 +32,20 @@ import benchexec.tablegenerator as tablegenerator
 
 Util = tablegenerator.Util
 
-
-def extract_cputime(run_result):
-    pos = None
-    for i, column in enumerate(run_result.columns):
-        if column.title == 'cputime':
-            pos = i
-            break
-    if pos is None:
-        sys.exit('CPU time missing for task {0}.'.format(run_result.task_id[0]))
-    return Util.to_decimal(run_result.values[pos])
-
+def get_extract_value_function(column_identifier):
+    """
+    returns a function that extracts the value for a column.
+    """
+    def extract_value(run_result):
+        pos = None
+        for i, column in enumerate(run_result.columns):
+            if column.title == column_identifier:
+                pos = i
+                break
+        if pos is None:
+            sys.exit('CPU time missing for task {0}.'.format(run_result.task_id[0]))
+        return Util.to_decimal(run_result.values[pos])
+    return extract_value
 
 def main(args=None):
     if args is None:
@@ -56,7 +59,8 @@ def main(args=None):
            but have an additional first column with the index for the quantile plot,
            and they are sorted.
            The output is written to stdout.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/"""
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument("result",
@@ -72,6 +76,13 @@ def main(args=None):
     parser.add_argument("--score-based",
         action="store_true", dest="score_based",
         help="create data for score-based quantile plot"
+    )
+    parser.add_argument("--sort-by",
+        metavar="SORT",
+        default="cputime",
+        dest="column_identifier",
+        type=str,
+        help="column identifier for sorting the values, e.g. 'cputime' or 'walltime'"
     )
 
     options = parser.parse_args(args[1:])
@@ -114,7 +125,7 @@ def main(args=None):
             results = run_set_result.results
 
     # sort data for quantile plot
-    results.sort(key=extract_cputime)
+    results.sort(key=get_extract_value_function(options.column_identifier))
 
     # extract information which id columns should be shown
     for run_result in run_set_result.results:

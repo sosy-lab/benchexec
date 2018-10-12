@@ -154,6 +154,8 @@ class Tool(benchexec.tools.template.BaseTool):
                         status += ' (threads)'
                 elif 'Parsing failed' in line:
                     status += ' (parsing failed)'
+                elif 'Interpolation failed' in line:
+                    status += ' (interpolation failed)'
             elif line.startswith('Invalid configuration: ') and not status:
                 if 'Cannot parse witness' in line:
                     status = result.RESULT_ERROR
