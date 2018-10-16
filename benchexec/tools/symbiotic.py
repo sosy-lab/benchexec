@@ -99,9 +99,27 @@ class Tool(OldSymbiotic):
 
         return False
 
+    def _timeoutReason(self, output):
+        lastphase = 'unknown'
+        for line in output:
+            if line.startswith('INFO: Starting instrumentation'):
+                lastphase='instrumentation'
+            elif line.startswith('INFO: Instrumentation time'):
+                lastphase='instr-finished'
+            elif line.startswith('INFO: Starting slicing'):
+                lastphase='slicing'
+            elif line.startswith('INFO: Total slicing time'):
+                lastphase='slicing-finished'
+            elif line.startswith('INFO: Starting verification'):
+                lastphase='verification'
+            elif line.startswith('INFO: Verification time'):
+                lastphase='verification-finished'
+
+        return lastphase
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if isTimeout:
-            return 'timeout'
+            return self._timeoutReason(output)
 
         if output is None:
             return 'error (no output)'
