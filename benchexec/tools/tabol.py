@@ -19,29 +19,27 @@ import benchexec.util as util
 import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
+    REQUIRED_PATHS = []
 
     def executable(self):
-        return util.find_executable('tabol.jar')
+        return util.find_executable('tabol.sh')
 
     def name(self):
         return 'TABOL'
-
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-		
-        return "java -jar " + [executable] + tasks
+        return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         status = result.RESULT_UNKNOWN
-        stroutput = str(output)
 
         if isTimeout:
-            status = 'TIMEOUT'
-        elif 'TABOL_TRUE' in stroutput:
+            status = result.RESULT_UNKNOWN
+        elif 'TABOL_TRUE' in output:
             status = result.RESULT_TRUE_PROP
-		elif 'TABOL_FALSE' in stroutput:
-            status = result.RESULT_FALSE_PROP
+        elif 'TABOL_FALSE' in output:
+            status = result.RESULT_FALSE_TERMINATION
         else:
             status = result.RESULT_UNKNOWN
 
-		return status
+        return status
