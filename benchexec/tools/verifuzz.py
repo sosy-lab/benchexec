@@ -49,6 +49,8 @@ class Tool(benchexec.tools.template.BaseTool):
         lines = " ".join(output)
         if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
+        elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
+            return result.RESULT_FALSE_REACH
         elif "FALSE(unreach-call)" in lines:
             return result.RESULT_FALSE_REACH
         elif "FALSE(no-overflow)" in lines:
