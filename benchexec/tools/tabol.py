@@ -1,7 +1,7 @@
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
-Copyright (C) 2007-2015  Dirk Beyer
+Copyright (C) 2007-2018  Dirk Beyer
 All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,13 +26,14 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return 'TABOL'
+
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
     
     def version(self, executable):
         return self._version_from_tool(executable)
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
 
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
 
         if isTimeout:
