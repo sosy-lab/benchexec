@@ -48,6 +48,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "config",
         "configuration",
         "cvc4",
+        "cvc4nyu",
         "cvc4-LICENSE",
         "features",
         "LICENSE",
