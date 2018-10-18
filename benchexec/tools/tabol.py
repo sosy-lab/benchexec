@@ -19,7 +19,7 @@ import benchexec.util as util
 import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
-    REQUIRED_PATHS = []
+    REQUIRED_PATHS = ['tabol.sh','tabol.jar','output/','tools']
 
     def executable(self):
         return util.find_executable('tabol.sh')
@@ -28,7 +28,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'TABOL'
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
-
+    
+    def version(self, executable):
+        return self._version_from_tool(executable)
     def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         status = result.RESULT_UNKNOWN
