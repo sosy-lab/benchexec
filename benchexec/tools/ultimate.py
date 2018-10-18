@@ -18,15 +18,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import functools
 import logging
+import os
+import re
 import subprocess
+import sys
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
-import functools
-import os
-import re
 from benchexec.model import MEMLIMIT
 
 _OPTION_NO_WRAPPER = '--force-no-wrapper'
@@ -47,6 +48,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "config",
         "configuration",
         "cvc4",
+        "cvc4nyu",
         "cvc4-LICENSE",
         "features",
         "LICENSE",
@@ -89,33 +91,34 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         launcher_jar = self._get_current_launcher_jar(executable)
 
         cmds = [
-            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
-            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
+            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],  # 2
+            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],  # 1
         ]
 
-        api = len(cmds)
+        self.api = len(cmds)
         for cmd in cmds:
-            version = self._query_ultimate_version(cmd, api)
+            version = self._query_ultimate_version(cmd, self.api)
             if version != '':
                 return version
-            api = api - 1
-        return ''
+            self.api = self.api - 1
+        raise NameError("Could not deterime Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
-            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'.format(api, e.strerror))
+            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'
+                            .format(api, e.strerror))
             return ''
         if stderr:
-            logging.warning('Cannot determine Ultimate version, error output (API {0}): {1}'.format(api,
-                                                                                                    util.decode_to_string(
-                                                                                                        stderr)))
+            logging.warning('Cannot determine Ultimate version (API {0}). Error output: {1}'
+                            .format(api, util.decode_to_string(stderr)))
             return ''
         if process.returncode:
             logging.warning(
-                'Cannot determine Ultimate version, exit code (API {0}): {1}'.format(api, process.returncode))
+                'Cannot determine Ultimate version (API {0}). Exit code : {1}\nCommand was {2}'
+                    .format(api, process.returncode, ' '.join(cmd)))
             return ''
 
         version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
@@ -151,12 +154,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     @functools.lru_cache()
     def _requires_ultimate_data(self, executable):
         if self._is_svcomp17_version(executable):
-            return False;
+            return False
 
         version = self.version(executable)
         ult, wrapper = version.split("-")
         major, minor, patch = ult.split(".")
-        return not (major == 0 and minor < 2 and patch < 24)
+        # all versions before 0.1.24 do not require ultimatedata
+        return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits=None):
         if rlimits is None:
@@ -195,6 +199,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             # ignore executable (old executable is just around for backwards compatibility) 
             mem_bytes = rlimits.get(MEMLIMIT, None)
             cmdline = ['java']
+
+            # -ea has to be given directly to java
+            if '-ea' in options:
+                options = [e for e in options if e != '-ea']
+                cmdline += ['-ea']
+
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
 
@@ -202,13 +212,22 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             if self._requires_ultimate_data(executable):
                 if '-ultimatedata' not in options and '-data' not in options:
-                    cmdline += ['-data', '@noDefault', '-ultimatedata',
-                                os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 2:
+                        cmdline += ['-data', '@noDefault', '-ultimatedata',
+                                    os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 1:
+                        raise ValueError('Illegal option -ultimatedata for API {} and Ultimate version {}'
+                                         .format(self.api, self.version(executable)))
                 elif '-ultimatedata' in options and '-data' not in options:
-                    cmdline += ['-data', '@noDefault']
+                    if self.api == 2:
+                        cmdline += ['-data', '@noDefault']
+                    if self.api == 1:
+                        raise ValueError('Illegal option -ultimatedata for API {} and Ultimate version {}'
+                                         .format(self.api, self.version(executable)))
             else:
                 if '-data' not in options:
-                    cmdline += ['-data', os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 2 or self.api == 1:
+                        cmdline += ['-data', os.path.join(os.path.dirname(executable), 'data')]
 
             cmdline += options
 
