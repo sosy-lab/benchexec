@@ -21,19 +21,17 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for JPF with symbolic extension
+    Tool info for JPF (plain jpf-core)
     (https://github.com/javapathfinder/jpf-core/).
     """
 
     REQUIRED_PATHS = [
-                  "jpf-core/bin/jpf",
+                  "jpf-core/bin",
                   "jpf-core/build",
-                  "jpf-symbc/lib",
-                  "jpf-symbc/build",
                   "jpf-sv-comp"
                   ]
     def executable(self):
-        return util.find_executable('jpf-sv-comp')
+        return util.find_executable('jpf-core-sv-comp')
 
 
     def version(self, executable):
