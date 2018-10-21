@@ -21,8 +21,8 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for JPF with symbolic extension
-    (https://babelfish.arc.nasa.gov/hg/jpf).
+    Tool info for JPF with symbolic extension (SPF)
+    (https://github.com/symbolicpathfinder).
     """
 
     REQUIRED_PATHS = [
@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def name(self):
-        return 'JPF'
+        return 'SPF'
 
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
