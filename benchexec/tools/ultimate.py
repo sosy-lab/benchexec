@@ -81,7 +81,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         current = os.getcwd()
         for (dirpath, dirnames, filenames) in os.walk(current):
             if 'Ultimate' in filenames and 'Ultimate.py' in filenames and 'plugins' in dirnames:
-                return os.path.join(current, 'Ultimate.py')
+                return './Ultimate.py'
             break
 
         sys.exit("ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(str(exec), str(current)))
