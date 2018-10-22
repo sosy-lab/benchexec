@@ -45,4 +45,4 @@ class Tool(benchexec.tools.template.BaseTool):
         else:
             status = result.RESULT_UNKNOWN
 
-return status
+        return status
