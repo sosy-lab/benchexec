@@ -20,6 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
+import functools
 import os
 import sys
 from benchexec import BenchExecException
@@ -200,6 +201,71 @@ _SCORE_WRONG_TRUE = -32
 ExpectedResult = collections.namedtuple("ExpectedResult", "result subproperty")
 """Stores the expected result and respective information for a task"""
 
+class Property(object):
+    """Stores information about a property"""
+
+    def __init__(self, filename, is_well_known, is_svcomp, name, subproperties):
+        self.filename = filename
+        self.is_well_known = is_well_known
+        self.is_svcomp = is_svcomp
+        self.name = name
+        self.subproperties = subproperties
+
+    @property
+    def names(self):
+        return self.subproperties or [self.name]
+
+    def __repr__(self):
+        return "{}({self.filename!r}, {self.is_well_known!r}, {self.is_svcomp!r}, {self.name!r}, {self.subproperties!r})".format(self.__class__.__name__, self=self)
+
+    def __str__(self):
+        return (("SV-COMP-" if self.is_svcomp else "")
+            + "Property "
+            + (self.name if self.is_well_known else "from " + self.filename))
+
+    @classmethod
+    @functools.lru_cache() # cache because it reads files
+    def create(cls, propertyfile, allow_unknown):
+        """
+        Create a Property instance by attempting to parse the given property file.
+        @param propertyfile: A file name of a property file
+        @param allow_unknown: Whether to accept unknown properties
+        """
+        with open(propertyfile) as f:
+            content = f.read().strip()
+
+        # parse content for known properties
+        is_svcomp = False
+        known_properties = []
+        if content == 'OBSERVER AUTOMATON' or content == 'SATISFIABLE':
+            known_properties = [_PROPERTY_NAMES[content]]
+
+        elif content.startswith('CHECK'):
+            is_svcomp = True
+            for substring, prop in _PROPERTY_NAMES.items():
+                if substring in content:
+                    known_properties.append(prop)
+
+        # check if some known property content was found
+        subproperties = None
+        if len(known_properties) == 1:
+            is_well_known = True
+            name = known_properties[0]
+
+        elif set(known_properties) == _MEMSAFETY_SUBPROPERTIES:
+            is_well_known = True
+            name = _PROP_MEMSAFETY
+            subproperties = known_properties
+
+        else:
+            if not allow_unknown:
+                raise BenchExecException(
+                    'File "{0}" does not contain a known property.'.format(propertyfile))
+            is_well_known = False
+            name = os.path.splitext(os.path.basename(propertyfile))[0]
+
+        return cls(propertyfile, is_well_known, is_svcomp, name, subproperties)
+
 
 def expected_results_of_file(filename):
     """Create a dict of property->ExpectedResult from information encoded in a filename."""
@@ -237,54 +303,12 @@ def _expected_result(filename, checked_properties):
     return results[0]
 
 
-def ensure_single_property(properties):
-    """Return a single property string for a list of properties, if there is exactly one."""
-    if len(properties) == 1:
-        return properties[0]
-    elif set(properties) == _MEMSAFETY_SUBPROPERTIES:
-        return _PROP_MEMSAFETY
-    else:
-        raise BenchExecException(
-            "Unsupported combination of properties {}".format(properties))
-
-def properties_of_file(propertyfile, fallback_to_filename=False):
-    """
-    Return a list of property names that should be checked according to the given property file.
-    @param propertyfile: None or a file name of a property file.
-    @param fallback_to_filename: Whether to accept unknown properties
-    @return: A possibly empty list of property names.
-    """
-    assert os.path.isfile(propertyfile)
-
-    with open(propertyfile) as f:
-        content = f.read().strip()
-    if not( 'CHECK' in content
-            or content == 'OBSERVER AUTOMATON'
-            or content == 'SATISFIABLE'
-            ):
-        if fallback_to_filename:
-            return os.path.splitext(os.path.basename(propertyfile))[0]
-        sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
-
-    properties = []
-    # TODO: should we switch to regex or line-based reading?
-    for substring, status in _PROPERTY_NAMES.items():
-        if substring in content:
-            properties.append(status)
-
-    if not properties:
-        if fallback_to_filename:
-            return os.path.splitext(os.path.basename(propertyfile))[0]
-        sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))
-    return properties
-
-
 def satisfies_file_property(filename, properties):
     """
     Tell whether the given properties are violated or satisfied in a given file.
     Assumption: Currently, only one expected result per set of properties is supported.
     @param filename: The file name of the input file.
-    @param properties: The list of properties to check (as returned by properties_of_file()).
+    @param properties: The list of property names to check.
     @return True if the properties are satisfied; False if it is violated; None if it is unknown
     """
     expected_result = _expected_result(filename, properties)
@@ -369,7 +393,7 @@ def get_result_category(filename, result, properties):
     for the given file and properties.
     @param filename: The file name of the input file.
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
-    @param properties: The list of properties to check (as returned by properties_of_file()).
+    @param properties: The list of property names to check.
     @return One of the CATEGORY_* strings.
     '''
     assert set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())

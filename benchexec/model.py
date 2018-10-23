@@ -546,11 +546,11 @@ class RunSet(object):
         if not run.propertyfile:
             return run
 
-        run.properties = result.properties_of_file(run.propertyfile)
+        prop = result.Property.create(run.propertyfile, allow_unknown=False)
+        run.properties = [prop]
         expected_results = result.expected_results_of_file(input_file)
-        prop = result.ensure_single_property(result.properties_of_file(run.propertyfile))
-        if prop in expected_results:
-            run.expected_results[run.propertyfile] = expected_results[prop]
+        if prop.name in expected_results:
+            run.expected_results[prop.filename] = expected_results[prop.name]
         # We do not check here if there is an expected result for the given propertyfile
         # like we do in create_run_from_template_file, to keep backwards compatibility.
         return run
@@ -610,7 +610,8 @@ class RunSet(object):
             return run
 
         # TODO: support "property_name" attribute in yaml
-        run.properties = result.properties_of_file(run.propertyfile, fallback_to_filename=True)
+        prop = result.Property.create(run.propertyfile, allow_unknown=True)
+        run.properties = [prop]
 
         for prop_dict in template.get("properties", []):
             if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
@@ -626,13 +627,13 @@ class RunSet(object):
 
             # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
             # with cached stat calls.
-            if run.propertyfile == expanded[0] or os.path.samefile(run.propertyfile, expanded[0]):
+            if prop.filename == expanded[0] or os.path.samefile(prop.filename, expanded[0]):
                 expected_result = prop_dict.get("expected_verdict")
                 if expected_result is not None and not isinstance(expected_result, bool):
                     raise BenchExecException(
                         "Invalid expected result '{}' for property {} in task template {}."
                         .format(expected_result, prop_dict["property_file"], template_file))
-                run.expected_results[run.propertyfile] = \
+                run.expected_results[prop.filename] = \
                     result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
 
         if not run.expected_results:
@@ -643,7 +644,7 @@ class RunSet(object):
         elif len(run.expected_results) > 1:
             raise BenchExecException(
                 "Property '{}' specified multiple times in task template {}."
-                .format(run.propertyfile, template_file))
+                .format(prop.filename, template_file))
         else:
             return run
 
@@ -846,7 +847,8 @@ class Run(object):
             output = []
 
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
-        self.category = result.get_result_category(self.identifier, self.status, self.properties)
+        all_properties = [prop_name for prop in self.properties for prop_name in prop.names]
+        self.category = result.get_result_category(self.expected_results, self.status, all_properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]
