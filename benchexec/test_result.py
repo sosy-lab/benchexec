@@ -54,6 +54,8 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_false-valid-memcleanup.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+        self.assertEqual(True, satisfies_file_property('test_true-valid-memcleanup.c',
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(True,  satisfies_file_property('test_true-termination.c',
                                                         [_PROP_TERMINATION]))
         self.assertEqual(False, satisfies_file_property('test_false-termination.c',

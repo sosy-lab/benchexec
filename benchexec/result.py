@@ -109,7 +109,8 @@ RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_REACH,
                _RESULT_FALSE_REACH_OLD,
                RESULT_FALSE_TERMINATION,
-               RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK, RESULT_FALSE_MEMCLEANUP,
+               RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK,
+               RESULT_FALSE_MEMCLEANUP,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
                RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
@@ -149,7 +150,7 @@ _FILE_RESULTS = {
               '_true-valid-free':      (RESULT_TRUE_PROP, {_PROP_FREE}),
               '_true-valid-memtrack':  (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
               '_true-valid-memcleanup':(RESULT_TRUE_PROP, {_PROP_MEMCLEANUP}),
-              '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK, _PROP_MEMCLEANUP}),
+              '_true-valid-memsafety': (RESULT_TRUE_PROP, {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}),
               '_true-no-overflow':     (RESULT_TRUE_PROP, {_PROP_OVERFLOW}),
               '_true-no-deadlock':     (RESULT_TRUE_PROP, {_PROP_DEADLOCK}),
 
