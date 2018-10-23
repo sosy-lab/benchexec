@@ -247,10 +247,11 @@ def ensure_single_property(properties):
         raise BenchExecException(
             "Unsupported combination of properties {}".format(properties))
 
-def properties_of_file(propertyfile):
+def properties_of_file(propertyfile, fallback_to_filename=False):
     """
     Return a list of property names that should be checked according to the given property file.
     @param propertyfile: None or a file name of a property file.
+    @param fallback_to_filename: Whether to accept unknown properties
     @return: A possibly empty list of property names.
     """
     assert os.path.isfile(propertyfile)
@@ -261,6 +262,8 @@ def properties_of_file(propertyfile):
             or content == 'OBSERVER AUTOMATON'
             or content == 'SATISFIABLE'
             ):
+        if fallback_to_filename:
+            return os.path.splitext(os.path.basename(propertyfile))[0]
         sys.exit('File "{0}" is not a valid property file.'.format(propertyfile))
 
     properties = []
@@ -270,6 +273,8 @@ def properties_of_file(propertyfile):
             properties.append(status)
 
     if not properties:
+        if fallback_to_filename:
+            return os.path.splitext(os.path.basename(propertyfile))[0]
         sys.exit('File "{0}" does not contain a known property.'.format(propertyfile))
     return properties
 

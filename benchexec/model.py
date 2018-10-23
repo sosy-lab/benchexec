@@ -546,6 +546,7 @@ class RunSet(object):
         if not run.propertyfile:
             return run
 
+        run.properties = result.properties_of_file(run.propertyfile)
         expected_results = result.expected_results_of_file(input_file)
         prop = result.ensure_single_property(result.properties_of_file(run.propertyfile))
         if prop in expected_results:
@@ -607,6 +608,9 @@ class RunSet(object):
         # thus we handle it and the expected results here.
         if not run.propertyfile:
             return run
+
+        # TODO: support "property_name" attribute in yaml
+        run.properties = result.properties_of_file(run.propertyfile, fallback_to_filename=True)
 
         for prop_dict in template.get("properties", []):
             if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
@@ -719,6 +723,7 @@ class Run(object):
             self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
+        self.properties = [] # filled externally
 
         def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
@@ -749,9 +754,6 @@ class Run(object):
 
         if self.propertyfile:
             self.required_files.add(self.propertyfile)
-            self.properties = result.properties_of_file(self.propertyfile)
-        else:
-            self.properties = []
 
         self.required_files = list(self.required_files)
 
