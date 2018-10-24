@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import benchexec.result as result
 import benchexec.util as util
-import benchexec.tools.template
+yogar_cbmc = __import__("benchexec.tools.yogar-cbmc", fromlist=["Tool"])
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(yogar_cbmc.Tool):
 
     def executable(self):
         return util.find_executable('yogar-cbmc-parallel')
@@ -28,21 +27,3 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + tasks
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-
-        status = result.RESULT_UNKNOWN
-        stroutput = str(output)
-
-        if isTimeout:
-            status = 'TIMEOUT'
-        elif 'FAILED' in stroutput:
-            status = result.RESULT_FALSE_REACH
-        elif 'SUCCESSFUL' in stroutput:
-            status = result.RESULT_TRUE_PROP
-        elif 'UNKNOWN' in stroutput:
-            status = result.RESULT_UNKNOWN
-        else:
-            status = result.RESULT_UNKNOWN
-
-        return status
