@@ -26,4 +26,4 @@ class Tool(yogar_cbmc.Tool):
         return 'Yogar-CBMC-Parallel'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + tasks
+        return [executable] + options + tasks
