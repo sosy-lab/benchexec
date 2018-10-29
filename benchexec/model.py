@@ -847,8 +847,7 @@ class Run(object):
             output = []
 
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
-        all_properties = [prop_name for prop in self.properties for prop_name in prop.names]
-        self.category = result.get_result_category(self.expected_results, self.status, all_properties)
+        self.category = result.get_result_category(self.expected_results, self.status, self.properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]

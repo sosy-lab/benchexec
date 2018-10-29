@@ -179,6 +179,7 @@ _VALID_RESULTS_PER_PROPERTY = {
     _PROP_DEREF:       {RESULT_TRUE_PROP, RESULT_FALSE_DEREF},
     _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_FREE},
     _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_MEMTRACK},
+    _PROP_MEMSAFETY:   {RESULT_TRUE_PROP, RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK},
     _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_OVERFLOW},
     _PROP_DEADLOCK:    {RESULT_TRUE_PROP, RESULT_FALSE_DEADLOCK},
     _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_TERMINATION},
@@ -363,10 +364,6 @@ def score_for_task(filename, properties, category, result):
     else:
         assert False, "unexpected return value from satisfies_file_property: " + expected
 
-def _file_is_java(filename):
-    # Java benchmarks have as filename their main class, so we cannot check for '.java'
-    return '_assert' in filename
-
 
 def get_result_classification(result):
     '''
@@ -387,7 +384,7 @@ def get_result_classification(result):
         return RESULT_CLASS_FALSE
 
 
-def get_result_category(filename, result, properties):
+def get_result_category(expected_results, result, properties):
     '''
     This function determines the relation between actual result and expected result
     for the given file and properties.
@@ -396,32 +393,42 @@ def get_result_category(filename, result, properties):
     @param properties: The list of property names to check.
     @return One of the CATEGORY_* strings.
     '''
-    assert set(properties).issubset(_VALID_RESULTS_PER_PROPERTY.keys())
-
     if result not in RESULT_LIST:
         return CATEGORY_ERROR
 
     if result == RESULT_UNKNOWN:
         return CATEGORY_UNKNOWN
 
-    if _file_is_java(filename) and not properties:
-        # Currently, no property files for checking Java programs exist,
-        # so we hard-code a check for _PROP_ASSERT for these
-        properties = [_PROP_ASSERT]
-
     if not properties:
         # Without property we cannot return correct or wrong results.
         return CATEGORY_MISSING
 
-    expected_result = _expected_result(filename, properties)
-    if not expected_result:
-        # filename gives no hint on the expected output
+    # For now, we have at most one property
+    assert len(properties) == 1, properties
+    prop = properties[0]
+
+    expected_result = expected_results.get(prop.filename)
+    if not expected_result or expected_result.result is None:
+        # expected result of task is unknown
         return CATEGORY_MISSING
 
-    for prop in properties:
-        if result in _VALID_RESULTS_PER_PROPERTY[prop]:
-            # tool returned an answer for this property
-            return CATEGORY_CORRECT if expected_result == result else CATEGORY_WRONG
+    if prop.is_well_known:
+        # for well-known properties, only support hard-coded results
+        valid_results = _VALID_RESULTS_PER_PROPERTY[prop.name]
+    elif expected_result.subproperty:
+        valid_results = {RESULT_TRUE_PROP, STR_FALSE + "(" + expected_result.subproperty + ")"}
+    else:
+        valid_results = {RESULT_TRUE_PROP, STR_FALSE}
 
-    # tool returned an answer that does not belong to any of the checked properties
-    return CATEGORY_UNKNOWN
+    if result not in valid_results:
+        return CATEGORY_UNKNOWN # result does not match property
+
+    result_class = get_result_classification(result)
+    if expected_result.result:
+        return CATEGORY_CORRECT if result_class == RESULT_CLASS_TRUE else CATEGORY_WRONG
+    else:
+        if expected_result.subproperty:
+            return CATEGORY_CORRECT if result == STR_FALSE + "(" + expected_result.subproperty + ")" else CATEGORY_WRONG
+        else:
+            return CATEGORY_CORRECT if result_class == RESULT_CLASS_FALSE else CATEGORY_WRONG
+
