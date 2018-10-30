@@ -922,7 +922,7 @@ def get_stats_of_rows(rows):
             count_true += 1
         elif correct_result is False:
             count_false += 1
-        max_score += result.score_for_task(row.filename, row.properties, result.CATEGORY_CORRECT, None)
+        max_score += result.max_score_for_task(row.properties, correct_result)
 
     return max_score, count_true, count_false
 

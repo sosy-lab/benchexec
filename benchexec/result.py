@@ -216,6 +216,16 @@ class Property(object):
     def names(self):
         return self.subproperties or [self.name]
 
+    def max_score(self, expected_result):
+        """
+        Return the maximum possible score for a task that uses this property.
+        @param expected_result:
+            an ExpectedResult indicating whether the property is expected to hold for the task
+        """
+        if not self.is_svcomp or not expected_result:
+            return 0
+        return _svcomp_max_score(expected_result.result)
+
     def __repr__(self):
         return "{}({self.filename!r}, {self.is_well_known!r}, {self.is_svcomp!r}, {self.name!r}, {self.subproperties!r})".format(self.__class__.__name__, self=self)
 
@@ -322,6 +332,27 @@ def satisfies_file_property(filename, properties):
         return False
     return None
 
+
+def _svcomp_max_score(expected_result):
+    """
+    Return the maximum possible score for a task according to the SV-COMP scoring scheme.
+    @param expected_result: whether the property is fulfilled for the task or not
+    """
+    if expected_result == True:
+        return _SCORE_CORRECT_TRUE
+    elif expected_result == False:
+        return _SCORE_CORRECT_FALSE
+    return 0
+
+def max_score_for_task(properties, expected_result):
+    """
+    Return the maximum possible score for a task.
+    @param properties: the list of property names for the task
+    @param expected_result: whether the property is fulfilled for the task or not
+    """
+    if _PROP_SAT in properties:
+        return 0
+    return _svcomp_max_score(expected_result)
 
 def score_for_task(filename, properties, category, result):
     """
