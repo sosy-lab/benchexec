@@ -776,9 +776,8 @@ class Statistics(object):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
-        all_properties = [prop_name for prop in run.properties for prop_name in prop.names]
-        self.score += result.score_for_task(run.identifier, all_properties, run.category, run.status)
         for prop in run.properties:
+            self.score += prop.compute_score(run.category, run.status)
             self.max_score += prop.max_score(run.expected_results.get(prop.filename))
 
     def __str__(self):

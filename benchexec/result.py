@@ -187,8 +187,6 @@ _VALID_RESULTS_PER_PROPERTY = {
     }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
-# If different scores should be used depending on the checked property,
-# change score_for_task() appropriately
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
 _SCORE_CORRECT_UNCONFIRMED_TRUE = 1
@@ -215,6 +213,11 @@ class Property(object):
     @property
     def names(self):
         return self.subproperties or [self.name]
+
+    def compute_score(self, category, result):
+        if not self.is_svcomp:
+            return 0
+        return _svcomp_score(category, result)
 
     def max_score(self, expected_result):
         """
@@ -344,6 +347,42 @@ def _svcomp_max_score(expected_result):
         return _SCORE_CORRECT_FALSE
     return 0
 
+def _svcomp_score(category, result):
+    """
+    Return the achieved score of a task according to the SV-COMP scoring scheme.
+    @param category: result category as determined by get_result_category
+    @param result: the result given by the tool
+    """
+    assert result is not None
+    result_class = get_result_classification(result)
+
+    if category == CATEGORY_CORRECT_UNCONFIRMED:
+        if result_class == RESULT_CLASS_TRUE:
+            return _SCORE_CORRECT_UNCONFIRMED_TRUE
+        elif result_class == RESULT_CLASS_FALSE:
+            return _SCORE_CORRECT_UNCONFIRMED_FALSE
+        else:
+            assert False
+
+    elif category == CATEGORY_CORRECT:
+        if result_class == RESULT_CLASS_TRUE:
+            return _SCORE_CORRECT_TRUE
+        elif result_class == RESULT_CLASS_FALSE:
+            return _SCORE_CORRECT_FALSE
+        else:
+            assert False, result
+
+    elif category == CATEGORY_WRONG:
+        if result_class == RESULT_CLASS_TRUE:
+            return _SCORE_WRONG_TRUE
+        elif result_class == RESULT_CLASS_FALSE:
+            return _SCORE_WRONG_FALSE
+        else:
+            assert False
+
+    else:
+        return _SCORE_UNKNOWN
+
 def max_score_for_task(properties, expected_result):
     """
     Return the maximum possible score for a task.
@@ -354,46 +393,14 @@ def max_score_for_task(properties, expected_result):
         return 0
     return _svcomp_max_score(expected_result)
 
-def score_for_task(filename, properties, category, result):
+def score_for_task(properties, category, result):
     """
     Return the possible score of task, depending on whether the result is correct or not.
-    Pass category=result.CATEGORY_CORRECT and result=None to calculate the maximum possible score.
     """
-
-    if category == CATEGORY_CORRECT_UNCONFIRMED:
-        if satisfies_file_property(filename, properties):
-            return _SCORE_CORRECT_UNCONFIRMED_TRUE
-        else:
-            return _SCORE_CORRECT_UNCONFIRMED_FALSE
-    if category != CATEGORY_CORRECT and category != CATEGORY_WRONG:
-        return 0
+    assert result is not None
     if _PROP_SAT in properties:
         return 0
-
-    correct = (category == CATEGORY_CORRECT)
-    expected = satisfies_file_property(filename, properties)
-    if expected is None:
-        return 0
-    elif expected == True:
-        # expected result is "true", result was "true" or "false"
-        return _SCORE_CORRECT_TRUE if correct else _SCORE_WRONG_FALSE
-    elif expected == False:
-        if correct:
-            # expected result is "false", result was "false" with correct property
-            return _SCORE_CORRECT_FALSE
-        else:
-            assert result, "Cannot compute score without actual tool result"
-            result_class = get_result_classification(result)
-            if result_class == RESULT_CLASS_TRUE:
-                # expected result is "false", result was "true"
-                return _SCORE_WRONG_TRUE
-            elif result_class == RESULT_CLASS_FALSE:
-                # expected result is "false", result was "false" but with wrong property
-                return _SCORE_WRONG_FALSE
-            else:
-                assert False, "unexpected result classification " + result_class + " for result " + result
-    else:
-        assert False, "unexpected return value from satisfies_file_property: " + expected
+    return _svcomp_score(category, result)
 
 
 def get_result_classification(result):
