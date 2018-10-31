@@ -13,50 +13,36 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
 
+import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
-import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
-    """
-    Tool info for JPF with symbolic extension
-    (https://babelfish.arc.nasa.gov/hg/jpf).
-    """
+    REQUIRED_PATHS = ['tabol.sh','tabol.jar','output/','tools']
 
-    REQUIRED_PATHS = [
-                  "jpf-core/bin/jpf",
-                  "jpf-core/build",
-                  "jpf-symbc/lib",
-                  "jpf-symbc/build",
-                  "jpf-sv-comp"
-                  ]
     def executable(self):
-        return util.find_executable('jpf-sv-comp')
-
-
-    def version(self, executable):
-        return 'rev '+self._version_from_tool(executable).split()[2]
-
+        return util.find_executable('tabol.sh')
 
     def name(self):
-        return 'JPF'
-
+        return 'TABOL'
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ['--propertyfile', propertyfile]
         return [executable] + options + tasks
-
+    
+    def version(self, executable):
+        return self._version_from_tool(executable)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        # parse output
         status = result.RESULT_UNKNOWN
 
-        for line in output:
-            if 'UNSAFE' in line:
-                status = result.RESULT_FALSE_REACH
-            elif 'SAFE' in line:
-                status = result.RESULT_TRUE_PROP
+        if isTimeout:
+            status = result.RESULT_UNKNOWN
+        elif 'TABOL_TRUE' in output:
+            status = result.RESULT_TRUE_PROP
+        elif 'TABOL_FALSE' in output:
+            status = result.RESULT_FALSE_TERMINATION
+        else:
+            status = result.RESULT_UNKNOWN
 
         return status

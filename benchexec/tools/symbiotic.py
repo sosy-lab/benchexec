@@ -3,7 +3,7 @@ BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
 
 Copyright (C) 2007-2015  Dirk Beyer
-Copyright (C) 2016-2017  Marek Chalupa
+Copyright (C) 2016-2018  Marek Chalupa
 
 All rights reserved.
 
@@ -49,6 +49,14 @@ class Tool(OldSymbiotic):
                   "llvm-3.9.1",
                   ]
 
+    REQUIRED_PATHS_6_0_0 = [
+                  "bin",
+                  "include",
+                  "specs",
+                  "lib",
+                  "llvm-4.0.1",
+                  ]
+
     def executable(self):
         """
         Find the path to the executable file that will get executed.
@@ -65,7 +73,9 @@ class Tool(OldSymbiotic):
 
     def program_files(self, executable):
         installDir = joinpath(dirname(executable), '..')
-        if self._version_newer_than('5.0.0'):
+        if self._version_newer_than('6.0.0'):
+            paths = self.REQUIRED_PATHS_6_0_0
+        elif self._version_newer_than('5.0.0'):
             paths = self.REQUIRED_PATHS_5_0_0
         elif self._version_newer_than('4.0.1'):
             paths = self.REQUIRED_PATHS_4_0_1
@@ -99,9 +109,27 @@ class Tool(OldSymbiotic):
 
         return False
 
+    def _timeoutReason(self, output):
+        lastphase = 'unknown'
+        for line in output:
+            if line.startswith('INFO: Starting instrumentation'):
+                lastphase='instrumentation'
+            elif line.startswith('INFO: Instrumentation time'):
+                lastphase='instr-finished'
+            elif line.startswith('INFO: Starting slicing'):
+                lastphase='slicing'
+            elif line.startswith('INFO: Total slicing time'):
+                lastphase='slicing-finished'
+            elif line.startswith('INFO: Starting verification'):
+                lastphase='verification'
+            elif line.startswith('INFO: Verification time'):
+                lastphase='verification-finished'
+
+        return lastphase
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if isTimeout:
-            return 'timeout'
+            return self._timeoutReason(output)
 
         if output is None:
             return 'error (no output)'

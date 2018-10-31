@@ -70,6 +70,10 @@ def print_tool_info(name):
     print_value('Executable', executable)
     if not os.path.isabs(executable):
         print_value('Executable (absolute path)', os.path.abspath(executable))
+    else:
+        logging.warning(
+            'Path to executable is absolute, this might be problematic '
+            'in scenarios where runs are distributed to other machines.')
 
     try:
         print_value('Version', tool.version(executable))

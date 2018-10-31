@@ -28,7 +28,7 @@ class Tool(benchexec.tools.template.BaseTool):
     VeriFuzz
     """
 
-    REQUIRED_PATHS = ["lib", "exp-in", "afl-2.35b", "scripts", "supportFiles", "prism", "bin", "jars"]
+    REQUIRED_PATHS = ["lib", "exp-in", "fuzzEngine", "scripts", "supportFiles", "prism", "bin", "jars"]
 
     def executable(self):
         return util.find_executable('scripts/verifuzz.py')
@@ -51,6 +51,18 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_TRUE_PROP
         elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
             return result.RESULT_FALSE_REACH
+        elif "FALSE(unreach-call)" in lines:
+            return result.RESULT_FALSE_REACH
+        elif "FALSE(no-overflow)" in lines:
+            return result.RESULT_FALSE_OVERFLOW
+        elif "FALSE(termination)" in lines:
+            return result.RESULT_FALSE_TERMINATION
+        elif "FALSE(valid-deref)" in lines:
+            return result.RESULT_FALSE_DEREF
+        elif "FALSE(valid-free)" in lines:
+            return result.RESULT_FALSE_FREE
+        elif "FALSE(valid-memtrack)" in lines:
+            return result.RESULT_FALSE_MEMTRACK
         elif "NOT SUPPORTED" in lines or "VERIFUZZ_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
         else:

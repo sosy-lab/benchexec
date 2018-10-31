@@ -25,7 +25,7 @@ import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.result import *  # @UnusedWildImport
-from benchexec.result import _PROP_CALL, _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK,\
+from benchexec.result import _PROP_CALL, _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK, _PROP_MEMCLEANUP,\
     _PROP_TERMINATION, _PROP_SAT, _SCORE_CORRECT_FALSE, _SCORE_CORRECT_TRUE,\
     _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW, _PROP_DEADLOCK, _PROP_MEMSAFETY,\
     Property
@@ -51,6 +51,10 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_false-valid-memtrack.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
+        self.assertEqual(True, satisfies_file_property('test_true-valid-memcleanup.c',
+                                                        [_PROP_MEMCLEANUP]))
+        self.assertEqual(False, satisfies_file_property('test_false-valid-memcleanup.c',
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(True,  satisfies_file_property('test_true-termination.c',
                                                         [_PROP_TERMINATION]))
         self.assertEqual(False, satisfies_file_property('test_false-termination.c',
@@ -75,6 +79,8 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_CALL]))
         self.assertEqual(True,  satisfies_file_property('test_false-termination_true-valid-memsafety_unsat.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
+        self.assertEqual(True,  satisfies_file_property('test_false-termination_true-valid-memcleanup_unsat.c',
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(False, satisfies_file_property('test_true-termination_false-valid-deref_unsat.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_true-termination_false-valid-free_unsat.c',
@@ -241,6 +247,7 @@ class TestResult(unittest.TestCase):
 
     prop_call = Property("dummy.prp", True, True, _PROP_CALL, [])
     prop_deadlock = Property("dummy.prp", True, True, _PROP_DEADLOCK, [])
+    prop_memcleanup = Property("dummy.prp", True, True, _PROP_MEMCLEANUP, [])
     prop_memsafety = Property("dummy.prp", True, True, _PROP_MEMSAFETY, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK])
     prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
     prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
@@ -255,6 +262,10 @@ class TestResult(unittest.TestCase):
                          get_result_category(self.expected_result(True), RESULT_TRUE_PROP, [self.prop_memsafety]))
         self.assertEqual(CATEGORY_WRONG,
                          get_result_category(self.expected_result(False, 'valid-memtrack'), RESULT_TRUE_PROP, [self.prop_memsafety]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category(self.expected_result(True),  RESULT_TRUE_PROP, [self.prop_memcleanup]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category(self.expected_result(False), RESULT_TRUE_PROP, [self.prop_memcleanup]))
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category(self.expected_result(True),  RESULT_TRUE_PROP, [self.prop_termination]))
         self.assertEqual(CATEGORY_WRONG,
