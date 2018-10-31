@@ -44,8 +44,8 @@ class TestResult(unittest.TestCase):
                                                         [_PROP_CALL]))
         self.assertEqual(True,  satisfies_file_property('test_true-valid-memsafety.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
-        self.assertEqual(True,  satisfies_file_property('test_true-valid-memsafety.c',
-                                                        [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+        self.assertEqual(True,  satisfies_file_property('test_true-valid-memcleanup.c',
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(False, satisfies_file_property('test_false-valid-deref.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_false-valid-free.c',
@@ -53,7 +53,7 @@ class TestResult(unittest.TestCase):
         self.assertEqual(False, satisfies_file_property('test_false-valid-memtrack.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_false-valid-memcleanup.c',
-                                                        [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(True, satisfies_file_property('test_true-valid-memcleanup.c',
                                                         [_PROP_MEMCLEANUP]))
         self.assertEqual(True,  satisfies_file_property('test_true-termination.c',
@@ -81,7 +81,7 @@ class TestResult(unittest.TestCase):
         self.assertEqual(True,  satisfies_file_property('test_false-termination_true-valid-memsafety_unsat.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(True,  satisfies_file_property('test_false-termination_true-valid-memcleanup_unsat.c',
-                                                        [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+                                                        [_PROP_MEMCLEANUP]))
         self.assertEqual(False, satisfies_file_property('test_true-termination_false-valid-deref_unsat.c',
                                                         [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(False, satisfies_file_property('test_true-termination_false-valid-free_unsat.c',
@@ -257,9 +257,9 @@ class TestResult(unittest.TestCase):
         self.assertEqual(CATEGORY_WRONG,
                          get_result_category('test_false-valid-memtrack.c', RESULT_TRUE_PROP, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK]))
         self.assertEqual(CATEGORY_CORRECT,
-                         get_result_category('test_true-valid-memcleanup.c', RESULT_TRUE_PROP, [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+                         get_result_category('test_true-valid-memcleanup.c', RESULT_TRUE_PROP, [_PROP_MEMCLEANUP]))
         self.assertEqual(CATEGORY_WRONG,
-                         get_result_category('test_false-valid-memcleanup.c', RESULT_TRUE_PROP, [_PROP_DEREF, _PROP_FREE, _PROP_MEMCLEANUP]))
+                         get_result_category('test_false-valid-memcleanup.c', RESULT_TRUE_PROP, [_PROP_MEMCLEANUP]))
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category('test_true-termination.c',     RESULT_TRUE_PROP, [_PROP_TERMINATION]))
         self.assertEqual(CATEGORY_WRONG,
