@@ -15,11 +15,7 @@ limitations under the License.
 """
 import logging
 
-import benchexec.util as util
-import benchexec.tools.template
-import benchexec.result as result
-
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.jpf.Tool):
     """
     Tool info for JPF with symbolic extension (SPF)
     (https://github.com/symbolicpathfinder).
@@ -36,27 +32,5 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('jpf-sv-comp')
 
 
-    def version(self, executable):
-        return 'rev '+self._version_from_tool(executable).split()[2]
-
-
     def name(self):
         return 'SPF'
-
-
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ['--propertyfile', propertyfile]
-        return [executable] + options + tasks
-
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        # parse output
-        status = result.RESULT_UNKNOWN
-
-        for line in output:
-            if 'UNSAFE' in line:
-                status = result.RESULT_FALSE_REACH
-            elif 'SAFE' in line:
-                status = result.RESULT_TRUE_PROP
-
-        return status
