@@ -86,7 +86,7 @@ class Tool(benchexec.tools.template.BaseTool):
               return result.RESULT_FALSE_MEMTRACK
             elif 'memory cleanup' == errtype:
               return result.RESULT_FALSE_MEMCLEANUP
-            elif 'signed integer overflow' == errtype:
+            elif 'integer overflow' == errtype:
               return result.RESULT_FALSE_OVERFLOW
           else:
             return result.RESULT_FALSE_REACH
