@@ -36,10 +36,13 @@ class Tool(benchexec.tools.template.BaseTool):
                       "prism",
                       "lib",
                       "afl-2.35b",
+                      "afl-2.35b_v1",
+                      "frama-c-Chlorine-20180502",
+                      "UAutomizer-linux",
                       "scripts",
                       "supportFiles",
                       ]
-
+    
     def executable(self):
         return util.find_executable('scripts/veriabs')
 
