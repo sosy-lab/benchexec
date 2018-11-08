@@ -911,10 +911,8 @@ def get_stats_of_rows(rows):
     count_true = count_false = max_score = 0
     for row in rows:
         if not row.properties:
-            # properties missing for at least one task, result would be wrong
-            count_true = count_false = 0
             logging.info('Missing property for %s.', row.filename)
-            break
+            continue
         correct_result = result.satisfies_file_property(row.filename, row.properties)
         if correct_result is True:
             count_true += 1
@@ -950,7 +948,9 @@ def get_stats(rows, local_summary, correct_only):
         stats_columns.append(new_column)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)
-    task_counts = 'in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
+    task_counts = ('in total {0} true tasks, {1} false tasks'.format(count_true, count_false)
+                   if count_true or count_false
+                   else '')
 
     if max_score:
         score_row = tempita.bunch(id='score',
