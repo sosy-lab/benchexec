@@ -19,13 +19,15 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import glob
 import logging
 import sys
+import tempfile
 import unittest
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.result import *  # @UnusedWildImport
-from benchexec.result import _PROP_CALL, _PROP_LABEL, _PROP_ASSERT, \
+from benchexec.result import _PROP_CALL, _PROP_LABEL, _PROP_ASSERT, _PROP_AUTOMATON,\
     _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK, _PROP_MEMCLEANUP,\
     _PROP_TERMINATION, _PROP_SAT, _SCORE_CORRECT_FALSE, _SCORE_CORRECT_TRUE,\
     _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW, _PROP_DEADLOCK, _PROP_MEMSAFETY,\
@@ -39,11 +41,24 @@ class TestResult(unittest.TestCase):
         cls.longMessage = True
         logging.disable(logging.CRITICAL)
 
-    def test_Property_from_names(self):
+    def setUp(self):
         # Compare Property objects by field
         self.addTypeEqualityFunc(
             Property, lambda a, b, msg=None: self.assertEqual(a.__dict__, b.__dict__, msg))
 
+    def expected_result(self, result, subcategory=None):
+        return {'dummy.prp': ExpectedResult(result, subcategory)}
+
+    prop_call = Property("dummy.prp", True, True, _PROP_CALL, [])
+    prop_deadlock = Property("dummy.prp", True, True, _PROP_DEADLOCK, [])
+    prop_memcleanup = Property("dummy.prp", True, True, _PROP_MEMCLEANUP, [])
+    prop_memsafety = Property("dummy.prp", True, True, _PROP_MEMSAFETY, list(_MEMSAFETY_SUBPROPERTIES))
+    prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
+    prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
+    prop_sat = Property("dummy.prp", True, False, _PROP_SAT, [])
+
+
+    def test_Property_from_names(self):
         for prop in _VALID_RESULTS_PER_PROPERTY.keys():
             self.assertEqual(
                 Property(None, True, (prop != _PROP_SAT), prop, None),
@@ -66,6 +81,151 @@ class TestResult(unittest.TestCase):
             self.assertEqual(
                 Property(None, False, False, "unknown property", list(test_props)),
                 Property.create_from_names(test_props))
+
+    def test_Property_from_standard_file(self):
+        property_files = glob.glob(os.path.join(os.path.dirname(__file__), "../doc/properties/*.prp"))
+        for property_file in property_files:
+            name = os.path.splitext(os.path.basename(property_file))[0]
+
+            is_svcomp = (name not in {_PROP_SAT, _PROP_AUTOMATON})
+            subproperties = (
+                [_PROP_FREE, _PROP_DEREF, _PROP_MEMTRACK] if name == _PROP_MEMSAFETY else None)
+
+            self.assertEqual(
+                Property(property_file, True, is_svcomp, name, subproperties),
+                Property.create(property_file, allow_unknown=False))
+
+    def _test_Property_from_file(self, content, is_svcomp):
+        with tempfile.NamedTemporaryFile(
+                mode='wt', prefix='BenchExec_test_result', suffix='.prp') as temp_file:
+            temp_file.write(content)
+            temp_file.flush()
+            filename = temp_file.name
+
+            self.assertRaisesRegex(
+                BenchExecException,
+                "known property",
+                Property.create, filename, allow_unknown=False)
+
+            self.assertEqual(
+                Property(
+                    filename=filename,
+                    is_well_known=False,
+                    is_svcomp=is_svcomp,
+                    name=os.path.splitext(os.path.basename(filename))[0],
+                    subproperties=None),
+                Property.create(filename, allow_unknown=True))
+
+    def test_Property_from_non_standard_file(self):
+        self._test_Property_from_file("test property", False)
+        self._test_Property_from_file(
+            "CHECK( init(main()), LTL(G p) )", True)
+
+
+    def test_Property_names(self):
+        self.assertEqual(list(_MEMSAFETY_SUBPROPERTIES), self.prop_memsafety.names)
+        self.assertEqual([_PROP_CALL], list(self.prop_call.names))
+        self.assertEqual([_PROP_SAT], list(self.prop_sat.names))
+        self.assertEqual(["test"], Property(None, False, False, "test", None).names)
+        self.assertEqual(["a", "b"], Property(None, False, False, "test", ["a", "b"]).names)
+
+
+    def test_Property_max_score_not_available(self):
+        self.assertEqual(0, self.prop_call.max_score(ExpectedResult(None, None)))
+        self.assertEqual(0, self.prop_call.max_score(None))
+
+    def test_Property_max_score_smt(self):
+        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(True, None)))
+        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(False, None)))
+
+    def test_Property_max_score_svcomp(self):
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE, self.prop_call.max_score(ExpectedResult(True, None)))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE, self.prop_call.max_score(ExpectedResult(False, None)))
+
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE, self.prop_memsafety.max_score(ExpectedResult(True, None)))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE, self.prop_memsafety.max_score(ExpectedResult(False, None)))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE, self.prop_memsafety.max_score(ExpectedResult(False, _PROP_FREE)))
+
+
+    def test_Property_compute_score_not_available(self):
+        self.assertEqual(0, self.prop_call.compute_score(CATEGORY_MISSING, RESULT_TRUE_PROP))
+        self.assertEqual(0, self.prop_call.compute_score(CATEGORY_ERROR, RESULT_TRUE_PROP))
+        self.assertEqual(0, self.prop_call.compute_score(CATEGORY_UNKNOWN, RESULT_TRUE_PROP))
+
+    def test_Property_compute_score_smt(self):
+        self.assertEqual(0, self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_SAT))
+        self.assertEqual(0, self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_SAT))
+
+    def test_Property_compute_score_svcomp(self):
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE,
+            self.prop_call.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE,
+            self.prop_call.compute_score(CATEGORY_CORRECT, RESULT_FALSE_REACH))
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE,
+            self.prop_memsafety.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE,
+            self.prop_memsafety.compute_score(CATEGORY_CORRECT, RESULT_FALSE_MEMTRACK))
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE,
+            self.prop_termination.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE,
+            self.prop_termination.compute_score(CATEGORY_CORRECT, RESULT_FALSE_TERMINATION))
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE,
+            self.prop_overflow.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE,
+            self.prop_overflow.compute_score(CATEGORY_CORRECT, RESULT_FALSE_OVERFLOW))
+        self.assertEqual(
+            _SCORE_CORRECT_TRUE,
+            self.prop_deadlock.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_CORRECT_FALSE,
+            self.prop_deadlock.compute_score(CATEGORY_CORRECT, RESULT_FALSE_DEADLOCK))
+
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_call.compute_score(CATEGORY_WRONG, RESULT_FALSE_REACH))
+        self.assertEqual(
+            _SCORE_WRONG_TRUE,
+            self.prop_call.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_FALSE_MEMTRACK))
+        self.assertEqual(
+            _SCORE_WRONG_TRUE,
+            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_FALSE_DEREF))
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_termination.compute_score(CATEGORY_WRONG, RESULT_FALSE_TERMINATION))
+        self.assertEqual(
+            _SCORE_WRONG_TRUE,
+            self.prop_termination.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_overflow.compute_score(CATEGORY_WRONG, RESULT_FALSE_OVERFLOW))
+        self.assertEqual(
+            _SCORE_WRONG_TRUE,
+            self.prop_overflow.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
+        self.assertEqual(
+            _SCORE_WRONG_FALSE,
+            self.prop_deadlock.compute_score(CATEGORY_WRONG, RESULT_FALSE_OVERFLOW))
+        self.assertEqual(
+            _SCORE_WRONG_TRUE,
+            self.prop_deadlock.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
 
 
     def test_score_for_task_no_score_available(self):
@@ -234,17 +394,6 @@ class TestResult(unittest.TestCase):
             expected_results_of_file(
                 "test_true-unreach-call_false-valid-memtrack_false-valid-memcleanup.c"))
 
-
-    def expected_result(self, result, subcategory=None):
-        return {'dummy.prp': ExpectedResult(result, subcategory)}
-
-    prop_call = Property("dummy.prp", True, True, _PROP_CALL, [])
-    prop_deadlock = Property("dummy.prp", True, True, _PROP_DEADLOCK, [])
-    prop_memcleanup = Property("dummy.prp", True, True, _PROP_MEMCLEANUP, [])
-    prop_memsafety = Property("dummy.prp", True, True, _PROP_MEMSAFETY, [_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK])
-    prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
-    prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
-    prop_sat = Property("dummy.prp", True, False, _PROP_SAT, [])
 
     def test_result_category_true(self):
         self.assertEqual(CATEGORY_CORRECT,
