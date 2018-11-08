@@ -53,23 +53,19 @@ class TestResult(unittest.TestCase):
             Property(None, True, True, _PROP_MEMSAFETY, list(_MEMSAFETY_SUBPROPERTIES)),
             Property.create_from_names(_MEMSAFETY_SUBPROPERTIES))
 
-        property_test_sets = [["test prop 1", "test prop 2"], [_PROP_CALL, _PROP_TERMINATION], [_PROP_DEREF, _PROP_FREE]]
-        self.assertEqual(
-            Property(None, False, False, "unknown property", [_PROP_CALL, _PROP_TERMINATION]),
-            Property.create_from_names([_PROP_CALL, _PROP_TERMINATION]))
-
-        self.assertEqual(
-            Property(None, False, False, "unknown property", [_PROP_DEREF, _PROP_FREE]),
-            Property.create_from_names([_PROP_DEREF, _PROP_FREE]))
-
         self.assertEqual(
             Property(None, False, False, "test prop", None),
             Property.create_from_names(["test prop"]))
 
-        test_props = ["test prop 1", "test prop 2"]
-        self.assertEqual(
-            Property(None, False, False, "unknown property", list(test_props)),
-            Property.create_from_names(test_props))
+        property_test_sets = [
+                ["test prop 1", "test prop 2"],
+                [_PROP_CALL, _PROP_TERMINATION],
+                [_PROP_DEREF, _PROP_FREE],
+            ]
+        for test_props in property_test_sets:
+            self.assertEqual(
+                Property(None, False, False, "unknown property", list(test_props)),
+                Property.create_from_names(test_props))
 
 
     def test_score_for_task_no_score_available(self):
