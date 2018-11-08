@@ -294,7 +294,9 @@ def expected_results_of_file(filename):
     results = {}
     for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
         if filename_part in filename:
-            expected_result = (expected_result == RESULT_TRUE_PROP)
+            expected_result_class = get_result_classification(expected_result)
+            assert expected_result_class in {RESULT_CLASS_TRUE, RESULT_CLASS_FALSE}
+            expected_result = (expected_result_class == RESULT_CLASS_TRUE)
             subproperty = None
             if len(for_properties) > 1:
                 assert for_properties == _MEMSAFETY_SUBPROPERTIES and expected_result
