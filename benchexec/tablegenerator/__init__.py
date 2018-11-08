@@ -41,8 +41,10 @@ from xml.etree import ElementTree
 import tempita
 from functools import reduce
 
-from benchexec import __version__
+from benchexec import __version__, BenchExecException
+import benchexec.model as model
 import benchexec.result as result
+import benchexec.util
 from benchexec.tablegenerator import util as Util
 from benchexec.tablegenerator.columns import Column, ColumnType, get_column_type
 import zipfile
@@ -723,7 +725,35 @@ class Row(object):
         self.has_sourcefile = results[0].sourcefiles_exist
         assert len(set(r.task_id for r in results)) == 1, "not all results are for same task"
         self.filename = self.id[0]
-        self.properties = self.id[1].split() if self.id[1] else []
+
+        property_names = self.id[1].split() if self.id[1] else []
+        self.properties = []
+        self.expected_results = {}
+
+        if self.filename.endswith(".yml"):
+            # try to find property file of task and create Property object
+            try:
+                task_template = model.load_task_template_file(self.filename)
+                for prop_dict in task_template.get("properties", []):
+                    if "property_file" in prop_dict:
+                        expanded = benchexec.util.expand_filename_pattern(
+                            prop_dict["property_file"], os.path.dirname(self.filename))
+                        if len(expanded) == 1:
+                            prop = result.Property.create(expanded[0], allow_unknown=True)
+                            if set(prop.names) == set(property_names):
+                                self.properties.append(prop)
+                                expected_result = prop_dict.get("expected_verdict")
+                                if isinstance(expected_result, bool):
+                                    self.expected_results[prop.name] = \
+                                        result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
+                                break
+            except BenchExecException as e:
+                logging.debug(
+                    "Could not load task-template file {}: {}".format(self.filename, e.strerror))
+        elif property_names:
+            self.properties = [result.Property.create_from_names(property_names)]
+            self.expected_results = result.expected_results_of_file(self.filename)
+
 
     def set_relative_path(self, common_prefix, base_dir):
         """
@@ -913,12 +943,19 @@ def get_stats_of_rows(rows):
         if not row.properties:
             logging.info('Missing property for %s.', row.filename)
             continue
-        correct_result = result.satisfies_file_property(row.filename, row.properties)
-        if correct_result is True:
+        if len(row.properties) > 1:
+            # multiple properties not yet supported
+            count_true = count_false = max_score = 0
+            break
+        expected_result = row.expected_results.get(row.properties[0].name)
+        if not expected_result:
+            continue
+        if expected_result.result is True:
             count_true += 1
-        elif correct_result is False:
+        elif expected_result.result is False:
             count_false += 1
-        max_score += result.max_score_for_task(row.properties, correct_result)
+        for prop in row.properties:
+            max_score += prop.max_score(expected_result)
 
     return max_score, count_true, count_false
 
