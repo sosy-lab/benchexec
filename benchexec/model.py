@@ -82,6 +82,24 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
     return [util.substitute_vars(s, keyValueList) for s in oldList]
 
 
+def load_task_template_file(template_file):
+    """Open and parse a task-template file in YAML format."""
+    try:
+        with open(template_file) as f:
+            template = yaml.safe_load(f)
+    except OSError as e:
+        raise BenchExecException("Cannot open task template: " + str(e))
+    except yaml.YAMLError as e:
+        raise BenchExecException("Invalid task template: " + str(e))
+
+    if str(template.get("format_version")) != "0.1":
+        raise BenchExecException(
+            "Task template {} specifies invalid format_version '{}'."
+            .format(template_file, template.get("format_version")))
+
+    return template
+
+
 def load_tool_info(tool_name):
     """
     Load the tool-info class.
@@ -559,18 +577,7 @@ class RunSet(object):
     def create_run_from_template_file(
             self, template_file, options, propertyfile, required_files_pattern):
         """Create a Run from a task template in yaml format"""
-        try:
-            with open(template_file) as f:
-                template = yaml.safe_load(f)
-        except OSError as e:
-            raise BenchExecException("Cannot open task template: " + str(e))
-        except yaml.YAMLError as e:
-            raise BenchExecException("Invalid task template: " + str(e))
-
-        if str(template.get("format_version")) != "0.1":
-            raise BenchExecException(
-                "Task template {} specifies invalid format_version '{}'."
-                .format(template_file, template.get("format_version")))
+        template = load_task_template_file(template_file)
 
         def expand_patterns_from_tag(tag):
             result = []
