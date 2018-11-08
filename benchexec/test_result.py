@@ -29,7 +29,7 @@ from benchexec.result import _PROP_CALL, _PROP_LABEL, _PROP_ASSERT, \
     _PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK, _PROP_MEMCLEANUP,\
     _PROP_TERMINATION, _PROP_SAT, _SCORE_CORRECT_FALSE, _SCORE_CORRECT_TRUE,\
     _SCORE_WRONG_TRUE, _SCORE_WRONG_FALSE, _PROP_OVERFLOW, _PROP_DEADLOCK, _PROP_MEMSAFETY,\
-    Property
+    _MEMSAFETY_SUBPROPERTIES, _VALID_RESULTS_PER_PROPERTY
 
 
 class TestResult(unittest.TestCase):
@@ -38,6 +38,39 @@ class TestResult(unittest.TestCase):
     def setUpClass(cls):
         cls.longMessage = True
         logging.disable(logging.CRITICAL)
+
+    def test_Property_from_names(self):
+        # Compare Property objects by field
+        self.addTypeEqualityFunc(
+            Property, lambda a, b, msg=None: self.assertEqual(a.__dict__, b.__dict__, msg))
+
+        for prop in _VALID_RESULTS_PER_PROPERTY.keys():
+            self.assertEqual(
+                Property(None, True, (prop != _PROP_SAT), prop, None),
+                Property.create_from_names([prop]))
+
+        self.assertEqual(
+            Property(None, True, True, _PROP_MEMSAFETY, list(_MEMSAFETY_SUBPROPERTIES)),
+            Property.create_from_names(_MEMSAFETY_SUBPROPERTIES))
+
+        property_test_sets = [["test prop 1", "test prop 2"], [_PROP_CALL, _PROP_TERMINATION], [_PROP_DEREF, _PROP_FREE]]
+        self.assertEqual(
+            Property(None, False, False, "unknown property", [_PROP_CALL, _PROP_TERMINATION]),
+            Property.create_from_names([_PROP_CALL, _PROP_TERMINATION]))
+
+        self.assertEqual(
+            Property(None, False, False, "unknown property", [_PROP_DEREF, _PROP_FREE]),
+            Property.create_from_names([_PROP_DEREF, _PROP_FREE]))
+
+        self.assertEqual(
+            Property(None, False, False, "test prop", None),
+            Property.create_from_names(["test prop"]))
+
+        test_props = ["test prop 1", "test prop 2"]
+        self.assertEqual(
+            Property(None, False, False, "unknown property", list(test_props)),
+            Property.create_from_names(test_props))
+
 
     def test_score_for_task_no_score_available(self):
         self.assertEqual(0, score_for_task([_PROP_CALL], CATEGORY_MISSING, RESULT_TRUE_PROP))

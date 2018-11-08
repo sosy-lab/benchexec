@@ -277,7 +277,7 @@ class Property(object):
         elif set(known_properties) == _MEMSAFETY_SUBPROPERTIES:
             is_well_known = True
             name = _PROP_MEMSAFETY
-            subproperties = known_properties
+            subproperties = list(known_properties)
 
         else:
             if not allow_unknown:
@@ -302,9 +302,9 @@ class Property(object):
         else:
             name = (_PROP_MEMSAFETY if set(property_names) == _MEMSAFETY_SUBPROPERTIES
                     else "unknown property")
-            subproperties = property_names
+            subproperties = list(property_names)
 
-        is_well_known = all(prop in _VALID_RESULTS_PER_PROPERTY.keys() for prop in property_names)
+        is_well_known = name in _VALID_RESULTS_PER_PROPERTY.keys()
         is_svcomp = is_well_known and (_PROP_SAT not in property_names)
 
         return cls(None, is_well_known, is_svcomp, name, subproperties)
