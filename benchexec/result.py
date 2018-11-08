@@ -324,7 +324,7 @@ def expected_results_of_file(filename):
                 property = _PROP_MEMSAFETY
             else:
                 property = next(iter(for_properties))
-                if property in _MEMSAFETY_SUBPROPERTIES:
+                if property in _MEMSAFETY_SUBPROPERTIES and not expected_result:
                     subproperty = property
                     property = _PROP_MEMSAFETY
             if property in results:
