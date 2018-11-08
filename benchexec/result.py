@@ -348,25 +348,6 @@ def _expected_result(filename, checked_properties):
     return results[0]
 
 
-def satisfies_file_property(filename, properties):
-    """
-    Tell whether the given properties are violated or satisfied in a given file.
-    Assumption: Currently, only one expected result per set of properties is supported.
-    @param filename: The file name of the input file.
-    @param properties: The list of property names to check.
-    @return True if the properties are satisfied; False if it is violated; None if it is unknown
-    """
-    expected_result = _expected_result(filename, properties)
-    if not expected_result:
-        return None
-    expected_result_class = get_result_classification(expected_result)
-    if expected_result_class == RESULT_CLASS_TRUE:
-        return True
-    if expected_result_class == RESULT_CLASS_FALSE:
-        return False
-    return None
-
-
 def _svcomp_max_score(expected_result):
     """
     Return the maximum possible score for a task according to the SV-COMP scoring scheme.
