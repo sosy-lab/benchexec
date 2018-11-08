@@ -28,7 +28,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
                   "2ls",
-                  "2ls-binary"
+                  "2ls-binary",
+                  "goto-cc"
                   ]
 
     def executable(self):

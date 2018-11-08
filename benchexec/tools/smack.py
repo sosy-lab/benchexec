@@ -84,7 +84,9 @@ class Tool(benchexec.tools.template.BaseTool):
               return result.RESULT_FALSE_FREE
             elif 'memory leak' == errtype:
               return result.RESULT_FALSE_MEMTRACK
-            elif 'signed integer overflow' == errtype:
+            elif 'memory cleanup' == errtype:
+              return result.RESULT_FALSE_MEMCLEANUP
+            elif 'integer overflow' == errtype:
               return result.RESULT_FALSE_OVERFLOW
           else:
             return result.RESULT_FALSE_REACH
