@@ -749,7 +749,7 @@ class Row(object):
                                 break
             except BenchExecException as e:
                 logging.debug(
-                    "Could not load task-template file {}: {}".format(self.filename, e.strerror))
+                    "Could not load task-template file {}: {}".format(self.filename, e))
         elif property_names:
             self.properties = [result.Property.create_from_names(property_names)]
             self.expected_results = result.expected_results_of_file(self.filename)
