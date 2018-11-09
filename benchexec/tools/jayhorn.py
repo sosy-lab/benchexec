@@ -53,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         for line in output:
             if 'UNSAFE' in line:
-                status = result.RESULT_FALSE_REACH
+                status = result.RESULT_FALSE_PROP
             elif 'SAFE' in line:
                 status = result.RESULT_TRUE_PROP
 
