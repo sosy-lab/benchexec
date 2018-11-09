@@ -102,10 +102,11 @@ class TestResult(unittest.TestCase):
             temp_file.flush()
             filename = temp_file.name
 
-            self.assertRaisesRegex(
-                BenchExecException,
-                "known property",
-                Property.create, filename, allow_unknown=False)
+            with self.assertRaisesRegex(
+                    BenchExecException,
+                    "known property",
+                    msg="for property file with content\n" + content):
+                Property.create(filename, allow_unknown=False)
 
             self.assertEqual(
                 Property(
@@ -114,12 +115,20 @@ class TestResult(unittest.TestCase):
                     is_svcomp=is_svcomp,
                     name=os.path.splitext(os.path.basename(filename))[0],
                     subproperties=None),
-                Property.create(filename, allow_unknown=True))
+                Property.create(filename, allow_unknown=True),
+                msg="different result for property file with content\n" + content)
 
     def test_Property_from_non_standard_file(self):
         self._test_Property_from_file("test property", False)
         self._test_Property_from_file(
             "CHECK( init(main()), LTL(G p) )", True)
+        self._test_Property_from_file(
+            "CHECK( init(main()), LTL(G p) )\n\nCHECK( init(main()), LTL(F end) )", True)
+        self._test_Property_from_file(
+            "CHECK( init(main()), LTL(G valid-free) )\nCHECK( init(main()), LTL(G valid-deref) )",
+            True)
+        self._test_Property_from_file(
+            "CHECK( init(main()), LTL(G valid-free) and LTL(G valid-deref) )", True)
 
 
     def test_Property_names(self):

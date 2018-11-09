@@ -259,22 +259,35 @@ class Property(object):
         # parse content for known properties
         is_svcomp = False
         known_properties = []
+        only_known_svcomp_property = True
+
         if content == 'OBSERVER AUTOMATON' or content == 'SATISFIABLE':
             known_properties = [_PROPERTY_NAMES[content]]
 
         elif content.startswith('CHECK'):
             is_svcomp = True
-            for substring, prop in _PROPERTY_NAMES.items():
-                if substring in content:
-                    known_properties.append(prop)
+            for line in filter(None, content.splitlines()):
+                if content.startswith('CHECK'):
+                    # SV-COMP property, either a well-known one or a new one
+                    props_in_line = [
+                        prop for (substring, prop) in _PROPERTY_NAMES.items() if substring in line]
+                    if len(props_in_line) == 1:
+                        known_properties.append(props_in_line[0])
+                    else:
+                        only_known_svcomp_property = False
+                else:
+                    # not actually an SV-COMP property file
+                    is_svcomp = False
+                    known_properties = []
+                    break
 
         # check if some known property content was found
         subproperties = None
-        if len(known_properties) == 1:
+        if only_known_svcomp_property and len(known_properties) == 1:
             is_well_known = True
             name = known_properties[0]
 
-        elif set(known_properties) == _MEMSAFETY_SUBPROPERTIES:
+        elif only_known_svcomp_property and set(known_properties) == _MEMSAFETY_SUBPROPERTIES:
             is_well_known = True
             name = _PROP_MEMSAFETY
             subproperties = list(known_properties)
