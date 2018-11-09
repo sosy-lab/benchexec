@@ -325,12 +325,6 @@ class TestResult(unittest.TestCase):
             {_PROP_LABEL: ExpectedResult(False, None)},
             expected_results_of_file("test_false-unreach-label.c"))
         self.assertEqual(
-            {_PROP_ASSERT: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-assert.c"))
-        self.assertEqual(
-            {_PROP_ASSERT: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-assert.c"))
-        self.assertEqual(
             {_PROP_DEADLOCK: ExpectedResult(True, None)},
             expected_results_of_file("test_true-no-deadlock.c"))
         self.assertEqual(

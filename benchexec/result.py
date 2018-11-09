@@ -129,7 +129,6 @@ RESULT_CLASS_ERROR   = 'error'
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
-                   'LTL(G assert)':                     _PROP_ASSERT,
                    'LTL(G ! call(__VERIFIER_error()))': _PROP_CALL,
                    'LTL(F end)':                        _PROP_TERMINATION,
                    'LTL(G valid-free)':                 _PROP_FREE,
@@ -149,7 +148,6 @@ _FILE_RESULTS = {
               '_true-unreach-label':   (RESULT_TRUE_PROP, {_PROP_LABEL}),
               '_true-unreach-call':    (RESULT_TRUE_PROP, {_PROP_CALL}),
               '_true_assert':          (RESULT_TRUE_PROP, {_PROP_ASSERT}),
-              '_true-assert':          (RESULT_TRUE_PROP, {_PROP_ASSERT}),
               '_true-termination':     (RESULT_TRUE_PROP, {_PROP_TERMINATION}),
               '_true-valid-deref':     (RESULT_TRUE_PROP, {_PROP_DEREF}),
               '_true-valid-free':      (RESULT_TRUE_PROP, {_PROP_FREE}),
@@ -162,7 +160,6 @@ _FILE_RESULTS = {
               '_false-unreach-label':  (RESULT_FALSE_REACH,       {_PROP_LABEL}),
               '_false-unreach-call':   (RESULT_FALSE_REACH,       {_PROP_CALL}),
               '_false_assert':         (RESULT_FALSE_REACH,       {_PROP_ASSERT}),
-              '_false-assert':         (RESULT_FALSE_REACH,       {_PROP_ASSERT}),
               '_false-termination':    (RESULT_FALSE_TERMINATION, {_PROP_TERMINATION}),
               '_false-valid-deref':    (RESULT_FALSE_DEREF,       {_PROP_DEREF}),
               '_false-valid-free':     (RESULT_FALSE_FREE,        {_PROP_FREE}),
