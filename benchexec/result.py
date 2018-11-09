@@ -74,8 +74,6 @@ _PROP_SAT =          'sat'
 # internal meta property
 _PROP_MEMSAFETY =    'valid-memsafety'
 
-STR_FALSE = 'false' # only for special cases. STR_FALSE is no official result, because property is missing
-
 # possible run results (output of a tool)
 RESULT_UNKNOWN =            'unknown'
 """tool could not find out an answer due to incompleteness"""
@@ -84,22 +82,24 @@ RESULT_ERROR =              'ERROR' # or any other value not listed here
 (it is recommended to instead use a string with more details about the error)"""
 RESULT_TRUE_PROP =          'true'
 """property holds"""
-RESULT_FALSE_REACH =        STR_FALSE + '(' + _PROP_CALL + ')'
-_RESULT_FALSE_REACH_OLD =   STR_FALSE + '(reach)'
+RESULT_FALSE_PROP = 'false'
+"""property does not hold"""
+RESULT_FALSE_REACH =        RESULT_FALSE_PROP + '(' + _PROP_CALL + ')'
+_RESULT_FALSE_REACH_OLD =   RESULT_FALSE_PROP + '(reach)'
 """SV-COMP reachability property violated"""
-RESULT_FALSE_TERMINATION =  STR_FALSE + '(' + _PROP_TERMINATION + ')'
+RESULT_FALSE_TERMINATION =  RESULT_FALSE_PROP + '(' + _PROP_TERMINATION + ')'
 """SV-COMP termination property violated"""
-RESULT_FALSE_OVERFLOW =     STR_FALSE + '(' + _PROP_OVERFLOW    + ')'
+RESULT_FALSE_OVERFLOW =     RESULT_FALSE_PROP + '(' + _PROP_OVERFLOW    + ')'
 """SV-COMP overflow property violated"""
-RESULT_FALSE_DEADLOCK =     STR_FALSE + '(' + _PROP_DEADLOCK    + ')'
+RESULT_FALSE_DEADLOCK =     RESULT_FALSE_PROP + '(' + _PROP_DEADLOCK    + ')'
 """deadlock property violated""" # not yet part of SV-COMP
-RESULT_FALSE_DEREF =        STR_FALSE + '(' + _PROP_DEREF       + ')'
+RESULT_FALSE_DEREF =        RESULT_FALSE_PROP + '(' + _PROP_DEREF       + ')'
 """SV-COMP valid-deref property violated"""
-RESULT_FALSE_FREE =         STR_FALSE + '(' + _PROP_FREE        + ')'
+RESULT_FALSE_FREE =         RESULT_FALSE_PROP + '(' + _PROP_FREE        + ')'
 """SV-COMP valid-free property violated"""
-RESULT_FALSE_MEMTRACK =     STR_FALSE + '(' + _PROP_MEMTRACK    + ')'
+RESULT_FALSE_MEMTRACK =     RESULT_FALSE_PROP + '(' + _PROP_MEMTRACK    + ')'
 """SV-COMP valid-memtrack property violated"""
-RESULT_FALSE_MEMCLEANUP =     STR_FALSE + '(' + _PROP_MEMCLEANUP    + ')'
+RESULT_FALSE_MEMCLEANUP =   RESULT_FALSE_PROP + '(' + _PROP_MEMCLEANUP  + ')'
 """SV-COMP valid-memcleanup property violated"""
 RESULT_WITNESS_CONFIRMED =  'witness confirmed'
 """SV-COMP property violated and witness confirmed"""
@@ -111,6 +111,7 @@ RESULT_UNSAT =              'unsat'
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
 RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
+               RESULT_FALSE_PROP,
                RESULT_FALSE_REACH,
                _RESULT_FALSE_REACH_OLD,
                RESULT_FALSE_TERMINATION,
@@ -176,18 +177,18 @@ _MEMSAFETY_SUBPROPERTIES = {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}
 
 # Map a property to all possible results for it.
 _VALID_RESULTS_PER_PROPERTY = {
-    _PROP_ASSERT:      {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
-    _PROP_LABEL:       {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
-    _PROP_CALL:        {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
-    _PROP_AUTOMATON:   {RESULT_TRUE_PROP, RESULT_FALSE_REACH},
-    _PROP_DEREF:       {RESULT_TRUE_PROP, RESULT_FALSE_DEREF},
-    _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_FREE},
-    _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_MEMTRACK},
+    _PROP_ASSERT:      {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
+    _PROP_LABEL:       {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
+    _PROP_CALL:        {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
+    _PROP_AUTOMATON:   {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
+    _PROP_DEREF:       {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEREF},
+    _PROP_FREE:        {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_FREE},
+    _PROP_MEMTRACK:    {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_MEMTRACK},
     _PROP_MEMSAFETY:   {RESULT_TRUE_PROP, RESULT_FALSE_DEREF, RESULT_FALSE_FREE, RESULT_FALSE_MEMTRACK},
-    _PROP_MEMCLEANUP:  {RESULT_TRUE_PROP, RESULT_FALSE_MEMCLEANUP},
-    _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_OVERFLOW},
-    _PROP_DEADLOCK:    {RESULT_TRUE_PROP, RESULT_FALSE_DEADLOCK},
-    _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_TERMINATION},
+    _PROP_MEMCLEANUP:  {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_MEMCLEANUP},
+    _PROP_OVERFLOW:    {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_OVERFLOW},
+    _PROP_DEADLOCK:    {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEADLOCK},
+    _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_TERMINATION},
     _PROP_SAT:         {RESULT_SAT, RESULT_UNSAT},
     }
 
@@ -466,9 +467,9 @@ def get_result_category(expected_results, result, properties):
         # for well-known properties, only support hard-coded results
         valid_results = _VALID_RESULTS_PER_PROPERTY[prop.name]
     elif expected_result.subproperty:
-        valid_results = {RESULT_TRUE_PROP, STR_FALSE + "(" + expected_result.subproperty + ")"}
+        valid_results = {RESULT_TRUE_PROP, RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")"}
     else:
-        valid_results = {RESULT_TRUE_PROP, STR_FALSE}
+        valid_results = {RESULT_TRUE_PROP, RESULT_FALSE_PROP}
 
     if result not in valid_results:
         return CATEGORY_UNKNOWN # result does not match property
@@ -478,7 +479,7 @@ def get_result_category(expected_results, result, properties):
         return CATEGORY_CORRECT if result_class == RESULT_CLASS_TRUE else CATEGORY_WRONG
     else:
         if expected_result.subproperty:
-            return CATEGORY_CORRECT if result == STR_FALSE + "(" + expected_result.subproperty + ")" else CATEGORY_WRONG
+            return CATEGORY_CORRECT if result == RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")" else CATEGORY_WRONG
         else:
             return CATEGORY_CORRECT if result_class == RESULT_CLASS_FALSE else CATEGORY_WRONG
 

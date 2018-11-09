@@ -428,6 +428,15 @@ class TestResult(unittest.TestCase):
         self.assertEqual(CATEGORY_WRONG,
                          get_result_category(self.expected_result(False), RESULT_TRUE_PROP, [self.prop_deadlock]))
 
+        test_prop = Property("dummy.prp", False, True, "test prop", None)
+        self.assertEqual(
+            CATEGORY_CORRECT,
+            get_result_category(self.expected_result(True), RESULT_TRUE_PROP, [test_prop]))
+        self.assertEqual(
+            CATEGORY_WRONG,
+            get_result_category(self.expected_result(False), RESULT_TRUE_PROP, [test_prop]))
+
+
     def test_result_category_false(self):
         self.assertEqual(CATEGORY_WRONG,
                          get_result_category(self.expected_result(True),  RESULT_FALSE_REACH, [self.prop_call]))
@@ -468,6 +477,32 @@ class TestResult(unittest.TestCase):
         self.assertEqual(CATEGORY_CORRECT,
                          get_result_category(self.expected_result(False), RESULT_FALSE_DEADLOCK, [self.prop_deadlock]))
 
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category(self.expected_result(True),  RESULT_FALSE_PROP, [self.prop_call]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category(self.expected_result(False), RESULT_FALSE_PROP, [self.prop_call]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category(self.expected_result(True),  RESULT_FALSE_PROP, [self.prop_termination]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category(self.expected_result(False), RESULT_FALSE_PROP, [self.prop_termination]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category(self.expected_result(True),  RESULT_FALSE_PROP, [self.prop_overflow]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category(self.expected_result(False), RESULT_FALSE_PROP, [self.prop_overflow]))
+        self.assertEqual(CATEGORY_WRONG,
+                         get_result_category(self.expected_result(True),  RESULT_FALSE_PROP, [self.prop_deadlock]))
+        self.assertEqual(CATEGORY_CORRECT,
+                         get_result_category(self.expected_result(False), RESULT_FALSE_PROP, [self.prop_deadlock]))
+
+        test_prop = Property("dummy.prp", False, True, "test prop", None)
+        self.assertEqual(
+            CATEGORY_WRONG,
+            get_result_category(self.expected_result(True), RESULT_FALSE_PROP, [test_prop]))
+        self.assertEqual(
+            CATEGORY_CORRECT,
+            get_result_category(self.expected_result(False), RESULT_FALSE_PROP, [test_prop]))
+
+
     def test_result_category_different_false_result(self):
         expected_result_false = self.expected_result(False)
         self.assertEqual(CATEGORY_UNKNOWN,
@@ -496,6 +531,10 @@ class TestResult(unittest.TestCase):
                          get_result_category(expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_sat]))
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category(expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_sat]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(True), RESULT_FALSE_PROP, [self.prop_sat]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(expected_result_false, RESULT_FALSE_PROP, [self.prop_sat]))
 
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category(expected_result_false, RESULT_FALSE_REACH, [self.prop_overflow]))
@@ -514,6 +553,16 @@ class TestResult(unittest.TestCase):
                          get_result_category(expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_deadlock]))
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category(expected_result_false, RESULT_UNSAT, [self.prop_deadlock]))
+
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(True), RESULT_FALSE_PROP, [self.prop_memsafety]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(False, 'valid-deref'),    RESULT_FALSE_PROP, [self.prop_memsafety]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(False, 'valid-free'),     RESULT_FALSE_PROP, [self.prop_memsafety]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(False, 'valid-memtrack'), RESULT_FALSE_PROP, [self.prop_memsafety]))
+
 
     def test_result_category_different_true_result(self):
         expected_result_true = self.expected_result(True)
