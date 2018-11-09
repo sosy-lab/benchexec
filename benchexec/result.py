@@ -424,6 +424,8 @@ def get_result_classification(result):
     @return One of RESULT_CLASS_* strings
     '''
     if result not in RESULT_LIST:
+        if result and result.startswith(RESULT_FALSE_PROP + "(") and result.endswith(")"):
+            return RESULT_CLASS_FALSE
         return RESULT_CLASS_ERROR
 
     if result == RESULT_UNKNOWN:
@@ -444,10 +446,11 @@ def get_result_category(expected_results, result, properties):
     @param properties: The list of property names to check.
     @return One of the CATEGORY_* strings.
     '''
-    if result not in RESULT_LIST:
+    result_class = get_result_classification(result)
+    if result_class == RESULT_CLASS_ERROR:
         return CATEGORY_ERROR
 
-    if result == RESULT_UNKNOWN:
+    if result_class == RESULT_CLASS_UNKNOWN:
         return CATEGORY_UNKNOWN
 
     if not properties:
@@ -465,16 +468,16 @@ def get_result_category(expected_results, result, properties):
 
     if prop.is_well_known:
         # for well-known properties, only support hard-coded results
-        valid_results = _VALID_RESULTS_PER_PROPERTY[prop.name]
+        is_valid_result = result in _VALID_RESULTS_PER_PROPERTY[prop.name]
     elif expected_result.subproperty:
-        valid_results = {RESULT_TRUE_PROP, RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")"}
+        is_valid_result = result in {
+            RESULT_TRUE_PROP, RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")"}
     else:
-        valid_results = {RESULT_TRUE_PROP, RESULT_FALSE_PROP}
+        is_valid_result = (result == RESULT_TRUE_PROP) or result.startswith(RESULT_FALSE_PROP)
 
-    if result not in valid_results:
+    if not is_valid_result:
         return CATEGORY_UNKNOWN # result does not match property
 
-    result_class = get_result_classification(result)
     if expected_result.result:
         return CATEGORY_CORRECT if result_class == RESULT_CLASS_TRUE else CATEGORY_WRONG
     else:
