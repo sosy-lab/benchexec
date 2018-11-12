@@ -73,6 +73,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         tmp_benchmarks_dir = os.path.join(tmp_dir, relative_benchmark_dir)
         shutil.copytree(benchmarks_dir, tmp_benchmarks_dir)
         shutil.copytree(os.path.join(base_dir, 'doc'), os.path.join(tmp_dir, 'doc'))
+        shutil.copy(os.path.join(base_dir, 'README.md'), os.path.join(tmp_dir))
         output_dir = os.path.join(tmp_dir, 'benchexec', 'test_integration', 'actual')
         os.makedirs(output_dir)
         self.tmp = tmp_dir
