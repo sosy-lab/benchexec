@@ -33,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('scripts/verifuzz.py')
 
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
     def program_files(self, executable):
         installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
         return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
