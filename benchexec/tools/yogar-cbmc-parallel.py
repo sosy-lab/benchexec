@@ -22,7 +22,7 @@ class Tool(yogar_cbmc.Tool):
     REQUIRED_PATHS = [
                   "yogar-cbmc"
                   ]
-        
+
     def executable(self):
         return util.find_executable('yogar-cbmc-parallel')
 

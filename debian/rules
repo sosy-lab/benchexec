@@ -6,8 +6,12 @@
 
 export PYBUILD_NAME=benchexec
 
+# Our tests need some additional files in {build_dir} to execute succesfully
+export PYBUILD_BEFORE_TEST=cp -r {dir}/bin {dir}/doc {build_dir}/
+export PYBUILD_AFTER_TEST=rm -r {build_dir}/bin {build_dir}/doc
+
 %:
-	dh $@ --with python3 --buildsystem=pybuild
+	dh $@ --with python3,systemd --buildsystem=pybuild
 
 override_dh_auto_build:
 	dh_auto_build
@@ -19,6 +23,12 @@ override_dh_auto_install:
 
 override_dh_installchangelogs:
 	dh_installchangelogs CHANGELOG.md
+
+override_dh_installinit:
+	dh_installinit --restart-after-upgrade --name=benchexec-cgroup
+
+override_dh_systemd_enable:
+	dh_systemd_enable --name benchexec-cgroup benchexec-cgroup.service
 
 override_dh_auto_clean:
 	dh_auto_clean

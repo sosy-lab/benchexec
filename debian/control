@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Philipp Wendler <debian@philippwendler.de>
 Build-Depends: debhelper (>= 9),
                dh-python,
+               dh-systemd (>= 1.5),
                python3 (>= 3.2),
                python3-setuptools,
                python3-lxml,
@@ -18,6 +19,7 @@ Vcs-Browser: https://github.com/sosy-lab/benchexec
 Package: benchexec
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}
+Recommends: cpu-energy-meter
 Description: Framework for Reliable Benchmarking and Resource Measurement
  BenchExec allows benchmarking non-interactive tools on Linux systems.
  It measures CPU time, wall time, and memory usage of a tool,

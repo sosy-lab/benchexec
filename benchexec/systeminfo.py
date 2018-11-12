@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import glob
 import logging
 import os
+import platform
 import sys
 
 from benchexec import util
@@ -49,8 +50,8 @@ class SystemInfo(object):
         This function finds some information about the computer.
         """
         # get info about OS
-        (sysname, self.hostname, kernel, version, machine) = os.uname()  # @UnusedVariable
-        self.os = sysname + " " + kernel + " " + machine
+        self.hostname = platform.node()
+        self.os = platform.platform(aliased=True)
 
         # get info about CPU
         cpuInfo = dict()

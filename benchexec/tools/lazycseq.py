@@ -31,6 +31,7 @@ class Tool(cseq.CSeqTool):
                   "core",
                   "cseq.py",
                   "lazy-cseq.py",
+                  "pycparser",
                   "modules"
                   ]
 

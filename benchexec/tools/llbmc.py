@@ -43,30 +43,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
-        inputfile = tasks[0]
-        # compile inputfile with clang
-        self.prepInputfile = self._prepareInputfile(inputfile)
-
-        return [executable] + options + [self.prepInputfile]
-
-
-    def _prepareInputfile(self, inputfile):
-        clangExecutable = util.find_executable('clang')
-        newFilename     = inputfile + ".o"
-
-        subprocess.Popen([clangExecutable,
-                            '-c',
-                            '-emit-llvm',
-                            '-std=gnu89',
-                            '-m32',
-                            inputfile,
-                            '-O0',
-                            '-o',
-                            newFilename,
-                            '-w'],
-                          stdout=subprocess.PIPE).wait()
-
-        return newFilename
+        return [executable] + options + tasks
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -77,11 +54,5 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_FALSE_REACH
             elif 'No error detected.' in line:
                 status = result.RESULT_TRUE_PROP
-
-        # delete tmp-files
-        try:
-            os.remove(self.prepInputfile)
-        except OSError:
-            print("Could not remove file " + self.prepInputfile + "! Maybe clang call failed")
 
         return status

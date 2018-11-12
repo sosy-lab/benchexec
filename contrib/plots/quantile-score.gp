@@ -15,7 +15,7 @@ set logscale y 10
 set key left top Left reverse
 #set key bottom right
 
-set output "quantile-score.pdf"
+set output "quantile-score.gp.pdf"
 set terminal pdf
 
 set style data linespoints

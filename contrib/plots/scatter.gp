@@ -14,7 +14,7 @@ set logscale
 set nokey
 set size square
 
-set output "scatter.pdf"
+set output "scatter.gp.pdf"
 set terminal pdf size 10cm,10cm
 
 # plot with 3 diagonal lines and data points from columns 4 and 8 in table

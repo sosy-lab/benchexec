@@ -2,7 +2,7 @@
 # BenchExec is a framework for reliable benchmarking.
 # This file is part of BenchExec.
 #
-# Copyright (C) 2007-2016  Dirk Beyer
+# Copyright (C) 2007-2017  Dirk Beyer
 # All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,9 @@
  * To use it on an Apache server,
  * put this script in your results directory or a directory above it,
  * and insert the following in the ".htaccess" file in the same directory:
+ *
+ * This file is maintained at
+ * https://github.com/sosy-lab/benchexec/blob/master/contrib/serveFileFromZIP.php
 
 RewriteEngine On
 # Only redirect if target does not exist as file or directory
@@ -70,6 +73,10 @@ function handleError($message) {
   exit();
 }
 
+function strEndsWith($str, $end) {
+  return substr_compare($str, $end, -strlen($end)) === 0;
+}
+
 /* Read a file from a ZIP archive and send content to client. */
 function serveFileFromZIP($baseDir, $zipName, $fileName) {
   $zip = new ZipArchive();
@@ -85,7 +92,11 @@ function serveFileFromZIP($baseDir, $zipName, $fileName) {
 
   $fileSize = $zip->statName($fileName)['size'];
   header('Content-Length: ' . $fileSize);
-  header('Content-Type: text/plain');
+  $contentType = "text/plain";
+  if (strEndsWith($fileName, ".graphml")) {
+    $contentType = "text/xml";
+  }
+  header('Content-Type: ' . $contentType);
 
   fpassthru($contents);
   fclose($contents);

@@ -32,17 +32,20 @@ import benchexec.tablegenerator as tablegenerator
 
 Util = tablegenerator.Util
 
-
-def extract_cputime(run_result):
-    pos = None
-    for i, column in enumerate(run_result.columns):
-        if column.title == 'cputime':
-            pos = i
-            break
-    if pos is None:
-        sys.exit('CPU time missing for task {0}.'.format(run_result.task_id[0]))
-    return Util.to_decimal(run_result.values[pos])
-
+def get_extract_value_function(column_identifier):
+    """
+    returns a function that extracts the value for a column.
+    """
+    def extract_value(run_result):
+        pos = None
+        for i, column in enumerate(run_result.columns):
+            if column.title == column_identifier:
+                pos = i
+                break
+        if pos is None:
+            sys.exit('CPU time missing for task {0}.'.format(run_result.task_id[0]))
+        return Util.to_decimal(run_result.values[pos])
+    return extract_value
 
 def main(args=None):
     if args is None:
@@ -56,13 +59,15 @@ def main(args=None):
            but have an additional first column with the index for the quantile plot,
            and they are sorted.
            The output is written to stdout.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/"""
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument("result",
         metavar="RESULT",
         type=str,
-        help="XML file with result produced by benchexec"
+        nargs="+",
+        help="XML files with result produced by benchexec"
     )
     parser.add_argument("--correct-only",
         action="store_true", dest="correct_only",
@@ -72,13 +77,22 @@ def main(args=None):
         action="store_true", dest="score_based",
         help="create data for score-based quantile plot"
     )
+    parser.add_argument("--sort-by",
+        metavar="SORT",
+        default="cputime",
+        dest="column_identifier",
+        type=str,
+        help="column identifier for sorting the values, e.g. 'cputime' or 'walltime'"
+    )
 
     options = parser.parse_args(args[1:])
 
     # load results
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
-            options.result, tablegenerator.parse_results_file(options.result))
-    run_set_result.collect_data(options.correct_only)
+            options.result[0], tablegenerator.parse_results_file(options.result[0]))
+    for results_file in options.result[1:]:
+        run_set_result.append(results_file, tablegenerator.parse_results_file(results_file))
+    run_set_result.collect_data(options.correct_only or options.score_based)
 
     # select appropriate results
     if options.score_based:
@@ -111,7 +125,7 @@ def main(args=None):
             results = run_set_result.results
 
     # sort data for quantile plot
-    results.sort(key=extract_cputime)
+    results.sort(key=get_extract_value_function(options.column_identifier))
 
     # extract information which id columns should be shown
     for run_result in run_set_result.results:

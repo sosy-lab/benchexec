@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+GROUP=benchexec
+
+add_group() {
+  addgroup --system "${GROUP}"
+  echo
+  echo "Please add those user accounts that should be able to use BenchExec to the group ${GROUP}."
+  echo
+}
+
+case "$1" in
+  configure)
+    add_group
+    ;;
+esac
+
+#DEBHELPER#

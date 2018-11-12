@@ -51,7 +51,7 @@
     text-decoration: underline;
   }
   table {
-    outline:3px solid black;
+    outline:3px solid rgb(85, 85, 85);
     border-spacing:0px;
   }
   table#dataTable {
@@ -63,18 +63,20 @@
   }
   tbody { white-space: nowrap; }
   tr:hover { background-color:yellow}
-  td { border:1px solid black; }
+  td { border:1px solid rgb(85, 85, 85); }
+  td.selected { border-color: red; }
   td:first-child { text-align: left; }
   #dataTable tbody td:first-child { font-family: monospace; }
   #options td:not(:first-child) {  text-align:left; font-size: x-small;
                                    font-family: monospace; vertical-align: top; }
   .columnTitles td:first-child { font-family: monospace; font-size: x-small; }
   .columnTitles, .run { text-align: center; }
-  thead tr:last-child td { border-bottom:3px solid black}
+  thead tr:last-child td { border-bottom:3px solid rgb(85, 85, 85)}
   tr.statistics { white-space: nowrap }
-  tfoot tr:first-child td { border-top:3px solid black}
+  tfoot tr:first-child td { border-top:3px solid rgb(85, 85, 85)}
   .status, .main_status { text-align: center; }
   .status.correct, .main_status.correct { color:green}
+  .status.correct-unconfirmed, .main_status.correct-unconfirmed { color: orange; }
   .status.wrong, .main_status.wrong { color:red; font-weight: bold; }
   .status.unknown, .main_status.unknown { color:orange; font-weight: bold; }
   .status.error, .main_status.error { color:magenta; font-weight: bold; }
@@ -183,9 +185,7 @@
   .jqplot-table-legend { text-align: left; }
   table.jqplot-table-legend[style] { position:absolute; left:auto !important; right:0px !important; } /* overrides inner css-style */
   #chart { height:100%; width:100%; overflow:hidden; }
-  #button-quantile { position:absolute; bottom:50px; }
-  #button-logScale { position:absolute; bottom:25px; }
-  #button-showCorrectOnly { position:absolute; bottom:0px; }
+  #contentPane #buttons { position: absolute; bottom: 0px; z-index: 4; }
   .plot-selector { width:30%; }
   -->
 </style>
@@ -232,7 +232,7 @@
 
 <tbody>
 {{for line in body}}
-<tr><td title="Click here to show source code"><a href="{{line.file_path|url}}">{{line.short_filename}}</a></td>
+<tr>{{if line.has_sourcefile}}<td title="Click here to show source code"><a href="{{create_link(line.filename, base_dir)}}">{{line.short_filename}}</a>{{else}}<td title="This task has no associated file">{{line.short_filename}}{{endif}}</td>
   {{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}
     {{if show}}
 <td>{{id}}</td>
@@ -244,7 +244,7 @@
   {{if column.title.endswith('status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
-<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(runResult, base_dir, column)}}">{{value}}</a></td>
+<td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult, href_base)}}">{{value}}</a></td>
     {{else}}
 <td class="{{ccsclass}}">{{value}}</td>
     {{endif}}
@@ -351,15 +351,15 @@ var currentlySelectedCell = null;
 function highlightCell(event) {
   var target = event.target;
   if (target.nodeName === 'A') {
-    target = target.parentNode;
+    target = $(target.parentNode);
 
     // unhighlight currentlySelectedCell
     if (currentlySelectedCell != null) {
-      currentlySelectedCell.style.borderColor = 'black';
+      currentlySelectedCell.removeClass('selected');
     }
 
     // highlight cell that has been just clicked on
-    target.style.borderColor = 'red';
+    target.addClass('selected');
     currentlySelectedCell = target;
   }
 }
@@ -380,7 +380,9 @@ function catchHideContentPane(event) {
   // hide the content pane on mouse click outside the content pane
   // or when pressing the "Esc" key with the content pane focused
   if (event.type == "click" || escKeyPressed(event)) {
-    hideContentPane();
+    $('#contentPaneBackground').hide();
+    $('#contentPane').hide().empty();
+    isRowFilterPaneActive = false;
   }
 
   // On closing the dialog, turn on the scrollable header, if it's not on
@@ -391,9 +393,8 @@ function catchHideContentPane(event) {
 }
 
 function hideContentPane() {
-  $('#contentPaneBackground').hide();
-  $('#contentPane').hide().empty();
-  isRowFilterPaneActive = false;
+  // Execute catchHideContentPane and any other registered cleanup functions
+  $('#contentPaneBackground').trigger('click');
 }
 
 function escKeyPressed(event) {
@@ -591,7 +592,7 @@ function loadContent(url) {
 }
 
 $(document).ready(function() {
-  var cellsWithUrls = $('#dataTable a');
+  var cellsWithUrls = $('#dataTable a').not("[target='_self']");
   cellsWithUrls.each(
     function(index, elem) {
       $(elem).click(highlightCell).click(loadContentWrapper);
@@ -715,6 +716,7 @@ function range(start, end) {
 
 
 function createColumnToggleView() {
+    hideContentPane(); // cleanup
     // Turn the float-thead on and off.
     $("#dataTable").floatThead('destroy');
 
@@ -803,7 +805,7 @@ function createStatsView(statistics, currentIndex) {
              .appendTo(rowHeader)
              .addClass('clickable')
              .click(function(event) { // iterate through statistics
-                 $('#contentPaneBackground').click(); // cleanup
+                 hideContentPane(); // cleanup
                  createStatsView(statistics, (currentIndex + 1) % statistics.length);
              } )
              .attr('title', originalCell.attr('title'));
@@ -865,12 +867,11 @@ $(document).ready(function() {
 <script type="text/javascript">
 
 function createRowFilterButtons() {
+  hideContentPane(); // cleanup
   if (isRowFilterPaneActive) {
     return;
   }
   isRowFilterPaneActive = true;
-
-  $("#contentPane").empty();
 
   var buttonList = $('<form>', {id:'rowFilterButtons', onsubmit:'return false'})
         .appendTo($("#contentPane"));
@@ -928,7 +929,7 @@ function fillRowFilterField(columnIndex) {
     // determinate options
     var options = [];
     var columnName = columnTitleCells[columnIndex].textContent;
-    if (columnName == 'status') {
+    if (columnName.endsWith('status')) {
         options = options.concat(['correct', 'wrong', 'unknown']);
     }
     $('#dataTable > tbody > tr').filter(':visible').each(function(_, row) {
@@ -1008,20 +1009,20 @@ function hideRows(values, columnIndex, invertFilter) {
         }
 
         // special case: show 'correct', 'wrong' and 'unknown' results
-        if (!isVisible && columnName == 'status') {
+        if (!isVisible && columnName.endsWith('status')) {
             var classNames = row.cells[columnIndex + dataColumnsOffset].className.split(' ');
             for (var j = 0; j < values.length; j++) {
                 var value = values[j];
                 switch (value) {
                     case 'correct':
                     case 'wrong':
-                        if (anyStartsWith(value, classNames)) {
+                        if (classNames.indexOf(value) >= 0) {
                             isVisible = true;
                         }
                         break;
 
                     case 'unknown':
-                        if (!anyStartsWith('correct', classNames) && !anyStartsWith('wrong', classNames)) {
+                        if (classNames.indexOf('correct') == -1 && classNames.indexOf('wrong') == -1) {
                             isVisible = true;
                         }
                         break;
@@ -1032,13 +1033,6 @@ function hideRows(values, columnIndex, invertFilter) {
         }
         if (invertFilter == isVisible) $(row).hide();
     }
-}
-
-function anyStartsWith(key, values) {
-    for (var i = 0; i < values.length; i++) {
-        if (values[i].indexOf(key) == 0) { return true; }
-    }
-    return false;
 }
 
 $(document).ready(function() {
@@ -1084,6 +1078,7 @@ var graphData = {
   isQuantile : true,
   isLogScale : true,
   showCorrectOnly : true,
+  secondLineFactor : 10,
 };
 
 // this function collects the indices of columns with target as cell above the column
@@ -1137,7 +1132,7 @@ function collectTableDataForQuantile() {
       var currentCell = $(currentRow.cells[index + dataColumnsOffset]);
       var value = getValue(currentCell, graphData.target.textContent);
       var filename = currentRow.cells[0].textContent;
-      if (!graphData.isQuantile && i == 0 && j == 0 && isNaN(value)) {
+      if (i == 0 && j == 0 && isNaN(value)) {
         // Having NaN as the first value of the first data set is a problem for Jqplot.
         // We replace it with an invalid fake value (depending on scale).
         value = graphData.isLogScale ? 0 : Number.NEGATIVE_INFINITY;
@@ -1384,40 +1379,51 @@ function getYTicksFormat() {
 
 
 function addButtons(target, callback, showQuantileButton) {
+    target = $('<div>', {id: 'buttons'}).appendTo(target);
     if (showQuantileButton) {
         $('<button>', {id:'button-quantile'}).appendTo(target)
             .click(function() { graphData.isQuantile = !graphData.isQuantile; callback();})
             .text(graphData.isQuantile ? 'Switch to Direct Plot' : 'Switch to Quantile Plot');
+        $('<br>').appendTo(target);
     }
 
     $('<button>', {id:'button-logScale'}).appendTo(target)
         .click(function() { graphData.isLogScale = !graphData.isLogScale; callback();})
         .text(graphData.isLogScale ?  'Switch to Linear Scale' : 'Switch to Logarithmic Scale');
+    $('<br>').appendTo(target);
 
     $('<button>', {id:'button-showCorrectOnly'}).appendTo(target)
         .click(function() { graphData.showCorrectOnly = !graphData.showCorrectOnly; callback();})
         .text(graphData.showCorrectOnly ?  'Switch to All Results' : 'Switch to Correct Results Only');
+    $('<br>').appendTo(target);
 }
 
-function isValidStatisticsColumn(columnIndex) {
+function isValidStatisticsColumn(columnIndex, allowStatus) {
   var firstRow = $('#dataTable').find('> tbody > tr:visible')[0];
   var firstColumnEntry = firstRow.cells[dataColumnsOffset + columnIndex];
   var columnClasses = firstColumnEntry.classList;
 
-  return $(columnTitleCells[columnIndex]).is(':visible')
-          && (columnClasses.contains('status') || columnClasses.contains('main_status')
-            || columnClasses.contains('measure') || columnClasses.contains('count'));
+  if (!$(columnTitleCells[columnIndex]).is(':visible')) {
+    return false;
+  }
+  if (columnClasses.contains('measure') || columnClasses.contains('count')) {
+    return true;
+  }
+  if (allowStatus && (columnClasses.contains('status') || columnClasses.contains('main_status'))) {
+    return true;
+  }
+  return false;
 }
 
 function getSelectorForScatter(identifier) {
-    var select = $('<select>', {class:'plot-selector'});
+    var select = $('<select title="select an axis for the plot">', {class:'plot-selector'});
     var columnIndex = 0;
     for (var i = 0; i < run_sets.length; i++) {
         var runSet = run_sets[i];
         var group = $('<optgroup>', {label:getNameOfTestDirect(runSet)})
                 .appendTo(select);
         for (var j = 0; j < runSet.columns.length; j++, columnIndex++) {
-          if (isValidStatisticsColumn(columnIndex)) {
+          if (isValidStatisticsColumn(columnIndex, true)) {
                 var column = runSet.columns[j];
                 var option = $('<option>', {
                                 value:columnIndex,
@@ -1436,8 +1442,27 @@ function getSelectorForScatter(identifier) {
     return select;
 }
 
+function getSecondLineFactorForScatter() {
+  var select = $('<select title="select a factor for additional lines in the plot" style="direction: rtl;">', {class:'plot-second-line-factor'});
+    for (var number = 2; number < Math.pow(10,9);
+            number = (number < 10) ? (number + 1) : (number * 10)) {
+        select.append($('<option>', {
+            value:number,
+            selected:(graphData.secondLineFactor == number),
+            text: number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f'),
+            }));
+    }
+    select.change(function(){
+        var selectedValue = Number(select.find(':selected')[0].value);
+        graphData.secondLineFactor = selectedValue;
+        showScatterPlot();
+    });
+
+    return select;
+}
+
 function showScatterPlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   var contentPane = $('#contentPane').append('<div id="chart"></div>');
   addButtons(contentPane, showScatterPlot, false);
   showContentPane();
@@ -1446,6 +1471,7 @@ function showScatterPlot() {
   // it identifies the first and second selector
   var selector0 = getSelectorForScatter(0);
   var selector1 = getSelectorForScatter(1);
+  var selectorSecondLineFactor = getSecondLineFactorForScatter();
   var index0 = graphData.target[0];
   var index1 = graphData.target[1];
   var title0 = columnTitleCells[index0].textContent;
@@ -1517,11 +1543,27 @@ function showScatterPlot() {
         objects: [
             {line: {
                 name: 'diagonalLine',
-                lineWidth: 1,
+                lineWidth: 2,
                 color: 'red',
                 shadow: false,
                 start: [minValue, minValue],
                 stop: [maxValue, maxValue],
+            } },
+            {line: {
+                name: 'diagonalLineAbove',
+                lineWidth: .5,
+                color: 'red',
+                shadow: false,
+                start: [minValue, minValue*graphData.secondLineFactor],
+                stop: [maxValue, maxValue*graphData.secondLineFactor],
+            } },
+            {line: {
+                name: 'diagonalLineBelow',
+                lineWidth: .5,
+                color: 'red',
+                shadow: false,
+                start: [minValue, minValue/graphData.secondLineFactor],
+                stop: [maxValue, maxValue/graphData.secondLineFactor],
             } },
         ]
     }
@@ -1530,7 +1572,9 @@ function showScatterPlot() {
   $('.jqplot-title').empty()
         .append('X: ').append(selector0)
         .append('<span style="padding-left:50px"></span>') // some space between the selectors
-        .append('Y: ').append(selector1);
+        .append('Y: ').append(selector1)
+        .append('<span style="padding-left:50px"></span>') // some space between the selectors
+        .append('line: ').append(selectorSecondLineFactor);
 
   $('#contentPaneBackground').click(function(event) {
     plot.destroy();
@@ -1557,7 +1601,7 @@ function getSelectorForQuantile() {
         var run_set = run_sets[i];
         for (var j = 0; j < run_set.columns.length; j++, columnIndex++) {
             var column = run_set.columns[j];
-            if (columns[column] == null && isValidStatisticsColumn(columnIndex)) {
+            if (columns[column] == null && isValidStatisticsColumn(columnIndex, true)) {
               $('<option>', { value:'column' + columnIndex, selected:(!graphData.isRunSet && graphData.target.textContent == column) })
                   .text(column).appendTo(group);
               columns[column] = column;
@@ -1584,7 +1628,7 @@ function getSelectorForQuantile() {
 }
 
 function showQuantilePlot() {
-  $('#contentPaneBackground').trigger('click'); // cleanup
+  hideContentPane(); // cleanup
   $('#contentPane').append('<div id="chart"></div>');
   addButtons($('#contentPane'), showQuantilePlot, true);
   showContentPane();
@@ -1652,9 +1696,18 @@ function showQuantilePlot() {
   });
 };
 
+function findFirstStatisticsColumn() {
+  for (var i = 0; i < columnTitleCells.length; i++) {
+    if (isValidStatisticsColumn(i, false)) {
+      return i;
+    }
+  }
+  return 0;
+}
+
 function createQuantilePlotView(event) {
   if (event == undefined) {
-    graphData.target = columnTitleCells[1]; // second column is default
+    graphData.target = columnTitleCells[findFirstStatisticsColumn()];
   } else {
     graphData.target = event.target;
   }
@@ -1663,7 +1716,8 @@ function createQuantilePlotView(event) {
 };
 
 function createScatterPlotView() {
-  graphData.target = [1,1]; // default indices of the columns in the plot
+  var i = findFirstStatisticsColumn(); // default indices of the columns in the plot
+  graphData.target = [i, i];
   graphData.isRunSet = false;
   showScatterPlot();
 };

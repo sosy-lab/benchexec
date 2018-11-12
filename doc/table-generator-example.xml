@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.6//EN" "http://www.sosy-lab.org/benchexec/table-1.6.dtd">
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
 <table>
 
   <!-- By default, use all columns (no <column> tags). -->
@@ -9,8 +9,8 @@
 
     <!-- <column> can be used here to override the global set of columns.  -->
     <column title="status"/>
-    <column title="cputime"/>
-    <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+    <column title="cputime" displayTitle="CPU Time"/>
+    <column title="memUsage" displayTitle="Memory" sourceUnit="B" displayUnit="MB"/>
   </result>
 
   <!-- <union> groups a set of results which should be placed below each other in the table

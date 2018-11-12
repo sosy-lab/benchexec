@@ -1,5 +1,11 @@
 # BenchExec: Executing Benchmarks as Separate User
 
+**Important**: This feature is **deprecated** since BenchExec 1.10
+and scheduled to be removed in BenchExec 2.0.
+We recommend to use the [container mode](container.md) instead for isolating runs,
+which does not require root access and provides more features.
+If you require the sudo mode described here, please [tell us](https://github.com/sosy-lab/benchexec/issues/215).
+
 Both `benchexec` and `runexec` optionally support executing the tool under a different user account
 than the benchmarking framework itself.
 Compared to running everything under the same user, this prevents the benchmarked processes

@@ -1,0 +1,92 @@
+# To execute a job locally, install gitlab-runner (https://docs.gitlab.com/runner/install/)
+# and run the following command:
+# gitlab-runner exec docker --docker-privileged --docker-volumes /sys/fs/cgroup:/sys/fs/cgroup:rw --env CI_REGISTRY_IMAGE=registry.gitlab.com/sosy-lab/software/benchexec <<JOB_NAME>>
+
+variables:
+  # We use two user accounts, one executes runexec as the other via sudo
+  PRIMARY_USER: benchexec
+  SECONDARY_USER: benchmarks
+
+image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
+
+before_script:
+  # Create users and give sudo permission
+  - adduser --disabled-login --gecos "" $PRIMARY_USER
+  - adduser --disabled-login --gecos "" $SECONDARY_USER
+  - 'echo "$PRIMARY_USER ALL=($SECONDARY_USER) NOPASSWD: ALL" >> /etc/sudoers'
+  # Activate coverage for subprocesses
+  - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
+  # Give $PRIMARY_USER permission to create cgroups
+  - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
+  - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+  # Install BenchExec
+  - sudo -u $PRIMARY_USER pip install --user .
+
+.unit-tests: &unit-tests
+  stage: test
+  script:
+    - sudo -u $PRIMARY_USER
+        BENCHEXEC_TEST_USER=$SECONDARY_USER
+        COVERAGE_PROCESS_START=.coveragerc
+        coverage run setup.py test
+  after_script:
+    - sudo -u $PRIMARY_USER coverage combine
+    - sudo -u $PRIMARY_USER coverage report
+    - sudo -u $PRIMARY_USER coverage xml
+  tags:
+    - privileged
+  artifacts:
+    paths:
+      - coverage.xml
+
+unit-tests:python-2.7:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '2.7'
+
+unit-tests:python-3.2:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.2'
+
+unit-tests:python-3.3:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.3'
+
+unit-tests:python-3.4:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.4'
+
+unit-tests:python-3.5:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.5'
+
+unit-tests:python-3.6:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.6'
+
+unit-tests:python-3.7:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.7'
+
+deploy-coverage:
+  stage: deploy
+  variables:
+    PYTHON_VERSION: '3.7'
+  before_script:
+    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
+  script:
+    - python-codacy-coverage -r coverage.xml
+  dependencies:
+    - unit-tests:python-3.7
+  only:
+    refs:
+      - master
+    variables:
+      - $CODACY_PROJECT_TOKEN # required for job
+      - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks

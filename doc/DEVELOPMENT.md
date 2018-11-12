@@ -43,7 +43,7 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
 
  * Check whether any of the DTD files in `doc/` changed since last release.
    If yes, push a copy of the changed DTD with the new version to
-   `http://www.sosy-lab.org/benchexec/{benchmark,result,table}-<VERSION>.dtd`,
+   `https://www.sosy-lab.org/benchexec/{benchmark,result,table}-<VERSION>.dtd`,
    and update the version number in all references to this DTD in BenchExec.
 
  * The remaining steps can also be automated with the script

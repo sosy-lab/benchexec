@@ -2,7 +2,6 @@
 branch = True
 parallel = True
 source = benchexec
-include = benchexec/*
 omit = benchexec/tools/*
 
 [report]

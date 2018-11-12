@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import logging
+import inspect
 import os
 import sys
 sys.dont_write_bytecode = True # prevent creation of .pyc files
@@ -58,11 +59,28 @@ def print_multiline_list(description, values):
     for value in values:
         print('\t“{}{}{}”'.format(COLOR_VALUE, value, COLOR_DEFAULT), file=sys.stderr)
 
+def print_multiline_text(description, value):
+    if value is None:
+        print(
+            '{}{}{}: {}None{}'
+            .format(COLOR_DESCRIPTION, description, COLOR_DEFAULT, COLOR_WARNING, COLOR_DEFAULT),
+            file=sys.stderr)
+    elif not value.strip():
+        print(
+            '{}{}{}: {}“{}”{}'
+            .format(COLOR_DESCRIPTION, description, COLOR_DEFAULT, COLOR_WARNING, value, COLOR_DEFAULT),
+            file=sys.stderr)
+    else:
+        print('{}{}{}:'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT), file=sys.stderr)
+        for line in value.splitlines():
+            print('\t{}{}{}'.format(COLOR_VALUE, line, COLOR_DEFAULT), file=sys.stderr)
+
 
 def print_tool_info(name):
     print_value('Name of tool module', name)
     tool_module, tool = model.load_tool_info(name)
     print_value('Full name of tool module', tool_module)
+    print_multiline_text('Documentation of tool module', inspect.getdoc(tool))
 
     print_value('Name of tool', tool.name())
 
@@ -70,6 +88,10 @@ def print_tool_info(name):
     print_value('Executable', executable)
     if not os.path.isabs(executable):
         print_value('Executable (absolute path)', os.path.abspath(executable))
+    else:
+        logging.warning(
+            'Path to executable is absolute, this might be problematic '
+            'in scenarios where runs are distributed to other machines.')
 
     try:
         print_value('Version', tool.version(executable))
@@ -127,7 +149,7 @@ def print_tool_info(name):
         if not 'PROPERTY.PRP' in ' '.join(cmdline):
             logging.warning('Tool module ignores property file.')
     except:
-        logging.warning('Tool module does not support tasks with property file: %s', exc_info=1)
+        logging.warning('Tool module does not support tasks with property file:', exc_info=1)
 
     try:
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT1.FILE', 'INPUT2.FILE'], None, {})

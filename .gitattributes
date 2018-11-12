@@ -1,4 +1,4 @@
 # Exclude test files from project statistics
 # cf. https://github.com/github/linguist#troubleshooting
-benchexec/tablegenerator/test/expected/** linguist-vendored
-benchexec/tablegenerator/test/results/** linguist-vendored
+benchexec/tablegenerator/test_integration/expected/** linguist-vendored
+benchexec/tablegenerator/test_integration/results/** linguist-vendored

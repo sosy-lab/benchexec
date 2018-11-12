@@ -1,22 +1,24 @@
 <?xml version="1.0"?>
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
 <!-- Example file for benchmark definition for BenchExec
-     with dummy tool "true" that simply returns TRUE.
+     with dummy tool that simply returns TRUE.
      No resource limits are specified. -->
-<benchmark tool="true">
+<benchmark tool="dummy">
 
-  <!-- <rundefinition> defines a tool configuration to benchmark,
-       tool true ignores all options. -->
+  <!-- For dummy tool, we specify an option that defines the tool output. -->
+  <option>true</option>
+
+  <!-- <rundefinition> defines a tool configuration to benchmark -->
   <rundefinition name="no options"/>
 
   <rundefinition name="some options">
-    <option name="opt1">value1</option>
-    <option name="opt2">value2</option>
+    <option name="--opt1">value1</option>
+    <option name="--opt2">value2</option>
   </rundefinition>
 
   <rundefinition name="other options">
-    <option name="opt3"/>
-    <option name="opt4"/>
+    <option name="--opt3"/>
+    <option name="--opt4"/>
   </rundefinition>
 
   <!-- <tasks> defines a set of tasks:

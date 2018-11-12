@@ -1,0 +1,30 @@
+[Unit]
+Description=Cgroup setup for BenchExec
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
+
+[Service]
+# Adjust the following line to configure permissions for cgroup usage.
+# The default gives permissions to users in group "benchexec".
+# You can change the group name, or give permissions to everybody by
+# setting BENCHEXEC_CGROUP_PERM to "a+w".
+Environment=BENCHEXEC_CGROUP_GROUP=benchexec BENCHEXEC_CGROUP_PERM=g+w
+
+Restart=always
+Delegate=true
+CPUAccounting=true
+MemoryAccounting=true
+ExecStart=/bin/bash -c '\
+set -e;\
+cd /sys/fs/cgroup/cpuset/;\
+cp cpuset.cpus system.slice/;\
+cp cpuset.mems system.slice/;\
+cp cpuset.cpus system.slice/benchexec-cgroup.service/;\
+cp cpuset.mems system.slice/benchexec-cgroup.service/;\
+echo $$$$ > system.slice/benchexec-cgroup.service/tasks;\
+[ -z "${BENCHEXEC_CGROUP_GROUP}" ] || chgrp -R ${BENCHEXEC_CGROUP_GROUP} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
+[ -z "${BENCHEXEC_CGROUP_PERM}" ] || chmod -R ${BENCHEXEC_CGROUP_PERM} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
+exec sleep $(( 10 * 365 * 24 * 3600 ))'
+
+[Install]
+WantedBy=multi-user.target

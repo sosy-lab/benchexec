@@ -1,0 +1,10 @@
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="cputime" numberOfDigits="3" displayUnit="ms"/>
+  <column title="cputime" displayTitle="cputime-h" numberOfDigits="4" displayUnit="h" sourceUnit="s"/>
+  <column title="walltime" numberOfDigits="2" displayUnit="ns" sourceUnit="s" scaleFactor="0.0000001"/>
+  <column title="memUsage" numberOfDigits="5" displayUnit="MB" scaleFactor="0.000001"/>
+  <column title="memUsage" numberOfDigits="5" displayTitle="memUsage-GB" displayUnit="GB" scaleFactor="0.000000001"/>
+</table>

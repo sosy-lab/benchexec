@@ -1,5 +1,110 @@
 # BenchExec Changelog
 
+## BenchExec 1.16
+
+- Support for [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
+  if [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed.
+- Several small bug fixes and improvements
+
+
+## BenchExec 1.15 (skipped)
+
+
+## BenchExec 1.14
+
+- Updated tool-info modules for all participants of [SV-COMP'18](https://sv-comp.sosy-lab.org/2018/).
+- Extended support for variable replacements in table-definitions
+  of table-generator.
+
+
+## BenchExec 1.13
+
+- For Debian/Ubuntu, the `.deb` package is now the recommended way
+  of [installation](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md),
+  because it automatically configures cgroups as necessary.
+- BenchExec now automatically attempts to use the sub-cgroup
+  `system.slice/benchexec-cgroup.service` if it does not have access
+  to the current cgroup.
+  This means that if you followed our installation instructions
+  for systems with systemd, there is no need anymore to manually
+  put your shell into the correct cgroup.
+- Several smaller bug fixes for table-generator:
+  [#249](https://github.com/sosy-lab/benchexec/issues/249),
+  [#250](https://github.com/sosy-lab/benchexec/issues/250),
+  [#259](https://github.com/sosy-lab/benchexec/issues/259),
+  [#260](https://github.com/sosy-lab/benchexec/issues/260),
+  [#271](https://github.com/sosy-lab/benchexec/issues/271),
+  [#272](https://github.com/sosy-lab/benchexec/issues/272)
+- For users of the Python API of RunExecutor,
+  different file names can now be specified for stdout and stderr
+  of the tool.
+- Some new tool-info modules and updates for SV-COMP'18.
+
+
+## BenchExec 1.12
+
+- Fix execution of runs specified with `<withoutfile>` tags
+  in the benchmark definition: the name of the run was missing
+  from the command-line in BenchExec 1.11.
+
+## BenchExec 1.11
+
+- `table-generator` can now be given result XML files as arguments
+  in addition to a table-definition XML file (with parameter `-x`).
+  In this case, it will use the column definitions from the latter
+  for tables with the separately given results.
+- The directory `contrib` of the repository now contains a script
+  [`statistics-tex.py`](https://github.com/sosy-lab/benchexec/blob/master/contrib/statistics-tex.py),
+  which can export summary data for benchmark results
+  (e.g., number of solved tasks, average CPU time, etc.)
+  to LaTeX.
+- The dummy tools `true` and `false`, which could be used for testing
+  a BenchExec installation, are replaced with a more generic dummy tool
+  called `dummy`.
+- A few minor bug fixes and performance optimizations.
+
+A new paper about BenchExec called
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf)
+is now available.
+
+Please note that support for Python 3.2 and 3.3 is deprecated.
+Furthermore, the support for "sudo mode" (parameter `--user`/`--users`)
+is also deprecated.
+All deprecated features will be removed in BenchExec 2.0.
+
+
+## BenchExec 1.10
+
+This release brings several smaller and medium-sized features:
+
+- Tool-info modules for all participants of [SV-COMP'17](https://sv-comp.sosy-lab.org/2017/),
+  and support for results of the category `correct-unconfirmed`,
+  which is used by SV-COMP if witness validation was not successful.
+  To conform with SV-COMP's definitions, violations of the SV-COMP reachability property `unreach-call`
+  will now be reported as `false(unreach-call)` instead of `false(reach)`.
+- [Measurement of block I/O](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) if the `blkio` cgroup controller is available
+  (experimental, please read the [documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io)!).
+- [Measurement of the energy used by the CPU](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy) for a run,
+  if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system
+  (experimental, please read the [documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)!).
+- [Ability to limit the disk space](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#disk-space-and-io) a tool can occupy in container mode.
+- Various minor improvements to make container mode more robust.
+- The feature for executing benchmarks under different user accounts with sudo
+  is now marked as deprecated and may be removed in the future,
+  consider using the container mode instead for isolating runs
+  (cf. [issue #215](https://github.com/sosy-lab/benchexec/issues/215)).
+- `table-generator` is now more flexible:
+  - Builtin support for certain unit conversions,
+    such that the scale factor does not always need to be explicitly specified.
+    Furthermore, unit conversions now work even if the values already have a unit.
+  - Column titles can be manually specified with the `displayTitle` attribute.
+  - What columns are relevant for the "diff" table can be configured.
+
+Please also note that we are considering dropping the support for Python 3.2
+and maybe 3.3 in BenchExec 2.0 (to be released in a few weeks).
+If this is a problem for you, please tell us in [issue #207](https://github.com/sosy-lab/benchexec/issues/207).
+
+
 ## BenchExec 1.9
 
 The main feature of this release is the addition of a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
