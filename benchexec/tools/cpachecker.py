@@ -34,11 +34,19 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for CPAchecker.
-    It has additional features such as building CPAchecker before running it
-    if executed within a source checkout.
-    It also supports extracting data from the statistics output of CPAchecker
-    for adding it to the result tables.
+    Tool info for CPAchecker, the Configurable Software-Verification Platform.
+    URL: https://cpachecker.sosy-lab.org/
+
+    Both binary and source distributions of CPAchecker are supported.
+    If the source of CPAchecker is present,
+    it is automatically compiled before benchmarks are executed.
+    Additional statistics can be extracted from the output of CPAchecker
+    and added to the result tables.
+    For this reason, the parameter -stats is always added to the command line.
+    Furthermore, if a soft time limit is specified for BenchExec,
+    it is passed to CPAchecker using the parameter -timelimit.
+    This allows for proper termination of CPAchecker and statistics output
+    even in cases of a timeout.
     """
 
     REQUIRED_PATHS = [
