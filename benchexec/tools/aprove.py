@@ -23,7 +23,6 @@ import benchexec.result as result
 
 import tempfile
 import re
-import functools
 import subprocess
 import logging
 
@@ -36,15 +35,13 @@ class Tool(benchexec.tools.template.BaseTool):
                   "newstrategy.strategy"
                   ]
 
-    @functools.lru_cache()
     def executable(self):
         return util.find_executable('AProVE.sh')
 
     def name(self):
         return 'AProVE'
 
-    @functools.lru_cache()
-    def _aprove_version(self, executable):
+    def version(self, executable):
         with tempfile.NamedTemporaryFile(suffix=".c") as trivial_example:
             trivial_example.write(b'int main() { return 0; }\n')
             trivial_example.flush()
@@ -62,10 +59,6 @@ class Tool(benchexec.tools.template.BaseTool):
                 logging.warning('Unable to determine AProVE version: {0}'.format(util.decode_to_string(stdout)))
                 return ''
             return version_aprove_match.group(1)[:10]
-
-    @functools.lru_cache()
-    def version(self, executable):
-        return self._aprove_version(executable)
 
     def determine_result(self, returncode, returnsignal, output, is_timeout):
         if not output:
