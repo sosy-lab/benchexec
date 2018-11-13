@@ -20,8 +20,8 @@ yogar_cbmc = __import__("benchexec.tools.yogar-cbmc", fromlist=["Tool"])
 class Tool(yogar_cbmc.Tool):
 
 	REQUIRED_PATHS = [
-                  "yogar-cbmc"
-                  ]
+                      "yogar-cbmc"
+                      ]
 
     def executable(self):
         return util.find_executable('yogar-cbmc-parallel')
