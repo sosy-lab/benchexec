@@ -102,7 +102,7 @@ and relative file names inside set files are interpreted as relative to the dire
 Such files can be used to specify more complex tasks,
 such as tasks with several input files or expected results.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
-and their structure is explained in the our [doc/task-template-example.yml](example file).
+and their structure is explained in the our [example file](doc/task-template-example.yml).
 
 If no property file is given in the benchmark XML definition,
 one task is created for each task-template file using the input files defined therein,
