@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import benchexec.result as result
 import benchexec.util as util
 
 from . import cbmc
@@ -37,3 +38,23 @@ class Tool(cbmc.Tool):
 
     def name(self):
         return 'JBMC'
+
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        status = result.RESULT_ERROR
+        if returnsignal == 0 and ((returncode == 0) or (returncode == 10)) and output:
+            result_str = output[-1].strip()
+
+            if result_str == 'TRUE' :
+                status = result.RESULT_TRUE_PROP
+            elif result_str == 'FALSE' :
+                status = result.RESULT_FALSE_PROP
+            elif 'UNKNOWN\n' in output:
+                status = result.RESULT_UNKNOWN
+
+        elif returncode == 64 and 'Usage error!\n' in output:
+            status = 'INVALID ARGUMENTS'
+
+        elif returncode == 6 and 'Out of memory\n' in output:
+            status = 'OUT OF MEMORY'
+
+        return status

@@ -1,0 +1,29 @@
+# Required, string with format version of this file (currently only "1.0")
+format_version: "1.0"
+
+# Required, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory will be given as input to the tool.
+input_files:
+  - '*.md'
+  - '../*.md'
+
+# Optional, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory is treated as required for the task,
+# but will not be explicitly given to the tool.
+required_files:
+  - 'properties/'
+
+# Optional, contains list of dicts, each with at least the key "property_file".
+# Existing entries specify which properties can be used for tasks from this file.
+# If given, benchexec will compare expected verdicts against actual verdicts.
+properties:
+  - property_file: properties/memsafety.prp      # string with file-name pattern that matches exactly one file
+    expected_verdict: false                      # optional boolean
+    subproperty: valid-deref                     # optional string, contains violated subproperty
+  - property_file: properties/unreach-call.prp
+    expected_verdict: true
+  - property_file: properties/overflow.prp
+
+# All other keys in the global dict and in the properties dict are reserved for future use.

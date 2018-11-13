@@ -15,6 +15,9 @@ limitations under the License.
 """
 import logging
 
+import benchexec.util as util
+import benchexec.tools.jpf
+
 class Tool(benchexec.tools.jpf.Tool):
     """
     Tool info for JPF with symbolic extension (SPF)
