@@ -75,7 +75,7 @@ The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.
 The easiest way to specify tasks inside a `<tasks>` tag is with the `<include>` tag,
 which contains a file-name pattern.
-If the file-name patterns point to `.yml` files in the task-template format of BenchExec,
+If the file-name patterns point to `.yml` files in the task-definition format of BenchExec,
 these are parsed by `benchexec` as explained in the following section.
 Otherwise, one task is created for each file matching the file-name pattern,
 and the respective file is given to the tool as input file.
@@ -98,23 +98,23 @@ All of these tags can be freely combined inside a `<tasks>` tag.
 Relative file names in these tags are interpreted as relative to the directory of the XML file,
 and relative file names inside set files are interpreted as relative to the directory of the set file.
 
-### Task-Template Files
+### Task-Definition Files
 Such files can be used to specify more complex tasks,
 such as tasks with several input files or expected results.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
 and their structure is explained in the our [example file](doc/task-template-example.yml).
 
 If no property file is given in the benchmark XML definition,
-one task is created for each task-template file using the input files defined therein,
+one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
 If a property file is given in the benchmark XML definition with the `<propertyfile>` tag,
-`benchexec` looks for an item in the `properties` entry of the task template
+`benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
-If none is found, the task defined by this task template is ignored.
-Otherwise a task is created using the set of input files from the task template
+If none is found, the task defined by this task definition is ignored.
+Otherwise a task is created using the set of input files from the task definition
 and the given property, also using an expected verdict if given for that property.
-All other properties defined in the task template are ignored.
+All other properties defined in the task definition are ignored.
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:
