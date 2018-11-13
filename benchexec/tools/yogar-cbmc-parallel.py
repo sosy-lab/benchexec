@@ -28,7 +28,7 @@ class Tool(yogar_cbmc.Tool):
 
     def name(self):
         return 'Yogar-CBMC-Parallel'
-        
+
     def version(self, executable):
 		return self._version_from_tool(executable)
 
