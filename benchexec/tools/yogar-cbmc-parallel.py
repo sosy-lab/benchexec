@@ -30,7 +30,7 @@ class Tool(yogar_cbmc.Tool):
         return 'Yogar-CBMC-Parallel'
 
     def version(self, executable):
-		return self._version_from_tool(executable)
+	return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
