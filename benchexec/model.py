@@ -24,8 +24,10 @@ import logging
 import os
 import time
 import sys
+import yaml
 from xml.etree import ElementTree
 
+from benchexec import BenchExecException
 from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
@@ -78,6 +80,24 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
     assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
 
     return [util.substitute_vars(s, keyValueList) for s in oldList]
+
+
+def load_task_definition_file(task_def_file):
+    """Open and parse a task-definition file in YAML format."""
+    try:
+        with open(task_def_file) as f:
+            task_def = yaml.safe_load(f)
+    except OSError as e:
+        raise BenchExecException("Cannot open task-definition file: " + str(e))
+    except yaml.YAMLError as e:
+        raise BenchExecException("Invalid task definition: " + str(e))
+
+    if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
+        raise BenchExecException(
+            "Task-definition file {} specifies invalid format_version '{}'."
+            .format(task_def_file, task_def.get("format_version")))
+
+    return task_def
 
 
 def load_tool_info(tool_name):
@@ -416,10 +436,11 @@ class RunSet(object):
                 and not any(util.wildcard_match(matchName, sourcefile_set) for sourcefile_set in self.benchmark.config.selected_sourcefile_sets):
                     continue
 
-            required_files_pattern = set(tag.text for tag in sourcefilesTag.findall('requiredfiles'))
+            required_files_pattern = global_required_files_pattern.union(
+                set(tag.text for tag in sourcefilesTag.findall('requiredfiles')))
 
             # get lists of filenames
-            task_template_files = self.get_task_template_files_from_xml(sourcefilesTag, base_dir)
+            task_def_files = self.get_task_def_files_from_xml(sourcefilesTag, base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
@@ -431,17 +452,22 @@ class RunSet(object):
             appendFileTags = sourcefilesTag.findall("append")
 
             currentRuns = []
-            for identifier in task_template_files:
-                sourcefiles = ([identifier] +
-                    [self.expand_filename_pattern(appendFile.text, base_dir, sourcefile=identifier)
-                        for appendFile in appendFileTags])
-                currentRuns.append(Run(identifier, sourcefiles, fileOptions, self, propertyfile,
-                                       global_required_files_pattern.union(required_files_pattern)))
+            for identifier in task_def_files:
+                if identifier.endswith('.yml'):
+                    if appendFileTags:
+                        raise BenchExecException(
+                            "Cannot combine <append> and task-definition files in the same <tasks> tag.")
+                    run = self.create_run_from_task_definition(
+                        identifier, fileOptions, propertyfile, required_files_pattern)
+                else:
+                    run = self.create_run_for_input_file(
+                        identifier, fileOptions, propertyfile, required_files_pattern, appendFileTags)
+                if run:
+                    currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
-                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile,
-                                       global_required_files_pattern.union(required_files_pattern)))
+                currentRuns.append(Run(run.text, [], fileOptions, self, propertyfile, required_files_pattern))
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
 
@@ -455,9 +481,9 @@ class RunSet(object):
         return blocks
 
 
-    def get_task_template_files_from_xml(self, sourcefilesTag, base_dir):
-        """Get the task-template files from the XML definition. Task-template files are files
-        for which we create a run (typically a source file).
+    def get_task_def_files_from_xml(self, sourcefilesTag, base_dir):
+        """Get the task-definition files from the XML definition. Task-definition files are files
+        for which we create a run (typically an input file or a YAML task definition).
         """
         sourcefiles = []
 
@@ -518,6 +544,118 @@ class RunSet(object):
         return sourcefiles
 
 
+    def create_run_for_input_file(
+            self, input_file, options, property_file, required_files_pattern, append_file_tags):
+        """Create a Run from a direct definition of the main input file (without task definition)"""
+        input_files = [input_file]
+        base_dir = os.path.dirname(input_file)
+        for append_file in append_file_tags:
+            input_files.extend(
+                self.expand_filename_pattern(append_file.text, base_dir, sourcefile=input_file))
+
+        run = Run(
+            input_file,
+            util.get_files(input_files), # expand directories to get their sub-files
+            options,
+            self,
+            property_file,
+            required_files_pattern)
+
+        if not run.propertyfile:
+            return run
+
+        prop = result.Property.create(run.propertyfile, allow_unknown=False)
+        run.properties = [prop]
+        expected_results = result.expected_results_of_file(input_file)
+        if prop.name in expected_results:
+            run.expected_results[prop.filename] = expected_results[prop.name]
+        # We do not check here if there is an expected result for the given propertyfile
+        # like we do in create_run_from_task_definition, to keep backwards compatibility.
+        return run
+
+
+    def create_run_from_task_definition(
+            self, task_def_file, options, propertyfile, required_files_pattern):
+        """Create a Run from a task definition in yaml format"""
+        task_def = load_task_definition_file(task_def_file)
+
+        def expand_patterns_from_tag(tag):
+            result = []
+            patterns = task_def.get(tag, [])
+            if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
+                # accept single string in addition to list of strings
+                patterns = [patterns]
+            for pattern in patterns:
+                expanded = util.expand_filename_pattern(
+                    str(pattern), os.path.dirname(task_def_file))
+                if not expanded:
+                    raise BenchExecException(
+                        "Pattern '{}' in task-definition file {} did not match any paths."
+                        .format(pattern, task_def_file))
+                result.extend(expanded)
+            result.sort()
+            return result
+
+        input_files = expand_patterns_from_tag("input_files")
+        if not input_files:
+            raise BenchExecException(
+                "Task-definition file {} does not define any input files.".format(task_def_file))
+        required_files = expand_patterns_from_tag("required_files")
+
+        run = Run(
+            task_def_file,
+            input_files,
+            options,
+            self,
+            propertyfile,
+            required_files_pattern,
+            required_files)
+
+        # run.propertyfile of Run is fully determined only after Run is created,
+        # thus we handle it and the expected results here.
+        if not run.propertyfile:
+            return run
+
+        # TODO: support "property_name" attribute in yaml
+        prop = result.Property.create(run.propertyfile, allow_unknown=True)
+        run.properties = [prop]
+
+        for prop_dict in task_def.get("properties", []):
+            if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
+                raise BenchExecException(
+                    "Missing property file for property in task-definition file {}."
+                    .format(task_def_file))
+            expanded = util.expand_filename_pattern(
+                prop_dict["property_file"], os.path.dirname(task_def_file))
+            if len(expanded) != 1:
+                raise BenchExecException(
+                    "Property pattern '{}' in task-definition file {} does not refer to exactly one file."
+                    .format(prop_dict["property_file"], task_def_file))
+
+            # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
+            # with cached stat calls.
+            if prop.filename == expanded[0] or os.path.samefile(prop.filename, expanded[0]):
+                expected_result = prop_dict.get("expected_verdict")
+                if expected_result is not None and not isinstance(expected_result, bool):
+                    raise BenchExecException(
+                        "Invalid expected result '{}' for property {} in task-definition file {}."
+                        .format(expected_result, prop_dict["property_file"], task_def_file))
+                run.expected_results[prop.filename] = \
+                    result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
+
+        if not run.expected_results:
+            logging.warning(
+                "Ignoring run '%s' because it does not have the property from %s.",
+                run.identifier, run.propertyfile)
+            return None
+        elif len(run.expected_results) > 1:
+            raise BenchExecException(
+                "Property '{}' specified multiple times in task-definition file {}."
+                .format(prop.filename, task_def_file))
+        else:
+            return run
+
+
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
         """
         The function expand_filename_pattern expands a filename pattern to a sorted list
@@ -564,16 +702,19 @@ class Run(object):
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
-    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None, required_files_patterns=[]):
+    def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None,
+                 required_files_patterns=[], required_files=[],
+                 expected_results={}):
         assert identifier
         self.identifier = identifier  # used for name of logfile, substitution, result-category
-        self.sourcefiles = util.get_files(sourcefiles) # expand directories to get their sub-files
+        self.sourcefiles = sourcefiles
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
         self.result_files_folder = os.path.join(runSet.result_files_folder, os.path.basename(self.identifier))
+        self.expected_results = expected_results or {} # filled externally
 
-        self.required_files = set()
+        self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
         for pattern in required_files_patterns:
             this_required_files = runSet.expand_filename_pattern(pattern, runSet.benchmark.base_dir, rel_sourcefile)
@@ -590,6 +731,7 @@ class Run(object):
             self.options = substitutedOptions # for less memory again
 
         self.propertyfile = propertyfile or runSet.propertyfile
+        self.properties = [] # filled externally
 
         def log_property_file_once(msg):
             if not self.propertyfile in _logged_missing_property_files:
@@ -620,9 +762,6 @@ class Run(object):
 
         if self.propertyfile:
             self.required_files.add(self.propertyfile)
-            self.properties = result.properties_of_file(self.propertyfile)
-        else:
-            self.properties = []
 
         self.required_files = list(self.required_files)
 
@@ -715,7 +854,7 @@ class Run(object):
             output = []
 
         self.status = self._analyze_result(exitcode, output, isTimeout, termination_reason)
-        self.category = result.get_result_category(self.identifier, self.status, self.properties)
+        self.category = result.get_result_category(self.expected_results, self.status, self.properties)
 
         for column in self.columns:
             substitutedColumnText = substitute_vars([column.text], self.runSet, self.sourcefiles[0])[0]

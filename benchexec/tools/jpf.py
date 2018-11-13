@@ -21,19 +21,16 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for JPF with symbolic extension
+    Tool info for JPF (plain jpf-core)
     (https://github.com/javapathfinder/jpf-core/).
     """
 
     REQUIRED_PATHS = [
-                  "jpf-core/bin/jpf",
-                  "jpf-core/build",
-                  "jpf-symbc/lib",
-                  "jpf-symbc/build",
-                  "jpf-sv-comp"
+                  "bin",
+                  "build"
                   ]
     def executable(self):
-        return util.find_executable('jpf-sv-comp')
+        return util.find_executable('bin/jpf-core-sv-comp')
 
 
     def version(self, executable):
@@ -55,7 +52,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         for line in output:
             if 'UNSAFE' in line:
-                status = result.RESULT_FALSE_REACH
+                status = result.RESULT_FALSE_PROP
             elif 'SAFE' in line:
                 status = result.RESULT_TRUE_PROP
 

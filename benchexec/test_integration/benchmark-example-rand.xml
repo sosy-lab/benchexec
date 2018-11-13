@@ -26,6 +26,12 @@
     <include>../../doc/*.xml</include>
   </tasks>
 
+  <!-- YAML files can be used as template files from which tasks
+       can be created. Each YAML file will produce one task. -->
+  <tasks name="Tasks from templates">
+    <include>../../doc/*.yml</include>
+  </tasks>
+
   <!-- <tasks> with <withoutfile> allows to define tasks without input files,
        if the tool supports this. -->
   <tasks name="Dummy tasks">

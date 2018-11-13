@@ -34,7 +34,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
                   "cbmc",
-                  "cbmc-binary"
+                  "cbmc-binary",
+                  "goto-cc"
                   ]
     def executable(self):
         return util.find_executable('cbmc')

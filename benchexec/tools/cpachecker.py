@@ -34,11 +34,19 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for CPAchecker.
-    It has additional features such as building CPAchecker before running it
-    if executed within a source checkout.
-    It also supports extracting data from the statistics output of CPAchecker
-    for adding it to the result tables.
+    Tool info for CPAchecker, the Configurable Software-Verification Platform.
+    URL: https://cpachecker.sosy-lab.org/
+
+    Both binary and source distributions of CPAchecker are supported.
+    If the source of CPAchecker is present,
+    it is automatically compiled before benchmarks are executed.
+    Additional statistics can be extracted from the output of CPAchecker
+    and added to the result tables.
+    For this reason, the parameter -stats is always added to the command line.
+    Furthermore, if a soft time limit is specified for BenchExec,
+    it is passed to CPAchecker using the parameter -timelimit.
+    This allows for proper termination of CPAchecker and statistics output
+    even in cases of a timeout.
     """
 
     REQUIRED_PATHS = [
@@ -170,8 +178,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif line.startswith('FALSE'):
                     newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow', 'no-deadlock', 'termination']:
-                        newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
+                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'valid-memcleanup', 'no-overflow', 'no-deadlock', 'termination']:
+                        newStatus = result.RESULT_FALSE_PROP + '(' + match.group(1) + ')'
                 else:
                     newStatus = result.RESULT_UNKNOWN
 

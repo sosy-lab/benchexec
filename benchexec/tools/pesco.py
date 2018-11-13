@@ -18,25 +18,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import benchexec.util as util
-from . import cseq
+import benchexec.tools.cpachecker as cpachecker
 
-class Tool(cseq.CSeqTool):
-    """
-    Tool info for Lazy-CSeq (http://github.com/omainv/cseq/releases).
-    """
+
+class Tool(cpachecker.Tool):
+    """Tool info for PeSCo."""
 
     REQUIRED_PATHS = [
-                  "cbmc",
-                  "core",
-                  "cseq.py",
-                  "lazy-cseq.py",
-                  "pycparser",
-                  "modules"
+                  "lib/java/runtime",
+                  "lib/*.jar",
+                  "lib/native/x86_64-linux",
+                  "scripts",
+                  "cpachecker.jar",
+                  "config",
+                  "resources",
                   ]
 
-    def executable(self):
-        return util.find_executable('lazy-cseq.py')
-
     def name(self):
-        return 'Lazy-CSeq'
+        return 'PeSCo'

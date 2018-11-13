@@ -20,6 +20,9 @@ limitations under the License.
 
 This file contains tool support for DIVINE (divine.fi.muni.cz)
 """
+
+import logging
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -123,11 +126,9 @@ class Tool(benchexec.tools.template.BaseTool):
             return 'TIMEOUT'
 
         if returncode != 0:
-            return 'ERROR - Pre-run ({0})'.format( returncode )
+            return 'ERROR - {0}'.format( last )
 
-        if last is None:
-            return 'ERROR - no output'
-        elif 'result:' in last:
+        if 'result:' in last:
             res = last.split(':', maxsplit=1)[1].strip()
             return self.RESMAP.get( res, result.RESULT_UNKNOWN );
         else:
