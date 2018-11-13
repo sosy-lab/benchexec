@@ -92,7 +92,7 @@ def load_task_template_file(template_file):
     except yaml.YAMLError as e:
         raise BenchExecException("Invalid task template: " + str(e))
 
-    if str(template.get("format_version")) != "0.1":
+    if str(template.get("format_version")) not in ["0.1", "1.0"]:
         raise BenchExecException(
             "Task template {} specifies invalid format_version '{}'."
             .format(template_file, template.get("format_version")))

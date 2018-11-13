@@ -1,5 +1,5 @@
-# Required, string with format version of this file (currently only "0.1")
-format_version: "0.1"
+# Required, string with format version of this file (currently only "1.0")
+format_version: "1.0"
 
 # Required, either a string or a list of strings with file-name patterns.
 # Relative paths interpreted as relative to this file.
