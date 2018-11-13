@@ -82,22 +82,22 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
     return [util.substitute_vars(s, keyValueList) for s in oldList]
 
 
-def load_task_template_file(template_file):
-    """Open and parse a task-template file in YAML format."""
+def load_task_definition_file(task_def_file):
+    """Open and parse a task-definition file in YAML format."""
     try:
-        with open(template_file) as f:
-            template = yaml.safe_load(f)
+        with open(task_def_file) as f:
+            task_def = yaml.safe_load(f)
     except OSError as e:
-        raise BenchExecException("Cannot open task template: " + str(e))
+        raise BenchExecException("Cannot open task-definition file: " + str(e))
     except yaml.YAMLError as e:
-        raise BenchExecException("Invalid task template: " + str(e))
+        raise BenchExecException("Invalid task definition: " + str(e))
 
-    if str(template.get("format_version")) not in ["0.1", "1.0"]:
+    if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
         raise BenchExecException(
-            "Task template {} specifies invalid format_version '{}'."
-            .format(template_file, template.get("format_version")))
+            "Task-definition file {} specifies invalid format_version '{}'."
+            .format(task_def_file, task_def.get("format_version")))
 
-    return template
+    return task_def
 
 
 def load_tool_info(tool_name):
@@ -440,7 +440,7 @@ class RunSet(object):
                 set(tag.text for tag in sourcefilesTag.findall('requiredfiles')))
 
             # get lists of filenames
-            task_template_files = self.get_task_template_files_from_xml(sourcefilesTag, base_dir)
+            task_def_files = self.get_task_def_files_from_xml(sourcefilesTag, base_dir)
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
@@ -452,12 +452,12 @@ class RunSet(object):
             appendFileTags = sourcefilesTag.findall("append")
 
             currentRuns = []
-            for identifier in task_template_files:
+            for identifier in task_def_files:
                 if identifier.endswith('.yml'):
                     if appendFileTags:
                         raise BenchExecException(
-                            "Cannot combine <append> and task templates in the same <tasks> tag.")
-                    run = self.create_run_from_template_file(
+                            "Cannot combine <append> and task-definition files in the same <tasks> tag.")
+                    run = self.create_run_from_task_definition(
                         identifier, fileOptions, propertyfile, required_files_pattern)
                 else:
                     run = self.create_run_for_input_file(
@@ -481,9 +481,9 @@ class RunSet(object):
         return blocks
 
 
-    def get_task_template_files_from_xml(self, sourcefilesTag, base_dir):
-        """Get the task-template files from the XML definition. Task-template files are files
-        for which we create a run (typically a source file).
+    def get_task_def_files_from_xml(self, sourcefilesTag, base_dir):
+        """Get the task-definition files from the XML definition. Task-definition files are files
+        for which we create a run (typically an input file or a YAML task definition).
         """
         sourcefiles = []
 
@@ -546,7 +546,7 @@ class RunSet(object):
 
     def create_run_for_input_file(
             self, input_file, options, property_file, required_files_pattern, append_file_tags):
-        """Create a Run from a direct definition of the main input file (without task template)"""
+        """Create a Run from a direct definition of the main input file (without task definition)"""
         input_files = [input_file]
         base_dir = os.path.dirname(input_file)
         for append_file in append_file_tags:
@@ -570,28 +570,28 @@ class RunSet(object):
         if prop.name in expected_results:
             run.expected_results[prop.filename] = expected_results[prop.name]
         # We do not check here if there is an expected result for the given propertyfile
-        # like we do in create_run_from_template_file, to keep backwards compatibility.
+        # like we do in create_run_from_task_definition, to keep backwards compatibility.
         return run
 
 
-    def create_run_from_template_file(
-            self, template_file, options, propertyfile, required_files_pattern):
-        """Create a Run from a task template in yaml format"""
-        template = load_task_template_file(template_file)
+    def create_run_from_task_definition(
+            self, task_def_file, options, propertyfile, required_files_pattern):
+        """Create a Run from a task definition in yaml format"""
+        task_def = load_task_definition_file(task_def_file)
 
         def expand_patterns_from_tag(tag):
             result = []
-            patterns = template.get(tag, [])
+            patterns = task_def.get(tag, [])
             if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
                 # accept single string in addition to list of strings
                 patterns = [patterns]
             for pattern in patterns:
                 expanded = util.expand_filename_pattern(
-                    str(pattern), os.path.dirname(template_file))
+                    str(pattern), os.path.dirname(task_def_file))
                 if not expanded:
                     raise BenchExecException(
-                        "Pattern '{}' in task template {} did not match any paths."
-                        .format(pattern, template_file))
+                        "Pattern '{}' in task-definition file {} did not match any paths."
+                        .format(pattern, task_def_file))
                 result.extend(expanded)
             result.sort()
             return result
@@ -599,11 +599,11 @@ class RunSet(object):
         input_files = expand_patterns_from_tag("input_files")
         if not input_files:
             raise BenchExecException(
-                "Task template {} does not define any input files.".format(template_file))
+                "Task-definition file {} does not define any input files.".format(task_def_file))
         required_files = expand_patterns_from_tag("required_files")
 
         run = Run(
-            template_file,
+            task_def_file,
             input_files,
             options,
             self,
@@ -620,17 +620,17 @@ class RunSet(object):
         prop = result.Property.create(run.propertyfile, allow_unknown=True)
         run.properties = [prop]
 
-        for prop_dict in template.get("properties", []):
+        for prop_dict in task_def.get("properties", []):
             if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
                 raise BenchExecException(
-                    "Missing property file for property in task template {}."
-                    .format(template_file))
+                    "Missing property file for property in task-definition file {}."
+                    .format(task_def_file))
             expanded = util.expand_filename_pattern(
-                prop_dict["property_file"], os.path.dirname(template_file))
+                prop_dict["property_file"], os.path.dirname(task_def_file))
             if len(expanded) != 1:
                 raise BenchExecException(
-                    "Property pattern '{}' in task template {} does not refer to exactly one file."
-                    .format(prop_dict["property_file"], template_file))
+                    "Property pattern '{}' in task-definition file {} does not refer to exactly one file."
+                    .format(prop_dict["property_file"], task_def_file))
 
             # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
             # with cached stat calls.
@@ -638,8 +638,8 @@ class RunSet(object):
                 expected_result = prop_dict.get("expected_verdict")
                 if expected_result is not None and not isinstance(expected_result, bool):
                     raise BenchExecException(
-                        "Invalid expected result '{}' for property {} in task template {}."
-                        .format(expected_result, prop_dict["property_file"], template_file))
+                        "Invalid expected result '{}' for property {} in task-definition file {}."
+                        .format(expected_result, prop_dict["property_file"], task_def_file))
                 run.expected_results[prop.filename] = \
                     result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
 
@@ -650,8 +650,8 @@ class RunSet(object):
             return None
         elif len(run.expected_results) > 1:
             raise BenchExecException(
-                "Property '{}' specified multiple times in task template {}."
-                .format(prop.filename, template_file))
+                "Property '{}' specified multiple times in task-definition file {}."
+                .format(prop.filename, task_def_file))
         else:
             return run
 

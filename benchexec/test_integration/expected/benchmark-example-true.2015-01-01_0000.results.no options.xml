@@ -52,7 +52,7 @@
       <var name="PATH">/home/wendler/venv/benchexec-src/bin:/home/wendler/bin:/home/wendler/.local/bin:/home/wendler/bin:/home/wendler/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</var>
       <var name="PLAT">linux-x86_64</var>
       <var name="PROMPT_COMMAND">setLastCommandState;history -a;setGitPrompt ; autojump_add_to_database</var>
-      <var name="PS1">(\[\033[0;34m\]benchexec-src\[\033[0;0m\]) \[\033[0;31m\]✘ \[\033[0;0m\] \[\033[0;33m\]\w\[\033k${debian_chroot:+($debian_chroot)}\u@\h:\w\033\\\] \[\033[0;36m\][\[\033[0;35m\]${GIT_BRANCH}\[\033[0;0m\] ↑·1\[\033[0;0m\]|\[\033[0;34m\]✚ 1\[\033[0;0m\]\[\033[0;36m\]… 4\[\033[0;0m\]\[\033[1;35m\]⚑ 3\[\033[0;0m\]\[\033[0;0m\]\[\033[0;36m\]]\n\[\033[0;34m\]\u\[\033[0;37m\]@\[\033[1;34m\]\h \[\033[1;31m\] ➤ \[\033[0;0m\] </var>
+      <var name="PS1">(\[\033[0;34m\]benchexec-src\[\033[0;0m\]) \[\033[0;31m\]✘ \[\033[0;0m\] \[\033[0;33m\]\w\[\033k${debian_chroot:+($debian_chroot)}\u@\h:\w\033\\\] \[\033[0;36m\][\[\033[0;35m\]${GIT_BRANCH}\[\033[0;0m\]|\[\033[0;33m\]● 1\[\033[0;0m\]\[\033[0;34m\]✚ 3\[\033[0;0m\]\[\033[0;36m\]… 3\[\033[0;0m\]\[\033[1;35m\]⚑ 3\[\033[0;0m\]\[\033[0;0m\]\[\033[0;36m\]]\n\[\033[0;34m\]\u\[\033[0;37m\]@\[\033[1;34m\]\h \[\033[1;31m\] ➤ \[\033[0;0m\] </var>
       <var name="PWD">/home/wendler/git/benchexec</var>
       <var name="PYTHONSTARTUP">/home/wendler/.pythonstartup</var>
       <var name="QT4_IM_MODULE">xim</var>
@@ -95,428 +95,424 @@
     </environment>
   </systeminfo>
   <run files="[../../../doc/benchmark.dtd]" name="../../../doc/benchmark.dtd">
-    <column title="cpuenergy" value="0.009766J"/>
-    <column title="cputime" value="0.004262106s"/>
-    <column title="memUsage" value="299008"/>
+    <column title="cpuenergy" value="0.019531J"/>
+    <column title="cputime" value="0.004024949s"/>
+    <column title="memUsage" value="311296"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.010778955998830497s"/>
+    <column title="walltime" value="0.009133686995483004s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.009766J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.005005J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.004259481s"/>
-    <column hidden="true" title="cputime-cpu3" value="2.625e-06s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.019531J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.015381J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002075J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.033875J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.002960484s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001064465s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/result.dtd]" name="../../../doc/result.dtd">
-    <column title="cpuenergy" value="0.011536J"/>
-    <column title="cputime" value="0.00169142s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.009155J"/>
+    <column title="cputime" value="0.006003528s"/>
+    <column title="memUsage" value="286720"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.00347546799457632s"/>
+    <column title="walltime" value="0.023429798005963676s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.011536J"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.009155J"/>
     <column hidden="true" title="cpuenergy-pkg0-core" value="0.003235J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.005066J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cpuenergy-pkg0-uncore" value="0.001648J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.00169142s"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.017761J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.004870479s"/>
+    <column hidden="true" title="cputime-cpu2" value="0.001133049s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/table.dtd]" name="../../../doc/table.dtd">
-    <column title="cpuenergy" value="0.003052J"/>
-    <column title="cputime" value="0.003467975s"/>
-    <column title="memUsage" value="311296"/>
+    <column title="cpuenergy" value="0.005188J"/>
+    <column title="cputime" value="0.005029211s"/>
+    <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.01995492199785076s"/>
+    <column title="walltime" value="0.017648667009780183s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.003052J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002136J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001953J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.000671J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.000443826s"/>
-    <column hidden="true" title="cputime-cpu1" value="0.002167228s"/>
-    <column hidden="true" title="cputime-cpu3" value="0.000856921s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.005188J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002197J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003662J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.043152J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.005029211s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/DEVELOPMENT.md]" name="../../../doc/DEVELOPMENT.md">
-    <column title="cpuenergy" value="0.006348J"/>
-    <column title="cputime" value="0.004626937s"/>
+    <column title="cpuenergy" value="0.004761J"/>
+    <column title="cputime" value="0.003491145s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.01062788900162559s"/>
+    <column title="walltime" value="0.010809354003868066s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.006348J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002014J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002991J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004626937s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004761J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002930J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002563J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.047974J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.003491145s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/INDEX.md]" name="../../../doc/INDEX.md">
-    <column title="cpuenergy" value="0.007202J"/>
-    <column title="cputime" value="0.003198995s"/>
+    <column title="cpuenergy" value="0.006775J"/>
+    <column title="cputime" value="0.004977294s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.012714365002466366s"/>
+    <column title="walltime" value="0.01735964699764736s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.007202J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002563J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003113J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002686J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.003198995s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.006775J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003723J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003723J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.042053J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.004977294s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/INSTALL.md]" name="../../../doc/INSTALL.md">
-    <column title="cpuenergy" value="0.005188J"/>
-    <column title="cputime" value="0.01399577s"/>
-    <column title="memUsage" value="299008"/>
+    <column title="cpuenergy" value="0.003662J"/>
+    <column title="cputime" value="0.004280512s"/>
+    <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.02979531799792312s"/>
+    <column title="walltime" value="0.015835462007089518s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.005188J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001099J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002930J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.005694686s"/>
-    <column hidden="true" title="cputime-cpu1" value="0.00222947s"/>
-    <column hidden="true" title="cputime-cpu2" value="0.002182055s"/>
-    <column hidden="true" title="cputime-cpu3" value="0.003889559s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.003662J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000793J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002197J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.027344J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004280512s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchexec.md]" name="../../../doc/benchexec.md">
-    <column title="cpuenergy" value="0.004395J"/>
-    <column title="cputime" value="0.00489719s"/>
-    <column title="memUsage" value="278528"/>
+    <column title="cpuenergy" value="0.006104J"/>
+    <column title="cputime" value="0.004989257s"/>
+    <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.014992292009992525s"/>
+    <column title="walltime" value="0.010751882000477053s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004395J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000488J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002869J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.003047884s"/>
-    <column hidden="true" title="cputime-cpu2" value="0.001849306s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.006104J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003418J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003906J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.045776J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.004989257s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmarking.md]" name="../../../doc/benchmarking.md">
-    <column title="cpuenergy" value="0.003235J"/>
-    <column title="cputime" value="0.003100484s"/>
+    <column title="cpuenergy" value="0.004944J"/>
+    <column title="cputime" value="0.004760897s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.009054686990566552s"/>
+    <column title="walltime" value="0.013417419992038049s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.003235J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002991J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003418J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.003100484s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004944J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001465J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002319J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.042297J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004760897s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/container.md]" name="../../../doc/container.md">
-    <column title="cpuenergy" value="0.004089J"/>
-    <column title="cputime" value="0.003113645s"/>
+    <column title="cpuenergy" value="0.006348J"/>
+    <column title="cputime" value="0.004444907s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.014449886002694257s"/>
+    <column title="walltime" value="0.01325265399646014s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004089J"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.006348J"/>
     <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001892J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.003113645s"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003235J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.040894J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004444907s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/resources.md]" name="../../../doc/resources.md">
-    <column title="cpuenergy" value="0.006165J"/>
-    <column title="cputime" value="0.004346724s"/>
+    <column title="cpuenergy" value="0.005005J"/>
+    <column title="cputime" value="0.004959833s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.013003596002818085s"/>
+    <column title="walltime" value="0.01805246400181204s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.006165J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001892J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002380J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cpuenergy-pkg0-uncore" value="0.001038J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.004346724s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.005005J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001953J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003723J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.045837J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.004959833s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/run-results.md]" name="../../../doc/run-results.md">
-    <column title="cpuenergy" value="0.006165J"/>
-    <column title="cputime" value="0.004659663s"/>
+    <column title="cpuenergy" value="0.007629J"/>
+    <column title="cputime" value="0.003476411s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.009889313005260192s"/>
+    <column title="walltime" value="0.013189382996642962s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.006165J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003418J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002075J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.004659663s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.007629J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003906J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.005127J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.046265J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.003476411s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/runexec.md]" name="../../../doc/runexec.md">
-    <column title="cpuenergy" value="0.003113J"/>
-    <column title="cputime" value="0.003824716s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.008667J"/>
+    <column title="cputime" value="0.006563425s"/>
+    <column title="memUsage" value="278528"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.009112828003708273s"/>
+    <column title="walltime" value="0.028835841003456153s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.003113J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002502J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003296J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.003824716s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.008667J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.004211J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003662J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.045410J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.003395115s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.00316831s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/separate-user.md]" name="../../../doc/separate-user.md">
-    <column title="cpuenergy" value="0.004456J"/>
-    <column title="cputime" value="0.004160723s"/>
+    <column title="cpuenergy" value="0.007385J"/>
+    <column title="cputime" value="0.004883428s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.012690471005043946s"/>
+    <column title="walltime" value="0.011036401003366336s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004456J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000732J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002869J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.004160723s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.007385J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002258J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.040588J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004883428s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/table-generator.md]" name="../../../doc/table-generator.md">
-    <column title="cpuenergy" value="0.005920J"/>
-    <column title="cputime" value="0.004328165s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.007935J"/>
+    <column title="cputime" value="0.005137165s"/>
+    <column title="memUsage" value="278528"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.014059235007152893s"/>
+    <column title="walltime" value="0.029374628007644787s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.005920J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.004883J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003723J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002075J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004328165s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.007935J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.004211J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003784J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.049255J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.002009923s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.003127242s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/tool-integration.md]" name="../../../doc/tool-integration.md">
-    <column title="cpuenergy" value="0.006714J"/>
-    <column title="cputime" value="0.004389642s"/>
+    <column title="cpuenergy" value="0.004578J"/>
+    <column title="cputime" value="0.005041002s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.013992913998663425s"/>
+    <column title="walltime" value="0.015890665003098547s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.006714J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.004150J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003601J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004389642s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004578J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000916J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.044250J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.005041002s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmark-example-calculatepi.xml]" name="../../../doc/benchmark-example-calculatepi.xml">
-    <column title="cpuenergy" value="0.004150J"/>
-    <column title="cputime" value="0.00439255s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.004639J"/>
+    <column title="cputime" value="0.005125617s"/>
+    <column title="memUsage" value="307200"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.009964858996681869s"/>
+    <column title="walltime" value="0.018915545006166212s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004150J"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004639J"/>
     <column hidden="true" title="cpuenergy-pkg0-core" value="0.000671J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002930J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.00439255s"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.004395J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.040283J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.001783484s"/>
+    <column hidden="true" title="cputime-cpu2" value="0.003342133s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmark-example-cbmc.xml]" name="../../../doc/benchmark-example-cbmc.xml">
-    <column title="cpuenergy" value="0.005493J"/>
-    <column title="cputime" value="0.004392571s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.005737J"/>
+    <column title="cputime" value="0.00488374s"/>
+    <column title="memUsage" value="286720"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.013204932009102777s"/>
+    <column title="walltime" value="0.027080380998086184s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.005493J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002625J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002441J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.004392571s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.005737J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002441J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003845J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.043823J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001763301s"/>
+    <column hidden="true" title="cputime-cpu2" value="0.003120439s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmark-example-rand.xml]" name="../../../doc/benchmark-example-rand.xml">
-    <column title="cpuenergy" value="0.006592J"/>
-    <column title="cputime" value="0.00439185s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.004028J"/>
+    <column title="cputime" value="0.004602859s"/>
+    <column title="memUsage" value="278528"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.01609075500164181s"/>
+    <column title="walltime" value="0.026214190991595387s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.006592J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003845J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002319J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.00439185s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004028J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001282J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002563J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.029663J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001561281s"/>
+    <column hidden="true" title="cputime-cpu1" value="0.003041578s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmark-example-true.xml]" name="../../../doc/benchmark-example-true.xml">
-    <column title="cpuenergy" value="0.011047J"/>
-    <column title="cputime" value="0.001542627s"/>
+    <column title="cpuenergy" value="0.004944J"/>
+    <column title="cputime" value="0.005144301s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.00455654899997171s"/>
+    <column title="walltime" value="0.016619639005512s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.011047J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.009583J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.000671J"/>
-    <column hidden="true" title="cputime-cpu3" value="0.001542627s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004944J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.040100J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.005144301s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/benchmark.xml]" name="../../../doc/benchmark.xml">
-    <column title="cpuenergy" value="0.008606J"/>
-    <column title="cputime" value="0.005760191s"/>
+    <column title="cpuenergy" value="0.004944J"/>
+    <column title="cputime" value="0.005169235s"/>
     <column title="memUsage" value="278528"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.023890227006631903s"/>
+    <column title="walltime" value="0.018277465002029203s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.008606J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.006897J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001221J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.003787987s"/>
-    <column hidden="true" title="cputime-cpu1" value="0.001972204s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004944J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001892J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003662J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.042175J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.005039062s"/>
+    <column hidden="true" title="cputime-cpu2" value="0.000130173s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/table-generator-basic.xml]" name="../../../doc/table-generator-basic.xml">
-    <column title="cpuenergy" value="0.008667J"/>
-    <column title="cputime" value="0.007242018s"/>
-    <column title="memUsage" value="278528"/>
+    <column title="cpuenergy" value="0.007507J"/>
+    <column title="cputime" value="0.005346497s"/>
+    <column title="memUsage" value="417792"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.02712857600999996s"/>
+    <column title="walltime" value="0.031750850001117215s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.008667J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.006042J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003479J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.004517157s"/>
-    <column hidden="true" title="cputime-cpu1" value="0.002724861s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.007507J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002869J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002380J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.042419J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.004171362s"/>
+    <column hidden="true" title="cputime-cpu3" value="0.001175135s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/table-generator-example.xml]" name="../../../doc/table-generator-example.xml">
-    <column title="cpuenergy" value="0.004395J"/>
-    <column title="cputime" value="0.004362784s"/>
-    <column title="memUsage" value="385024"/>
+    <column title="cpuenergy" value="0.007568J"/>
+    <column title="cputime" value="0.004565888s"/>
+    <column title="memUsage" value="389120"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.010908008000114933s"/>
+    <column title="walltime" value="0.015830004995223135s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004395J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003052J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004362784s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.007568J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002319J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.040649J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004565888s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run files="[../../../doc/table-generator.xml]" name="../../../doc/table-generator.xml">
-    <column title="cpuenergy" value="0.004456J"/>
-    <column title="cputime" value="0.003750233s"/>
+    <column title="cpuenergy" value="0.005005J"/>
+    <column title="cputime" value="0.004731714s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.009029426000779495s"/>
+    <column title="walltime" value="0.01588382601039484s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004456J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001953J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.003750233s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.005005J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000854J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.041321J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004731714s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run files="[../../../README.md, ../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/separate-user.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md]" name="../../../doc/task-template-example.yml">
-    <column title="cpuenergy" value="0.003784J"/>
-    <column title="cputime" value="0.003326181s"/>
-    <column title="memUsage" value="385024"/>
+  <run files="[../../../README.md, ../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/separate-user.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md]" name="../../../doc/task-definition-example.yml">
+    <column title="cpuenergy" value="0.008118J"/>
+    <column title="cputime" value="0.005232213s"/>
+    <column title="memUsage" value="278528"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.01155250400188379s"/>
+    <column title="walltime" value="0.028848372006905265s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.003784J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000977J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.000977J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.003326181s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.008118J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003723J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.017700J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.005232213s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run name="dummy task 1">
-    <column title="cpuenergy" value="0.004333J"/>
-    <column title="cputime" value="0.004299263s"/>
+    <column title="cpuenergy" value="0.004700J"/>
+    <column title="cputime" value="0.003607007s"/>
     <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.013940737990196794s"/>
+    <column title="walltime" value="0.010109542999998666s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004333J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002930J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004299263s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.004700J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000977J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003357J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.042542J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.003607007s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run name="dummy task 2">
-    <column title="cpuenergy" value="0.004150J"/>
-    <column title="cputime" value="0.004378955s"/>
-    <column title="memUsage" value="286720"/>
+    <column title="cpuenergy" value="0.005493J"/>
+    <column title="cputime" value="0.004778295s"/>
+    <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.016145805988344364s"/>
+    <column title="walltime" value="0.014237524010241032s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004150J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000488J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001953J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu1" value="0.001590331s"/>
-    <column hidden="true" title="cputime-cpu2" value="0.002788624s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.005493J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.002258J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002625J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.043945J"/>
+    <column hidden="true" title="cputime-cpu2" value="0.004778295s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
   <run name="dummy task 3">
-    <column title="cpuenergy" value="0.002991J"/>
-    <column title="cputime" value="0.010002459s"/>
-    <column title="memUsage" value="299008"/>
+    <column title="cpuenergy" value="0.006653J"/>
+    <column title="cputime" value="0.005039436s"/>
+    <column title="memUsage" value="385024"/>
     <column title="status" value="true"/>
-    <column title="walltime" value="0.027541709001525305s"/>
+    <column title="walltime" value="0.01672542501182761s"/>
     <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.002991J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000549J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002869J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.002014J"/>
-    <column hidden="true" title="cputime-cpu0" value="0.007765187s"/>
-    <column hidden="true" title="cputime-cpu2" value="0.001794132s"/>
-    <column hidden="true" title="cputime-cpu3" value="0.00044314s"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="0.006653J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.003418J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.003906J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.046265J"/>
+    <column hidden="true" title="cputime-cpu1" value="0.005039436s"/>
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <column title="cputime" value="1.038604s"/>
-  <column title="walltime" value="4.133070912008407s"/>
-  <column title="cpuenergy" value="6.243958J"/>
-  <column title="cpuenergy-pkg0" value="6.243958J"/>
-  <column title="cpuenergy-pkg0-core" value="2.789978J"/>
-  <column title="cpuenergy-pkg0-dram" value="4.332520J"/>
-  <column title="cpuenergy-pkg0-psys" value="1.866028J"/>
-  <column title="cpuenergy-pkg0-uncore" value="0.042175J"/>
+  <column title="cputime" value="1.2253509999999999s"/>
+  <column title="walltime" value="4.234719083004165s"/>
+  <column title="cpuenergy" value="7.015320J"/>
+  <column title="cpuenergy-pkg0" value="7.015320J"/>
+  <column title="cpuenergy-pkg0-core" value="1.805359J"/>
+  <column title="cpuenergy-pkg0-dram" value="5.037537J"/>
+  <column title="cpuenergy-pkg0-psys" value="46.510803J"/>
+  <column title="cpuenergy-pkg0-uncore" value="0.135193J"/>
 </result>

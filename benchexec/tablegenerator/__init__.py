@@ -733,7 +733,7 @@ class Row(object):
         if self.filename.endswith(".yml"):
             # try to find property file of task and create Property object
             try:
-                task_template = model.load_task_template_file(self.filename)
+                task_template = model.load_task_definition_file(self.filename)
                 for prop_dict in task_template.get("properties", []):
                     if "property_file" in prop_dict:
                         expanded = benchexec.util.expand_filename_pattern(
