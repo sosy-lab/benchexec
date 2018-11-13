@@ -17,6 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -27,7 +28,12 @@ import subprocess
 import logging
 
 class Tool(benchexec.tools.template.BaseTool):
-
+    """
+    Tool info for AProVE.
+    URL: http://aprove.informatik.rwth-aachen.de/
+    Only the binary (jar) distribution of AProVE is supported.
+    """
+    
     REQUIRED_PATHS = [
                   "aprove.jar",
                   "AProVE.sh",
