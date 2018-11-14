@@ -30,6 +30,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'Yogar-CBMC'
 
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         options = options + ['--no-unwinding-assertions']
         return [executable] + options + tasks
