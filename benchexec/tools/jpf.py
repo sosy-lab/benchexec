@@ -34,7 +34,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return '8rev611ec469a6a52b9ea73b3f69d44cdbe1c698df7c'
+	return open('.version', 'r').read()
 
 
     def name(self):
