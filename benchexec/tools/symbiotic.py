@@ -52,7 +52,7 @@ class Tool(OldSymbiotic):
     REQUIRED_PATHS_6_0_0 = [
                   "bin",
                   "include",
-                  "specs",
+                  "properties",
                   "lib",
                   "llvm-4.0.1",
                   ]
