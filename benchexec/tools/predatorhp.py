@@ -43,7 +43,10 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('predatorHP.py')
 
     def name(self):
-        return 'Predator-HP'
+        return 'PredatorHP'
+
+    def version(self, executable):
+        return self._version_from_tool(executable, use_stderr=True)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         spec = ["--propertyfile", propertyfile] if propertyfile is not None else []
