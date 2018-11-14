@@ -49,14 +49,21 @@ and a complete definition can be found in the file
 and an example in [doc/table-generator-example.xml](table-generator-example.xml).
 The document type of these files should be
 
-    <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.7//EN" "http://www.sosy-lab.org/benchexec/table-1.7.dtd">
+```XML
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+```
 
 A document-type definition with a formal specification of such files can be found in
 [doc/table.dtd](table.dtd).
 To use such files pass them with the parameter `-x` to `table-generator`
-(no result files can be given as these are referenced within the table-definition file):
+(and either specify the result files to use inside the table-definition file,
+or pass them on the command line):
 
     table-generator -x doc/table-generator-example.xml
+
+A small example that can be used with arbitrary result files
+and provides nicer column titles and a better unit for memory consumption
+is available in [doc/table-generator-basic.xml](table-generator-basic.xml).
 
 ### Column Features
 
@@ -66,6 +73,7 @@ If only the attribute `title` is given and no content of the tag,
 the value is taken from the BenchExec result file if present
 (this can be used for the default BenchExec columns like `status`, `cputime`, etc.,
 but also for additional columns like `score`).
+The attribute `displayTitle` can be used to overwrite the default column title.
 If some content is given for a `<column>` tag,
 the respective value is extracted from the tool output of each run
 (this needs specific support from the tool-info module that is responsible for this tool).
@@ -73,7 +81,9 @@ For example, the following line can be used to extract values for a column "anal
 by letting the tool info look for the given pattern in the output
 (pattern format is tool specific):
 
-    <column title="analysis time">Total time for analysis: </column>
+```XML
+<column title="analysis time">Total time for analysis: </column>
+```
 
 If the attribute `href` is given, the column will contain a link to the respective target
 (variables such as `${inputfile_name}` can be used to customize this link per task).
@@ -81,15 +91,19 @@ If `href` specifies a relative path, it is interpreted as relative to the direct
 of the table-definition file and will be converted appropriately for the location of the output files.
 An absolute URL can also be given.
 
-The attributes `numberOfDigits`, `displayUnit`, and `scaleFactor`
+The attributes `numberOfDigits`, `sourceUnit`, `displayUnit`, and `scaleFactor`
 change how numeric values are treated.
 `numberOfDigits` specifies the number of significant digits to which a value should be rounded.
-The other two attributes allow to convert the value into a different unit (given with `displayUnit`)
-by applying the given `scaleFactor`. Currently this is only possible for values without a unit.
+The other three attributes allow to convert the value into a different unit (given with `displayUnit`)
+by applying the given `scaleFactor` to the source unit (given with `sourceUnit`).
+If the value has no unit, `sourceUnit` may be omitted.
+For some common unit conversions, the `scaleFactor` can be omitted because `table-generator` has it builtin.
 For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
-    <column title="memUsage" displayUnit="MB" scaleFactor="0.000001"/>
+```XML
+<column title="memUsage" sourceUnit="B" displayUnit="MB"/>
+```
 
 Additionally, it is possible to specify columns that should be considered when comparing different
 results. In this case, `table-generator` produces an additional table with all rows the columns

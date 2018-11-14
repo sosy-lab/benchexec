@@ -3,33 +3,53 @@
 ## Download and Installation
 
 BenchExec requires at least Python 3.2.
-(Then [runexec](runexec.md) tool and module also work with Python 2.7.)
+(The [runexec](runexec.md) tool and module also works with Python 2.7.)
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
-To install BenchExec we recommend to use the Python package installer pip
-(installable for example with `sudo apt-get install pip3` on Debian/Ubuntu).
+Note that we recommend to additionally install
+[cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter)
+in order to get energy measurements on Intel CPUs.
 
+### Debian/Ubuntu
+
+For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
+that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
+
+    apt install python3-tempita
+    dpkg -i benchexec_*.deb
+
+This package also automatically configures the necessary cgroup permissions.
+Just add your user to the group `benchexec` and reboot:
+
+    adduser <USER> benchexec
+
+Afterwards, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+### Other Distributions
+
+For other distributions we recommend to use the Python package installer pip.
 To automatically download and install the latest stable version and its dependencies
-from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec),
+from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec) with pip,
 run this command:
 
     sudo pip3 install benchexec
-
-Users of Debian and related distributions like Ubuntu can also download
-a Debian package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
-and install it with `dpkg -i` (after installing the package `python3-tempita`).
 
 You can also install BenchExec only for your user with
 
     pip3 install --user benchexec
 
-In this case you probably need to add the directory where pip installs the commands
+In the latter case you probably need to add the directory where pip installs the commands
 to the PATH environment by adding the following line to your `~/.profile` file:
 
     export PATH=~/.local/bin:$PATH
 
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
+
+Please make sure to configure cgroups as [described below](#setting-up-cgroups).
+
+### Development version
 
 To install the latest development version from the
 [GitHub repository](https://github.com/sosy-lab/benchexec), run this command:
@@ -43,8 +63,10 @@ which needs a compiler and several development header packages.
 If you want to run benchmarks under different user account than your own,
 please check the [respective documentation](separate-user.md) for how to setup sudo.
 
+Please make sure to configure cgroups as [described below](#setting-up-cgroups).
 
-## System Requirements
+
+## Kernel Requirements
 
 To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
@@ -79,7 +101,56 @@ For Ubuntu 14.04, upgrading can be done using the officially supported
 
 ## Setting up Cgroups
 
-The cgroup virtual file system is typically mounted at `/sys/fs/cgroup`.
+If you have installed the Debian package and you are running systemd
+(default since Debian 8 and Ubuntu 15.04),
+the package should have configured everything automatically.
+Just add your user to the group `benchexec` and reboot:
+
+    adduser <USER> benchexec
+
+### Setting up Cgroups on Machines with systemd
+
+This is relevant for most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
+and potentially other distributions.
+systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
+Thus it would interfere with the cgroups usage of BenchExec.
+
+By using a fake service we can let systemd create an appropriate cgroup for BenchExec
+and prevent interference.
+The following steps are necessary:
+
+ * Put [the file `benchexec-cgroup.conf`](../debian/additional_files/lib/systemd/system.conf.d/benchexec-cgroup.conf)
+   into `/etc/systemd/system.conf.d`
+   to ensure systemd creates a cgroup for all our controllers.
+   The setting in this file needs a reboot to take effect,
+   and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
+
+ * Put [the file `benchexec-cgroup.service`](../debian/benchexec-cgroup.service)
+   into `/etc/systemd/system/`
+   and enable the service with `systemctl daemon-reload; systemctl enable --now benchexec-cgroup`.
+
+   By default, this gives permissions to use the BenchExec cgroup to users of
+   the group `benchexec`, please adjust this as necessary or create this group
+   by running `groupadd benchexec` command beforehand.
+
+By default, BenchExec will automatically attempt to use the cgroup
+`system.slice/benchexec-cgroup.service` that is created by this service file.
+If you use a different cgroup structure,
+you need to ensure that BenchExec runs in the correct cgroup
+by executing the following commands once per terminal session:
+```
+echo $$ > /sys/fs/cgroup/cpuset/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/cpuacct/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/memory/<CGROUP>/tasks
+echo $$ > /sys/fs/cgroup/freezer/<CGROUP>/tasks
+```
+
+In any case, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+### Setting up Cgroups on Machines without systemd
+
+The cgroup virtual file system is typically mounted at or below `/sys/fs/cgroup`.
 If it is not, you can mount it with
 
     sudo mount -t cgroup cgroup /sys/fs/cgroup
@@ -101,27 +172,6 @@ This can invalidate the measurements.
 BenchExec will try to prevent such interference automatically,
 but for this it needs write access to `/run/cgred.socket`.
 
-If your machine has swap, cgroups should be configured to also track swap memory.
-If the file `memory.memsw.usage_in_bytes` does not exist in the directory
-where the cgroup file system is mounted, this needs to be enabled by setting
-`swapaccount=1` on the command line of the kernel.
-To do so, you typically need to edit your bootloader configuration
-(under Ubuntu for example in `/etc/default/grub`, line `GRUB_CMDLINE_LINUX`),
-update the bootloader (`sudo update-grub`), and reboot.
-
-In some debian kernels (and those derived from them, e.g. Raspberry Pi kernel),
-memory cgroup controller should be disabled by default, and can be enabled with
-`cgroup_enable=memory` option on the kernel command line, similar to
-`swapaccount=1` above.
-
-All the above requirements can be checked easily by running
-
-    python3 -m benchexec.check_cgroups
-
-after BenchExec has been installed.
-It will report warnings and exit with code 1 if something is missing.
-We recommend running this check to ensure benchmarks will get executed reliably.
-
 It may be that your Linux distribution already mounts the cgroup file system
 and creates a cgroup hierarchy for you.
 In this case you need to adjust the above commands appropriately.
@@ -132,85 +182,45 @@ i.e., they should be listed in `/proc/self/cgroups` and the current user
 should have at least the permission to create sub-cgroups of the current cgroup(s)
 listed in this file for these controllers.
 
-### Setting up Cgroups on Systems with systemd
+In any case, please check whether everything works
+or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
 
-This affects most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
-and potentially other distributions.
-systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
-Thus it may interfere with the cgroups usage of BenchExec.
-
-By using a fake service we can let systemd create an appropriate cgroup for BenchExec
-and prevent interference.
-The following steps are necessary:
-
- * Add `JoinControllers=cpuset,cpuacct,memory,freezer` to `/etc/systemd/system.conf`
-   to ensure systemd creates a cgroup for all of these controllers for us.
-   This setting needs a reboot to take effect,
-   and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
-
- * Put the following into a file `/etc/systemd/system/benchexec-cgroup.service`
-   and enable the service with `systemctl enable benchexec-cgroup; systemctl start benchexec-cgroup`.
-
-   By default, this gives permissions to use the BenchExec cgroup to users of
-   the group `benchexec`, please adjust this as necessary or create this group
-   by running `groupadd benchexec` command beforehand.
-
-
-```
-[Unit]
-Description=Cgroup setup for BenchExec
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
-
-[Service]
-# Adjust the following line to configure permissions for cgroup usage.
-# The default gives permissions to users in group "benchexec".
-# You can change the group name, or give permissions to everybody by
-# setting BENCHEXEC_CGROUP_PERM to "a+w".
-Environment=BENCHEXEC_CGROUP_GROUP=benchexec BENCHEXEC_CGROUP_PERM=g+w
-
-Restart=always
-Delegate=true
-CPUAccounting=true
-MemoryAccounting=true
-ExecStart=/bin/bash -c '\
-set -e;\
-cd /sys/fs/cgroup/cpuset/;\
-cp cpuset.cpus system.slice/;\
-cp cpuset.mems system.slice/;\
-cp cpuset.cpus system.slice/benchexec-cgroup.service/;\
-cp cpuset.mems system.slice/benchexec-cgroup.service/;\
-echo $$$$ > system.slice/benchexec-cgroup.service/tasks;\
-[ -z "${BENCHEXEC_CGROUP_GROUP}" ] || chgrp -R ${BENCHEXEC_CGROUP_GROUP} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
-[ -z "${BENCHEXEC_CGROUP_PERM}" ] || chmod -R ${BENCHEXEC_CGROUP_PERM} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
-exec sleep $(( 10 * 365 * 24 * 3600 ))'
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Before running BenchExec, you now need to ensure it runs in the correct cgroup
-by executing the following commands once per terminal session:
-```
-echo $$ > /sys/fs/cgroup/cpuset/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks
-echo $$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks
-```
-
-Please check the correct cgroup setup with `python3 -m benchexec.check_cgroups` as described above.
-
-Note that using systemd with BenchExec is still experimental.
-Please report back your experience and whether you have found a better solution than the above.
-
-
-### Setting up Cgroups in a Docker container
+### Setting up Cgroups in a Docker Container
 
 If you want to run benchmarks within a Docker container,
+and the cgroups file system is not available within the container,
 please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it:
 
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
+
+### Testing Cgroups Setup and Known Problems
+
+After installing BenchExec and setting up the cgroups file system, please run
+
+    python3 -m benchexec.check_cgroups
+
+This will report warnings and exit with code 1 if something is missing.
+If you find that something does not work,
+please check the following list of solutions.
+
+If your machine has swap, cgroups should be configured to also track swap memory.
+This is turned off by several distributions.
+If the file `memory.memsw.usage_in_bytes` does not exist in the directory
+`/sys/fs/cgroup/memory` (or wherever the cgroup file system is mounted),
+this needs to be enabled by setting `swapaccount=1` on the command line of the kernel.
+On Ubuntu, you can for example set this parameter by creating the file
+`/etc/default/grub.d/swapaccount-for-benchexec.cfg` with the following content:
+
+    GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} swapaccount=1"
+
+Then run `sudo update-grub` and reboot.
+On other distributions, please adjust your boot loader configuration appropriately.
+
+In some Debian kernels (and those derived from them, e.g. Raspberry Pi kernel),
+the memory cgroup controller is disabled by default, and can be enabled by
+setting `cgroup_enable=memory` on the kernel command line, similar to
+`swapaccount=1` above.
 
 
 ## Installation for Development

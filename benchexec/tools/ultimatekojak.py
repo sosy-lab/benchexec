@@ -22,15 +22,24 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
-    REQUIRED_PATHS = [
+    REQUIRED_PATHS_SVCOMP17 = [
                   "artifacts.xml",
                   "configuration",
+                  "cvc4",
                   "features",
-                  "Kojak.xml",
+                  "KojakMemDerefMemtrack.xml",
+                  "KojakReach.xml",
+                  "LICENSE",
+                  "LICENSE.GPL",
+                  "LICENSE.GPL.LESSER",
                   "p2",
                   "plugins",
+                  "README",
                   "svcomp-DerefFreeMemtrack-32bit-Kojak_Bitvector.epf",
                   "svcomp-DerefFreeMemtrack-32bit-Kojak_Default.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Kojak_Default.epf",
+                  "svcomp-Overflow-32bit-Kojak_Default.epf",
                   "svcomp-Overflow-64bit-Kojak_Default.epf",
                   "svcomp-Reach-32bit-Kojak_Bitvector.epf",
                   "svcomp-Reach-32bit-Kojak_Default.epf",
@@ -39,7 +48,8 @@ class Tool(ultimate.UltimateTool):
                   "Ultimate",
                   "Ultimate.ini",
                   "Ultimate.py",
-                  "z3"
+                  "z3",
+                  "mathsat"
                   ]
 
     def name(self):

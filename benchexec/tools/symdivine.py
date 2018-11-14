@@ -28,8 +28,8 @@ class Tool(benchexec.tools.template.BaseTool):
     SymDIVINE info object
     """
 
-    BINS = ['symdivine', 'run_symdivine.py', 'compile_to_bitcode.py',
-        'lart', 'libz3.so', 'libc.so.6', 'libgomp.so.1', 'libstdc++.so.6']
+    BINS = ['symdivine', 'run_symdivine.py', 'compile_to_bitcode.py', 'lart',
+        'witness-true-template.xml', 'witness-false-template.xml']
 
     def executable(self):
         """
@@ -40,14 +40,17 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return util.find_executable(self.BINS[0])
 
-    def version(self, executable):
-        return "0.2"
-
     def name(self):
         """
         Return the name of the tool, formatted for humans.
         """
         return 'SymDIVINE'
+
+    def version(self, executable):
+        """
+        Return the name of the tool, formatted for humans.
+        """
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """

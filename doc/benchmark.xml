@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "http://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
            timelimit="*optional CPU time limit, use unit 's', 'min', etc. (default: none)*"
+           walltimelimit="*optional wall-time limit, use unit 's', 'min', etc. (default: CPU time plus a few seconds)*"
            hardtimelimit="*optional hard CPU time limit, use unit 's', 'min', etc. (tool will be forcefully killed, otherwise identical with timelimit)"
            memlimit="*optional memory limit, use unit 'B', 'kB', 'MB' etc. (default: none)*"
            cpuCores="*optional CPU core limit (default: none)*"

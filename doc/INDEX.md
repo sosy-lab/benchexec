@@ -12,17 +12,21 @@ The documentation for BenchExec is available in the following files:
 - [benchexec](benchexec.md)
 - [table-generator](table-generator.md)
 - [runexec](runexec.md)
+- [Benchmarking guidelines](benchmarking.md) with advice for how to get reliable benchmarks
 - [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
 
 More on the background of BenchExec can also be found in our paper
-[Benchmarking and Resource Measurement](http://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),
 for example [files for generating plots](../contrib/plots/README.md).
 
 Information for developers and maintainers of BenchExec is available
 in the [development documentation](DEVELOPMENT.md).
+
+Information for users of BenchExec on how to [integrate a tool](tool-integration.md).
+
 
 ## Definitions
 

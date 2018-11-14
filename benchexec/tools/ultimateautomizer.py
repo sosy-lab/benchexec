@@ -22,31 +22,38 @@ from . import ultimate
 
 class Tool(ultimate.UltimateTool):
 
-    REQUIRED_PATHS = [
+    REQUIRED_PATHS_SVCOMP17 = [
                   "artifacts.xml",
                   "AutomizerTermination.xml",
-                  "Automizer.xml",
                   "AutomizerWitnessValidation.xml",
+                  "AutomizerReach.xml",
+                  "AutomizerMemDerefMemtrack.xml",
                   "configuration",
                   "cvc4",
                   "features",
-                  "Kojak.xml",
+                  "LICENSE",
+                  "LICENSE.GPL",
+                  "LICENSE.GPL.LESSER",
                   "p2",
                   "plugins",
-                  "svcomp-Deref-32bit-Automizer_Bitvector.epf",
-                  "svcomp-Deref-32bit-Automizer_Default.epf",
+                  "README",
                   "svcomp-DerefFreeMemtrack-32bit-Automizer_Bitvector.epf",
                   "svcomp-DerefFreeMemtrack-32bit-Automizer_Default.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Automizer_Bitvector.epf",
+                  "svcomp-DerefFreeMemtrack-64bit-Automizer_Default.epf",
+                  "svcomp-Overflow-32bit-Automizer_Default.epf",
                   "svcomp-Overflow-64bit-Automizer_Default.epf",
                   "svcomp-Reach-32bit-Automizer_Bitvector.epf",
                   "svcomp-Reach-32bit-Automizer_Default.epf",
                   "svcomp-Reach-64bit-Automizer_Bitvector.epf",
                   "svcomp-Reach-64bit-Automizer_Default.epf",
+                  "svcomp-Termination-32bit-Automizer_Default.epf",
                   "svcomp-Termination-64bit-Automizer_Default.epf",
                   "Ultimate",
                   "Ultimate.ini",
                   "Ultimate.py",
-                  "z3"
+                  "z3",
+                  "mathsat"
                   ]
 
     def name(self):

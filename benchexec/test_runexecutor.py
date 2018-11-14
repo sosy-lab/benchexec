@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import glob
 import logging
 import os
 import re
@@ -33,8 +34,10 @@ sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import container
 from benchexec import containerexecutor
+from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
+from benchexec import util
 
 try:
     from subprocess import DEVNULL
@@ -101,11 +104,16 @@ class TestRunExecutor(unittest.TestCase):
 
     def check_result_keys(self, result, *additional_keys):
         expected_keys = {'cputime', 'walltime', 'memory', 'exitcode',
-                         'energy', 'energy-cpu', 'energy-core', 'energy-uncore'}
+                         'cpuenergy',
+                         'blkio-read', 'blkio-write',
+                         }
         expected_keys.update(additional_keys)
         for key in result.keys():
             if key.startswith('cputime-cpu'):
                 self.assertRegex(key, '^cputime-cpu[0-9]+$',
+                                 "unexpected result entry '{}={}'".format(key, result[key]))
+            elif key.startswith('cpuenergy-'):
+                self.assertRegex(key, '^cpuenergy-pkg[0-9]+(-(core|uncore|dram|psys))?$',
                                  "unexpected result entry '{}={}'".format(key, result[key]))
             else:
                 self.assertIn(key, expected_keys,
@@ -122,6 +130,38 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+    def test_command_error_output(self):
+        if not os.path.exists('/bin/echo'):
+            self.skipTest('missing /bin/echo')
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+
+        def execute_Run_intern(*args, **kwargs):
+            (error_fd, error_filename) = tempfile.mkstemp('.log', 'error_', text=True)
+            try:
+                (_, output_lines) = self.execute_run(*args, error_filename=error_filename, **kwargs)
+                error_lines = os.read(error_fd, 4096).decode().splitlines()
+                return (output_lines, error_lines)
+            finally:
+                os.close(error_fd)
+                os.remove(error_filename)
+
+        (output_lines, error_lines) = execute_Run_intern('/bin/sh', '-c', '/bin/echo ERROR_TOKEN >&2')
+        self.assertEqual(error_lines[-1], 'ERROR_TOKEN', 'run error output misses command output')
+        for line in output_lines[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+        for line in error_lines[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run error output')
+
+        (output_lines, error_lines) = execute_Run_intern('/bin/echo', 'OUT_TOKEN')
+        self.check_command_in_output(output_lines, '/bin/echo OUT_TOKEN')
+        self.check_command_in_output(error_lines, '/bin/echo OUT_TOKEN')
+        self.assertEqual(output_lines[-1], 'OUT_TOKEN', 'run output misses command output')
+        for line in output_lines[1:-1]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+        for line in error_lines[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run error output')
 
     def test_command_result(self):
         if not os.path.exists('/bin/echo'):
@@ -268,7 +308,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/cat')
 
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
-        cmd = [runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
+        cmd = [python, runexec, '--input', '-', '--output', output_filename, '--walltime', '1', '/bin/cat']
         try:
             process = subprocess.Popen(args=cmd, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, stderr=DEVNULL)
@@ -298,6 +338,20 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(output[-1], 'TEST_TOKEN', 'run output misses command output')
         for line in output[1:-1]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+    def test_append_environment_variable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH')
+        path = output[-1]
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH', environments={'additionalEnv': {'PATH': ':TEST_TOKEN'}})
+        self.assertEqual(output[-1], path + ':TEST_TOKEN')
+
+    def test_new_environment_variable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (_, output) = self.execute_run('/bin/sh', '-c', 'echo $PATH', environments={'newEnv': {'PATH': '/usr/bin'}})
+        self.assertEqual(output[-1], '/usr/bin')
 
     def test_stop_run(self):
         if not os.path.exists('/bin/sleep'):
@@ -398,6 +452,13 @@ class TestRunExecutor(unittest.TestCase):
         self.assertFalse(os.path.exists(temp_dir),
                          'temporary temp directory {} was not cleaned up'.format(temp_dir))
 
+    def test_home_is_writable(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c', 'touch $HOME/TEST_FILE')
+        self.check_exitcode(
+            result, 0, 'Failed to write to $HOME/TEST_FILE, output was\n{}'.format(output))
+
     def test_no_cleanup_temp(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
@@ -489,20 +550,28 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         self.assertTrue(output[0].endswith(cmd), 'run output misses executed command')
 
     def test_detect_new_files_in_home(self):
-        if not os.path.exists('/usr/bin/mktemp'):
-            self.skipTest('missing /usr/bin/mktemp')
+        if not os.path.exists('/bin/mktemp'):
+            self.skipTest('missing /bin/mktemp')
         home_dir = runexecutor._get_user_account_info(self.user).pw_dir
-        tmp_file_pattern = '.BenchExec_test_runexecutor_'+unichr(0xe4)+unichr(0xf6)+unichr(0xfc)+'_XXXXXXXXXX'
+        tmp_file_pattern = '.BenchExec_test_runexecutor_XXXXXXXXXX'
         (result, output) = self.execute_run(
-            '/usr/bin/mktemp', '--tmpdir=' + home_dir, tmp_file_pattern)
+            '/bin/mktemp', '--tmpdir=' + home_dir, tmp_file_pattern)
         try:
-            self.check_exitcode(result, 0, 'exit code of /usr/bin/mktemp is not zero')
+            self.check_exitcode(result, 0, 'exit code of /bin/mktemp is not zero')
             tmp_file = output[-1]
-            self.assertIn(tmp_file, self.runexecutor.check_for_new_files_in_home(),
+            self.assertIn(os.path.relpath(tmp_file, home_dir),
+                          self.runexecutor.check_for_new_files_in_home(),
                           'runexecutor failed to detect new temporary file in home directory')
         finally:
             subprocess.check_call(self.runexecutor._build_cmdline(['rm', tmp_file]))
 
+    def test_append_environment_variable(self):
+        # sudo-mode has a suboptimal implementation for additionalEnv:
+        # If an environment variable is not modified, it will be cleared completely and in case of
+        # PATH sudo will set it. If PATH is specified in additionalEnv, we will copy the value
+        # from the current process (which is different than what sudo would set)
+        # and append the given string.
+        pass
 
 class TestRunExecutorWithContainer(TestRunExecutor):
 
@@ -527,6 +596,9 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def test_temp_dirs_are_removed(self):
         self.skipTest("not relevant in container")
+
+    def test_home_is_writable(self):
+        self.skipTest("needs container_system_config=True and thus overlay mode")
 
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
@@ -612,6 +684,45 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_result_file_illegal_relative_traversal(self):
         self.assertRaises(ValueError,
             lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []))
+
+    def test_result_file_recursive_pattern(self):
+        if not util.maybe_recursive_iglob == glob.iglob:
+            self.skipTest("missing recursive glob.iglob")
+        self.check_result_files(
+            "mkdir -p TEST_DIR/TEST_DIR; "
+            "echo TEST_TOKEN > TEST_FILE.txt; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_FILE.txt; "
+            "echo TEST_TOKEN > TEST_DIR/TEST_DIR/TEST_FILE.txt; ",
+            ["**/*.txt"],
+            ["TEST_FILE.txt", "TEST_DIR/TEST_FILE.txt", "TEST_DIR/TEST_DIR/TEST_FILE.txt"])
+
+    def test_file_count_limit(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
+        (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 10000); do touch $i; done',
+                                            files_count_limit=100, result_files_patterns=None)
+
+        self.check_exitcode(result, 9, 'exit code of killed process is not 15')
+        self.assertEqual(result['terminationreason'], 'files-count', 'termination reason is not "files-count"')
+        self.check_result_keys(result, 'terminationreason')
+
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+    def test_file_size_limit(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
+        (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 100000); do echo $i >> TEST_FILE; done',
+                                            files_size_limit=100, result_files_patterns=None)
+
+        self.check_exitcode(result, 9, 'exit code of killed process is not 15')
+        self.assertEqual(result['terminationreason'], 'files-size', 'termination reason is not "files-size"')
+        self.check_result_keys(result, 'terminationreason')
+
+        for line in output[1:]:
+            self.assertRegex(line, '^-*$', 'unexpected text in run output')
 
 
 class _StopRunThread(threading.Thread):

@@ -1,0 +1,10 @@
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="category"/>
+  <column title="score"/>
+  <column title="cputime" displayTitle="CPU Time"/>
+  <column title="setup">Time for analysis setup</column>
+  <column title="non-existent">Pattern that does not match</column>
+</table>

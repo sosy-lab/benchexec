@@ -1,5 +1,4 @@
-# BenchExec: benchexec
-## Tool Integration
+# BenchExec: Tool Integration
 
 In order to know how to execute a tool and how to interpret its output,
 `benchexec` needs a tool-specific Python module
@@ -42,6 +41,12 @@ A minimal tool info needs to overwrite the functions `executable`, `name`,
 and `determine_result`.
 It is recommended to also overwrite the function `version` if the tool has a version
 that can be automatically extracted.
+A Python doc string ([example](https://github.com/sosy-lab/benchexec/blob/92f10942b884e3ea85ffb66027d98672894796c6/benchexec/tools/template.py#L27-L36))
+should be added to the `Tool` class with the full name and URL of the tool.
+In this doc string there should also be any additional information about the tool-info module,
+such as its supported features
+or whether it adds or requires certain command-line parameter of the tool.
+
 Overwrite the functions `cmdline` and `working_directory`, and `environment`
 to adjust the respective values, e.g., to add the name of a given property file
 to the command-line options.
@@ -93,12 +98,9 @@ then BenchExec should also be able to successfully run the tool.
 
 #### Examples
 If you have installed BenchExec successfully, the following command
-should always work and print information about the fake tool `rand` supplied with BenchExec:
+should always work and print information about the fake tool `dummy` supplied with BenchExec:
 
-    python3 -m benchexec.test_tool_info rand
-
-(Note that there are some warnings are expected in this case
-because the simplistic tool info for `rand` ignores some irrelevant details.)
+    python3 -m benchexec.test_tool_info dummy
 
 If you have written your own info for a tool `foobar` as a Python module named `tools.foobar`
 (this means you have created a directory `tools` with an empty file `__init__.py`

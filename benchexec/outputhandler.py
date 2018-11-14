@@ -33,14 +33,14 @@ import zipfile
 import benchexec
 from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
 from benchexec import filewriter
+from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
 RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
-RESULT_XML_SYSTEM_ID = 'http://www.sosy-lab.org/benchexec/result-1.9.dtd'
+RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.9.dtd'
 
 # colors for column status in terminal
-USE_COLORS = True
 COLOR_GREEN   = "\033[32;1m{0}\033[m"
 COLOR_RED     = "\033[31;1m{0}\033[m"
 COLOR_ORANGE  = "\033[33;1m{0}\033[m"
@@ -48,21 +48,24 @@ COLOR_MAGENTA = "\033[35;1m{0}\033[m"
 COLOR_DEFAULT = "{0}"
 UNDERLINE     = "\033[4m{0}\033[0m"
 
-COLOR_DIC = {result.CATEGORY_CORRECT: COLOR_GREEN,
-             result.CATEGORY_WRONG:   COLOR_RED,
-             result.CATEGORY_UNKNOWN: COLOR_ORANGE,
-             result.CATEGORY_ERROR:   COLOR_MAGENTA,
-             result.CATEGORY_MISSING: COLOR_DEFAULT,
-             None: COLOR_DEFAULT}
+COLOR_DIC = collections.defaultdict(lambda: COLOR_DEFAULT)
+TERMINAL_TITLE=''
+
+if sys.stdout.isatty():
+    COLOR_DIC.update({
+        result.CATEGORY_CORRECT: COLOR_GREEN,
+        result.CATEGORY_WRONG:   COLOR_RED,
+        result.CATEGORY_UNKNOWN: COLOR_ORANGE,
+        result.CATEGORY_ERROR:   COLOR_MAGENTA,
+        result.CATEGORY_MISSING: COLOR_DEFAULT,
+        })
+    _term = os.environ.get('TERM', '')
+    if _term.startswith(('xterm', 'rxvt')):
+        TERMINAL_TITLE = "\033]0;Task {0}\007"
+    elif _term.startswith('screen'):
+        TERMINAL_TITLE = "\033kTask {0}\033\\"
 
 LEN_OF_STATUS = 22
-
-TERMINAL_TITLE=''
-_term = os.environ.get('TERM', '')
-if _term.startswith(('xterm', 'rxvt')):
-    TERMINAL_TITLE = "\033]0;Task {0}\007"
-elif _term.startswith('screen'):
-    TERMINAL_TITLE = "\033kTask {0}\033\\"
 
 # the number of digits after the decimal separator for text output of time columns with times
 TIME_PRECISION = 2
@@ -104,7 +107,7 @@ class OutputHandler(object):
         os.makedirs(benchmark.log_folder, exist_ok=True)
 
         self.store_header_in_xml(version, memlimit, timelimit, corelimit)
-        self.write_header_to_log(version, memlimit, timelimit, corelimit, sysinfo)
+        self.write_header_to_log(sysinfo)
 
         if sysinfo:
             # store systemInfo in XML
@@ -201,51 +204,76 @@ class OutputHandler(object):
                         {"title": column.title, "value": ""}))
 
 
-    def write_header_to_log(self, version, memlimit, timelimit, corelimit, sysinfo):
+    def write_header_to_log(self, sysinfo):
         """
         This method writes information about benchmark and system into txt_file.
         """
-
-        columnWidth = 20
-        simpleLine = "-" * (60) + "\n\n"
-
-        header = "   BENCHMARK INFORMATION\n"\
-                + "benchmark:".ljust(columnWidth) + self.benchmark.name + "\n"\
-                + "date:".ljust(columnWidth) +  time.strftime("%a, %Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time) + "\n"\
-                + "tool:".ljust(columnWidth) + self.benchmark.tool_name\
-                + " " + version + "\n"
-
-        if memlimit:
-            header += "memlimit:".ljust(columnWidth) + str(memlimit/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"
-        if timelimit:
-            header += "timelimit:".ljust(columnWidth) + timelimit + "\n"
-        if corelimit:
-            header += "CPU cores used:".ljust(columnWidth) + corelimit + "\n"
-        header += simpleLine
-
-        if sysinfo:
-            header += "   SYSTEM INFORMATION\n"\
-                    + "host:".ljust(columnWidth) + sysinfo.hostname + "\n"\
-                    + "os:".ljust(columnWidth) + sysinfo.os + "\n"\
-                    + "cpu:".ljust(columnWidth) + sysinfo.cpu_model + "\n"\
-                    + "- cores:".ljust(columnWidth) + sysinfo.cpu_number_of_cores + "\n"\
-                    + "- max frequency:".ljust(columnWidth) + str(sysinfo.cpu_max_frequency/1000/1000) + " MHz\n"\
-                    + "ram:".ljust(columnWidth) + str(sysinfo.memory/_BYTE_FACTOR/_BYTE_FACTOR) + " MB\n"\
-                    + simpleLine
-
-        self.description = header
-
         runSetName = None
         run_sets = [runSet for runSet in self.benchmark.run_sets if runSet.should_be_executed()]
         if len(run_sets) == 1:
             # in case there is only a single run set to to execute, we can use its name
             runSetName = run_sets[0].name
 
+        columnWidth = 25
+        simpleLine = "-" * (60) + "\n\n"
+
+        def format_line(key, value):
+            if value is None:
+                return ""
+            return (key +":").ljust(columnWidth) + str(value).strip() + "\n"
+
+        def format_byte(key, value):
+            if value is None:
+                return ""
+            return format_line(key, str(value/_BYTE_FACTOR/_BYTE_FACTOR) + " MB")
+
+        def format_time(key, value):
+            if value is None:
+                return ""
+            return format_line(key, str(value) + " s")
+
+        header = ("   BENCHMARK INFORMATION\n"
+            + format_line("benchmark definition", self.benchmark.benchmark_file)
+            + format_line("name", self.benchmark.name)
+            + format_line("run sets", ", ".join(run_set.name for run_set in run_sets))
+            + format_line("date", time.strftime("%a, %Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time))
+            + format_line("tool", self.benchmark.tool_name + " " + self.benchmark.tool_version)
+            + format_line("tool executable", self.benchmark.executable)
+            + format_line("options", " ".join(map(util.escape_string_shell, self.benchmark.options)))
+            + format_line("property file", self.benchmark.propertyfile)
+            )
+        if self.benchmark.num_of_threads > 1:
+            header += format_line("parallel runs", self.benchmark.num_of_threads)
+
+        header += ("resource limits:\n"
+            + format_byte("- memory", self.benchmark.rlimits.get(MEMLIMIT))
+            + format_time("- time", self.benchmark.rlimits.get(SOFTTIMELIMIT) or self.benchmark.rlimits.get(TIMELIMIT))
+            + format_line("- cpu cores", self.benchmark.rlimits.get(CORELIMIT))
+            )
+
+        header += ("hardware requirements:\n"
+            + format_line("- cpu model", self.benchmark.requirements.cpu_model)
+            + format_line("- cpu cores", self.benchmark.requirements.cpu_cores)
+            + format_byte("- memory", self.benchmark.requirements.memory)
+            + simpleLine)
+
+        if sysinfo:
+            header += ("   SYSTEM INFORMATION\n"\
+                + format_line("host", sysinfo.hostname)
+                + format_line("os", sysinfo.os)
+                + format_line("cpu", sysinfo.cpu_model)
+                + format_line("- cores", sysinfo.cpu_number_of_cores)
+                + format_line("- max frequency", str(sysinfo.cpu_max_frequency/1000/1000) + " MHz")
+                + format_line("- turbo boost enabled", sysinfo.cpu_turboboost)
+                + format_byte("ram", sysinfo.memory)
+                + simpleLine)
+
+        self.description = header
+
         # write to file
         txt_file_name = self.get_filename(runSetName, "txt")
         self.txt_file = filewriter.FileWriter(txt_file_name, self.description)
         self.all_created_files.add(txt_file_name)
-
 
     def output_before_run_set(self, runSet):
         """
@@ -254,13 +282,17 @@ class OutputHandler(object):
         about the runSet in XML.
         @param runSet: current run set
         """
-        sourcefiles = [run.identifier for run in runSet.runs]
+        xml_file_name = self.get_filename(runSet.name, "xml")
+
+        identifier_names = [run.identifier for run in runSet.runs]
 
         # common prefix of file names
-        runSet.common_prefix = util.common_base_dir(sourcefiles) + os.path.sep
+        runSet.common_prefix = util.common_base_dir(identifier_names)
+        if runSet.common_prefix:
+            runSet.common_prefix += os.path.sep
 
         # length of the first column in terminal
-        runSet.max_length_of_filename = max(len(file) for file in sourcefiles) if sourcefiles else 20
+        runSet.max_length_of_filename = max(len(file) for file in identifier_names) if identifier_names else 20
         runSet.max_length_of_filename = max(20, runSet.max_length_of_filename - len(runSet.common_prefix))
 
         # write run set name to terminal
@@ -270,7 +302,7 @@ class OutputHandler(object):
         util.printOut("\nexecuting run set"
             + (" '" + runSet.name + "'" if runSet.name else "")
             + numberOfFilesStr
-            + (TERMINAL_TITLE.format(runSet.full_name) if USE_COLORS and sys.stdout.isatty() else ""))
+            + TERMINAL_TITLE.format(runSet.full_name))
 
         # write information about the run set into txt_file
         self.writeRunSetInfoToLog(runSet)
@@ -279,20 +311,31 @@ class OutputHandler(object):
         for run in runSet.runs:
             run.resultline = self.format_sourcefile_name(run.identifier, runSet)
 
+            if run.sourcefiles:
+                adjusted_identifier = util.relative_path(run.identifier, xml_file_name)
+            else:
+                # If no source files exist the task doesn't point to any file that could be downloaded.
+                # In this case, the name doesn't have to be adjusted because it's no path.
+                adjusted_identifier = run.identifier
+
         # prepare XML structure for each run and runSet
-            run.xml = ET.Element("run",
-                                 {"name": run.identifier, "files": "[" + ", ".join(run.sourcefiles) + "]"})
+            run_attributes = {'name': adjusted_identifier}
+            if run.sourcefiles:
+                adjusted_sourcefiles = [util.relative_path(s, xml_file_name) for s in run.sourcefiles]
+                run_attributes['files'] = '[' + ', '.join(adjusted_sourcefiles) + ']'
+            run.xml = ET.Element("run", run_attributes)
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
                 run.xml.set("properties", " ".join(sorted(run.properties)))
             run.xml.extend(self.xml_dummy_elements)
 
-        runSet.xml = self.runs_to_xml(runSet, runSet.runs)
+        block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
+        runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
-        runSet.xml_file_name = self.get_filename(runSet.name, "xml")
+        runSet.xml_file_name = xml_file_name
         self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
         runSet.xml_file_last_modified_time = util.read_monotonic_time()
         self.all_created_files.add(runSet.xml_file_name)
@@ -363,7 +406,7 @@ class OutputHandler(object):
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
             progressIndicator = " ({0}/{1})".format(runSet.started_runs, len(runSet.runs))
-            terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator) if USE_COLORS and sys.stdout.isatty() else ""
+            terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator)
             if self.benchmark.num_of_threads == 1:
                 util.printOut(terminalTitle + timeStr + self.format_sourcefile_name(run.identifier, runSet), '')
             else:
@@ -403,10 +446,7 @@ class OutputHandler(object):
         self.add_values_to_run_xml(run)
 
         # output in terminal/console
-        if USE_COLORS and sys.stdout.isatty(): # is terminal, not file
-            statusStr = COLOR_DIC[run.category].format(run.status.ljust(LEN_OF_STATUS))
-        else:
-            statusStr = run.status.ljust(LEN_OF_STATUS)
+        statusStr = COLOR_DIC[run.category].format(run.status.ljust(LEN_OF_STATUS))
 
         try:
             OutputHandler.print_lock.acquire()
@@ -437,6 +477,9 @@ class OutputHandler(object):
             os.remove(run.log_file)
         else:
             self.all_created_files.add(run.log_file)
+
+        if os.path.isdir(run.result_files_folder):
+            self.all_created_files.add(run.result_files_folder)
 
 
     def output_after_run_set(self, runSet, cputime=None, walltime=None, energy={}):
@@ -517,14 +560,18 @@ class OutputHandler(object):
         for column in run.columns:
             self.add_column_to_xml(runElem, column.title, column.value)
 
+        # Sort child elements by hidden and title attributes
+        runElem[:] = sorted(runElem, key=lambda elem : (elem.get('hidden', ''), elem.get('title')))
+
     def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy):
         """
         This function adds the result values to the XML representation of a runSet.
         """
         self.add_column_to_xml(runSet.xml, 'cputime', cputime)
         self.add_column_to_xml(runSet.xml, 'walltime', walltime)
-        self.add_column_to_xml(runSet.xml, 'energy', energy)
-
+        energy = intel_cpu_energy.format_energy_results(energy)
+        for energy_key, energy_value in energy.items():
+            self.add_column_to_xml(runSet.xml, energy_key, energy_value)
 
     def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:
@@ -550,9 +597,13 @@ class OutputHandler(object):
         else:
             hidden = False
 
-        if title.startswith('cputime') or title.startswith('walltime'):
-            if not value_suffix and not isinstance(value, (str, bytes)):
+        if not value_suffix and not isinstance(value, (str, bytes)):
+            if title.startswith('cputime') or title.startswith('walltime'):
                 value_suffix = 's'
+            elif title.startswith('cpuenergy'):
+                value_suffix = 'J'
+            elif title.startswith('blkio-'):
+                value_suffix = 'B'
 
         value = "{}{}".format(value, value_suffix)
 
@@ -597,7 +648,9 @@ class OutputHandler(object):
 
 
     def output_after_benchmark(self, isStoppedByInterrupt):
-        self.statistics.print_to_terminal()
+        stats = str(self.statistics)
+        util.printOut(stats)
+        self.txt_file.append(stats)
 
         if self.xml_file_names:
 
@@ -726,7 +779,7 @@ class Statistics(object):
         #if run.properties:
         self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None)
 
-    def print_to_terminal(self):
+    def __str__(self):
         correct = self.dic[result.CATEGORY_CORRECT]
         correct_true = self.dic[(result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)]
         correct_false = correct - correct_true
@@ -749,4 +802,5 @@ class Statistics(object):
             output.append(
                  '  Score:            ' + str(self.score).rjust(width) + ' (max: ' + str(self.max_score) + ')'
                  )
-        util.printOut('\n'.join(output)+'\n')
+        output.append('')
+        return '\n'.join(output)

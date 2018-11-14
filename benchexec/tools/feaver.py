@@ -35,20 +35,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
-        inputfile = tasks[0]
-
-        # create tmp-files for feaver, feaver needs special error-labels
-        self.prepInputfile = self._prepareInputfile(inputfile)
-
-        return [executable] + ["--file"] + [self.prepInputfile] + options
-
-
-    def _prepareInputfile(self, inputfile):
-        content = open(inputfile, "r").read()
-        content = content.replace("goto ERROR;", "assert(0);")
-        newFilename = "tmp_benchmark_feaver.c"
-        util.write_file(newFilename, content)
-        return newFilename
+        return [executable] + ["--file"] + tasks + options
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -76,14 +63,5 @@ class Tool(benchexec.tools.template.BaseTool):
 
         else:
             status = result.RESULT_UNKNOWN
-
-        # delete tmp-files
-        for tmpfile in [self.prepInputfile, self.prepInputfile[0:-1] + "M",
-                     "_modex_main.spn", "_modex_.h", "_modex_.cln", "_modex_.drv",
-                     "model", "pan.b", "pan.c", "pan.h", "pan.m", "pan.t"]:
-            try:
-                os.remove(tmpfile)
-            except OSError:
-                pass
 
         return status

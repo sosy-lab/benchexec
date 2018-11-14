@@ -18,13 +18,13 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
-                  "clang-3.7",
-                  "libLLVM-3.7.so.1",
-                  "opt-3.7",
+                  "bin",
+                  "lib",
+                  "include",
+                  "logback-test.xml",
                   "skink.sh",
-                  "skink-v1.0.jar",
-                  "test.sh",
-                  "z3"
+                  "skink.jar",
+                  "application.conf"
                   ]
 
     def executable(self):

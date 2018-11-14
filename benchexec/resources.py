@@ -37,9 +37,10 @@ __all__ = [
            'check_memory_size',
            'get_cpu_cores_per_run',
            'get_memory_banks_per_run',
+           'get_cpu_package_for_core',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -67,15 +68,24 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups):
 
     @param coreLimit: the number of cores for each run
     @param num_of_threads: the number of parallel benchmark executions
+    @param coreSet: the list of CPU cores identifiers provided by a user, None makes benchexec using all cores
     @return a list of lists, where each inner list contains the cores for one run
     """
     try:
         # read list of available CPU cores
         allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, 'cpus'))
+
+        # Filter CPU cores according to the list of identifiers provided by a user
+        if coreSet:
+            invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
+            if len(invalid_cores) > 0:
+                raise ValueError("The following provided CPU cores are not available: {}".format(', '.join(map(str, invalid_cores))))
+            allCpus = [core for core in allCpus if core in coreSet]
+
         logging.debug("List of available CPU cores is %s.", allCpus)
 
         # read mapping of core to CPU ("physical package")
-        physical_packages = [int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core))) for core in allCpus]
+        physical_packages = [get_cpu_package_for_core(core) for core in allCpus]
         cores_of_package = collections.defaultdict(list)
         for core, package in zip(allCpus, physical_packages):
             cores_of_package[package].append(core)
@@ -308,3 +318,10 @@ def _get_memory_bank_size(memBank):
                 logging.debug("Memory bank %s has size %s bytes.", memBank, size)
                 return size
     raise ValueError('Failed to read total memory from {}.'.format(fileName))
+
+def get_cpu_package_for_core(core):
+    """Get the number of the physical package (socket) a core belongs to."""
+    return int(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/physical_package_id'.format(core)))
+
+def get_cores_of_same_package_as(core):
+    return util.parse_int_list(util.read_file('/sys/devices/system/cpu/cpu{0}/topology/core_siblings_list'.format(core)))

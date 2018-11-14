@@ -7,7 +7,7 @@ set xrange [0:1600]
 set key left top Left reverse
 #set key bottom right
 
-set output "quantile-split.pdf"
+set output "quantile-split.gp.pdf"
 set terminal pdf
 
 set style data lines

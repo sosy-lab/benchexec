@@ -34,11 +34,19 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for CPAchecker.
-    It has additional features such as building CPAchecker before running it
-    if executed within a source checkout.
-    It also supports extracting data from the statistics output of CPAchecker
-    for adding it to the result tables.
+    Tool info for CPAchecker, the Configurable Software-Verification Platform.
+    URL: https://cpachecker.sosy-lab.org/
+
+    Both binary and source distributions of CPAchecker are supported.
+    If the source of CPAchecker is present,
+    it is automatically compiled before benchmarks are executed.
+    Additional statistics can be extracted from the output of CPAchecker
+    and added to the result tables.
+    For this reason, the parameter -stats is always added to the command line.
+    Furthermore, if a soft time limit is specified for BenchExec,
+    it is passed to CPAchecker using the parameter -timelimit.
+    This allows for proper termination of CPAchecker and statistics output
+    even in cases of a timeout.
     """
 
     REQUIRED_PATHS = [
@@ -83,24 +91,29 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'CPAchecker'
 
-
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def _get_additional_options(self, existing_options, propertyfile, rlimits):
+        options = []
         if SOFTTIMELIMIT in rlimits:
-            if "-timelimit" in options:
+            if "-timelimit" in existing_options:
                 logging.warning('Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line.')
             else:
                 options = options + ["-timelimit", str(rlimits[SOFTTIMELIMIT]) + "s"] # benchmark-xml uses seconds as unit
 
         # if data.MEMLIMIT in rlimits:
-        #     if "-heap" not in options:
+        #     if "-heap" not in existing_options:
         #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
         #         options = options + ["-heap", str(int(heapsize))]
 
-        if ("-stats" not in options):
+        if ("-stats" not in existing_options):
             options = options + ["-stats"]
 
         spec = ["-spec", propertyfile] if propertyfile is not None else []
-        return [executable] + options + spec + tasks
+
+        return options + spec
+
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        additional_options = self._get_additional_options(options, propertyfile, rlimits)
+        return [executable] + options + additional_options + tasks
 
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -140,13 +153,21 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'JAVA HEAP ERROR'
             elif line.startswith('Error: ') and not status:
                 status = result.RESULT_ERROR
-                if 'Unsupported' in line:
+                if 'Cannot parse witness' in line:
+                    status += ' (invalid witness file)'
+                elif 'Unsupported' in line:
                     if 'recursion' in line:
                         status += ' (recursion)'
                     elif 'threads' in line:
                         status += ' (threads)'
                 elif 'Parsing failed' in line:
                     status += ' (parsing failed)'
+                elif 'Interpolation failed' in line:
+                    status += ' (interpolation failed)'
+            elif line.startswith('Invalid configuration: ') and not status:
+                if 'Cannot parse witness' in line:
+                    status = result.RESULT_ERROR
+                    status += ' (invalid witness file)'
             elif line.startswith('For your information: CPAchecker is currently hanging at') and not status and isTimeout:
                 status = 'TIMEOUT'
 
@@ -157,7 +178,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif line.startswith('FALSE'):
                     newStatus = result.RESULT_FALSE_REACH
                     match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow', 'no-deadlock', 'termination']:
+                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'valid-memcleanup', 'no-overflow', 'no-deadlock', 'termination']:
                         newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
                 else:
                     newStatus = result.RESULT_UNKNOWN
@@ -166,6 +187,11 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
+
+        if (not status or status == result.RESULT_UNKNOWN) and isTimeout and returncode in [15, 143]:
+            # The JVM sets such an returncode if it receives signal 15
+            # (143 is 15+128)
+            status = 'TIMEOUT'
 
         if not status:
             status = result.RESULT_ERROR

@@ -40,7 +40,10 @@ from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
 from benchexec.cgroups import *
+from benchexec.filehierarchylimit import FileHierarchyLimitThread
+from benchexec import intel_cpu_energy
 from benchexec import oomhandler
+from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
 
@@ -90,10 +93,14 @@ def main(argv=None):
         help="name of file used as stdin for command "
             "(default: /dev/null; use - for stdin passthrough)")
     io_args.add_argument("--output", default="output.log", metavar="FILE",
-        help="name of file where command output is written")
+        help="name of file where command output (stdout and stderr) is written")
     io_args.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
         help="shrink output file to approximately this size if necessary "
             "(by removing lines from the middle of the output)")
+    io_args.add_argument("--filesCountLimit", type=int, metavar="COUNT",
+        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+    io_args.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
+        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
@@ -132,7 +139,12 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if not options.no_container:
+        if options.user is not None:
+            logging.warning(
+                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
+                "Consider using the container mode instead for isolating runs "
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+        elif not options.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
                 "not using containers for isolation of runs. "
@@ -220,6 +232,8 @@ def main(argv=None):
                             environments=env,
                             workingDir=options.dir,
                             maxLogfileSize=options.maxOutputSize,
+                            files_count_limit=options.filesCountLimit,
+                            files_size_limit=options.filesSizeLimit,
                             **container_output_options)
     finally:
         if stdin:
@@ -230,10 +244,10 @@ def main(argv=None):
     # exit_code is a special number:
     exit_code = util.ProcessExitCode.from_raw(result['exitcode'])
 
-    def print_optional_result(key):
+    def print_optional_result(key, unit=''):
         if key in result:
             # avoid unicode literals such that the string can be parsed by Python 3.2
-            print(key + "=" + str(result[key]).replace("'u", ''))
+            print(key + "=" + str(result[key]).replace("'u", '') + unit)
 
     # output results
     print_optional_result('terminationreason')
@@ -248,9 +262,12 @@ def main(argv=None):
         if key.startswith('cputime-'):
             print("{}={:.9f}s".format(key, result[key]))
     print_optional_result('memory')
-    if 'energy' in result:
-        for key, value in result['energy'].items():
-            print("energy-{0}={1}".format(key, value))
+    print_optional_result('blkio-read', 'B')
+    print_optional_result('blkio-write', 'B')
+    energy = intel_cpu_energy.format_energy_results(result.get('cpuenergy'))
+    for energy_key, energy_value in energy.items():
+        print('{}={}J'.format(energy_key, energy_value))
+
 
 class RunExecutor(containerexecutor.ContainerExecutor):
 
@@ -306,6 +323,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'recommended to do benchmarks with empty home to prevent undesired influences.',
                     self._home_dir, user)
 
+        self._energy_measurement = intel_cpu_energy.EnergyMeasurement.create_if_supported()
+
         self._init_cgroups()
 
     def _init_cgroups(self):
@@ -318,6 +337,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             self.cgroups.require_subsystem(subsystem)
             if subsystem not in self.cgroups:
                 sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
+
+        # Feature is still experimental, do not warn loudly
+        self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
+        if BLKIO not in self.cgroups:
+            logging.debug('Cannot measure I/O without blkio cgroup.')
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
@@ -364,7 +388,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 logging.warning("Could not read available memory nodes from kernel: %s",
                                 e.strerror)
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
-
 
     # --- utility functions ---
 
@@ -429,7 +452,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self._user is None:
             return os.listdir(path)
         else:
-            args = self._build_cmdline(['/bin/ls', '-1', path])
+            args = self._build_cmdline(['/bin/ls', '-1A', path])
             return subprocess.check_output(args, stderr=DEVNULL).decode('utf-8', errors='ignore').split('\n')
 
     def _set_termination_reason(self, reason):
@@ -452,7 +475,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Setting up cgroups for run.")
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
-        subsystems = [CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
+        subsystems = [BLKIO, CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
         if my_cpus is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
@@ -544,7 +567,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
-            logging.debug('Cleaning up temporary directory.')
+            logging.debug('Cleaning up temporary directory %s.', base_dir)
             if self._user is None:
                 util.rmtree(base_dir, onerror=util.log_rmtree_error)
             else:
@@ -585,7 +608,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return run_environment
 
 
-    def _setup_output_file(self, output_filename, args):
+    def _setup_output_file(self, output_filename, args, write_header=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
@@ -593,9 +616,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             output_file = open(output_filename, 'w') # override existing file
         except IOError as e:
             sys.exit(e)
-        output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
-                          + '\n\n\n' + '-' * 80 + '\n\n\n')
-        output_file.flush()
+
+        if write_header:
+            output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
+                              + '\n\n\n' + '-' * 80 + '\n\n\n')
+            output_file.flush()
+
         return output_file
 
 
@@ -650,14 +676,32 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 ulimit = hardtimelimit
             resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
+    def _setup_file_hierarchy_limit(
+            self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill):
+        """Start thread that enforces any file-hiearchy limits."""
+        if files_count_limit is not None or files_size_limit is not None:
+            file_hierarchy_limit_thread = FileHierarchyLimitThread(
+                self._get_result_files_base(temp_dir),
+                files_count_limit=files_count_limit,
+                files_size_limit=files_size_limit,
+                cgroups=cgroups,
+                pid_to_kill=pid_to_kill,
+                callbackFn=self._set_termination_reason,
+                kill_process_fn=self._kill_process)
+            file_hierarchy_limit_thread.start()
+            return file_hierarchy_limit_thread
+        return None
+
 
     # --- run execution ---
 
     def execute_run(self, args, output_filename, stdin=None,
-                   hardtimelimit=None, softtimelimit=None, walltimelimit=None,
+                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
                    cores=None, memlimit=None, memory_nodes=None,
                    environments={}, workingDir=None, maxLogfileSize=None,
                    cgroupValues={},
+                   files_count_limit=None, files_size_limit=None,
+                   error_filename=None, write_header=True,
                    **kwargs):
         """
         This function executes a given command with resource limits,
@@ -675,6 +719,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param workingDir: None or a directory which the execution should use as working directory
         @param maxLogfileSize: None or a number of bytes to which the output of the tool should be truncated approximately if there is too much output.
         @param cgroupValues: dict of additional cgroup values to set (key is tuple of subsystem and option, respective subsystem needs to be enabled in RunExecutor; cannot be used to override values set by BenchExec)
+        @param files_count_limit: None or maximum number of files that may be written.
+        @param files_size_limit: None or maximum size of files that may be written.
+        @param error_filename: the file where the error output should be written to (default: same as output_filename)
+        @param write_headers: Write informational headers to the output and the error file if separate (default: True)
         @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
@@ -744,12 +792,20 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit('Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'
                          .format(option=option, subsystem=subsystem))
 
+        if files_count_limit is not None:
+            if files_count_limit < 0:
+                sys.exit("Invalid files-count limit {0}.".format(files_count_limit))
+        if files_size_limit is not None:
+            if files_size_limit < 0:
+                sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
+
         try:
-            return self._execute(args, output_filename, stdin,
+            return self._execute(args, output_filename, error_filename, stdin, write_header,
                                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                                  cores, memory_nodes,
                                  cgroupValues,
                                  environments, workingDir, maxLogfileSize,
+                                 files_count_limit, files_size_limit,
                                  **kwargs)
 
         except BenchExecException as e:
@@ -764,30 +820,45 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     'cputime': 0, 'walltime': 0}
 
 
-    def _execute(self, args, output_filename, stdin,
+    def _execute(self, args, output_filename, error_filename, stdin, write_header,
                  hardtimelimit, softtimelimit, walltimelimit, memlimit,
                  cores, memory_nodes,
                  cgroup_values,
                  environments, workingDir, max_output_size,
+                 files_count_limit, files_size_limit,
                  **kwargs):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
         """
 
+        if self._energy_measurement is not None:
+            # Calculate which packages we should use for energy measurements
+            if cores is None:
+                packages = True # We use all cores and thus all packages
+            else:
+                all_siblings = set(util.flatten(
+                    resources.get_cores_of_same_package_as(core) for core in cores))
+                if all_siblings == set(cores):
+                    packages = set(resources.get_cpu_package_for_core(core) for core in cores)
+                else:
+                    # Disable energy measurements because we use only parts of a CPU
+                    packages = None
+
         def preParent():
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
-            energy_before = util.measure_energy()
+            if self._energy_measurement is not None and packages:
+                self._energy_measurement.start()
             walltime_before = util.read_monotonic_time()
-            return (walltime_before, energy_before)
+            return walltime_before
 
         def postParent(preParent_result):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before, energy_before = preParent_result
+            walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            energy = util.measure_energy(energy_before)
+            energy = self._energy_measurement.stop() if self._energy_measurement else None
             return (walltime, energy)
 
         def preSubprocess():
@@ -800,14 +871,20 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         temp_dir = self._create_temp_dir()
         run_environment = self._setup_environment(environments)
-        outputFile = self._setup_output_file(output_filename, args)
+        outputFile = self._setup_output_file(output_filename, args, write_header=write_header)
+        if error_filename is None:
+            errorFile = outputFile
+        else:
+            errorFile = self._setup_output_file(error_filename, args, write_header=write_header)
 
         timelimitThread = None
         oomThread = None
+        file_hierarchy_limit_thread = None
         pid = None
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
+        result = collections.OrderedDict()
 
         throttle_check = systeminfo.CPUThrottleCheck(cores)
         swap_check = systeminfo.SwapCheck()
@@ -816,7 +893,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         try:
             pid, result_fn = self._start_execution(args=args,
-                stdin=stdin, stdout=outputFile, stderr=outputFile,
+                stdin=stdin, stdout=outputFile, stderr=errorFile,
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
@@ -829,17 +906,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             timelimitThread = self._setup_cgroup_time_limit(
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid)
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
+            file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
+                files_count_limit, files_size_limit, temp_dir, cgroups, pid)
 
             returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
-
-            result = collections.OrderedDict()
             result['walltime'] = walltime
-            if energy:
-                result['energy'] = energy
-
-            # needs to come before cgroups.remove()
-            self._get_cgroup_measurements(cgroups, ru_child, result)
-
         finally:
             # cleanup steps that need to get executed even in case of failure
             logging.debug('Process terminated, exit code %s.', returnvalue)
@@ -853,14 +924,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oomThread:
                 oomThread.cancel()
 
-            # Kill all remaining processes if some managed to survive.
-            # Because we send signals to all processes anyway we use the
-            # internal function.
+            if file_hierarchy_limit_thread:
+                file_hierarchy_limit_thread.cancel()
+
+            # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
             cgroups.kill_all_tasks(self._kill_process0)
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
+            if errorFile is not outputFile:
+                errorFile.close()
 
+            # measurements are not relevant in case of failure, but need to come before cgroup cleanup
+            self._get_cgroup_measurements(cgroups, ru_child, result)
             logging.debug("Cleaning up cgroups.")
             cgroups.remove()
 
@@ -870,6 +946,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 _try_join_cancelled_thread(timelimitThread)
             if oomThread:
                 _try_join_cancelled_thread(oomThread)
+            if file_hierarchy_limit_thread:
+                _try_join_cancelled_thread(file_hierarchy_limit_thread)
+
+            if self._energy_measurement:
+                self._energy_measurement.stop()
 
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
@@ -879,12 +960,20 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.warning('System has swapped during benchmarking. '
                             'Benchmark results are unreliable!')
 
+        if error_filename is not None:
+            _reduce_file_size_if_necessary(error_filename, max_output_size)
+
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
         if returnvalue not in [0,1]:
             _get_debug_output_after_crash(output_filename)
 
         result['exitcode'] = returnvalue
+        if energy:
+            if packages == True:
+                result['cpuenergy'] = energy
+            else:
+                result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
         if self._termination_reason:
             result['terminationreason'] = self._termination_reason
         elif memlimit and 'memory' in result and result['memory'] >= memlimit:
@@ -970,9 +1059,26 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     else:
                         raise e
 
+        if BLKIO in cgroups:
+            blkio_bytes_file = 'throttle.io_service_bytes'
+            if cgroups.has_value(BLKIO, blkio_bytes_file):
+                bytes_read = 0
+                bytes_written = 0
+                for blkio_line in cgroups.get_file_lines(BLKIO, blkio_bytes_file):
+                    try:
+                        dev_no, io_type, bytes_amount = blkio_line.split(' ')
+                        if io_type == "Read":
+                            bytes_read += int(bytes_amount)
+                        elif io_type == "Write":
+                            bytes_written += int(bytes_amount)
+                    except ValueError:
+                        pass # There are irrelevant lines in this file with a different structure
+                result['blkio-read'] = bytes_read
+                result['blkio-write'] = bytes_written
+
         logging.debug(
             'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            result['walltime'], cputime_wait, cputime_cgroups, result.get('memory', None))
+            result.get('walltime'), cputime_wait, cputime_cgroups, result.get('memory', None))
 
 
     # --- other public functions ---
@@ -1045,27 +1151,30 @@ def _get_debug_output_after_crash(output_filename):
     """
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
-    with open(output_filename, 'r+') as outputFile:
-        for line in outputFile:
-            if foundDumpFile:
-                try:
+    try:
+        with open(output_filename, 'r+') as outputFile:
+            for line in outputFile:
+                if foundDumpFile:
                     dumpFileName = line.strip(' #\n')
                     outputFile.seek(0, os.SEEK_END) # jump to end of log file
-                    with open(dumpFileName, 'r') as dumpFile:
-                        util.copy_all_lines_from_to(dumpFile, outputFile)
-                    os.remove(dumpFileName)
-                except IOError as e:
-                    logging.warning('Could not append additional segmentation fault information '
-                                    'from %s (%s)',
-                                    dumpFile, e.strerror)
-                break
-            try:
-                if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
-                    logging.debug('Going to append error report file')
-                    foundDumpFile = True
-            except UnicodeDecodeError:
-                pass
-                # ignore invalid chars from logfile
+                    try:
+                        with open(dumpFileName, 'r') as dumpFile:
+                            util.copy_all_lines_from_to(dumpFile, outputFile)
+                        os.remove(dumpFileName)
+                    except IOError as e:
+                        logging.warning('Could not append additional segmentation fault information '
+                                        'from %s (%s)',
+                                        dumpFileName, e.strerror)
+                    break
+                try:
+                    if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
+                        logging.debug('Going to append error report file')
+                        foundDumpFile = True
+                except UnicodeDecodeError:
+                    pass
+                    # ignore invalid chars from logfile
+    except IOError as e:
+        logging.warning('Could not analyze tool output for crash information (%s)', e.strerror)
 
 
 def _try_join_cancelled_thread(thread):

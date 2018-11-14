@@ -24,6 +24,8 @@ The meanings of the current possible result values are as follows:
   - `cputime-soft`: Soft CPU-time limit was violated and run stopped itself afterwards.
   - `walltime`: Wall-time limit was violated and run was killed.
   - `memory`: Memory limit was violated and run was killed.
+  - `files-count`: Run created too many files inside container and was killed.
+  - `files-size`: Run occupied too much disk space inside container and was killed.
   - `killed`: Run execution was interrupted with Ctrl+C or call to `RunExecutor.stop()`
      and run was killed.
   - `failed`: Run could not be started (e.g., because tool executable was not found).
@@ -37,6 +39,12 @@ The meanings of the current possible result values are as follows:
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
 - **memory** (from `runexec`) / **memUsage** (from `benchexec`):
     Peak memory consumption of run in bytes ([more information](resources.md#memory)).
+    In future versions this value will get the suffix "B", currently there is no suffix.
+- **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
+    This depends on the `blkio` cgroup and is still experimental.
+    The value might not accurately represent disk I/O due to caches or if virtual block devices such as LVM, RAID, RAM disks etc. are used.
+- **cpuenergy-pkg`<n>`**: Energy consumption of the CPU ([more information](resources.md#energy)).
+    This is still experimental.
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
@@ -49,6 +57,7 @@ In the result dictionary of a call to `RunExecutor.execute_run()`,
 integer values are stored as `int`,
 decimal numbers as an instance of some arithmetic Python type,
 and other values as strings.
+More complex values are represented as a `dict`.
 
 
 ### Additional Results of benchexec

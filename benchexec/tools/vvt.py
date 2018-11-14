@@ -52,11 +52,11 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeOut):
         try:
-            if "No bug found.\n" in output:
-                return result.RESULT_TRUE_PROP
-            elif "Bug found:\n" in output:
-                return result.RESULT_FALSE_REACH
-            else:
-                return result.RESULT_UNKNOWN
+            for line in output:
+                if line.startswith("No bug found"):
+                    return result.RESULT_TRUE_PROP
+                elif line.startswith("Bug found:"):
+                    return result.RESULT_FALSE_REACH
+            return result.RESULT_UNKNOWN
         except Exception:
             return result.RESULT_UNKNOWN

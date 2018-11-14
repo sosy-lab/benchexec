@@ -1,0 +1,14 @@
+<table>
+    <result filename="results/integration-cpa-kind.2017-01-10_2204.results.merged.xml">
+        <column title="status" displayTitle="verifier status" />
+        <column title="cputime" displayTitle="cpu" numberOfDigits="2"/>
+        <column title="wit1_status" displayTitle="validator cpachecker validation status" />
+        <column title="wit1_cputime" displayTitle="cpu" numberOfDigits="2" />
+        <column title="wit2_status" displayTitle="validator uautomizer violation status" />
+        <column title="wit2_cputime" displayTitle="cpu" numberOfDigits="2" />
+        <column title="wit3_status" displayTitle="validator cpachecker correctness status" />
+        <column title="wit3_cputime" displayTitle="cpu" numberOfDigits="2" />
+        <column title="wit4_status" displayTitle="validator uautomizer correctness status" />
+        <column title="wit4_cputime" displayTitle="cpu" numberOfDigits="2" />
+    </result>
+</table>

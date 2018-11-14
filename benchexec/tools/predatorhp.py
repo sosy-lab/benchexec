@@ -62,6 +62,8 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_DEREF
         elif "FALSE(valid-free)" in output:
             status = result.RESULT_FALSE_FREE
+        elif "FALSE(valid-memcleanup)" in output:
+            status = result.RESULT_FALSE_MEMCLEANUP
         elif "FALSE" in output:
             status = result.RESULT_FALSE_REACH
         if (status == "UNKNOWN" and isTimeout):

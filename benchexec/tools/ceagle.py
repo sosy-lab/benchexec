@@ -64,4 +64,3 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_UNKNOWN
 
         return status
-

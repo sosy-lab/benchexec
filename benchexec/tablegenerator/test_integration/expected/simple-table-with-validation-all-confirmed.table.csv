@@ -1,0 +1,82 @@
+tool	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048	CPAchecker 1.6.1-svn 24048
+run set	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow	sv-comp17.ReachSafety-ControlFlow
+benchexec/tablegenerator/sv-benchmarks/c/	verifier status	cpu (s)	validator cpachecker validation status	cpu (s)	validator uautomizer violation status	cpu (s)	validator cpachecker correctness status	cpu (s)	validator uautomizer correctness status	cpu (s)
+ntdrivers-simplified/cdaudio_simpl1_false-unreach-call_true-valid-memsafety_true-termination.cil.c	false(unreach-call)	8.0	false(unreach-call)	8.6	false(unreach-call)	21				
+ntdrivers-simplified/floppy_simpl3_false-unreach-call_true-valid-memsafety_true-termination.cil.c	false(unreach-call)	8.4	false(unreach-call)	7.6	false(unreach-call)	18				
+ntdrivers-simplified/floppy_simpl4_false-unreach-call_true-valid-memsafety_true-termination.cil.c	false(unreach-call)	9.3	false(unreach-call)	7.9	false(unreach-call)	22				
+ntdrivers-simplified/kbfiltr_simpl2_false-unreach-call_true-valid-memsafety_true-termination.cil.c	false(unreach-call)	5.4	false(unreach-call)	8.2	false(unreach-call)	13				
+ntdrivers-simplified/cdaudio_simpl1_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	7.3					true	17	true	96
+ntdrivers-simplified/diskperf_simpl1_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	100					OUT OF MEMORY	400	true	66
+ntdrivers-simplified/floppy_simpl3_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	7.4					true	12	true	65
+ntdrivers-simplified/floppy_simpl4_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	8.3					true	15	true	77
+ntdrivers-simplified/kbfiltr_simpl1_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	3.5					true	7.1	true	19
+ntdrivers-simplified/kbfiltr_simpl2_true-unreach-call_true-valid-memsafety_true-termination.cil.c	true	4.3					true	9.2	true	23
+ssh-simplified/s3_clnt_1_false-unreach-call.cil.c	false(unreach-call)	5.8	false(unreach-call)	6.7	false(unreach-call)	11				
+ssh-simplified/s3_clnt_2_false-unreach-call_true-termination.cil.c	false(unreach-call)	6.2	false(unreach-call)	7.6	false(unreach-call)	12				
+ssh-simplified/s3_clnt_3_false-unreach-call.cil.c	false(unreach-call)	6.2	false(unreach-call)	6.8	false(unreach-call)	15				
+ssh-simplified/s3_clnt_4_false-unreach-call.cil.c	false(unreach-call)	6.2	false(unreach-call)	7.0	false(unreach-call)	15				
+ssh-simplified/s3_srvr_10_false-unreach-call.cil.c	false(unreach-call)	12	false(unreach-call)	5.9	false(unreach-call)	13				
+ssh-simplified/s3_srvr_11_false-unreach-call.cil.c	false(unreach-call)	120	false(unreach-call)	9.2	false(unreach-call)	19				
+ssh-simplified/s3_srvr_12_false-unreach-call.cil.c	false(unreach-call)	120	false(unreach-call)	8.0	false(unreach-call)	15				
+ssh-simplified/s3_srvr_13_false-unreach-call.cil.c	false(unreach-call)	110	false(unreach-call)	6.8	false(unreach-call)	16				
+ssh-simplified/s3_srvr_14_false-unreach-call.cil.c	false(unreach-call)	45	false(unreach-call)	6.5	false(unreach-call)	14				
+ssh-simplified/s3_srvr_1_false-unreach-call.cil.c	false(unreach-call)	5.0	false(unreach-call)	6.9	false(unreach-call)	15				
+ssh-simplified/s3_srvr_2_false-unreach-call.cil.c	false(unreach-call)	5.1	false(unreach-call)	6.8	false(unreach-call)	15				
+ssh-simplified/s3_srvr_6_false-unreach-call.cil.c	false(unreach-call)	3.1	false(unreach-call)	5.1	false(unreach-call)	11				
+ssh-simplified/s3_clnt_1_true-unreach-call.cil.c	true	20					true	14	true	55
+ssh-simplified/s3_clnt_2_true-unreach-call_true-termination.cil.c	true	19					true	13	true	61
+ssh-simplified/s3_clnt_3_true-unreach-call.cil.c	true	22					true	15	true	52
+ssh-simplified/s3_clnt_4_true-unreach-call.cil.c	true	21					true	14	true	55
+ssh-simplified/s3_srvr_1_true-unreach-call.cil.c	true	24					OUT OF MEMORY	840	true	56
+ssh-simplified/s3_srvr_1a_true-unreach-call_false-termination.cil.c	true	3.2					true	8.2	true	11
+ssh-simplified/s3_srvr_1b_true-unreach-call_false-termination.cil.c	true	2.5					true	5.1	true	8.4
+ssh-simplified/s3_srvr_2_true-unreach-call.cil.c	true	24					TIMEOUT	910	true	51
+ssh-simplified/s3_srvr_3_true-unreach-call.cil.c	true	25					TIMEOUT	910	true	51
+ssh-simplified/s3_srvr_4_true-unreach-call.cil.c	true	24					TIMEOUT	910	true	49
+ssh-simplified/s3_srvr_6_true-unreach-call.cil.c	true	97					TIMEOUT	910	true	56
+ssh-simplified/s3_srvr_7_true-unreach-call.cil.c	true	96					TIMEOUT	910	true	53
+ssh-simplified/s3_srvr_8_true-unreach-call.cil.c	true	24					TIMEOUT	910	true	53
+locks/test_locks_14_false-unreach-call_true-valid-memsafety_false-termination.c	false(unreach-call)	93	false(unreach-call)	4.8	false(unreach-call)	11				
+locks/test_locks_15_false-unreach-call_true-valid-memsafety_false-termination.c	false(unreach-call)	94	false(unreach-call)	4.6	false(unreach-call)	8.6				
+locks/test_locks_10_true-unreach-call_true-valid-memsafety_false-termination.c	true	27					true	6.0	true	23
+locks/test_locks_11_true-unreach-call_true-valid-memsafety_false-termination.c	true	160					true	5.8	true	26
+locks/test_locks_12_true-unreach-call_true-valid-memsafety_false-termination.c	true	150					true	5.9	true	32
+locks/test_locks_13_true-unreach-call_true-valid-memsafety_false-termination.c	true	150					true	7.8	true	39
+locks/test_locks_14_true-unreach-call_true-valid-memsafety_false-termination.c	true	150					true	6.6	true	110
+locks/test_locks_15_true-unreach-call_true-valid-memsafety_false-termination.c	true	150					true	8.1	OUT OF MEMORY	110
+locks/test_locks_5_true-unreach-call_true-valid-memsafety_false-termination.c	true	3.0					true	4.9	true	9.6
+locks/test_locks_6_true-unreach-call_true-valid-memsafety_false-termination.c	true	3.6					true	6.2	true	12
+locks/test_locks_7_true-unreach-call_true-valid-memsafety_false-termination.c	true	5.1					true	5.2	true	14
+locks/test_locks_8_true-unreach-call_true-valid-memsafety_false-termination.c	true	7.8					true	6.9	true	16
+locks/test_locks_9_true-unreach-call_true-valid-memsafety_false-termination.c	true	13					true	7.1	true	20
+ntdrivers/cdaudio_false-unreach-call.i.cil.c	false(unreach-call)	52	false(unreach-call)	41	true	25				
+ntdrivers/diskperf_false-unreach-call.i.cil.c	false(unreach-call)	100	false(unreach-call)	27	true	14				
+ntdrivers/floppy_false-unreach-call.i.cil.c	false(unreach-call)	15	false(unreach-call)	16	true	25				
+ntdrivers/kbfiltr_false-unreach-call.i.cil.c	false(unreach-call)	9.0	false(unreach-call)	11	true	14				
+ntdrivers/parport_false-unreach-call.i.cil.c	false(unreach-call)	150	false(unreach-call)	14	TIMEOUT	91				
+ntdrivers/cdaudio_true-unreach-call.i.cil.c	true	9.2					true	48	true	170
+ntdrivers/diskperf_true-unreach-call.i.cil.c	true	100					OUT OF MEMORY	830	true	98
+ntdrivers/parport_true-unreach-call.i.cil.c	true	160					OUT OF MEMORY	420	true	190
+ssh/s3_clnt.blast.01_false-unreach-call.i.cil.c	OUT OF MEMORY	190	ERROR (invalid witness file)	0.47	ERROR (invalid witness file)	6.1				
+ssh/s3_clnt.blast.02_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.53	ERROR (invalid witness file)	6.7				
+ssh/s3_clnt.blast.03_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.50	ERROR (invalid witness file)	6.8				
+ssh/s3_clnt.blast.04_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.53	ERROR (invalid witness file)	7.7				
+ssh/s3_srvr.blast.01_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.52	ERROR (invalid witness file)	7.4				
+ssh/s3_srvr.blast.02_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.50	ERROR (invalid witness file)	8.4				
+ssh/s3_srvr.blast.03_false-unreach-call.i.cil.c	OUT OF MEMORY	180	ERROR (invalid witness file)	0.48	ERROR (invalid witness file)	6.6				
+ssh/s3_srvr.blast.04_false-unreach-call.i.cil.c	OUT OF MEMORY	170	ERROR (invalid witness file)	0.56	ERROR (invalid witness file)	7.9				
+ssh/s3_srvr.blast.06_false-unreach-call.i.cil.c	OUT OF MEMORY	160	ERROR (invalid witness file)	0.62	ERROR (invalid witness file)	7.3				
+ssh/s3_srvr.blast.07_false-unreach-call.i.cil.c	OUT OF MEMORY	240	ERROR (invalid witness file)	0.66	ERROR (invalid witness file)	7.7				
+ssh/s3_srvr.blast.08_false-unreach-call.i.cil.c	OUT OF MEMORY	330	ERROR (invalid witness file)	0.51	ERROR (invalid witness file)	7.9				
+ssh/s3_srvr.blast.09_false-unreach-call.i.cil.c	OUT OF MEMORY	240	ERROR (invalid witness file)	0.56	ERROR (invalid witness file)	6.3				
+ssh/s3_srvr.blast.10_false-unreach-call.i.cil.c	OUT OF MEMORY	330	ERROR (invalid witness file)	0.53	ERROR (invalid witness file)	7.3				
+ssh/s3_srvr.blast.11_false-unreach-call.i.cil.c	OUT OF MEMORY	200	ERROR (invalid witness file)	0.52	ERROR (invalid witness file)	8.1				
+ssh/s3_srvr.blast.12_false-unreach-call.i.cil.c	OUT OF MEMORY	150	ERROR (invalid witness file)	0.49	ERROR (invalid witness file)	7.5				
+ssh/s3_srvr.blast.13_false-unreach-call.i.cil.c	OUT OF MEMORY	240	ERROR (invalid witness file)	0.58	ERROR (invalid witness file)	8.2				
+ssh/s3_srvr.blast.14_false-unreach-call.i.cil.c	OUT OF MEMORY	150	ERROR (invalid witness file)	0.48	ERROR (invalid witness file)	7.1				
+ssh/s3_srvr.blast.15_false-unreach-call.i.cil.c	OUT OF MEMORY	350	ERROR (invalid witness file)	0.54	ERROR (invalid witness file)	6.2				
+ssh/s3_srvr.blast.16_false-unreach-call.i.cil.c	OUT OF MEMORY	160	ERROR (invalid witness file)	0.48	ERROR (invalid witness file)	7.9				
+ssh/s3_clnt.blast.01_true-unreach-call.i.cil.c	true	110					true	230	TIMEOUT	960
+ssh/s3_clnt.blast.02_true-unreach-call.i.cil.c	true	110					true	220	TIMEOUT	960
+ssh/s3_clnt.blast.03_true-unreach-call.i.cil.c	true	140					true	200	TIMEOUT	960
+ssh/s3_clnt.blast.04_true-unreach-call.i.cil.c	true	120					true	230	TIMEOUT	960

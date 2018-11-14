@@ -33,7 +33,6 @@ import time
 
 from benchexec import __version__
 from benchexec.model import Benchmark
-from benchexec import containerexecutor
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
 
@@ -137,6 +136,13 @@ class BenchExec(object):
                                'use "-1" to disable time limits completely)',
                           metavar="SECONDS")
 
+        parser.add_argument("-W", "--walltimelimit",
+                            dest="walltimelimit", default=None,
+                            help='Wall time limit for each run, e.g. "90s" '
+                                 '(overwrites wall time limit from XML file, '
+                                 'use "-1" to use CPU time limit plus a few seconds, such value is also used by default)',
+                            metavar="SECONDS")
+
         parser.add_argument("-M", "--memorylimit",
                           dest="memorylimit", default=None,
                           help="Memory limit, if no unit is given MB are assumed (-1 to disable)",
@@ -151,6 +157,12 @@ class BenchExec(object):
                           default=None,
                           metavar="N",
                           help="Limit each run of the tool to N CPU cores (-1 to disable).")
+
+        parser.add_argument("--allowedCores",
+                          dest="coreset", default=None, type=util.parse_int_list,
+                          help="Limit the set of cores BenchExec will use for all runs "
+                               "(Applied only if the number of CPU cores is limited).",
+                          metavar="N,M-K",)
 
         parser.add_argument("--user",
                             dest="users",
@@ -182,6 +194,11 @@ class BenchExec(object):
                             help="Shrink logfiles to given size if they are too big. "
                                  "(-1 to disable, default value: 20 MB).")
 
+        parser.add_argument("--filesCountLimit", type=int, metavar="COUNT",
+            help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+        parser.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
+            help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
+
         parser.add_argument("--commit", dest="commit",
                           action="store_true",
                           help="If the output path is a git repository without local changes, "
@@ -203,13 +220,21 @@ class BenchExec(object):
                             action="version",
                             version="%(prog)s " + __version__)
 
-        container_args = parser.add_argument_group("optional arguments for run container")
-        container_on_args = container_args.add_mutually_exclusive_group()
-        container_on_args.add_argument("--container", action='store_true',
-            help="force isolation of run in container (future default starting with BenchExec 2.0)")
-        container_on_args.add_argument("--no-container", action='store_true',
-            help="disable use of containers for isolation of runs (current default)")
-        containerexecutor.add_basic_container_args(container_args)
+        try:
+            from benchexec import containerexecutor
+        except Exception:
+            # This fails e.g. on MacOS X because of missing libc.
+            # We want to keep BenchExec usable for cases where the
+            # localexecutor is replaced by something else.
+            logging.debug("Could not import container feature:", exc_info=1)
+        else:
+            container_args = parser.add_argument_group("optional arguments for run container")
+            container_on_args = container_args.add_mutually_exclusive_group()
+            container_on_args.add_argument("--container", action='store_true',
+                help="force isolation of run in container (future default starting with BenchExec 2.0)")
+            container_on_args.add_argument("--no-container", action='store_true',
+                help="disable use of containers for isolation of runs (current default)")
+            containerexecutor.add_basic_container_args(container_args)
 
         return parser
 
@@ -269,7 +294,9 @@ class BenchExec(object):
             try:
                 util.add_files_to_git_repository(self.config.output_path,
                         output_handler.all_created_files,
-                        self.config.commit_message+'\n\n'+output_handler.description)
+                        self.config.commit_message + '\n\n'
+                            + output_handler.description + '\n\n'
+                            + str(output_handler.statistics))
             except OSError as e:
                 logging.warning('Could not add files to git repository: %s', e)
         return result

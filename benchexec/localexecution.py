@@ -29,13 +29,14 @@ import threading
 import time
 from queue import Queue
 
-from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT
+from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import cgroups
 from benchexec import containerexecutor
 from benchexec.resources import *
 from benchexec.runexecutor import RunExecutor
 from benchexec import systeminfo
 from benchexec import util
+from benchexec.intel_cpu_energy import EnergyMeasurement
 
 
 WORKER_THREADS = []
@@ -49,15 +50,21 @@ def init(config, benchmark):
             sys.exit("Cannot use --user in combination with --container.")
         config.containerargs = containerexecutor.handle_basic_container_args(config)
         config.containerargs["use_namespaces"] = True
-    elif not config.no_container:
-        logging.warning(
-            "Neither --container or --no-container was specified, "
-            "not using containers for isolation of runs. "
-            "Either specify --no-container to silence this warning, "
-            "or specify --container to use containers for better isolation of runs "
-            "(this will be the default starting with BenchExec 2.0). "
-            "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-            "for more information.")
+    else:
+        if config.users is not None:
+            logging.warning(
+                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
+                "Consider using the container mode instead for isolating runs "
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+        elif not config.no_container:
+            logging.warning(
+                "Neither --container or --no-container was specified, "
+                "not using containers for isolation of runs. "
+                "Either specify --no-container to silence this warning, "
+                "or specify --container to use containers for better isolation of runs "
+                "(this will be the default starting with BenchExec 2.0). "
+                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
+                "for more information.")
 
     try:
         processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]
@@ -89,11 +96,15 @@ def execute_benchmark(benchmark, output_handler):
 
     coreAssignment = None # cores per run
     memoryAssignment = None # memory banks per run
+    cpu_packages = None
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit("Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes.")
-        coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups)
+        coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, my_cgroups, benchmark.config.coreset)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
+        cpu_packages = set(get_cpu_package_for_core(core) for cores_of_run in coreAssignment for core in cores_of_run)
+    elif benchmark.config.coreset:
+        sys.exit('Please limit the number of cores first if you also want to limit the set of available cores.')
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
@@ -134,9 +145,11 @@ def execute_benchmark(benchmark, output_handler):
         else:
             run_sets_executed += 1
             # get times before runSet
+            energy_measurement = EnergyMeasurement.create_if_supported()
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
             walltime_before = util.read_monotonic_time()
-            energyBefore = util.measure_energy()
+            if energy_measurement:
+                energy_measurement.start()
 
             output_handler.output_before_run_set(runSet)
 
@@ -168,11 +181,13 @@ def execute_benchmark(benchmark, output_handler):
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
-            energy = util.measure_energy(energyBefore)
+            energy = energy_measurement.stop() if energy_measurement else None
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \
                         - (ruBefore.ru_utime + ruBefore.ru_stime)
+            if energy and cpu_packages:
+                energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
 
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error('interrupted', runSet)
@@ -259,12 +274,15 @@ class _Worker(threading.Thread):
                 result_files_patterns=benchmark.result_files_patterns,
                 hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
                 softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
+                walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
                 cores=self.my_cpus,
                 memory_nodes=self.my_memory_nodes,
                 memlimit=memlimit,
                 environments=benchmark.environment(),
                 workingDir=benchmark.working_directory(),
-                maxLogfileSize=benchmark.config.maxLogfileSize)
+                maxLogfileSize=benchmark.config.maxLogfileSize,
+                files_count_limit=benchmark.config.filesCountLimit,
+                files_size_limit=benchmark.config.filesSizeLimit)
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.

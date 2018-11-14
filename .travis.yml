@@ -8,6 +8,8 @@ python:
   - "3.4"
   - "3.5"
 install:
+    # Workaround: use lxml 4.0.0 because 4.1.0 fails on Python 3.2
+  - pip install lxml==4.0.0
   - pip install .
     # Coverage >= 4.0 doesn't support Python 3.2
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; else travis_retry pip install coverage; fi
