@@ -25,9 +25,9 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-                  "jayhorn.jar"
-                  "jayhorn"
-                  "libz3.so"
+                  "jayhorn.jar",
+                  "jayhorn",
+                  "libz3.so",
                   "libz3java.so"
                   ]
     def executable(self):
