@@ -20,6 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import contextlib
 import logging
 import inspect
 import os
@@ -27,6 +28,7 @@ import sys
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import model
+import benchexec.tools.template
 
 COLOR_RED     = "\033[31;1m"
 COLOR_GREEN   = "\033[32;1m"
@@ -74,6 +76,17 @@ def print_multiline_text(description, value):
         print('{}{}{}:'.format(COLOR_DESCRIPTION, description, COLOR_DEFAULT), file=sys.stderr)
         for line in value.splitlines():
             print('\t{}{}{}'.format(COLOR_VALUE, line, COLOR_DEFAULT), file=sys.stderr)
+
+@contextlib.contextmanager
+def log_if_unsupported(msg):
+    """Catch any exception in block and log it with a message about an unsupported feature"""
+    try:
+        yield # call code block to be executed
+    except BaseException as e:
+        logging.warning(
+            'Tool-info module does not support %s: “%s”',
+            msg, e,
+            exc_info=not isinstance(e, benchexec.tools.template.UnsupportedFeatureException))
 
 
 def print_tool_info(name):
@@ -124,47 +137,33 @@ def print_tool_info(name):
             'Tool module returned invalid entries for environment, these will be ignored: “%s”',
             environment)
 
-    try:
+    with log_if_unsupported('tasks without options, property file, and resource limits'):
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], None, {})
         print_list('Minimal command line', cmdline)
         if not 'INPUT.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores input file.')
-    except:
-        logging.warning('Tool module does not support tasks without options, '
-                        'property file, and resource limits:',
-                        exc_info=1)
 
-    try:
+    with log_if_unsupported('tasks with command-line options'):
         cmdline = model.cmdline_for_run(tool, executable, ['-SOME_OPTION'], ['INPUT.FILE'], None, {})
         print_list('Command line with parameter', cmdline)
         if not '-SOME_OPTION' in cmdline:
             logging.warning('Tool module ignores command-line options.')
-    except:
-        logging.warning('Tool module does not support tasks with command-line options:',
-                        exc_info=1)
 
-    try:
+    with log_if_unsupported('tasks with property file'):
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], 'PROPERTY.PRP', {})
         print_list('Command line with property file', cmdline)
         if not 'PROPERTY.PRP' in ' '.join(cmdline):
             logging.warning('Tool module ignores property file.')
-    except:
-        logging.warning('Tool module does not support tasks with property file:', exc_info=1)
 
-    try:
+    with log_if_unsupported('tasks with multiple input files'):
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT1.FILE', 'INPUT2.FILE'], None, {})
         print_list('Command line with multiple input files', cmdline)
         if 'INPUT1.FILE' in ' '.join(cmdline) and not 'INPUT2.FILE' in ' '.join(cmdline):
             logging.warning('Tool module ignores all but first input file.')
-    except:
-        logging.warning('Tool module does not support tasks with multiple input files:',
-                        exc_info=1)
 
-    try:
+    with log_if_unsupported('tasks with CPU-time limit'):
         cmdline = model.cmdline_for_run(tool, executable, [], ['INPUT.FILE'], None, {model.SOFTTIMELIMIT: 123})
         print_list('Command line CPU-time limit', cmdline)
-    except:
-        logging.warning('Tool module does not support tasks with CPU-time limit:', exc_info=1)
 
     return tool
 

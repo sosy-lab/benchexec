@@ -20,8 +20,15 @@ import os
 import logging
 import subprocess
 
+import benchexec
 import benchexec.result as result
 import benchexec.util as util
+
+class UnsupportedFeatureException(benchexec.BenchExecException):
+    """
+    Raised when a tool or its tool-info module does not support a requested feature.
+    """
+    pass
 
 class BaseTool(object):
     """

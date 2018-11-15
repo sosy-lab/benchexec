@@ -30,6 +30,7 @@ import time
 from queue import Queue
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
+from benchexec import BenchExecException
 from benchexec import cgroups
 from benchexec import containerexecutor
 from benchexec.resources import *
@@ -248,6 +249,8 @@ class _Worker(threading.Thread):
                 self.execute(currentRun)
                 logging.debug('Finished run "%s"', currentRun.identifier)
             except SystemExit as e:
+                logging.critical(e)
+            except BenchExecException as e:
                 logging.critical(e)
             except BaseException as e:
                 logging.exception('Exception during run execution')
