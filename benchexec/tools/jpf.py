@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
+
+import os
 
 import benchexec.util as util
 import benchexec.tools.template
@@ -34,7 +35,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return open('.version', 'r').read().strip()
+        jpf = os.path.join(os.path.dirname(executable), "jpf")
+        output = self._version_from_tool(jpf, arg="-version")
+        first_line = output.splitlines()[0]
+        return first_line.split(":")[-1].strip()
 
 
     def name(self):
