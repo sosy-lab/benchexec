@@ -34,7 +34,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def version(self, executable):
-        return 'rev '+self._version_from_tool(executable).split()[2]
+	return open('.version', 'r').read()
 
 
     def name(self):
