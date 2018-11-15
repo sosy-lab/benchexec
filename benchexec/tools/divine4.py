@@ -137,8 +137,7 @@ class Tool(benchexec.tools.template.BaseTool):
             res = last.split(':', maxsplit=1)[1].strip()
             return self.RESMAP.get( res, result.RESULT_UNKNOWN );
         else:
-            return ''.join( output )
-            return result.RESULT_UNKNOWN
+            return 'UNKNOWN ERROR'
 
     def program_files(self, executable):
         """
