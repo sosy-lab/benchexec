@@ -592,8 +592,8 @@ class RunSet(object):
                     raise BenchExecException(
                         "Pattern '{}' in task-definition file {} did not match any paths."
                         .format(pattern, task_def_file))
+                expanded.sort()
                 result.extend(expanded)
-            result.sort()
             return result
 
         input_files = expand_patterns_from_tag("input_files")
