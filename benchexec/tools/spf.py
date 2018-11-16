@@ -40,11 +40,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return 'SPF'
 
     def version(self, executable):
-        version = '1'
-        with open(".version", 'r') as f:
-           version = f.read().strip()
-        return version
-
+        output = self._version_from_tool(executable, arg="--version")
+        first_line = output.splitlines()[0]
+        return first_line.strip()
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         options = options + ['--propertyfile', propertyfile]
