@@ -80,7 +80,7 @@ class BaseTool(object):
         """
         return ''
 
-    def _version_from_tool(self, executable, arg='--version', use_stderr=False):
+    def _version_from_tool(self, executable, arg='--version', use_stderr=False, ignore_stderr=False):
         """
         Get version of a tool by executing it with argument "--version"
         and returning stdout.
@@ -97,7 +97,7 @@ class BaseTool(object):
             logging.warning('Cannot run {0} to determine version: {1}'.
                             format(executable, e.strerror))
             return ''
-        if stderr and not use_stderr:
+        if stderr and not use_stderr and not ignore_stderr:
             logging.warning('Cannot determine {0} version, error output: {1}'.
                             format(executable, util.decode_to_string(stderr)))
             return ''

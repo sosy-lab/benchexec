@@ -36,6 +36,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     BINS = ['divine', 'divine-svc']
+    REQUIRED_PATHS = BINS + ['lib']
     RESMAP = { 'true': result.RESULT_TRUE_PROP
              , 'false': result.RESULT_FALSE_REACH
              , 'false-deref': result.RESULT_FALSE_DEREF
@@ -49,36 +50,17 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         """
         Find the path to the executable file that will get executed.
-        This method always needs to be overridden,
-        and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
-        def is_exec(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-        for b in [os.path.join("divine-svc", self.BINS[0]), self.BINS[0]]:
-          if is_exec(b):
-              return os.path.join(".", b)
         return util.find_executable(self.BINS[0])
 
     def version(self, executable):
-        try:
-            process = subprocess.Popen([executable, "--version"],
-                                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-            (stdout, _) = process.communicate()
-        except OSError as e:
-            logging.warning('Cannot run {0} to determine version: {1}'.
-                            format(executable, e.strerror))
-            return ''
-        if process.returncode:
-            logging.warning('Cannot determine {0} version, exit code {1}'.
-                            format(executable, process.returncode))
-            return ''
-        lns = {}
-        for l in util.decode_to_string(stdout).strip().splitlines():
+        output = self._version_from_tool(executable, ignore_stderr=True)
+        for l in output.splitlines():
             k, v = l.split(':', maxsplit=1)
-            lns[k] = v
-        return lns['version']
-
+            if k == 'version':
+                return v.strip()
+        return ''
 
     def name(self):
         """
@@ -106,10 +88,10 @@ class Tool(benchexec.tools.template.BaseTool):
                         All entries in rlimits are optional, so check for existence before usage!
         """
         directory = os.path.dirname(executable)
-        prp = propertyfile if propertyfile is not None else "-"
+        prp = propertyfile or "-"
 
-        run = [os.path.join('.', directory, self.BINS[1]), executable, prp] + options + tasks
-        return run
+        # prefix command line with wrapper script
+        return [os.path.join(directory, self.BINS[1]), executable, prp] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -138,16 +120,3 @@ class Tool(benchexec.tools.template.BaseTool):
             return self.RESMAP.get( res, result.RESULT_UNKNOWN );
         else:
             return 'UNKNOWN ERROR'
-
-    def program_files(self, executable):
-        """
-        OPTIONAL, this method is only necessary for situations when the benchmark environment
-        needs to know all files belonging to a tool
-        (to transport them to a cloud service, for example).
-        Returns a list of files or directories that are necessary to run the tool.
-        """
-        directory = os.path.dirname(executable)
-        libs = []
-        for (dirpath, _, filenames) in os.walk(os.path.join('.', directory, "lib")):
-            libs.extend( [os.path.join(dirpath, x) for x in filenames] )
-        return [os.path.join('.', directory, x) for x in self.BINS] + libs
