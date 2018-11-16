@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
+
+import os
 
 import benchexec.util as util
 import benchexec.tools.template
@@ -26,15 +27,18 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-                  "bin",
-                  "build"
+                  "../bin",
+                  "../build"
                   ]
     def executable(self):
         return util.find_executable('bin/jpf-core-sv-comp')
 
 
     def version(self, executable):
-	return open('.version', 'r').read()
+        jpf = os.path.join(os.path.dirname(executable), "jpf")
+        output = self._version_from_tool(jpf, arg="-version")
+        first_line = output.splitlines()[0]
+        return first_line.split(":")[-1].strip()
 
 
     def name(self):
@@ -42,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ['--propertyfile', propertyfile]
+        options = options + ['-show' ] + ['--propertyfile', propertyfile]
         return [executable] + options + tasks
 
 

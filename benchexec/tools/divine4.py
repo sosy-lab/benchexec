@@ -53,6 +53,11 @@ class Tool(benchexec.tools.template.BaseTool):
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
+        def is_exec(fpath):
+            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+        for b in [os.path.join("divine-svc", self.BINS[0]), self.BINS[0]]:
+          if is_exec(b):
+              return os.path.join(".", b)
         return util.find_executable(self.BINS[0])
 
     def version(self, executable):
@@ -132,8 +137,7 @@ class Tool(benchexec.tools.template.BaseTool):
             res = last.split(':', maxsplit=1)[1].strip()
             return self.RESMAP.get( res, result.RESULT_UNKNOWN );
         else:
-            return ''.join( output )
-            return result.RESULT_UNKNOWN
+            return 'UNKNOWN ERROR'
 
     def program_files(self, executable):
         """

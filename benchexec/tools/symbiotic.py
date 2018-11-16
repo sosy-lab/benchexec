@@ -52,7 +52,7 @@ class Tool(OldSymbiotic):
     REQUIRED_PATHS_6_0_0 = [
                   "bin",
                   "include",
-                  "specs",
+                  "properties",
                   "lib",
                   "llvm-4.0.1",
                   ]
@@ -109,8 +109,8 @@ class Tool(OldSymbiotic):
 
         return False
 
-    def _timeoutReason(self, output):
-        lastphase = 'unknown'
+    def _getPhase(self, output):
+        lastphase = 'before-instr'
         for line in output:
             if line.startswith('INFO: Starting instrumentation'):
                 lastphase='instrumentation'
@@ -128,11 +128,8 @@ class Tool(OldSymbiotic):
         return lastphase
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if isTimeout:
-            return self._timeoutReason(output)
-
         if output is None:
-            return 'error (no output)'
+            return '{0}(no output)'.format(result.RESULT_ERROR)
 
         if self._version_newer_than('4.0.1'):
             for line in output:
@@ -149,11 +146,20 @@ class Tool(OldSymbiotic):
                 return result.RESULT_FALSE_MEMTRACK
               elif line.startswith('RESULT: false(no-overflow)'):
                 return result.RESULT_FALSE_OVERFLOW
+              elif line.startswith('RESULT: false(termination)'):
+                return result.RESULT_FALSE_TERMINATION
               elif line.startswith('RESULT: false'):
                 return result.RESULT_FALSE_REACH
         else:
             # old version of Symbiotic
             return OldSymbiotic.determine_result(self, returncode, returnsignal, output, isTimeout)
 
-        return result.RESULT_ERROR
+        if isTimeout:
+            return self._getPhase(output) # generates TIMEOUT(phase)
+        elif returnsignal != 0:
+            return 'KILLED (signal {0}, {1})'.format(returnsignal, self._getPhase(output))
+        elif returncode != 0:
+            return '{0}(returned {1}, {2})'.format(result.RESULT_ERROR, returncode, self._getPhase(output))
+
+        return '{0}(unknown, {1})'.format(result.RESULT_ERROR, self._getPhase(output))
 
