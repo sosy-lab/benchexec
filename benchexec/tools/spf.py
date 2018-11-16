@@ -30,7 +30,8 @@ class Tool(benchexec.tools.template.BaseTool):
                   "jpf-core/build",
                   "jpf-symbc/lib",
                   "jpf-symbc/build",
-                  "jpf-sv-comp"
+                  "jpf-sv-comp",
+                  "site.properties"
                   ]
     def executable(self):
         return util.find_executable('jpf-sv-comp')
