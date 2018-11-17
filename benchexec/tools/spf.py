@@ -28,10 +28,11 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
                   "jpf-core/bin/jpf",
                   "jpf-core/build",
+                  "jpf-core/jpf.properties",
                   "jpf-symbc/lib",
                   "jpf-symbc/build",
-                  "jpf-sv-comp",
-                  "site.properties"
+                  "jpf-symbc/jpf.properties",
+                  "jpf-sv-comp"
                   ]
     def executable(self):
         return util.find_executable('jpf-sv-comp')
