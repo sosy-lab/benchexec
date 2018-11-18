@@ -31,6 +31,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('pinaka-wrapper.sh')
 
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
     def name(self):
         return "Pinaka"
 
