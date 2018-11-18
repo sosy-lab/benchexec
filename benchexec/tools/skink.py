@@ -34,8 +34,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return 'skink'
     
-    def version(self):
-        return '2.0'
+    def version(self, executable):
+        return self._version_from_tool(executable)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)
