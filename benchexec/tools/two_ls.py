@@ -69,6 +69,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = result.RESULT_FALSE_OVERFLOW
                 elif result_str == 'FALSE(termination)':
                     status = result.RESULT_FALSE_TERMINATION
+                elif result_str == 'FALSE(valid-memcleanup)':
+                    status = result.RESULT_FALSE_MEMCLEANUP
                 else:
                     status = result.RESULT_FALSE_REACH
             else:
