@@ -1536,8 +1536,9 @@ def main(args=None):
     arg_parser = create_argument_parser()
     options = arg_parser.parse_args((args or sys.argv)[1:])
 
-    logging.basicConfig(format="%(levelname)s: %(message)s",
-                        level=logging.WARNING if options.quiet else logging.INFO)
+    benchexec.util.setup_logging(
+        format="%(levelname)s: %(message)s",
+        level=logging.WARNING if options.quiet else logging.INFO)
 
     global parallel
     import concurrent.futures

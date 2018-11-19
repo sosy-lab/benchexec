@@ -245,12 +245,10 @@ class BenchExec(object):
         Configure the logging framework.
         """
         if self.config.debug:
-            logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                                level=logging.DEBUG)
+            util.setup_logging(level=logging.DEBUG)
             util.activate_debug_shell_on_signal()
         else:
-            logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                                level=logging.INFO)
+            util.setup_logging(level=logging.INFO)
 
 
     def load_executor(self):

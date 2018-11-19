@@ -31,6 +31,7 @@ import threading
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec import __version__
+from benchexec import util
 
 
 def add_basic_executor_options(argument_parser):
@@ -53,8 +54,7 @@ def handle_basic_executor_options(options, parser):
         logLevel = logging.DEBUG
     elif options.quiet:
         logLevel = logging.WARNING
-    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                        level=logLevel)
+    util.setup_logging(level=logLevel)
 
 
 class BaseExecutor(object):

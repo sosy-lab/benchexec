@@ -557,6 +557,15 @@ def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)
 
 
+def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level='INFO'):
+    """Setup the logging framework with a basic configuration"""
+    try:
+        import coloredlogs
+        coloredlogs.install(fmt=format, level=level)
+    except ImportError:
+        logging.basicConfig(format=format, level=level)
+
+
 def _debug_current_process(sig, current_frame):
     """Interrupt running process, and provide a python prompt for interactive debugging.
     This code is based on http://stackoverflow.com/a/133384/396730
