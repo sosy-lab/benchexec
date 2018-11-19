@@ -46,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool):
         version = subprocess.Popen([executable, '-v'],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT).stdout.readline().decode()
-        return version
+        return version.strip()
 
     def name(self):
         return 'DepthK'
