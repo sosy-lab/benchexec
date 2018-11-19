@@ -37,14 +37,23 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "Pinaka"
 
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        if propertyfile:
+            options = options + ['--propertyfile', propertyfile]
+
+        self.options = options
+        return [executable] + options + tasks
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = ''
 
         if returnsignal==0 and ((returncode ==0) or (returncode==10)):
-            if 'VERIFICATION SUCCESSFUL\n' in output:
-                status = result.RESULT_TRUE_PROP
-            elif 'VERIFICATION FAILED\n' in output:
+            if 'VERIFICATION FAILED (ReachSafety)\n' in output:
                 status = result.RESULT_FALSE_REACH
+            elif 'VERIFICATION FAILED (NoOverflow)\n' in output:
+                status = result.RESULT_FALSE_OVERFLOW
+            elif 'VERIFICATION SUCCESSFUL\n' in output:
+                status = result.RESULT_TRUE_PROP
             else:
                 status = result.RESULT_UNKNOWN
         else:
