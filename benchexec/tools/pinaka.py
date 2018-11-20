@@ -41,7 +41,6 @@ class Tool(benchexec.tools.template.BaseTool):
         if propertyfile:
             options = options + ['--propertyfile', propertyfile]
 
-        self.options = options
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
