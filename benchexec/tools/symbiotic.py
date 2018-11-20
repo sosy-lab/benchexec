@@ -144,6 +144,8 @@ class Tool(OldSymbiotic):
                 return result.RESULT_FALSE_FREE
               elif line.startswith('RESULT: false(valid-memtrack)'):
                 return result.RESULT_FALSE_MEMTRACK
+              elif line.startswith('RESULT: false(valid-memcleanup)'):
+                return result.RESULT_FALSE_MEMCLEANUP
               elif line.startswith('RESULT: false(no-overflow)'):
                 return result.RESULT_FALSE_OVERFLOW
               elif line.startswith('RESULT: false(termination)'):
