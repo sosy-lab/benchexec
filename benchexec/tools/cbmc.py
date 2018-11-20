@@ -139,6 +139,8 @@ class Tool(benchexec.tools.template.BaseTool):
                         status = result.RESULT_FALSE_FREE
                     elif result_str == 'FALSE(no-overflow)':
                         status = result.RESULT_FALSE_OVERFLOW
+                    elif result_str == 'FALSE(valid-memcleanup)':
+                        status = result.RESULT_FALSE_MEMCLEANUP
                     else:
                         status = result.RESULT_FALSE_REACH
                 elif 'UNKNOWN' in output:
