@@ -94,8 +94,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         launcher_jar = self._get_current_launcher_jar(executable)
 
         cmds = [
-            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],  # 2
-            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],  # 1
+            # 2
+            ["java", "-jar", launcher_jar, "-Xss4m", "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
+            # 1
+            ["java", "-jar", launcher_jar, "-Xss4m", "-data", data_dir, "--version"],
         ]
 
         self.api = len(cmds)
@@ -210,7 +212,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
-
+            cmdline += ['-Xss4m']
             cmdline += ['-jar', self._get_current_launcher_jar(executable)]
 
             if self._requires_ultimate_data(executable):
