@@ -57,6 +57,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "LICENSE.GPL",
         "LICENSE.GPL.LESSER",
         "mathsat",
+        "mathsat-LICENSE",
         "p2",
         "plugins",
         "README",
