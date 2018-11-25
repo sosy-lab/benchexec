@@ -237,7 +237,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return cmdline
 
         # there is no way to run ultimate; not enough parameters 
-        raise NameError("Unsupported argument combination")
+        raise NameError("Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options,propertyfile,rlimits))
 
     def __assert_cmdline(self, cmdline, msg):
         assert all(cmdline), msg + str(cmdline)
