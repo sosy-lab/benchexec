@@ -25,6 +25,8 @@ import re
 import subprocess
 import sys
 
+import benchexec.tools.template.UnsupportedFeatureException as UnsupportedFeatureException
+
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
@@ -101,7 +103,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if version != '':
                 return version
             self.api = self.api - 1
-        raise NameError("Could not deterime Ultimate version")
+        raise NameError("Could not determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
@@ -237,7 +239,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return cmdline
 
         # there is no way to run ultimate; not enough parameters 
-        raise NameError("Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options,propertyfile,rlimits))
+        raise UnsupportedFeatureException(
+            "Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options, propertyfile,
+                                                                                             rlimits))
 
     def __assert_cmdline(self, cmdline, msg):
         assert all(cmdline), msg + str(cmdline)
