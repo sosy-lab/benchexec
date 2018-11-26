@@ -25,13 +25,12 @@ import re
 import subprocess
 import sys
 
-import benchexec.BenchExecException as BenchExecException
-import benchexec.tools.template.UnsupportedFeatureException as UnsupportedFeatureException
-
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
+from benchexec import BenchExecException
 from benchexec.model import MEMLIMIT
+from benchexec.tools.template import UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = '--force-no-wrapper'
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -96,9 +95,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
         cmds = [
             # 2
-            ["java", "-jar", launcher_jar, "-Xss4m", "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
+            ["java", "-Xss4m", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
             # 1
-            ["java", "-jar", launcher_jar, "-Xss4m", "-data", data_dir, "--version"],
+            ["java", "-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
         ]
 
         self.api = len(cmds)
