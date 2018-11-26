@@ -145,6 +145,10 @@ def handle_union_tag(tag, table_definition_file, options, default_columns, colum
     result = RunSetResult([], collections.defaultdict(list), columns)
 
     for resultTag in tag.findall('result'):
+        if extract_columns_from_table_definition_file(resultTag, table_definition_file):
+            logging.warning(
+                "<result> tags within <union> tags may not contain <column> tags, "
+                "these column declarations will be ignored. Please move them to the <union> tag.")
         run_set_id = resultTag.get('id')
         for resultsFile in get_file_list_from_result_tag(resultTag, table_definition_file):
             result_xml = parse_results_file(resultsFile, run_set_id)
