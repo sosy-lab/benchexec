@@ -25,8 +25,8 @@ import re
 import subprocess
 import sys
 
-import benchexec.BenchExecException as BenchExecException
-import benchexec.tools.template.UnsupportedFeatureException as UnsupportedFeatureException
+from benchexec import BenchExecException
+from benchexec.tools.template import UnsupportedFeatureException
 
 import benchexec.result as result
 import benchexec.tools.template
