@@ -25,6 +25,7 @@ import re
 import subprocess
 import sys
 
+import benchexec.BenchExecException as BenchExecException
 import benchexec.tools.template.UnsupportedFeatureException as UnsupportedFeatureException
 
 import benchexec.result as result
@@ -106,7 +107,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if version != '':
                 return version
             self.api = self.api - 1
-        raise NameError("Could not determine Ultimate version")
+        raise BenchExecException("Could not determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
