@@ -25,6 +25,9 @@ import re
 import subprocess
 import sys
 
+import benchexec.BenchExecException as BenchExecException
+import benchexec.tools.template.UnsupportedFeatureException as UnsupportedFeatureException
+
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
@@ -55,6 +58,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "LICENSE.GPL",
         "LICENSE.GPL.LESSER",
         "mathsat",
+        "mathsat-LICENSE",
         "p2",
         "plugins",
         "README",
@@ -91,8 +95,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         launcher_jar = self._get_current_launcher_jar(executable)
 
         cmds = [
-            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],  # 2
-            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],  # 1
+            # 2
+            ["java", "-jar", launcher_jar, "-Xss4m", "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
+            # 1
+            ["java", "-jar", launcher_jar, "-Xss4m", "-data", data_dir, "--version"],
         ]
 
         self.api = len(cmds)
@@ -101,7 +107,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if version != '':
                 return version
             self.api = self.api - 1
-        raise NameError("Could not deterime Ultimate version")
+        raise BenchExecException("Could not determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
@@ -207,7 +213,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
-
+            cmdline += ['-Xss4m']
             cmdline += ['-jar', self._get_current_launcher_jar(executable)]
 
             if self._requires_ultimate_data(executable):
@@ -237,7 +243,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return cmdline
 
         # there is no way to run ultimate; not enough parameters 
-        raise NameError("Unsupported argument combination")
+        raise UnsupportedFeatureException(
+            "Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options, propertyfile,
+                                                                                             rlimits))
 
     def __assert_cmdline(self, cmdline, msg):
         assert all(cmdline), msg + str(cmdline)
