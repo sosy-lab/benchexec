@@ -33,7 +33,7 @@ class Tool(benchexec.tools.template.BaseTool):
     URL: http://aprove.informatik.rwth-aachen.de/
     Only the binary (jar) distribution of AProVE is supported.
     """
-    
+
     REQUIRED_PATHS = [
                   "aprove.jar",
                   "AProVE.sh",

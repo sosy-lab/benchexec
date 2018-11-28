@@ -199,9 +199,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using default SVCOMP mode: ")
             return cmdline
 
-        # if no property file is given and toolchain (-tc) is, use ultimate directly 
+        # if no property file is given and toolchain (-tc) is, use ultimate directly
         if '-tc' in options or '--toolchain' in options:
-            # ignore executable (old executable is just around for backwards compatibility) 
+            # ignore executable (old executable is just around for backwards compatibility)
             mem_bytes = rlimits.get(MEMLIMIT, None)
             cmdline = ['java']
 
@@ -241,7 +241,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using Ultimate raw mode: ")
             return cmdline
 
-        # there is no way to run ultimate; not enough parameters 
+        # there is no way to run ultimate; not enough parameters
         raise UnsupportedFeatureException(
             "Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options, propertyfile,
                                                                                              rlimits))

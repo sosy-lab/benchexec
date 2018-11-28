@@ -33,7 +33,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return 'skink'
-    
+
     def version(self, executable):
         return self._version_from_tool(executable)
 

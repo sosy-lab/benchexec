@@ -28,11 +28,11 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         return util.find_executable('viap_tool.py')
-    
+
     def version(self, executable):
         stdout = self._version_from_tool(executable, '-version')
         return stdout
-    
+
     def name(self):
         return 'VerifierIntegerAssignmentPrograms'
 
@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
         assert propertyfile is not None
         spec = ['--spec=' + propertyfile]
         return [executable] + options + spec + tasks
-    
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
         stroutput = str(output)

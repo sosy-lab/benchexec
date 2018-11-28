@@ -25,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool):
     """
     ConSequence
     """
-    
+
     REQUIRED_PATHS = [
                       "bin",
                       "check.sh",
@@ -37,10 +37,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         return util.find_executable('consequence.pl')
-    
+
     def name(self):
         return 'ConSequence'
-    
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
         if "consequence_unsafe" in lines:

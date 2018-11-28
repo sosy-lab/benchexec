@@ -209,7 +209,7 @@ Other changes:
   to make them easier to read and less ambiguous.
   The old input format without units is still valid.
 - runexec now allows enabling other cgroup subsystems and setting arbitrary cgroup options.
-- HTML tables gained the possibility for inverting row filters. 
+- HTML tables gained the possibility for inverting row filters.
 - Improve detection of out-of-memory situations (were not always reported as OOM).
 - External resources in HTML tables are loaded from HTTPS URLs
   such that browsers do not complain because of mixed content when viewing tables via HTTPS.

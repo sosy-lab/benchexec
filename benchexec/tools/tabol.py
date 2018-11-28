@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
-    
+
     def version(self, executable):
         return self._version_from_tool(executable)
 
