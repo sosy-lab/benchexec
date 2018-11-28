@@ -4,7 +4,7 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="BenchExec table-generator 1.15">
+<meta name="generator" content="BenchExec table-generator 1.17">
 
 <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 <style type="text/css">
@@ -1220,11 +1220,11 @@ function fillRowFilterField(columnIndex) {
     options.sort( function(a, b) {
         if (a == null) return 1;
         if (b == null) return -1;
-        if (a.endsWith('s')) a = a.substring(0,a.length-1);
-        if (b.endsWith('s')) b = b.substring(0,b.length-1);
-        if (isNaN(a)) return 1;
-        if (isNaN(b)) return -1;
-        return a - b;
+        if (a.endsWith('s') && b.endsWith('s')) {
+            a = a.substring(0,a.length-1);
+            b = b.substring(0,b.length-1);
+        }
+        return a.localeCompare(b, undefined, {numeric: true});
     } );
 
     // delete old elements
