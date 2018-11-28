@@ -124,6 +124,10 @@ class Tool(OldSymbiotic):
                 lastphase='verification'
             elif line.startswith('INFO: Verification time'):
                 lastphase='verification-finished'
+            elif line.startswith('INFO: Replaying error path'):
+                lastphase='cex-confirmation'
+            elif line.startswith('INFO: Replaying error path time'):
+                lastphase='cex-confirmation-finished'
 
         return lastphase
 
