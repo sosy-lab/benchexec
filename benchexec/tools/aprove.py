@@ -60,7 +60,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 logging.warning('Unable to determine AProVE version: {0}'.format(e.strerror))
                 return ''
 
-            version_aprove_match = re.compile(r'^# AProVE Commit ID: (.*)', re.MULTILINE).search(util.decode_to_string(stdout))
+            version_aprove_match = re.search(
+                r'^# AProVE Commit ID: (.*)', util.decode_to_string(stdout), re.MULTILINE)
             if not version_aprove_match:
                 logging.warning('Unable to determine AProVE version: {0}'.format(util.decode_to_string(stdout)))
                 return ''
