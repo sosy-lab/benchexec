@@ -1,5 +1,24 @@
 # BenchExec Changelog
 
+## BenchExec 1.17
+
+- Tasks can now be defined in a YAML-based format,
+  cf. [the documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/benchexec.md#task-definition-files)
+  This supports tasks with several input files,
+  and allows providing metadata such as expected verdicts
+  in a structured format instead of encoded in the file name.
+  The format will be extended to handle more information in the future.
+- The wall-time limit can now be specified separately from the CPU-time limit
+  for `benchexec` as command-line parameter or in the benchmark definition.
+- Support for SV-COMP'19 property `memcleanup`.
+- In containers, properly handle `/run/systemd/resolve`,
+  which is necessary for DNS resolution on systems with `systemd-resolved`.
+- Avoid warnings for mountpoints below inaccessible directories in containers.
+- Improvements for handling `NaN` and `Inf` values in `table-generator`.
+- Log output of BenchExec will now have colors if `coloredlogs` is installed.
+- New tool-info modules and updates for SV-COMP'19.
+
+
 ## BenchExec 1.16
 
 - Support for [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
