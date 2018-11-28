@@ -35,7 +35,7 @@ from benchexec.tools.template import UnsupportedFeatureException
 _OPTION_NO_WRAPPER = '--force-no-wrapper'
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
-_ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
+_ULTIMATE_VERSION_REGEX = re.compile(r'^Version is (.*)$', re.MULTILINE)
 # .jar files that are used as launcher arguments with most recent .jar first
 _LAUNCHER_JARS = ["plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"]
 

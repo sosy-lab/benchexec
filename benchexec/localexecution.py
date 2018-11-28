@@ -69,7 +69,7 @@ def init(config, benchmark):
 
     try:
         processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]
-        if len(re.findall("python.*benchmark\.py", util.decode_to_string(processes))) > 1:
+        if len(re.findall(r"python.*benchmark\.py", util.decode_to_string(processes))) > 1:
             logging.warning("Already running instance of this script detected. "
                             "Please make sure to not interfere with somebody else's benchmarks.")
     except OSError:

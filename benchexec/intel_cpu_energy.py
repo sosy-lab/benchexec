@@ -82,7 +82,7 @@ class EnergyMeasurement(object):
         for line in out.splitlines():
             line = line.decode('ASCII')
             logging.debug("energy measurement output: %s", line)
-            match = re.match('cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line)
+            match = re.match(r'cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line)
             if not match:
                 continue
 

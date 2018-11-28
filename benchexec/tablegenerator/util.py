@@ -168,7 +168,7 @@ def format_options(options):
     '''Helper function for formatting the content of the options line'''
     # split on one of the following tokens: ' -' or '[[' or ']]'
     lines = ['']
-    for token in re.split('( -|\[\[|\]\])', options):
+    for token in re.split(r'( -|\[\[|\]\])', options):
         if token in ['[[',']]']:
             lines.append(token)
             lines.append('')
