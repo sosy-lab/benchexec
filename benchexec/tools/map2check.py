@@ -105,6 +105,8 @@ class Tool(benchexec.tools.template.BaseTool):
             elif 'FALSE' in output:
                 if "FALSE_MEMTRACK" in output:
                     status = result.RESULT_FALSE_MEMTRACK
+                elif "FALSE_MEMCLEANUP" in output:
+                    status = result.RESULT_FALSE_MEMCLEANUP
                 elif "FALSE_DEREF" in output:
                     status = result.RESULT_FALSE_DEREF
                 elif "FALSE_FREE" in output:
