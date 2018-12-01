@@ -28,6 +28,7 @@ class Tool(cseq.CSeqTool):
 
     REQUIRED_PATHS = [
                   "cbmc",
+                  "cbmc-5.4",
                   "core",
                   "cseq.py",
                   "lazy-cseq.py",
