@@ -49,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def name(self):
-        return 'TBF'
+        return 'tbf'
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
