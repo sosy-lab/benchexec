@@ -107,6 +107,8 @@ RESULT_SAT =                'sat'
 """task is satisfiable"""
 RESULT_UNSAT =              'unsat'
 """task is unsatisfiable"""
+RESULT_COVER =              'cover'
+"""test suite for coverage criterion created"""
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
@@ -119,7 +121,8 @@ RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
                RESULT_FALSE_MEMCLEANUP,
                RESULT_WITNESS_CONFIRMED,
                RESULT_SAT, RESULT_UNSAT,
-               RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
+               RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK,
+               RESULT_COVER
                ]
 
 # Classification of results
