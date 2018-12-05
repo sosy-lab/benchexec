@@ -109,8 +109,8 @@ RESULT_UNSAT =              'unsat'
 """task is unsatisfiable"""
 
 # List of all possible results.
-# If a result is not in this list, it is handled as RESULT_CLASS_ERROR.
-RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
+# If a result is not in this list, it is handled as RESULT_CLASS_OTHER.
+RESULT_LIST = [RESULT_TRUE_PROP,
                RESULT_FALSE_PROP,
                RESULT_FALSE_REACH,
                _RESULT_FALSE_REACH_OLD,
@@ -125,8 +125,7 @@ RESULT_LIST = [RESULT_TRUE_PROP, RESULT_UNKNOWN,
 # Classification of results
 RESULT_CLASS_TRUE    = 'true'
 RESULT_CLASS_FALSE   = 'false'
-RESULT_CLASS_UNKNOWN = 'unknown'
-RESULT_CLASS_ERROR   = 'error'
+RESULT_CLASS_OTHER = 'other'
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {'LTL(G ! label(':                    _PROP_LABEL,
@@ -426,10 +425,7 @@ def get_result_classification(result):
     if result not in RESULT_LIST:
         if result and result.startswith(RESULT_FALSE_PROP + "(") and result.endswith(")"):
             return RESULT_CLASS_FALSE
-        return RESULT_CLASS_ERROR
-
-    if result == RESULT_UNKNOWN:
-        return RESULT_CLASS_UNKNOWN
+        return RESULT_CLASS_OTHER
 
     if result == RESULT_TRUE_PROP or result == RESULT_SAT:
         return RESULT_CLASS_TRUE
@@ -447,11 +443,11 @@ def get_result_category(expected_results, result, properties):
     @return One of the CATEGORY_* strings.
     '''
     result_class = get_result_classification(result)
-    if result_class == RESULT_CLASS_ERROR:
-        return CATEGORY_ERROR
-
-    if result_class == RESULT_CLASS_UNKNOWN:
-        return CATEGORY_UNKNOWN
+    if result_class == RESULT_CLASS_OTHER:
+        if result == RESULT_UNKNOWN:
+            return CATEGORY_UNKNOWN
+        else:
+            return CATEGORY_ERROR
 
     if not properties:
         # Without property we cannot return correct or wrong results.

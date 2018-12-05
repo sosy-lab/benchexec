@@ -307,11 +307,11 @@ class TestResult(unittest.TestCase):
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP))
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP + "(test)"))
 
-        self.assertEqual(RESULT_CLASS_UNKNOWN, get_result_classification(RESULT_UNKNOWN))
+        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(RESULT_UNKNOWN))
 
-        self.assertEqual(RESULT_CLASS_ERROR, get_result_classification('KILLED'))
-        self.assertEqual(RESULT_CLASS_ERROR, get_result_classification('TIMEOUT'))
-        self.assertEqual(RESULT_CLASS_ERROR, get_result_classification(''))
+        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification('KILLED'))
+        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification('TIMEOUT'))
+        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(''))
 
     def test_expected_results_of_file_SVCOMP(self):
         self.assertEqual(
