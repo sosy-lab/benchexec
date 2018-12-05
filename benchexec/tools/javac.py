@@ -40,9 +40,3 @@ class Tool(benchexec.tools.template.BaseTool):
             + options
             + [file for file in util.get_files(tasks) if file.endswith(".java")]
             )
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if returncode == 0:
-            return result.RESULT_TRUE_PROP
-        else:
-            return '{0} ({1})'.format(result.RESULT_ERROR, returncode)

@@ -37,8 +37,9 @@ on how to write such a tool-info module.
 You can also look at the other files in this directory to see examples
 of existing tool infos.
 
-A minimal tool info needs to overwrite the functions `executable`, `name`,
-and `determine_result`.
+A minimal tool info needs to overwrite the functions `executable` and `name`.
+If the tool gives `true` / `false` answers or customized errors should be shown,
+the method `determine_result` needs to be overwritten.
 It is recommended to also overwrite the function `version` if the tool has a version
 that can be automatically extracted.
 A Python doc string ([example](https://github.com/sosy-lab/benchexec/blob/92f10942b884e3ea85ffb66027d98672894796c6/benchexec/tools/template.py#L27-L36))

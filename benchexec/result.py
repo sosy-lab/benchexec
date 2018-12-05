@@ -75,6 +75,8 @@ _PROP_SAT =          'sat'
 _PROP_MEMSAFETY =    'valid-memsafety'
 
 # possible run results (output of a tool)
+RESULT_DONE = 'done'
+"""tool terminated properly and true/false does not make sense"""
 RESULT_UNKNOWN =            'unknown'
 """tool could not find out an answer due to incompleteness"""
 RESULT_ERROR =              'ERROR' # or any other value not listed here
@@ -121,7 +123,7 @@ RESULT_LIST = [RESULT_TRUE_PROP,
                RESULT_SAT, RESULT_UNSAT,
                RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
                ]
-RESULT_LIST_OTHER = [RESULT_ERROR, RESULT_UNKNOWN]
+RESULT_LIST_OTHER = [RESULT_DONE, RESULT_ERROR, RESULT_UNKNOWN]
 """list of unspecific standard results besides true/false"""
 
 # Classification of results
@@ -448,6 +450,8 @@ def get_result_category(expected_results, result, properties):
     if result_class == RESULT_CLASS_OTHER:
         if result == RESULT_UNKNOWN:
             return CATEGORY_UNKNOWN
+        elif result == RESULT_DONE:
+            return CATEGORY_MISSING
         else:
             return CATEGORY_ERROR
 

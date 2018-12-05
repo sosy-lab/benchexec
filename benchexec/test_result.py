@@ -307,8 +307,8 @@ class TestResult(unittest.TestCase):
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP))
         self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP + "(test)"))
 
+        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(RESULT_DONE))
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(RESULT_UNKNOWN))
-
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification('KILLED'))
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification('TIMEOUT'))
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(''))
@@ -645,6 +645,12 @@ class TestResult(unittest.TestCase):
                          get_result_category(other_expected_result(False), RESULT_SAT, [self.prop_call]))
 
     def test_result_category_other(self):
+        self.assertEqual(CATEGORY_MISSING,
+                         get_result_category(self.expected_result(True), RESULT_DONE, [self.prop_call]))
+        self.assertEqual(CATEGORY_MISSING,
+                         get_result_category(self.expected_result(True), RESULT_DONE, []))
+        self.assertEqual(CATEGORY_MISSING,
+                         get_result_category(self.expected_result(None), RESULT_DONE, [self.prop_call]))
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category(self.expected_result(True), RESULT_UNKNOWN, [self.prop_call]))
         self.assertEqual(CATEGORY_ERROR,
