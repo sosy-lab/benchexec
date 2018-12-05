@@ -870,8 +870,8 @@ class Run(object):
             tool_status = self.runSet.benchmark.tool.determine_result(
                 exitcode.value or 0, exitcode.signal or 0, output, isTimeout)
 
-            if tool_status in [result.RESULT_ERROR, result.RESULT_UNKNOWN]:
-                # provide some more information if possible
+            if tool_status in result.RESULT_LIST_OTHER:
+                # for unspecific results provide some more information if possible
                 if exitcode.signal == 6:
                     tool_status = 'ABORTED'
                 elif exitcode.signal == 11:
@@ -913,8 +913,8 @@ class Run(object):
         if not status:
             # regular termination
             status = tool_status
-        elif tool_status and tool_status not in [
-                status, result.RESULT_ERROR, result.RESULT_UNKNOWN, 'KILLED', 'KILLED BY SIGNAL 9']:
+        elif tool_status and tool_status not in (
+                result.RESULT_LIST_OTHER + [status, 'KILLED', 'KILLED BY SIGNAL 9']):
             # timeout/OOM but tool still returned some result
             status = '{} ({})'.format(status, tool_status)
 

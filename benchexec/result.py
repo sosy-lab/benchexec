@@ -121,6 +121,8 @@ RESULT_LIST = [RESULT_TRUE_PROP,
                RESULT_SAT, RESULT_UNSAT,
                RESULT_FALSE_OVERFLOW, RESULT_FALSE_DEADLOCK
                ]
+RESULT_LIST_OTHER = [RESULT_ERROR, RESULT_UNKNOWN]
+"""list of unspecific standard results besides true/false"""
 
 # Classification of results
 RESULT_CLASS_TRUE    = 'true'
