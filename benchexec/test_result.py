@@ -623,6 +623,57 @@ class TestResult(unittest.TestCase):
         self.assertEqual(CATEGORY_MISSING,
                          get_result_category(self.expected_result(False), RESULT_TRUE_PROP, []))
 
+    def test_result_category_no_expected_result(self):
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_TRUE_PROP, [self.prop_call]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_FALSE_PROP, [self.prop_call]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_TRUE_PROP, [self.prop_memsafety]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_FALSE_FREE, [self.prop_memsafety]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_TRUE_PROP, [self.prop_termination]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_FALSE_PROP, [self.prop_termination]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_SAT, [self.prop_sat]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category(self.expected_result(None), RESULT_UNSAT, [self.prop_sat]))
+
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_TRUE_PROP, [self.prop_call]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_FALSE_PROP, [self.prop_call]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_TRUE_PROP, [self.prop_memsafety]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_FALSE_FREE, [self.prop_memsafety]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_TRUE_PROP, [self.prop_termination]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_FALSE_PROP, [self.prop_termination]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_SAT, [self.prop_sat]))
+        self.assertEqual(
+            CATEGORY_MISSING,
+            get_result_category({}, RESULT_UNSAT, [self.prop_sat]))
+
     def test_result_category_different_property(self):
         def other_expected_result(result, subcategory=None):
             return {'different-file.prp': ExpectedResult(result, subcategory)}
@@ -653,6 +704,10 @@ class TestResult(unittest.TestCase):
                          get_result_category(self.expected_result(None), RESULT_DONE, [self.prop_call]))
         self.assertEqual(CATEGORY_UNKNOWN,
                          get_result_category(self.expected_result(True), RESULT_UNKNOWN, [self.prop_call]))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(True), RESULT_UNKNOWN, []))
+        self.assertEqual(CATEGORY_UNKNOWN,
+                         get_result_category(self.expected_result(None), RESULT_UNKNOWN, [self.prop_call]))
         self.assertEqual(CATEGORY_ERROR,
                          get_result_category(self.expected_result(True), 'KILLED', [self.prop_call]))
         self.assertEqual(CATEGORY_ERROR,
