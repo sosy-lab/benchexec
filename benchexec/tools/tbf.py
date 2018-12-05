@@ -71,6 +71,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 return result.RESULT_FALSE_REACH
             elif line.startswith('TBF') and 'TRUE' in line:
                 return result.RESULT_TRUE_PROP
+            elif line.startswith('TBF') and 'DONE' in line:
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
