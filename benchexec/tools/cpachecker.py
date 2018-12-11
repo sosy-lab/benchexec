@@ -134,6 +134,7 @@ class Tool(benchexec.tools.template.BaseTool):
         status = None
 
         for line in output:
+            line = line.strip()
             if 'java.lang.OutOfMemoryError' in line:
                 status = 'OUT OF JAVA MEMORY'
             elif isOutOfNativeMemory(line):
@@ -187,6 +188,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
+            elif line == 'Finished.' and not status:
+                status = result.RESULT_DONE
 
         if (not status or status == result.RESULT_UNKNOWN) and isTimeout and returncode in [15, 143]:
             # The JVM sets such an returncode if it receives signal 15
