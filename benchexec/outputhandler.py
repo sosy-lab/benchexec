@@ -121,6 +121,7 @@ class OutputHandler(object):
         if compress_results:
             self.log_zip = zipfile.ZipFile(benchmark.log_zip, mode="w",
                                            compression=zipfile.ZIP_DEFLATED)
+            self.log_zip_lock = threading.Lock()
             self.all_created_files.add(benchmark.log_zip)
 
 
@@ -474,7 +475,9 @@ class OutputHandler(object):
             OutputHandler.print_lock.release()
 
         if self.compress_results:
-            self.log_zip.write(run.log_file, os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir)))
+            log_file_path = os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir))
+            with self.log_zip_lock:
+                self.log_zip.write(run.log_file, log_file_path)
             os.remove(run.log_file)
         else:
             self.all_created_files.add(run.log_file)
@@ -689,7 +692,8 @@ class OutputHandler(object):
     def close(self):
         """Do all necessary cleanup."""
         if self.compress_results:
-            self.log_zip.close()
+            with self.log_zip_lock:
+                self.log_zip.close()
 
 
     def get_filename(self, runSetName, fileExtension):
