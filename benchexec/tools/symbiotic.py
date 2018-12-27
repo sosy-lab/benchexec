@@ -142,6 +142,8 @@ class Tool(OldSymbiotic):
                 return result.RESULT_TRUE_PROP
               elif line == 'RESULT: unknown':
                 return result.RESULT_UNKNOWN
+              elif line == 'RESULT: done':
+                return result.RESULT_DONE
               elif line.startswith('RESULT: false(valid-deref)'):
                 return result.RESULT_FALSE_DEREF
               elif line.startswith('RESULT: false(valid-free)'):
