@@ -69,16 +69,21 @@ unit-tests:python-3.6:
   variables:
     PYTHON_VERSION: '3.6'
 
+unit-tests:python-3.7:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.7'
+
 deploy-coverage:
   stage: deploy
   variables:
-    PYTHON_VERSION: '3.6'
+    PYTHON_VERSION: '3.7'
   before_script:
     - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
   script:
     - python-codacy-coverage -r coverage.xml
   dependencies:
-    - unit-tests:python-3.6
+    - unit-tests:python-3.7
   only:
     refs:
       - master

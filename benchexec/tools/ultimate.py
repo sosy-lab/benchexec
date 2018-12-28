@@ -23,15 +23,19 @@ import logging
 import os
 import re
 import subprocess
+import sys
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
+from benchexec import BenchExecException
 from benchexec.model import MEMLIMIT
+from benchexec.tools.template import UnsupportedFeatureException
 
+_OPTION_NO_WRAPPER = '--force-no-wrapper'
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
-_ULTIMATE_VERSION_REGEX = re.compile('^Version is (.*)$', re.MULTILINE)
+_ULTIMATE_VERSION_REGEX = re.compile(r'^Version is (.*)$', re.MULTILINE)
 # .jar files that are used as launcher arguments with most recent .jar first
 _LAUNCHER_JARS = ["plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"]
 
@@ -46,12 +50,14 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         "config",
         "configuration",
         "cvc4",
+        "cvc4nyu",
         "cvc4-LICENSE",
         "features",
         "LICENSE",
         "LICENSE.GPL",
         "LICENSE.GPL.LESSER",
         "mathsat",
+        "mathsat-LICENSE",
         "p2",
         "plugins",
         "README",
@@ -67,47 +73,63 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def __init__(self):
         self._uses_propertyfile = False
 
+    @functools.lru_cache()
     def executable(self):
-        return util.find_executable('Ultimate.py')
+        exec = util.find_executable('Ultimate.py')
+        for (dirpath, dirnames, filenames) in os.walk(exec):
+            if 'Ultimate' in filenames and 'plugins' in dirnames:
+                return exec
+            break
+        # possibly another Ultimate.py was found, check in the current dir
+        current = os.getcwd()
+        for (dirpath, dirnames, filenames) in os.walk(current):
+            if 'Ultimate' in filenames and 'Ultimate.py' in filenames and 'plugins' in dirnames:
+                return './Ultimate.py'
+            break
+
+        sys.exit("ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(str(exec), str(current)))
 
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), 'data')
         launcher_jar = self._get_current_launcher_jar(executable)
 
         cmds = [
-            ["java", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
-            ["java", "-jar", launcher_jar, "-data", data_dir, "--version"],
+            # 2
+            ["java", "-Xss4m", "-jar", launcher_jar, "-data", "@noDefault", "-ultimatedata", data_dir, "--version"],
+            # 1
+            ["java", "-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
         ]
 
-        api = len(cmds)
+        self.api = len(cmds)
         for cmd in cmds:
-            version = self._query_ultimate_version(cmd, api)
+            version = self._query_ultimate_version(cmd, self.api)
             if version != '':
                 return version
-            api = api - 1
-        return ''
+            self.api = self.api - 1
+        raise BenchExecException("Could not determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (stdout, stderr) = process.communicate()
         except OSError as e:
-            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'.
-                            api, format(e.strerror))
+            logging.warning('Cannot run Java to determine Ultimate version (API {0}): {1}'
+                            .format(api, e.strerror))
             return ''
         if stderr:
-            logging.warning('Cannot determine Ultimate version, error output (API {0}): {1}'.
-                            api, format(util.decode_to_string(stderr)))
+            logging.warning('Cannot determine Ultimate version (API {0}). Error output: {1}'
+                            .format(api, util.decode_to_string(stderr)))
             return ''
         if process.returncode:
-            logging.warning('Cannot determine Ultimate version, exit code (API {0}): {1}'.
-                            api, format(process.returncode))
+            logging.warning(
+                'Cannot determine Ultimate version (API {0}). Exit code : {1}\nCommand was {2}'
+                    .format(api, process.returncode, ' '.join(cmd)))
             return ''
 
         version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(util.decode_to_string(stdout))
         if not version_ultimate_match:
-            logging.warning('Cannot determine Ultimate version, output (API {0}): {1}'.
-                            api, format(util.decode_to_string(stdout)))
+            logging.warning(
+                'Cannot determine Ultimate version, output (API {0}): {1}'.format(api, util.decode_to_string(stdout)))
             return ''
         return version_ultimate_match.group(1)
 
@@ -118,7 +140,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             launcher_jar = os.path.join(ultimatedir, jar)
             if os.path.isfile(launcher_jar):
                 return launcher_jar
-        raise FileNotFoundError('No suitable launcher jar found')
+        raise FileNotFoundError('No suitable launcher jar found in {0}'.format(ultimatedir))
 
     @functools.lru_cache()
     def version(self, executable):
@@ -137,21 +159,27 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     @functools.lru_cache()
     def _requires_ultimate_data(self, executable):
         if self._is_svcomp17_version(executable):
-            return False;
+            return False
 
         version = self.version(executable)
         ult, wrapper = version.split("-")
         major, minor, patch = ult.split(".")
-        return not (major == 0 and minor < 2 and patch < 24)
+        # all versions before 0.1.24 do not require ultimatedata
+        return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits=None):
         if rlimits is None:
             rlimits = {}
 
-        self._uses_propertyfile = False
+        self._uses_propertyfile = (propertyfile is not None)
+        if _OPTION_NO_WRAPPER in options:
+            # do not use old wrapper script even if property file is given
+            self._uses_propertyfile = False
+            propertyfile = None
+            options.remove(_OPTION_NO_WRAPPER)
+
         if self._is_svcomp17_version(executable):
             assert propertyfile
-            self._uses_propertyfile = True
             cmdline = [executable, propertyfile]
 
             cmdline += [option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS]
@@ -162,9 +190,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using SVCOMP17 mode: ")
             return cmdline
 
-        if propertyfile:
+        if self._uses_propertyfile:
             # use the old wrapper script if a property file is given
-            self._uses_propertyfile = True
             cmdline = [executable, '--spec', propertyfile]
             if tasks:
                 cmdline += ['--file'] + tasks
@@ -172,25 +199,40 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using default SVCOMP mode: ")
             return cmdline
 
-        # if no property file is given and toolchain (-tc) is, use ultimate directly 
+        # if no property file is given and toolchain (-tc) is, use ultimate directly
         if '-tc' in options or '--toolchain' in options:
-            # ignore executable (old executable is just around for backwards compatibility) 
+            # ignore executable (old executable is just around for backwards compatibility)
             mem_bytes = rlimits.get(MEMLIMIT, None)
             cmdline = ['java']
+
+            # -ea has to be given directly to java
+            if '-ea' in options:
+                options = [e for e in options if e != '-ea']
+                cmdline += ['-ea']
+
             if mem_bytes:
                 cmdline += ['-Xmx' + str(mem_bytes)]
-
+            cmdline += ['-Xss4m']
             cmdline += ['-jar', self._get_current_launcher_jar(executable)]
 
             if self._requires_ultimate_data(executable):
                 if '-ultimatedata' not in options and '-data' not in options:
-                    cmdline += ['-data', '@noDefault', '-ultimatedata',
-                                os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 2:
+                        cmdline += ['-data', '@noDefault', '-ultimatedata',
+                                    os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 1:
+                        raise ValueError('Illegal option -ultimatedata for API {} and Ultimate version {}'
+                                         .format(self.api, self.version(executable)))
                 elif '-ultimatedata' in options and '-data' not in options:
-                    cmdline += ['-data', '@noDefault']
+                    if self.api == 2:
+                        cmdline += ['-data', '@noDefault']
+                    if self.api == 1:
+                        raise ValueError('Illegal option -ultimatedata for API {} and Ultimate version {}'
+                                         .format(self.api, self.version(executable)))
             else:
                 if '-data' not in options:
-                    cmdline += ['-data', os.path.join(os.path.dirname(executable), 'data')]
+                    if self.api == 2 or self.api == 1:
+                        cmdline += ['-data', os.path.join(os.path.dirname(executable), 'data')]
 
             cmdline += options
 
@@ -199,8 +241,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             self.__assert_cmdline(cmdline, "cmdline contains empty or None argument when using Ultimate raw mode: ")
             return cmdline
 
-        # there is no way to run ultimate; not enough parameters 
-        raise NameError("Unsupported argument combination")
+        # there is no way to run ultimate; not enough parameters
+        raise UnsupportedFeatureException(
+            "Unsupported argument combination: options={} propertyfile={} rlimits={}".format(options, propertyfile,
+                                                                                             rlimits))
 
     def __assert_cmdline(self, cmdline, msg):
         assert all(cmdline), msg + str(cmdline)
@@ -218,6 +262,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     def _determine_result_without_propertyfile(self, returncode, returnsignal, output, is_timeout):
         # special strings in ultimate output
+        treeautomizer_sat = 'TreeAutomizerSatResult'
+        treeautomizer_unsat = 'TreeAutomizerUnsatResult'
         unsupported_syntax_errorstring = 'ShortDescription: Unsupported Syntax'
         incorrect_syntax_errorstring = 'ShortDescription: Incorrect Syntax'
         type_errorstring = 'Type Error'
@@ -250,15 +296,13 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'ERROR: EXCEPTION'
             if self._contains_overapproximation_result(line):
                 return 'UNKNOWN: OverapproxCex'
-            if line.find(termination_true_string) != -1:
-                return 'TRUE'
             if line.find(termination_false_string) != -1:
                 return 'FALSE(TERM)'
+            if line.find(termination_true_string) != -1:
+                return 'TRUE'
             if line.find(ltl_false_string) != -1:
                 return 'FALSE(valid-ltl)'
             if line.find(ltl_true_string) != -1:
-                return 'TRUE'
-            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
                 return 'TRUE'
             if line.find(unsafety_string) != -1:
                 return 'FALSE'
@@ -272,6 +316,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return 'FALSE(valid-memtrack)'
             if line.find(overflow_false_string) != -1:
                 return 'FALSE(OVERFLOW)'
+            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
+                return 'TRUE'
+            if line.find(treeautomizer_unsat) != -1:
+                return 'unsat'
+            if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
+                return 'sat'
 
         return result.RESULT_UNKNOWN
 

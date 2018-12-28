@@ -59,6 +59,7 @@ def getWitnessResult(witness, verification_result):
         # If there is no witness, then this is an error of the verifier.
         return 'witness missing', Result.CATEGORY_ERROR
 
+    #print(witness.get('name'))
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
     status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
     category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
@@ -106,9 +107,7 @@ def main(argv=None):
     for result in resultXML.findall('run'):
         run = result.get('name')
         statusWit, categoryWit = (None, None)
-        i = 0
         for witnessSet in witnessSets:
-            i = i + 1
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None:

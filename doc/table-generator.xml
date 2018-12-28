@@ -39,6 +39,8 @@
          add a unique attribute "id" to the <result> tag
          and make sure its file pattern matches only one file. -->
     <result filename="*file-name pattern for XML files produced by BenchExec*"/>
-    <!-- <column> can be used here to override the global set of columns.  -->
+    <!-- <column> can be used here to override the global set of columns.
+         But note that <column> can not be used inside <result> tags
+         that are nested in a <union> tag. -->
   </union>
 </table>

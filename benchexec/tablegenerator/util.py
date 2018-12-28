@@ -168,7 +168,7 @@ def format_options(options):
     """Helper function for formatting the content of the options line"""
     # split on one of the following tokens: ' -' or '[[' or ']]'
     lines = ['']
-    for token in re.split('( -|\[\[|\]\])', options):
+    for token in re.split(r'( -|\[\[|\]\])', options):
         if token in ['[[',']]']:
             lines.append(token)
             lines.append('')
@@ -180,10 +180,13 @@ def format_options(options):
     return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
 
 def to_decimal(s):
-    # remove whitespaces and trailing units (e.g., in '1.23s')
     if s:
-        s, _ = split_number_and_unit(s.strip())
-        return Decimal(s) if s else None
+        if s.lower() in ['nan', 'inf', '-inf']:
+            return Decimal(s)
+        else:
+            # remove whitespaces and trailing units (e.g., in '1.23s')
+            s, _ = split_number_and_unit(s.strip())
+            return Decimal(s) if s else None
     else:
         return None
 

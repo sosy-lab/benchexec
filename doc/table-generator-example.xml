@@ -16,6 +16,7 @@
   <!-- <union> groups a set of results which should be placed below each other in the table
        (instead of side-by-side). The tasks need to be distinct in all of the results. -->
   <union>
+    <!-- <column> could be used there, too, but not nested within the following <result> tags -->
     <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.Markdown files.xml"/>
     <result filename="../results/benchmark-example-rand.2015-01-01_0000.results.XML files.xml"/>
   </union>

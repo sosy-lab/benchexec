@@ -37,10 +37,17 @@ on how to write such a tool-info module.
 You can also look at the other files in this directory to see examples
 of existing tool infos.
 
-A minimal tool info needs to overwrite the functions `executable`, `name`,
-and `determine_result`.
+A minimal tool info needs to overwrite the functions `executable` and `name`.
+If the tool gives `true` / `false` answers or customized errors should be shown,
+the method `determine_result` needs to be overwritten.
 It is recommended to also overwrite the function `version` if the tool has a version
 that can be automatically extracted.
+A Python doc string ([example](https://github.com/sosy-lab/benchexec/blob/92f10942b884e3ea85ffb66027d98672894796c6/benchexec/tools/template.py#L27-L36))
+should be added to the `Tool` class with the full name and URL of the tool.
+In this doc string there should also be any additional information about the tool-info module,
+such as its supported features
+or whether it adds or requires certain command-line parameter of the tool.
+
 Overwrite the functions `cmdline` and `working_directory`, and `environment`
 to adjust the respective values, e.g., to add the name of a given property file
 to the command-line options.
@@ -49,6 +56,13 @@ Overwriting the function `get_value_from_output` will allow you to add
 `<column>` tags with custom values to your table-definition files,
 and `table-generator` will extract the respective values from the output of
 your tool using this function.
+
+If a tool-info module encounters a request that it cannot handle
+(e.g., because a tool does not support runs without property files,
+but no property file was given),
+the tool-info module should raise `benchexec.tools.template.UnsupportedFeatureException`
+with an appropriate message for the user.
+
 
 #### Specifying a Tool for BenchExec
 The name of the tool-info module needs to be given to `benchexec` as the value

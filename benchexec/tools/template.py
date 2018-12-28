@@ -20,16 +20,24 @@ import os
 import logging
 import subprocess
 
+import benchexec
 import benchexec.result as result
 import benchexec.util as util
+
+class UnsupportedFeatureException(benchexec.BenchExecException):
+    """
+    Raised when a tool or its tool-info module does not support a requested feature.
+    """
+    pass
 
 class BaseTool(object):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
     For writing a new tool info, inherit from this class and override
-    the necessary methods (always executable(), name(), and determine_result(),
-    maybe version(), cmdline(), working_directory(), and get_value_from_output(), too).
+    the necessary methods (always executable() and name(),
+    usually determine_result(), cmdline(), and version(),
+    and maybe working_directory() and get_value_from_output(), too).
     The class for each specific tool need to be named "Tool".
     For more information, please refer to
     https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
@@ -73,7 +81,7 @@ class BaseTool(object):
         """
         return ''
 
-    def _version_from_tool(self, executable, arg='--version', use_stderr=False):
+    def _version_from_tool(self, executable, arg='--version', use_stderr=False, ignore_stderr=False):
         """
         Get version of a tool by executing it with argument "--version"
         and returning stdout.
@@ -90,7 +98,7 @@ class BaseTool(object):
             logging.warning('Cannot run {0} to determine version: {1}'.
                             format(executable, e.strerror))
             return ''
-        if stderr and not use_stderr:
+        if stderr and not use_stderr and not ignore_stderr:
             logging.warning('Cannot determine {0} version, error output: {1}'.
                             format(executable, util.decode_to_string(stderr)))
             return ''
@@ -136,12 +144,15 @@ class BaseTool(object):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
         Parse the output of the tool and extract the verification result.
-        This method always needs to be overridden.
         If the tool gave a result, this method needs to return one of the
         benchexec.result.RESULT_* strings.
         Otherwise an arbitrary string can be returned that will be shown to the user
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
+        For tools that do not output some true/false result, benchexec.result.RESULT_DONE
+        can be returned (this is also the default implementation).
+        BenchExec will then automatically add some more information
+        if the tool was killed due to a timeout, segmentation fault, etc.
         @param returncode: the exit code of the program, 0 if the program was killed
         @param returnsignal: the signal that killed the program, 0 if program exited itself
         @param output: a list of strings of output lines of the tool (both stdout and stderr)
@@ -149,7 +160,7 @@ class BaseTool(object):
         (useful to distinguish between program killed because of error and timeout)
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
-        return result.RESULT_UNKNOWN
+        return result.RESULT_DONE
 
 
     def get_value_from_output(self, lines, identifier):

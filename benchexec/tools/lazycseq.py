@@ -23,14 +23,16 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool info for Lazy-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for Lazy-CSeq (http://github.com/omainv/cseq/releases).
     """
 
     REQUIRED_PATHS = [
                   "cbmc",
+                  "cbmc-5.4",
                   "core",
                   "cseq.py",
                   "lazy-cseq.py",
+                  "pycparser",
                   "modules"
                   ]
 

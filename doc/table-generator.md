@@ -61,6 +61,10 @@ or pass them on the command line):
 
     table-generator -x doc/table-generator-example.xml
 
+A small example that can be used with arbitrary result files
+and provides nicer column titles and a better unit for memory consumption
+is available in [doc/table-generator-basic.xml](table-generator-basic.xml).
+
 ### Column Features
 
 If a table-definition file is used, the `<column>` tags in it provide the following features.

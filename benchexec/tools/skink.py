@@ -24,6 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
                   "logback-test.xml",
                   "skink.sh",
                   "skink.jar",
+                  "skink-fpbv.jar",
                   "application.conf"
                   ]
 
@@ -32,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return 'skink'
+
+    def version(self, executable):
+        return self._version_from_tool(executable)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = '\n'.join(output)

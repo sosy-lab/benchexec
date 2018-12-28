@@ -121,6 +121,7 @@ class OutputHandler(object):
         if compress_results:
             self.log_zip = zipfile.ZipFile(benchmark.log_zip, mode="w",
                                            compression=zipfile.ZIP_DEFLATED)
+            self.log_zip_lock = threading.Lock()
             self.all_created_files.add(benchmark.log_zip)
 
 
@@ -327,10 +328,12 @@ class OutputHandler(object):
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                run.xml.set("properties", " ".join(sorted(run.properties)))
+                all_properties = [prop_name for prop in run.properties for prop_name in prop.names]
+                run.xml.set("properties", " ".join(sorted(all_properties)))
             run.xml.extend(self.xml_dummy_elements)
 
-        runSet.xml = self.runs_to_xml(runSet, runSet.runs)
+        block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
+        runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
@@ -472,7 +475,9 @@ class OutputHandler(object):
             OutputHandler.print_lock.release()
 
         if self.compress_results:
-            self.log_zip.write(run.log_file, os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir)))
+            log_file_path = os.path.relpath(run.log_file, os.path.join(self.benchmark.log_folder, os.pardir))
+            with self.log_zip_lock:
+                self.log_zip.write(run.log_file, log_file_path)
             os.remove(run.log_file)
         else:
             self.all_created_files.add(run.log_file)
@@ -687,7 +692,8 @@ class OutputHandler(object):
     def close(self):
         """Do all necessary cleanup."""
         if self.compress_results:
-            self.log_zip.close()
+            with self.log_zip_lock:
+                self.log_zip.close()
 
 
     def get_filename(self, runSetName, fileExtension):
@@ -773,9 +779,9 @@ class Statistics(object):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
-        self.score += result.score_for_task(run.identifier, run.properties, run.category, run.status)
-        #if run.properties:
-        self.max_score += result.score_for_task(run.identifier, run.properties, result.CATEGORY_CORRECT, None)
+        for prop in run.properties:
+            self.score += prop.compute_score(run.category, run.status)
+            self.max_score += prop.max_score(run.expected_results.get(prop.filename))
 
     def __str__(self):
         correct = self.dic[result.CATEGORY_CORRECT]

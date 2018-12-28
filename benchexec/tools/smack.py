@@ -55,7 +55,7 @@ class Tool(benchexec.tools.template.BaseTool):
         Sets the name for SMACK, which gets displayed in the "Tool" row in
         BenchExec table headers.
         """
-        return 'SMACK+Corral'
+        return 'SMACK'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -84,7 +84,9 @@ class Tool(benchexec.tools.template.BaseTool):
               return result.RESULT_FALSE_FREE
             elif 'memory leak' == errtype:
               return result.RESULT_FALSE_MEMTRACK
-            elif 'signed integer overflow' == errtype:
+            elif 'memory cleanup' == errtype:
+              return result.RESULT_FALSE_MEMCLEANUP
+            elif 'integer overflow' == errtype:
               return result.RESULT_FALSE_OVERFLOW
           else:
             return result.RESULT_FALSE_REACH

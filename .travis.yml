@@ -6,7 +6,7 @@ python:
   - "3.4"
   - "3.5"
 install:
-  - pip install lxml
+  - pip install lxml pyyaml
   - pip install .
   - travis_retry pip install coverage
   - travis_retry pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy

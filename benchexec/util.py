@@ -292,23 +292,32 @@ def substitute_vars(template, replacements):
 
 
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
-    def is_executable(programPath):
-        return os.path.isfile(programPath) and os.access(programPath, os.X_OK)
-
     dirs = os.environ['PATH'].split(os.path.pathsep)
     if use_current_dir:
         dirs.append(os.path.curdir)
 
+    found_non_executable = [] # for nicer error message
     for dir_ in dirs:
         name = os.path.join(dir_, program)
-        if is_executable(name):
-            return name
+        if os.path.isfile(name):
+            if os.access(name, os.X_OK):
+                # file exists and is executable
+                return name
+            found_non_executable.append(name)
 
-    if fallback is not None and is_executable(fallback):
-        return fallback
+    if fallback is not None and os.path.isfile(fallback):
+        if os.access(fallback, os.X_OK):
+            return fallback
+        found_non_executable.append(name)
 
     if exitOnError:
-        sys.exit("ERROR: Could not find '{0}' executable".format(program))
+        if found_non_executable:
+            sys.exit(
+                "ERROR: Could not find '{0}' executable, "
+                "but found file '{1}' that is not executable."
+                .format(program, found_non_executable[0]))
+        else:
+            sys.exit("ERROR: Could not find '{0}' executable.".format(program))
     else:
         return fallback
 
@@ -525,6 +534,15 @@ def add_files_to_git_repository(base_dir, files, description):
 
 def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)
+
+
+def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level='INFO'):
+    """Setup the logging framework with a basic configuration"""
+    try:
+        import coloredlogs
+        coloredlogs.install(fmt=format, level=level)
+    except ImportError:
+        logging.basicConfig(format=format, level=level)
 
 
 def _debug_current_process(sig, current_frame):

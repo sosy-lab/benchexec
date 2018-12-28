@@ -10,13 +10,15 @@ otherwise only `runexec` will get installed.
 Note that we recommend to additionally install
 [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter)
 in order to get energy measurements on Intel CPUs.
+The package [coloredlogs](https://pypi.org/project/coloredlogs/) is another optional dependency
+(included in the instructions below) and recommended for nicer output.
 
 ### Debian/Ubuntu
 
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
 that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
 
-    apt install python3-tempita
+    apt install python3-tempita python3-coloredlogs
     dpkg -i benchexec_*.deb
 
 This package also automatically configures the necessary cgroup permissions.
@@ -34,11 +36,11 @@ To automatically download and install the latest stable version and its dependen
 from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec) with pip,
 run this command:
 
-    sudo pip3 install benchexec
+    sudo pip3 install benchexec coloredlogs
 
 You can also install BenchExec only for your user with
 
-    pip3 install --user benchexec
+    pip3 install --user benchexec coloredlogs
 
 In the latter case you probably need to add the directory where pip installs the commands
 to the PATH environment by adding the following line to your `~/.profile` file:
@@ -54,7 +56,7 @@ Please make sure to configure cgroups as [described below](#setting-up-cgroups).
 To install the latest development version from the
 [GitHub repository](https://github.com/sosy-lab/benchexec), run this command:
 
-    pip3 install --user git+https://github.com/sosy-lab/benchexec.git
+    pip3 install --user git+https://github.com/sosy-lab/benchexec.git coloredlogs
 
 It is useful to install the system package `python3-lxml` before,
 otherwise pip will try to download and build this module,

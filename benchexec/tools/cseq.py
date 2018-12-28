@@ -27,7 +27,9 @@ class CSeqTool(benchexec.tools.template.BaseTool):
     """
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        output = self._version_from_tool(executable, arg="--version")
+        first_line = output.splitlines()[0]
+        return first_line.strip()
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """

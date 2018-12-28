@@ -43,7 +43,10 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('predatorHP.py')
 
     def name(self):
-        return 'Predator-HP'
+        return 'PredatorHP'
+
+    def version(self, executable):
+        return self._version_from_tool(executable, use_stderr=True)
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         spec = ["--propertyfile", propertyfile] if propertyfile is not None else []
@@ -62,6 +65,8 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_DEREF
         elif "FALSE(valid-free)" in output:
             status = result.RESULT_FALSE_FREE
+        elif "FALSE(valid-memcleanup)" in output:
+            status = result.RESULT_FALSE_MEMCLEANUP
         elif "FALSE" in output:
             status = result.RESULT_FALSE_REACH
         if status == "UNKNOWN" and isTimeout:

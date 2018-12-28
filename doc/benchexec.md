@@ -15,7 +15,7 @@ and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
 ```XML
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.9//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.9.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.17//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.17.dtd">
 ```
 
 A document-type definition with a formal specification of input files can be found in
@@ -25,14 +25,7 @@ that has attributes for the tool to use and the resource limits.
 Nested `<rundefinition>` tags allow to specify multiple different configurations of the tool,
 each of which is executed with the tasks.
 The tasks are defined in nested `<tasks>` tags,
-either with `<include>` tags (which directly specify patterns of input files)
-or with `<includesfile>` tags (which specify text files with file-name patterns on each line).
-Relative file names in these tags are interpreted as relative to the directory of the XML file. 
-A task that does not directly correspond to an input file can be defined
-with a `<withoutfile>` tag within a `<tasks>` tag,
-giving the identifier of the task as tag content.
-This can be used for example to declare multiple tasks for the same input file
-but with different entry points.
+which are explained in the next section.
 Command-line arguments for the tool are given with `<option>` tags,
 which can appear directly inside the root tag (always effective),
 inside a `<rundefinition>` tag (affective for this configuration),
@@ -78,6 +71,50 @@ The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 [which files should be copied to the output directory](container.md#retrieving-result-files)
 (only supported in [container mode](container.md)).
 
+### Defining Tasks for BenchExec
+Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.
+The easiest way to specify tasks inside a `<tasks>` tag is with the `<include>` tag,
+which contains a file-name pattern.
+If the file-name patterns point to `.yml` files in the task-definition format of BenchExec,
+these are parsed by `benchexec` as explained in the following section.
+Otherwise, one task is created for each file matching the file-name pattern,
+and the respective file is given to the tool as input file.
+
+Inside a `<tasks>` tag there can also exist `<includesfile>` tags,
+which contain a file-name pattern that points to so-called "set" files.
+This set files are expected to contain a file-name pattern on each line,
+and `benchexec` will treat these patterns as specified with `<include>`.
+
+The tags `<exclude>` and `<excludesfile>` can be used to exclude tasks
+that would otherwise be used by `benchexec`.
+If the patterns given inside `<exclude>` or inside an exclude set file match a task,
+the task will be ignored.
+
+A task that does not directly correspond to an input file can be defined
+with a `<withoutfile>` tag within a `<tasks>` tag,
+giving the identifier of the task as tag content.
+
+All of these tags can be freely combined inside a `<tasks>` tag.
+Relative file names in these tags are interpreted as relative to the directory of the XML file,
+and relative file names inside set files are interpreted as relative to the directory of the set file.
+
+### Task-Definition Files
+Such files can be used to specify more complex tasks,
+such as tasks with several input files or expected results.
+The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
+and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
+
+If no property file is given in the benchmark XML definition,
+one task is created for each task-definition file using the input files defined therein,
+and any information on properties and expected results is ignored.
+
+If a property file is given in the benchmark XML definition with the `<propertyfile>` tag,
+`benchexec` looks for an item in the `properties` entry of the task definition
+that has the same property file listed as `property_file` (symlinks are allowed).
+If none is found, the task defined by this task definition is ignored.
+Otherwise a task is created using the set of input files from the task definition
+and the given property, also using an expected verdict if given for that property.
+All other properties defined in the task definition are ignored.
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:

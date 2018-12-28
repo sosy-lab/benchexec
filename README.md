@@ -4,14 +4,15 @@
 [![Build Status](https://travis-ci.org/sosy-lab/benchexec.svg?branch=master)](https://travis-ci.org/sosy-lab/benchexec)
 [![Code Quality](https://api.codacy.com/project/badge/grade/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
 [![Test Coverage](https://api.codacy.com/project/badge/coverage/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
-[![Issue Stats](https://img.shields.io/issuestats/p/github/sosy-lab/benchexec.svg)](http://issuestats.com/github/sosy-lab/benchexec)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
-    
+[![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
+
+
 **News**:
 - BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
-- An extended version of our paper on BenchExec and its background gets published in [STTT](http://sttt.cs.uni-dortmund.de/index.html),
+- An extended version of our paper on BenchExec and its background gets published in [STTT](https://link.springer.com/article/10.1007/s10009-017-0469-y),
   you can now read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
   In addition to the [previous version from SPIN'15](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf),
   it also describes the container mode and how to present result data.
@@ -58,7 +59,8 @@ The actual benchmarking can be done by any user and does not need root access.
 BenchExec was originally developed for use with the software verification framework
 [CPAchecker](https://cpachecker.sosy-lab.org)
 and is now developed as an independent project
-at the [Software Systems Lab](https://www.sosy-lab.org) at the [Ludwig-Maximilians-Universität München (LMU)](http://www.lmu.de).
+at the [Software Systems Lab](https://www.sosy-lab.org)
+of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-muenchen.de).
 
 ### Links
 
@@ -69,13 +71,13 @@ at the [Software Systems Lab](https://www.sosy-lab.org) at the [Ludwig-Maximilia
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/~dbeyer/benchmarking/))
+- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/))
 
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
-- [Dirk Beyer](https://www.sosy-lab.org/~dbeyer)
+- [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
@@ -102,5 +104,6 @@ The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [SMACK](https://github.com/smackers/smack)
+- [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec))
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

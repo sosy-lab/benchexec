@@ -32,6 +32,7 @@ import sys
 import time
 
 from benchexec import __version__
+from benchexec import BenchExecException
 from benchexec.model import Benchmark
 from benchexec.outputhandler import OutputHandler
 from benchexec import util
@@ -136,6 +137,13 @@ class BenchExec(object):
                                'use "-1" to disable time limits completely)',
                           metavar="SECONDS")
 
+        parser.add_argument("-W", "--walltimelimit",
+                            dest="walltimelimit", default=None,
+                            help='Wall time limit for each run, e.g. "90s" '
+                                 '(overwrites wall time limit from XML file, '
+                                 'use "-1" to use CPU time limit plus a few seconds, such value is also used by default)',
+                            metavar="SECONDS")
+
         parser.add_argument("-M", "--memorylimit",
                           dest="memorylimit", default=None,
                           help="Memory limit, if no unit is given MB are assumed (-1 to disable)",
@@ -237,12 +245,10 @@ class BenchExec(object):
         Configure the logging framework.
         """
         if self.config.debug:
-            logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                                level=logging.DEBUG)
+            util.setup_logging(level=logging.DEBUG)
             util.activate_debug_shell_on_signal()
         else:
-            logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s",
-                                level=logging.INFO)
+            util.setup_logging(level=logging.INFO)
 
 
     def load_executor(self):
@@ -352,6 +358,8 @@ def main(benchexec=None, argv=None):
         if not benchexec:
             benchexec = BenchExec()
         sys.exit(benchexec.start(argv or sys.argv))
+    except BenchExecException as e:
+        sys.exit('Error: ' + str(e))
     except KeyboardInterrupt: # this block is reached, when interrupt is thrown before or after a run set execution
         benchexec.stop()
         util.printOut("\n\nScript was interrupted by user, some runs may not be done.")

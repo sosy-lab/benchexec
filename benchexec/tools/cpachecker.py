@@ -34,11 +34,19 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for CPAchecker.
-    It has additional features such as building CPAchecker before running it
-    if executed within a source checkout.
-    It also supports extracting data from the statistics output of CPAchecker
-    for adding it to the result tables.
+    Tool info for CPAchecker, the Configurable Software-Verification Platform.
+    URL: https://cpachecker.sosy-lab.org/
+
+    Both binary and source distributions of CPAchecker are supported.
+    If the source of CPAchecker is present,
+    it is automatically compiled before benchmarks are executed.
+    Additional statistics can be extracted from the output of CPAchecker
+    and added to the result tables.
+    For this reason, the parameter -stats is always added to the command line.
+    Furthermore, if a soft time limit is specified for BenchExec,
+    it is passed to CPAchecker using the parameter -timelimit.
+    This allows for proper termination of CPAchecker and statistics output
+    even in cases of a timeout.
     """
 
     REQUIRED_PATHS = [
@@ -126,6 +134,7 @@ class Tool(benchexec.tools.template.BaseTool):
         status = None
 
         for line in output:
+            line = line.strip()
             if 'java.lang.OutOfMemoryError' in line:
                 status = 'OUT OF JAVA MEMORY'
             elif isOutOfNativeMemory(line):
@@ -169,9 +178,9 @@ class Tool(benchexec.tools.template.BaseTool):
                     newStatus = result.RESULT_TRUE_PROP
                 elif line.startswith('FALSE'):
                     newStatus = result.RESULT_FALSE_REACH
-                    match = re.match('.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'no-overflow', 'no-deadlock', 'termination']:
-                        newStatus = result.STR_FALSE + '(' + match.group(1) + ')'
+                    match = re.match(r'.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
+                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'valid-memcleanup', 'no-overflow', 'no-deadlock', 'termination']:
+                        newStatus = result.RESULT_FALSE_PROP + '(' + match.group(1) + ')'
                 else:
                     newStatus = result.RESULT_UNKNOWN
 
@@ -179,6 +188,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
+            elif line == 'Finished.' and not status:
+                status = result.RESULT_DONE
 
         if (not status or status == result.RESULT_UNKNOWN) and isTimeout and returncode in [15, 143]:
             # The JVM sets such an returncode if it receives signal 15

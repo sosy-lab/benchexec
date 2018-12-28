@@ -486,7 +486,7 @@ class TestRunExecutor(unittest.TestCase):
         (result, output) = self.execute_run('/bin/cat', '/proc/self/cgroup')
         self.check_exitcode(result, 0, 'exit code of /bin/cat is not zero')
         for line in output:
-            if re.match('^[0-9]*:([^:]*,)?cpu(,[^:]*)?:/(.*/)?benchmark_.*$',line):
+            if re.match(r'^[0-9]*:([^:]*,)?cpu(,[^:]*)?:/(.*/)?benchmark_.*$',line):
                 return # Success
         self.fail('Not in expected cgroup for subsystem cpu:\n' + '\n'.join(output))
 
