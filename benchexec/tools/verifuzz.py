@@ -50,7 +50,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
-        if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
+        if "DONE" in lines:
+            return result.RESULT_DONE
+        elif "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
         elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
             return result.RESULT_FALSE_REACH
