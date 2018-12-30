@@ -89,7 +89,11 @@ class Tool(benchexec.tools.template.BaseTool):
         return line.strip()
 
     def name(self):
-        return 'CPAchecker'
+        executable = self.executable()
+        stdout = self._version_from_tool(executable, '-help')
+        line = next(l for l in stdout.splitlines() if l.startswith('CPAchecker'))
+        line = line.split(' ')[0]
+        return line.strip()
 
     def _get_additional_options(self, existing_options, propertyfile, rlimits):
         options = []
