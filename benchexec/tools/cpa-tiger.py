@@ -25,7 +25,3 @@ class Tool(cpachecker.Tool):
 
     def name(self):
         return 'CPA-tiger'
-
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        additional_options = self._get_additional_options(options, propertyfile, rlimits)
-        return [executable] + additional_options + options + tasks
