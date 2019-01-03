@@ -144,6 +144,10 @@ def create_link(href, base_dir, runResult=None, href_base=None):
             ('sourcefile_path', os.path.dirname(source_file) or '.'),
             ('sourcefile_path_abs', os.path.dirname(os.path.abspath(source_file))),
         ] + ([
+            ('taskdef_name', os.path.basename(source_file)),
+            ('taskdef_path', os.path.dirname(source_file) or '.'),
+            ('taskdef_path_abs', os.path.dirname(os.path.abspath(source_file))),
+        ] if source_file.endswith(".yml") else []) + ([
             ('logfile_name',     os.path.basename(runResult.log_file)),
             ('logfile_path',     os.path.dirname(os.path.relpath(runResult.log_file, href_base or '.')) or '.'),
             ('logfile_path_abs', os.path.dirname(os.path.abspath(runResult.log_file))),

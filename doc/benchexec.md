@@ -59,6 +59,9 @@ that will be expanded by BenchExec. The following variables are supported:
     ${inputfile_name}       Name of current input file (without path)
     ${inputfile_path}       Directory of current input file
     ${inputfile_path_abs}   Directory of current input file (absolute path)
+    ${taskdef_name}       Name of current task-definition file (without path, only if task-definition files are used)
+    ${taskdef_path}       Directory of current task-definition file (only if task-definition files are used)
+    ${taskdef_path_abs}   Directory of current task-definition file (absolute path, only if task-definition files are used)
 
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use

@@ -75,6 +75,10 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
         keyValueList.append(('sourcefile_name', os.path.basename(sourcefile)))
         keyValueList.append(('sourcefile_path', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('sourcefile_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
+    if sourcefile and sourcefile.endswith(".yml"):
+        keyValueList.append(('taskdef_name', os.path.basename(sourcefile)))
+        keyValueList.append(('taskdef_path', os.path.dirname(sourcefile) or '.'))
+        keyValueList.append(('taskdef_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
 
     # do not use keys twice
     assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
