@@ -67,7 +67,7 @@ class Tool(benchexec.tools.template.BaseTool):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        for line in output.splitlines():
+        for line in output:
             if line.startswith('KLEE: ERROR: '):
                 if line.find('ASSERTION FAIL:')!=-1:
                     return result.RESULT_FALSE_REACH
