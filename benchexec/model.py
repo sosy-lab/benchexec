@@ -648,7 +648,7 @@ class RunSet(object):
                     result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
 
         if not run.expected_results:
-            logging.warning(
+            logging.debug(
                 "Ignoring run '%s' because it does not have the property from %s.",
                 run.identifier, run.propertyfile)
             return None
