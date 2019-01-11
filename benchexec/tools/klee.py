@@ -20,6 +20,7 @@ limitations under the License.
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
+import benchexec.model
 
 class Tool(benchexec.tools.template.BaseTool):
     """
@@ -59,6 +60,17 @@ class Tool(benchexec.tools.template.BaseTool):
         line = line.split('(')[0]
         return line.strip()
 
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        if benchexec.model.MEMLIMIT in rlimits:
+            options += ["--max-memory="+str(rlimits[benchexec.model.MEMLIMIT])]
+        if benchexec.model.WALLTIMELIMIT in rlimits:
+            options += ["--max-walltime="+str(rlimits[benchexec.model.WALLTIMELIMIT])]
+        if benchexec.model.SOFTTIMELIMIT in rlimits:
+            options += ["--max-cputime-soft="+str(rlimits[benchexec.model.SOFTTIMELIMIT])]
+        if benchexec.model.HARDTIMELIMIT in rlimits:
+            options += ["--max-cputime-hard="+str(rlimits[benchexec.model.HARDTIMELIMIT])]
+
+        return [executable] + options + tasks
 
     def name(self):
         return 'KLEE'
