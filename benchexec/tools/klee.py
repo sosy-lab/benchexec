@@ -20,14 +20,22 @@ limitations under the License.
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
+import benchexec.model
 
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for KLEE (https://klee.github.io).
     """
+    REQUIRED_PATHS = [
+        "bin",
+        "compiler",
+        "include",
+        "klee_build",
+        "libraries"
+    ]
 
     def executable(self):
-        return util.find_executable('klee')
+        return util.find_executable('bin/klee')
 
 
     def version(self, executable):
@@ -52,6 +60,17 @@ class Tool(benchexec.tools.template.BaseTool):
         line = line.split('(')[0]
         return line.strip()
 
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        if benchexec.model.MEMLIMIT in rlimits:
+            options += ["--max-memory="+str(rlimits[benchexec.model.MEMLIMIT])]
+        if benchexec.model.WALLTIMELIMIT in rlimits:
+            options += ["--max-walltime="+str(rlimits[benchexec.model.WALLTIMELIMIT])]
+        if benchexec.model.SOFTTIMELIMIT in rlimits:
+            options += ["--max-cputime-soft="+str(rlimits[benchexec.model.SOFTTIMELIMIT])]
+        if benchexec.model.HARDTIMELIMIT in rlimits:
+            options += ["--max-cputime-hard="+str(rlimits[benchexec.model.HARDTIMELIMIT])]
+
+        return [executable] + options + tasks
 
     def name(self):
         return 'KLEE'
@@ -73,6 +92,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     return result.RESULT_FALSE_REACH
                 else:
                     return "ERROR ({0})".format(returncode)
+            if line.startswith('KLEE: done'):
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
 
