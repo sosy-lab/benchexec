@@ -73,6 +73,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     return result.RESULT_FALSE_REACH
                 else:
                     return "ERROR ({0})".format(returncode)
+            if line.startswith('KLEE: done'):
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
 
