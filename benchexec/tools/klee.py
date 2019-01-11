@@ -25,9 +25,16 @@ class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for KLEE (https://klee.github.io).
     """
+    REQUIRED_PATHS = [
+        "bin",
+        "compiler",
+        "include",
+        "klee_build",
+        "libraries"
+    ]
 
     def executable(self):
-        return util.find_executable('klee')
+        return util.find_executable('bin/klee')
 
 
     def version(self, executable):
