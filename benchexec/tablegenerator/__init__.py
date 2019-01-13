@@ -681,9 +681,7 @@ class RunResult(object):
 
         for column in listOfColumns: # for all columns that should be shown
             value = None # default value
-            if column.title.lower() == 'score':
-                value = str(score) if score is not None else None
-            elif column.title.lower() == 'status':
+            if column.title.lower() == 'status':
                 value = status
 
             elif not correct_only or category == result.CATEGORY_CORRECT:
@@ -697,6 +695,13 @@ class RunResult(object):
 
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
+            if column.title.lower() == 'score':
+                if value is None:
+                    value = str(score) if score is not None else None
+                else:
+                    # If a score column exists in the xml, we use that column's value for the score, instead of
+                    # the computed score.
+                    score = float(value)
             values.append(value)
 
         sourcefiles = sourcefileTag.get('files')
