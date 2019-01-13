@@ -223,6 +223,9 @@ class Property(object):
     def names(self):
         return self.subproperties or [self.name]
 
+    def is_svcomp_property(self):
+        return self.is_svcomp
+
     def compute_score(self, category, result):
         if not self.is_svcomp:
             return 0
@@ -416,7 +419,9 @@ def score_for_task(properties, category, result):
     assert result is not None
     if _PROP_SAT in properties:
         return 0
-    return _svcomp_score(category, result)
+    if Property.create_from_names(properties).is_svcomp_property():
+        return _svcomp_score(category, result)
+    return 0
 
 
 def get_result_classification(result):
