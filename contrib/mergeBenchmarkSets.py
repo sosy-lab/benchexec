@@ -106,6 +106,8 @@ def main(argv=None):
 
     for result in resultXML.findall('run'):
         run = result.get('name')
+        status_from_verification   = result.findall('column[@title="status"]')[0].get('value')
+        category_from_verification = result.findall('column[@title="category"]')[0].get('value')
         statusWit, categoryWit = (None, None)
         for witnessSet in witnessSets:
             witness = witnessSet.get(run, None)
@@ -122,10 +124,9 @@ def main(argv=None):
         # Overwrite status with status from witness
         if (
                  (    isOverwrite
-                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(
-                                                       result.findall('column[@title="status"]')[0].get('value'))
+                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(status_from_verification)
                  )
-             and 'correct' == result.findall('column[@title="category"]')[0].get('value')
+             and 'correct' == category_from_verification
              and statusWit is not None
              and categoryWit is not None
            ):
