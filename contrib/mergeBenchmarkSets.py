@@ -113,14 +113,27 @@ def main(argv=None):
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None:
-                statusWitNew, categoryWitNew = getWitnessResult(witness, result)
-                if (
-                     categoryWit is None or
-                     not categoryWit.startswith(Result.CATEGORY_CORRECT) or
-                     categoryWitNew == Result.CATEGORY_CORRECT or
-                     statusWitNew.startswith('witness invalid')
-                   ):
-                    statusWit, categoryWit = (statusWitNew, categoryWitNew)
+                if result.get('properties') == 'coverage-error-call':
+                    # For coverage-error-call
+                    status_from_validation = witness.findall('column[@title="status"]')[0].get('value')
+                    if status_from_validation == "true":
+                        statusWit, categoryWit = (status_from_verification, 'correct')
+                        category_from_verification = 'correct'
+                        scoreColumn = ET.Element('column', {
+                                                            'title': 'score',
+                                                            'value': '1'
+                                                           })
+                        result.append(scoreColumn)
+                else:
+                    # For verification
+                    statusWitNew, categoryWitNew = getWitnessResult(witness, result)
+                    if (
+                         categoryWit is None or
+                         not categoryWit.startswith(Result.CATEGORY_CORRECT) or
+                         categoryWitNew == Result.CATEGORY_CORRECT or
+                         statusWitNew.startswith('witness invalid')
+                       ):
+                        statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
         if (
                  (    isOverwrite
