@@ -701,7 +701,11 @@ class RunResult(object):
                     # if available
                     value = str(score) if score is not None else None
                 else:
-                    score = float(value)
+                    try:
+                        score = float(value)
+                    except ValueError:
+                        logging.error("Column 'score' is selected, but contains non-number value: %s", value)
+                        exit(1)
             values.append(value)
 
         sourcefiles = sourcefileTag.get('files')
