@@ -124,6 +124,19 @@ def main(argv=None):
                                                             'value': '1'
                                                            })
                         result.append(scoreColumn)
+                elif result.get('properties') == 'coverage-branches':
+                    # For coverage-branches
+                    try:
+                        coverage_value = witness.findall('column[@title="branches_covered"]')[0].get('value').replace("%", "")
+                    except IndexError:
+                        coverage_value = '0.00'
+                    statusWit, categoryWit = (status_from_verification, 'correct')
+                    category_from_verification = 'correct'
+                    scoreColumn = ET.Element('column', {
+                                                        'title': 'score',
+                                                        'value': str(float(coverage_value) / 100)
+                                                       })
+                    result.append(scoreColumn)
                 else:
                     # For verification
                     statusWitNew, categoryWitNew = getWitnessResult(witness, result)
