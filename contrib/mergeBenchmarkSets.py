@@ -114,7 +114,6 @@ def main(argv=None):
             # copy data from witness
             if witness is not None:
                 if result.get('properties') == 'coverage-error-call':
-                    # For coverage-error-call
                     status_from_validation = witness.findall('column[@title="status"]')[0].get('value')
                     if status_from_validation == "true":
                         statusWit, categoryWit = (status_from_verification, 'correct')
@@ -125,7 +124,6 @@ def main(argv=None):
                                                            })
                         result.append(scoreColumn)
                 elif result.get('properties') == 'coverage-branches':
-                    # For coverage-branches
                     try:
                         coverage_value = witness.findall('column[@title="branches_covered"]')[0].get('value').replace("%", "")
                     except IndexError:
