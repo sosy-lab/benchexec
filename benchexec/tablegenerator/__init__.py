@@ -587,7 +587,7 @@ def merge_task_lists(runset_results, tasks):
                 logging.info("    No result for task '%s' in '%s'.",
                              task[0], Util.prettylist(runset.attributes['filename']))
                 # create an empty dummy element
-                run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
+                run_result = RunResult(task, None, result.CATEGORY_MISSING, None, None,
                                        runset.columns, [None]*len(runset.columns))
             runset.results.append(run_result)
 
@@ -682,7 +682,7 @@ class RunResult(object):
         for column in listOfColumns: # for all columns that should be shown
             value = None # default value
             if column.title.lower() == 'score':
-                value = str(score)
+                value = str(score) if score is not None else None
             elif column.title.lower() == 'status':
                 value = status
 
@@ -1065,7 +1065,7 @@ def get_stats_of_run_set(runResults, correct_only):
             if col_type == ColumnType.main_status or col_type == ColumnType.status:
                 if col_type == ColumnType.main_status:
                     status_col_index = index
-                    score = StatValue(sum(run_result.score for run_result in runResults))
+                    score = StatValue(sum(run_result.score or 0 for run_result in runResults))
                 else:
                     score = None
 

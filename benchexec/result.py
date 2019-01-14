@@ -415,7 +415,7 @@ def score_for_task(properties, category, result):
     """
     assert result is not None
     if _PROP_SAT in properties:
-        return 0
+        return None
     return _svcomp_score(category, result)
 
 

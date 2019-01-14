@@ -243,8 +243,8 @@ class TestResult(unittest.TestCase):
         self.assertEqual(0, score_for_task([_PROP_CALL], CATEGORY_UNKNOWN, RESULT_TRUE_PROP))
 
     def test_score_for_task_smt(self):
-        self.assertEqual(0, score_for_task([_PROP_SAT], CATEGORY_CORRECT, RESULT_SAT))
-        self.assertEqual(0, score_for_task([_PROP_SAT], CATEGORY_WRONG, RESULT_SAT))
+        self.assertEqual(None, score_for_task([_PROP_SAT], CATEGORY_CORRECT, RESULT_SAT))
+        self.assertEqual(None, score_for_task([_PROP_SAT], CATEGORY_WRONG, RESULT_SAT))
 
     def test_score_for_task_svcomp(self):
         self.assertEqual(_SCORE_CORRECT_TRUE,
