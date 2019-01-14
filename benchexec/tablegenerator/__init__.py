@@ -697,10 +697,10 @@ class RunResult(object):
 
             if column.title.lower() == 'score':
                 if value is None:
+                    # If no score column exists in the xml, take the internally computed score,
+                    # if available
                     value = str(score) if score is not None else None
                 else:
-                    # If a score column exists in the xml, we use that column's value for the score, instead of
-                    # the computed score.
                     score = float(value)
             values.append(value)
 
