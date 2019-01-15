@@ -23,8 +23,13 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for FairFuzz (https://https://github.com/carolemieux/afl-rb/tree/testcomp).
     """
 
+    REQUIRED_PATHS = [
+        "bin",
+        "helper"
+    ]
+
     def executable(self):
-        return util.find_executable('fairfuzz-svtestcomp')
+        return util.find_executable('bin/fairfuzz-svtestcomp')
 
 
     def version(self, executable):
