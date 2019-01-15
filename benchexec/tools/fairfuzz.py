@@ -17,6 +17,7 @@ import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.model
+import os
 
 class Tool(benchexec.tools.template.BaseTool):
     """
@@ -24,12 +25,18 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-        "bin",
-        "helper"
+        "./afl-gcc",
+        "./afl-clang",
+        "./afl-fuzz-fairfuzz",
+        "../helper/*"
     ]
 
     def executable(self):
         return util.find_executable('bin/fairfuzz-svtestcomp')
+
+    def program_files(self, executable):
+        installDir = os.path.dirname(executable)
+        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
 
     def version(self, executable):
