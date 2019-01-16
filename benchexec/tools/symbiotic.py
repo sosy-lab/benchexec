@@ -19,9 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os.path import dirname
-from os.path import join as joinpath
-
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -72,7 +69,6 @@ class Tool(OldSymbiotic):
             return OldSymbiotic.executable(self)
 
     def program_files(self, executable):
-        installDir = joinpath(dirname(executable), '..')
         if self._version_newer_than('6.0.0'):
             paths = self.REQUIRED_PATHS_6_0_0
         elif self._version_newer_than('5.0.0'):
@@ -82,7 +78,7 @@ class Tool(OldSymbiotic):
         else:
             paths = OldSymbiotic.REQUIRED_PATHS
 
-        return [executable] + util.flatten(util.expand_filename_pattern(path, installDir) for path in paths)
+        return [executable] + self._program_files_from_executable(executable, paths, parent_dir=True)
 
     def _version_newer_than(self, vers):
         """

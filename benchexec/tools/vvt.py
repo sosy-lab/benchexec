@@ -38,8 +38,8 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable('vvt-svcomp-bench.sh', os.path.join("bin", 'vvt-svcomp-bench.sh'))
 
     def program_files(self, executable):
-        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def version(self,executable):
         return 'prerelease'
