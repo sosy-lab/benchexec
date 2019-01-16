@@ -28,7 +28,6 @@ class Tool(benchexec.tools.template.BaseTool):
     """
     REQUIRED_PATHS = [
         "bin",
-        "compiler",
         "include",
         "klee_build",
         "libraries"
