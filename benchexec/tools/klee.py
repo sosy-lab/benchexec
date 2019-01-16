@@ -67,6 +67,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         if benchexec.model.MEMLIMIT in rlimits:
             options += ["--max-memory="+str(rlimits[benchexec.model.MEMLIMIT])]
+        if benchexec.model.TIMELIMIT in rlimits:
+            options += ["--max-time="+str(rlimits[benchexec.model.TIMELIMIT])]
         if benchexec.model.WALLTIMELIMIT in rlimits:
             options += ["--max-walltime="+str(rlimits[benchexec.model.WALLTIMELIMIT])]
         if benchexec.model.SOFTTIMELIMIT in rlimits:
