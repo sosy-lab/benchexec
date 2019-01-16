@@ -50,7 +50,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
-        if "DONE" in lines:
+        if "COVER(error-call)" in lines:
+            return result.RESULT_DONE
+        elif "COVER(branches)" in lines:
             return result.RESULT_DONE
         elif "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
