@@ -21,6 +21,7 @@ import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.model
+import os
 
 class Tool(benchexec.tools.template.BaseTool):
     """
@@ -36,6 +37,10 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('bin/klee')
 
+
+    def program_files(self, executable):
+        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
 
     def version(self, executable):
         """
