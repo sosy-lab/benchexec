@@ -695,8 +695,7 @@ class RunResult(object):
 
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
-            if column.title.lower() == 'score':
-                if value is None:
+            if column.title.lower() == 'score' and value is None and score is not None:
                     # If no score column exists in the xml, take the internally computed score,
                     # if available
                     value = str(score) if score is not None else None
