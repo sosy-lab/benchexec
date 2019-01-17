@@ -698,7 +698,7 @@ class RunResult(object):
             if column.title.lower() == 'score' and value is None and score is not None:
                 # If no score column exists in the xml, take the internally computed score,
                 # if available
-                value = str(score) if score is not None else None
+                value = str(score)
             values.append(value)
 
         sourcefiles = sourcefileTag.get('files')
