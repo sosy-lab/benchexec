@@ -181,6 +181,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             'test.2015-03-03_1613.results.predicateAnalysis.all-columns',
             )
 
+    def test_simple_table_custom_score(self):
+        self.generate_tables_and_compare_content(
+            [result_file('test.2015-03-03_1613.results.predicateAnalysis.custom-score.xml')],
+            'test.2015-03-03_1613.results.predicateAnalysis.custom-score',
+            )
+
     def test_simple_table_xml(self):
         self.generate_tables_and_compare_content(
             ['-x', os.path.join(here, 'simple-table.xml')],
