@@ -16,6 +16,7 @@
   you can now read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
   In addition to the [previous version from SPIN'15](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf),
   it also describes the container mode and how to present result data.
+  We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
 - BenchExec 1.9 adds a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
   that isolates each run from the host system and from other runs
   (disabled by now, will become default in BenchExec 2.0).
@@ -71,7 +72,7 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/))
+- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
 
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
