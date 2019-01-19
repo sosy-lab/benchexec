@@ -32,7 +32,6 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable('bin/fairfuzz-svtestcomp')
 
-
     def program_files(self, executable):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True)
@@ -59,6 +58,8 @@ class Tool(benchexec.tools.template.BaseTool):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
         for line in output:
+            if "All test cases time out or crash, giving up!" in line:
+                return "Couldn't run: all seeds time out or crash"
             if "ERROR: couldn't run FairFuzz" in line:
                 return "Couldn't run FairFuzz"
             if "CRASHES FOUND" in line:
