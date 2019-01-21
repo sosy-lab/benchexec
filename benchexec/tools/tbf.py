@@ -34,13 +34,7 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = ["tbf", "lib"]
 
     def program_files(self, executable):
-        files = super().program_files(executable)
-
-        # Get parent of directory of `executable`
-        dir_of_exec = os.path.dirname(os.path.abspath(executable))
-        base_dir = os.path.dirname(dir_of_exec)
-
-        return files + [os.path.join(base_dir, p) for p in self.REQUIRED_PATHS]
+        return self._program_files_from_executable(executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def executable(self):
         return util.find_executable('tbf', 'bin/tbf')
