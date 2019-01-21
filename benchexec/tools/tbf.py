@@ -89,8 +89,12 @@ class Tool(benchexec.tools.template.BaseTool):
             else:
                 options = options + ["--timelimit", str(rlimits[SOFTTIMELIMIT])]
         if propertyfile:
-            logging.warning('Propertyfile given, but tbf ignores property files'
-                    ' and always checks for calls to __VERIFIER_error()')
+            if 'testcomp' in self.version(executable):
+                options = options + ["--spec", propertyfile]
+
+            else:
+                logging.warning('Propertyfile given, but tbf ignores property files'
+                        ' and always checks for calls to __VERIFIER_error()')
 
         return super().cmdline(executable, options, tasks, propertyfile,
                                rlimits)
