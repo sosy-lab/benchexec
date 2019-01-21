@@ -31,10 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = ["python_modules", "lib"]
 
     def program_files(self, executable):
-        # Get parent of directory of `executable`
-        install_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
-
-        return util.flatten(util.expand_filename_pattern(p, install_dir) for p in self.REQUIRED_PATHS)
+        return self._program_files_from_executable(executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def executable(self):
         return util.find_executable('tbf-testsuite-validator', 'bin/tbf-testsuite-validator')
