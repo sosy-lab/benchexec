@@ -28,7 +28,7 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for tbf test-suite validator (https://gitlab.com/sosy-lab/software/test-format).
     """
 
-    REQUIRED_PATHS = ["python_modules", "lib"]
+    REQUIRED_PATHS = ["python_modules", "lib", "bin"]
 
     def program_files(self, executable):
         return self._program_files_from_executable(executable, self.REQUIRED_PATHS, parent_dir=True)
