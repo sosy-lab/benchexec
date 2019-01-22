@@ -191,6 +191,7 @@ class Benchmark(object):
         # will be set from the outside if necessary (may not be the case in SaaS environments)
         self.tool_version = None
         self.executable = None
+        self.display_name = rootTag.get('displayName')
 
         logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 

@@ -21,6 +21,7 @@
 <!ATTLIST rundefinition name CDATA #IMPLIED>
 
 <!ATTLIST benchmark tool CDATA #REQUIRED>
+<!ATTLIST benchmark displayName CDATA #IMPLIED>
 <!ATTLIST benchmark memlimit CDATA #IMPLIED>
 <!ATTLIST benchmark timelimit CDATA #IMPLIED>
 <!ATTLIST benchmark walltimelimit CDATA #IMPLIED>

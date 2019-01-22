@@ -394,6 +394,7 @@ class RunSetResult(object):
         attributes['timelimit'] = ['-']
         attributes['memlimit'] = ['-']
         attributes['cpuCores'] = ['-']
+        attributes['displayName'] = []
 
         # Update with real values
         for attrib, value in resultTag.attrib.items():
@@ -914,6 +915,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                                 content=list(zip(titles, runSetWidths1)))
 
     return {'tool':    get_row('Tool', '{tool} {version}', collapse=True),
+            'displayName': get_row('Benchmark', '{displayName}', collapse=True),
             'limit':   get_row('Limits', 'timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}', collapse=True),
             'host':    get_row('Host', '{host}', collapse=True, onlyIf='host'),
             'os':      get_row('OS', '{os}', collapse=True, onlyIf='os'),

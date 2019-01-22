@@ -1,6 +1,7 @@
 <!ELEMENT result (columns, systeminfo+, run*, column*)>
 <!ATTLIST result name CDATA #IMPLIED
                benchmarkname CDATA #REQUIRED
+               displayName CDATA #IMPLIED
                block CDATA #IMPLIED
                date CDATA #REQUIRED
                tool CDATA #REQUIRED

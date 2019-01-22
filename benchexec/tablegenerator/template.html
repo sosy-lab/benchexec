@@ -61,6 +61,7 @@
       text-align:center;
       background: white;
   }
+  thead .benchmark { font-weight: bold; }
   tbody { white-space: nowrap; }
   tr:hover { background-color:yellow}
   td { border:1px solid rgb(85, 85, 85); }
@@ -217,10 +218,10 @@
 
 <table id="dataTable">
 <thead>
-{{for lineName in ['tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
+{{for lineName in ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property', 'title']}}
   {{if lineName in head and head[lineName]}}
   {{py:line = head[lineName]}}
-  <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['runset', 'title']}}collapsable-header{{endif}}">
+  <tr id="{{line.id}}" class="{{line.id}} {{if not lineName in ['displayName', 'runset', 'title']}}collapsable-header{{endif}}">
 <td colspan="{{count_id_columns}}">{{line.name}}</td>
     {{for cell, width in line.content}}
 <td colspan="{{width}}">{{html(format_options(html_quote(cell))) if line.id == 'options' else cell}}</td>
@@ -413,7 +414,8 @@ function getNameOfTest(column) {
 }
 
 function getNameOfTestDirect(runSet) {
-  return runSet.tool + ' '
+  return (runSet.displayName ? runSet.displayName + ' ' : '')
+       + runSet.tool + ' '
        + (runSet.date ? runSet.date + ' ' : '')
        + runSet.niceName;
 }

@@ -2,6 +2,7 @@
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.17//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.17.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
+           displayName="*human-readable name as description of this benchmark*"
            timelimit="*optional CPU time limit, use unit 's', 'min', etc. (default: none)*"
            walltimelimit="*optional wall-time limit, use unit 's', 'min', etc. (default: CPU time plus a few seconds)*"
            hardtimelimit="*optional hard CPU time limit, use unit 's', 'min', etc. (tool will be forcefully killed, otherwise identical with timelimit)"
