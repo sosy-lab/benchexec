@@ -49,7 +49,7 @@ __all__ = [
     'get_my_pid_from_proc',
     'drop_capabilities',
     'forward_all_signals',
-    'setup_container_config',
+    'setup_container_system_config',
     'CONTAINER_UID',
     'CONTAINER_GID',
     'CONTAINER_HOME',
@@ -372,18 +372,27 @@ def close_open_fds(keep_files=[]):
                 # (the fd that was used by os.listdir() of course always fails)
                 pass
 
-def setup_container_system_config(basedir):
+def setup_container_system_config(basedir, mountdir=None):
     """Create a minimal system configuration for use in a container.
-    @param basedir: The root directory of the container as bytes.
+    @param basedir: The directory where the configuration files should be placed as bytes.
+    @param mountdir: If present, bind mounts to the configuration files will be added below
+        this path (given as bytes).
     """
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
         os.mkdir(etc)
 
     for file, content in CONTAINER_ETC_FILE_OVERRIDE.items():
+        # Create "basedir/etc/file"
         util.write_file(content, etc, file)
+        if mountdir:
+            # Create bind mount to "mountdir/etc/file"
+            make_bind_mount(
+                os.path.join(etc, file), os.path.join(mountdir, b"etc", file), private=True)
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
+    # Bind bounds for symlinks are not possible, so we do nothing for "mountdir/etc/mtab".
+    # This is not a problem usually because most systems have the correct symlink anyway.
 
 def is_container_system_config_file(file):
     """Determine whether a given file is one of the files created by setup_container_system_config().

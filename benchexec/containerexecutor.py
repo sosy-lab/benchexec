@@ -111,12 +111,7 @@ def handle_basic_container_args(options, parser=None):
         dir_modes["/run"] = DIR_HIDDEN
 
     if options.container_system_config:
-        if dir_modes.get("/etc", dir_modes["/"]) != DIR_OVERLAY:
-            logging.warning("Specified directory mode for /etc implies --keep-system-config, "
-                "i.e., the container cannot be configured to force only local user and host lookups. "
-                "Use --overlay-dir /etc to allow overwriting system configuration in the container.")
-            options.container_system_config = False
-        elif options.network_access:
+        if options.network_access:
             logging.warning("The container configuration disables DNS, "
                 "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
@@ -260,9 +255,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._env_override = {}
 
         if container_system_config:
-            if dir_modes.get("/etc", dir_modes.get("/")) != DIR_OVERLAY:
-                raise ValueError("Cannot setup minimal system configuration for the container "
-                    "without overlay filesystem for /etc.")
             self._env_override["HOME"] = container.CONTAINER_HOME
             if not container.CONTAINER_HOME in dir_modes:
                 dir_modes[container.CONTAINER_HOME] = DIR_HIDDEN
@@ -643,7 +635,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             target_path = os.path.join(target_path, b"")
             return path.startswith(target_path)
 
-        def find_mode_for_dir(path, fstype):
+        def find_mode_for_dir(path, fstype=None):
             if (path == b"/proc"):
                 # /proc is necessary for the grandchild to read PID, will be replaced later.
                 return DIR_READ_ONLY
@@ -687,9 +679,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and mount_base the mount target.
         work_base = os.path.join(temp_dir, b"overlayfs")
         os.mkdir(work_base)
-
-        if self._container_system_config:
-            container.setup_container_system_config(temp_base)
 
         # Create a copy of host's mountpoints.
         # Setting MS_PRIVATE flag discouples our mount namespace from the hosts's,
@@ -814,6 +803,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             else:
                 assert False
+
+        if self._container_system_config:
+            # If overlayfs is not used for /etc, we need additional bind mounts
+            # for files in /etc that we want to override, like /etc/passwd
+            config_mount_base = mount_base if find_mode_for_dir(b"/etc") != DIR_OVERLAY else None
+            container.setup_container_system_config(temp_base, config_mount_base )
 
         # If necessary, (i.e., if /tmp is not already hidden),
         # hide the directory where we store our files from processes in the container

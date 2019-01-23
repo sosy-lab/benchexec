@@ -138,10 +138,6 @@ For the same reason, DNS lookups for host names are disabled.
 All of these can be re-enabled with `--keep-system-config`,
 which also lets the container use the same user list as the host.
 
-Note that this feature is only available with an overlay mount for `/etc`,
-and thus a container that uses a different access mode for this directory
-will have `--keep-system-config` set by default.
-
 
 ## Retrieving Result Files
 Files written by the executed tool to directories in the hidden or overlay modes
