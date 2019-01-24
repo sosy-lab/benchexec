@@ -476,7 +476,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
         subsystems = [BLKIO, CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
-        if my_cpus is not None:
+        if my_cpus is not None or memory_nodes is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
 
