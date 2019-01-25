@@ -56,6 +56,8 @@ _HAS_SIGWAIT = hasattr(signal, 'sigwait')
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--network-access", action="store_true",
         help="allow process to use network communication")
+    argument_parser.add_argument("--no-tmpfs", dest="tmpfs", action="store_false",
+        help='Store temporary files (e.t., tool output files) on the actual file system instead of a tmpfs ("RAM disk") that is included in the memory limit')
     argument_parser.add_argument("--keep-system-config",
         dest="container_system_config", action="store_false",
         help="do not use a special minimal configuration for local user and host lookups inside the container")
@@ -126,6 +128,7 @@ def handle_basic_container_args(options, parser=None):
 
     return {
         'network_access': options.network_access,
+        'container_tmpfs': options.tmpfs,
         'container_system_config': options.container_system_config,
         'dir_modes': dir_modes,
         }
@@ -229,6 +232,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                  network_access=False,
                  dir_modes={"/": DIR_OVERLAY, "/run": DIR_HIDDEN, "/tmp": DIR_HIDDEN},
                  container_system_config=True,
+                 container_tmpfs=True,
                  *args, **kwargs):
         """Create instance.
         @param use_namespaces: If False, disable all container features of this class
@@ -244,6 +248,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
+        self._container_tmpfs = container_tmpfs
         self._container_system_config = container_system_config
         self._uid = (uid if uid is not None
                      else container.CONTAINER_UID if container_system_config
@@ -337,6 +342,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         return util.ProcessExitCode.from_raw(returnvalue)
 
     def _start_execution(self, root_dir=None, output_dir=None, result_files_patterns=[],
+                         memlimit=None, memory_nodes=None,
                          *args, **kwargs):
         if not self._use_namespaces:
             return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
@@ -356,6 +362,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             return self._start_execution_in_container(
                 root_dir=root_dir, output_dir=output_dir,
+                memlimit=memlimit, memory_nodes=memory_nodes,
                 result_files_patterns=result_files_patterns, *args, **kwargs)
 
 
@@ -363,6 +370,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     def _start_execution_in_container(
             self, args, stdin, stdout, stderr, env, root_dir, cwd, temp_dir,
+            memlimit, memory_nodes,
             cgroups, output_dir, result_files_patterns, parent_setup_fn,
             child_setup_fn, parent_cleanup_fn):
         """Execute the given command and measure its resource usage similarly to super()._start_execution(),
@@ -469,7 +477,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     else:
                         self._setup_container_filesystem(
                             temp_dir,
-                            output_dir if result_files_patterns else None)
+                            output_dir if result_files_patterns else None,
+                            memlimit,
+                            memory_nodes)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
@@ -522,7 +532,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.close(to_parent)
 
                 # Now the parent copies the output files, we need to wait until this is finished.
-                # If the child terminates, the container file system goes away.
+                # If the child terminates, the container file system and its tmpfs go away.
                 os.read(from_parent, 1)
                 os.close(from_parent)
 
@@ -624,7 +634,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         return grandchild_pid, wait_for_grandchild
 
 
-    def _setup_container_filesystem(self, temp_dir, output_dir):
+    def _setup_container_filesystem(self, temp_dir, output_dir, memlimit, memory_nodes):
         """Setup the filesystem layout in the container.
          As first step, we create a copy of all existing mountpoints in mount_base, recursively,
         and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
@@ -647,6 +657,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
         temp_base = self._get_result_files_base(temp_dir).encode() # directory with files created by tool
         temp_dir = temp_dir.encode()
+
+        if self._container_tmpfs:
+            tmpfs_opts = ["size=" + str(memlimit or "100%")]
+            if memory_nodes:
+                tmpfs_opts.append("mpol=bind:" + ",".join(map(str, memory_nodes)))
+            libc.mount(None, temp_dir, b"tmpfs", 0, (",".join(tmpfs_opts)).encode())
+
         mount_base = os.path.join(temp_dir, b"mount") # base dir for container mounts
         os.mkdir(mount_base)
         os.mkdir(temp_base)

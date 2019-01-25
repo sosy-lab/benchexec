@@ -699,6 +699,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_file_count_limit(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
+        self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 10000); do touch $i; done',
                                             files_count_limit=100, result_files_patterns=None)
@@ -713,6 +714,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_file_size_limit(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
+        self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 100000); do echo $i >> TEST_FILE; done',
                                             files_size_limit=100, result_files_patterns=None)

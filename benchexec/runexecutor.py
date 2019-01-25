@@ -98,9 +98,9 @@ def main(argv=None):
         help="shrink output file to approximately this size if necessary "
             "(by removing lines from the middle of the output)")
     io_args.add_argument("--filesCountLimit", type=int, metavar="COUNT",
-        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
     io_args.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
-        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
+        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
@@ -136,6 +136,8 @@ def main(argv=None):
             sys.exit("Cannot use --user in combination with --container.")
         container_options = containerexecutor.handle_basic_container_args(options, parser)
         container_output_options = containerexecutor.handle_container_output_args(options, parser)
+        if container_options['container_tmpfs'] and (options.filesCountLimit or options.filesSizeLimit):
+            parser.error("Files-count limit and files-size limit are not supported if tmpfs is used in container. Use --no-tmpfs to make these limits work or disable them (typically they are unnecessary if a tmpfs is used).")
     else:
         container_options = {}
         container_output_options = {}
@@ -895,6 +897,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             pid, result_fn = self._start_execution(args=args,
                 stdin=stdin, stdout=outputFile, stderr=errorFile,
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
+                memlimit=memlimit, memory_nodes=memory_nodes,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent,

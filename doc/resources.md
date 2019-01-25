@@ -28,6 +28,11 @@ and the tool is only killed due to out-of-memory if there is still not enough me
 The memory as measured and limited by BenchExec includes the memory
 from all processes started by the tool.
 Memory pages shared across multiple processes of a single run are counted only once.
+In addition, data stored by the tool on the filesystem
+is measured and limited by BenchExec as part of the memory consumption
+if [container mode](container.md) is used,
+except if this is disabled with `--no-tmpfs`
+or if the tool writes to a directory in the full-access mode.
 
 On systems with swap, BenchExec always measures and limits the complete memory usage of the tool,
 i.e., its usage of physical RAM plus swap usage.
@@ -89,6 +94,13 @@ and not if only a subset of the CPU's cores is used per run.
 
 ## Disk Space and I/O
 
+In [container mode](container.md) (default from BenchExec 2.0),
+BenchExec redirects all write accesses to a `tmpfs` instance (a "RAM disk").
+Data stored on this RAM disk are counted towards the memory limit.
+Read accesses to pre-existing files are performed as usually
+and are not limited or influenced by BenchExec.
+
+Without container mode,
 BenchExec does not limit or influence I/O in any way by default.
 This is acceptable for benchmarking if the benchmarked tool uses only little I/O,
 but for I/O-heavy tools this means that the benchmarking may be non-deterministic and unreliable.
@@ -99,19 +111,21 @@ if the `blkio` cgroup is usable by BenchExec.
 Note that because of the experimental nature the values are not shown by default in tables,
 use an appropriate `<column>` tag to select them or the command-line parameter `--all-columns` for `table-generator`.
 The two values only measure I/O that actually touches a block device,
-so any reads and writes that are satisfied by the file-system cache are not measured.
+so any reads and writes that are satisfied by the file-system cache
+or use a RAM disk are not measured.
 In certain system configurations involving LVM, RAID, encrypted disks or similar virtual block devices,
 the kernel will also not manage to account disk I/O to a certain process,
 so such I/O will also not be measured.
-On the other hand, not all I/O to block devices is actually disk I/O,
-because for example RAM disks are also counted.
+On the other hand, not all I/O to block devices is necessarily disk I/O.
 So this measure may only be an approximation of disk I/O.
 
 To prevent the benchmarked tool from filling up the whole disk
 (which could make the system unusable for other users),
+the container mode with a backing RAM disk should be used.
+If this is not desired and `--no-tmpfs` is used,
 BenchExec can limit the number and size of the files written by the benchmarked tool
 with the command-line parameters `--filesCountLimit` and `--filesSizeLimit`.
-Both limits are off by default, though this may change in a future release.
+Both limits are off by default.
 There are a few restrictions, however:
 - These limits are checked only periodically (currently every 60s),
   so intermediate violations are possible.
