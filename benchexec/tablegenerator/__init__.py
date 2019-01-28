@@ -1028,8 +1028,10 @@ def get_stats(rows, local_summary, correct_only):
             ]
     if _contains_unconfirmed_results(rowsForStats):
         stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
-    else:
+    elif count_true or count_false:
         stats_info = stats_info_correct + stats_info_wrong
+    else:
+        stats_info = []
     return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
             ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
