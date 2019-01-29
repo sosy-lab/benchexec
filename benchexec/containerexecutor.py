@@ -594,7 +594,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             check_child_exit_code()
 
             if result_files_patterns:
-                self._transfer_output_files(temp_dir, cwd, output_dir, result_files_patterns)
+                self._transfer_output_files(
+                    self._get_result_files_base(temp_dir), cwd, output_dir, result_files_patterns)
 
             exitcode, ru_child = pickle.loads(received)
             return exitcode, ru_child, parent_cleanup
@@ -846,15 +847,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         os.chroot(root_dir)
 
 
-    def _transfer_output_files(self, temp_dir, working_dir, output_dir, patterns):
+    def _transfer_output_files(self, tool_output_dir, working_dir, output_dir, patterns):
         """Transfer files created by the tool in the container to the output directory.
-        @param temp_dir: The base directory under which all our directories are created.
+        @param tool_output_dir: The directory under which all tool output files are created.
         @param working_dir: The absolute working directory of the tool in the container.
         @param output_dir: the directory where to write result files
         @param patterns: a list of patterns of files to retrieve as result files
         """
         assert output_dir and patterns
-        tool_output_dir = os.path.join(temp_dir, "temp")
         if any(os.path.isabs(pattern) for pattern in patterns):
             base_dir = tool_output_dir
         else:
