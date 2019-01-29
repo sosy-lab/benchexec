@@ -494,6 +494,10 @@ function loadContentWrapper(event) {
   return false;
 }
 
+function dirname(path) {
+    return path.match(/.*\//);
+}
+
 function loadContent(url) {
   var contentPane = $('<pre id="content"></pre>').appendTo("#contentPane")
   function writeToContentPane(text) {
@@ -502,7 +506,16 @@ function loadContent(url) {
                   .replace(/"/g, "&quot;")
                   .replace(/</g, "&lt;")
                   .replace(/>/g, "&gt;");
-    contentPane.html(newtext);
+    if (url != null && url.endsWith(".yml")) {
+      // try to re-add links to source file and property file.
+      newtext = newtext.replace(
+          /(input_files|property_file)\:\s+("|'|)(.*)\2/g,
+          '$1: $2<a href="' + dirname(url) + '$3">$3</a>$2');
+      contentPane.html(newtext);
+      contentPane.children('a').click(hideContentPane).click(loadContentWrapper);
+    } else {
+      contentPane.html(newtext);
+    }
   }
 
   function giveUp(error) {
