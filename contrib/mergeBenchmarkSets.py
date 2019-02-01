@@ -61,8 +61,12 @@ def getWitnessResult(witness, verification_result):
 
     #print(witness.get('name'))
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
-    status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
-    category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
+    try:
+        status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
+        category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
+    except:
+        status_from_verification   = "not found"
+        category_from_verification = "not found"
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
@@ -106,8 +110,12 @@ def main(argv=None):
 
     for result in resultXML.findall('run'):
         run = result.get('name')
-        status_from_verification   = result.findall('column[@title="status"]')[0].get('value')
-        category_from_verification = result.findall('column[@title="category"]')[0].get('value')
+        try:
+            status_from_verification   = result.findall('column[@title="status"]')[0].get('value')
+            category_from_verification = result.findall('column[@title="category"]')[0].get('value')
+        except:
+            status_from_verification   = "not found"
+            category_from_verification = "not found"
         statusWit, categoryWit = (None, None)
         for witnessSet in witnessSets:
             witness = witnessSet.get(run, None)
@@ -155,8 +163,11 @@ def main(argv=None):
              and categoryWit is not None
            ):
             #print(run, statusWit, categoryWit)
-            result.findall('column[@title="status"]')[0].set('value', statusWit)
-            result.findall('column[@title="category"]')[0].set('value', categoryWit)
+            try:
+                result.findall('column[@title="status"]')[0].set('value', statusWit)
+                result.findall('column[@title="category"]')[0].set('value', categoryWit)
+            except:
+                pass
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del result.attrib['logfile']
 
