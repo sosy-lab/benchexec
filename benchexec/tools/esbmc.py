@@ -72,6 +72,8 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_REACH
         elif 'TRUE' in output:
             status = result.RESULT_TRUE_PROP
+        elif 'DONE' in output:
+            status = result.RESULT_DONE
 
         if status == result.RESULT_UNKNOWN:
             if isTimeout:
