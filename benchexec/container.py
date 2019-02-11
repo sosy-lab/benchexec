@@ -259,7 +259,7 @@ def mount_proc():
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
 
-def make_bind_mount(source, target, recursive=False, private=False):
+def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
     """Make a bind mount.
     @param source: the source directory as bytes
     @param target: the target directory as bytes
@@ -272,6 +272,8 @@ def make_bind_mount(source, target, recursive=False, private=False):
         flags |= libc.MS_REC
     if private:
         flags |= libc.MS_PRIVATE
+    if read_only:
+        flags |= libc.MS_RDONLY
     libc.mount(source, target, None, flags, None)
 
 def get_my_pid_from_procfs():
