@@ -138,3 +138,4 @@ capset.errcheck = _check_errno
 capset.argtypes = [_ctypes.POINTER(CapHeader), _ctypes.POINTER(CapData * 2)]
 
 LINUX_CAPABILITY_VERSION_3 = 0x20080522 # /usr/include/linux/capability.h
+CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h

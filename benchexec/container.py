@@ -283,10 +283,17 @@ def get_my_pid_from_procfs():
     """
     return int(os.readlink("/proc/self"))
 
-def drop_capabilities():
-    """Drop all capabilities this process has."""
+def drop_capabilities(keep=[]):
+    """
+    Drop all capabilities this process has.
+    @param keep: list of capabilities to not drop
+    """
+    capdata = (libc.CapData * 2)()
+    for cap in keep:
+        capdata[0].effective |= (1 << cap)
+        capdata[0].permitted |= (1 << cap)
     libc.capset(ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
-                ctypes.byref((libc.CapData * 2)()))
+                ctypes.byref(capdata))
 
 
 _ALL_SIGNALS = range(1, signal.NSIG)
