@@ -44,6 +44,14 @@ PROPERTY_TAG = "propertyfile"
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
+_ERROR_RESULTS_FOR_TERMINATION_REASON = {
+    "memory": "OUT OF MEMORY",
+    "killed": "KILLED",
+    "failed": "FAILED",
+    "files-count": "FILES-COUNT LIMIT",
+    "files-size": "FILES-SIZE LIMIT",
+    }
+
 def substitute_vars(oldList, runSet=None, sourcefile=None):
     """
     This method replaces special substrings from a list of string
@@ -898,8 +906,8 @@ class Run(object):
         status = None
         if isTimeout:
             status = "TIMEOUT"
-        elif termination_reason == 'memory':
-            status = 'OUT OF MEMORY'
+        elif termination_reason:
+            status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(termination_reason, termination_reason)
 
         if not status:
             # regular termination
