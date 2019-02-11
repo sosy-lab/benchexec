@@ -467,7 +467,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     if root_dir is not None:
                         self._setup_root_filesystem(root_dir)
                     else:
-                        self._setup_container_filesystem(temp_dir)
+                        self._setup_container_filesystem(
+                            temp_dir,
+                            output_dir if result_files_patterns else None)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
@@ -490,7 +492,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
 
-                container.drop_capabilities()
+                # keep capability for unmount if necessary later
+                necessary_capabilities = [libc.CAP_SYS_ADMIN] if result_files_patterns else []
+                container.drop_capabilities(keep=necessary_capabilities)
 
                 # Close other fds that were still necessary above.
                 container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent, from_parent})
@@ -508,10 +512,17 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 logging.debug("Child: process %s terminated with exit code %d.",
                               args[0], grandchild_result[0])
+
+                if result_files_patterns:
+                    # Remove the bind mount that _setup_container_filesystem added
+                    # such that the parent can access the result files.
+                    libc.umount(temp_dir.encode())
+
                 os.write(to_parent, pickle.dumps(grandchild_result))
                 os.close(to_parent)
 
                 # Now the parent copies the output files, we need to wait until this is finished.
+                # If the child terminates, the container file system goes away.
                 os.read(from_parent, 1)
                 os.close(from_parent)
 
@@ -596,8 +607,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             parent_cleanup = parent_cleanup_fn(parent_setup)
 
             if result_files_patterns:
+                # As long as the child process exists we can access the container file system here
                 self._transfer_output_files(
-                    self._get_result_files_base(temp_dir), cwd, output_dir, result_files_patterns)
+                    "/proc/{}/root{}".format(child_pid, temp_dir),
+                    cwd,
+                    output_dir,
+                    result_files_patterns)
 
             os.close(from_grandchild_copy)
             os.close(to_grandchild_copy) # signal child that it can terminate
@@ -609,7 +624,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         return grandchild_pid, wait_for_grandchild
 
 
-    def _setup_container_filesystem(self, temp_dir):
+    def _setup_container_filesystem(self, temp_dir, output_dir):
         """Setup the filesystem layout in the container.
          As first step, we create a copy of all existing mountpoints in mount_base, recursively,
         and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
@@ -817,11 +832,29 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             config_mount_base = mount_base if find_mode_for_dir(b"/etc") != DIR_OVERLAY else None
             container.setup_container_system_config(temp_base, config_mount_base )
 
+        if output_dir:
+            # We need a way to see temp_base in the container in order to be able to copy result
+            # files out of it, so we need a directory that is guaranteed to exist in order to use
+            # it as mountpoint for a bind mount to temp_base.
+            # Of course, the tool inside the container should not have access to temp_base,
+            # so we will add another bind mount with an empty directory on top
+            # (equivalent to --hidden-dir). After the tool terminates we can unmount
+            # the top-level bind mount and then access temp_base. However, this works only
+            # if there is no other mount point below that directory, and the user can force us
+            # to create mount points at arbitrary directory if a directory mode is specified.
+            # So we need an existing directory with no mount points below, and luckily temp_dir
+            # fulfills all requirements (because we have just created it as fresh drectory ourselves).
+            # So we mount temp_base outside of the container to temp_dir inside.
+            util.makedirs(mount_base + temp_dir, exist_ok=True)
+            container.make_bind_mount(temp_base, mount_base + temp_dir, read_only=True)
+            # And the following if branch will automatically hide the bind
+            # mount below an empty directory.
+
         # If necessary, (i.e., if /tmp is not already hidden),
         # hide the directory where we store our files from processes in the container
         # by mounting an empty directory over it.
         if os.path.exists(mount_base + temp_dir):
-            os.makedirs(temp_base + temp_dir)
+            util.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
         os.chroot(mount_base)
