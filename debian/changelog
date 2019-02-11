@@ -1,3 +1,9 @@
+benchexec (1.18-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 11 Feb 2019 11:37:20 +0100
+
 benchexec (1.17-1) bionic; urgency=medium
 
   * New upstream version.
