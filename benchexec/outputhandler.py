@@ -37,8 +37,8 @@ from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
-RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
-RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.9.dtd'
+RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.18.dtd'
 
 # colors for column status in terminal
 COLOR_GREEN   = "\033[32;1m{0}\033[m"
