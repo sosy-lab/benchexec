@@ -493,7 +493,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 container.drop_capabilities()
 
                 # Close other fds that were still necessary above.
-                container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent})
+                container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent, from_parent})
 
                 # Set up signal handlers to forward signals to grandchild
                 # (because we are PID 1, there is a special signal handling otherwise).
@@ -510,6 +510,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                               args[0], grandchild_result[0])
                 os.write(to_parent, pickle.dumps(grandchild_result))
                 os.close(to_parent)
+
+                # Now the parent copies the output files, we need to wait until this is finished.
+                os.read(from_parent, 1)
+                os.close(from_parent)
 
                 return 0
             except EnvironmentError as e:
@@ -573,6 +577,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # Copy file descriptor, otherwise we could not close from_grandchild in finally block
             # and would leak a file descriptor in case of exception.
             from_grandchild_copy = os.dup(from_grandchild)
+            to_grandchild_copy = os.dup(to_grandchild)
         finally:
             os.close(from_grandchild)
             os.close(to_grandchild)
@@ -590,12 +595,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             parent_cleanup = parent_cleanup_fn(parent_setup)
 
-            os.close(from_grandchild_copy)
-            check_child_exit_code()
-
             if result_files_patterns:
                 self._transfer_output_files(
                     self._get_result_files_base(temp_dir), cwd, output_dir, result_files_patterns)
+
+            os.close(from_grandchild_copy)
+            os.close(to_grandchild_copy) # signal child that it can terminate
+            check_child_exit_code()
 
             exitcode, ru_child = pickle.loads(received)
             return exitcode, ru_child, parent_cleanup
