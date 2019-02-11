@@ -1,5 +1,21 @@
 # BenchExec Changelog
 
+## BenchExec 1.18
+
+- Add result `done` that tools can output if the standard results `true`/`false`/`unknown`
+  are not applicable (for example because no property was checked),
+  and the run completed successfully.
+- In container mode, `--keep-system-config` is no longer necessary if overlayfs
+  is not used for `/etc`, and thus it is is no longer automatically implied in such cases.
+- Benchmark definitions support a new attribute `displayName` with a human-readable name
+  that will be shown in tables.
+- A new variable `${taskdef_name}` can now be used in places where variable substitution is supported.
+- Table-generator supports `%` as unit for numerical values.
+- Some improvements for score handling outside of SV-COMP (i.e., if scores are not calculated by BenchExec).
+- New tool-info modules for Test-Comp'19
+- Several small bug fixes and improvements
+
+
 ## BenchExec 1.17
 
 - Tasks can now be defined in a YAML-based format,
