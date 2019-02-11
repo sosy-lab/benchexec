@@ -900,20 +900,6 @@ class Run(object):
             status = "TIMEOUT"
         elif termination_reason == 'memory':
             status = 'OUT OF MEMORY'
-        else:
-            # TODO probably this is not necessary anymore
-            rlimits = self.runSet.benchmark.rlimits
-            guessed_OOM = exitcode is not None \
-                    and exitcode.signal == 9 \
-                    and MEMLIMIT in rlimits \
-                    and 'memUsage' in self.values \
-                    and not self.values['memUsage'] is None \
-                    and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * 0.99)
-            if guessed_OOM:
-                # Set status to a special marker.
-                # If we see this in the results, we know that we need to do more work to set
-                # termination_reason properly.
-                status = 'PROBABLY OUT OF MEMORY'
 
         if not status:
             # regular termination
