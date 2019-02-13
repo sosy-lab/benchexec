@@ -477,6 +477,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 container.close_open_fds(keep_files=necessary_fds)
 
                 try:
+                    if self._container_system_config:
+                        # A standard hostname increases reproducibility.
+                        libc.sethostname(container.CONTAINER_HOSTNAME)
+
                     if not self._allow_network:
                         container.activate_network_interface("lo")
 

@@ -53,6 +53,7 @@ __all__ = [
     'CONTAINER_UID',
     'CONTAINER_GID',
     'CONTAINER_HOME',
+    'CONTAINER_HOSTNAME',
     ]
 
 
@@ -62,6 +63,7 @@ GUARD_PAGE_SIZE = 4096 # size of guard page at end of stack
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
 CONTAINER_HOME = '/home/benchexec'
+CONTAINER_HOSTNAME = 'benchexec'
 
 CONTAINER_ETC_NSSWITCH_CONF = """
 passwd: files
@@ -91,12 +93,12 @@ nogroup:x:65534:
 """.format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
 
 CONTAINER_ETC_HOSTS = """
-127.0.0.1       localhost {host} {fqdn}
+127.0.0.1       localhost {host}
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(host=socket.gethostname(), fqdn=socket.getfqdn())
+""".format(host=CONTAINER_HOSTNAME)
 
 CONTAINER_ETC_FILE_OVERRIDE = {
     b'nsswitch.conf': CONTAINER_ETC_NSSWITCH_CONF,
