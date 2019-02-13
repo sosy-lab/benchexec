@@ -855,12 +855,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             walltime_before = util.read_monotonic_time()
             return walltime_before
 
-        def postParent(preParent_result):
+        def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
             walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
             energy = self._energy_measurement.stop() if self._energy_measurement else None
+
+            if exit_code.value not in [0, 1]:
+                _get_debug_output_after_crash(output_filename, base_path)
+
             return (walltime, energy)
 
         def preSubprocess():
@@ -967,9 +971,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             _reduce_file_size_if_necessary(error_filename, max_output_size)
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
-
-        if returnvalue not in [0,1]:
-            _get_debug_output_after_crash(output_filename)
 
         result['exitcode'] = returnvalue
         if energy:
@@ -1144,13 +1145,15 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     util.shrink_text_file(fileName, maxSize, _LOG_SHRINK_MARKER)
 
 
-def _get_debug_output_after_crash(output_filename):
+def _get_debug_output_after_crash(output_filename, base_path):
     """
     Segmentation faults and some memory failures reference a file
     with more information (hs_err_pid_*). We append this file to the log.
     The format that we expect is a line
     "# An error report file with more information is saved as:"
     and the file name of the dump file on the next line.
+    @param output_filename name of log file with tool output
+    @param base_path string that needs to be preprended to paths for lookup of files
     """
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
@@ -1158,7 +1161,7 @@ def _get_debug_output_after_crash(output_filename):
         with open(output_filename, 'r+') as outputFile:
             for line in outputFile:
                 if foundDumpFile:
-                    dumpFileName = line.strip(' #\n')
+                    dumpFileName = base_path + line.strip(' #\n')
                     outputFile.seek(0, os.SEEK_END) # jump to end of log file
                     try:
                         with open(dumpFileName, 'r') as dumpFile:

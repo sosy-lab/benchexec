@@ -425,6 +425,16 @@ class TestRunExecutor(unittest.TestCase):
         self.assertIn(self.REDUCE_WARNING_MSG, new_content)
         self.assertTrue(new_content.startswith(line))
 
+    def test_append_crash_dump_info(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c',
+            'echo "# An error report file with more information is saved as:";'
+            'echo "# $(pwd)/hs_err_pid_1234.txt";'
+            'echo TEST_TOKEN > hs_err_pid_1234.txt;'
+            'exit 2')
+        self.assertEqual(output[-1], 'TEST_TOKEN', 'log file misses content from crash dump file')
+
     def test_integration(self):
         if not os.path.exists('/bin/echo'):
             self.skipTest('missing /bin/echo')

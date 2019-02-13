@@ -318,9 +318,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 env=environ, root_dir=rootDir, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
                 output_dir=output_dir, result_files_patterns=result_files_patterns,
-                child_setup_fn=lambda: None,
-                parent_setup_fn=lambda: None,
-                parent_cleanup_fn=id)
+                child_setup_fn=util.dummy_fn,
+                parent_setup_fn=util.dummy_fn,
+                parent_cleanup_fn=util.dummy_fn)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
@@ -630,13 +630,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     received = os.read(from_grandchild_copy, 1024)
                 else:
                     raise e
+            exitcode, ru_child = pickle.loads(received)
 
-            parent_cleanup = parent_cleanup_fn(parent_setup)
+            base_path = "/proc/{}/root".format(child_pid)
+            parent_cleanup = parent_cleanup_fn(
+                parent_setup, util.ProcessExitCode.from_raw(exitcode), base_path)
 
             if result_files_patterns:
                 # As long as the child process exists we can access the container file system here
                 self._transfer_output_files(
-                    "/proc/{}/root{}".format(child_pid, temp_dir),
+                    base_path + temp_dir,
                     cwd,
                     output_dir,
                     result_files_patterns)
@@ -645,7 +648,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(to_grandchild_copy) # signal child that it can terminate
             check_child_exit_code()
 
-            exitcode, ru_child = pickle.loads(received)
             return exitcode, ru_child, parent_cleanup
 
         return grandchild_pid, wait_for_grandchild

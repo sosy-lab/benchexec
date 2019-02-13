@@ -100,9 +100,10 @@ class BaseExecutor(object):
             immediately before the tool is started
         @param child_setup_fn a function without parameters that is called in the child process
             before the tool is started
-        @param parent_cleanup_fn a function with one positional parameter that is called in the
-            parent process immediately after the tool terminated, with the result of
-            parent_setup_fn as parameter value
+        @param parent_cleanup_fn a function that is called in the parent process
+            immediately after the tool terminated, with three parameters:
+            the result of parent_setup_fn, the result of the executed process as ProcessExitCode,
+            and the base path for looking up files as parameter values
         @return: a tuple of PID of process and a blocking function, which waits for the process
             and a triple of the exit code and the resource usage of the process
             and the result of parent_cleanup_fn (do not use os.wait)
@@ -140,7 +141,8 @@ class BaseExecutor(object):
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
 
-            parent_cleanup = parent_cleanup_fn(parent_setup)
+            parent_cleanup = parent_cleanup_fn(
+                parent_setup, util.ProcessExitCode.from_raw(exitcode), "")
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, wait_and_get_result
