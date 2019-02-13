@@ -589,8 +589,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.runexecutor = RunExecutor(
             use_namespaces=True,
             dir_modes={"/": containerexecutor.DIR_READ_ONLY,
+                       "/home": containerexecutor.DIR_HIDDEN,
                        "/tmp": containerexecutor.DIR_HIDDEN},
-            container_system_config=False,
             *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
@@ -601,9 +601,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def test_temp_dirs_are_removed(self):
         self.skipTest("not relevant in container")
-
-    def test_home_is_writable(self):
-        self.skipTest("needs container_system_config=True and thus overlay mode")
 
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
