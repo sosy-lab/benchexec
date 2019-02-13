@@ -412,6 +412,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         from_parent, to_grandchild = os.pipe() # "downstream" pipe parent->grandchild
         from_grandchild, to_parent = os.pipe() # "upstream" pipe grandchild/child->parent
 
+        # The protocol for these pipes is that first the parent sends the marker for user mappings,
+        # then the grand child sends its outer PID back,
+        # and finally the parent sends its completion marker.
+        # After the run, the child sends the result of the grand child and then waits
+        # until the pipes are closed, before it terminates.
+        MARKER_USER_MAPPING_COMPLETED = b'A'
+        MARKER_PARENT_COMPLETED = b'B'
+
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the bind mount,
         # but the directory behind it. Thus we always set cwd to force a change of directory.
@@ -441,7 +449,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Signal readiness to parent by sending our PID and wait until parent is also ready
                 os.write(to_parent, str(my_outer_pid).encode())
                 received = os.read(from_parent, 1)
-                assert received == b'\0', received
+                assert received == MARKER_PARENT_COMPLETED, received
             finally:
                 # close remaining ends of pipe
                 os.close(from_parent)
@@ -471,6 +479,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if not self._allow_network:
                         container.activate_network_interface("lo")
+
+                    # Wait until user mapping is finished, this is necessary for filesystem writes
+                    received = os.read(from_parent, len(MARKER_USER_MAPPING_COMPLETED))
+                    assert received == MARKER_USER_MAPPING_COMPLETED, received
 
                     if root_dir is not None:
                         self._setup_root_filesystem(root_dir)
@@ -577,6 +589,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(to_parent)
 
             container.setup_user_mapping(child_pid, uid=self._uid, gid=self._gid)
+            os.write(to_grandchild, MARKER_USER_MAPPING_COMPLETED) # signal child to continue
 
             try:
                 grandchild_pid = int(os.read(from_grandchild, 10)) # 10 bytes is enough for 32bit int
@@ -593,7 +606,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             parent_setup = parent_setup_fn()
 
             # Signal grandchild that setup is finished
-            os.write(to_grandchild, b'\0')
+            os.write(to_grandchild, MARKER_PARENT_COMPLETED)
 
             # Copy file descriptor, otherwise we could not close from_grandchild in finally block
             # and would leak a file descriptor in case of exception.
