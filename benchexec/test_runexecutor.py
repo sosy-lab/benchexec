@@ -74,11 +74,17 @@ class TestRunExecutor(unittest.TestCase):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
-            output_lines = os.read(output_fd, 4096).decode().splitlines()
-            return (result, output_lines)
+            output = os.read(output_fd, 4096).decode()
         finally:
             os.close(output_fd)
             os.remove(output_filename)
+
+        self.check_result_keys(result, 'terminationreason')
+        self.assertNotEqual(
+            result.get('terminationreason'),
+            'failed',
+            "Unexpected failure, output is \n" + output)
+        return (result, output.splitlines())
 
     def execute_run_extern(self, *args, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
@@ -88,7 +94,7 @@ class TestRunExecutor(unittest.TestCase):
                     stderr=DEVNULL,
                     **kwargs
                     ).decode()
-            output_lines = os.read(output_fd, 4096).decode().splitlines()
+            output = os.read(output_fd, 4096).decode()
         except subprocess.CalledProcessError as e:
             print(e.output.decode())
             raise e
@@ -97,7 +103,12 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
-        return (result, output_lines)
+        self.check_result_keys(result, 'terminationreason', 'returnvalue')
+        self.assertNotEqual(
+            result.get('terminationreason'),
+            'failed',
+            "Unexpected failure, output is \n" + output)
+        return (result, output.splitlines())
 
     def check_command_in_output(self, output, cmd):
         self.assertEqual(output[0], cmd, 'run output misses executed command')
@@ -183,7 +194,6 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -202,7 +212,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 4, delta=3, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -220,7 +229,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'walltime', 'termination reason is not "walltime"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        self.check_result_keys(result, 'terminationreason')
 
         self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
@@ -238,7 +246,6 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -257,7 +264,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -365,7 +371,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'killed', 'termination reason is not "killed"')
         self.assertAlmostEqual(result['walltime'], 1, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        self.check_result_keys(result, 'terminationreason')
 
         self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
@@ -706,7 +711,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
         self.check_exitcode(result, 9, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'files-count', 'termination reason is not "files-count"')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -721,7 +725,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
         self.check_exitcode(result, 9, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'files-size', 'termination reason is not "files-size"')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
