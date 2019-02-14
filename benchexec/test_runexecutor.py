@@ -430,8 +430,8 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest('missing /bin/sh')
         (result, output) = self.execute_run('/bin/sh', '-c',
             'echo "# An error report file with more information is saved as:";'
-            'echo "# $(pwd)/hs_err_pid_1234.txt";'
-            'echo TEST_TOKEN > hs_err_pid_1234.txt;'
+            'echo "# $HOME/hs_err_pid_1234.txt";'
+            'echo TEST_TOKEN > $HOME/hs_err_pid_1234.txt;'
             'exit 2')
         self.assertEqual(output[-1], 'TEST_TOKEN', 'log file misses content from crash dump file')
 
