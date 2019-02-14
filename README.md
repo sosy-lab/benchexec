@@ -79,32 +79,37 @@ Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
+- [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - Peter Häring
+- [Florian Heck](https://github.com/fheck)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
-- Thomas Lemberger
-- Sebastian Ott
+- [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
+- [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
-- Stephan Lukasczyk
+- [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
+- [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all seven instances
-of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org) (2012-2018)
+BenchExec was successfully used for benchmarking in all instances
+of the international competitions on [Software Verification](https://sv-comp.sosy-lab.org)
+and [Software Testing](https://test-comp.sosy-lab.org)
 with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
+It is integrated into the cluster-based logic-solving service
+[StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec)).
 
 The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [SMACK](https://github.com/smackers/smack)
-- [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec))
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).
