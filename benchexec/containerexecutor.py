@@ -677,11 +677,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         temp_base = self._get_result_files_base(temp_dir).encode() # directory with files created by tool
         temp_dir = temp_dir.encode()
 
+        tmpfs_opts = ["size=" + str(memlimit or "100%")]
+        if memory_nodes:
+            tmpfs_opts.append("mpol=bind:" + ",".join(map(str, memory_nodes)))
+        tmpfs_opts = (",".join(tmpfs_opts)).encode()
         if self._container_tmpfs:
-            tmpfs_opts = ["size=" + str(memlimit or "100%")]
-            if memory_nodes:
-                tmpfs_opts.append("mpol=bind:" + ",".join(map(str, memory_nodes)))
-            libc.mount(None, temp_dir, b"tmpfs", 0, (",".join(tmpfs_opts)).encode())
+            libc.mount(None, temp_dir, b"tmpfs", 0, tmpfs_opts)
 
         mount_base = os.path.join(temp_dir, b"mount") # base dir for container mounts
         os.mkdir(mount_base)
@@ -861,6 +862,27 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             else:
                 assert False
+
+        # Now configure some special hard-coded cases
+
+        def make_tmpfs_dir(path):
+            """Ensure that a tmpfs is mounted on path, if the path exists"""
+            if path in self._dir_modes:
+                return # explicitly configured by user
+            mount_tmpfs = mount_base + path
+            temp_tmpfs = temp_base + path
+            util.makedirs(temp_tmpfs, exist_ok=True)
+            if os.path.isdir(mount_tmpfs):
+                # If we already have a tmpfs, we can just bind mount it, otherwise we need one
+                if self._container_tmpfs:
+                    container.make_bind_mount(temp_tmpfs, mount_tmpfs)
+                else:
+                    libc.mount(None, mount_tmpfs, b"tmpfs", 0, tmpfs_opts)
+
+        # The following directories should be writable RAM disks for Posix shared memory.
+        # For example, the Python multiprocessing module explicitly checks for a tmpfs instance.
+        make_tmpfs_dir(b"/dev/shm")
+        make_tmpfs_dir(b"/run/shm")
 
         if self._container_system_config:
             # If overlayfs is not used for /etc, we need additional bind mounts
