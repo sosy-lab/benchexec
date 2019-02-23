@@ -56,6 +56,8 @@ _HAS_SIGWAIT = hasattr(signal, 'sigwait')
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument("--network-access", action="store_true",
         help="allow process to use network communication")
+    argument_parser.add_argument("--no-tmpfs", dest="tmpfs", action="store_false",
+        help='Store temporary files (e.t., tool output files) on the actual file system instead of a tmpfs ("RAM disk") that is included in the memory limit')
     argument_parser.add_argument("--keep-system-config",
         dest="container_system_config", action="store_false",
         help="do not use a special minimal configuration for local user and host lookups inside the container")
@@ -111,12 +113,7 @@ def handle_basic_container_args(options, parser=None):
         dir_modes["/run"] = DIR_HIDDEN
 
     if options.container_system_config:
-        if dir_modes.get("/etc", dir_modes["/"]) != DIR_OVERLAY:
-            logging.warning("Specified directory mode for /etc implies --keep-system-config, "
-                "i.e., the container cannot be configured to force only local user and host lookups. "
-                "Use --overlay-dir /etc to allow overwriting system configuration in the container.")
-            options.container_system_config = False
-        elif options.network_access:
+        if options.network_access:
             logging.warning("The container configuration disables DNS, "
                 "host lookups will fail despite --network-access. "
                 "Consider using --keep-system-config.")
@@ -131,6 +128,7 @@ def handle_basic_container_args(options, parser=None):
 
     return {
         'network_access': options.network_access,
+        'container_tmpfs': options.tmpfs,
         'container_system_config': options.container_system_config,
         'dir_modes': dir_modes,
         }
@@ -234,6 +232,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                  network_access=False,
                  dir_modes={"/": DIR_OVERLAY, "/run": DIR_HIDDEN, "/tmp": DIR_HIDDEN},
                  container_system_config=True,
+                 container_tmpfs=True,
                  *args, **kwargs):
         """Create instance.
         @param use_namespaces: If False, disable all container features of this class
@@ -249,6 +248,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
+        self._container_tmpfs = container_tmpfs
         self._container_system_config = container_system_config
         self._uid = (uid if uid is not None
                      else container.CONTAINER_UID if container_system_config
@@ -260,9 +260,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._env_override = {}
 
         if container_system_config:
-            if dir_modes.get("/etc", dir_modes.get("/")) != DIR_OVERLAY:
-                raise ValueError("Cannot setup minimal system configuration for the container "
-                    "without overlay filesystem for /etc.")
             self._env_override["HOME"] = container.CONTAINER_HOME
             if not container.CONTAINER_HOME in dir_modes:
                 dir_modes[container.CONTAINER_HOME] = DIR_HIDDEN
@@ -321,9 +318,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 env=environ, root_dir=rootDir, cwd=workingDir, temp_dir=temp_dir,
                 cgroups=Cgroup({}),
                 output_dir=output_dir, result_files_patterns=result_files_patterns,
-                child_setup_fn=lambda: None,
-                parent_setup_fn=lambda: None,
-                parent_cleanup_fn=id)
+                child_setup_fn=util.dummy_fn,
+                parent_setup_fn=util.dummy_fn,
+                parent_cleanup_fn=util.dummy_fn)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
@@ -345,6 +342,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         return util.ProcessExitCode.from_raw(returnvalue)
 
     def _start_execution(self, root_dir=None, output_dir=None, result_files_patterns=[],
+                         memlimit=None, memory_nodes=None,
                          *args, **kwargs):
         if not self._use_namespaces:
             return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
@@ -364,6 +362,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             return self._start_execution_in_container(
                 root_dir=root_dir, output_dir=output_dir,
+                memlimit=memlimit, memory_nodes=memory_nodes,
                 result_files_patterns=result_files_patterns, *args, **kwargs)
 
 
@@ -371,6 +370,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
     def _start_execution_in_container(
             self, args, stdin, stdout, stderr, env, root_dir, cwd, temp_dir,
+            memlimit, memory_nodes,
             cgroups, output_dir, result_files_patterns, parent_setup_fn,
             child_setup_fn, parent_cleanup_fn):
         """Execute the given command and measure its resource usage similarly to super()._start_execution(),
@@ -412,6 +412,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         from_parent, to_grandchild = os.pipe() # "downstream" pipe parent->grandchild
         from_grandchild, to_parent = os.pipe() # "upstream" pipe grandchild/child->parent
 
+        # The protocol for these pipes is that first the parent sends the marker for user mappings,
+        # then the grand child sends its outer PID back,
+        # and finally the parent sends its completion marker.
+        # After the run, the child sends the result of the grand child and then waits
+        # until the pipes are closed, before it terminates.
+        MARKER_USER_MAPPING_COMPLETED = b'A'
+        MARKER_PARENT_COMPLETED = b'B'
+
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the bind mount,
         # but the directory behind it. Thus we always set cwd to force a change of directory.
@@ -441,7 +449,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Signal readiness to parent by sending our PID and wait until parent is also ready
                 os.write(to_parent, str(my_outer_pid).encode())
                 received = os.read(from_parent, 1)
-                assert received == b'\0', received
+                assert received == MARKER_PARENT_COMPLETED, received
             finally:
                 # close remaining ends of pipe
                 os.close(from_parent)
@@ -469,13 +477,25 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 container.close_open_fds(keep_files=necessary_fds)
 
                 try:
+                    if self._container_system_config:
+                        # A standard hostname increases reproducibility.
+                        libc.sethostname(container.CONTAINER_HOSTNAME)
+
                     if not self._allow_network:
                         container.activate_network_interface("lo")
+
+                    # Wait until user mapping is finished, this is necessary for filesystem writes
+                    received = os.read(from_parent, len(MARKER_USER_MAPPING_COMPLETED))
+                    assert received == MARKER_USER_MAPPING_COMPLETED, received
 
                     if root_dir is not None:
                         self._setup_root_filesystem(root_dir)
                     else:
-                        self._setup_container_filesystem(temp_dir)
+                        self._setup_container_filesystem(
+                            temp_dir,
+                            output_dir if result_files_patterns else None,
+                            memlimit,
+                            memory_nodes)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
@@ -498,10 +518,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
 
-                container.drop_capabilities()
+                # keep capability for unmount if necessary later
+                necessary_capabilities = [libc.CAP_SYS_ADMIN] if result_files_patterns else []
+                container.drop_capabilities(keep=necessary_capabilities)
 
                 # Close other fds that were still necessary above.
-                container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent})
+                container.close_open_fds(keep_files={sys.stdout, sys.stderr, to_parent, from_parent})
 
                 # Set up signal handlers to forward signals to grandchild
                 # (because we are PID 1, there is a special signal handling otherwise).
@@ -516,8 +538,19 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
                 logging.debug("Child: process %s terminated with exit code %d.",
                               args[0], grandchild_result[0])
+
+                if result_files_patterns:
+                    # Remove the bind mount that _setup_container_filesystem added
+                    # such that the parent can access the result files.
+                    libc.umount(temp_dir.encode())
+
                 os.write(to_parent, pickle.dumps(grandchild_result))
                 os.close(to_parent)
+
+                # Now the parent copies the output files, we need to wait until this is finished.
+                # If the child terminates, the container file system and its tmpfs go away.
+                os.read(from_parent, 1)
+                os.close(from_parent)
 
                 return 0
             except EnvironmentError as e:
@@ -560,6 +593,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(to_parent)
 
             container.setup_user_mapping(child_pid, uid=self._uid, gid=self._gid)
+            os.write(to_grandchild, MARKER_USER_MAPPING_COMPLETED) # signal child to continue
 
             try:
                 grandchild_pid = int(os.read(from_grandchild, 10)) # 10 bytes is enough for 32bit int
@@ -576,11 +610,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             parent_setup = parent_setup_fn()
 
             # Signal grandchild that setup is finished
-            os.write(to_grandchild, b'\0')
+            os.write(to_grandchild, MARKER_PARENT_COMPLETED)
 
             # Copy file descriptor, otherwise we could not close from_grandchild in finally block
             # and would leak a file descriptor in case of exception.
             from_grandchild_copy = os.dup(from_grandchild)
+            to_grandchild_copy = os.dup(to_grandchild)
         finally:
             os.close(from_grandchild)
             os.close(to_grandchild)
@@ -595,22 +630,30 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     received = os.read(from_grandchild_copy, 1024)
                 else:
                     raise e
+            exitcode, ru_child = pickle.loads(received)
 
-            parent_cleanup = parent_cleanup_fn(parent_setup)
-
-            os.close(from_grandchild_copy)
-            check_child_exit_code()
+            base_path = "/proc/{}/root".format(child_pid)
+            parent_cleanup = parent_cleanup_fn(
+                parent_setup, util.ProcessExitCode.from_raw(exitcode), base_path)
 
             if result_files_patterns:
-                self._transfer_output_files(temp_dir, cwd, output_dir, result_files_patterns)
+                # As long as the child process exists we can access the container file system here
+                self._transfer_output_files(
+                    base_path + temp_dir,
+                    cwd,
+                    output_dir,
+                    result_files_patterns)
 
-            exitcode, ru_child = pickle.loads(received)
+            os.close(from_grandchild_copy)
+            os.close(to_grandchild_copy) # signal child that it can terminate
+            check_child_exit_code()
+
             return exitcode, ru_child, parent_cleanup
 
         return grandchild_pid, wait_for_grandchild
 
 
-    def _setup_container_filesystem(self, temp_dir):
+    def _setup_container_filesystem(self, temp_dir, output_dir, memlimit, memory_nodes):
         """Setup the filesystem layout in the container.
          As first step, we create a copy of all existing mountpoints in mount_base, recursively,
         and as "private" mounts (i.e., changes to existing mountpoints afterwards won't propagate
@@ -633,6 +676,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
         temp_base = self._get_result_files_base(temp_dir).encode() # directory with files created by tool
         temp_dir = temp_dir.encode()
+
+        tmpfs_opts = ["size=" + str(memlimit or "100%")]
+        if memory_nodes:
+            tmpfs_opts.append("mpol=bind:" + ",".join(map(str, memory_nodes)))
+        tmpfs_opts = (",".join(tmpfs_opts)).encode()
+        if self._container_tmpfs:
+            libc.mount(None, temp_dir, b"tmpfs", 0, tmpfs_opts)
+
         mount_base = os.path.join(temp_dir, b"mount") # base dir for container mounts
         os.mkdir(mount_base)
         os.mkdir(temp_base)
@@ -643,7 +694,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             target_path = os.path.join(target_path, b"")
             return path.startswith(target_path)
 
-        def find_mode_for_dir(path, fstype):
+        def find_mode_for_dir(path, fstype=None):
             if path == b"/proc":
                 # /proc is necessary for the grandchild to read PID, will be replaced later.
                 return DIR_READ_ONLY
@@ -687,9 +738,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and mount_base the mount target.
         work_base = os.path.join(temp_dir, b"overlayfs")
         os.mkdir(work_base)
-
-        if self._container_system_config:
-            container.setup_container_system_config(temp_base)
 
         # Create a copy of host's mountpoints.
         # Setting MS_PRIVATE flag discouples our mount namespace from the hosts's,
@@ -815,11 +863,56 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             else:
                 assert False
 
+        # Now configure some special hard-coded cases
+
+        def make_tmpfs_dir(path):
+            """Ensure that a tmpfs is mounted on path, if the path exists"""
+            if path in self._dir_modes:
+                return # explicitly configured by user
+            mount_tmpfs = mount_base + path
+            temp_tmpfs = temp_base + path
+            util.makedirs(temp_tmpfs, exist_ok=True)
+            if os.path.isdir(mount_tmpfs):
+                # If we already have a tmpfs, we can just bind mount it, otherwise we need one
+                if self._container_tmpfs:
+                    container.make_bind_mount(temp_tmpfs, mount_tmpfs)
+                else:
+                    libc.mount(None, mount_tmpfs, b"tmpfs", 0, tmpfs_opts)
+
+        # The following directories should be writable RAM disks for Posix shared memory.
+        # For example, the Python multiprocessing module explicitly checks for a tmpfs instance.
+        make_tmpfs_dir(b"/dev/shm")
+        make_tmpfs_dir(b"/run/shm")
+
+        if self._container_system_config:
+            # If overlayfs is not used for /etc, we need additional bind mounts
+            # for files in /etc that we want to override, like /etc/passwd
+            config_mount_base = mount_base if find_mode_for_dir(b"/etc") != DIR_OVERLAY else None
+            container.setup_container_system_config(temp_base, config_mount_base )
+
+        if output_dir:
+            # We need a way to see temp_base in the container in order to be able to copy result
+            # files out of it, so we need a directory that is guaranteed to exist in order to use
+            # it as mountpoint for a bind mount to temp_base.
+            # Of course, the tool inside the container should not have access to temp_base,
+            # so we will add another bind mount with an empty directory on top
+            # (equivalent to --hidden-dir). After the tool terminates we can unmount
+            # the top-level bind mount and then access temp_base. However, this works only
+            # if there is no other mount point below that directory, and the user can force us
+            # to create mount points at arbitrary directory if a directory mode is specified.
+            # So we need an existing directory with no mount points below, and luckily temp_dir
+            # fulfills all requirements (because we have just created it as fresh drectory ourselves).
+            # So we mount temp_base outside of the container to temp_dir inside.
+            util.makedirs(mount_base + temp_dir, exist_ok=True)
+            container.make_bind_mount(temp_base, mount_base + temp_dir, read_only=True)
+            # And the following if branch will automatically hide the bind
+            # mount below an empty directory.
+
         # If necessary, (i.e., if /tmp is not already hidden),
         # hide the directory where we store our files from processes in the container
         # by mounting an empty directory over it.
         if os.path.exists(mount_base + temp_dir):
-            os.makedirs(temp_base + temp_dir)
+            util.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
         os.chroot(mount_base)
@@ -851,15 +944,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         os.chroot(root_dir)
 
 
-    def _transfer_output_files(self, temp_dir, working_dir, output_dir, patterns):
+    def _transfer_output_files(self, tool_output_dir, working_dir, output_dir, patterns):
         """Transfer files created by the tool in the container to the output directory.
-        @param temp_dir: The base directory under which all our directories are created.
+        @param tool_output_dir: The directory under which all tool output files are created.
         @param working_dir: The absolute working directory of the tool in the container.
         @param output_dir: the directory where to write result files
         @param patterns: a list of patterns of files to retrieve as result files
         """
         assert output_dir and patterns
-        tool_output_dir = os.path.join(temp_dir, "temp")
         if any(os.path.isabs(pattern) for pattern in patterns):
             base_dir = tool_output_dir
         else:

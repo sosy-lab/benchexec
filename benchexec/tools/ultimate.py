@@ -251,9 +251,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         pass
 
     def program_files(self, executable):
-        install_dir = os.path.dirname(executable)
         paths = self.REQUIRED_PATHS_SVCOMP17 if self._is_svcomp17_version(executable) else self.REQUIRED_PATHS
-        return [executable] + util.flatten(util.expand_filename_pattern(path, install_dir) for path in paths)
+        return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, returncode, returnsignal, output, is_timeout):
         if self._uses_propertyfile:

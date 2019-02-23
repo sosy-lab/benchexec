@@ -37,8 +37,8 @@ class Tool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable,use_stderr=True)
 
     def program_files(self, executable):
-        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def name(self):
         return 'VeriFuzz'
@@ -50,7 +50,11 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
-        if "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
+        if "COVER(error-call)" in lines:
+            return result.RESULT_DONE
+        elif "COVER(branches)" in lines:
+            return result.RESULT_DONE
+        elif "VERIFUZZ_VERIFICATION_SUCCESSFUL" in lines:
             return result.RESULT_TRUE_PROP
         elif "VERIFUZZ_VERIFICATION_FAILED" in lines:
             return result.RESULT_FALSE_REACH

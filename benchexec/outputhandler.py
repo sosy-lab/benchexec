@@ -37,8 +37,8 @@ from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
-RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
-RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.9.dtd'
+RESULT_XML_PUBLIC_ID = '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+RESULT_XML_SYSTEM_ID = 'https://www.sosy-lab.org/benchexec/result-1.18.dtd'
 
 # colors for column status in terminal
 COLOR_GREEN   = "\033[32;1m{0}\033[m"
@@ -177,6 +177,8 @@ class OutputHandler(object):
                      "toolmodule": self.benchmark.tool_module,
                      "generator": "BenchExec " + benchexec.__version__
                      })
+        if self.benchmark.display_name:
+            self.xml_header.set("displayName", self.benchmark.display_name)
 
         if memlimit is not None:
             self.xml_header.set(MEMLIMIT, str(memlimit))
@@ -234,6 +236,7 @@ class OutputHandler(object):
             return format_line(key, str(value) + " s")
 
         header = ("   BENCHMARK INFORMATION\n"
+            + ((self.benchmark.display_name + "\n") if self.benchmark.display_name else "")
             + format_line("benchmark definition", self.benchmark.benchmark_file)
             + format_line("name", self.benchmark.name)
             + format_line("run sets", ", ".join(run_set.name for run_set in run_sets))

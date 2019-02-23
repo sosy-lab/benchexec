@@ -69,8 +69,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
 
     def program_files(self, executable):
-        installDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        return util.flatten(util.expand_filename_pattern(path, installDir) for path in self.REQUIRED_PATHS)
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True)
 
 
     def _buildCPAchecker(self, executableDir):
@@ -203,13 +203,17 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
-        # stop after the first line, that contains the searched text
+        # search the first line, that starts with the searched text
+        # warn if there are more lines (multiple statistics from sequential analysis?)
+        match = None
         for line in lines:
-            if identifier in line:
+            if line.lstrip().startswith(identifier):
                 startPosition = line.find(':') + 1
                 endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
                 if endPosition == -1:
-                    return line[startPosition:].strip()
+                    endPosition = len(line)
+                if match is None:
+                    match = line[startPosition: endPosition].strip()
                 else:
-                    return line[startPosition: endPosition].strip()
-        return None
+                    logging.warning("skipping repeated match for identifier '{0}': '{1}'".format(identifier, line))
+        return match

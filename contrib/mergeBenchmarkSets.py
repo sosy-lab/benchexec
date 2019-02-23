@@ -61,8 +61,12 @@ def getWitnessResult(witness, verification_result):
 
     #print(witness.get('name'))
     status_from_validation     = witness.findall('column[@title="status"]')[0].get('value')
-    status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
-    category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
+    try:
+        status_from_verification   = verification_result.findall('column[@title="status"]')[0].get('value')
+        category_from_verification = verification_result.findall('column[@title="category"]')[0].get('value')
+    except:
+        status_from_verification   = "not found"
+        category_from_verification = "not found"
 
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
@@ -106,32 +110,64 @@ def main(argv=None):
 
     for result in resultXML.findall('run'):
         run = result.get('name')
+        try:
+            status_from_verification   = result.findall('column[@title="status"]')[0].get('value')
+            category_from_verification = result.findall('column[@title="category"]')[0].get('value')
+        except:
+            status_from_verification   = "not found"
+            category_from_verification = "not found"
         statusWit, categoryWit = (None, None)
         for witnessSet in witnessSets:
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None:
-                statusWitNew, categoryWitNew = getWitnessResult(witness, result)
-                if (
-                     categoryWit is None or
-                     not categoryWit.startswith(Result.CATEGORY_CORRECT) or
-                     categoryWitNew == Result.CATEGORY_CORRECT or
-                     statusWitNew.startswith('witness invalid')
-                   ):
-                    statusWit, categoryWit = (statusWitNew, categoryWitNew)
+                if result.get('properties') == 'coverage-error-call':
+                    status_from_validation = witness.findall('column[@title="status"]')[0].get('value')
+                    if status_from_validation == "true":
+                        statusWit, categoryWit = (status_from_verification, 'correct')
+                        category_from_verification = 'correct'
+                        scoreColumn = ET.Element('column', {
+                                                            'title': 'score',
+                                                            'value': '1'
+                                                           })
+                        result.append(scoreColumn)
+                elif result.get('properties') == 'coverage-branches':
+                    try:
+                        coverage_value = witness.findall('column[@title="branches_covered"]')[0].get('value').replace("%", "")
+                    except IndexError:
+                        coverage_value = '0.00'
+                    statusWit, categoryWit = (status_from_verification, 'correct')
+                    category_from_verification = 'correct'
+                    scoreColumn = ET.Element('column', {
+                                                        'title': 'score',
+                                                        'value': str(float(coverage_value) / 100)
+                                                       })
+                    result.append(scoreColumn)
+                else:
+                    # For verification
+                    statusWitNew, categoryWitNew = getWitnessResult(witness, result)
+                    if (
+                         categoryWit is None or
+                         not categoryWit.startswith(Result.CATEGORY_CORRECT) or
+                         categoryWitNew == Result.CATEGORY_CORRECT or
+                         statusWitNew.startswith('witness invalid')
+                       ):
+                        statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
         if (
                  (    isOverwrite
-                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(
-                                                       result.findall('column[@title="status"]')[0].get('value'))
+                   or Result.RESULT_CLASS_FALSE == Result.get_result_classification(status_from_verification)
                  )
-             and 'correct' == result.findall('column[@title="category"]')[0].get('value')
+             and 'correct' == category_from_verification
              and statusWit is not None
              and categoryWit is not None
            ):
             #print(run, statusWit, categoryWit)
-            result.findall('column[@title="status"]')[0].set('value', statusWit)
-            result.findall('column[@title="category"]')[0].set('value', categoryWit)
+            try:
+                result.findall('column[@title="status"]')[0].set('value', statusWit)
+                result.findall('column[@title="category"]')[0].set('value', categoryWit)
+            except:
+                pass
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del result.attrib['logfile']
 

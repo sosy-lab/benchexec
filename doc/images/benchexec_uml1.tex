@@ -1,0 +1,78 @@
+\documentclass[tikz, border=3mm, convert=pdf2svg]{standalone}
+\usetikzlibrary{positioning}
+
+\usepackage{tikz-uml}
+
+\begin{document}
+  \begin{tikzpicture} [
+        scale = 0.7,
+        transform shape,
+        node distance = 1.2cm,
+        every node/.style = {
+          align = center,
+          %font = \footnotesize,
+        },
+        umlbox/.style = {
+          draw,
+          minimum width = 3cm,
+          minimum height = 0.6cm,          
+        },
+        cust-fit/.style={%
+          % draw,
+          inner sep = 0pt,
+          transform shape = false,
+        }
+      ]
+
+    % textboxes
+    \node [umlbox] (resFiles) {$<$result files$>$};
+    \node [umlbox, below = 0.3cm of resFiles] (require) {$<$require$>$};
+    \node [fit={(resFiles) (require)}, cust-fit] (fitBox) {}; 
+
+    \node [umlbox, right = of fitBox] (benchmark) {Benchmark};
+
+    \node [umlbox, right = of benchmark] (runDef) {Run Definition\\$<$run definition$>$};
+    \node [umlbox, right = of runDef] (taskSet) {Task Set\\$<$tasks$>$};
+    \node [fit={(runDef) (taskSet)}, cust-fit] (fitBox2) {}; 
+
+    \node [umlbox, minimum height = 0.9cm, above = 2cm of fitBox2] (runCol) {Run Collection};
+
+    \node [umlbox, right = of taskSet] (inclExcl) {include(file)\\exclude(file)};
+
+    \coordinate (interectionPoint) at (runCol -| inclExcl);
+    \node [umlbox, yshift = 1.2cm] at (interectionPoint) (reqFiles) {$<$required files$>$};
+    \node [umlbox] at (interectionPoint) (propFile) {$<$property file$>$};
+    \node [umlbox, yshift = -1.2cm] at (interectionPoint) (opt) {$<$option$>$};
+    %\node [umlbox, yshift = 1.2cm] at (interectionPoint) (reqFiles) {$<$required files$>$};
+    %\node [umlbox, yshift = 0.4cm] at (interectionPoint) (inclFile) {$<$include file$>$};
+    %\node [umlbox, yshift = -0.4cm] at (interectionPoint) (propFile) {$<$property file$>$};
+    %\node [umlbox, yshift = -1.2cm] at (interectionPoint) (opt) {$<$option$>$};
+
+
+    % relations
+    % for more configuration options regarding relations, c.f.
+    % https://perso.ensta-paristech.fr/~kielbasi/tikzuml/var/files/html/web-tikz-uml-userguidech2.html
+    \umlaggreg[geometry=--, anchor1=175, anchor2=east]{benchmark}{resFiles};
+    \umlaggreg[geometry=--, anchor1=185, anchor2=east]{benchmark}{require};
+    \umlaggreg[geometry=--, arg2=1..n, pos2 = 0.75]{benchmark}{runDef};
+    \umlaggreg[geometry=--, arg2=0..n, pos2 = 0.75]{runDef}{taskSet};
+    
+    \coordinate [below = 0.5cm of runDef] (dummyPoint);
+    \umlaggreg[geometry=-|-, anchor1=350, arm1 = 0.7cm]{benchmark}{dummyPoint};
+    \umlassoc[geometry=-|-, mult2=0..n, anchor2=190, pos2 = 2.55, arm2 = -0.7cm]{dummyPoint}{taskSet};
+
+    \umlinherit[geometry=|-|]{runDef}{runCol};
+    \umlinherit[geometry=|-|]{taskSet}{runCol};
+    \umlinherit[geometry=|-|]{benchmark}{runCol};
+
+    \umlaggreg[geometry=--]{taskSet}{inclExcl};
+
+    \umlaggreg[geometry=--, anchor1=15, anchor2=west]{runCol}{reqFiles};
+    \umlaggreg[geometry=--, arg1 = 1, arg2 = 0..1, pos2 = 0.9]{runCol}{propFile};
+    \umlaggreg[geometry=--, anchor1=345, anchor2=west, arg1 = 1, arg2 = 0..n, pos1 = 0.14, pos2 = 0.78]{runCol}{opt};
+    %\umlaggreg[geometry=--, anchor1=18, anchor2=west]{runCol}{reqFiles};
+    %\umlaggreg[geometry=--, anchor1=6, anchor2=west]{runCol}{inclFile};
+    %\umlaggreg[geometry=--, anchor1=354, anchor2=west, mult1 = 1, mult2 = 0..1, pos2 = 1.0]{runCol}{propFile};
+    %\umlaggreg[geometry=--, anchor1=342, anchor2=west, mult1 = 1, mult2 = 0..n, pos2 = 1.0]{runCol}{opt};
+  \end{tikzpicture}
+\end{document}

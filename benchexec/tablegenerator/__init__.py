@@ -394,6 +394,7 @@ class RunSetResult(object):
         attributes['timelimit'] = ['-']
         attributes['memlimit'] = ['-']
         attributes['cpuCores'] = ['-']
+        attributes['displayName'] = []
 
         # Update with real values
         for attrib, value in resultTag.attrib.items():
@@ -583,7 +584,7 @@ def merge_task_lists(runset_results, tasks):
                 logging.info("    No result for task '%s' in '%s'.",
                              task[0], Util.prettylist(runset.attributes['filename']))
                 # create an empty dummy element
-                run_result = RunResult(task, None, result.CATEGORY_MISSING, 0, None,
+                run_result = RunResult(task, None, result.CATEGORY_MISSING, None, None,
                                        runset.columns, [None]*len(runset.columns))
             runset.results.append(run_result)
 
@@ -677,9 +678,7 @@ class RunResult(object):
 
         for column in listOfColumns: # for all columns that should be shown
             value = None # default value
-            if column.title.lower() == 'score':
-                value = str(score)
-            elif column.title.lower() == 'status':
+            if column.title.lower() == 'status':
                 value = status
 
             elif not correct_only or category == result.CATEGORY_CORRECT:
@@ -693,6 +692,10 @@ class RunResult(object):
 
                     value = get_value_from_logfile(logfileLines, column.pattern)
 
+            if column.title.lower() == 'score' and value is None and score is not None:
+                # If no score column exists in the xml, take the internally computed score,
+                # if available
+                value = str(score)
             values.append(value)
 
         sourcefiles = sourcefileTag.get('files')
@@ -908,6 +911,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                                 content=list(zip(titles, runSetWidths1)))
 
     return {'tool':    get_row('Tool', '{tool} {version}', collapse=True),
+            'displayName': get_row('Benchmark', '{displayName}', collapse=True),
             'limit':   get_row('Limits', 'timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}', collapse=True),
             'host':    get_row('Host', '{host}', collapse=True, onlyIf='host'),
             'os':      get_row('OS', '{os}', collapse=True, onlyIf='os'),
@@ -1020,8 +1024,10 @@ def get_stats(rows, local_summary, correct_only):
             ]
     if _contains_unconfirmed_results(rowsForStats):
         stats_info = stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
-    else:
+    elif count_true or count_false:
         stats_info = stats_info_correct + stats_info_wrong
+    else:
+        stats_info = []
     return [tempita.bunch(id=None, title='total', description=task_counts, content=rowsForStats[0]),
             ] + ([summary_row] if local_summary else []) + stats_info + ([score_row] if max_score else []), stats_columns
 
@@ -1061,7 +1067,7 @@ def get_stats_of_run_set(runResults, correct_only):
             if col_type == ColumnType.main_status or col_type == ColumnType.status:
                 if col_type == ColumnType.main_status:
                     status_col_index = index
-                    score = StatValue(sum(run_result.score for run_result in runResults))
+                    score = StatValue(sum(run_result.score or 0 for run_result in runResults))
                 else:
                     score = None
 

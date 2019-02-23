@@ -30,7 +30,7 @@ __all__ = ['Column, ColumnType, ColumnMeasureType, get_column_type']
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile(r'\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/]*))\s*$')
+REGEX_MEASURE = re.compile(r'\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$')
 GROUP_SIGN = 1
 GROUP_SPECIAL_FLOATS_PART = 2
 GROUP_INT_PART = 3

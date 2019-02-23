@@ -98,9 +98,9 @@ def main(argv=None):
         help="shrink output file to approximately this size if necessary "
             "(by removing lines from the middle of the output)")
     io_args.add_argument("--filesCountLimit", type=int, metavar="COUNT",
-        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)")
+        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
     io_args.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
-        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)")
+        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
     io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
         help="do not delete files created by the tool in temp directory")
 
@@ -136,6 +136,8 @@ def main(argv=None):
             sys.exit("Cannot use --user in combination with --container.")
         container_options = containerexecutor.handle_basic_container_args(options, parser)
         container_output_options = containerexecutor.handle_container_output_args(options, parser)
+        if container_options['container_tmpfs'] and (options.filesCountLimit or options.filesSizeLimit):
+            parser.error("Files-count limit and files-size limit are not supported if tmpfs is used in container. Use --no-tmpfs to make these limits work or disable them (typically they are unnecessary if a tmpfs is used).")
     else:
         container_options = {}
         container_output_options = {}
@@ -475,7 +477,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
         subsystems = [BLKIO, CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
-        if my_cpus is not None:
+        if my_cpus is not None or memory_nodes is not None:
             subsystems.append(CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
 
@@ -852,13 +854,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             walltime_before = util.read_monotonic_time()
             return walltime_before
 
-        def postParent(preParent_result):
+        def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
             walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
             energy = self._energy_measurement.stop() if self._energy_measurement else None
-            return walltime, energy
+
+            if exit_code.value not in [0, 1]:
+                _get_debug_output_after_crash(output_filename, base_path)
+
+            return (walltime, energy)
 
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
@@ -894,6 +900,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             pid, result_fn = self._start_execution(args=args,
                 stdin=stdin, stdout=outputFile, stderr=errorFile,
                 env=run_environment, cwd=workingDir, temp_dir=temp_dir,
+                memlimit=memlimit, memory_nodes=memory_nodes,
                 cgroups=cgroups,
                 parent_setup_fn=preParent, child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent,
@@ -963,9 +970,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             _reduce_file_size_if_necessary(error_filename, max_output_size)
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
-
-        if returnvalue not in [0,1]:
-            _get_debug_output_after_crash(output_filename)
 
         result['exitcode'] = returnvalue
         if energy:
@@ -1140,13 +1144,15 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     util.shrink_text_file(fileName, maxSize, _LOG_SHRINK_MARKER)
 
 
-def _get_debug_output_after_crash(output_filename):
+def _get_debug_output_after_crash(output_filename, base_path):
     """
     Segmentation faults and some memory failures reference a file
     with more information (hs_err_pid_*). We append this file to the log.
     The format that we expect is a line
     "# An error report file with more information is saved as:"
     and the file name of the dump file on the next line.
+    @param output_filename name of log file with tool output
+    @param base_path string that needs to be preprended to paths for lookup of files
     """
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
@@ -1154,7 +1160,7 @@ def _get_debug_output_after_crash(output_filename):
         with open(output_filename, 'r+') as outputFile:
             for line in outputFile:
                 if foundDumpFile:
-                    dumpFileName = line.strip(' #\n')
+                    dumpFileName = base_path + line.strip(' #\n')
                     outputFile.seek(0, os.SEEK_END) # jump to end of log file
                     try:
                         with open(dumpFileName, 'r') as dumpFile:

@@ -17,33 +17,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import os
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
-import logging
-import os
-
-from benchexec.model import SOFTTIMELIMIT
 
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for tbf (https://github.com/sosy-lab/tbf).
+    Tool info for tbf test-suite validator (https://gitlab.com/sosy-lab/software/test-format).
     """
 
-    REQUIRED_PATHS = ["tbf", "lib", "bin"]
+    REQUIRED_PATHS = ["python_modules", "lib", "bin"]
 
     def program_files(self, executable):
         return self._program_files_from_executable(executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def executable(self):
-        return util.find_executable('tbf', 'bin/tbf')
+        return util.find_executable('tbf-testsuite-validator', 'bin/tbf-testsuite-validator')
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return 'tbf'
+        return 'Tbf Test-suite Validator'
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -61,11 +58,11 @@ class Tool(benchexec.tools.template.BaseTool):
                     return "TIMEOUT"
                 else:
                     return "ERROR ({0})".format(returncode)
-            elif line.startswith('TBF') and 'FALSE' in line:
+            elif line.startswith('Result:') and 'FALSE' in line:
                 return result.RESULT_FALSE_REACH
-            elif line.startswith('TBF') and 'TRUE' in line:
+            elif line.startswith('Result:') and 'TRUE' in line:
                 return result.RESULT_TRUE_PROP
-            elif line.startswith('TBF') and 'DONE' in line:
+            elif line.startswith('Result') and 'DONE' in line:
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
@@ -77,24 +74,3 @@ class Tool(benchexec.tools.template.BaseTool):
                 return line[start:end].strip()
         return None
 
-    def cmdline(self, executable, options, tasks, propertyfile=None,
-                rlimits={}):
-        if SOFTTIMELIMIT in rlimits:
-            if "--timelimit" in options:
-                logging.warning(
-                    'Time limit already specified in command-line options,'
-                    ' not adding time limit from benchmark definition'
-                    ' to the command line.'
-                )
-            else:
-                options = options + ["--timelimit", str(rlimits[SOFTTIMELIMIT])]
-        if propertyfile:
-            if 'testcomp' in self.version(executable):
-                options = options + ["--spec", propertyfile]
-
-            else:
-                logging.warning('Propertyfile given, but tbf ignores property files'
-                        ' and always checks for calls to __VERIFIER_error()')
-
-        return super().cmdline(executable, options, tasks, propertyfile,
-                               rlimits)

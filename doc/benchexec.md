@@ -15,7 +15,7 @@ and [doc/benchmark-example-cbmc.xml](benchmark-example-cbmc.xml).
 The document type of these files should be
 
 ```XML
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.17//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.17.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.18//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.18.dtd">
 ```
 
 A document-type definition with a formal specification of input files can be found in
@@ -59,6 +59,9 @@ that will be expanded by BenchExec. The following variables are supported:
     ${inputfile_name}       Name of current input file (without path)
     ${inputfile_path}       Directory of current input file
     ${inputfile_path_abs}   Directory of current input file (absolute path)
+    ${taskdef_name}       Name of current task-definition file (without path, only if task-definition files are used)
+    ${taskdef_path}       Directory of current task-definition file (only if task-definition files are used)
+    ${taskdef_path_abs}   Directory of current task-definition file (absolute path, only if task-definition files are used)
 
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use

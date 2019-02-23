@@ -475,6 +475,9 @@ def _ProcessExitCode__bool__(self):
 ProcessExitCode.__bool__ = _ProcessExitCode__bool__
 ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
 
+def dummy_fn(*args, **kwargs):
+    """Dummy function that accepts all parameters but does nothing."""
+    pass
 
 def add_files_to_git_repository(base_dir, files, description):
     """

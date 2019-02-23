@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.17//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.17.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.18//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.18.dtd">
 <!-- Example file for benchmark definition for BenchExec
      with dummy tool that simply returns random answers.
      No resource limits are specified. -->
-<benchmark tool="dummy">
+<benchmark tool="dummy" displayName="Tool with Random Results">
 
   <!-- For dummy tool, we specify options that define the tool output. -->
   <option>true</option>

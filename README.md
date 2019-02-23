@@ -16,6 +16,7 @@
   you can now read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
   In addition to the [previous version from SPIN'15](https://www.sosy-lab.org/~dbeyer/Publications/2015-SPIN.Benchmarking_and_Resource_Measurement.pdf),
   it also describes the container mode and how to present result data.
+  We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
 - BenchExec 1.9 adds a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
   that isolates each run from the host system and from other runs
   (disabled by now, will become default in BenchExec 2.0).
@@ -71,39 +72,44 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/))
+- *New*: Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
 
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
+- [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - Peter Häring
+- [Florian Heck](https://github.com/fheck)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
-- Thomas Lemberger
-- Sebastian Ott
+- [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
+- [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
-- Stephan Lukasczyk
+- [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
+- [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all seven instances
-of the [International Competition on Software Verification](https://sv-comp.sosy-lab.org) (2012-2018)
+BenchExec was successfully used for benchmarking in all instances
+of the international competitions on [Software Verification](https://sv-comp.sosy-lab.org)
+and [Software Testing](https://test-comp.sosy-lab.org)
 with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
+It is integrated into the cluster-based logic-solving service
+[StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec)).
 
 The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [SMACK](https://github.com/smackers/smack)
-- [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec))
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

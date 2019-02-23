@@ -20,15 +20,27 @@ limitations under the License.
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
+import benchexec.model
+import os
 
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for KLEE (https://klee.github.io).
     """
+    REQUIRED_PATHS = [
+        "bin",
+        "include",
+        "klee_build",
+        "libraries"
+    ]
 
     def executable(self):
-        return util.find_executable('klee')
+        return util.find_executable('bin/klee')
 
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True)
 
     def version(self, executable):
         """
@@ -52,6 +64,21 @@ class Tool(benchexec.tools.template.BaseTool):
         line = line.split('(')[0]
         return line.strip()
 
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        if propertyfile:
+            options += ["--property-file="+propertyfile]
+        if benchexec.model.MEMLIMIT in rlimits:
+            options += ["--max-memory="+str(rlimits[benchexec.model.MEMLIMIT])]
+        if benchexec.model.TIMELIMIT in rlimits:
+            options += ["--max-time="+str(rlimits[benchexec.model.TIMELIMIT])]
+        if benchexec.model.WALLTIMELIMIT in rlimits:
+            options += ["--max-walltime="+str(rlimits[benchexec.model.WALLTIMELIMIT])]
+        if benchexec.model.SOFTTIMELIMIT in rlimits:
+            options += ["--max-cputime-soft="+str(rlimits[benchexec.model.SOFTTIMELIMIT])]
+        if benchexec.model.HARDTIMELIMIT in rlimits:
+            options += ["--max-cputime-hard="+str(rlimits[benchexec.model.HARDTIMELIMIT])]
+
+        return [executable] + options + tasks
 
     def name(self):
         return 'KLEE'
@@ -67,12 +94,18 @@ class Tool(benchexec.tools.template.BaseTool):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        for line in output.splitlines():
+        for line in output:
             if line.startswith('KLEE: ERROR: '):
                 if line.find('ASSERTION FAIL:')!=-1:
                     return result.RESULT_FALSE_REACH
+                elif line.find('memory error: out of bound pointer')!=-1:
+                    return result.RESULT_FALSE_DEREF
+                elif line.find('overflow')!=-1:
+                    return result.RESULT_FALSE_OVERFLOW
                 else:
                     return "ERROR ({0})".format(returncode)
+            if line.startswith('KLEE: done'):
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
 

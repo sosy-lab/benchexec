@@ -138,3 +138,13 @@ capset.errcheck = _check_errno
 capset.argtypes = [_ctypes.POINTER(CapHeader), _ctypes.POINTER(CapData * 2)]
 
 LINUX_CAPABILITY_VERSION_3 = 0x20080522 # /usr/include/linux/capability.h
+CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h
+
+_libc.sethostname.errcheck = _check_errno
+_libc.sethostname.argtypes = [c_char_p, c_size_t]
+
+def sethostname(name):
+    """Set the host name of the machine."""
+    # TODO: replace with socket.sethostname, which is available from Python 3.3
+    name = name.encode()
+    _libc.sethostname(name, len(name))

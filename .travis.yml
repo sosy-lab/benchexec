@@ -8,21 +8,12 @@ python:
 install:
   - pip install lxml pyyaml
   - pip install .
-  - travis_retry pip install coverage
-  - travis_retry pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
 before_script:
   - sudo ./.travis-setup.sh "$USER" "$BENCHEXEC_TEST_USER"
-  - printf 'import coverage\ncoverage.process_startup()\n' > "/home/travis/virtualenv/python${TRAVIS_PYTHON_VERSION}/lib/python${TRAVIS_PYTHON_VERSION}/sitecustomize.py"
 env:
-  - BENCHEXEC_TEST_USER=benchmarks COVERAGE_PROCESS_START=.coveragerc
+  - BENCHEXEC_TEST_USER=benchmarks
 script:
-  - coverage run setup.py test
-after_success:
-  - coverage combine
-  - coverage report
-  - coverage xml
-    # Only report test coverage to Codacy for one of the builds (with Python 3.4)
-  - if [ ! -z "$CODACY_PROJECT_TOKEN" ] && [ "$TRAVIS_PYTHON_VERSION" == "3.4" ] && [ "$TRAVIS_BRANCH" == "master" ]; then python-codacy-coverage -r coverage.xml; fi
+  - python setup.py test
 notifications:
   email:
     - benchexec-dev@googlegroups.com

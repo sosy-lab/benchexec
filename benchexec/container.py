@@ -49,10 +49,11 @@ __all__ = [
     'get_my_pid_from_proc',
     'drop_capabilities',
     'forward_all_signals',
-    'setup_container_config',
+    'setup_container_system_config',
     'CONTAINER_UID',
     'CONTAINER_GID',
     'CONTAINER_HOME',
+    'CONTAINER_HOSTNAME',
     ]
 
 
@@ -62,6 +63,7 @@ GUARD_PAGE_SIZE = 4096 # size of guard page at end of stack
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
 CONTAINER_HOME = '/home/benchexec'
+CONTAINER_HOSTNAME = 'benchexec'
 
 CONTAINER_ETC_NSSWITCH_CONF = """
 passwd: files
@@ -91,12 +93,12 @@ nogroup:x:65534:
 """.format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
 
 CONTAINER_ETC_HOSTS = """
-127.0.0.1       localhost {host} {fqdn}
+127.0.0.1       localhost {host}
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(host=socket.gethostname(), fqdn=socket.getfqdn())
+""".format(host=CONTAINER_HOSTNAME)
 
 CONTAINER_ETC_FILE_OVERRIDE = {
     b'nsswitch.conf': CONTAINER_ETC_NSSWITCH_CONF,
@@ -259,7 +261,7 @@ def mount_proc():
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
 
-def make_bind_mount(source, target, recursive=False, private=False):
+def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
     """Make a bind mount.
     @param source: the source directory as bytes
     @param target: the target directory as bytes
@@ -272,6 +274,8 @@ def make_bind_mount(source, target, recursive=False, private=False):
         flags |= libc.MS_REC
     if private:
         flags |= libc.MS_PRIVATE
+    if read_only:
+        flags |= libc.MS_RDONLY
     libc.mount(source, target, None, flags, None)
 
 def get_my_pid_from_procfs():
@@ -281,10 +285,17 @@ def get_my_pid_from_procfs():
     """
     return int(os.readlink("/proc/self"))
 
-def drop_capabilities():
-    """Drop all capabilities this process has."""
+def drop_capabilities(keep=[]):
+    """
+    Drop all capabilities this process has.
+    @param keep: list of capabilities to not drop
+    """
+    capdata = (libc.CapData * 2)()
+    for cap in keep:
+        capdata[0].effective |= (1 << cap)
+        capdata[0].permitted |= (1 << cap)
     libc.capset(ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
-                ctypes.byref((libc.CapData * 2)()))
+                ctypes.byref(capdata))
 
 
 _ALL_SIGNALS = range(1, signal.NSIG)
@@ -372,18 +383,27 @@ def close_open_fds(keep_files=[]):
                 # (the fd that was used by os.listdir() of course always fails)
                 pass
 
-def setup_container_system_config(basedir):
+def setup_container_system_config(basedir, mountdir=None):
     """Create a minimal system configuration for use in a container.
-    @param basedir: The root directory of the container as bytes.
+    @param basedir: The directory where the configuration files should be placed as bytes.
+    @param mountdir: If present, bind mounts to the configuration files will be added below
+        this path (given as bytes).
     """
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
         os.mkdir(etc)
 
     for file, content in CONTAINER_ETC_FILE_OVERRIDE.items():
+        # Create "basedir/etc/file"
         util.write_file(content, etc, file)
+        if mountdir:
+            # Create bind mount to "mountdir/etc/file"
+            make_bind_mount(
+                os.path.join(etc, file), os.path.join(mountdir, b"etc", file), private=True)
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
+    # Bind bounds for symlinks are not possible, so we do nothing for "mountdir/etc/mtab".
+    # This is not a problem usually because most systems have the correct symlink anyway.
 
 def is_container_system_config_file(file):
     """Determine whether a given file is one of the files created by setup_container_system_config().

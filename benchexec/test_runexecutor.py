@@ -74,11 +74,17 @@ class TestRunExecutor(unittest.TestCase):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
-            output_lines = os.read(output_fd, 4096).decode().splitlines()
-            return result, output_lines
+            output = os.read(output_fd, 4096).decode()
         finally:
             os.close(output_fd)
             os.remove(output_filename)
+
+        self.check_result_keys(result, 'terminationreason')
+        self.assertNotEqual(
+            result.get('terminationreason'),
+            'failed',
+            "Unexpected failure, output is \n" + output)
+        return (result, output.splitlines())
 
     def execute_run_extern(self, *args, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp('.log', 'output_', text=True)
@@ -88,7 +94,7 @@ class TestRunExecutor(unittest.TestCase):
                     stderr=DEVNULL,
                     **kwargs
                     ).decode()
-            output_lines = os.read(output_fd, 4096).decode().splitlines()
+            output = os.read(output_fd, 4096).decode()
         except subprocess.CalledProcessError as e:
             print(e.output.decode())
             raise e
@@ -97,7 +103,12 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         result={key.strip(): value.strip() for (key, _, value) in (line.partition('=') for line in runexec_output.splitlines())}
-        return result, output_lines
+        self.check_result_keys(result, 'terminationreason', 'returnvalue')
+        self.assertNotEqual(
+            result.get('terminationreason'),
+            'failed',
+            "Unexpected failure, output is \n" + output)
+        return (result, output.splitlines())
 
     def check_command_in_output(self, output, cmd):
         self.assertEqual(output[0], cmd, 'run output misses executed command')
@@ -183,7 +194,6 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -202,7 +212,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 4, delta=3, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -220,7 +229,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'walltime', 'termination reason is not "walltime"')
         self.assertAlmostEqual(result['walltime'], 4, delta=3, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        self.check_result_keys(result, 'terminationreason')
 
         self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
@@ -238,7 +246,6 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(result['terminationreason'], 'cputime', 'termination reason is not "cputime"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -257,7 +264,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'cputime-soft', 'termination reason is not "cputime-soft"')
         self.assertAlmostEqual(result['walltime'], 1.4, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 1.4, delta=0.5, msg='cputime is not approximately the time after which the process should have been killed')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -365,7 +371,6 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(result['terminationreason'], 'killed', 'termination reason is not "killed"')
         self.assertAlmostEqual(result['walltime'], 1, delta=0.5, msg='walltime is not approximately the time after which the process should have been killed')
         self.assertAlmostEqual(result['cputime'], 0.2, delta=0.2, msg='cputime of /bin/sleep is not approximately zero')
-        self.check_result_keys(result, 'terminationreason')
 
         self.check_command_in_output(output, '/bin/sleep 10')
         for line in output[1:]:
@@ -419,6 +424,16 @@ class TestRunExecutor(unittest.TestCase):
                 new_content = tmp2.read()
         self.assertIn(self.REDUCE_WARNING_MSG, new_content)
         self.assertTrue(new_content.startswith(line))
+
+    def test_append_crash_dump_info(self):
+        if not os.path.exists('/bin/sh'):
+            self.skipTest('missing /bin/sh')
+        (result, output) = self.execute_run('/bin/sh', '-c',
+            'echo "# An error report file with more information is saved as:";'
+            'echo "# $(pwd)/hs_err_pid_1234.txt";'
+            'echo TEST_TOKEN > hs_err_pid_1234.txt;'
+            'exit 2')
+        self.assertEqual(output[-1], 'TEST_TOKEN', 'log file misses content from crash dump file')
 
     def test_integration(self):
         if not os.path.exists('/bin/echo'):
@@ -573,6 +588,11 @@ class TestRunExecutorWithSudo(TestRunExecutor):
         # and append the given string.
         pass
 
+    def test_append_crash_dump_info(self):
+        # Does not work on some installations (e.g., Travis),
+        # and sudo mode is deprecated anyway.
+        pass
+
 class TestRunExecutorWithContainer(TestRunExecutor):
 
     def setUp(self, *args, **kwargs):
@@ -584,8 +604,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.runexecutor = RunExecutor(
             use_namespaces=True,
             dir_modes={"/": containerexecutor.DIR_READ_ONLY,
+                       "/home": containerexecutor.DIR_HIDDEN,
                        "/tmp": containerexecutor.DIR_HIDDEN},
-            container_system_config=False,
             *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
@@ -596,9 +616,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def test_temp_dirs_are_removed(self):
         self.skipTest("not relevant in container")
-
-    def test_home_is_writable(self):
-        self.skipTest("needs container_system_config=True and thus overlay mode")
 
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
@@ -699,13 +716,13 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_file_count_limit(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
+        self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 10000); do touch $i; done',
                                             files_count_limit=100, result_files_patterns=None)
 
         self.check_exitcode(result, 9, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'files-count', 'termination reason is not "files-count"')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
@@ -713,13 +730,13 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_file_size_limit(self):
         if not os.path.exists('/bin/sh'):
             self.skipTest('missing /bin/sh')
+        self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run('/bin/sh', '-c', 'for i in $(seq 1 100000); do echo $i >> TEST_FILE; done',
                                             files_size_limit=100, result_files_patterns=None)
 
         self.check_exitcode(result, 9, 'exit code of killed process is not 15')
         self.assertEqual(result['terminationreason'], 'files-size', 'termination reason is not "files-size"')
-        self.check_result_keys(result, 'terminationreason')
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')

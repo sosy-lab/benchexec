@@ -33,7 +33,11 @@ The features of container mode are:
 - Network access is not possible from the container,
   not even communicating with processes on the same host (configurable).
 - File-system access can be restricted,
-  and write accesses can be redirected such that they do not affect the host filesystem (configurable).
+  and write accesses are redirected such that they do not affect the host filesystem (configurable).
+  By default, file writes in the container are kept in memory (in a "RAM disk")
+  and are not written to disk and not visible outside of the container.
+  This reduces disk I/O and increases reproducibility.
+  Furthermore, data written to this RAM disk are counted towards the run's memory limit.
 - Result files produced by the tool in the container can be collected and copied
   to an output directory afterwards.
 
@@ -44,7 +48,7 @@ they are not meant as a secure solution for restricting potentially malicious ap
 
 ## System Requirements
 
-Container mode uses two kernel features:
+Container mode uses two main kernel features:
 
 - **User Namespaces**: This is typically available in Linux 3.8 or newer,
   and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
@@ -80,14 +84,15 @@ but BenchExec supports isolating the container by preventing read or write acces
 For each directory in the container one of the following four access modes can be given:
 
 - **hidden**: This host directory is hidden in the container.
-  Instead a fresh, empty, writable directory will be visible in the container in this place.
+  Instead a fresh, empty, writable, memory-backed directory (i.e., an empty RAM disk)
+  will be visible in the container in this place.
   Writes to this directory will not be visible on the host.
 - **read-only**: This directory is visible in the container, but read-only.
 - **overlay**: This directory is visible in the container and
   an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
   is layered on top of it that redirects all write accesses.
   This means that write accesses are possible in the container, but the effect of any write
-  is not visible on the host, only inside the container.
+  is not visible on the host, only inside the container, and not written to disk.
 - **full-access**: This directory is visible and writable in the container,
   and writes will be directly visible on the host.
 
@@ -110,18 +115,29 @@ and keep the default modes for `/run` and `/tmp`, simply specify `--read-only-di
 and if additionally you need certain directories to be writable,
 add `--full-access-dir ...` for them.
 
+Writes to directories in the hidden and overlay modes will be stored in a fresh RAM disk
+(a [tmpfs](https://www.kernel.org/doc/Documentation/filesystems/tmpfs.txt) instance)
+and the produced result files will be copied to an output directory after the run
+(cf. below for how to customize the latter).
+All data stored in such directories are measured as part of the memory consumption of the run
+and are counted towards the memory limit:
+The sum of the memory consumption of the process(es) of the run
+and the sum of the sizes of the existing files written by the run
+needs to be always less than the memory limit.
+If this is not desired, specify the parameter `--no-tmpfs`.
+Note, however, that this parameter has two disadvantages:
+With it, writes performed by the tool will produce actual disk I/O,
+which decreases reproducibility,
+and the tool can fill up the host's filesystem.
+Writes to directories in the full-access mode will be performed as if they were done outside of the container,
+and thus the same disadvantages apply.
+
 In general, for a good isolation of runs and reproducibility of results,
 we advise to use directory access modes that are as restrictive as possible.
 In particular, we recommend to use the full-access mode only when absolutely necessary
 (maybe on systems that do not support overlays),
 and to also hide any directories that might contain cache or configuration files
 that could unintentionally influence the run (like the home directory).
-
-Writes to directories in the hidden and overlay modes will be stored in a temporary directory
-on the host and the produced result files will be copied to an output directory after the run.
-Please see below for how to customize this.
-We do not use a RAM disk for storing these files as this would allow the executed tool
-to use an arbitrary amount of memory and circumvent the memory limit.
 
 ### Network Access
 By default, a container has no access to the network.
@@ -137,10 +153,6 @@ on the system (e.g., NIS or LDAP), and network access is disabled in the contain
 For the same reason, DNS lookups for host names are disabled.
 All of these can be re-enabled with `--keep-system-config`,
 which also lets the container use the same user list as the host.
-
-Note that this feature is only available with an overlay mount for `/etc`,
-and thus a container that uses a different access mode for this directory
-will have `--keep-system-config` set by default.
 
 
 ## Retrieving Result Files

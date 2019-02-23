@@ -44,6 +44,14 @@ PROPERTY_TAG = "propertyfile"
 
 _BYTE_FACTOR = 1000 # byte in kilobyte
 
+_ERROR_RESULTS_FOR_TERMINATION_REASON = {
+    "memory": "OUT OF MEMORY",
+    "killed": "KILLED",
+    "failed": "FAILED",
+    "files-count": "FILES-COUNT LIMIT",
+    "files-size": "FILES-SIZE LIMIT",
+    }
+
 def substitute_vars(oldList, runSet=None, sourcefile=None):
     """
     This method replaces special substrings from a list of string
@@ -75,6 +83,10 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
         keyValueList.append(('sourcefile_name', os.path.basename(sourcefile)))
         keyValueList.append(('sourcefile_path', os.path.dirname(sourcefile) or '.'))
         keyValueList.append(('sourcefile_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
+    if sourcefile and sourcefile.endswith(".yml"):
+        keyValueList.append(('taskdef_name', os.path.basename(sourcefile)))
+        keyValueList.append(('taskdef_path', os.path.dirname(sourcefile) or '.'))
+        keyValueList.append(('taskdef_path_abs', os.path.dirname(os.path.abspath(sourcefile))))
 
     # do not use keys twice
     assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
@@ -187,6 +199,7 @@ class Benchmark(object):
         # will be set from the outside if necessary (may not be the case in SaaS environments)
         self.tool_version = None
         self.executable = None
+        self.display_name = rootTag.get('displayName')
 
         logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
@@ -644,7 +657,7 @@ class RunSet(object):
                     result.ExpectedResult(expected_result, prop_dict.get("subproperty"))
 
         if not run.expected_results:
-            logging.warning(
+            logging.debug(
                 "Ignoring run '%s' because it does not have the property from %s.",
                 run.identifier, run.propertyfile)
             return None
@@ -893,22 +906,8 @@ class Run(object):
         status = None
         if isTimeout:
             status = "TIMEOUT"
-        elif termination_reason == 'memory':
-            status = 'OUT OF MEMORY'
-        else:
-            # TODO probably this is not necessary anymore
-            rlimits = self.runSet.benchmark.rlimits
-            guessed_OOM = exitcode is not None \
-                    and exitcode.signal == 9 \
-                    and MEMLIMIT in rlimits \
-                    and 'memUsage' in self.values \
-                    and not self.values['memUsage'] is None \
-                    and int(self.values['memUsage']) >= (rlimits[MEMLIMIT] * 0.99)
-            if guessed_OOM:
-                # Set status to a special marker.
-                # If we see this in the results, we know that we need to do more work to set
-                # termination_reason properly.
-                status = 'PROBABLY OUT OF MEMORY'
+        elif termination_reason:
+            status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(termination_reason, termination_reason)
 
         if not status:
             # regular termination
