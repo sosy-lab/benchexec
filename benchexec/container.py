@@ -230,11 +230,17 @@ def get_mount_points():
     where options is a list of bytes instances, and the others are bytes instances
     (this avoids encoding problems with mount points with problematic characters).
     """
+    def decode_path(path):
+        # replace tab and space escapes with actual characters
+        # (according to man 5 fstab, only these are escaped)
+        return path.replace(br"\011", b"\011").replace(br"\040", b"\040")
+
     with open("/proc/self/mounts", "rb") as mounts:
+        # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
         for mount in mounts:
             source, target, fstype, options, unused1, unused2 = mount.split(b" ")
             options = set(options.split(b","))
-            yield (source, target, fstype, options)
+            yield (decode_path(source), decode_path(target), fstype, options)
 
 def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     """Remount an existing mount point with additional flags.

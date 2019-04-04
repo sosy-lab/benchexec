@@ -601,11 +601,15 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         except OSError as e:
             self.skipTest("Namespaces not supported: {}".format(os.strerror(e.errno)))
 
+        dir_modes = kwargs.pop("dir_modes", {
+            "/": containerexecutor.DIR_READ_ONLY,
+            "/home": containerexecutor.DIR_HIDDEN,
+            "/tmp": containerexecutor.DIR_HIDDEN,
+            })
+
         self.runexecutor = RunExecutor(
             use_namespaces=True,
-            dir_modes={"/": containerexecutor.DIR_READ_ONLY,
-                       "/home": containerexecutor.DIR_HIDDEN,
-                       "/tmp": containerexecutor.DIR_HIDDEN},
+            dir_modes=dir_modes,
             *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
@@ -740,6 +744,28 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
         for line in output[1:]:
             self.assertRegex(line, '^-*$', 'unexpected text in run output')
+
+    def test_path_with_space(self):
+        temp_dir = tempfile.mkdtemp(prefix="BenchExec test")
+        try:
+            self.setUp(dir_modes={
+                "/": containerexecutor.DIR_READ_ONLY,
+                "/home": containerexecutor.DIR_HIDDEN,
+                "/tmp": containerexecutor.DIR_HIDDEN,
+                temp_dir: containerexecutor.DIR_FULL_ACCESS}
+                )  # create RunExecutor with desired parameter
+            temp_file = os.path.join(temp_dir, "TEST_FILE")
+            result, output = self.execute_run(
+                "/bin/sh", "-c", "echo TEST_TOKEN > '{}'".format(temp_file))
+            self.check_result_keys(result)
+            self.check_exitcode(result, 0, 'exit code of process is not 0')
+            self.assertTrue(
+                os.path.exists(temp_file),
+                "File '{}' not created, output was:{}\n".format(temp_file, "\n".join(output)))
+            with open(temp_file, "r") as f:
+                self.assertEqual(f.read().strip(), "TEST_TOKEN")
+        finally:
+            shutil.rmtree(temp_dir)
 
 
 class _StopRunThread(threading.Thread):
