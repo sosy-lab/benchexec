@@ -42,5 +42,5 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
         return 'MathSAT'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        assert len(tasks) == 1, "only one inputfile supported"
-        return ['/bin/bash', '-c', 'exec ' + executable + " ".join(options) + ' < ' + tasks[0]]
+        assert len(tasks) <= 1, "only one inputfile supported"
+        return [executable] + options + tasks

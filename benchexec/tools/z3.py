@@ -35,13 +35,13 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
         return util.find_executable('z3')
 
     def version(self, executable):
-        out = subprocess.Popen(self.cmdline(executable, ['-version'], []),
-                                  stderr=subprocess.PIPE).communicate()[1]
-        out = util.decode_to_string(out)
-        return out.strip()
+        line = self._version_from_tool(executable, '-version')
+        line = line.replace('Z3 version' , '')
+        line = line.split('-')[0]
+        return line.strip()
 
     def name(self):
-        return 'z3'
+        return 'Z3'
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         assert len(tasks) <= 1, "only one inputfile supported"
