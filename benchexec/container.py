@@ -231,9 +231,10 @@ def get_mount_points():
     (this avoids encoding problems with mount points with problematic characters).
     """
     def decode_path(path):
-        # replace tab and space escapes with actual characters
-        # (according to man 5 fstab, only these are escaped)
-        return path.replace(br"\011", b"\011").replace(br"\040", b"\040")
+        # Replace tab, space, newline, and backslash escapes with actual characters.
+        # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
+        # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
+        return path.replace(br"\011", b"\011").replace(br"\040", b"\040").replace(br"\012", b"\012").replace(br"\134", b"\134")
 
     with open("/proc/self/mounts", "rb") as mounts:
         # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
