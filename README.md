@@ -10,6 +10,7 @@
 
 
 **News**:
+- **User survey about usability of HTML tables**: please fill out this [form](https://forms.gle/rTfFFUFeqXUA1nRu8) until 2019-05-14 and forward it to other users of BenchExec. If you have any questions or remarks, please comment [here](https://github.com/sosy-lab/benchexec/issues/427).
 - BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
 - An extended version of our paper on BenchExec and its background gets published in [STTT](https://link.springer.com/article/10.1007/s10009-017-0469-y),
