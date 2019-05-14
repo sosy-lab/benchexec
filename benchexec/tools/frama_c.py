@@ -21,6 +21,7 @@ limitations under the License.
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import subprocess
 import benchexec.util as util
 import benchexec.tools.template
 
@@ -34,7 +35,6 @@ class Tool(benchexec.tools.template.BaseTool):
         "bin",
         "lib",
         "share",
-        "scripts",
         ]
 
     def executable(self):
