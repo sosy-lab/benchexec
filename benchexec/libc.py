@@ -140,6 +140,15 @@ capset.argtypes = [_ctypes.POINTER(CapHeader), _ctypes.POINTER(CapData * 2)]
 LINUX_CAPABILITY_VERSION_3 = 0x20080522 # /usr/include/linux/capability.h
 CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h
 
+prctl = _libc.prctl
+"""Modify options of processes: http://man7.org/linux/man-pages/man2/prctl.2.html"""
+prctl.errcheck = _check_errno
+prctl.argtypes = [c_int, c_ulong, c_ulong, c_ulong, c_ulong]
+
+PR_SET_DUMPABLE = 4 # /usr/include/linux/prctl.h
+SUID_DUMP_DISABLE = 0
+SUID_DUMP_USER = 1
+
 _libc.sethostname.errcheck = _check_errno
 _libc.sethostname.argtypes = [c_char_p, c_size_t]
 
