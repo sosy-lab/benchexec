@@ -465,14 +465,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Put all received signals on hold until we handle them later.
                 container.block_all_signals()
 
-                # Marking this process as "non-dumpable" (no core dumps) also
-                # forbids several other ways how other processes can access and influence it:
-                # ptrace is forbidden and much of /proc/<child>/ is inaccessible.
-                # We set this to prevent the benchmarked tool from messing with this process
-                # or using it to escape from the container. More info:
-                # http://man7.org/linux/man-pages/man5/proc.5.html
-                libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
-
                 # We want to avoid leaking file descriptors to the executed child.
                 # It is also nice if the child has only the minimal necessary file descriptors,
                 # to avoid keeping other pipes and files open, e.g., those that the parent
@@ -504,6 +496,15 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                             output_dir if result_files_patterns else None,
                             memlimit,
                             memory_nodes)
+
+                    # Marking this process as "non-dumpable" (no core dumps) also
+                    # forbids several other ways how other processes can access and influence it:
+                    # ptrace is forbidden and much of /proc/<child>/ is inaccessible.
+                    # We set this to prevent the benchmarked tool from messing with this process
+                    # or using it to escape from the container. More info:
+                    # http://man7.org/linux/man-pages/man5/proc.5.html
+                    # It needs to be done after MARKER_USER_MAPPING_COMPLETED.
+                    libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
                 except EnvironmentError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
