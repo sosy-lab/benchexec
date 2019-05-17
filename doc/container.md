@@ -71,7 +71,9 @@ or Ubuntu 14.04 LTS with a newer kernel from the official [LTS Enablement Stack]
 Be careful with overlays over NFS.
 Users of other distributions or older kernels need to avoid using overlay mounts.
 
-If your kernel fulfills these requirements, no further setup or permissions are necessary.
+Apart from these kernel requirements,
+it is recommended to install [LXCFS](https://github.com/lxc/lxcfs),
+e.g., with `sudo apt install lxcfs`.
 
 
 ## Container Configuration

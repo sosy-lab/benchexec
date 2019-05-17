@@ -7,18 +7,17 @@ BenchExec requires at least Python 3.2.
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
-Note that we recommend to additionally install
-[cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter)
-in order to get energy measurements on Intel CPUs.
-The package [coloredlogs](https://pypi.org/project/coloredlogs/) is another optional dependency
-(included in the instructions below) and recommended for nicer output.
+The following packages are optional but recommended dependencies:
+- [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) will let BenchExec measure energy consumption on Intel CPUs.
+- [LXCFS](https://github.com/lxc/lxcfs) provides better container isolation.
+- [coloredlogs](https://pypi.org/project/coloredlogs/) provides nicer log output.
 
 ### Debian/Ubuntu
 
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
 that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
 
-    apt install python3-tempita python3-coloredlogs
+    apt install python3-tempita python3-coloredlogs lxcfs
     dpkg -i benchexec_*.deb
 
 This package also automatically configures the necessary cgroup permissions.
@@ -49,7 +48,9 @@ to the PATH environment by adding the following line to your `~/.profile` file:
 
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
 
-Please make sure to configure cgroups as [described below](#setting-up-cgroups).
+Please make sure to configure cgroups as [described below](#setting-up-cgroups)
+and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
+[LXCFS](https://github.com/lxc/lxcfs) if desired.
 
 ### Development version
 
@@ -65,7 +66,9 @@ which needs a compiler and several development header packages.
 If you want to run benchmarks under different user account than your own,
 please check the [respective documentation](separate-user.md) for how to setup sudo.
 
-Please make sure to configure cgroups as [described below](#setting-up-cgroups).
+Please make sure to configure cgroups as [described below](#setting-up-cgroups)
+and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
+[LXCFS](https://github.com/lxc/lxcfs) if desired.
 
 
 ## Kernel Requirements

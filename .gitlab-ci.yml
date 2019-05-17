@@ -21,6 +21,8 @@ before_script:
   - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
   # Install BenchExec
   - sudo -u $PRIMARY_USER pip install --user .
+  # Start lxcfs
+  - lxcfs /var/lib/lxcfs &
 
 .unit-tests: &unit-tests
   stage: test

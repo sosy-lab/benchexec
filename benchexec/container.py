@@ -107,6 +107,7 @@ CONTAINER_ETC_FILE_OVERRIDE = {
     b'hosts': CONTAINER_ETC_HOSTS,
     }
 
+LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -262,11 +263,19 @@ def make_overlay_mount(mount, lower, upper, work):
     libc.mount(b"none", mount, b"overlay", 0,
                b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work)
 
-def mount_proc():
-    """Mount the /proc filesystem."""
+def mount_proc(container_system_config):
+    """Mount the /proc filesystem.
+    @param container_system_config: Whether to mount container-specific files in /proc"""
     # We keep a reference to the outer /proc somewhere else because we need it
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
+
+    # lxcfs provides container-aware versions of several /proc files, e.g.  /proc/uptime
+    # If lxcfs is available, bind-mount these files over the kernel-provided files.
+    if container_system_config and os.access(LXCFS_PROC_DIR, os.R_OK):
+        for f in os.listdir(LXCFS_PROC_DIR):
+            make_bind_mount(
+                os.path.join(LXCFS_PROC_DIR, f), os.path.join(b"/proc", f), private=True)
 
 def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
     """Make a bind mount.

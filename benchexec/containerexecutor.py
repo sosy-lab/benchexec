@@ -242,7 +242,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param network_access: Whether to allow processes in the contain to access the network.
         @param dir_modes: Dict that specifies which directories should be accessible and how in the container.
         @param container_system_config: Whether to use a special system configuration in the container
-            that disables all remote host and user lookups.
+            that disables all remote host and user lookups, sets a custom hostname, etc.
         """
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
@@ -441,7 +441,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # and reading /proc/self in the outer procfs instance (that's what we do).
                 my_outer_pid = container.get_my_pid_from_procfs()
 
-                container.mount_proc()
+                container.mount_proc(self._container_system_config)
                 container.drop_capabilities()
                 container.reset_signal_handling()
                 child_setup_fn() # Do some other setup the caller wants.
@@ -906,6 +906,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # for files in /etc that we want to override, like /etc/passwd
             config_mount_base = mount_base if find_mode_for_dir(b"/etc") != DIR_OVERLAY else None
             container.setup_container_system_config(temp_base, config_mount_base )
+
+            # Warn if LXCFS is not installed. The actual LXCFS setup will be done in mount_proc()
+            if not os.access(mount_base + container.LXCFS_PROC_DIR, os.R_OK):
+                logging.info(
+                    "LXCFS is not available, some host information like the uptime leaks into the container.")
 
         if output_dir:
             # We need a way to see temp_base in the container in order to be able to copy result

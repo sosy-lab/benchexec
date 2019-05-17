@@ -767,6 +767,26 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         finally:
             shutil.rmtree(temp_dir)
 
+    def test_uptime_with_lxcfs(self):
+        if not os.path.exists("/var/lib/lxcfs/proc"):
+            self.skipTest("missing lxcfs")
+        result, output = self.execute_run("cat", "/proc/uptime")
+        self.check_result_keys(result)
+        self.check_exitcode(result, 0, 'exit code for reading uptime is not zero')
+        uptime = float(output[-1].split(" ")[0])
+        self.assertLessEqual(uptime, 10, "Uptime %ss unexpectedly high in container" % uptime)
+
+    def test_uptime_without_lxcfs(self):
+        if not os.path.exists("/var/lib/lxcfs/proc"):
+            self.skipTest("missing lxcfs")
+        self.setUp(container_system_config=False)  # create RunExecutor with desired parameter
+        result, output = self.execute_run("cat", "/proc/uptime")
+        self.check_result_keys(result)
+        self.check_exitcode(result, 0, 'exit code for reading uptime is not zero')
+        uptime = float(output[-1].split(" ")[0])
+        # If uptime was less than 10s, LXCFS probably was in use
+        self.assertGreaterEqual(uptime, 10, "Uptime %ss unexpectedly low in container" % uptime)
+
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
