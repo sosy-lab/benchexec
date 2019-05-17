@@ -727,17 +727,20 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if result_mode == DIR_OVERLAY and (
                     _is_below(path, b"/dev") or
                     _is_below(path, b"/sys") or
+                    fstype == b"fuse.lxcfs" or
                     fstype == b"cgroup"):
-                # Overlay does not make sense for /dev, /sys, and all cgroups.
+                # Silently use RO for /dev, /sys, cgroups, and lxcfs because overlay makes no sense.
                 return DIR_READ_ONLY
 
-            if result_mode == DIR_OVERLAY and (
+            if result_mode == DIR_OVERLAY and fstype and (
+                    fstype.startswith(b"fuse.") or
                     fstype == b"autofs" or
                     fstype == b"vfat" or
                     fstype == b"ntfs"):
                 # Overlayfs does not support these as underlying file systems.
                 logging.debug("Cannot use overlay mode for %s because it has file system %s. "
-                              "Using read-only mode instead.",
+                              "Using read-only mode instead. "
+                              "You can override this by specifying a different directory mode.",
                               path.decode(), fstype.decode())
                 return DIR_READ_ONLY
 
@@ -828,10 +831,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     container.make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
                 except OSError as e:
+                    mp = mountpoint.decode()
                     raise OSError(e.errno,
                         "Creating overlay mount for '{}' failed: {}. "
-                        "Please use other directory modes."
-                            .format(mountpoint.decode(), os.strerror(e.errno)))
+                        "Please use other directory modes, for example '--read-only-dir {}'."
+                            .format(mp, os.strerror(e.errno), util.escape_string_shell(mp)))
 
             elif mode == DIR_HIDDEN:
                 if not os.path.exists(temp_path):

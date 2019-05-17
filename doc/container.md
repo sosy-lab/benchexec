@@ -105,6 +105,10 @@ For the overlay mode, please note the system requirements mentioned above.
 The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
 i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,
 which are replaced by empty directories.
+Furthermore, all partitions with FAT or NTFS file systems
+as well as all autofs and FUSE mount points are mounted read-only,
+because overlay does not work for these.
+
 To overwrite the default configuration,
 simply specify other directory modes for one or more of these directories.
 Note that if you specify a different directory mode for one of them,
