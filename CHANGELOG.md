@@ -1,5 +1,27 @@
 # BenchExec Changelog
 
+## BenchExec 1.19
+
+- In container mode, all temp directories are now on a `tmpfs` "RAM disk".
+  This affects everything written to directories in the hidden or overlay modes.
+  Files written there are now included in the memory measurements and the memory limit!
+  The advantage is that performance should be more deterministic,
+  especially if several runs use much I/O in parallel.
+  This feature can be disabled with `--no-tmpfs`.
+- `/dev/shm` and `/run/shm` are now available inside the container
+  and provide a `tmpfs` instance (even with `--no-tmpfs`)
+  as required by some tools for shared memory.
+- Container mode now recommends [LXCFS](https://github.com/lxc/lxcfs)
+  and automatically uses it if available for a better container isolation
+  (e.g., uptime measures container uptime, not host uptime).
+  On Debian/Ubuntu, just use `sudo apt install lxcfs`.
+- Several small bug fixes and other improvements of isolation for container mode
+  (e.g., host name in container is no longer the real host name).
+- Add `benchexec --no-hyperthreading`, which restricts core assignments
+  to a single virtual core per physical CPU core
+  (all other sibling cores will stay unused). Thanks @alohamora!
+
+
 ## BenchExec 1.18
 
 - Add result `done` that tools can output if the standard results `true`/`false`/`unknown`
