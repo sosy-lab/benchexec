@@ -164,7 +164,9 @@ class BenchExec(object):
                           help="Limit the set of cores BenchExec will use for all runs "
                                "(Applied only if the number of CPU cores is limited).",
                           metavar="N,M-K",)
-
+        parser.add_argument("--no-hyperthreading",
+                          dest="nohyperthreading", action="store_true", default=False,
+                          help="Disable assignment of more than one sibling virtual core")
         parser.add_argument("--user",
                             dest="users",
                             action="append",

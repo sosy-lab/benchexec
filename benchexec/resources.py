@@ -40,7 +40,7 @@ __all__ = [
            'get_cpu_package_for_core',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, nohyperthreading, coreSet=None):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -99,8 +99,82 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
-
+    if nohyperthreading:
+        return _get_cpu_cores_per_run_no_hyperthreading(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core)
     return _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core)
+
+def _get_cpu_cores_per_run_no_hyperthreading(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core):
+    """
+        This method does the actual work of _get_cpu_cores_per_run when
+        non hyperthreading mode is selected without reading the machine architecture
+        from the file system in order to be testable. For description, c.f. above.
+        Note that this method might change the input parameters!
+        Do not call it directly, call getCpuCoresPerRun()!
+        @param allCpus: the list of all available cores
+        @param cores_of_package: a mapping from package (CPU) ids to lists of cores that belong to this CPU
+        @param siblings_of_core: a mapping from each core to a list of sibling cores including the core itself (a sibling is a core sharing the same physical core)
+    """
+    logging.debug("Running in no-hyperthreading mode")
+    if coreLimit * num_of_threads > len(allCpus):
+        sys.exit("Cannot run {0} benchmarks in parallel with {1} CPU cores each, only {2} CPU cores available. Please reduce the number of threads to {3}.".format(num_of_threads, coreLimit, len(allCpus), len(allCpus) // coreLimit))
+    # List of non-siblings usable cores (i.e physical cores) for each package
+    disjoint_cores_of_package = []
+    all_cpus_set = set(allCpus) 
+    all_disjoint_cores = 0
+    # seperate physical cores for each package
+    for package, cores in cores_of_package.items():
+        disjoint_cores_package = []
+        siblings_cores_package = set()
+        for core in cores:
+            if core in all_cpus_set and core not in siblings_cores_package:
+                disjoint_cores_package.append(core)
+                siblings_cores_package.update(siblings_of_core[core])
+        disjoint_cores_of_package.append(disjoint_cores_package)
+        all_disjoint_cores += len(disjoint_cores_package)
+    if coreLimit*num_of_threads > all_disjoint_cores:
+        sys.exit("Cannot run {0} benchmarks in parallel with {1} physical CPU cores each, only {2} physical CPU cores available. Please reduce the number of threads to {3}.".format(num_of_threads, coreLimit, all_disjoint_cores, math.floor(all_disjoint_cores / coreLimit)))
+    
+    package_size = None # Number of cores per package
+    for cores in disjoint_cores_of_package:
+        if package_size is None:
+            package_size = len(cores)
+        elif package_size != len(cores):
+            sys.exit("Asymmetric machine architecture not supported: A CPU package has {0} cores, but other package has {1} cores.".format(len(cores), package_size))    
+    
+    package_count = len(disjoint_cores_of_package)
+    packages_per_run = int(math.ceil(coreLimit / package_size))
+    if packages_per_run > 1 and packages_per_run * num_of_threads > package_count:
+        sys.exit("Cannot split runs over multiple CPUs and at the same time assign multiple runs to the same CPU. Please reduce the number of threads to {0}.".format(package_count // packages_per_run))
+    
+    max_runs_per_package = int(math.floor(package_size / coreLimit))
+    optimal_runs_per_package = int(math.floor(num_of_threads / package_count))
+    modulo_runs = num_of_threads % package_count
+    if packages_per_run == 1 and max_runs_per_package*package_count < num_of_threads:
+        sys.exit("Cannot run {} benchmarks with {} cores on {} CPUs with {} physical cores, because runs would need to be split across multiple CPUs. Please reduce the number of threads.".format(num_of_threads, coreLimit, package_count, package_size))    
+    start = 0
+    result = []
+    run_count = 0
+    # Actual core assignment
+    for run in range(num_of_threads):
+        cores = []
+        if packages_per_run > 1:
+            #Assign cores when multiple packages are used for a single run
+            for i in range(packages_per_run):
+                cores.extend(disjoint_cores_of_package[start+i])
+            cores = cores[:coreLimit]
+            start += packages_per_run
+        else:
+            # Assign cores evenly when single package is used for multiple runs
+            cores = disjoint_cores_of_package[start][:coreLimit]
+            disjoint_cores_of_package[start] = disjoint_cores_of_package[start][coreLimit:]
+            # this calculation ensures runs are split even across packages
+            run_count += 1
+            if run_count == optimal_runs_per_package + min(modulo_runs, 1):
+                start += 1
+                modulo_runs = max(0, modulo_runs - 1)
+                run_count = 0
+        result.append(cores)
+    return result
 
 def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core):
     """This method does the actual work of _get_cpu_cores_per_run
