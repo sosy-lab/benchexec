@@ -40,12 +40,8 @@ with open('benchexec/__init__.py') as f:
 
 # Get the long description from the relevant file
 readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md')
-try:
-    import pypandoc
-    long_description = pypandoc.convert(readme, 'rst', format='markdown_github-hard_line_breaks')
-except (IOError, ImportError):
-    with open(readme, 'rb') as f:
-        long_description = f.read().decode('utf-8')
+with open(readme, 'rb') as f:
+    long_description = f.read().decode('utf-8')
 
 PY2 = sys.version_info[0] == 2
 
@@ -55,6 +51,7 @@ setuptools.setup(
     author = 'Dirk Beyer',
     description = ('A Framework for Reliable Benchmarking and Resource Measurement.'),
     long_description = long_description,
+    long_description_content_type = "text/markdown",
     url = 'https://github.com/sosy-lab/benchexec/',
     license = 'Apache 2.0 License',
     keywords = 'benchmarking resource measurement',

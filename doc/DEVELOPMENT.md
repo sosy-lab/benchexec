@@ -34,9 +34,7 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
 
 ## Releasing a new Version
 
- * Make sure to install `pandoc`, otherwise the documentation cannot be
-   converted to the correct format that PyPI needs.
-   You also need `twine`.
+ * You need `twine>=1.11.0` to be installed.
 
  * Define next version number, e.g., from `1.1-dev` to `1.1`.
    Add an according entry to `CHANGELOG.md` and commit.

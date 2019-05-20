@@ -34,12 +34,8 @@ if [ -z "$DEBEMAIL" ]; then
   echo "Please define environment variable DEBEMAIL with your name you want to use for the Debian package."
   exit 1
 fi
-if ! which pandoc > /dev/null; then
-  echo 'Please install pandoc, e.g. with "sudo apt-get install pandoc".'
-  exit 1
-fi
 if ! which twine > /dev/null; then
-  echo 'Please install twine, e.g. with "pip3 install --user twine".'
+  echo 'Please install twine>=1.11.0, e.g. with "pipx install twine" or "pip3 install --user twine".'
   exit 1
 fi
 
@@ -65,7 +61,7 @@ virtualenv -p /usr/bin/python3 --system-site-packages "$TEMP3"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
 pip install -e "."
-pip install pypandoc
+pip install 'wheel>=0.31.0' 'setuptools>=38.6.0'
 python setup.py nosetests
 python setup.py sdist bdist_egg bdist_wheel
 popd
@@ -80,7 +76,7 @@ virtualenv -p /usr/bin/python2 "$TEMP2"
 git clone "file://$DIR" "$TEMP2/benchexec"
 pushd "$TEMP2/benchexec"
 pip install -e "."
-pip install pypandoc
+pip install 'setuptools>=38.6.0'
 python setup.py test
 python setup.py bdist_egg
 popd
