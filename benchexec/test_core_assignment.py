@@ -38,12 +38,12 @@ class TestCpuCoresPerRun(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
     def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
-        result = _get_cpu_cores_per_run0(coreLimit, num_of_threads, *self.machine())
+        result = _get_cpu_cores_per_run0(coreLimit, num_of_threads, True, *self.machine())
         if expectedResult:
             self.assertEqual(expectedResult, result, "Incorrect result for {} cores and {} threads.".format(coreLimit, num_of_threads))
 
     def assertInvalid(self, coreLimit, num_of_threads):
-        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, coreLimit, num_of_threads, *self.machine())
+        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, coreLimit, num_of_threads, True, *self.machine())
 
     def machine(self):
         """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
@@ -162,7 +162,7 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
 
     def test_halfPhysicalCore(self):
         # Cannot run if we have only half of one physical core
-        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, 1, 1, [0], {0: [0,1]}, {0: [0,1]})
+        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, 1, 1, True, [0], {0: [0,1]}, {0: [0,1]})
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     cpus = 2
@@ -226,7 +226,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         """3 CPUs with one core (plus HT) and non-contiguous core and package numbers.
         This may happen on systems with administrative core restrictions,
         because the ordering of core and package numbers is not always consistent."""
-        result = _get_cpu_cores_per_run0(2, 3,
+        result = _get_cpu_cores_per_run0(2, 3, True,
             [0, 1, 2, 3, 6, 7], {0: [0, 1], 2: [2, 3], 3: [6, 7]},
             {0: [0, 1], 1: [0, 1], 2: [2, 3], 3: [2, 3], 6: [6, 7], 7: [6,7]})
         self.assertEqual([[0, 1], [2, 3], [6, 7]], result, "Incorrect result for {} cores and {} threads.".format(2, 3))
@@ -244,7 +244,7 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         Furthermore, sibling cores have numbers next to each other (occurs on AMD Opteron machines with shared L1/L2 caches)
         and are not split as far as possible from each other (as it occurs on hyper-threading machines).
         """
-        result = _get_cpu_cores_per_run0(1, 8,
+        result = _get_cpu_cores_per_run0(1, 8, True,
             [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57],
             {0: [0, 1, 8, 9], 1: [32, 33, 40, 41], 2: [48, 49, 56, 57], 3: [16, 17, 24, 25]},
             {0: [0, 1], 1: [0, 1], 48: [48, 49], 33: [32, 33], 32: [32, 33], 40: [40, 41], 9: [8, 9], 16: [16, 17], 17: [16, 17], 56: [56, 57], 57: [56, 57], 8: [8, 9], 41: [40, 41], 24: [24, 25], 25: [24, 25], 49: [48, 49]})

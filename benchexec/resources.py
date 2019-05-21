@@ -40,7 +40,7 @@ __all__ = [
            'get_cpu_package_for_core',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, use_hyperthreading, coreSet=None):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -99,18 +99,18 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, use_hyperthread
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
-    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core, use_hyperthreading)
+    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCpus, cores_of_package, siblings_of_core)
 
-def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core, use_hyperthreading):
+def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCpus, cores_of_package, siblings_of_core):
     """This method does the actual work of _get_cpu_cores_per_run
     without reading the machine architecture from the file system
     in order to be testable. For description, c.f. above.
     Note that this method might change the input parameters!
     Do not call it directly, call getCpuCoresPerRun()!
+    @param use_hyperthreading: A boolean to check if no-hyperthreading method is being used
     @param allCpus: the list of all available cores
     @param cores_of_package: a mapping from package (CPU) ids to lists of cores that belong to this CPU
     @param siblings_of_core: a mapping from each core to a list of sibling cores including the core itself (a sibling is a core sharing the same physical core)
-    @param use_hyperthreading: A boolean to check if no-hyperthreading method is being used
     """
     # First, do some checks whether this algorithm has a chance to work.
     if coreLimit > len(allCpus):
