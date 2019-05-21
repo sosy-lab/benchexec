@@ -509,7 +509,7 @@ function loadContent(url) {
     var _contentPane = $('#contentPane');
     _contentPane.html("Error while loading content (" + error + ").<br>" +
       "This could be a problem of the <a href='https://en.wikipedia.org/wiki/Same-origin_policy'>same-origin policy</a> of your browser.<br><br>");
-    if (window.location.href.search("file://") == 0) {
+    if (window.location.href.indexOf("file://") == 0) {
       _contentPane.append(
         "If you are using Google Chrome, try launching it with a flag --allow-file-access-from-files.<br>" +
         "Reading files from within ZIP archives on the local disk does not work with Google Chrome,<br>" +
@@ -535,7 +535,7 @@ function loadContent(url) {
 
     function loadFileFromZipEntries(entries) {
       for (var i = 0; i < entries.length; i++) {
-        if (entries[i].filename.search(logfile) >= 0) {
+        if (entries[i].filename.indexOf(logfile) >= 0) {
           entries[i].getData(new zip.TextWriter(), writeToContentPane);
           return;
         }
