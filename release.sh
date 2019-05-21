@@ -53,6 +53,9 @@ DIST_DIR="$DIR/dist-$VERSION"
 rm -r "$DIST_DIR" 2>/dev/null || true
 mkdir "$DIST_DIR"
 
+# This makes at least wheels reproducible: https://reproducible-builds.org/docs/source-date-epoch/
+export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
+
 
 # Test and build under Python 3
 TEMP3="$(mktemp -d)"
