@@ -119,7 +119,6 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
         sys.exit("Cannot run {0} benchmarks in parallel with {1} CPU cores each, only {2} CPU cores available. Please reduce the number of threads to {3}.".format(num_of_threads, coreLimit, len(allCpus), len(allCpus) // coreLimit))
 
     if not use_hyperthreading:
-        logging.debug("Running in no-hyperthreading mode")
         package_of_core = {}
         unused_cores = []
         for package, cores in cores_of_package.items():
@@ -135,6 +134,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
                 unused_cores.append(core)
         for core in unused_cores:
             siblings_of_core.pop(core)
+        logging.debug("Running in no-hyperthreading mode, avoiding the use of CPU cores {}".format(unused_cores))
 
     package_size = None # Number of cores per package
     for package, cores in cores_of_package.items():
