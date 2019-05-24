@@ -376,8 +376,8 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
     
     def test_dualCPU_noncontiguousID(self):
         results = _get_cpu_cores_per_run0(2, 3, False, [0, 4, 9, 15, 21, 19, 31, 12, 10, 11, 8, 23, 27, 14, 1, 20],
-        {0 : [0, 4, 9, 15, 21, 19, 31, 12], 2: [10, 11, 8, 23, 27, 14, 1, 20]}, {0:[0,4], 4:[0,4], 9:[9,15], 15:[9,15], 21:[21,19], 19:[19,21], 31:[31,12], 12:[12,31], 10:[10,11], 11:[10,11], 8:[8,23], 23:[8,23], 27:[27,14], 14:[27, 14], 1:[1, 20], 20:[1,20]})
-        self.assertEqual(results, [[0, 9], [8, 10], [21, 31]], "Incorrect result for {} cores and {} threads.".format(2, 3))
+        {0 : [0, 4, 9, 12, 15, 19, 21, 31], 2: [10, 11, 8, 23, 27, 14, 1, 20]}, {0:[0,4], 4:[0,4], 9:[9,12], 12:[9,12], 15:[15,19], 19:[15,19], 21:[21,31], 31:[21,31], 10:[10,11], 11:[10,11], 8:[8,23], 23:[8,23], 27:[27,14], 14:[27, 14], 1:[1, 20], 20:[1,20]})
+        self.assertEqual(results, [[0, 9], [8, 10], [15, 21]], "Incorrect result for {} cores and {} threads.".format(2, 3))
 
 class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
     cpus = 3
