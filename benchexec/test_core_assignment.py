@@ -23,6 +23,7 @@ import itertools
 import logging
 import sys
 import unittest
+import math
 sys.dont_write_bytecode = True # prevent creation of .pyc files
 
 from benchexec.resources import _get_cpu_cores_per_run0
@@ -37,13 +38,13 @@ class TestCpuCoresPerRun(unittest.TestCase):
         cls.longMessage = True
         logging.disable(logging.CRITICAL)
 
-    def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
-        result = _get_cpu_cores_per_run0(coreLimit, num_of_threads, True, *self.machine())
+    def assertValid(self, coreLimit, num_of_threads, with_hyperthreading, expectedResult=None):
+        result = _get_cpu_cores_per_run0(coreLimit, num_of_threads, with_hyperthreading, *self.machine())
         if expectedResult:
             self.assertEqual(expectedResult, result, "Incorrect result for {} cores and {} threads.".format(coreLimit, num_of_threads))
 
-    def assertInvalid(self, coreLimit, num_of_threads):
-        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, coreLimit, num_of_threads, True, *self.machine())
+    def assertInvalid(self, coreLimit, num_of_threads, with_hyperthreading):
+        self.assertRaises(SystemExit, _get_cpu_cores_per_run0, coreLimit, num_of_threads, with_hyperthreading, *self.machine())
 
     def machine(self):
         """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
@@ -75,9 +76,13 @@ class TestCpuCoresPerRun(unittest.TestCase):
             singleThread_assignment = list(itertools.chain(*zip(range(core_count // 2), range(core_count // 2, core_count))))
         else:
             singleThread_assignment = lrange(0, core_count)
+        if not self.use_ht and self.ht:
+            core_count = (self.cpus*self.cores) // 2
+            singleThread_assignment = lrange(0, core_count)
+
         for coreLimit in range(1, core_count + 1):
-            self.assertValid(coreLimit, 1, [sorted(singleThread_assignment[:coreLimit])])
-        self.assertInvalid(core_count + 1, 1)
+            self.assertValid(coreLimit, 1, self.use_ht, [sorted(singleThread_assignment[:coreLimit])])
+        self.assertInvalid(core_count + 1, 1, self.use_ht)
 
     # expected order in which cores are used for runs with coreLimit==1/2/3/4/8, used by the following tests
     # these fields should be filled in by subclasses to activate the corresponding tests
@@ -87,53 +92,82 @@ class TestCpuCoresPerRun(unittest.TestCase):
     threeCore_assignment = None
     fourCore_assignment = None
     eightCore_assignment = None
-
+    use_ht = True
+    
     def test_oneCorePerRun(self):
         # test all possible numOfThread values for runs with one core
         maxThreads = self.cpus * self.cores
-        self.assertInvalid(1, maxThreads + 1)
+        if not self.use_ht and self.ht:
+            maxThreads = ((self.cpus * self.cores) // 2)
+        self.assertInvalid(1, maxThreads + 1, self.use_ht)
         if not self.oneCore_assignment:
             self.skipTest("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
-            self.assertValid(1, num_of_threads, self.oneCore_assignment[:num_of_threads])
+            self.assertValid(1, num_of_threads, self.use_ht, self.oneCore_assignment[:num_of_threads])
 
     def test_twoCoresPerRun(self):
         # test all possible numOfThread values for runs with two cores
         maxThreads = self.cpus * (self.cores // 2)
-        self.assertInvalid(2, maxThreads + 1)
+        if not self.use_ht and self.ht:
+            maxThreads = (self.cpus * (self.cores // 4))
+            if maxThreads == 0:
+                # Test for runs that are split over cpus
+                cpus_per_run = int(math.ceil(2 / (self.cores // 2)))
+                maxThreads = (self.cpus // cpus_per_run)
+        self.assertInvalid(2, maxThreads + 1, self.use_ht)
         if not self.twoCore_assignment:
             self.skipTest("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
-            self.assertValid(2, num_of_threads, self.twoCore_assignment[:num_of_threads])
+            self.assertValid(2, num_of_threads, self.use_ht, self.twoCore_assignment[:num_of_threads])
 
     def test_threeCoresPerRun(self):
         # test all possible numOfThread values for runs with three cores
         maxThreads = self.cpus * (self.cores // 3)
-        self.assertInvalid(3, maxThreads + 1)
+        if not self.use_ht and self.ht:
+            maxThreads = (self.cpus * (self.cores // 6))
+            if maxThreads == 0:
+                # Test for runs that are split over cpus
+                cpus_per_run = int(math.ceil(3 / (self.cores // 2)))
+                maxThreads = (self.cpus // cpus_per_run)
+
+        self.assertInvalid(3, maxThreads + 1, self.use_ht)
         if not self.threeCore_assignment:
             self.skipTest("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
-            self.assertValid(3, num_of_threads, self.threeCore_assignment[:num_of_threads])
+            self.assertValid(3, num_of_threads, self.use_ht, self.threeCore_assignment[:num_of_threads])
 
     def test_fourCoresPerRun(self):
         # test all possible numOfThread values for runs with four cores
         maxThreads = self.cpus * (self.cores // 4)
-        self.assertInvalid(4, maxThreads + 1)
+        if not self.use_ht and self.ht:
+            maxThreads = (self.cpus * (self.cores // 8))
+            if maxThreads == 0:
+                # Test for runs that are split over cpus
+                cpus_per_run = int(math.ceil(4 / (self.cores // 2)))
+                maxThreads = self.cpus // cpus_per_run
+
+        self.assertInvalid(4, maxThreads + 1, self.use_ht)
         if not self.fourCore_assignment:
             self.skipTest("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
-            self.assertValid(4, num_of_threads, self.fourCore_assignment[:num_of_threads])
+            self.assertValid(4, num_of_threads, self.use_ht, self.fourCore_assignment[:num_of_threads])
 
     def test_eightCoresPerRun(self):
         # test all possible numOfThread values for runs with eight cores
         maxThreads = self.cpus * (self.cores // 8)
+        if not self.use_ht and self.ht:
+            maxThreads = ((self.cpus * self.cores) // 16)
+            if maxThreads == 0:
+                # Test for runs that are split over cpus
+                cpus_per_run = int(math.ceil(8 / (self.cores // 2)))
+                maxThreads = self.cpus // cpus_per_run
         if not maxThreads:
             self.skipTest("Testing for runs that need to be split across CPUs is not implemented")
-        self.assertInvalid(8, maxThreads + 1)
+        self.assertInvalid(8, maxThreads + 1, self.use_ht)
         if not self.eightCore_assignment:
             self.skipTest("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
-            self.assertValid(8, num_of_threads, self.eightCore_assignment[:num_of_threads])
+            self.assertValid(8, num_of_threads, self.use_ht, self.eightCore_assignment[:num_of_threads])
 
 
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
@@ -148,9 +182,9 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     eightCore_assignment = [list(range(8))]
 
     def test_singleCPU_invalid(self):
-        self.assertInvalid(2, 5)
-        self.assertInvalid(5, 2)
-        self.assertInvalid(3, 3)
+        self.assertInvalid(2, 5, True)
+        self.assertInvalid(5, 2, True)
+        self.assertInvalid(3, 3, True)
 
 
 class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
@@ -183,15 +217,15 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     eightCore_assignment = [[0, 1, 2, 3, 16, 17, 18, 19], [8, 9, 10, 11, 24, 25, 26, 27], [4, 5, 6, 7, 20, 21, 22, 23], [12, 13, 14, 15, 28, 29, 30, 31]]
 
     def test_dualCPU_HT(self):
-        self.assertValid(16, 2, [lrange(0, 8) + lrange(16, 24), lrange(8, 16) + lrange(24, 32)])
+        self.assertValid(16, 2, True, [lrange(0, 8) + lrange(16, 24), lrange(8, 16) + lrange(24, 32)])
 
     def test_dualCPU_HT_invalid(self):
-        self.assertInvalid(2, 17)
-        self.assertInvalid(17, 2)
-        self.assertInvalid(4, 9)
-        self.assertInvalid(9, 4)
-        self.assertInvalid(8, 5)
-        self.assertInvalid(5, 8)
+        self.assertInvalid(2, 17, True)
+        self.assertInvalid(17, 2, True)
+        self.assertInvalid(4, 9, True)
+        self.assertInvalid(9, 4, True)
+        self.assertInvalid(8, 5, True)
+        self.assertInvalid(5, 8, True)
 
 
 class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
@@ -205,7 +239,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     fourCore_assignment = [[0, 1, 2, 3], [5, 6, 7, 8], [10, 11, 12, 13]]
 
     def test_threeCPU_invalid(self):
-        self.assertInvalid(6, 2)
+        self.assertInvalid(6, 2, True)
 
 
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
@@ -220,7 +254,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     eightCore_assignment = [[0, 1, 2, 3, 15, 16, 17, 18], [5, 6, 7, 8, 20, 21, 22, 23], [10, 11, 12, 13, 25, 26, 27, 28]]
 
     def test_threeCPU_HT_invalid(self):
-        self.assertInvalid(11, 2)
+        self.assertInvalid(11, 2, True)
 
     def test_threeCPU_HT_noncontiguousId(self):
         """3 CPUs with one core (plus HT) and non-contiguous core and package numbers.
@@ -251,52 +285,142 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         self.assertEqual([[0], [32], [48], [16], [8], [40], [56], [24]], result, "Incorrect result for {} cores and {} threads.".format(1, 8))
 
     def test_quadCPU_HT(self):
-        self.assertValid(16, 4, [lrange(0, 8) + lrange(32, 40), lrange(8, 16) + lrange(40, 48), lrange(16, 24) + lrange(48, 56), lrange(24, 32) + lrange(56, 64)])
+        self.assertValid(16, 4, True, [lrange(0, 8) + lrange(32, 40), lrange(8, 16) + lrange(40, 48), lrange(16, 24) + lrange(48, 56), lrange(24, 32) + lrange(56, 64)])
 
         # Just test that no exception occurs
-        self.assertValid(1, 64)
-        self.assertValid(64, 1)
-        self.assertValid(2, 32)
-        self.assertValid(32, 2)
-        self.assertValid(3, 20)
-        self.assertValid(16, 3)
-        self.assertValid(4, 16)
-        self.assertValid(16, 4)
-        self.assertValid(5, 12)
-        self.assertValid(8, 8)
+        self.assertValid(1, 64, True)
+        self.assertValid(64, 1, True)
+        self.assertValid(2, 32, True)
+        self.assertValid(32, 2, True)
+        self.assertValid(3, 20, True)
+        self.assertValid(16, 3, True)
+        self.assertValid(4, 16, True)
+        self.assertValid(16, 4, True)
+        self.assertValid(5, 12, True)
+        self.assertValid(8, 8, True)
 
     def test_quadCPU_HT_invalid(self):
-        self.assertInvalid(2, 33)
-        self.assertInvalid(33, 2)
-        self.assertInvalid(3, 21)
-        self.assertInvalid(17, 3)
-        self.assertInvalid(4, 17)
-        self.assertInvalid(17, 4)
-        self.assertInvalid(5, 13)
-        self.assertInvalid(9, 5)
-        self.assertInvalid(6, 9)
-        self.assertInvalid(9, 6)
-        self.assertInvalid(7, 9)
-        self.assertInvalid(9, 7)
-        self.assertInvalid(8, 9)
-        self.assertInvalid(9, 8)
+        self.assertInvalid(2, 33, True)
+        self.assertInvalid(33, 2, True)
+        self.assertInvalid(3, 21, True)
+        self.assertInvalid(17, 3, True)
+        self.assertInvalid(4, 17, True)
+        self.assertInvalid(17, 4, True)
+        self.assertInvalid(5, 13, True)
+        self.assertInvalid(9, 5, True)
+        self.assertInvalid(6, 9, True)
+        self.assertInvalid(9, 6, True)
+        self.assertInvalid(7, 9, True)
+        self.assertInvalid(9, 7, True)
+        self.assertInvalid(8, 9, True)
+        self.assertInvalid(9, 8, True)
 
-        self.assertInvalid(9, 5)
-        self.assertInvalid(6, 9)
-        self.assertInvalid(10, 5)
-        self.assertInvalid(6, 10)
-        self.assertInvalid(11, 5)
-        self.assertInvalid(6, 11)
-        self.assertInvalid(12, 5)
-        self.assertInvalid(6, 12)
-        self.assertInvalid(13, 5)
-        self.assertInvalid(5, 13)
-        self.assertInvalid(14, 5)
-        self.assertInvalid(5, 14)
-        self.assertInvalid(15, 5)
-        self.assertInvalid(5, 15)
-        self.assertInvalid(16, 5)
-        self.assertInvalid(5, 16)
+        self.assertInvalid(9, 5, True)
+        self.assertInvalid(6, 9, True)
+        self.assertInvalid(10, 5, True)
+        self.assertInvalid(6, 10, True)
+        self.assertInvalid(11, 5, True)
+        self.assertInvalid(6, 11, True)
+        self.assertInvalid(12, 5, True)
+        self.assertInvalid(6, 12, True)
+        self.assertInvalid(13, 5, True)
+        self.assertInvalid(5, 13, True)
+        self.assertInvalid(14, 5, True)
+        self.assertInvalid(5, 14, True)
+        self.assertInvalid(15, 5, True)
+        self.assertInvalid(5, 15, True)
+        self.assertInvalid(16, 5, True)
+        self.assertInvalid(5, 16, True)
 
+class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
+    cpus = 1
+    cores = 8
+    ht = True
+    use_ht = False
+
+    oneCore_assignment = [[x] for x in range(0,4)]
+    twoCore_assignment = [[0, 1], [2, 3]]
+    threeCore_assignment = [[0, 1, 2]]
+    fourCore_assignment = [[0, 1, 2, 3]]
+
+    def test_singleCPU_no_ht_invalid(self):
+        self.assertInvalid(1, 5, False)
+        self.assertInvalid(2, 3, False)
+        self.assertInvalid(3, 2, False)
+        self.assertInvalid(4, 2, False)
+        self.assertInvalid(8, 1, False)
+
+class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
+    cpus = 2
+    cores = 8
+    ht = True
+    use_ht = False
+
+    oneCore_assignment = [[0], [4], [1], [5], [2], [6], [3], [7]]
+    twoCore_assignment = [[0, 1], [4, 5], [2, 3], [6, 7]]
+    threeCore_assignment = [[0, 1, 2], [4, 5, 6]]
+    fourCore_assignment = [[0, 1, 2, 3], [4, 5, 6, 7]]
+    eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7]]
+
+    def test_dualCPU_no_ht_invalid(self):
+        self.assertInvalid(1, 9, False)
+        self.assertInvalid(1, 10, False)
+        self.assertInvalid(2, 5, False)
+        self.assertInvalid(2, 6, False)
+        self.assertInvalid(3, 3, False)
+        self.assertInvalid(3, 4, False)
+        self.assertInvalid(4, 3, False)
+        self.assertInvalid(4, 4, False)
+        self.assertInvalid(8, 2, False)
+        self.assertInvalid(8, 3, False)
+    
+    def test_dualCPU_noncontiguousID(self):
+        results = _get_cpu_cores_per_run0(2, 3, False, [0, 4, 9, 15, 21, 19, 31, 12, 10, 11, 8, 23, 27, 14, 1, 20],
+        {0 : [0, 4, 9, 15, 21, 19, 31, 12], 2: [10, 11, 8, 23, 27, 14, 1, 20]}, {0:[0,4], 4:[0,4], 9:[9,15], 15:[9,15], 21:[21,19], 19:[19,21], 31:[31,12], 12:[12,31], 10:[10,11], 11:[10,11], 8:[8,23], 23:[8,23], 27:[27,14], 14:[27, 14], 1:[1, 20], 20:[1,20]})
+        self.assertEqual(results, [[0, 9], [8, 10], [21, 31]], "Incorrect result for {} cores and {} threads.".format(2, 3))
+
+class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
+    cpus = 3
+    cores = 6
+    ht = True
+    use_ht = False
+
+    oneCore_assignment = [[x] for x in [0, 3, 6, 1, 4, 7, 2, 5, 8]]
+    twoCore_assignment = [[0, 1], [3, 4], [6, 7]]
+    threeCore_assignment = [[0,1,2], [3,4,5], [6,7,8]]
+    fourCore_assignment = [[0,1,2,3]]
+    eightCore_assignment = [[0,1,2,3,4,5,6,7]]
+
+    def test_threeCPU_no_ht_invalid(self):
+        self.assertInvalid(1, 10, False)
+        self.assertInvalid(2, 4, False)
+        self.assertInvalid(3, 4, False)
+        self.assertInvalid(4, 2, False)
+        self.assertInvalid(8, 2, False)
+        
+class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
+    cpus = 4
+    cores = 8
+    ht = True
+    use_ht = False
+
+    oneCore_assignment = [[x] for x in [0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15]]
+    twoCore_assignment = [[0, 1], [4, 5], [8, 9], [12, 13], [2, 3], [6, 7], [10, 11], [14, 15]]
+    threeCore_assignment = [[0, 1, 2], [4, 5, 6], [8, 9, 10], [12, 13, 14]]
+    fourCore_assignment = [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]
+    eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]
+
+    def test_quadCPU_no_ht_invalid(self):
+        self.assertInvalid(1, 17, False)
+        self.assertInvalid(2, 9, False)
+        self.assertInvalid(3, 5, False)
+        self.assertInvalid(4, 5, False)
+        self.assertInvalid(8, 3, False)
+
+    def test_quadCPU_no_ht_valid(self):
+        self.assertValid(5, 2, False, [[0,1,2,3,4], [8,9,10,11,12]])
+        self.assertInvalid(5, 3, False)
+        self.assertValid(6, 2, False, [[0,1,2,3,4,5], [8,9,10,11,12,13]])
+        self.assertInvalid(6, 3, False)
 # prevent execution of base class as its own test
 del(TestCpuCoresPerRun)
