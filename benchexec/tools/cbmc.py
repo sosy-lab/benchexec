@@ -80,6 +80,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     msg = messages[0].findtext('text')
                     if msg == 'Out of memory':
                         status = 'OUT OF MEMORY'
+                    elif msg == 'SAT checker ran out of memory':
+                        status = 'OUT OF MEMORY'
                     elif msg:
                         status = 'ERROR ({0})'.format(msg)
                     else:
@@ -150,6 +152,9 @@ class Tool(benchexec.tools.template.BaseTool):
             status = 'INVALID ARGUMENTS'
 
         elif returncode == 6 and 'Out of memory\n' in output:
+            status = 'OUT OF MEMORY'
+
+        elif returncode == 6 and 'SAT checker ran out of memory\n' in output:
             status = 'OUT OF MEMORY'
 
         else:
