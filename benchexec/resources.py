@@ -40,7 +40,7 @@ __all__ = [
            'get_cpu_package_for_core',
            ]
 
-def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
+def get_cpu_cores_per_run(coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None):
     """
     Calculate an assignment of the available CPU cores to a number
     of parallel benchmark executions such that each run gets its own cores
@@ -99,15 +99,15 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, my_cgroups, coreSet=None):
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
         sys.exit("Could not read CPU information from kernel: {0}".format(e))
+    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCpus, cores_of_package, siblings_of_core)
 
-    return _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core)
-
-def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package, siblings_of_core):
+def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCpus, cores_of_package, siblings_of_core):
     """This method does the actual work of _get_cpu_cores_per_run
     without reading the machine architecture from the file system
     in order to be testable. For description, c.f. above.
     Note that this method might change the input parameters!
     Do not call it directly, call getCpuCoresPerRun()!
+    @param use_hyperthreading: A boolean to check if no-hyperthreading method is being used
     @param allCpus: the list of all available cores
     @param cores_of_package: a mapping from package (CPU) ids to lists of cores that belong to this CPU
     @param siblings_of_core: a mapping from each core to a list of sibling cores including the core itself (a sibling is a core sharing the same physical core)
@@ -117,6 +117,24 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, allCpus, cores_of_package
         sys.exit("Cannot run benchmarks with {0} CPU cores, only {1} CPU cores available.".format(coreLimit, len(allCpus)))
     if coreLimit * num_of_threads > len(allCpus):
         sys.exit("Cannot run {0} benchmarks in parallel with {1} CPU cores each, only {2} CPU cores available. Please reduce the number of threads to {3}.".format(num_of_threads, coreLimit, len(allCpus), len(allCpus) // coreLimit))
+
+    if not use_hyperthreading:
+        package_of_core = {}
+        unused_cores = []
+        for package, cores in cores_of_package.items():
+            for core in cores:
+                package_of_core[core] = package
+        for core, siblings in siblings_of_core.items():
+            if core in allCpus:
+                siblings.remove(core)
+                cores_of_package[package_of_core[core]] = [c for c in cores_of_package[package_of_core[core]] if c not in siblings]
+                siblings_of_core[core] = [core]
+                allCpus = [c for c in allCpus if c not in siblings]
+            else:
+                unused_cores.append(core)
+        for core in unused_cores:
+            siblings_of_core.pop(core)
+        logging.debug("Running in no-hyperthreading mode, avoiding the use of CPU cores {}".format(unused_cores))
 
     package_size = None # Number of cores per package
     for package, cores in cores_of_package.items():
