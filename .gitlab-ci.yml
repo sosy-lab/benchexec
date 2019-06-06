@@ -87,3 +87,22 @@ deploy-coverage:
     variables:
       - $CODACY_PROJECT_TOKEN # required for job
       - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
+
+
+# Static checks
+check-format:
+  stage: test
+  image: python:3.7
+  before_script:
+    - pip install black
+  script:
+    - black . --check --diff
+
+flake8:
+  stage: test
+  image: python:3.7
+  before_script:
+    - pip install flake8-awesome
+  script:
+    - flake8
+  allow_failure: true # need to fix existing code first

@@ -1,0 +1,21 @@
+[flake8]
+max-line-length = 88
+ignore =
+    # do not match Black output
+    E203,W503,
+    # we have no isort config
+    I002,
+    # "... if .. else ..." is fine
+    IF100,
+    # using a result variable instead of early return allows later addition of logic
+    R504,
+    # only relevant if pytest is used
+    T003
+per-file-ignores =
+    # wildcard imports significantly shorten test code
+    benchexec/test*.py:F405
+exclude =
+    # code copied by build system
+    build,
+    # Created locally by IDE plugins
+    .ropeproject,
