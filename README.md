@@ -78,6 +78,7 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
+- [Aditya Arora](https://github.com/alohamora)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
