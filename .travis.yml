@@ -1,17 +1,13 @@
 language: python
 sudo: required
-dist: trusty
+dist: xenial
 python:
   - "2.7"
-  - "3.2"
-  - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
+  - "3.7"
 install:
-    # Workaround: use lxml 4.0.0 because 4.1.0 fails on Python 3.2
-  - pip install lxml==4.0.0
-    # Workaround: use pyyaml 3.12 because 3.13 fails on Python 3.2
-  - pip install pyyaml==3.12
   - pip install .
 before_script:
   - sudo ./.travis-setup.sh "$USER" "$BENCHEXEC_TEST_USER"
