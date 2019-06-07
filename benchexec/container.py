@@ -41,6 +41,7 @@ __all__ = [
     "execute_in_namespace",
     "setup_user_mapping",
     "activate_network_interface",
+    "duplicate_mount_hierarchy",
     "determine_directory_mode",
     "get_mount_points",
     "remount_with_additional_flags",
@@ -256,6 +257,157 @@ def activate_network_interface(iface):
         fcntl.ioctl(sock, SIOCSIFFLAGS, ifreq)
     finally:
         sock.close()
+
+
+def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
+    """
+    Setup a copy of the system's mount hierarchy below a specified directory,
+    and apply all specified directory modes (e.g., read-only access or hidden)
+    in that new hierarchy.
+    Afterwards, the new mount hierarchy can be chroot'ed into.
+    @param mount_base: the base directory of the new mount hierarchy
+    @param temp_base: the base directory for all temporary files
+    @param work_base: the base directory for all overlayfs work files
+    @param dir_modes: the directory modes to apply (without mount_base prefix)
+    """
+    # Create a copy of all mountpoints.
+    # Setting MS_PRIVATE flag discouples the new mounts from the original mounts,
+    # i.e., mounts we do are not seen outside the mount namespace,
+    # and any (un)mounts that are made later in the main system are not seen by us.
+    # The latter is desired such that new mounts (e.g., USB sticks being plugged in)
+    # do not appear in the container.
+    # Blocking host-side unmounts from being propagated has the disadvantage
+    # that any unmounts done by the sysadmin won't really unmount the device
+    # because it stays mounted in the container and thus keep the device busy
+    # (cf. https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=739593#85).
+    # We could allow unmounts being propated with MS_SLAVE instead of MS_PRIVATE,
+    # but we prefer to have the mount namespace of the container being
+    # unchanged during run execution.
+    make_bind_mount(b"/", mount_base, recursive=True, private=True)
+
+    # Ensure each special dir is a mountpoint such that the next loop covers it.
+    for special_dir in dir_modes.keys():
+        mount_path = mount_base + special_dir
+        temp_path = temp_base + special_dir
+        try:
+            make_bind_mount(mount_path, mount_path)
+        except OSError as e:
+            # on btrfs, non-recursive bind mounts fail
+            if e.errno == errno.EINVAL:
+                try:
+                    make_bind_mount(mount_path, mount_path, recursive=True)
+                except OSError as e2:
+                    logging.debug(
+                        "Failed to make %s a (recursive) bind mount: %s", mount_path, e2
+                    )
+            else:
+                logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
+        if not os.path.exists(temp_path):
+            os.makedirs(temp_path)
+
+    for unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+        if not util.path_is_below(full_mountpoint, mount_base):
+            continue
+        mountpoint = full_mountpoint[len(mount_base) :] or b"/"
+        mode = determine_directory_mode(dir_modes, mountpoint, fstype)
+        if not mode:
+            continue
+
+        if not os.access(os.path.dirname(mountpoint), os.X_OK):
+            # If parent is not accessible we cannot mount something on mountpoint.
+            # We mark the inaccessible directory as hidden
+            # because otherwise the mountpoint could become accessible (directly!)
+            # if the permissions on the parent are relaxed during container execution.
+            original_mountpoint = mountpoint
+            parent = os.path.dirname(mountpoint)
+            while not os.access(parent, os.X_OK):
+                mountpoint = parent
+                parent = os.path.dirname(mountpoint)
+            mode = DIR_HIDDEN
+            logging.debug(
+                "Marking inaccessible directory '%s' as hidden "
+                "because it contains a mountpoint at '%s'",
+                mountpoint.decode(),
+                original_mountpoint.decode(),
+            )
+        else:
+            logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
+
+        mount_path = mount_base + mountpoint
+        temp_path = temp_base + mountpoint
+        work_path = work_base + mountpoint
+
+        if mode == DIR_OVERLAY:
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
+            if not os.path.exists(work_path):
+                os.makedirs(work_path)
+            try:
+                # Previous mount in this place not needed if replaced with overlay dir.
+                libc.umount(mount_path)
+            except OSError as e:
+                logging.debug(e)
+            try:
+                make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+            except OSError as e:
+                mp = mountpoint.decode()
+                raise OSError(
+                    e.errno,
+                    "Creating overlay mount for '{}' failed: {}. Please use "
+                    "other directory modes, for example '--read-only-dir {}'.".format(
+                        mp, os.strerror(e.errno), util.escape_string_shell(mp)
+                    ),
+                )
+
+        elif mode == DIR_HIDDEN:
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
+            try:
+                # Previous mount in this place not needed if replaced with hidden dir.
+                libc.umount(mount_path)
+            except OSError as e:
+                logging.debug(e)
+            make_bind_mount(temp_path, mount_path)
+
+        elif mode == DIR_READ_ONLY:
+            try:
+                remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+            except OSError as e:
+                if e.errno == errno.EACCES:
+                    logging.warning(
+                        "Cannot mount '%s', directory may be missing from container.",
+                        mountpoint.decode(),
+                    )
+                else:
+                    # If this mountpoint is below an overlay/hidden dir,
+                    # re-create mountpoint.
+                    # Linux does not support making read-only bind mounts in one step:
+                    # https://lwn.net/Articles/281157/
+                    # http://man7.org/linux/man-pages/man8/mount.8.html
+                    make_bind_mount(
+                        mountpoint, mount_path, recursive=True, private=True
+                    )
+                    remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+
+        elif mode == DIR_FULL_ACCESS:
+            try:
+                # Ensure directory is still a mountpoint by attempting to remount.
+                remount_with_additional_flags(mount_path, options, 0)
+            except OSError as e:
+                if e.errno == errno.EACCES:
+                    logging.warning(
+                        "Cannot mount '%s', directory may be missing from container.",
+                        mountpoint.decode(),
+                    )
+                else:
+                    # If this mountpoint is below an overlay/hidden dir,
+                    # re-create mountpoint.
+                    make_bind_mount(
+                        mountpoint, mount_path, recursive=True, private=True
+                    )
+
+        else:
+            assert False
 
 
 def determine_directory_mode(dir_modes, path, fstype=None):
