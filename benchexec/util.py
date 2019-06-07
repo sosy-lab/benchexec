@@ -42,7 +42,7 @@ from xml.etree import ElementTree
 try:
     from shlex import quote as escape_string_shell
 except ImportError:
-    from pipes import quote as escape_string_shell  # @UnusedImport for export
+    from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 try:
@@ -635,7 +635,7 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code, traceback, readline, threading  # @UnresolvedImport @UnusedImport
+    import code, traceback, readline, threading  # noqa: F401 @UnresolvedImport @UnusedImport
 
     d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global

@@ -20,7 +20,6 @@ limitations under the License.
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
-import os
 
 
 class Tool(benchexec.tools.template.BaseTool):

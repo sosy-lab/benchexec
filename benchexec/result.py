@@ -22,7 +22,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 import functools
 import os
-import sys
 from benchexec import BenchExecException
 
 # CONSTANTS

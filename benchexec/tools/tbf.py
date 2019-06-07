@@ -21,7 +21,6 @@ import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 import logging
-import os
 
 from benchexec.model import SOFTTIMELIMIT
 

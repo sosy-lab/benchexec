@@ -20,13 +20,9 @@ limitations under the License.
 
 This file contains tool support for DIVINE (divine.fi.muni.cz)
 """
-
-import logging
-
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
-import subprocess
 
 import os
 

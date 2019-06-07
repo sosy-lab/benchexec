@@ -31,7 +31,6 @@ from benchexec.result import *  # @UnusedWildImport
 from benchexec.result import (
     _PROP_CALL,
     _PROP_LABEL,
-    _PROP_ASSERT,
     _PROP_AUTOMATON,
     _PROP_DEREF,
     _PROP_FREE,

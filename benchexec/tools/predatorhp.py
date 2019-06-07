@@ -22,10 +22,6 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-import subprocess
-import os
-import sys
-
 
 class Tool(benchexec.tools.template.BaseTool):
     """
