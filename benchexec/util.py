@@ -355,6 +355,18 @@ def relative_path(destination, start):
     return os.path.relpath(destination, os.path.dirname(start))
 
 
+def path_is_below(path, target_path):
+    """
+    Check whether path is below target_path.
+    Works for bytes and strings, but both arguments need to have same type.
+    """
+    # compare with trailing slashes for cases like /foo and /foobar
+    empty_path = path[:0]  # empty string, but works for bytes and strings
+    path = os.path.join(path, empty_path)
+    target_path = os.path.join(target_path, empty_path)
+    return path.startswith(target_path)
+
+
 def log_rmtree_error(func, arg, exc_info):
     """Suited as onerror handler for (sh)util.rmtree() that logs a warning."""
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])

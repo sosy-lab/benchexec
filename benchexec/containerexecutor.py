@@ -899,32 +899,26 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         os.mkdir(mount_base)
         os.mkdir(temp_base)
 
-        def _is_below(path, target_path):
-            # compare with trailing slashes for cases like /foo and /foobar
-            path = os.path.join(path, b"")
-            target_path = os.path.join(target_path, b"")
-            return path.startswith(target_path)
-
         def find_mode_for_dir(path, fstype=None):
             if path == b"/proc":
                 # /proc is necessary for the grandchild to read PID, will be replaced later.
                 return DIR_READ_ONLY
-            if _is_below(path, b"/proc"):
+            if util.path_is_below(path, b"/proc"):
                 # Irrelevant.
                 return None
 
             parent_mode = None
             result_mode = None
             for special_dir, mode in self._dir_modes.items():
-                if _is_below(path, special_dir):
+                if util.path_is_below(path, special_dir):
                     if path != special_dir:
                         parent_mode = mode
                     result_mode = mode
             assert result_mode is not None
 
             if result_mode == DIR_OVERLAY and (
-                _is_below(path, b"/dev")
-                or _is_below(path, b"/sys")
+                util.path_is_below(path, b"/dev")
+                or util.path_is_below(path, b"/sys")
                 or fstype == b"fuse.lxcfs"
                 or fstype == b"cgroup"
             ):
@@ -1004,7 +998,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         for unused_source, full_mountpoint, fstype, options in list(
             container.get_mount_points()
         ):
-            if not _is_below(full_mountpoint, mount_base):
+            if not util.path_is_below(full_mountpoint, mount_base):
                 continue
             mountpoint = full_mountpoint[len(mount_base) :] or b"/"
             mode = find_mode_for_dir(mountpoint, fstype)
