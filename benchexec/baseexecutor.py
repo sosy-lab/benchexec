@@ -62,7 +62,8 @@ class BaseExecutor(object):
 
     def __init__(self):
         self.PROCESS_KILLED = False
-        self.SUB_PROCESS_PIDS_LOCK = threading.Lock() # needed, because we kill the process asynchronous
+        # killing process is triggered asynchronously, need a lock for synchronization
+        self.SUB_PROCESS_PIDS_LOCK = threading.Lock()
         self.SUB_PROCESS_PIDS = set()
 
     def _kill_process(self, pid, sig=signal.SIGKILL):
@@ -70,7 +71,8 @@ class BaseExecutor(object):
         try:
             os.kill(pid, sig)
         except OSError as e:
-            if e.errno == errno.ESRCH: # process itself returned and exited before killing
+            if e.errno == errno.ESRCH:
+                # process itself returned and exited before killing
                 logging.debug("Failure %s while killing process %s with signal %s: %s",
                               e.errno, pid, sig, e.strerror)
             else:

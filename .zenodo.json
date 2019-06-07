@@ -1,0 +1,16 @@
+{
+    "access_right": "open",
+    "license": "Apache-2.0",
+    "creators": [
+        {
+            "name": "Philipp Wendler",
+            "affiliation": "@sosy-lab, LMU Munich",
+            "orcid": "0000-0002-5139-341X"
+        },
+        {
+            "name": "Dirk Beyer",
+            "affiliation": "@sosy-lab, LMU Munich",
+            "orcid": "0000-0003-4832-7662"
+        }
+    ]
+}

@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-OLD_VERSION="$(grep __version__ benchexec/__init__.py | sed -e "s/^.*'\(.*\)'.*$/\1/")"
+OLD_VERSION="$(grep __version__ benchexec/__init__.py | sed -e 's/^.*"\(.*\)".*$/\1/')"
 VERSION="$1"
 if [ $(expr match "$VERSION" ".*dev") -gt 0 ]; then
   echo "Cannot release development version."
@@ -40,7 +40,7 @@ if ! which twine > /dev/null; then
 fi
 
 # Prepare files with new version number
-sed -e "s/^__version__ = .*/__version__ = '$VERSION'/" -i benchexec/__init__.py
+sed -e "s/^__version__ = .*/__version__ = \"$VERSION\"/" -i benchexec/__init__.py
 dch -v "$VERSION-1" "New upstream version."
 dch -r ""
 

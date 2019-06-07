@@ -102,8 +102,9 @@ class KillProcessOnOomThread(threading.Thread):
         # but should not hurt anyway.)
         close = os.close
         try:
-            # In an eventfd, there are always 8 bytes
-            _ = os.read(self._efd, 8) # blocks and returns event number (we do not need it)
+            # In an eventfd, there are always 8 bytes for the event number.
+            # We just do a blocking read to wait for the event.
+            _ = os.read(self._efd, 8)
             # If read returned, this means the kernel sent us an event.
             # It does so either on OOM or if the cgroup is removed.
             if not self._finished.is_set():

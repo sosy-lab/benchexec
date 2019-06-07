@@ -175,7 +175,8 @@ def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
     """
     proc_child = os.path.join("/proc", str(pid))
     try:
-        uid_map = "{0} {1} 1".format(uid, os.getuid()) # map uid internally to our uid externally
+        # map uid internally to our uid externally
+        uid_map = "{0} {1} 1".format(uid, os.getuid())
         util.write_file(uid_map, proc_child, "uid_map")
     except IOError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
@@ -189,7 +190,8 @@ def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
             logging.warning("Could not write to setgroups file in /proc: %s", e)
 
     try:
-        gid_map = "{0} {1} 1".format(gid, os.getgid()) # map gid internally to our gid externally
+        # map gid internally to our gid externally
+        gid_map = "{0} {1} 1".format(gid, os.getgid())
         util.write_file(gid_map, proc_child, "gid_map")
     except IOError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
@@ -208,8 +210,10 @@ def activate_network_interface(iface):
     # This struct is complex with a big contained union, we define here only the few necessary
     # fields for the two cases we need.
     # The layout is given in the format used by the struct module:
-    STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s" # ifr_name, ifr_addr.sa_family, padding
-    STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s" # ifr_name, ifr_flags, padding
+    # ifr_name, ifr_addr.sa_family, padding
+    STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s"
+    # ifr_name, ifr_flags, padding
+    STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s"
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_IP)
     try:

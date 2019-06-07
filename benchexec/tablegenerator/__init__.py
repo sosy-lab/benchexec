@@ -169,7 +169,8 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
     if not 'filename' in result_tag.attrib:
         logging.warning("Result tag without filename attribute in file '%s'.", table_definition_file)
         return []
-    return Util.get_file_list(os.path.join(os.path.dirname(table_definition_file), result_tag.get('filename'))) # expand wildcards
+    # expand wildcards
+    return Util.get_file_list(os.path.join(os.path.dirname(table_definition_file), result_tag.get('filename')))
 
 
 def load_results_with_table_definition(result_files, table_definition, table_definition_file, options):
@@ -293,7 +294,8 @@ class RunSetResult(object):
                  columns_relevant_for_diff=set()):
         self._xml_results = xml_results
         self.attributes = attributes
-        self.columns = copy.deepcopy(columns)  # Copy the columns since they may be modified
+        # Copy the columns since they may be modified
+        self.columns = copy.deepcopy(columns)
         self.summary = summary
         self.columns_relevant_for_diff = columns_relevant_for_diff
 
@@ -1220,7 +1222,8 @@ def get_stats_of_number_column(values, categoryList, columnTitle, correct_only):
     try:
         valueList = [Util.to_decimal(v) for v in values]
     except InvalidOperation as e:
-        if columnTitle != "host" and not columnTitle.endswith('status'): # We ignore values of columns 'host' and 'status'.
+        if columnTitle != "host" and not columnTitle.endswith('status'):
+            # We ignore values of columns 'host' and 'status'.
             logging.warning("%s. Statistics may be wrong.", e)
         return (StatValue(0), StatValue(0), StatValue(0), StatValue(0),\
                               StatValue(0), StatValue(0), StatValue(0),\
@@ -1336,8 +1339,9 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
     '''
 
     # get common folder of sourcefiles
-    common_prefix = os.path.commonprefix([r.filename for r in rows]) # maybe with parts of filename
-    common_prefix = common_prefix[: common_prefix.rfind('/') + 1] # only foldername
+    # os.path.commonprefix can return a partial path component (does not truncate on /)
+    common_prefix = os.path.commonprefix([r.filename for r in rows])
+    common_prefix = common_prefix[: common_prefix.rfind('/') + 1]
     for row in rows:
         Row.set_relative_path(row, common_prefix, outputPath)
 
@@ -1352,7 +1356,8 @@ def create_tables(name, runSetResults, rows, rowsDiff, outputPath, outputFilePat
         else:
             r.attributes['niceName'] = [Util.prettylist(r.attributes['benchmarkname']) + '.' + Util.prettylist(r.attributes['name'])]
 
-    template_values = lambda: None # dummy object as dict replacement for simpler syntax
+    # dummy object as dict replacement for simpler syntax
+    template_values = lambda: None
     template_values.head = get_table_head(runSetResults, common_prefix)
     template_values.run_sets = [runSetResult.attributes for runSetResult in runSetResults]
     template_values.columns = [[column for column in runSet.columns] for runSet in runSetResults]

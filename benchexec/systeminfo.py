@@ -73,7 +73,8 @@ class SystemInfo(object):
                                .replace("(TM)", "") \
                                .replace("(tm)", "")
         if 'cpu MHz' in cpuInfo:
-            self.cpu_max_frequency = int(float(cpuInfo['cpu MHz'])) * 1000 * 1000 # convert to Hz
+            # convert to Hz
+            self.cpu_max_frequency = int(float(cpuInfo['cpu MHz'])) * 1000 * 1000
 
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above

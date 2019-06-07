@@ -75,7 +75,8 @@ class FileHierarchyLimitThread(threading.Thread):
             for current_dir, dirs, files in os.walk(self._path):
                 for file in files:
                     abs_file = os.path.join(current_dir, file)
-                    file = '/' + os.path.relpath(file, self._path) # as visible for tool
+                    file = '/' + os.path.relpath(file, self._path)
+                    # file has now the path as visible for tool
                     if (not container.is_container_system_config_file(file) and
                             os.path.isfile(abs_file) and not os.path.islink(abs_file)):
                         files_count += 1

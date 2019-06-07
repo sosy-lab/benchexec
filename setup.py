@@ -36,7 +36,7 @@ warnings.filterwarnings('default', module="^benchexec\..*")
 # determine version (more robust than importing benchexec)
 # c.f. http://gehrcke.de/2014/02/distributing-a-python-command-line-application/
 with open('benchexec/__init__.py') as f:
-    version = re.search(r"^__version__\s*=\s*'(.*)'", f.read(), re.M).group(1)
+    version = re.search(r'^__version__\s*=\s*"(.*)"', f.read(), re.M).group(1)
 
 # Get the long description from the relevant file
 readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md')
