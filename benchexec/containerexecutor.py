@@ -46,12 +46,13 @@ from benchexec.cgroups import Cgroup
 from benchexec import container
 from benchexec import libc
 from benchexec import util
-
-DIR_HIDDEN = "hidden"
-DIR_READ_ONLY = "read-only"
-DIR_OVERLAY = "overlay"
-DIR_FULL_ACCESS = "full-access"
-DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
+from benchexec.container import (
+    DIR_MODES,
+    DIR_HIDDEN,
+    DIR_READ_ONLY,
+    DIR_OVERLAY,
+    DIR_FULL_ACCESS,
+)
 
 _HAS_SIGWAIT = hasattr(signal, "sigwait")
 
@@ -899,57 +900,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         os.mkdir(mount_base)
         os.mkdir(temp_base)
 
-        def find_mode_for_dir(path, fstype=None):
-            if path == b"/proc":
-                # /proc is necessary for the grandchild to read PID, will be replaced later.
-                return DIR_READ_ONLY
-            if util.path_is_below(path, b"/proc"):
-                # Irrelevant.
-                return None
-
-            parent_mode = None
-            result_mode = None
-            for special_dir, mode in self._dir_modes.items():
-                if util.path_is_below(path, special_dir):
-                    if path != special_dir:
-                        parent_mode = mode
-                    result_mode = mode
-            assert result_mode is not None
-
-            if result_mode == DIR_OVERLAY and (
-                util.path_is_below(path, b"/dev")
-                or util.path_is_below(path, b"/sys")
-                or fstype == b"fuse.lxcfs"
-                or fstype == b"cgroup"
-            ):
-                # Silently use RO for /dev, /sys, cgroups, and lxcfs because overlay makes no sense.
-                return DIR_READ_ONLY
-
-            if (
-                result_mode == DIR_OVERLAY
-                and fstype
-                and (
-                    fstype.startswith(b"fuse.")
-                    or fstype == b"autofs"
-                    or fstype == b"vfat"
-                    or fstype == b"ntfs"
-                )
-            ):
-                # Overlayfs does not support these as underlying file systems.
-                logging.debug(
-                    "Cannot use overlay mode for %s because it has file system %s. "
-                    "Using read-only mode instead. "
-                    "You can override this by specifying a different directory mode.",
-                    path.decode(),
-                    fstype.decode(),
-                )
-                return DIR_READ_ONLY
-
-            if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
-                # No need to recursively recreate mountpoints in hidden dirs.
-                return None
-            return result_mode
-
         # Overlayfs needs its own additional temporary directory ("work" directory).
         # temp_base will be the "upper" layer, the host FS the "lower" layer,
         # and mount_base the mount target.
@@ -1001,7 +951,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if not util.path_is_below(full_mountpoint, mount_base):
                 continue
             mountpoint = full_mountpoint[len(mount_base) :] or b"/"
-            mode = find_mode_for_dir(mountpoint, fstype)
+            mode = container.determine_directory_mode(
+                self._dir_modes, mountpoint, fstype
+            )
             if not mode:
                 continue
 
@@ -1128,9 +1080,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if self._container_system_config:
             # If overlayfs is not used for /etc, we need additional bind mounts
             # for files in /etc that we want to override, like /etc/passwd
-            config_mount_base = (
-                mount_base if find_mode_for_dir(b"/etc") != DIR_OVERLAY else None
-            )
+            config_mount_base = None
+            if (
+                container.determine_directory_mode(self._dir_modes, b"/etc")
+                != DIR_OVERLAY
+            ):
+                config_mount_base = mount_base
             container.setup_container_system_config(temp_base, config_mount_base)
 
             # Warn if LXCFS is not installed. The actual LXCFS setup will be done in mount_proc()

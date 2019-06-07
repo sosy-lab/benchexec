@@ -41,6 +41,7 @@ __all__ = [
     "execute_in_namespace",
     "setup_user_mapping",
     "activate_network_interface",
+    "determine_directory_mode",
     "get_mount_points",
     "remount_with_additional_flags",
     "make_overlay_mount",
@@ -112,6 +113,13 @@ CONTAINER_ETC_FILE_OVERRIDE = {
     b"group": CONTAINER_ETC_GROUP,
     b"hosts": CONTAINER_ETC_HOSTS,
 }
+
+DIR_HIDDEN = "hidden"
+DIR_READ_ONLY = "read-only"
+DIR_OVERLAY = "overlay"
+DIR_FULL_ACCESS = "full-access"
+DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
+"""modes how a directory can be mounted in the container"""
 
 LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
 
@@ -248,6 +256,63 @@ def activate_network_interface(iface):
         fcntl.ioctl(sock, SIOCSIFFLAGS, ifreq)
     finally:
         sock.close()
+
+
+def determine_directory_mode(dir_modes, path, fstype=None):
+    """
+    From a high-level mapping of desired directory modes, determine the actual mode
+    for a given directory.
+    """
+    if path == b"/proc":
+        # /proc is necessary for the grandchild to read PID, will be replaced later.
+        return DIR_READ_ONLY
+    if util.path_is_below(path, b"/proc"):
+        # Irrelevant.
+        return None
+
+    parent_mode = None
+    result_mode = None
+    for special_dir, mode in dir_modes.items():
+        if util.path_is_below(path, special_dir):
+            if path != special_dir:
+                parent_mode = mode
+            result_mode = mode
+    assert result_mode is not None
+
+    if result_mode == DIR_OVERLAY and (
+        util.path_is_below(path, b"/dev")
+        or util.path_is_below(path, b"/sys")
+        or fstype == b"fuse.lxcfs"
+        or fstype == b"cgroup"
+    ):
+        # Silently use RO for /dev, /sys, cgroups, and lxcfs
+        # because overlay makes no sense.
+        return DIR_READ_ONLY
+
+    if (
+        result_mode == DIR_OVERLAY
+        and fstype
+        and (
+            fstype.startswith(b"fuse.")
+            or fstype == b"autofs"
+            or fstype == b"vfat"
+            or fstype == b"ntfs"
+        )
+    ):
+        # Overlayfs does not support these as underlying file systems.
+        logging.debug(
+            "Cannot use overlay mode for %s because it has file system %s. "
+            "Using read-only mode instead. "
+            "You can override this by specifying a different directory mode.",
+            path.decode(),
+            fstype.decode(),
+        )
+        return DIR_READ_ONLY
+
+    if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
+        # No need to recursively recreate mountpoints in hidden dirs.
+        return None
+    return result_mode
 
 
 def get_mount_points():
