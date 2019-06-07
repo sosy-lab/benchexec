@@ -354,7 +354,7 @@ class Benchmark(object):
             for columnTag in columnsTag.findall("column"):
                 pattern = columnTag.text
                 title = columnTag.get("title", pattern)
-                number_of_digits = columnTag.get("numberOfDigits") # digits behind comma
+                number_of_digits = columnTag.get("numberOfDigits")
                 column = Column(pattern, title, number_of_digits)
                 columns.append(column)
                 logging.debug('Column "%s" with title "%s" loaded from XML file.',
@@ -718,8 +718,9 @@ class Run(object):
     def __init__(self, identifier, sourcefiles, fileOptions, runSet, propertyfile=None,
                  required_files_patterns=[], required_files=[],
                  expected_results={}):
+        # identifier is used for name of logfile, substitution, result-category
         assert identifier
-        self.identifier = identifier  # used for name of logfile, substitution, result-category
+        self.identifier = identifier
         self.sourcefiles = sourcefiles
         self.runSet = runSet
         self.specific_options = fileOptions # options that are specific for this run
@@ -737,8 +738,9 @@ class Run(object):
                     pattern, self.identifier)
             self.required_files.update(this_required_files)
 
-        # lets reduce memory-consumption: if 2 lists are equal, do not use the second one
-        self.options = runSet.options + fileOptions if fileOptions else runSet.options # all options to be used when executing this run
+        # combine all options to be used when executing this run
+        # (reduce memory-consumption: if 2 lists are equal, do not use the second one)
+        self.options = runSet.options + fileOptions if fileOptions else runSet.options
         substitutedOptions = substitute_vars(self.options, runSet, self.identifier)
         if substitutedOptions != self.options:
             self.options = substitutedOptions # for less memory again

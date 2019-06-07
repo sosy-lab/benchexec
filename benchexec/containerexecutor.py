@@ -325,7 +325,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
 
-            returnvalue, unused_ru_child, unused = result_fn() # blocks until process has terminated
+            # wait until process has terminated
+            returnvalue, unused_ru_child, unused = result_fn()
 
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -409,8 +410,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         CHILD_OSERROR = 128
         CHILD_UNKNOWN_ERROR = 129
 
-        from_parent, to_grandchild = os.pipe() # "downstream" pipe parent->grandchild
-        from_grandchild, to_parent = os.pipe() # "upstream" pipe grandchild/child->parent
+        # "downstream" pipe parent->grandchild
+        from_parent, to_grandchild = os.pipe()
+        # "upstream" pipe grandchild/child->parent
+        from_grandchild, to_parent = os.pipe()
 
         # The protocol for these pipes is that first the parent sends the marker for user mappings,
         # then the grand child sends its outer PID back,
@@ -606,10 +609,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(to_parent)
 
             container.setup_user_mapping(child_pid, uid=self._uid, gid=self._gid)
-            os.write(to_grandchild, MARKER_USER_MAPPING_COMPLETED) # signal child to continue
+            # signal child to continue
+            os.write(to_grandchild, MARKER_USER_MAPPING_COMPLETED)
 
             try:
-                grandchild_pid = int(os.read(from_grandchild, 10)) # 10 bytes is enough for 32bit int
+                # read at most 10 bytes because this is enough for 32bit int
+                grandchild_pid = int(os.read(from_grandchild, 10))
             except ValueError:
                 # probably empty read, i.e., pipe closed, i.e., child or grandchild failed
                 check_child_exit_code()
@@ -687,7 +692,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param temp_dir: The base directory under which all our directories should be created.
         """
         # All strings here are bytes to avoid issues if existing mountpoints are invalid UTF-8.
-        temp_base = self._get_result_files_base(temp_dir).encode() # directory with files created by tool
+
+        # directory with files created by tool
+        temp_base = self._get_result_files_base(temp_dir).encode()
         temp_dir = temp_dir.encode()
 
         tmpfs_opts = ["size=" + str(memlimit or "100%")]

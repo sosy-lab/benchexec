@@ -148,7 +148,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = 'ASSERTION'
             elif ((returncode == 0 or returncode == 1)
                     and ('Exception:' in line or line.startswith('Exception in thread'))
-                    and not line.startswith('cbmc')): # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
+                    # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
+                    and not line.startswith('cbmc')):
                 status = 'EXCEPTION'
             elif 'Could not reserve enough space for object heap' in line:
                 status = 'JAVA HEAP ERROR'
@@ -209,7 +210,7 @@ class Tool(benchexec.tools.template.BaseTool):
         for line in lines:
             if line.lstrip().startswith(identifier):
                 startPosition = line.find(':') + 1
-                endPosition = line.find('(', startPosition) # bracket maybe not found -> (-1)
+                endPosition = line.find('(', startPosition)
                 if (endPosition == -1):
                     endPosition = len(line)
                 if match is None:

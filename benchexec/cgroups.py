@@ -178,7 +178,8 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
                 if task is None:
                     return # No process was hanging, exit
             try_write_to_freezer('THAWED')
-            time.sleep(i * 0.5) # wait for the process to exit, this might take some time
+            # wait for the process to exit, this might take some time
+            time.sleep(i * 0.5)
 
 
 def remove_cgroup(cgroup):
@@ -226,7 +227,8 @@ class Cgroup(object):
     def __init__(self, cgroupsPerSubsystem):
         assert set(cgroupsPerSubsystem.keys()) <= ALL_KNOWN_SUBSYSTEMS
         assert all(cgroupsPerSubsystem.values())
-        self.per_subsystem = cgroupsPerSubsystem # update self.paths on every update to this
+        # Also update self.paths on every update to this!
+        self.per_subsystem = cgroupsPerSubsystem
         self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
 
     def __contains__(self, key):
@@ -407,7 +409,8 @@ class Cgroup(object):
         Read the cputime usage of this cgroup. CPUACCT cgroup needs to be available.
         @return cputime usage in seconds
         """
-        return float(self.get_value(CPUACCT, 'usage'))/1000000000 # nano-seconds to seconds
+        # convert nano-seconds to seconds
+        return float(self.get_value(CPUACCT, 'usage'))/1000000000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""

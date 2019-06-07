@@ -272,7 +272,7 @@ def _get_significant_digits(value):
             # If the value consists of only zeros, do not count the 0 in front of the decimal
             sig_digits = 0
         if match.group(GROUP_DEC_PART):
-            sig_digits += len(match.group(GROUP_DEC_PART)) - 1  # -1 for the decimal point
+            sig_digits += len(match.group(GROUP_DEC_PART)) - 1  # -1 for decimal point
 
     return sig_digits
 
@@ -300,8 +300,8 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
         if not format_target.startswith('tooltip'):
             max_digits_to_display = max_digits_after_decimal
         else:
-            max_digits_to_display = len(
-                str(float_value))  # This value may be too big, but extra digits will be cut below
+            # This value may be too big, but extra digits will be cut below
+            max_digits_to_display = len(str(float_value))
         formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
 
         # Get the number of intended significant digits and the number of current significant digits.
@@ -435,8 +435,8 @@ def _get_column_type_heur(column, column_values):
             # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
             # special cases, immediately convert the value back to decimal notation.
             if value_match.group(GROUP_DEC_PART):
-                dec_digits_before_scale = len(
-                    value_match.group(GROUP_DEC_PART)) - 1  # - 1 since GROUP_DEC_PART includes the point
+                # -1 since GROUP_DEC_PART includes the decimal point
+                dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1
             else:
                 dec_digits_before_scale = 0
             max_number_of_dec_digits_after_scale = max(0, dec_digits_before_scale - ceil(log10(column_scale_factor)))
@@ -497,8 +497,8 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
-
-    assert 'e' not in decimal_number_match.group()  # check that only decimal notation is used
+    # check that only decimal notation is used
+    assert 'e' not in decimal_number_match.group()
 
     try:
         num_of_digits = int(number_of_significant_digits)

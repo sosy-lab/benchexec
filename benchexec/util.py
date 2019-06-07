@@ -415,7 +415,8 @@ def shrink_text_file(filename, max_size, removal_marker=None):
                 output_file.write(removal_marker.encode())
 
             # Position inputFile between B and C
-            input_file.seek(-max_size // 2, os.SEEK_END) # jump to beginning of second part we want to keep from end of file
+            # jump to beginning of second part we want to keep from end of file
+            input_file.seek(-max_size // 2, os.SEEK_END)
             input_file.readline() # jump to end of current line so that we truncate at line boundaries
 
             # Copy C over B

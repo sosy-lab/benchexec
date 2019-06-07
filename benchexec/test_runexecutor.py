@@ -748,12 +748,13 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_path_with_space(self):
         temp_dir = tempfile.mkdtemp(prefix="BenchExec test")
         try:
+            # create RunExecutor with desired parameter
             self.setUp(dir_modes={
                 "/": containerexecutor.DIR_READ_ONLY,
                 "/home": containerexecutor.DIR_HIDDEN,
                 "/tmp": containerexecutor.DIR_HIDDEN,
                 temp_dir: containerexecutor.DIR_FULL_ACCESS}
-                )  # create RunExecutor with desired parameter
+                )
             temp_file = os.path.join(temp_dir, "TEST_FILE")
             result, output = self.execute_run(
                 "/bin/sh", "-c", "echo TEST_TOKEN > '{}'".format(temp_file))
@@ -779,7 +780,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_uptime_without_lxcfs(self):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
-        self.setUp(container_system_config=False)  # create RunExecutor with desired parameter
+        # create RunExecutor with desired parameter
+        self.setUp(container_system_config=False)
         result, output = self.execute_run("cat", "/proc/uptime")
         self.check_result_keys(result)
         self.check_exitcode(result, 0, 'exit code for reading uptime is not zero')

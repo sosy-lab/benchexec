@@ -168,7 +168,8 @@ def main(argv=None):
         options.debug = data.get("debug", options.debug)
         if "maxLogfileSize" in data:
             try:
-                options.maxOutputSize = int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR # MB to bytes
+                # convert MB to Bytes
+                options.maxOutputSize = int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR
             except ValueError:
                 options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
 
@@ -527,7 +528,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 try:
                     cgroups.set_value(MEMORY, swap_limit, memlimit)
                 except IOError as e:
-                    if e.errno == errno.ENOTSUP: # kernel responds with operation unsupported if this is disabled
+                    if e.errno == errno.ENOTSUP:
+                        # kernel responds with operation unsupported if this is disabled
                         sys.exit('Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
                     raise e
 
@@ -916,7 +918,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
                 files_count_limit, files_size_limit, temp_dir, cgroups, pid)
 
-            returnvalue, ru_child, (walltime, energy) = result_fn() # blocks until process has terminated
+            # wait until process has terminated
+            returnvalue, ru_child, (walltime, energy) = result_fn()
             result['walltime'] = walltime
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -1035,7 +1038,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 try:
                     coretime = int(coretime)
                     if coretime != 0:
-                        result['cputime-cpu'+str(core)] = coretime/1000000000 # nano-seconds to seconds
+                        # convert nanoseconds to seconds
+                        result['cputime-cpu'+str(core)] = coretime/1000000000
                 except (OSError, ValueError) as e:
                     logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
         else:
@@ -1056,7 +1060,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 try:
                     result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
-                    if e.errno == errno.ENOTSUP: # kernel responds with operation unsupported if this is disabled
+                    if e.errno == errno.ENOTSUP:
+                        # kernel responds with operation unsupported if this is disabled
                         logging.critical(
                             "Kernel does not track swap memory usage, cannot measure memory usage."
                             " Please set swapaccount=1 on your kernel command line.")
@@ -1215,8 +1220,9 @@ class _TimelimitThread(threading.Thread):
                 self.cpuCount = 1
 
         self.cgroups = cgroups
-        self.timelimit = hardtimelimit or (60*60*24*365*100) # large dummy value
-        self.softtimelimit = softtimelimit or (60*60*24*365*100) # large dummy value
+        # set timelimits to large dummy value if no limit is given
+        self.timelimit = hardtimelimit or (60*60*24*365*100)
+        self.softtimelimit = softtimelimit or (60*60*24*365*100)
         self.latestKillTime = util.read_monotonic_time() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
