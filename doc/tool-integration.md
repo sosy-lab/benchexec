@@ -63,6 +63,12 @@ but no property file was given),
 the tool-info module should raise `benchexec.tools.template.UnsupportedFeatureException`
 with an appropriate message for the user.
 
+Note that the tool-info module itself and any commands it starts
+will be executed in its own [container](container.md) similar to the actual runs
+(if `--container` is used, which will be the default from BenchExec 2.0).
+This means that the tool-info module typically has no network access
+and that any changes made to files will not be seen by the actual runs.
+
 
 #### Specifying a Tool for BenchExec
 The name of the tool-info module needs to be given to `benchexec` as the value
@@ -90,7 +96,7 @@ how the command line is constructed etc.
 
 To execute this utility, run
 
-    python3 -m benchexec.test_tool_info <TOOL> --tool-output <OUTPUT_FILE> ...
+    python3 -m benchexec.test_tool_info --container <TOOL> --tool-output <OUTPUT_FILE> ...
 
 `<TOOL>` is the name of a tool-info module
 as it would be given in the `tool` attribute of the `<benchmark>` tag.
@@ -106,15 +112,18 @@ then BenchExec should also be able to successfully run the tool.
 
 #### Examples
 If you have installed BenchExec successfully, the following command
-should always work and print information about the fake tool `dummy` supplied with BenchExec:
+should work and print information about the fake tool `dummy` supplied with BenchExec:
 
-    python3 -m benchexec.test_tool_info dummy
+    python3 -m benchexec.test_tool_info --container dummy
+
+If [container mode](container.md) is not working on your system,
+adjust the directory modes as necessary or omit `--container`.
 
 If you have written your own info for a tool `foobar` as a Python module named `tools.foobar`
 (this means you have created a directory `tools` with an empty file `__init__.py`
 and a file `foobar.py` with the tool info), the following command tests it:
 
-    python3 -m benchexec.test_tool_info tools.foobar
+    python3 -m benchexec.test_tool_info --container tools.foobar
 
 This assumes that the package `tools` is already in your Python search path,
 for example because it is inside the current directory.

@@ -78,6 +78,11 @@ CLONE_NEWUSER = 0x10000000
 CLONE_NEWPID = 0x20000000
 CLONE_NEWNET = 0x40000000
 
+unshare = _libc.unshare
+"""Put current process into new namespace(s)."""
+unshare.argtypes = [c_int]
+unshare.errcheck = _check_errno
+
 
 mmap = _libc.mmap
 """Map file into memory."""

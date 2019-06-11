@@ -28,6 +28,7 @@ import sys
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+import benchexec.benchexec
 from benchexec import model
 import benchexec.tools.template
 
@@ -124,9 +125,9 @@ def log_if_unsupported(msg):
         )
 
 
-def print_tool_info(name):
+def print_tool_info(name, config):
     print_value("Name of tool module", name)
-    tool_module, tool = model.load_tool_info(name)
+    tool_module, tool = model.load_tool_info(name, config)
     print_value("Full name of tool module", tool_module)
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
@@ -275,12 +276,14 @@ def main(argv=None):
         type=argparse.FileType("r"),
         help="optional names of text files with example outputs of a tool run",
     )
+    benchexec.benchexec.add_container_args(parser)
+
     options = parser.parse_args(argv[1:])
     logging.basicConfig(
         format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
     )
 
-    tool = print_tool_info(options.tool)
+    tool = print_tool_info(options.tool, options)
 
     if options.tool_output:
         for file in options.tool_output:

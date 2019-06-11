@@ -124,7 +124,7 @@ def load_task_definition_file(task_def_file):
     return task_def
 
 
-def load_tool_info(tool_name):
+def load_tool_info(tool_name, config):
     """
     Load the tool-info class.
     @param tool_name: The name of the tool-info module.
@@ -133,7 +133,13 @@ def load_tool_info(tool_name):
     """
     tool_module = tool_name if "." in tool_name else ("benchexec.tools." + tool_name)
     try:
-        tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+        if config.container:
+            # lazy import because it can fail if container mode is not supported
+            from benchexec import containerized_tool
+
+            tool = containerized_tool.ContainerizedTool(tool_module, config)
+        else:
+            tool = __import__(tool_module, fromlist=["Tool"]).Tool()
     except ImportError as ie:
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
@@ -214,7 +220,7 @@ class Benchmark(object):
         tool_name = rootTag.get("tool")
         if not tool_name:
             sys.exit("A tool needs to be specified in the benchmark definition file.")
-        (self.tool_module, self.tool) = load_tool_info(tool_name)
+        (self.tool_module, self.tool) = load_tool_info(tool_name, config)
         self.tool_name = self.tool.name()
         # will be set from the outside if necessary (may not be the case in SaaS environments)
         self.tool_version = None

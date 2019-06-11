@@ -43,7 +43,7 @@ class ToolInfoModuleTest(unittest.TestCase):
                 continue
 
             try:
-                benchexec.model.load_tool_info(tool_info_name[0])
+                benchexec.model.load_tool_info(tool_info_name[0], Config())
             except SystemExit as e:
                 logging.warning(
                     "Cannot load tool-info module %s: %s", tool_info_name, e
@@ -52,3 +52,9 @@ class ToolInfoModuleTest(unittest.TestCase):
                 self.fail(
                     "Loading tool-info module {} failed: {}".format(tool_info_name, e)
                 )
+
+
+class Config(object):
+    """Dummy config object for test"""
+
+    container = False
