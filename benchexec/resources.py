@@ -160,7 +160,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
         if unit_size is None:
             unit_size = len(cores)
         elif unit_size != len(cores):
-            sys.exit("Asymmetric machine architecture not supported: CPU unit {0} has {1} cores, but other unit has {2} cores.".format(unit, len(cores), unit_size))
+            sys.exit("Asymmetric machine architecture not supported: CPU/memory region {0} has {1} cores, but other CPU/memory region has {2} cores.".format(unit, len(cores), unit_size))
 
     core_size = None # Number of threads per core
     for core, siblings in siblings_of_core.items():
@@ -207,7 +207,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
             need_HT = True
             logging.warning("The number of threads is too high and hyper-threading sibling cores need to be split among different runs, which makes benchmarking unreliable. Please reduce the number of threads to %s.", len(allCpus) // coreLimit_rounded_up)
 
-    logging.debug("Going to assign at most %s runs per unit, each one using %s cores and blocking %s cores on %s units.", runs_per_unit, coreLimit, coreLimit_rounded_up, units_per_run)
+    logging.debug("Going to assign at most %s runs per CPU/memory region, each one using %s cores and blocking %s cores on %s CPUs/memory regions.", runs_per_unit, coreLimit, coreLimit_rounded_up, units_per_run)
 
     # Third, do the actual core assignment.
     result = []
@@ -233,7 +233,7 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
             # remove used cores such that we do not try to use them again
             cores_of_unit[unit] = [core for core in cores_of_unit[unit] if core not in cores]
 
-        assert len(cores) == coreLimit, "Wrong number of cores for run {} of {} - previous results: {}, remaining cores per unit: {}, current cores: {}".format(run+1, num_of_threads, result, cores_of_unit, cores)
+        assert len(cores) == coreLimit, "Wrong number of cores for run {} of {} - previous results: {}, remaining cores per CPU/memory region: {}, current cores: {}".format(run+1, num_of_threads, result, cores_of_unit, cores)
         blocked_cores = cores if need_HT else cores_with_siblings
         assert not used_cores.intersection(blocked_cores)
         used_cores.update(blocked_cores)
