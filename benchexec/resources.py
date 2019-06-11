@@ -102,7 +102,12 @@ def get_cpu_cores_per_run(coreLimit, num_of_threads, use_hyperthreading, my_cgro
         logging.debug("Physical packages of cores are %s.", cores_of_package)
 
         # select the more fine grained division among memory regions and physical package
-        cores_of_unit = (cores_of_memory_region if (len(cores_of_memory_region) >= len(cores_of_package)) else cores_of_package)
+        if (len(cores_of_memory_region) >= len(cores_of_package)):
+            cores_of_unit = cores_of_memory_region
+            logging.debug("Using memory regions as the basis for cpu core division")
+        else:
+            cores_of_unit = cores_of_package
+            logging.debug("Using physical packages as the basis for cpu core division")
 
         # read hyper-threading information (sibling cores sharing the same physical core)
         siblings_of_core = {}
@@ -178,12 +183,12 @@ def _get_cpu_cores_per_run0(coreLimit, num_of_threads, use_hyperthreading, allCp
 
     units_per_run = int(math.ceil(coreLimit_rounded_up / unit_size))
     if units_per_run > 1 and units_per_run * num_of_threads > unit_count:
-        sys.exit("Cannot split runs over multiple CPUs and at the same time assign multiple runs to the same CPU. Please reduce the number of threads to {0}.".format(unit_count // units_per_run))
+        sys.exit("Cannot split runs over multiple CPUs/memory regions and at the same time assign multiple runs to the same CPU/memory region. Please reduce the number of threads to {0}.".format(unit_count // units_per_run))
 
     runs_per_unit = int(math.ceil(num_of_threads / unit_count))
     assert units_per_run == 1 or runs_per_unit == 1
     if units_per_run == 1 and runs_per_unit * coreLimit > unit_size:
-        sys.exit("Cannot run {} benchmarks with {} cores on {} CPUs with {} cores, because runs would need to be split across multiple CPUs. Please reduce the number of threads.".format(num_of_threads, coreLimit, unit_count, unit_size))
+        sys.exit("Cannot run {} benchmarks with {} cores on {} CPUs/memory regions with {} cores, because runs would need to be split across multiple CPUs/memory regions. Please reduce the number of threads.".format(num_of_threads, coreLimit, unit_count, unit_size))
 
     # Warn on misuse of hyper-threading
     need_HT = False
