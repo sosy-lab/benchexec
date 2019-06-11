@@ -191,17 +191,27 @@ def execute_in_namespace(func, use_network_ns=True):
     return pid
 
 
-def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
+def setup_user_mapping(
+    pid,
+    uid=os.getuid(),
+    gid=os.getgid(),
+    parent_uid=os.getuid(),
+    parent_gid=os.getgid(),
+):
     """Write uid_map and gid_map in /proc to create a user mapping
     that maps our user from outside the container to the same user inside the container
     (and no other users are mapped).
     @see: http://man7.org/linux/man-pages/man7/user_namespaces.7.html
     @param pid: The PID of the process in the container.
+    @param uid: The UID that shall be used in the container.
+    @param gid: The GID that shall be used in the container.
+    @param parent_uid: The UID that is used in the parent namespace.
+    @param parent_gid: The GID that is used in the parent namespace.
     """
     proc_child = os.path.join("/proc", str(pid))
     try:
         # map uid internally to our uid externally
-        uid_map = "{0} {1} 1".format(uid, os.getuid())
+        uid_map = "{0} {1} 1".format(uid, parent_uid)
         util.write_file(uid_map, proc_child, "uid_map")
     except IOError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
@@ -216,7 +226,7 @@ def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
 
     try:
         # map gid internally to our gid externally
-        gid_map = "{0} {1} 1".format(gid, os.getgid())
+        gid_map = "{0} {1} 1".format(gid, parent_gid)
         util.write_file(gid_map, proc_child, "gid_map")
     except IOError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
