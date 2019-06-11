@@ -23,42 +23,44 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     VeriAbs
     """
 
     REQUIRED_PATHS = [
-                      "bin",
-                      "cpact",
-                      "jars",
-                      "exp-in",
-                      "prism",
-                      "lib",
-                      "afl-2.35b",
-                      "afl-2.35b_v1",
-                      "frama-c-Chlorine-20180502",
-                      "UAutomizer-linux",
-                      "scripts",
-                      "supportFiles",
-                      ]
+        "bin",
+        "cpact",
+        "jars",
+        "exp-in",
+        "prism",
+        "lib",
+        "afl-2.35b",
+        "afl-2.35b_v1",
+        "frama-c-Chlorine-20180502",
+        "UAutomizer-linux",
+        "scripts",
+        "supportFiles",
+    ]
 
     def executable(self):
-        return util.find_executable('scripts/veriabs')
+        return util.find_executable("scripts/veriabs")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def program_files(self, executable):
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True)
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def name(self):
-        return 'VeriAbs'
+        return "VeriAbs"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
-            options = options + ['--property-file', propertyfile]
+            options = options + ["--property-file", propertyfile]
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):

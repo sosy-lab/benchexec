@@ -26,25 +26,27 @@ import subprocess
 import benchexec.util as util
 import benchexec.tools.smtlib2
 
+
 class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
     """
     Tool info for SMTInterpol.
     """
 
     def executable(self):
-        return util.find_executable('java')
+        return util.find_executable("java")
 
     def version(self, executable):
-        stderr = subprocess.Popen(self.cmdline(executable, ['-version'], []),
-                                  stderr=subprocess.PIPE).communicate()[1]
+        stderr = subprocess.Popen(
+            self.cmdline(executable, ["-version"], []), stderr=subprocess.PIPE
+        ).communicate()[1]
         stderr = util.decode_to_string(stderr)
-        line = next(l for l in stderr.splitlines() if l.startswith('SMTInterpol'))
-        line = line.replace('SMTInterpol' , '')
+        line = next(l for l in stderr.splitlines() if l.startswith("SMTInterpol"))
+        line = line.replace("SMTInterpol", "")
         return line.strip()
 
     def name(self):
-        return 'SMTInterpol'
+        return "SMTInterpol"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         assert len(tasks) <= 1, "only one inputfile supported"
-        return [executable, '-jar', 'smtinterpol.jar'] + options + tasks
+        return [executable, "-jar", "smtinterpol.jar"] + options + tasks

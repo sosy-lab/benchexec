@@ -24,11 +24,14 @@ import benchexec
 import benchexec.result as result
 import benchexec.util as util
 
+
 class UnsupportedFeatureException(benchexec.BenchExecException):
     """
     Raised when a tool or its tool-info module does not support a requested feature.
     """
+
     pass
+
 
 class BaseTool(object):
     """
@@ -57,8 +60,7 @@ class BaseTool(object):
         The path returned should be relative to the current directory.
         @return a string pointing to an executable file
         """
-        return util.find_executable('tool')
-
+        return util.find_executable("tool")
 
     def program_files(self, executable):
         """
@@ -72,9 +74,13 @@ class BaseTool(object):
         interpreting the latter as relative to the directory of the executable.
         @return a list of paths as strings
         """
-        return [executable] + self._program_files_from_executable(executable, self.REQUIRED_PATHS)
+        return [executable] + self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS
+        )
 
-    def _program_files_from_executable(self, executable, required_paths, parent_dir=False):
+    def _program_files_from_executable(
+        self, executable, required_paths, parent_dir=False
+    ):
         """
         Get a list of program files by expanding a list of path patterns
         and interpreting it as relative to the executable.
@@ -91,7 +97,8 @@ class BaseTool(object):
         if parent_dir:
             base_dir = os.path.join(base_dir, os.path.pardir)
         return util.flatten(
-            util.expand_filename_pattern(path, base_dir) for path in required_paths)
+            util.expand_filename_pattern(path, base_dir) for path in required_paths
+        )
 
     def version(self, executable):
         """
@@ -103,9 +110,11 @@ class BaseTool(object):
         from the returned tool output.
         @return a (possibly empty) string
         """
-        return ''
+        return ""
 
-    def _version_from_tool(self, executable, arg='--version', use_stderr=False, ignore_stderr=False):
+    def _version_from_tool(
+        self, executable, arg="--version", use_stderr=False, ignore_stderr=False
+    ):
         """
         Get version of a tool by executing it with argument "--version"
         and returning stdout.
@@ -115,23 +124,32 @@ class BaseTool(object):
         @return a (possibly empty) string of output of the tool
         """
         try:
-            process = subprocess.Popen([executable, arg],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(
+                [executable, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
             (stdout, stderr) = process.communicate()
         except OSError as e:
-            logging.warning('Cannot run {0} to determine version: {1}'.
-                            format(executable, e.strerror))
-            return ''
+            logging.warning(
+                "Cannot run {0} to determine version: {1}".format(
+                    executable, e.strerror
+                )
+            )
+            return ""
         if stderr and not use_stderr and not ignore_stderr:
-            logging.warning('Cannot determine {0} version, error output: {1}'.
-                            format(executable, util.decode_to_string(stderr)))
-            return ''
+            logging.warning(
+                "Cannot determine {0} version, error output: {1}".format(
+                    executable, util.decode_to_string(stderr)
+                )
+            )
+            return ""
         if process.returncode:
-            logging.warning('Cannot determine {0} version, exit code {1}'.
-                            format(executable, process.returncode))
-            return ''
+            logging.warning(
+                "Cannot determine {0} version, exit code {1}".format(
+                    executable, process.returncode
+                )
+            )
+            return ""
         return util.decode_to_string(stderr if use_stderr else stdout).strip()
-
 
     def name(self):
         """
@@ -139,8 +157,7 @@ class BaseTool(object):
         This function should always be overriden.
         @return a non-empty string
         """
-        return 'UNKOWN'
-
+        return "UNKOWN"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -164,7 +181,6 @@ class BaseTool(object):
         """
         return [executable] + options + tasks
 
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
         Parse the output of the tool and extract the verification result.
@@ -186,7 +202,6 @@ class BaseTool(object):
         """
         return result.RESULT_DONE
 
-
     def get_value_from_output(self, lines, identifier):
         """
         OPTIONAL, extract a statistic value from the output of the tool.
@@ -197,7 +212,6 @@ class BaseTool(object):
         @return a (possibly empty) string, optional with HTML tags
         """
 
-
     def working_directory(self, executable):
         """
         OPTIONAL, this method is only necessary for situations
@@ -206,7 +220,6 @@ class BaseTool(object):
         @return a string pointing to a directory
         """
         return os.curdir
-
 
     def environment(self, executable):
         """

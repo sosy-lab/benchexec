@@ -20,19 +20,17 @@ limitations under the License.
 import benchexec.util as util
 import benchexec.tools.template
 
+
 class Tool(benchexec.tools.template.BaseTool):
-
     def executable(self):
-        return util.find_executable('ufo.sh')
-
+        return util.find_executable("ufo.sh")
 
     def name(self):
-        return 'Ufo'
-
+        return "Ufo"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
-        if returnsignal == 9 or returnsignal == (128+9):
+        output = "\n".join(output)
+        if returnsignal == 9 or returnsignal == (128 + 9):
             if isTimeout:
                 status = "TIMEOUT"
             else:

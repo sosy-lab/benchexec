@@ -24,6 +24,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import benchexec.result as result
 import benchexec.tools.template
 
+
 class Smtlib2Tool(benchexec.tools.template.BaseTool):
     """
     Abstract base class for tool infos for SMTLib2-compatible solvers.
@@ -36,18 +37,18 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
             status = None
             for line in output:
                 line = line.strip()
-                if line == 'unsat':
+                if line == "unsat":
                     status = result.RESULT_UNSAT
-                elif line == 'sat':
+                elif line == "sat":
                     status = result.RESULT_SAT
-                elif not status and line.startswith('(error '):
-                    status = 'ERROR'
+                elif not status and line.startswith("(error "):
+                    status = "ERROR"
 
             if not status:
                 status = result.RESULT_UNKNOWN
 
         elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
-            status = 'TIMEOUT'
+            status = "TIMEOUT"
 
         elif returnsignal == 9:
             status = "KILLED BY SIGNAL 9"

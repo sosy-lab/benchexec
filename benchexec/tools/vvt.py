@@ -23,29 +23,29 @@ import benchexec.result as result
 
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool wrapper for the Vienna Verification Toolkit
     """
 
-    REQUIRED_PATHS = [
-                  "bin",
-                  "clang",
-                  "include"
-                  ]
+    REQUIRED_PATHS = ["bin", "clang", "include"]
 
     def executable(self):
-        return util.find_executable('vvt-svcomp-bench.sh', os.path.join("bin", 'vvt-svcomp-bench.sh'))
+        return util.find_executable(
+            "vvt-svcomp-bench.sh", os.path.join("bin", "vvt-svcomp-bench.sh")
+        )
 
     def program_files(self, executable):
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True)
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
-    def version(self,executable):
-        return 'prerelease'
+    def version(self, executable):
+        return "prerelease"
 
     def name(self):
-        return 'VVT'
+        return "VVT"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + tasks

@@ -23,13 +23,20 @@ import benchexec.result as result
 
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     SymDIVINE info object
     """
 
-    BINS = ['symdivine', 'run_symdivine.py', 'compile_to_bitcode.py', 'lart',
-        'witness-true-template.xml', 'witness-false-template.xml']
+    BINS = [
+        "symdivine",
+        "run_symdivine.py",
+        "compile_to_bitcode.py",
+        "lart",
+        "witness-true-template.xml",
+        "witness-false-template.xml",
+    ]
 
     def executable(self):
         """
@@ -44,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         Return the name of the tool, formatted for humans.
         """
-        return 'SymDIVINE'
+        return "SymDIVINE"
 
     def version(self, executable):
         """
@@ -74,7 +81,7 @@ class Tool(benchexec.tools.template.BaseTool):
         directory = os.path.dirname(executable)
 
         # Ignore propertyfile since we run only reachability
-        return [os.path.join('.', directory, self.BINS[1]), directory] + options + tasks
+        return [os.path.join(".", directory, self.BINS[1]), directory] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -87,19 +94,19 @@ class Tool(benchexec.tools.template.BaseTool):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
 
-        join_output = '\n'.join(output)
+        join_output = "\n".join(output)
 
         if isTimeout:
-            return 'TIMEOUT'
+            return "TIMEOUT"
 
         if returncode == 2:
-            return 'ERROR - Pre-run'
+            return "ERROR - Pre-run"
 
         if join_output is None:
-            return 'ERROR - no output'
-        elif 'Safe.'in join_output:
+            return "ERROR - no output"
+        elif "Safe." in join_output:
             return result.RESULT_TRUE_PROP
-        elif 'Error state' in join_output:
+        elif "Error state" in join_output:
             return result.RESULT_FALSE_REACH
         else:
             return result.RESULT_UNKNOWN
@@ -112,4 +119,4 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a list of files or directories that are necessary to run the tool.
         """
         directory = os.path.dirname(executable)
-        return [os.path.join('.', directory, f) for f in self.BINS]
+        return [os.path.join(".", directory, f) for f in self.BINS]

@@ -42,7 +42,7 @@ def get_file_list(shortFile):
     The function get_file_list expands a short filename to a sorted list
     of filenames. The short filename can contain variables and wildcards.
     """
-    if "://" in shortFile: # seems to be a URL
+    if "://" in shortFile:  # seems to be a URL
         return [shortFile]
 
     # expand tilde and variables
@@ -62,10 +62,10 @@ def get_file_list(shortFile):
 
 
 def extend_file_list(filelist):
-    '''
+    """
     This function takes a list of files, expands wildcards
     and returns a new list of files.
-    '''
+    """
     return [file for wildcardFile in filelist for file in get_file_list(wildcardFile)]
 
 
@@ -78,7 +78,7 @@ def make_url(path_or_url):
     return path_or_url
 
 
-def open_url_seekable(path_url, mode='rt'):
+def open_url_seekable(path_url, mode="rt"):
     """Open a URL and ensure that the result is seekable,
     copying it into a buffer if necessary."""
 
@@ -104,7 +104,7 @@ def split_number_and_unit(s):
     in the string is (that means the prefix may include non-digit characters,
     if they are followed by at least one digit).
     """
-    return split_string_at_suffix(s,False)
+    return split_string_at_suffix(s, False)
 
 
 def split_string_at_suffix(s, numbers_into_suffix=False):
@@ -115,9 +115,9 @@ def split_string_at_suffix(s, numbers_into_suffix=False):
     The flag 'numbers_into_suffix' determines whether the suffix consists of digits or non-digits.
     """
     if not s:
-        return (s, '')
+        return (s, "")
     pos = len(s)
-    while pos and numbers_into_suffix == s[pos-1].isdigit():
+    while pos and numbers_into_suffix == s[pos - 1].isdigit():
         pos -= 1
     return (s[:pos], s[pos:])
 
@@ -127,33 +127,57 @@ def remove_unit(s):
     Remove a unit from a number string, or return the full string if it is not a number.
     """
     (prefix, suffix) = split_number_and_unit(s)
-    return suffix if prefix == '' else prefix
+    return suffix if prefix == "" else prefix
 
 
 def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
+
 def create_link(href, base_dir, runResult=None, href_base=None):
     def get_replacements(source_file):
-        return [
-            ('inputfile_name', os.path.basename(source_file)),
-            ('inputfile_path', os.path.dirname(source_file) or '.'),
-            ('inputfile_path_abs', os.path.dirname(os.path.abspath(source_file))),
-            # The following are deprecated: do not use anymore.
-            ('sourcefile_name', os.path.basename(source_file)),
-            ('sourcefile_path', os.path.dirname(source_file) or '.'),
-            ('sourcefile_path_abs', os.path.dirname(os.path.abspath(source_file))),
-        ] + ([
-            ('taskdef_name', os.path.basename(source_file)),
-            ('taskdef_path', os.path.dirname(source_file) or '.'),
-            ('taskdef_path_abs', os.path.dirname(os.path.abspath(source_file))),
-        ] if source_file.endswith(".yml") else []) + ([
-            ('logfile_name',     os.path.basename(runResult.log_file)),
-            ('logfile_path',     os.path.dirname(os.path.relpath(runResult.log_file, href_base or '.')) or '.'),
-            ('logfile_path_abs', os.path.dirname(os.path.abspath(runResult.log_file))),
-        ] if runResult.log_file else [])
+        return (
+            [
+                ("inputfile_name", os.path.basename(source_file)),
+                ("inputfile_path", os.path.dirname(source_file) or "."),
+                ("inputfile_path_abs", os.path.dirname(os.path.abspath(source_file))),
+                # The following are deprecated: do not use anymore.
+                ("sourcefile_name", os.path.basename(source_file)),
+                ("sourcefile_path", os.path.dirname(source_file) or "."),
+                ("sourcefile_path_abs", os.path.dirname(os.path.abspath(source_file))),
+            ]
+            + (
+                [
+                    ("taskdef_name", os.path.basename(source_file)),
+                    ("taskdef_path", os.path.dirname(source_file) or "."),
+                    ("taskdef_path_abs", os.path.dirname(os.path.abspath(source_file))),
+                ]
+                if source_file.endswith(".yml")
+                else []
+            )
+            + (
+                [
+                    ("logfile_name", os.path.basename(runResult.log_file)),
+                    (
+                        "logfile_path",
+                        os.path.dirname(
+                            os.path.relpath(runResult.log_file, href_base or ".")
+                        )
+                        or ".",
+                    ),
+                    (
+                        "logfile_path_abs",
+                        os.path.dirname(os.path.abspath(runResult.log_file)),
+                    ),
+                ]
+                if runResult.log_file
+                else []
+            )
+        )
 
-    source_file = os.path.relpath(runResult.task_id[0], href_base or '.') if runResult else None
+    source_file = (
+        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
+    )
 
     if is_url(href):
         # quote special characters only in inserted variable values, not full URL
@@ -169,23 +193,30 @@ def create_link(href, base_dir, runResult=None, href_base=None):
 
 
 def format_options(options):
-    '''Helper function for formatting the content of the options line'''
+    """Helper function for formatting the content of the options line"""
     # split on one of the following tokens: ' -' or '[[' or ']]'
-    lines = ['']
-    for token in re.split(r'( -|\[\[|\]\])', options):
-        if token in ['[[',']]']:
+    lines = [""]
+    for token in re.split(r"( -|\[\[|\]\])", options):
+        if token in ["[[", "]]"]:
             lines.append(token)
-            lines.append('')
-        elif token == ' -':
+            lines.append("")
+        elif token == " -":
             lines.append(token)
         else:
             lines[-1] += token
     # join all non-empty lines and wrap them into 'span'-tags
-    return '<span style="display:block">' + '</span><span style="display:block">'.join(line for line in lines if line.strip()) + '</span>'
+    return (
+        '<span style="display:block">'
+        + '</span><span style="display:block">'.join(
+            line for line in lines if line.strip()
+        )
+        + "</span>"
+    )
+
 
 def to_decimal(s):
     if s:
-        if s.lower() in ['nan', 'inf', '-inf']:
+        if s.lower() in ["nan", "inf", "-inf"]:
             return Decimal(s)
         else:
             # remove whitespaces and trailing units (e.g., in '1.23s')
@@ -214,9 +245,9 @@ def collapse_equal_values(values, counts):
 
 
 def get_column_value(sourcefileTag, columnTitle, default=None):
-    for column in sourcefileTag.findall('column'):
-        if column.get('title') == columnTitle:
-                return column.get('value')
+    for column in sourcefileTag.findall("column"):
+        if column.get("title") == columnTitle:
+            return column.get("value")
     return default
 
 
@@ -240,23 +271,23 @@ def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     prefix = None
     lists_to_merge = []
     for entry in list_:
-        newPrefix,number = split_string_at_suffix(entry, numbers_into_suffix=True)
+        newPrefix, number = split_string_at_suffix(entry, numbers_into_suffix=True)
         if entry == newPrefix or prefix != newPrefix:
             lists_to_merge.append([])
             prefix = newPrefix
-        lists_to_merge[-1].append((entry,newPrefix,number))
+        lists_to_merge[-1].append((entry, newPrefix, number))
 
     # then merge them
     returnvalue = []
     for common_entries in lists_to_merge:
         common_prefix = common_entries[0][1]
-        assert all(common_prefix == prefix for entry,prefix,number in common_entries)
+        assert all(common_prefix == prefix for entry, prefix, number in common_entries)
         if len(common_entries) <= number_of_needed_commons:
-            returnvalue.extend((entry for entry,prefix,number in common_entries))
+            returnvalue.extend((entry for entry, prefix, number in common_entries))
         else:
             # we use '*' to indicate several entries,
             # it would also be possible to use '[min,max]' from '(n for e,p,n in common_entries)'
-            returnvalue.append(common_prefix + '*')
+            returnvalue.append(common_prefix + "*")
 
     return returnvalue
 
@@ -266,7 +297,7 @@ def prettylist(list_):
     Filter out duplicate values while keeping order.
     """
     if not list_:
-        return ''
+        return ""
 
     values = set()
     uniqueList = []
@@ -276,8 +307,7 @@ def prettylist(list_):
             values.add(entry)
             uniqueList.append(entry)
 
-    return uniqueList[0] if len(uniqueList) == 1 \
-        else '[' + '; '.join(uniqueList) + ']'
+    return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
 class _DummyFuture(object):
@@ -286,6 +316,7 @@ class _DummyFuture(object):
 
     def result(self):
         return self._result
+
 
 class DummyExecutor(object):
     """Executor similar to concurrent.futures.ProcessPoolExecutor
@@ -308,5 +339,6 @@ class TableDefinitionError(Exception):
 
     :param message Error message
     """
+
     def __init__(self, message):
         self.message = message

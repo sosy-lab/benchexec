@@ -56,7 +56,8 @@ def init(config, benchmark):
             logging.warning(
                 "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
                 "Consider using the container mode instead for isolating runs "
-                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215)."
+            )
         elif not config.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
@@ -65,21 +66,31 @@ def init(config, benchmark):
                 "or specify --container to use containers for better isolation of runs "
                 "(this will be the default starting with BenchExec 2.0). "
                 "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information.")
+                "for more information."
+            )
 
     try:
-        processes = subprocess.Popen(['ps', '-eo', 'cmd'], stdout=subprocess.PIPE).communicate()[0]
-        if len(re.findall(r"python.*benchmark\.py", util.decode_to_string(processes))) > 1:
-            logging.warning("Already running instance of this script detected. "
-                            "Please make sure to not interfere with somebody else's benchmarks.")
+        processes = subprocess.Popen(
+            ["ps", "-eo", "cmd"], stdout=subprocess.PIPE
+        ).communicate()[0]
+        if (
+            len(re.findall(r"python.*benchmark\.py", util.decode_to_string(processes)))
+            > 1
+        ):
+            logging.warning(
+                "Already running instance of this script detected. "
+                "Please make sure to not interfere with somebody else's benchmarks."
+            )
     except OSError:
-        pass # this does not work on Windows
+        pass  # this does not work on Windows
 
     benchmark.executable = benchmark.tool.executable()
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
+
 def get_system_info():
     return systeminfo.SystemInfo()
+
 
 def execute_benchmark(benchmark, output_handler):
 
@@ -87,46 +98,81 @@ def execute_benchmark(benchmark, output_handler):
 
     logging.debug("I will use %s threads.", benchmark.num_of_threads)
 
-    if benchmark.requirements.cpu_model \
-            or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None) \
-            or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None):
-        logging.warning("Ignoring specified resource requirements in local-execution mode, "
-                        "only resource limits are used.")
+    if (
+        benchmark.requirements.cpu_model
+        or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None)
+        or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None)
+    ):
+        logging.warning(
+            "Ignoring specified resource requirements in local-execution mode, "
+            "only resource limits are used."
+        )
 
     my_cgroups = cgroups.find_my_cgroups()
 
-    coreAssignment = None # cores per run
-    memoryAssignment = None # memory banks per run
+    coreAssignment = None  # cores per run
+    memoryAssignment = None  # memory banks per run
     cpu_packages = None
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
-            sys.exit("Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes.")
-        coreAssignment = get_cpu_cores_per_run(benchmark.rlimits[CORELIMIT], benchmark.num_of_threads, benchmark.config.use_hyperthreading, my_cgroups, benchmark.config.coreset)
+            sys.exit(
+                "Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes."
+            )
+        coreAssignment = get_cpu_cores_per_run(
+            benchmark.rlimits[CORELIMIT],
+            benchmark.num_of_threads,
+            benchmark.config.use_hyperthreading,
+            my_cgroups,
+            benchmark.config.coreset,
+        )
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
-        cpu_packages = set(get_cpu_package_for_core(core) for cores_of_run in coreAssignment for core in cores_of_run)
+        cpu_packages = set(
+            get_cpu_package_for_core(core)
+            for cores_of_run in coreAssignment
+            for core in cores_of_run
+        )
     elif benchmark.config.coreset:
-        sys.exit('Please limit the number of cores first if you also want to limit the set of available cores.')
+        sys.exit(
+            "Please limit the number of cores first if you also want to limit the set of available cores."
+        )
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
-        check_memory_size(benchmark.rlimits[MEMLIMIT], benchmark.num_of_threads,
-                          memoryAssignment, my_cgroups)
+        check_memory_size(
+            benchmark.rlimits[MEMLIMIT],
+            benchmark.num_of_threads,
+            memoryAssignment,
+            my_cgroups,
+        )
 
     if benchmark.num_of_threads > 1 and systeminfo.is_turbo_boost_enabled():
-        logging.warning("Turbo boost of CPU is enabled. "
-                        "Starting more than one benchmark in parallel affects the CPU frequency "
-                        "and thus makes the performance unreliable.")
+        logging.warning(
+            "Turbo boost of CPU is enabled. "
+            "Starting more than one benchmark in parallel affects the CPU frequency "
+            "and thus makes the performance unreliable."
+        )
 
     if benchmark.num_of_threads > 1 and benchmark.config.users:
         if len(benchmark.config.users) == 1:
             logging.warning(
-                'Executing multiple parallel benchmarks under same user account. '
-                'Consider specifying multiple user accounts for increased separation of runs.')
-            benchmark.config.users = [benchmark.config.users[0] for i in range(benchmark.num_of_threads)]
+                "Executing multiple parallel benchmarks under same user account. "
+                "Consider specifying multiple user accounts for increased separation of runs."
+            )
+            benchmark.config.users = [
+                benchmark.config.users[0] for i in range(benchmark.num_of_threads)
+            ]
         elif len(benchmark.config.users) < benchmark.num_of_threads:
-            sys.exit('Distributing parallel runs to different user accounts was requested, but not enough accounts were given. Please specify {} user accounts, or only one account.'.format(benchmark.num_of_threads))
+            sys.exit(
+                "Distributing parallel runs to different user accounts was requested, but not enough accounts were given. Please specify {} user accounts, or only one account.".format(
+                    benchmark.num_of_threads
+                )
+            )
         elif len(benchmark.config.users) != len(set(benchmark.config.users)):
-            sys.exit('Same user account was specified multiple times, please specify {} separate accounts, or only one account.'.format(benchmark.num_of_threads))
+            sys.exit(
+                "Same user account was specified multiple times, please specify {} separate accounts, or only one account.".format(
+                    benchmark.num_of_threads
+                )
+            )
 
     throttle_check = systeminfo.CPUThrottleCheck()
     swap_check = systeminfo.SwapCheck()
@@ -141,7 +187,9 @@ def execute_benchmark(benchmark, output_handler):
             output_handler.output_for_skipping_run_set(runSet)
 
         elif not runSet.runs:
-            output_handler.output_for_skipping_run_set(runSet, "because it has no files")
+            output_handler.output_for_skipping_run_set(
+                runSet, "because it has no files"
+            )
 
         else:
             run_sets_executed += 1
@@ -163,7 +211,9 @@ def execute_benchmark(benchmark, output_handler):
                 cores = coreAssignment[i] if coreAssignment else None
                 memBanks = memoryAssignment[i] if memoryAssignment else None
                 user = benchmark.config.users[i] if benchmark.config.users else None
-                WORKER_THREADS.append(_Worker(benchmark, cores, memBanks, user, output_handler))
+                WORKER_THREADS.append(
+                    _Worker(benchmark, cores, memBanks, user, output_handler)
+                )
 
             # wait until all tasks are done,
             # instead of queue.join(), we use a loop and sleep(1) to handle KeyboardInterrupt
@@ -171,12 +221,12 @@ def execute_benchmark(benchmark, output_handler):
             while not finished and not STOPPED_BY_INTERRUPT:
                 try:
                     _Worker.working_queue.all_tasks_done.acquire()
-                    finished = (_Worker.working_queue.unfinished_tasks == 0)
+                    finished = _Worker.working_queue.unfinished_tasks == 0
                 finally:
                     _Worker.working_queue.all_tasks_done.release()
 
                 try:
-                    time.sleep(0.1) # sleep some time
+                    time.sleep(0.1)  # sleep some time
                 except KeyboardInterrupt:
                     stop()
 
@@ -185,24 +235,31 @@ def execute_benchmark(benchmark, output_handler):
             energy = energy_measurement.stop() if energy_measurement else None
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
-            usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) \
-                        - (ruBefore.ru_utime + ruBefore.ru_stime)
+            usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) - (
+                ruBefore.ru_utime + ruBefore.ru_stime
+            )
             if energy and cpu_packages:
                 energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
 
             if STOPPED_BY_INTERRUPT:
-                output_handler.set_error('interrupted', runSet)
-            output_handler.output_after_run_set(runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy)
+                output_handler.set_error("interrupted", runSet)
+            output_handler.output_after_run_set(
+                runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
+            )
 
             for worker in WORKER_THREADS:
                 worker.cleanup()
 
     if throttle_check.has_throttled():
-        logging.warning('CPU throttled itself during benchmarking due to overheating. '
-                        'Benchmark results are unreliable!')
+        logging.warning(
+            "CPU throttled itself during benchmarking due to overheating. "
+            "Benchmark results are unreliable!"
+        )
     if swap_check.has_swapped():
-        logging.warning('System has swapped during benchmarking. '
-                        'Benchmark results are unreliable!')
+        logging.warning(
+            "System has swapped during benchmarking. "
+            "Benchmark results are unreliable!"
+        )
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
@@ -227,10 +284,11 @@ class _Worker(threading.Thread):
     """
     A Worker is a deamonic thread, that takes jobs from the working_queue and runs them.
     """
+
     working_queue = Queue()
 
     def __init__(self, benchmark, my_cpus, my_memory_nodes, my_user, output_handler):
-        threading.Thread.__init__(self) # constuctor of superclass
+        threading.Thread.__init__(self)  # constuctor of superclass
         self.benchmark = benchmark
         self.my_cpus = my_cpus
         self.my_memory_nodes = my_memory_nodes
@@ -239,7 +297,6 @@ class _Worker(threading.Thread):
         self.setDaemon(True)
 
         self.start()
-
 
     def run(self):
         while not _Worker.working_queue.empty() and not STOPPED_BY_INTERRUPT:
@@ -253,9 +310,8 @@ class _Worker(threading.Thread):
             except BenchExecException as e:
                 logging.critical(e)
             except BaseException as e:
-                logging.exception('Exception during run execution')
+                logging.exception("Exception during run execution")
             _Worker.working_queue.task_done()
-
 
     def execute(self, run):
         """
@@ -268,24 +324,24 @@ class _Worker(threading.Thread):
         memlimit = benchmark.rlimits.get(MEMLIMIT)
 
         args = run.cmdline()
-        logging.debug('Command line of run is %s', args)
-        run_result = \
-            self.run_executor.execute_run(
-                args,
-                output_filename=run.log_file,
-                output_dir=run.result_files_folder,
-                result_files_patterns=benchmark.result_files_patterns,
-                hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
-                softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
-                walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
-                cores=self.my_cpus,
-                memory_nodes=self.my_memory_nodes,
-                memlimit=memlimit,
-                environments=benchmark.environment(),
-                workingDir=benchmark.working_directory(),
-                maxLogfileSize=benchmark.config.maxLogfileSize,
-                files_count_limit=benchmark.config.filesCountLimit,
-                files_size_limit=benchmark.config.filesSizeLimit)
+        logging.debug("Command line of run is %s", args)
+        run_result = self.run_executor.execute_run(
+            args,
+            output_filename=run.log_file,
+            output_dir=run.result_files_folder,
+            result_files_patterns=benchmark.result_files_patterns,
+            hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
+            softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
+            walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
+            cores=self.my_cpus,
+            memory_nodes=self.my_memory_nodes,
+            memlimit=memlimit,
+            environments=benchmark.environment(),
+            workingDir=benchmark.working_directory(),
+            maxLogfileSize=benchmark.config.maxLogfileSize,
+            files_count_limit=benchmark.config.filesCountLimit,
+            files_size_limit=benchmark.config.filesSizeLimit,
+        )
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.
@@ -299,13 +355,12 @@ class _Worker(threading.Thread):
             return 1
 
         if self.my_cpus:
-            run_result['cpuCores'] = self.my_cpus
+            run_result["cpuCores"] = self.my_cpus
         if self.my_memory_nodes:
-            run_result['memoryNodes'] = self.my_memory_nodes
+            run_result["memoryNodes"] = self.my_memory_nodes
 
         run.set_result(run_result)
         self.output_handler.output_after_run(run)
-
 
     def stop(self):
         # asynchronous call to runexecutor,

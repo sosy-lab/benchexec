@@ -27,18 +27,19 @@ import string
 import sys
 import multiprocessing
 from functools import partial
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 import benchexec.tablegenerator as tablegenerator
 
 Util = tablegenerator.Util
 
-HEADER = (
-r"""% The following definition defines a command for each value.
+HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
-\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%""")
+\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%"""
+
 
 def extract_time(column_title, time_name, run_result):
     pos = None
@@ -47,14 +48,19 @@ def extract_time(column_title, time_name, run_result):
             pos = i
             break
     if pos is None:
-        sys.exit("{0} time missing for task {1}.".format(time_name, run_result.task_id[0]))
+        sys.exit(
+            "{0} time missing for task {1}.".format(time_name, run_result.task_id[0])
+        )
     return Util.to_decimal(run_result.values[pos])
+
 
 def extract_cputime(run_result):
     return extract_time("cputime", "CPU", run_result)
 
+
 def extract_walltime(run_result):
     return extract_time("walltime", "Wall", run_result)
+
 
 def format_command_part(name):
     name = re.sub("[^a-zA-Z]", "-", name)
@@ -78,22 +84,33 @@ class StatAccumulator(object):
         cputime_stats = tablegenerator.StatValue.from_list(self.cputime_values)
         walltime_stats = tablegenerator.StatValue.from_list(self.walltime_values)
         assert len(name_parts) <= 4
-        name_parts += [""] * (4 - len(name_parts)) # ensure length 4
+        name_parts += [""] * (4 - len(name_parts))  # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
-        return "\n".join(itertools.chain.from_iterable(
-            [["\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
-          + [[
-                r"\StoreBenchExecResult{%s}{%s}{}{%s}%%" % (name, time_name, time_stats.sum),
-                r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}%%" % (name, time_name, time_stats.avg),
-                r"\StoreBenchExecResult{%s}{%s}{Median}{%s}%%" % (name, time_name, time_stats.median),
-                r"\StoreBenchExecResult{%s}{%s}{Min}{%s}%%" % (name, time_name, time_stats.min),
-                r"\StoreBenchExecResult{%s}{%s}{Max}{%s}%%" % (name, time_name, time_stats.max),
-                r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%" % (name, time_name, time_stats.stdev)
-              ] for (time_name, time_stats) in [
-                  ("Cputime", cputime_stats),
-                  ("Walltime", walltime_stats)
-                ]]
-            ))
+        return "\n".join(
+            itertools.chain.from_iterable(
+                [["\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
+                + [
+                    [
+                        r"\StoreBenchExecResult{%s}{%s}{}{%s}%%"
+                        % (name, time_name, time_stats.sum),
+                        r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}%%"
+                        % (name, time_name, time_stats.avg),
+                        r"\StoreBenchExecResult{%s}{%s}{Median}{%s}%%"
+                        % (name, time_name, time_stats.median),
+                        r"\StoreBenchExecResult{%s}{%s}{Min}{%s}%%"
+                        % (name, time_name, time_stats.min),
+                        r"\StoreBenchExecResult{%s}{%s}{Max}{%s}%%"
+                        % (name, time_name, time_stats.max),
+                        r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%"
+                        % (name, time_name, time_stats.stdev),
+                    ]
+                    for (time_name, time_stats) in [
+                        ("Cputime", cputime_stats),
+                        ("Walltime", walltime_stats),
+                    ]
+                ]
+            )
+        )
 
 
 class StatsCollection(object):
@@ -106,12 +123,15 @@ class StatsCollection(object):
 
 def load_results(result_file, status_print):
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
-            result_file, tablegenerator.parse_results_file(result_file))
+        result_file, tablegenerator.parse_results_file(result_file)
+    )
     run_set_result.collect_data(False)
 
     total_stats = StatAccumulator()
     category_stats = collections.defaultdict(StatAccumulator)
-    status_stats = collections.defaultdict(lambda: collections.defaultdict(StatAccumulator))
+    status_stats = collections.defaultdict(
+        lambda: collections.defaultdict(StatAccumulator)
+    )
     for run_result in run_set_result.results:
         total_stats.add(run_result)
         category_stats[run_result.category].add(run_result)
@@ -122,8 +142,10 @@ def load_results(result_file, status_print):
             status_stats[run_result.category][short_status].add(run_result)
     assert len(run_set_result.results) == total_stats.count
 
-    basenames = [Util.prettylist(run_set_result.attributes.get("benchmarkname")),
-                 Util.prettylist(run_set_result.attributes.get("name"))]
+    basenames = [
+        Util.prettylist(run_set_result.attributes.get("benchmarkname")),
+        Util.prettylist(run_set_result.attributes.get("name")),
+    ]
 
     # status_stats must be transformed to a dictionary to get rid of the lambda-factory used above (can't be pickled)
     return StatsCollection(basenames, total_stats, category_stats, dict(status_stats))
@@ -135,26 +157,27 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(
         fromfile_prefix_chars="@",
-        description=
-        """Dump LaTeX commands with summary values of the table.
+        description="""Dump LaTeX commands with summary values of the table.
            All the information from the footer of HTML tables is available.
            The output is written to stdout.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/"""
-        )
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+    )
 
-    parser.add_argument("result",
+    parser.add_argument(
+        "result",
         metavar="RESULT",
         type=str,
-        nargs='+',
-        help="XML file(s) with result produced by benchexec"
-        )
-    parser.add_argument("--status",
+        nargs="+",
+        help="XML file(s) with result produced by benchexec",
+    )
+    parser.add_argument(
+        "--status",
         action="store",
         choices=["none", "short", "full"],
         default="short",
         help="whether to output statistics aggregated for each different status value, "
-             "for each abbreviated status value, or not",
-        )
+        "for each abbreviated status value, or not",
+    )
 
     options = parser.parse_args(args[1:])
 
@@ -172,13 +195,22 @@ def main(args=None):
 
         for (category, counts) in sorted(category_stats.items()):
             print(counts.to_latex(basenames + [category]))
-            categories = [(s, c) for (s, c) in status_stats.get(category, {}).items() if s]
+            categories = [
+                (s, c) for (s, c) in status_stats.get(category, {}).items() if s
+            ]
             for (status, counts2) in sorted(categories):
                 print(counts2.to_latex(basenames + [category, status]))
-                if category == "correct" and status_stats.get("wrong", {}).get(status) is None:
+                if (
+                    category == "correct"
+                    and status_stats.get("wrong", {}).get(status) is None
+                ):
                     print(StatAccumulator().to_latex(basenames + ["wrong", status]))
-                elif category == "wrong" and status_stats.get("correct", {}).get(status) is None:
+                elif (
+                    category == "wrong"
+                    and status_stats.get("correct", {}).get(status) is None
+                ):
                     print(StatAccumulator().to_latex(basenames + ["correct", status]))
+
 
 if __name__ == "__main__":
     try:

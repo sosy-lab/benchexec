@@ -24,19 +24,20 @@ import os
 import subprocess
 import sys
 import unittest
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec import check_cgroups
 
 try:
     from subprocess import DEVNULL
 except ImportError:
-    DEVNULL = open(os.devnull, 'wb')
+    DEVNULL = open(os.devnull, "wb")
 
-python = 'python2' if sys.version_info[0] == 2 else 'python3'
+python = "python2" if sys.version_info[0] == 2 else "python3"
+
 
 class TestCheckCgroups(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.longMessage = True
@@ -46,12 +47,12 @@ class TestCheckCgroups(unittest.TestCase):
     def execute_run_extern(self, *args, **kwargs):
         try:
             return subprocess.check_output(
-                    args=[python, '-m', 'benchexec.check_cgroups'] + list(args),
-                    stderr=subprocess.STDOUT,
-                    **kwargs
-                    ).decode()
+                args=[python, "-m", "benchexec.check_cgroups"] + list(args),
+                stderr=subprocess.STDOUT,
+                **kwargs
+            ).decode()
         except subprocess.CalledProcessError as e:
-            if e.returncode != 1: # 1 is expected if cgroups are not available
+            if e.returncode != 1:  # 1 is expected if cgroups are not available
                 print(e.output.decode())
                 raise e
 
@@ -60,7 +61,7 @@ class TestCheckCgroups(unittest.TestCase):
 
     def test_simple(self):
         try:
-            check_cgroups.main(['--no-thread'])
+            check_cgroups.main(["--no-thread"])
         except SystemExit as e:
             # expected if cgroups are not available
             self.skipTest(e)
@@ -79,7 +80,7 @@ class TestCheckCgroups(unittest.TestCase):
         """
         tmp = check_cgroups.check_cgroup_availability
         try:
-            check_cgroups.check_cgroup_availability = lambda wait : exit(1)
+            check_cgroups.check_cgroup_availability = lambda wait: exit(1)
 
             with self.assertRaises(SystemExit):
                 check_cgroups.main([])

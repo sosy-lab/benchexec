@@ -20,6 +20,7 @@ limitations under the License.
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     This tool is an imaginary tool that returns always UNSAFE.
@@ -28,10 +29,10 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        return '/bin/false'
+        return "/bin/false"
 
     def name(self):
-        return 'AlwaysFalseReach'
+        return "AlwaysFalseReach"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + tasks

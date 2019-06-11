@@ -21,6 +21,7 @@ import benchexec.tools.template
 import benchexec.result as result
 import benchexec.util as util
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     This tool is an imaginary tool that can be made to output any result.
@@ -33,17 +34,18 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        return util.find_executable('shuf')
+        return util.find_executable("shuf")
 
     def name(self):
-        return 'DummyTool'
+        return "DummyTool"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return ([executable, '--echo', '--'] +
-                options +
-                ["Input file: " + f for f in tasks] +
-                ["Property file: " + (propertyfile or "None")]
-                )
+        return (
+            [executable, "--echo", "--"]
+            + options
+            + ["Input file: " + f for f in tasks]
+            + ["Property file: " + (propertyfile or "None")]
+        )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:

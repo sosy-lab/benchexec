@@ -25,17 +25,20 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import itertools
 import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 import benchexec.result as result
 import benchexec.tablegenerator as tablegenerator
 
 Util = tablegenerator.Util
 
+
 def get_extract_value_function(column_identifier):
     """
     returns a function that extracts the value for a column.
     """
+
     def extract_value(run_result):
         pos = None
         for i, column in enumerate(run_result.columns):
@@ -43,55 +46,65 @@ def get_extract_value_function(column_identifier):
                 pos = i
                 break
         if pos is None:
-            sys.exit('CPU time missing for task {0}.'.format(run_result.task_id[0]))
+            sys.exit("CPU time missing for task {0}.".format(run_result.task_id[0]))
         return Util.to_decimal(run_result.values[pos])
+
     return extract_value
+
 
 def main(args=None):
     if args is None:
         args = sys.argv
 
     parser = argparse.ArgumentParser(
-        fromfile_prefix_chars='@',
-        description=
-        """Create CSV tables for quantile plots with the results of a benchmark execution.
+        fromfile_prefix_chars="@",
+        description="""Create CSV tables for quantile plots with the results of a benchmark execution.
            The CSV tables are similar to those produced with table-generator,
            but have an additional first column with the index for the quantile plot,
            and they are sorted.
            The output is written to stdout.
            Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
-         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    parser.add_argument("result",
+    parser.add_argument(
+        "result",
         metavar="RESULT",
         type=str,
         nargs="+",
-        help="XML files with result produced by benchexec"
+        help="XML files with result produced by benchexec",
     )
-    parser.add_argument("--correct-only",
-        action="store_true", dest="correct_only",
-        help="only use correct results (recommended, implied if --score-based is used)"
+    parser.add_argument(
+        "--correct-only",
+        action="store_true",
+        dest="correct_only",
+        help="only use correct results (recommended, implied if --score-based is used)",
     )
-    parser.add_argument("--score-based",
-        action="store_true", dest="score_based",
-        help="create data for score-based quantile plot"
+    parser.add_argument(
+        "--score-based",
+        action="store_true",
+        dest="score_based",
+        help="create data for score-based quantile plot",
     )
-    parser.add_argument("--sort-by",
+    parser.add_argument(
+        "--sort-by",
         metavar="SORT",
         default="cputime",
         dest="column_identifier",
         type=str,
-        help="column identifier for sorting the values, e.g. 'cputime' or 'walltime'"
+        help="column identifier for sorting the values, e.g. 'cputime' or 'walltime'",
     )
 
     options = parser.parse_args(args[1:])
 
     # load results
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
-            options.result[0], tablegenerator.parse_results_file(options.result[0]))
+        options.result[0], tablegenerator.parse_results_file(options.result[0])
+    )
     for results_file in options.result[1:]:
-        run_set_result.append(results_file, tablegenerator.parse_results_file(results_file))
+        run_set_result.append(
+            results_file, tablegenerator.parse_results_file(results_file)
+        )
     run_set_result.collect_data(options.correct_only or options.score_based)
 
     # select appropriate results
@@ -101,26 +114,38 @@ def main(args=None):
         results = []
         for run_result in run_set_result.results:
             if run_result.score is None:
-                sys.exit('No score available for task {0}, '
-                         'cannot produce score-based quantile data.'
-                         .format(run_result.task_id[0]))
+                sys.exit(
+                    "No score available for task {0}, "
+                    "cannot produce score-based quantile data.".format(
+                        run_result.task_id[0]
+                    )
+                )
 
             if run_result.category == result.CATEGORY_WRONG:
                 start_index += run_result.score
             elif run_result.category == result.CATEGORY_MISSING:
-                sys.exit('Property missing for task {0}, '
-                         'cannot produce score-based quantile data.'
-                         .format(run_result.task_id[0]))
+                sys.exit(
+                    "Property missing for task {0}, "
+                    "cannot produce score-based quantile data.".format(
+                        run_result.task_id[0]
+                    )
+                )
             elif run_result.category == result.CATEGORY_CORRECT:
                 results.append(run_result)
             else:
-                assert run_result.category in {result.CATEGORY_ERROR, result.CATEGORY_UNKNOWN}
+                assert run_result.category in {
+                    result.CATEGORY_ERROR,
+                    result.CATEGORY_UNKNOWN,
+                }
     else:
         start_index = 0
         index_increment = lambda run_result: 1
         if options.correct_only:
-            results = [run_result for run_result in run_set_result.results
-                       if run_result.category == result.CATEGORY_CORRECT]
+            results = [
+                run_result
+                for run_result in run_set_result.results
+                if run_result.category == result.CATEGORY_CORRECT
+            ]
         else:
             results = run_set_result.results
 
@@ -137,14 +162,15 @@ def main(args=None):
     for run_result in results:
         index += index_increment(run_result)
         columns = itertools.chain(
-                [index],
-                (id for id, show in zip(run_result.id, relevant_id_columns) if show),
-                map(Util.remove_unit, (value or '' for value in run_result.values)),
-                )
-        print(*columns, sep='\t')
+            [index],
+            (id for id, show in zip(run_result.id, relevant_id_columns) if show),
+            map(Util.remove_unit, (value or "" for value in run_result.values)),
+        )
+        print(*columns, sep="\t")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        sys.exit('Script was interrupted by user.')
+        sys.exit("Script was interrupted by user.")

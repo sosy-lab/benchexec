@@ -20,23 +20,19 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for Cascade (http://cascade.cims.nyu.edu/).
     """
 
-    REQUIRED_PATHS = [
-                  "bin",
-                  "cascade.sh",
-                  "lib",
-                  "run_cascade"
-                  ]
+    REQUIRED_PATHS = ["bin", "cascade.sh", "lib", "run_cascade"]
 
     def executable(self):
-        return util.find_executable('run_cascade')
+        return util.find_executable("run_cascade")
 
     def name(self):
-        return 'Cascade'
+        return "Cascade"
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -45,11 +41,11 @@ class Tool(benchexec.tools.template.BaseTool):
         assert len(tasks) == 1, "only one sourcefile supported"
         inputfile = tasks[0]
         assert propertyfile is not None
-        spec = ['-spec', propertyfile]
+        spec = ["-spec", propertyfile]
         return [executable] + options + spec + [inputfile]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         if "FALSE" in output:
             if "FALSE(valid-deref)" in output:
                 status = result.RESULT_FALSE_DEREF

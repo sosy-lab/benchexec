@@ -35,32 +35,38 @@ DOMAIN_CORE = "core"
 DOMAIN_UNCORE = "uncore"
 DOMAIN_DRAM = "dram"
 
-class EnergyMeasurement(object):
 
+class EnergyMeasurement(object):
     def __init__(self, executable):
         self._executable = executable
         self._measurement_process = None
 
     @classmethod
     def create_if_supported(cls):
-        executable = find_executable('cpu-energy-meter', exitOnError=False, use_current_dir=False)
-        if executable is None: # not available on current system
-            logging.debug('Energy measurement not available because cpu-energy-meter binary could not be found.')
+        executable = find_executable(
+            "cpu-energy-meter", exitOnError=False, use_current_dir=False
+        )
+        if executable is None:  # not available on current system
+            logging.debug(
+                "Energy measurement not available because cpu-energy-meter binary could not be found."
+            )
             return None
 
         return cls(executable)
 
     def start(self):
         """Starts the external measurement program."""
-        assert not self.is_running(), 'Attempted to start an energy measurement while one was already running.'
+        assert (
+            not self.is_running()
+        ), "Attempted to start an energy measurement while one was already running."
 
         self._measurement_process = subprocess.Popen(
-            [self._executable, '-r'],
+            [self._executable, "-r"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             bufsize=10000,
-            preexec_fn=os.setpgrp, # Prevent delivery of Ctrl+C to subprocess
-            )
+            preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess
+        )
 
     def stop(self):
         """Stops the external measurement program and returns the measurement result,
@@ -75,14 +81,15 @@ class EnergyMeasurement(object):
         if self._measurement_process.returncode:
             logging.debug(
                 "Energy measurement terminated with return code %s",
-                self._measurement_process.returncode)
+                self._measurement_process.returncode,
+            )
         self._measurement_process = None
         for line in err.splitlines():
             logging.debug("energy measurement stderr: %s", line)
         for line in out.splitlines():
-            line = line.decode('ASCII')
+            line = line.decode("ASCII")
             logging.debug("energy measurement output: %s", line)
-            match = re.match(r'cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)', line)
+            match = re.match(r"cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)", line)
             if not match:
                 continue
 
@@ -93,10 +100,10 @@ class EnergyMeasurement(object):
             consumed_energy[cpu][domain] = energy
         return consumed_energy
 
-
     def is_running(self):
         """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
         return self._measurement_process is not None
+
 
 def format_energy_results(energy):
     """Take the result of an energy measurement and return a flat dictionary that contains all values."""
@@ -108,9 +115,9 @@ def format_energy_results(energy):
         for domain, value in domains.items():
             if domain == DOMAIN_PACKAGE:
                 cpuenergy += value
-                result['cpuenergy-pkg{}'.format(pkg)] = value
+                result["cpuenergy-pkg{}".format(pkg)] = value
             else:
-                result['cpuenergy-pkg{}-{}'.format(pkg, domain)] = value
-    result['cpuenergy'] = cpuenergy
+                result["cpuenergy-pkg{}-{}".format(pkg, domain)] = value
+    result["cpuenergy"] = cpuenergy
     result = collections.OrderedDict(sorted(result.items()))
     return result

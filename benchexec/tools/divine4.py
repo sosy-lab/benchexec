@@ -30,22 +30,24 @@ import subprocess
 
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     DIVINE tool info object
     """
 
-    BINS = ['divine', 'divine-svc']
-    REQUIRED_PATHS = BINS + ['lib']
-    RESMAP = { 'true': result.RESULT_TRUE_PROP
-             , 'false': result.RESULT_FALSE_REACH
-             , 'false-deref': result.RESULT_FALSE_DEREF
-             , 'false-free': result.RESULT_FALSE_FREE
-             , 'false-memtrack': result.RESULT_FALSE_MEMTRACK
-             , 'false-term': result.RESULT_FALSE_TERMINATION
-             , 'false-deadlock': result.RESULT_FALSE_DEADLOCK
-             , 'false-overflow': result.RESULT_FALSE_OVERFLOW
-             }
+    BINS = ["divine", "divine-svc"]
+    REQUIRED_PATHS = BINS + ["lib"]
+    RESMAP = {
+        "true": result.RESULT_TRUE_PROP,
+        "false": result.RESULT_FALSE_REACH,
+        "false-deref": result.RESULT_FALSE_DEREF,
+        "false-free": result.RESULT_FALSE_FREE,
+        "false-memtrack": result.RESULT_FALSE_MEMTRACK,
+        "false-term": result.RESULT_FALSE_TERMINATION,
+        "false-deadlock": result.RESULT_FALSE_DEADLOCK,
+        "false-overflow": result.RESULT_FALSE_OVERFLOW,
+    }
 
     def executable(self):
         """
@@ -57,16 +59,16 @@ class Tool(benchexec.tools.template.BaseTool):
     def version(self, executable):
         output = self._version_from_tool(executable, ignore_stderr=True)
         for l in output.splitlines():
-            k, v = l.split(':', maxsplit=1)
-            if k == 'version':
+            k, v = l.split(":", maxsplit=1)
+            if k == "version":
                 return v.strip()
-        return ''
+        return ""
 
     def name(self):
         """
         Return the name of the tool, formatted for humans.
         """
-        return 'DIVINE'
+        return "DIVINE"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -91,7 +93,9 @@ class Tool(benchexec.tools.template.BaseTool):
         prp = propertyfile or "-"
 
         # prefix command line with wrapper script
-        return [os.path.join(directory, self.BINS[1]), executable, prp] + options + tasks
+        return (
+            [os.path.join(directory, self.BINS[1]), executable, prp] + options + tasks
+        )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -105,18 +109,18 @@ class Tool(benchexec.tools.template.BaseTool):
         """
 
         if not output:
-            return 'ERROR - no output'
+            return "ERROR - no output"
 
         last = output[-1]
 
         if isTimeout:
-            return 'TIMEOUT'
+            return "TIMEOUT"
 
         if returncode != 0:
-            return 'ERROR - {0}'.format( last )
+            return "ERROR - {0}".format(last)
 
-        if 'result:' in last:
-            res = last.split(':', maxsplit=1)[1].strip()
-            return self.RESMAP.get( res, result.RESULT_UNKNOWN );
+        if "result:" in last:
+            res = last.split(":", maxsplit=1)[1].strip()
+            return self.RESMAP.get(res, result.RESULT_UNKNOWN)
         else:
-            return 'UNKNOWN ERROR'
+            return "UNKNOWN ERROR"

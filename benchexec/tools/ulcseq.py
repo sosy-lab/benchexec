@@ -21,20 +21,16 @@ limitations under the License.
 import benchexec.util as util
 from . import cseq
 
+
 class Tool(cseq.CSeqTool):
     """
     Tool info for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
-    REQUIRED_PATHS = [
-                  "backends",
-                  "bin",
-                  "include",
-                  "ul-cseq.py"
-                  ]
+    REQUIRED_PATHS = ["backends", "bin", "include", "ul-cseq.py"]
 
     def executable(self):
-        return util.find_executable('ul-cseq.py')
+        return util.find_executable("ul-cseq.py")
 
     def name(self):
-        return 'UL-CSeq'
+        return "UL-CSeq"

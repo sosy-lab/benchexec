@@ -21,30 +21,29 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
-                      "fixcalc",
-                      "hip",
-                      "hiptnt",
-                      "hiptnt.sh",
-                      "oc",
-                      "prelude.ss",
-                      "run_hiptnt",
-                      "stdlib.h",
-                      "z3-4.3.2",
-                      ]
+        "fixcalc",
+        "hip",
+        "hiptnt",
+        "hiptnt.sh",
+        "oc",
+        "prelude.ss",
+        "run_hiptnt",
+        "stdlib.h",
+        "z3-4.3.2",
+    ]
 
     def executable(self):
-        return util.find_executable('hiptnt.sh')
-
+        return util.find_executable("hiptnt.sh")
 
     def name(self):
-        return 'HipTNT+'
-
+        return "HipTNT+"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         status = result.RESULT_UNKNOWN
         if "error" in output:
             status = result.RESULT_UNKNOWN

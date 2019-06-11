@@ -22,22 +22,19 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
-
     def executable(self):
-        return util.find_executable('wolverine')
-
+        return util.find_executable("wolverine")
 
     def version(self, executable):
         return self._version_from_tool(executable)[1].strip()
 
-
     def name(self):
-        return 'Wolverine'
-
+        return "Wolverine"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         if "VERIFICATION SUCCESSFUL" in output:
             assert returncode == 0
             status = result.RESULT_TRUE_PROP

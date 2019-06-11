@@ -20,22 +20,27 @@ limitations under the License.
 import benchexec.tools.template
 import benchexec.util as util
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     This tool is an trivial tool that calculates pi up to a certain number of digits using bc.
     Use this for example for testing and creating some CPU load.
     """
+
     def executable(self):
-        return util.find_executable('bc')
+        return util.find_executable("bc")
 
     def name(self):
-        return 'CalculatePI'
+        return "CalculatePI"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1
         digits = tasks[0].strip()
         assert int(digits) >= 0
-        return ['/bin/sh', '-c',
-                'echo "scale={digits}; a(1)*4" | {executable} -l'
-                    .format(digits=digits, executable=executable)
-                ]
+        return [
+            "/bin/sh",
+            "-c",
+            'echo "scale={digits}; a(1)*4" | {executable} -l'.format(
+                digits=digits, executable=executable
+            ),
+        ]

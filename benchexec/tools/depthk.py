@@ -31,67 +31,63 @@ class Tool(benchexec.tools.template.BaseTool):
     Autor: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.
     """
 
-    REQUIRED_PATHS = ['depthk.py', 'depthk-wrapper.sh', 'esbmc',
-                      '__init__.py', 'modules']
+    REQUIRED_PATHS = [
+        "depthk.py",
+        "depthk-wrapper.sh",
+        "esbmc",
+        "__init__.py",
+        "modules",
+    ]
 
     def executable(self):
 
-        return Util.find_executable('depthk-wrapper.sh')
+        return Util.find_executable("depthk-wrapper.sh")
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
         return executableDir
 
     def version(self, executable):
-        version = subprocess.Popen([executable, '-v'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT).stdout.readline().decode()
+        version = (
+            subprocess.Popen(
+                [executable, "-v"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+            .stdout.readline()
+            .decode()
+        )
         return version.strip()
 
     def name(self):
-        return 'DepthK'
+        return "DepthK"
 
-    def cmdline(
-        self,
-        executable,
-        options,
-        tasks,
-        propertyfile,
-        rlimits,
-        ):
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
 
-        assert len(tasks) == 1, 'only one sourcefile supported'
-        assert propertyfile, 'property file required'
+        assert len(tasks) == 1, "only one sourcefile supported"
+        assert propertyfile, "property file required"
         sourcefile = tasks[0]
-        return [executable] + options + ['-c', propertyfile, sourcefile]
+        return [executable] + options + ["-c", propertyfile, sourcefile]
 
-    def determine_result(
-        self,
-        returncode,
-        returnsignal,
-        output,
-        isTimeout,
-        ):
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         if len(output) <= 0:
             return
 
         output = output[-1].strip()
-        status = ''
+        status = ""
 
-        if 'TRUE' in output:
+        if "TRUE" in output:
             status = result.RESULT_TRUE_PROP
-        elif 'no-overflow' in output:
+        elif "no-overflow" in output:
             status = result.RESULT_FALSE_OVERFLOW
-        elif 'valid-deref' in output:
+        elif "valid-deref" in output:
             status = result.RESULT_FALSE_DEREF
-        elif 'valid-memtrack' in output:
+        elif "valid-memtrack" in output:
             status = result.RESULT_FALSE_MEMTRACK
-        elif 'FALSE(TERMINATION)' in output:
+        elif "FALSE(TERMINATION)" in output:
             status = result.RESULT_FALSE_TERMINATION
-        elif 'FALSE' in output:
+        elif "FALSE" in output:
             status = result.RESULT_FALSE_REACH
-        elif 'UNKNOWN' in output:
+        elif "UNKNOWN" in output:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
@@ -101,11 +97,11 @@ class Tool(benchexec.tools.template.BaseTool):
     def get_value_from_output(self, lines, identifier):
 
         for line in lines:
-            if identifier == 'k' and line.startswith('Bound k:'):
-                matchbound = re.search(r'Bound k:(.*)', line)
+            if identifier == "k" and line.startswith("Bound k:"):
+                matchbound = re.search(r"Bound k:(.*)", line)
                 return matchbound.group(1).strip()
-            if identifier == 'Step' and line.startswith('Solution by:'):
-                matchstep = re.search(r'Solution by:(.*)', line)
+            if identifier == "Step" and line.startswith("Solution by:"):
+                matchstep = re.search(r"Solution by:(.*)", line)
                 return matchstep.group(1).strip()
 
-        return '-'
+        return "-"

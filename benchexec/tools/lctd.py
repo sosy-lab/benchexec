@@ -21,22 +21,23 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = [
-                  "bin",
-                  "include",
-                  "lctdsvcomp",
-                  "lib",
-                  "llvm",
-                  "server.properties"
-                  ]
+        "bin",
+        "include",
+        "lctdsvcomp",
+        "lib",
+        "llvm",
+        "server.properties",
+    ]
 
     def executable(self):
-        return util.find_executable('lctdsvcomp')
+        return util.find_executable("lctdsvcomp")
 
     def name(self):
-        return 'LCTD'
+        return "LCTD"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1

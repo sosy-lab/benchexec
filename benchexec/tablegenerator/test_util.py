@@ -21,12 +21,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys
 import unittest
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec.tablegenerator import util
 
-class TestUnit(unittest.TestCase):
 
+class TestUnit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.longMessage = True

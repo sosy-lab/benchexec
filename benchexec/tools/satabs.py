@@ -22,22 +22,19 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
-
     def executable(self):
-        return util.find_executable('satabs')
-
+        return util.find_executable("satabs")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
-
     def name(self):
-        return 'SatAbs'
-
+        return "SatAbs"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         if "VERIFICATION SUCCESSFUL" in output:
             assert returncode == 0
             status = result.RESULT_TRUE_PROP
@@ -48,7 +45,7 @@ class Tool(benchexec.tools.template.BaseTool):
             status = "TIMEOUT"
         elif returnsignal == 6:
             if "Assertion `!counterexample.steps.empty()' failed" in output:
-                status = 'COUNTEREXAMPLE FAILED' # TODO: other status?
+                status = "COUNTEREXAMPLE FAILED"  # TODO: other status?
             else:
                 status = "OUT OF MEMORY"
         elif returncode == 1 and "PARSING ERROR" in output:

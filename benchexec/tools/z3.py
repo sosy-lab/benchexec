@@ -26,22 +26,23 @@ import subprocess
 import benchexec.util as util
 import benchexec.tools.smtlib2
 
+
 class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
     """
     Tool info for z3.
     """
 
     def executable(self):
-        return util.find_executable('z3')
+        return util.find_executable("z3")
 
     def version(self, executable):
-        line = self._version_from_tool(executable, '-version')
-        line = line.replace('Z3 version' , '')
-        line = line.split('-')[0]
+        line = self._version_from_tool(executable, "-version")
+        line = line.replace("Z3 version", "")
+        line = line.split("-")[0]
         return line.strip()
 
     def name(self):
-        return 'Z3'
+        return "Z3"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         assert len(tasks) <= 1, "only one inputfile supported"

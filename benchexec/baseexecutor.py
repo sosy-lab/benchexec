@@ -28,7 +28,8 @@ import signal
 import subprocess
 import sys
 import threading
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec import __version__
 from benchexec import util
@@ -36,15 +37,20 @@ from benchexec import util
 
 def add_basic_executor_options(argument_parser):
     """Add some basic options for an executor to an argparse argument_parser."""
-    argument_parser.add_argument("args", nargs="+", metavar="ARG",
-        help='command line to run (prefix with "--" to ensure all arguments are treated correctly)')
-    argument_parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+    argument_parser.add_argument(
+        "args",
+        nargs="+",
+        metavar="ARG",
+        help='command line to run (prefix with "--" to ensure all arguments are treated correctly)',
+    )
+    argument_parser.add_argument(
+        "--version", action="version", version="%(prog)s " + __version__
+    )
 
     verbosity = argument_parser.add_mutually_exclusive_group()
-    verbosity.add_argument("--debug", action="store_true",
-                           help="show debug output")
-    verbosity.add_argument("--quiet", action="store_true",
-                           help="show only warnings")
+    verbosity.add_argument("--debug", action="store_true", help="show debug output")
+    verbosity.add_argument("--quiet", action="store_true", help="show only warnings")
+
 
 def handle_basic_executor_options(options, parser):
     """Handle the options specified by add_basic_executor_options()."""
@@ -73,11 +79,21 @@ class BaseExecutor(object):
         except OSError as e:
             if e.errno == errno.ESRCH:
                 # process itself returned and exited before killing
-                logging.debug("Failure %s while killing process %s with signal %s: %s",
-                              e.errno, pid, sig, e.strerror)
+                logging.debug(
+                    "Failure %s while killing process %s with signal %s: %s",
+                    e.errno,
+                    pid,
+                    sig,
+                    e.strerror,
+                )
             else:
-                logging.warning("Failure %s while killing process %s with signal %s: %s",
-                                e.errno, pid, sig, e.strerror)
+                logging.warning(
+                    "Failure %s while killing process %s with signal %s: %s",
+                    e.errno,
+                    pid,
+                    sig,
+                    e.strerror,
+                )
 
     def _create_dirs_in_temp_dir(self, *paths):
         """Create some directories, all of which need to be below the temp_dir given to
@@ -95,8 +111,20 @@ class BaseExecutor(object):
         where files created by the tool are stored."""
         return temp_dir
 
-    def _start_execution(self, args, stdin, stdout, stderr, env, cwd, temp_dir, cgroups,
-                         parent_setup_fn, child_setup_fn, parent_cleanup_fn):
+    def _start_execution(
+        self,
+        args,
+        stdin,
+        stdout,
+        stderr,
+        env,
+        cwd,
+        temp_dir,
+        cgroups,
+        parent_setup_fn,
+        child_setup_fn,
+        parent_cleanup_fn,
+    ):
         """Actually start the tool and the measurements.
         @param parent_setup_fn a function without parameters that is called in the parent process
             immediately before the tool is started
@@ -110,6 +138,7 @@ class BaseExecutor(object):
             and a triple of the exit code and the resource usage of the process
             and the result of parent_cleanup_fn (do not use os.wait)
         """
+
         def pre_subprocess():
             # Do some other setup the caller wants.
             child_setup_fn()
@@ -133,22 +162,26 @@ class BaseExecutor(object):
 
         parent_setup = parent_setup_fn()
 
-        p = subprocess.Popen(args,
-                     stdin=stdin,
-                     stdout=stdout, stderr=stderr,
-                     env=env, cwd=cwd,
-                     close_fds=True,
-                     preexec_fn=pre_subprocess)
+        p = subprocess.Popen(
+            args,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
+            env=env,
+            cwd=cwd,
+            close_fds=True,
+            preexec_fn=pre_subprocess,
+        )
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
 
             parent_cleanup = parent_cleanup_fn(
-                parent_setup, util.ProcessExitCode.from_raw(exitcode), "")
+                parent_setup, util.ProcessExitCode.from_raw(exitcode), ""
+            )
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, wait_and_get_result
-
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
@@ -163,23 +196,33 @@ class BaseExecutor(object):
                 # Interrupted system call seems always to happen
                 # if we killed the process ourselves after Ctrl+C was pressed
                 # We can try again to get exitcode and resource usage.
-                logging.debug("OSError %s while waiting for termination of %s (%s): %s.",
-                              e.errno, name, pid, e.strerror)
+                logging.debug(
+                    "OSError %s while waiting for termination of %s (%s): %s.",
+                    e.errno,
+                    name,
+                    pid,
+                    e.strerror,
+                )
                 try:
                     unused_pid, exitcode, ru_child = os.wait4(pid, 0)
                     return exitcode, ru_child
                 except OSError:
-                    pass # original error will be handled and this ignored
+                    pass  # original error will be handled and this ignored
 
-            logging.critical("OSError %s while waiting for termination of %s (%s): %s.",
-                             e.errno, name, pid, e.strerror)
+            logging.critical(
+                "OSError %s while waiting for termination of %s (%s): %s.",
+                e.errno,
+                name,
+                pid,
+                e.strerror,
+            )
             return (0, None)
 
     def stop(self):
         self.PROCESS_KILLED = True
         with self.SUB_PROCESS_PIDS_LOCK:
             for pid in self.SUB_PROCESS_PIDS:
-                logging.warning('Killing process %s forcefully.', pid)
+                logging.warning("Killing process %s forcefully.", pid)
                 try:
                     self._kill_process(pid)
                 except EnvironmentError as e:

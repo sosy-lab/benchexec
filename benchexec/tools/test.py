@@ -26,13 +26,12 @@ import sys
 
 import benchexec.model
 
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 
 
 class ToolInfoModuleTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.longMessage = True
@@ -49,6 +48,10 @@ class ToolInfoModuleTest(unittest.TestCase):
             try:
                 benchexec.model.load_tool_info(tool_info_name[0])
             except SystemExit as e:
-                logging.warning("Cannot load tool-info module %s: %s", tool_info_name, e)
+                logging.warning(
+                    "Cannot load tool-info module %s: %s", tool_info_name, e
+                )
             except BaseException as e:
-                self.fail("Loading tool-info module {} failed: {}".format(tool_info_name, e))
+                self.fail(
+                    "Loading tool-info module {} failed: {}".format(tool_info_name, e)
+                )

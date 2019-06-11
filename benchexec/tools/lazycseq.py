@@ -21,23 +21,24 @@ limitations under the License.
 import benchexec.util as util
 from . import cseq
 
+
 class Tool(cseq.CSeqTool):
     """
     Tool info for Lazy-CSeq (http://github.com/omainv/cseq/releases).
     """
 
     REQUIRED_PATHS = [
-                  "cbmc",
-                  "cbmc-5.4",
-                  "core",
-                  "cseq.py",
-                  "lazy-cseq.py",
-                  "pycparser",
-                  "modules"
-                  ]
+        "cbmc",
+        "cbmc-5.4",
+        "core",
+        "cseq.py",
+        "lazy-cseq.py",
+        "pycparser",
+        "modules",
+    ]
 
     def executable(self):
-        return util.find_executable('lazy-cseq.py')
+        return util.find_executable("lazy-cseq.py")
 
     def name(self):
-        return 'Lazy-CSeq'
+        return "Lazy-CSeq"

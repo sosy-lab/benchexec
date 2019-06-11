@@ -23,23 +23,20 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
-
     def executable(self):
-        return util.find_executable('acsar')
-
+        return util.find_executable("acsar")
 
     def name(self):
-        return 'Acsar'
-
+        return "Acsar"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
         return [executable] + ["--file"] + tasks + options
 
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         if "syntax error" in output:
             status = "SYNTAX ERROR"
 
@@ -67,7 +64,10 @@ class Tool(benchexec.tools.template.BaseTool):
         elif "Error Location <<ERROR_LOCATION>> is not reachable" in output:
             status = result.RESULT_TRUE_PROP
 
-        elif "Error Location <<ERROR_LOCATION>> is reachable via the following path" in output:
+        elif (
+            "Error Location <<ERROR_LOCATION>> is reachable via the following path"
+            in output
+        ):
             status = result.RESULT_FALSE_REACH
 
         else:

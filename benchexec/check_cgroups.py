@@ -27,11 +27,13 @@ import os
 import sys
 import tempfile
 import threading
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec.cgroups import *  # @UnusedWildImport
 from benchexec.runexecutor import RunExecutor
 from benchexec import util
+
 
 def check_cgroup_availability(wait=1):
     """
@@ -47,34 +49,49 @@ def check_cgroup_availability(wait=1):
     runexecutor = RunExecutor()
     my_cgroups = runexecutor.cgroups
 
-    if not (CPUACCT in my_cgroups and
-            CPUSET in my_cgroups and
-            # FREEZER in my_cgroups and # For now, we do not require freezer
-            MEMORY in my_cgroups):
+    if not (
+        CPUACCT in my_cgroups
+        and CPUSET in my_cgroups
+        and
+        # FREEZER in my_cgroups and # For now, we do not require freezer
+        MEMORY in my_cgroups
+    ):
         sys.exit(1)
 
-    with tempfile.NamedTemporaryFile(mode='rt') as tmp:
-        runexecutor.execute_run(['sh', '-c', 'sleep {0}; cat /proc/self/cgroup'.format(wait)], tmp.name,
-                                memlimit=1024*1024, # set memlimit to force check for swapaccount
-                                # set cores and memory_nodes to force usage of CPUSET
-                                cores=util.parse_int_list(my_cgroups.get_value(CPUSET, 'cpus')),
-                                memory_nodes=my_cgroups.read_allowed_memory_banks())
+    with tempfile.NamedTemporaryFile(mode="rt") as tmp:
+        runexecutor.execute_run(
+            ["sh", "-c", "sleep {0}; cat /proc/self/cgroup".format(wait)],
+            tmp.name,
+            memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
+            # set cores and memory_nodes to force usage of CPUSET
+            cores=util.parse_int_list(my_cgroups.get_value(CPUSET, "cpus")),
+            memory_nodes=my_cgroups.read_allowed_memory_banks(),
+        )
         lines = []
         for line in tmp:
             line = line.strip()
-            if line and not line == "sh -c 'sleep {0}; cat /proc/self/cgroup'".format(wait) \
-                    and not all(c == '-' for c in line):
+            if (
+                line
+                and not line == "sh -c 'sleep {0}; cat /proc/self/cgroup'".format(wait)
+                and not all(c == "-" for c in line)
+            ):
                 lines.append(line)
     task_cgroups = find_my_cgroups(lines)
 
     fail = False
     for subsystem in CPUACCT, CPUSET, MEMORY, FREEZER:
         if subsystem in my_cgroups:
-            if not task_cgroups[subsystem].startswith(os.path.join(my_cgroups[subsystem], 'benchmark_')):
-                logging.warning('Task was in cgroup %s for subsystem %s, '
-                                'which is not the expected sub-cgroup of %s. '
-                                'Maybe some other program is interfering with cgroup management?',
-                                task_cgroups[subsystem], subsystem, my_cgroups[subsystem])
+            if not task_cgroups[subsystem].startswith(
+                os.path.join(my_cgroups[subsystem], "benchmark_")
+            ):
+                logging.warning(
+                    "Task was in cgroup %s for subsystem %s, "
+                    "which is not the expected sub-cgroup of %s. "
+                    "Maybe some other program is interfering with cgroup management?",
+                    task_cgroups[subsystem],
+                    subsystem,
+                    my_cgroups[subsystem],
+                )
                 fail = True
     if fail:
         sys.exit(1)
@@ -93,6 +110,7 @@ def check_cgroup_availability_in_thread(options):
     thread.join()
     if thread.error:
         raise thread.error
+
 
 class _CheckCgroupsThread(threading.Thread):
 
@@ -117,15 +135,23 @@ def main(argv=None):
         argv = sys.argv
 
     parser = argparse.ArgumentParser(
-        fromfile_prefix_chars='@',
-        description=
-        """Check whether cgroups are available and can be used for BenchExec.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
-    parser.add_argument("--wait", type=int, default=1, metavar="SECONDS",
-                        help='wait some time to ensure no process interferes with cgroups in the meantime (default: 1s)')
-    parser.add_argument("--no-thread", action="store_true",
-                        help='run check on the main thread instead of a separate thread'
-                            + '(behavior of cgrulesengd differs depending on this)')
+        fromfile_prefix_chars="@",
+        description="""Check whether cgroups are available and can be used for BenchExec.
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+    )
+    parser.add_argument(
+        "--wait",
+        type=int,
+        default=1,
+        metavar="SECONDS",
+        help="wait some time to ensure no process interferes with cgroups in the meantime (default: 1s)",
+    )
+    parser.add_argument(
+        "--no-thread",
+        action="store_true",
+        help="run check on the main thread instead of a separate thread"
+        + "(behavior of cgrulesengd differs depending on this)",
+    )
 
     options = parser.parse_args(argv[1:])
 
@@ -134,5 +160,6 @@ def main(argv=None):
     else:
         check_cgroup_availability_in_thread(options)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

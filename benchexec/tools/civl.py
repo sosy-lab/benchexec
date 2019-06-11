@@ -22,24 +22,23 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
 
-    REQUIRED_PATHS = [
-                  "civl",
-                  "lib",
-                  "provers"
-                  ]
+    REQUIRED_PATHS = ["civl", "lib", "provers"]
 
     def executable(self):
-        return util.find_executable('civl')
+        return util.find_executable("civl")
 
     def name(self):
-        return 'CIVL'
+        return "CIVL"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if any('__VERIFIER_error() is called.' in s for s in output):
+        if any("__VERIFIER_error() is called." in s for s in output):
             status = result.RESULT_FALSE_REACH
-        elif any('The standard properties hold for all executions.' in s for s in output):
+        elif any(
+            "The standard properties hold for all executions." in s for s in output
+        ):
             status = result.RESULT_TRUE_PROP
         else:
             status = result.RESULT_UNKNOWN

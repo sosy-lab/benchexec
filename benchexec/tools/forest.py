@@ -22,28 +22,33 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for Forest
     """
-    REQUIRED_PATHS = [
-                  "bin",
-                  "lib",
-                  "tools"
-                  ]
+
+    REQUIRED_PATHS = ["bin", "lib", "tools"]
 
     def executable(self):
-        return util.find_executable('forest.sh')
+        return util.find_executable("forest.sh")
 
     def name(self):
-        return 'Forest'
+        return "Forest"
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
-        return [executable] + ["-propertyfile", propertyfile] + options + ["-svcomp_only_output"] + ["-file"] + [ tasks[0] ]
+        return (
+            [executable]
+            + ["-propertyfile", propertyfile]
+            + options
+            + ["-svcomp_only_output"]
+            + ["-file"]
+            + [tasks[0]]
+        )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_UNKNOWN
@@ -57,4 +62,3 @@ class Tool(benchexec.tools.template.BaseTool):
             if "FALSE_FREE" in line:
                 status = result.RESULT_FALSE_FREE
         return status
-

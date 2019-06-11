@@ -19,33 +19,31 @@ import benchexec.tools.template
 import benchexec.model
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for FairFuzz (https://https://github.com/carolemieux/afl-rb/tree/testcomp).
     """
 
-    REQUIRED_PATHS = [
-        "bin",
-        "helper"
-    ]
+    REQUIRED_PATHS = ["bin", "helper"]
 
     def executable(self):
-        return util.find_executable('bin/fairfuzz-svtestcomp')
+        return util.find_executable("bin/fairfuzz-svtestcomp")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True)
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def version(self, executable):
         stdout = self._version_from_tool(executable)
-        line = next(l for l in stdout.splitlines() if l.startswith('FairFuzz'))
+        line = next(l for l in stdout.splitlines() if l.startswith("FairFuzz"))
         line = line.rstrip()
         version_number = line.split("Version ")[1]
         return version_number
 
     def name(self):
-        return 'FairFuzz'
-
+        return "FairFuzz"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -67,4 +65,3 @@ class Tool(benchexec.tools.template.BaseTool):
             if "DONE RUNNING" in line:
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN
-

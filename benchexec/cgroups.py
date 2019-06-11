@@ -31,32 +31,44 @@ import time
 from benchexec import util
 
 __all__ = [
-           'find_my_cgroups',
-           'find_cgroups_of_process',
-           'BLKIO',
-           'CPUACCT',
-           'CPUSET',
-           'FREEZER',
-           'MEMORY',
-           ]
+    "find_my_cgroups",
+    "find_cgroups_of_process",
+    "BLKIO",
+    "CPUACCT",
+    "CPUSET",
+    "FREEZER",
+    "MEMORY",
+]
 
-CGROUP_FALLBACK_PATH='system.slice/benchexec-cgroup.service'
+CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
 attempt to use this sub-cgroup as fallback."""
 
-CGROUP_NAME_PREFIX='benchmark_'
+CGROUP_NAME_PREFIX = "benchmark_"
 
-BLKIO = 'blkio'
-CPUACCT = 'cpuacct'
-CPUSET = 'cpuset'
-FREEZER = 'freezer'
-MEMORY = 'memory'
-ALL_KNOWN_SUBSYSTEMS = set([
-    # cgroups for BenchExec
-    BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY,
-    # other cgroups users might want
-    'cpu', 'devices', 'net_cls', 'net_prio', 'hugetlb', 'perf_event', 'pids',
-    ])
+BLKIO = "blkio"
+CPUACCT = "cpuacct"
+CPUSET = "cpuset"
+FREEZER = "freezer"
+MEMORY = "memory"
+ALL_KNOWN_SUBSYSTEMS = set(
+    [
+        # cgroups for BenchExec
+        BLKIO,
+        CPUACCT,
+        CPUSET,
+        FREEZER,
+        MEMORY,
+        # other cgroups users might want
+        "cpu",
+        "devices",
+        "net_cls",
+        "net_prio",
+        "hugetlb",
+        "perf_event",
+        "pids",
+    ]
+)
 
 
 def find_my_cgroups(cgroup_paths=None):
@@ -69,7 +81,9 @@ def find_my_cgroups(cgroup_paths=None):
     child cgroups, this can be checked with require_subsystem().
     @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
     """
-    logging.debug('Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups.')
+    logging.debug(
+        "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
+    )
     if cgroup_paths is None:
         my_cgroups = dict(_find_own_cgroups())
     else:
@@ -82,18 +96,20 @@ def find_my_cgroups(cgroup_paths=None):
         # (lxcfs mounts cgroups under /run/lxcfs in such a way).
         if os.access(mount, os.F_OK):
             cgroupPath = os.path.join(mount, my_cgroups[subsystem])
-            if (not os.access(cgroupPath, os.W_OK) and
-                    os.access(os.path.join(cgroupPath, CGROUP_FALLBACK_PATH), os.W_OK)):
+            if not os.access(cgroupPath, os.W_OK) and os.access(
+                os.path.join(cgroupPath, CGROUP_FALLBACK_PATH), os.W_OK
+            ):
                 cgroupPath = os.path.join(cgroupPath, CGROUP_FALLBACK_PATH)
             cgroupsParents[subsystem] = cgroupPath
 
     return Cgroup(cgroupsParents)
 
+
 def find_cgroups_of_process(pid):
     """
     Return a Cgroup object that represents the cgroups of a given process.
     """
-    with open('/proc/{}/cgroup'.format(pid), 'rt') as cgroups_file:
+    with open("/proc/{}/cgroup".format(pid), "rt") as cgroups_file:
         return find_my_cgroups(cgroups_file)
 
 
@@ -103,17 +119,17 @@ def _find_cgroup_mounts():
     @return a generator of tuples (subsystem, mountpoint)
     """
     try:
-        with open('/proc/mounts', 'rt') as mountsFile:
+        with open("/proc/mounts", "rt") as mountsFile:
             for mount in mountsFile:
-                mount = mount.split(' ')
-                if mount[2] == 'cgroup':
+                mount = mount.split(" ")
+                if mount[2] == "cgroup":
                     mountpoint = mount[1]
                     options = mount[3]
-                    for option in options.split(','):
+                    for option in options.split(","):
                         if option in ALL_KNOWN_SUBSYSTEMS:
                             yield (option, mountpoint)
     except IOError:
-        logging.exception('Cannot read /proc/mounts')
+        logging.exception("Cannot read /proc/mounts")
 
 
 def _find_own_cgroups():
@@ -123,11 +139,11 @@ def _find_own_cgroups():
     @return a generator of tuples (subsystem, cgroup)
     """
     try:
-        with open('/proc/self/cgroup', 'rt') as ownCgroupsFile:
+        with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
             for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
                 yield cgroup
     except IOError:
-        logging.exception('Cannot read /proc/self/cgroup')
+        logging.exception("Cannot read /proc/self/cgroup")
 
 
 def _parse_proc_pid_cgroup(content):
@@ -137,25 +153,25 @@ def _parse_proc_pid_cgroup(content):
     @return: a generator of tuples
     """
     for ownCgroup in content:
-        #each line is "id:subsystem,subsystem:path"
-        ownCgroup = ownCgroup.strip().split(':')
+        # each line is "id:subsystem,subsystem:path"
+        ownCgroup = ownCgroup.strip().split(":")
         try:
-            path = ownCgroup[2][1:] # remove leading /
+            path = ownCgroup[2][1:]  # remove leading /
         except IndexError:
             raise IndexError("index out of range for " + str(ownCgroup))
-        for subsystem in ownCgroup[1].split(','):
+        for subsystem in ownCgroup[1].split(","):
             yield (subsystem, path)
 
 
 def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
-    tasksFile = os.path.join(cgroup, 'tasks')
-    freezer_file = os.path.join(cgroup, 'freezer.state')
+    tasksFile = os.path.join(cgroup, "tasks")
+    freezer_file = os.path.join(cgroup, "freezer.state")
 
     def try_write_to_freezer(content):
         try:
             util.write_file(content, freezer_file)
         except IOError:
-            pass # expected if freezer not enabled, we try killing without it
+            pass  # expected if freezer not enabled, we try killing without it
 
     i = 0
     while True:
@@ -164,29 +180,34 @@ def kill_all_tasks_in_cgroup(cgroup, kill_process_fn):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            try_write_to_freezer('FROZEN')
-            with open(tasksFile, 'rt') as tasks:
+            try_write_to_freezer("FROZEN")
+            with open(tasksFile, "rt") as tasks:
                 task = None
                 for task in tasks:
                     task = task.strip()
                     if i > 1:
-                        logging.warning('Run has left-over process with pid %s '
-                                        'in cgroup %s, sending signal %s (try %s).',
-                                        task, cgroup, sig, i)
+                        logging.warning(
+                            "Run has left-over process with pid %s "
+                            "in cgroup %s, sending signal %s (try %s).",
+                            task,
+                            cgroup,
+                            sig,
+                            i,
+                        )
                     kill_process_fn(int(task), sig)
 
                 if task is None:
-                    return # No process was hanging, exit
-            try_write_to_freezer('THAWED')
+                    return  # No process was hanging, exit
+            try_write_to_freezer("THAWED")
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
 
 
 def remove_cgroup(cgroup):
     if not os.path.exists(cgroup):
-        logging.warning('Cannot remove CGroup %s, because it does not exist.', cgroup)
+        logging.warning("Cannot remove CGroup %s, because it does not exist.", cgroup)
         return
-    assert os.path.getsize(os.path.join(cgroup, 'tasks')) == 0
+    assert os.path.getsize(os.path.join(cgroup, "tasks")) == 0
     try:
         os.rmdir(cgroup)
     except OSError:
@@ -194,8 +215,9 @@ def remove_cgroup(cgroup):
         try:
             os.rmdir(cgroup)
         except OSError as e:
-            logging.warning("Failed to remove cgroup %s: error %s (%s)",
-                            cgroup, e.errno, e.strerror)
+            logging.warning(
+                "Failed to remove cgroup %s: error %s (%s)", cgroup, e.errno, e.strerror
+            )
 
 
 def _register_process_with_cgrulesengd(pid):
@@ -205,22 +227,25 @@ def _register_process_with_cgrulesengd(pid):
     # Logging/printing from inside preexec_fn would end up in the output file,
     # not in the correct logger, thus it is disabled here.
     from ctypes import cdll
+
     try:
-        libcgroup = cdll.LoadLibrary('libcgroup.so.1')
+        libcgroup = cdll.LoadLibrary("libcgroup.so.1")
         failure = libcgroup.cgroup_init()
         if failure:
             pass
-            #print('Could not initialize libcgroup, error {}'.format(success))
+            # print('Could not initialize libcgroup, error {}'.format(success))
         else:
             CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
-            failure = libcgroup.cgroup_register_unchanged_process(pid, CGROUP_DAEMON_UNCHANGE_CHILDREN)
+            failure = libcgroup.cgroup_register_unchanged_process(
+                pid, CGROUP_DAEMON_UNCHANGE_CHILDREN
+            )
             if failure:
                 pass
-                #print('Could not register process to cgrulesndg, error {}. '
+                # print('Could not register process to cgrulesndg, error {}. '
                 #      'Probably the daemon will mess up our cgroups.'.format(success))
     except OSError:
         pass
-        #print('libcgroup is not available: {}'.format(e.strerror))
+        # print('libcgroup is not available: {}'.format(e.strerror))
 
 
 class Cgroup(object):
@@ -229,7 +254,7 @@ class Cgroup(object):
         assert all(cgroupsPerSubsystem.values())
         # Also update self.paths on every update to this!
         self.per_subsystem = cgroupsPerSubsystem
-        self.paths = set(cgroupsPerSubsystem.values()) # without duplicates
+        self.paths = set(cgroupsPerSubsystem.values())  # without duplicates
 
     def __contains__(self, key):
         return key in self.per_subsystem
@@ -251,9 +276,10 @@ class Cgroup(object):
         """
         if not subsystem in self:
             log_method(
-                'Cgroup subsystem %s is not enabled. '
+                "Cgroup subsystem %s is not enabled. "
                 'Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".',
-                subsystem)
+                subsystem,
+            )
             return False
 
         try:
@@ -262,9 +288,11 @@ class Cgroup(object):
         except OSError as e:
             self.paths = set(self.per_subsystem.values())
             log_method(
-                'Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. '
-                'If permissions are wrong, please run "sudo chmod o+wt \'{0}\'".'
-                .format(self.per_subsystem[subsystem], subsystem, e.strerror))
+                "Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. "
+                "If permissions are wrong, please run \"sudo chmod o+wt '{0}'\".".format(
+                    self.per_subsystem[subsystem], subsystem, e.strerror
+                )
+            )
             del self.per_subsystem[subsystem]
             return False
 
@@ -282,7 +310,9 @@ class Cgroup(object):
             parentCgroup = self.per_subsystem[subsystem]
             if parentCgroup in createdCgroupsPerParent:
                 # reuse already created cgroup
-                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[parentCgroup]
+                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
+                    parentCgroup
+                ]
                 continue
 
             cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
@@ -292,10 +322,13 @@ class Cgroup(object):
             # add allowed cpus and memory to cgroup if necessary
             # (otherwise we can't add any tasks)
             def copy_parent_to_child(name):
-                shutil.copyfile(os.path.join(parentCgroup, name), os.path.join(cgroup, name))
+                shutil.copyfile(
+                    os.path.join(parentCgroup, name), os.path.join(cgroup, name)
+                )
+
             try:
-                copy_parent_to_child('cpuset.cpus')
-                copy_parent_to_child('cpuset.mems')
+                copy_parent_to_child("cpuset.cpus")
+                copy_parent_to_child("cpuset.mems")
             except IOError:
                 # expected to fail if cpuset subsystem is not enabled in this hierarchy
                 pass
@@ -308,14 +341,16 @@ class Cgroup(object):
         """
         _register_process_with_cgrulesengd(pid)
         for cgroup in self.paths:
-            with open(os.path.join(cgroup, 'tasks'), 'w') as tasksFile:
+            with open(os.path.join(cgroup, "tasks"), "w") as tasksFile:
                 tasksFile.write(str(pid))
 
     def get_all_tasks(self, subsystem):
         """
         Return a generator of all PIDs currently in this cgroup for the given subsystem.
         """
-        with open(os.path.join(self.per_subsystem[subsystem], 'tasks'), 'r') as tasksFile:
+        with open(
+            os.path.join(self.per_subsystem[subsystem], "tasks"), "r"
+        ) as tasksFile:
             for line in tasksFile:
                 yield int(line)
 
@@ -331,8 +366,9 @@ class Cgroup(object):
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
         """
+
         def kill_all_tasks_in_cgroup_recursively(cgroup):
-            files = [os.path.join(cgroup,f) for f in os.listdir(cgroup)]
+            files = [os.path.join(cgroup, f) for f in os.listdir(cgroup)]
             subdirs = filter(os.path.isdir, files)
 
             for subCgroup in subdirs:
@@ -352,7 +388,9 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        return os.path.isfile(os.path.join(self.per_subsystem[subsystem], subsystem + '.' + option))
+        return os.path.isfile(
+            os.path.join(self.per_subsystem[subsystem], subsystem + "." + option)
+        )
 
     def get_value(self, subsystem, option):
         """
@@ -360,8 +398,8 @@ class Cgroup(object):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        assert subsystem in self, 'Subsystem {} is missing'.format(subsystem)
-        return util.read_file(self.per_subsystem[subsystem], subsystem + '.' + option)
+        assert subsystem in self, "Subsystem {} is missing".format(subsystem)
+        return util.read_file(self.per_subsystem[subsystem], subsystem + "." + option)
 
     def get_file_lines(self, subsystem, option):
         """
@@ -370,7 +408,9 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        with open(os.path.join(self.per_subsystem[subsystem], subsystem + '.' + option)) as f:
+        with open(
+            os.path.join(self.per_subsystem[subsystem], subsystem + "." + option)
+        ) as f:
             for line in f:
                 yield line
 
@@ -382,7 +422,9 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        return util.read_key_value_pairs_from_file(self.per_subsystem[subsystem], subsystem + '.' + filename)
+        return util.read_key_value_pairs_from_file(
+            self.per_subsystem[subsystem], subsystem + "." + filename
+        )
 
     def set_value(self, subsystem, option, value):
         """
@@ -391,7 +433,9 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        util.write_file(str(value), self.per_subsystem[subsystem], subsystem + '.' + option)
+        util.write_file(
+            str(value), self.per_subsystem[subsystem], subsystem + "." + option
+        )
 
     def remove(self):
         """
@@ -410,8 +454,8 @@ class Cgroup(object):
         @return cputime usage in seconds
         """
         # convert nano-seconds to seconds
-        return float(self.get_value(CPUACCT, 'usage'))/1000000000
+        return float(self.get_value(CPUACCT, "usage")) / 1000000000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""
-        return util.parse_int_list(self.get_value(CPUSET, 'mems'))
+        return util.parse_int_list(self.get_value(CPUSET, "mems"))

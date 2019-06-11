@@ -25,14 +25,14 @@ class Tool(cpachecker.Tool):
     """Tool info for PeSCo."""
 
     REQUIRED_PATHS = [
-                  "lib/java/runtime",
-                  "lib/*.jar",
-                  "lib/native/x86_64-linux",
-                  "scripts",
-                  "cpachecker.jar",
-                  "config",
-                  "resources",
-                  ]
+        "lib/java/runtime",
+        "lib/*.jar",
+        "lib/native/x86_64-linux",
+        "scripts",
+        "cpachecker.jar",
+        "config",
+        "resources",
+    ]
 
     def name(self):
-        return 'PeSCo'
+        return "PeSCo"

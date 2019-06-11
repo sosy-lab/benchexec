@@ -65,8 +65,8 @@ class Tool(ultimate.UltimateTool):
         "Ultimate.ini",
         "Ultimate.py",
         "z3",
-        "mathsat"
+        "mathsat",
     ]
 
     def name(self):
-        return 'ULTIMATE Automizer'
+        return "ULTIMATE Automizer"

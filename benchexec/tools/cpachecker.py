@@ -32,6 +32,7 @@ import benchexec.util as util
 import benchexec.tools.template
 from benchexec.model import SOFTTIMELIMIT
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for CPAchecker, the Configurable Software-Verification Platform.
@@ -50,61 +51,72 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-                  "lib/java/runtime",
-                  "lib/*.jar",
-                  "lib/native/x86_64-linux",
-                  "scripts",
-                  "cpachecker.jar",
-                  "config",
-                  ]
+        "lib/java/runtime",
+        "lib/*.jar",
+        "lib/native/x86_64-linux",
+        "scripts",
+        "cpachecker.jar",
+        "config",
+    ]
 
     def executable(self):
-        executable = util.find_executable('cpa.sh', 'scripts/cpa.sh')
+        executable = util.find_executable("cpa.sh", "scripts/cpa.sh")
         executableDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        if os.path.isdir(os.path.join(executableDir, 'src')):
+        if os.path.isdir(os.path.join(executableDir, "src")):
             self._buildCPAchecker(executableDir)
         if not os.path.isfile(os.path.join(executableDir, "cpachecker.jar")):
-            logging.warning("Required JAR file for CPAchecker not found in {0}.".format(executableDir))
+            logging.warning(
+                "Required JAR file for CPAchecker not found in {0}.".format(
+                    executableDir
+                )
+            )
         return executable
-
 
     def program_files(self, executable):
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True)
-
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def _buildCPAchecker(self, executableDir):
-        logging.debug('Building CPAchecker in directory {0}.'.format(executableDir))
-        ant = subprocess.Popen(['ant', '-lib', 'lib/java/build', '-q', 'jar'], cwd=executableDir, shell=util.is_windows())
+        logging.debug("Building CPAchecker in directory {0}.".format(executableDir))
+        ant = subprocess.Popen(
+            ["ant", "-lib", "lib/java/build", "-q", "jar"],
+            cwd=executableDir,
+            shell=util.is_windows(),
+        )
         ant.communicate()
         if ant.returncode:
-            sys.exit('Failed to build CPAchecker, please fix the build first.')
-
+            sys.exit("Failed to build CPAchecker, please fix the build first.")
 
     def version(self, executable):
-        stdout = self._version_from_tool(executable, '-help')
-        line = next(l for l in stdout.splitlines() if l.startswith('CPAchecker'))
-        line = line.replace('CPAchecker' , '')
-        line = line.split('(')[0]
+        stdout = self._version_from_tool(executable, "-help")
+        line = next(l for l in stdout.splitlines() if l.startswith("CPAchecker"))
+        line = line.replace("CPAchecker", "")
+        line = line.split("(")[0]
         return line.strip()
 
     def name(self):
-        return 'CPAchecker'
+        return "CPAchecker"
 
     def _get_additional_options(self, existing_options, propertyfile, rlimits):
         options = []
         if SOFTTIMELIMIT in rlimits:
             if "-timelimit" in existing_options:
-                logging.warning('Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line.')
+                logging.warning(
+                    "Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line."
+                )
             else:
-                options = options + ["-timelimit", str(rlimits[SOFTTIMELIMIT]) + "s"] # benchmark-xml uses seconds as unit
+                options = options + [
+                    "-timelimit",
+                    str(rlimits[SOFTTIMELIMIT]) + "s",
+                ]  # benchmark-xml uses seconds as unit
 
         # if data.MEMLIMIT in rlimits:
         #     if "-heap" not in existing_options:
         #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
         #         options = options + ["-heap", str(int(heapsize))]
 
-        if ("-stats" not in existing_options):
+        if "-stats" not in existing_options:
             options = options + ["-stats"]
 
         spec = ["-spec", propertyfile] if propertyfile is not None else []
@@ -112,9 +124,10 @@ class Tool(benchexec.tools.template.BaseTool):
         return options + spec
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        additional_options = self._get_additional_options(options, propertyfile, rlimits)
+        additional_options = self._get_additional_options(
+            options, propertyfile, rlimits
+        )
         return [executable] + options + additional_options + tasks
-
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -125,63 +138,90 @@ class Tool(benchexec.tools.template.BaseTool):
         """
 
         def isOutOfNativeMemory(line):
-            return ('std::bad_alloc'             in line # C++ out of memory exception (MathSAT)
-                 or 'Cannot allocate memory'     in line
-                 or 'Native memory allocation (malloc) failed to allocate' in line # JNI
-                 or line.startswith('out of memory')     # CuDD
-                 )
+            return (
+                "std::bad_alloc" in line  # C++ out of memory exception (MathSAT)
+                or "Cannot allocate memory" in line
+                or "Native memory allocation (malloc) failed to allocate" in line  # JNI
+                or line.startswith("out of memory")  # CuDD
+            )
 
         status = None
 
         for line in output:
             line = line.strip()
-            if 'java.lang.OutOfMemoryError' in line:
-                status = 'OUT OF JAVA MEMORY'
+            if "java.lang.OutOfMemoryError" in line:
+                status = "OUT OF JAVA MEMORY"
             elif isOutOfNativeMemory(line):
-                status = 'OUT OF NATIVE MEMORY'
-            elif 'There is insufficient memory for the Java Runtime Environment to continue.' in line \
-                    or 'cannot allocate memory for thread-local data: ABORT' in line:
-                status = 'OUT OF MEMORY'
-            elif 'SIGSEGV' in line:
-                status = 'SEGMENTATION FAULT'
-            elif (returncode == 0 or returncode == 1) and 'java.lang.AssertionError' in line:
-                status = 'ASSERTION'
-            elif ((returncode == 0 or returncode == 1)
-                    and ('Exception:' in line or line.startswith('Exception in thread'))
-                    # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
-                    and not line.startswith('cbmc')):
-                status = 'EXCEPTION'
-            elif 'Could not reserve enough space for object heap' in line:
-                status = 'JAVA HEAP ERROR'
-            elif line.startswith('Error: ') and not status:
+                status = "OUT OF NATIVE MEMORY"
+            elif (
+                "There is insufficient memory for the Java Runtime Environment to continue."
+                in line
+                or "cannot allocate memory for thread-local data: ABORT" in line
+            ):
+                status = "OUT OF MEMORY"
+            elif "SIGSEGV" in line:
+                status = "SEGMENTATION FAULT"
+            elif (
+                returncode == 0 or returncode == 1
+            ) and "java.lang.AssertionError" in line:
+                status = "ASSERTION"
+            elif (
+                (returncode == 0 or returncode == 1)
+                and ("Exception:" in line or line.startswith("Exception in thread"))
+                # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
+                and not line.startswith("cbmc")
+            ):
+                status = "EXCEPTION"
+            elif "Could not reserve enough space for object heap" in line:
+                status = "JAVA HEAP ERROR"
+            elif line.startswith("Error: ") and not status:
                 status = result.RESULT_ERROR
-                if 'Cannot parse witness' in line:
-                    status += ' (invalid witness file)'
-                elif 'Unsupported' in line:
-                    if 'recursion' in line:
-                        status += ' (recursion)'
-                    elif 'threads' in line:
-                        status += ' (threads)'
-                elif 'Parsing failed' in line:
-                    status += ' (parsing failed)'
-                elif 'Interpolation failed' in line:
-                    status += ' (interpolation failed)'
-            elif line.startswith('Invalid configuration: ') and not status:
-                if 'Cannot parse witness' in line:
+                if "Cannot parse witness" in line:
+                    status += " (invalid witness file)"
+                elif "Unsupported" in line:
+                    if "recursion" in line:
+                        status += " (recursion)"
+                    elif "threads" in line:
+                        status += " (threads)"
+                elif "Parsing failed" in line:
+                    status += " (parsing failed)"
+                elif "Interpolation failed" in line:
+                    status += " (interpolation failed)"
+            elif line.startswith("Invalid configuration: ") and not status:
+                if "Cannot parse witness" in line:
                     status = result.RESULT_ERROR
-                    status += ' (invalid witness file)'
-            elif line.startswith('For your information: CPAchecker is currently hanging at') and not status and isTimeout:
-                status = 'TIMEOUT'
+                    status += " (invalid witness file)"
+            elif (
+                line.startswith(
+                    "For your information: CPAchecker is currently hanging at"
+                )
+                and not status
+                and isTimeout
+            ):
+                status = "TIMEOUT"
 
-            elif line.startswith('Verification result: '):
+            elif line.startswith("Verification result: "):
                 line = line[21:].strip()
-                if line.startswith('TRUE'):
+                if line.startswith("TRUE"):
                     newStatus = result.RESULT_TRUE_PROP
-                elif line.startswith('FALSE'):
+                elif line.startswith("FALSE"):
                     newStatus = result.RESULT_FALSE_REACH
-                    match = re.match(r'.* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*', line)
-                    if match and match.group(1) in ['valid-deref', 'valid-free', 'valid-memtrack', 'valid-memcleanup', 'no-overflow', 'no-deadlock', 'termination']:
-                        newStatus = result.RESULT_FALSE_PROP + '(' + match.group(1) + ')'
+                    match = re.match(
+                        r".* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*",
+                        line,
+                    )
+                    if match and match.group(1) in [
+                        "valid-deref",
+                        "valid-free",
+                        "valid-memtrack",
+                        "valid-memcleanup",
+                        "no-overflow",
+                        "no-deadlock",
+                        "termination",
+                    ]:
+                        newStatus = (
+                            result.RESULT_FALSE_PROP + "(" + match.group(1) + ")"
+                        )
                 else:
                     newStatus = result.RESULT_UNKNOWN
 
@@ -189,18 +229,21 @@ class Tool(benchexec.tools.template.BaseTool):
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN:
                     status = "{0} ({1})".format(status, newStatus)
-            elif line == 'Finished.' and not status:
+            elif line == "Finished." and not status:
                 status = result.RESULT_DONE
 
-        if (not status or status == result.RESULT_UNKNOWN) and isTimeout and returncode in [15, 143]:
+        if (
+            (not status or status == result.RESULT_UNKNOWN)
+            and isTimeout
+            and returncode in [15, 143]
+        ):
             # The JVM sets such an returncode if it receives signal 15
             # (143 is 15+128)
-            status = 'TIMEOUT'
+            status = "TIMEOUT"
 
         if not status:
             status = result.RESULT_ERROR
         return status
-
 
     def get_value_from_output(self, lines, identifier):
         # search for the text in output and get its value,
@@ -209,12 +252,16 @@ class Tool(benchexec.tools.template.BaseTool):
         match = None
         for line in lines:
             if line.lstrip().startswith(identifier):
-                startPosition = line.find(':') + 1
-                endPosition = line.find('(', startPosition)
-                if (endPosition == -1):
+                startPosition = line.find(":") + 1
+                endPosition = line.find("(", startPosition)
+                if endPosition == -1:
                     endPosition = len(line)
                 if match is None:
-                    match = line[startPosition: endPosition].strip()
+                    match = line[startPosition:endPosition].strip()
                 else:
-                    logging.warning("skipping repeated match for identifier '{0}': '{1}'".format(identifier, line))
+                    logging.warning(
+                        "skipping repeated match for identifier '{0}': '{1}'".format(
+                            identifier, line
+                        )
+                    )
         return match

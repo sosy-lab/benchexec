@@ -25,37 +25,31 @@ import benchexec.tools.template
 import os
 import re
 
+
 class Tool(benchexec.tools.template.BaseTool):
 
-    REQUIRED_PATHS = [
-                  "boogie",
-                  "corral",
-                  "llvm",
-                  "lockpwn",
-                  "smack",
-                  "smack.sh"
-                  ]
+    REQUIRED_PATHS = ["boogie", "corral", "llvm", "lockpwn", "smack", "smack.sh"]
 
     def executable(self):
         """
         Tells BenchExec to search for 'smack.sh' as the main executable to be
         called when running SMACK.
         """
-        return util.find_executable('smack.sh')
+        return util.find_executable("smack.sh")
 
     def version(self, executable):
         """
         Sets the version number for SMACK, which gets displayed in the "Tool" row
         in BenchExec table headers.
         """
-        return self._version_from_tool(executable, use_stderr=True).split(' ')[2]
+        return self._version_from_tool(executable, use_stderr=True).split(" ")[2]
 
     def name(self):
         """
         Sets the name for SMACK, which gets displayed in the "Tool" row in
         BenchExec table headers.
         """
-        return 'SMACK'
+        return "SMACK"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -64,7 +58,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         assert len(tasks) == 1
         assert propertyfile is not None
-        prop = ['--svcomp-property', propertyfile]
+        prop = ["--svcomp-property", propertyfile]
         return [executable] + options + prop + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -72,23 +66,22 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a BenchExec result status based on the output of SMACK
         """
         splitout = "\n".join(output)
-        if 'SMACK found no errors' in splitout:
-          return result.RESULT_TRUE_PROP
-        errmsg = re.search(r'SMACK found an error(:\s+([^\.]+))?\.', splitout)
+        if "SMACK found no errors" in splitout:
+            return result.RESULT_TRUE_PROP
+        errmsg = re.search(r"SMACK found an error(:\s+([^\.]+))?\.", splitout)
         if errmsg:
-          errtype = errmsg.group(2)
-          if errtype:
-            if 'invalid pointer dereference' == errtype:
-              return result.RESULT_FALSE_DEREF
-            elif 'invalid memory deallocation' == errtype:
-              return result.RESULT_FALSE_FREE
-            elif 'memory leak' == errtype:
-              return result.RESULT_FALSE_MEMTRACK
-            elif 'memory cleanup' == errtype:
-              return result.RESULT_FALSE_MEMCLEANUP
-            elif 'integer overflow' == errtype:
-              return result.RESULT_FALSE_OVERFLOW
-          else:
-            return result.RESULT_FALSE_REACH
+            errtype = errmsg.group(2)
+            if errtype:
+                if "invalid pointer dereference" == errtype:
+                    return result.RESULT_FALSE_DEREF
+                elif "invalid memory deallocation" == errtype:
+                    return result.RESULT_FALSE_FREE
+                elif "memory leak" == errtype:
+                    return result.RESULT_FALSE_MEMTRACK
+                elif "memory cleanup" == errtype:
+                    return result.RESULT_FALSE_MEMCLEANUP
+                elif "integer overflow" == errtype:
+                    return result.RESULT_FALSE_OVERFLOW
+            else:
+                return result.RESULT_FALSE_REACH
         return result.RESULT_UNKNOWN
-

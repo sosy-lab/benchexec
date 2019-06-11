@@ -23,29 +23,40 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     VeriFuzz
     """
 
-    REQUIRED_PATHS = ["lib", "exp-in", "fuzzEngine", "scripts", "supportFiles", "prism", "bin", "jars"]
+    REQUIRED_PATHS = [
+        "lib",
+        "exp-in",
+        "fuzzEngine",
+        "scripts",
+        "supportFiles",
+        "prism",
+        "bin",
+        "jars",
+    ]
 
     def executable(self):
-        return util.find_executable('scripts/verifuzz.py')
+        return util.find_executable("scripts/verifuzz.py")
 
     def version(self, executable):
-        return self._version_from_tool(executable,use_stderr=True)
+        return self._version_from_tool(executable, use_stderr=True)
 
     def program_files(self, executable):
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True)
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def name(self):
-        return 'VeriFuzz'
+        return "VeriFuzz"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if propertyfile:
-            options = options + ['--propertyFile', propertyfile]
+            options = options + ["--propertyFile", propertyfile]
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):

@@ -34,7 +34,8 @@ import sys
 import threading
 import time
 import tempfile
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec import baseexecutor
 from benchexec import BenchExecException
@@ -47,16 +48,16 @@ from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
 
-_WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30 # seconds more than cputime limit
-_ULIMIT_DEFAULT_OVERHEAD = 30 # seconds after cgroups cputime limit
-_BYTE_FACTOR = 1000 # byte in kilobyte
+_WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
+_ULIMIT_DEFAULT_OVERHEAD = 30  # seconds after cgroups cputime limit
+_BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
-_SUDO_ARGS = ['sudo', '--non-interactive', '-u']
+_SUDO_ARGS = ["sudo", "--non-interactive", "-u"]
 
 try:
     from subprocess import DEVNULL
 except ImportError:
-    DEVNULL = open(os.devnull, 'rb')
+    DEVNULL = open(os.devnull, "rb")
 
 
 def main(argv=None):
@@ -68,63 +69,134 @@ def main(argv=None):
 
     # parse options
     parser = argparse.ArgumentParser(
-        fromfile_prefix_chars='@',
-        description=
-        """Execute a command with resource limits and measurements.
+        fromfile_prefix_chars="@",
+        description="""Execute a command with resource limits and measurements.
            Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/""")
+           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+    )
 
     resource_args = parser.add_argument_group("optional arguments for resource limits")
-    resource_args.add_argument("--memlimit", type=util.parse_memory_value, metavar="BYTES",
-        help="memory limit in bytes")
-    resource_args.add_argument("--timelimit", type=util.parse_timespan_value, metavar="SECONDS",
-        help="CPU time limit in seconds")
-    resource_args.add_argument("--softtimelimit", type=util.parse_timespan_value, metavar="SECONDS",
-        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)')
-    resource_args.add_argument("--walltimelimit", type=util.parse_timespan_value, metavar="SECONDS",
-        help='wall time limit in seconds (default is CPU time limit plus a few seconds)')
-    resource_args.add_argument("--cores", type=util.parse_int_list, metavar="N,M-K",
-        help="list of CPU cores to use")
-    resource_args.add_argument("--memoryNodes", type=util.parse_int_list, metavar="N,M-K",
-        help="list of memory nodes to use")
+    resource_args.add_argument(
+        "--memlimit",
+        type=util.parse_memory_value,
+        metavar="BYTES",
+        help="memory limit in bytes",
+    )
+    resource_args.add_argument(
+        "--timelimit",
+        type=util.parse_timespan_value,
+        metavar="SECONDS",
+        help="CPU time limit in seconds",
+    )
+    resource_args.add_argument(
+        "--softtimelimit",
+        type=util.parse_timespan_value,
+        metavar="SECONDS",
+        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)',
+    )
+    resource_args.add_argument(
+        "--walltimelimit",
+        type=util.parse_timespan_value,
+        metavar="SECONDS",
+        help="wall time limit in seconds (default is CPU time limit plus a few seconds)",
+    )
+    resource_args.add_argument(
+        "--cores",
+        type=util.parse_int_list,
+        metavar="N,M-K",
+        help="list of CPU cores to use",
+    )
+    resource_args.add_argument(
+        "--memoryNodes",
+        type=util.parse_int_list,
+        metavar="N,M-K",
+        help="list of memory nodes to use",
+    )
 
     io_args = parser.add_argument_group("optional arguments for run I/O")
-    io_args.add_argument("--input", metavar="FILE",
+    io_args.add_argument(
+        "--input",
+        metavar="FILE",
         help="name of file used as stdin for command "
-            "(default: /dev/null; use - for stdin passthrough)")
-    io_args.add_argument("--output", default="output.log", metavar="FILE",
-        help="name of file where command output (stdout and stderr) is written")
-    io_args.add_argument("--maxOutputSize", type=util.parse_memory_value, metavar="BYTES",
+        "(default: /dev/null; use - for stdin passthrough)",
+    )
+    io_args.add_argument(
+        "--output",
+        default="output.log",
+        metavar="FILE",
+        help="name of file where command output (stdout and stderr) is written",
+    )
+    io_args.add_argument(
+        "--maxOutputSize",
+        type=util.parse_memory_value,
+        metavar="BYTES",
         help="shrink output file to approximately this size if necessary "
-            "(by removing lines from the middle of the output)")
-    io_args.add_argument("--filesCountLimit", type=int, metavar="COUNT",
-        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
-    io_args.add_argument("--filesSizeLimit", type=util.parse_memory_value, metavar="BYTES",
-        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)")
-    io_args.add_argument("--skip-cleanup", action="store_false", dest="cleanup",
-        help="do not delete files created by the tool in temp directory")
+        "(by removing lines from the middle of the output)",
+    )
+    io_args.add_argument(
+        "--filesCountLimit",
+        type=int,
+        metavar="COUNT",
+        help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)",
+    )
+    io_args.add_argument(
+        "--filesSizeLimit",
+        type=util.parse_memory_value,
+        metavar="BYTES",
+        help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories, only supported with --no-tmpfs)",
+    )
+    io_args.add_argument(
+        "--skip-cleanup",
+        action="store_false",
+        dest="cleanup",
+        help="do not delete files created by the tool in temp directory",
+    )
 
     container_args = parser.add_argument_group("optional arguments for run container")
     container_on_args = container_args.add_mutually_exclusive_group()
-    container_on_args.add_argument("--container", action='store_true',
-        help="force isolation of run in container (future default starting with BenchExec 2.0)")
-    container_on_args.add_argument("--no-container", action='store_true',
-        help="disable use of containers for isolation of runs (current default)")
+    container_on_args.add_argument(
+        "--container",
+        action="store_true",
+        help="force isolation of run in container (future default starting with BenchExec 2.0)",
+    )
+    container_on_args.add_argument(
+        "--no-container",
+        action="store_true",
+        help="disable use of containers for isolation of runs (current default)",
+    )
     containerexecutor.add_basic_container_args(container_args)
     containerexecutor.add_container_output_args(container_args)
 
-    environment_args = parser.add_argument_group("optional arguments for run environment")
-    environment_args.add_argument("--require-cgroup-subsystem", action="append", default=[], metavar="SUBSYSTEM",
+    environment_args = parser.add_argument_group(
+        "optional arguments for run environment"
+    )
+    environment_args.add_argument(
+        "--require-cgroup-subsystem",
+        action="append",
+        default=[],
+        metavar="SUBSYSTEM",
         help="additional cgroup system that should be enabled for runs "
-            "(may be specified multiple times)")
-    environment_args.add_argument("--set-cgroup-value", action="append", dest="cgroup_values", default=[],
+        "(may be specified multiple times)",
+    )
+    environment_args.add_argument(
+        "--set-cgroup-value",
+        action="append",
+        dest="cgroup_values",
+        default=[],
         metavar="SUBSYSTEM.OPTION=VALUE",
-        help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')")
-    environment_args.add_argument("--dir", metavar="DIR",
-        help="working directory for executing the command (default is current directory)")
-    environment_args.add_argument("--user", metavar="USER",
+        help="additional cgroup values that should be set for runs (e.g., 'cpu.shares=1000')",
+    )
+    environment_args.add_argument(
+        "--dir",
+        metavar="DIR",
+        help="working directory for executing the command (default is current directory)",
+    )
+    environment_args.add_argument(
+        "--user",
+        metavar="USER",
         help="execute tool under given user account (needs password-less sudo setup, "
-            "not supported in combination with --container)")
+        "not supported in combination with --container)",
+    )
 
     baseexecutor.add_basic_executor_options(parser)
 
@@ -134,10 +206,18 @@ def main(argv=None):
     if options.container:
         if options.user is not None:
             sys.exit("Cannot use --user in combination with --container.")
-        container_options = containerexecutor.handle_basic_container_args(options, parser)
-        container_output_options = containerexecutor.handle_container_output_args(options, parser)
-        if container_options['container_tmpfs'] and (options.filesCountLimit or options.filesSizeLimit):
-            parser.error("Files-count limit and files-size limit are not supported if tmpfs is used in container. Use --no-tmpfs to make these limits work or disable them (typically they are unnecessary if a tmpfs is used).")
+        container_options = containerexecutor.handle_basic_container_args(
+            options, parser
+        )
+        container_output_options = containerexecutor.handle_container_output_args(
+            options, parser
+        )
+        if container_options["container_tmpfs"] and (
+            options.filesCountLimit or options.filesSizeLimit
+        ):
+            parser.error(
+                "Files-count limit and files-size limit are not supported if tmpfs is used in container. Use --no-tmpfs to make these limits work or disable them (typically they are unnecessary if a tmpfs is used)."
+            )
     else:
         container_options = {}
         container_output_options = {}
@@ -145,7 +225,8 @@ def main(argv=None):
             logging.warning(
                 "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
                 "Consider using the container mode instead for isolating runs "
-                "(cf. https://github.com/sosy-lab/benchexec/issues/215).")
+                "(cf. https://github.com/sosy-lab/benchexec/issues/215)."
+            )
         elif not options.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
@@ -154,7 +235,8 @@ def main(argv=None):
                 "or specify --container to use containers for better isolation of runs "
                 "(this will be the default starting with BenchExec 2.0). "
                 "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information.")
+                "for more information."
+            )
 
     # For integrating into some benchmarking frameworks,
     # there is a DEPRECATED special mode
@@ -169,17 +251,19 @@ def main(argv=None):
         if "maxLogfileSize" in data:
             try:
                 # convert MB to Bytes
-                options.maxOutputSize = int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR
+                options.maxOutputSize = (
+                    int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR
+                )
             except ValueError:
                 options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
 
-    if options.input == '-':
+    if options.input == "-":
         stdin = sys.stdin
     elif options.input is not None:
         if options.input == options.output:
             parser.error("Input and output files cannot be the same.")
         try:
-            stdin = open(options.input, 'rt')
+            stdin = open(options.input, "rt")
         except IOError as e:
             parser.error(e)
     else:
@@ -195,49 +279,59 @@ def main(argv=None):
                 raise ValueError()
         except ValueError:
             parser.error(
-                'Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'
-                    .format(arg))
+                'Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'.format(
+                    arg
+                )
+            )
         cgroup_values[(subsystem, option)] = value
         cgroup_subsystems.add(subsystem)
 
-    executor = RunExecutor(user=options.user, cleanup_temp_dir=options.cleanup,
-                           additional_cgroup_subsystems=list(cgroup_subsystems),
-                           use_namespaces=options.container, **container_options)
+    executor = RunExecutor(
+        user=options.user,
+        cleanup_temp_dir=options.cleanup,
+        additional_cgroup_subsystems=list(cgroup_subsystems),
+        use_namespaces=options.container,
+        **container_options
+    )
 
     # ensure that process gets killed on interrupt/kill signal
     def signal_handler_kill(signum, frame):
         executor.stop()
+
     signal.signal(signal.SIGTERM, signal_handler_kill)
-    signal.signal(signal.SIGINT,  signal_handler_kill)
+    signal.signal(signal.SIGINT, signal_handler_kill)
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info('Starting command %s', formatted_args)
+    logging.info("Starting command %s", formatted_args)
     if options.container and options.output_directory and options.result_files:
-        logging.info('Writing output to %s and result files to %s',
-                     util.escape_string_shell(options.output),
-                     util.escape_string_shell(options.output_directory))
+        logging.info(
+            "Writing output to %s and result files to %s",
+            util.escape_string_shell(options.output),
+            util.escape_string_shell(options.output_directory),
+        )
     else:
-        logging.info('Writing output to %s', util.escape_string_shell(options.output))
+        logging.info("Writing output to %s", util.escape_string_shell(options.output))
 
     # actual run execution
     try:
         result = executor.execute_run(
-                            args=options.args,
-                            output_filename=options.output,
-                            stdin=stdin,
-                            hardtimelimit=options.timelimit,
-                            softtimelimit=options.softtimelimit,
-                            walltimelimit=options.walltimelimit,
-                            cores=options.cores,
-                            memlimit=options.memlimit,
-                            memory_nodes=options.memoryNodes,
-                            cgroupValues=cgroup_values,
-                            environments=env,
-                            workingDir=options.dir,
-                            maxLogfileSize=options.maxOutputSize,
-                            files_count_limit=options.filesCountLimit,
-                            files_size_limit=options.filesSizeLimit,
-                            **container_output_options)
+            args=options.args,
+            output_filename=options.output,
+            stdin=stdin,
+            hardtimelimit=options.timelimit,
+            softtimelimit=options.softtimelimit,
+            walltimelimit=options.walltimelimit,
+            cores=options.cores,
+            memlimit=options.memlimit,
+            memory_nodes=options.memoryNodes,
+            cgroupValues=cgroup_values,
+            environments=env,
+            workingDir=options.dir,
+            maxLogfileSize=options.maxOutputSize,
+            files_count_limit=options.filesCountLimit,
+            files_size_limit=options.filesSizeLimit,
+            **container_output_options
+        )
     finally:
         if stdin:
             stdin.close()
@@ -245,48 +339,59 @@ def main(argv=None):
     executor.check_for_new_files_in_home()
 
     # exit_code is a special number:
-    exit_code = util.ProcessExitCode.from_raw(result['exitcode'])
+    exit_code = util.ProcessExitCode.from_raw(result["exitcode"])
 
-    def print_optional_result(key, unit=''):
+    def print_optional_result(key, unit=""):
         if key in result:
             # avoid unicode literals such that the string can be parsed by Python 3.2
-            print(key + "=" + str(result[key]).replace("'u", '') + unit)
+            print(key + "=" + str(result[key]).replace("'u", "") + unit)
 
     # output results
-    print_optional_result('terminationreason')
+    print_optional_result("terminationreason")
     print("exitcode=" + str(exit_code.raw))
     if exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
     if exit_code.signal is not None:
         print("exitsignal=" + str(exit_code.signal))
-    print("walltime=" + str(result['walltime']) + "s")
-    print("cputime=" + str(result['cputime']) + "s")
+    print("walltime=" + str(result["walltime"]) + "s")
+    print("cputime=" + str(result["cputime"]) + "s")
     for key in sorted(result.keys()):
-        if key.startswith('cputime-'):
+        if key.startswith("cputime-"):
             print("{}={:.9f}s".format(key, result[key]))
-    print_optional_result('memory')
-    print_optional_result('blkio-read', 'B')
-    print_optional_result('blkio-write', 'B')
-    energy = intel_cpu_energy.format_energy_results(result.get('cpuenergy'))
+    print_optional_result("memory")
+    print_optional_result("blkio-read", "B")
+    print_optional_result("blkio-write", "B")
+    energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
-        print('{}={}J'.format(energy_key, energy_value))
+        print("{}={}J".format(energy_key, energy_value))
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- object initialization ---
 
-    def __init__(self, user=None, cleanup_temp_dir=True, additional_cgroup_subsystems=[],
-                 use_namespaces=False, *args, **kwargs):
+    def __init__(
+        self,
+        user=None,
+        cleanup_temp_dir=True,
+        additional_cgroup_subsystems=[],
+        use_namespaces=False,
+        *args,
+        **kwargs
+    ):
         """
         Create an instance of of RunExecutor.
         @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(use_namespaces=use_namespaces, *args, **kwargs)
+        super(RunExecutor, self).__init__(
+            use_namespaces=use_namespaces, *args, **kwargs
+        )
         if use_namespaces and user:
-            raise ValueError("Combination of sudo mode of RunExecutor and namespaces is not supported")
+            raise ValueError(
+                "Combination of sudo mode of RunExecutor and namespaces is not supported"
+            )
         self._termination_reason = None
         self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
@@ -294,18 +399,25 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if user is not None:
             # Check if we are allowed to execute 'kill' with dummy signal.
-            sudo_check = self._build_cmdline(['kill', '-0', '0'])
-            logging.debug('Checking for capability to run with sudo as user %s.', user)
-            p = subprocess.Popen(sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            sudo_check = self._build_cmdline(["kill", "-0", "0"])
+            logging.debug("Checking for capability to run with sudo as user %s.", user)
+            p = subprocess.Popen(
+                sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
             try:
                 if p.wait():
                     logging.error(
                         'Calling "%s" failed with error code %s and the following output: %s\n%s',
-                        ' '.join(sudo_check),
+                        " ".join(sudo_check),
                         p.returncode,
                         p.stdout.read().decode().strip(),
-                        p.stderr.read().decode().strip())
-                    sys.exit('Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(user))
+                        p.stderr.read().decode().strip(),
+                    )
+                    sys.exit(
+                        'Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(
+                            user
+                        )
+                    )
             finally:
                 p.stdout.close()
                 p.stderr.close()
@@ -314,7 +426,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             try:
                 self._home_dir = _get_user_account_info(user).pw_dir
             except (KeyError, ValueError) as e:
-                sys.exit('Unknown user {}: {}'.format(user, e))
+                sys.exit("Unknown user {}: {}".format(user, e))
             try:
                 self._home_dir_content = set(self._listdir(self._home_dir))
             except (subprocess.CalledProcessError, IOError):
@@ -322,11 +434,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 self._home_dir_content = []
             if self._home_dir_content:
                 logging.warning(
-                    'Home directory %s of user %s contains files and/or directories, it is '
-                    'recommended to do benchmarks with empty home to prevent undesired influences.',
-                    self._home_dir, user)
+                    "Home directory %s of user %s contains files and/or directories, it is "
+                    "recommended to do benchmarks with empty home to prevent undesired influences.",
+                    self._home_dir,
+                    user,
+                )
 
-        self._energy_measurement = intel_cpu_energy.EnergyMeasurement.create_if_supported()
+        self._energy_measurement = (
+            intel_cpu_energy.EnergyMeasurement.create_if_supported()
+        )
 
         self._init_cgroups()
 
@@ -344,52 +460,65 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # Feature is still experimental, do not warn loudly
         self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
         if BLKIO not in self.cgroups:
-            logging.debug('Cannot measure I/O without blkio cgroup.')
+            logging.debug("Cannot measure I/O without blkio cgroup.")
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
-            logging.warning('Without cpuacct cgroups, cputime measurement and limit '
-                            'might not work correctly if subprocesses are started.')
+            logging.warning(
+                "Without cpuacct cgroups, cputime measurement and limit "
+                "might not work correctly if subprocesses are started."
+            )
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups:
             if self._user is not None:
                 # In sudo mode, we absolutely need at least one cgroup subsystem
                 # to be able to find the process where we need to send signals to
-                sys.exit('Cannot reliably kill sub-processes without freezer cgroup,'
-                         + ' this is necessary if --user is specified.'
-                         + ' Please enable this cgroup or do not specify --user.')
+                sys.exit(
+                    "Cannot reliably kill sub-processes without freezer cgroup,"
+                    + " this is necessary if --user is specified."
+                    + " Please enable this cgroup or do not specify --user."
+                )
             else:
-                logging.warning('Cannot reliably kill sub-processes without freezer cgroup.')
+                logging.warning(
+                    "Cannot reliably kill sub-processes without freezer cgroup."
+                )
 
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
-            logging.warning('Cannot measure memory consumption without memory cgroup.')
+            logging.warning("Cannot measure memory consumption without memory cgroup.")
         else:
             if systeminfo.has_swap() and (
-                    not self.cgroups.has_value(MEMORY, 'memsw.max_usage_in_bytes')):
+                not self.cgroups.has_value(MEMORY, "memsw.max_usage_in_bytes")
+            ):
                 logging.warning(
-                    'Kernel misses feature for accounting swap memory, but machine has swap. '
-                    'Memory usage may be measured inaccurately. '
-                    'Please set swapaccount=1 on your kernel command line or disable swap with '
-                    '"sudo swapoff -a".')
+                    "Kernel misses feature for accounting swap memory, but machine has swap. "
+                    "Memory usage may be measured inaccurately. "
+                    "Please set swapaccount=1 on your kernel command line or disable swap with "
+                    '"sudo swapoff -a".'
+                )
 
         self.cgroups.require_subsystem(CPUSET)
-        self.cpus = None # to indicate that we cannot limit cores
-        self.memory_nodes = None # to indicate that we cannot limit cores
+        self.cpus = None  # to indicate that we cannot limit cores
+        self.memory_nodes = None  # to indicate that we cannot limit cores
         if CPUSET in self.cgroups:
             # Read available cpus/memory nodes:
             try:
-                self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, 'cpus'))
+                self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
             except ValueError as e:
-                logging.warning("Could not read available CPU cores from kernel: %s", e.strerror)
+                logging.warning(
+                    "Could not read available CPU cores from kernel: %s", e.strerror
+                )
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
-                self.memory_nodes = util.parse_int_list(self.cgroups.get_value(CPUSET, 'mems'))
+                self.memory_nodes = util.parse_int_list(
+                    self.cgroups.get_value(CPUSET, "mems")
+                )
             except ValueError as e:
-                logging.warning("Could not read available memory nodes from kernel: %s",
-                                e.strerror)
+                logging.warning(
+                    "Could not read available memory nodes from kernel: %s", e.strerror
+                )
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
     # --- utility functions ---
@@ -403,8 +532,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             return super(RunExecutor, self)._build_cmdline(args, env)
         result = _SUDO_ARGS + [self._user]
         for var, value in env.items():
-            result.append(var + '=' + value)
-        return result + ['--'] + args
+            result.append(var + "=" + value)
+        return result + ["--"] + args
 
     def _kill_process(self, pid, cgroups=None, sig=signal.SIGKILL):
         """
@@ -442,10 +571,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self._user is None:
             super(RunExecutor, self)._kill_process(pid, sig)
         else:
-            logging.debug('Sending signal %s to %s with sudo.', sig, pid)
+            logging.debug("Sending signal %s to %s with sudo.", sig, pid)
             try:
                 # Cast sig to int, under Python 3.5 the signal.SIG* constants are nums, not ints.
-                subprocess.check_call(args=self._build_cmdline(['kill', '-'+str(int(sig)), str(pid)]))
+                subprocess.check_call(
+                    args=self._build_cmdline(["kill", "-" + str(int(sig)), str(pid)])
+                )
             except subprocess.CalledProcessError as e:
                 # may happen for example if process no longer exists
                 logging.debug(e)
@@ -455,13 +586,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self._user is None:
             return os.listdir(path)
         else:
-            args = self._build_cmdline(['/bin/ls', '-1A', path])
-            return subprocess.check_output(args, stderr=DEVNULL).decode('utf-8', errors='ignore').split('\n')
+            args = self._build_cmdline(["/bin/ls", "-1A", path])
+            return (
+                subprocess.check_output(args, stderr=DEVNULL)
+                .decode("utf-8", errors="ignore")
+                .split("\n")
+            )
 
     def _set_termination_reason(self, reason):
         if not self._termination_reason:
             self._termination_reason = reason
-
 
     # --- setup and cleanup for a single run ---
 
@@ -493,48 +627,59 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 cgroups.set_value(subsystem, option, value)
             except EnvironmentError as e:
                 cgroups.remove()
-                sys.exit('{} for setting cgroup option {}.{} to "{}" (error code {}).'
-                         .format(e.strerror, subsystem, option, value, e.errno))
-            logging.debug('Cgroup value %s.%s was set to "%s", new value is now "%s".',
-                          subsystem, option, value, cgroups.get_value(subsystem, option))
+                sys.exit(
+                    '{} for setting cgroup option {}.{} to "{}" (error code {}).'.format(
+                        e.strerror, subsystem, option, value, e.errno
+                    )
+                )
+            logging.debug(
+                'Cgroup value %s.%s was set to "%s", new value is now "%s".',
+                subsystem,
+                option,
+                value,
+                cgroups.get_value(subsystem, option),
+            )
 
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
-            my_cpus_str = ','.join(map(str, my_cpus))
-            cgroups.set_value(CPUSET, 'cpus', my_cpus_str)
-            my_cpus_str = cgroups.get_value(CPUSET, 'cpus')
-            logging.debug('Using cpu cores [%s].', my_cpus_str)
+            my_cpus_str = ",".join(map(str, my_cpus))
+            cgroups.set_value(CPUSET, "cpus", my_cpus_str)
+            my_cpus_str = cgroups.get_value(CPUSET, "cpus")
+            logging.debug("Using cpu cores [%s].", my_cpus_str)
 
         if memory_nodes is not None:
-            cgroups.set_value(CPUSET, 'mems', ','.join(map(str, memory_nodes)))
-            memory_nodesStr = cgroups.get_value(CPUSET, 'mems')
-            logging.debug('Using memory nodes [%s].', memory_nodesStr)
-
+            cgroups.set_value(CPUSET, "mems", ",".join(map(str, memory_nodes)))
+            memory_nodesStr = cgroups.get_value(CPUSET, "mems")
+            logging.debug("Using memory nodes [%s].", memory_nodesStr)
 
         # Setup memory limit
         if memlimit is not None:
-            limit = 'limit_in_bytes'
+            limit = "limit_in_bytes"
             cgroups.set_value(MEMORY, limit, memlimit)
 
-            swap_limit = 'memsw.limit_in_bytes'
+            swap_limit = "memsw.limit_in_bytes"
             # We need swap limit because otherwise the kernel just starts swapping
             # out our process if the limit is reached.
             # Some kernels might not have this feature,
             # which is ok if there is actually no swap.
             if not cgroups.has_value(MEMORY, swap_limit):
                 if systeminfo.has_swap():
-                    sys.exit('Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
+                    sys.exit(
+                        'Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
+                    )
             else:
                 try:
                     cgroups.set_value(MEMORY, swap_limit, memlimit)
                 except IOError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
-                        sys.exit('Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".')
+                        sys.exit(
+                            'Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
+                        )
                     raise e
 
             memlimit = cgroups.get_value(MEMORY, limit)
-            logging.debug('Effective memory limit is %s bytes.', memlimit)
+            logging.debug("Effective memory limit is %s bytes.", memlimit)
 
         if MEMORY in cgroups:
             try:
@@ -542,23 +687,27 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
                 # (unlike setting the global swappiness to 0).
                 # Our process might get killed because of this.
-                cgroups.set_value(MEMORY, 'swappiness', '0')
+                cgroups.set_value(MEMORY, "swappiness", "0")
             except IOError as e:
-                logging.warning('Could not disable swapping for benchmarked process: %s', e)
+                logging.warning(
+                    "Could not disable swapping for benchmarked process: %s", e
+                )
 
         return cgroups
-
 
     def _create_temp_dir(self):
         """Create a temporary directory for the run."""
         if self._user is None:
             base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
         else:
-            create_temp_dir = self._build_cmdline([
-                'python', '-c',
-                'import tempfile;'
-                'print(tempfile.mkdtemp(prefix="BenchExec_run_"))'
-                ])
+            create_temp_dir = self._build_cmdline(
+                [
+                    "python",
+                    "-c",
+                    "import tempfile;"
+                    'print(tempfile.mkdtemp(prefix="BenchExec_run_"))',
+                ]
+            )
             base_dir = subprocess.check_output(create_temp_dir).decode().strip()
         return base_dir
 
@@ -566,25 +715,29 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self._user is None:
             super(RunExecutor, self)._create_dirs_in_temp_dir(*paths)
         elif paths:
-            subprocess.check_call(self._build_cmdline(["mkdir", "--mode=700"] + list(paths)))
+            subprocess.check_call(
+                self._build_cmdline(["mkdir", "--mode=700"] + list(paths))
+            )
 
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
-            logging.debug('Cleaning up temporary directory %s.', base_dir)
+            logging.debug("Cleaning up temporary directory %s.", base_dir)
             if self._user is None:
                 util.rmtree(base_dir, onerror=util.log_rmtree_error)
             else:
-                rm = subprocess.Popen(self._build_cmdline(['rm', '-rf', '--', base_dir]),
-                                      stderr=subprocess.PIPE)
+                rm = subprocess.Popen(
+                    self._build_cmdline(["rm", "-rf", "--", base_dir]),
+                    stderr=subprocess.PIPE,
+                )
                 rm_output = rm.stderr.read().decode()
                 rm.stderr.close()
                 if rm.wait() != 0 or rm_output:
-                    logging.warning("Failed to clean up temp directory %s: %s.",
-                                    base_dir, rm_output)
+                    logging.warning(
+                        "Failed to clean up temp directory %s: %s.", base_dir, rm_output
+                    )
         else:
             logging.info("Skipping cleanup of temporary directory %s.", base_dir)
-
 
     def _setup_environment(self, environments):
         """Return map with desired environment variables for run."""
@@ -611,26 +764,29 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Using additional environment %s.", environments)
         return run_environment
 
-
     def _setup_output_file(self, output_filename, args, write_header=True):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
         try:
-            output_file = open(output_filename, 'w') # override existing file
+            output_file = open(output_filename, "w")  # override existing file
         except IOError as e:
             sys.exit(e)
 
         if write_header:
-            output_file.write(' '.join(map(util.escape_string_shell, self._build_cmdline(args)))
-                              + '\n\n\n' + '-' * 80 + '\n\n\n')
+            output_file.write(
+                " ".join(map(util.escape_string_shell, self._build_cmdline(args)))
+                + "\n\n\n"
+                + "-" * 80
+                + "\n\n\n"
+            )
             output_file.flush()
 
         return output_file
 
-
-    def _setup_cgroup_time_limit(self, hardtimelimit, softtimelimit, walltimelimit,
-                                 cgroups, cores, pid_to_kill):
+    def _setup_cgroup_time_limit(
+        self, hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid_to_kill
+    ):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
@@ -639,14 +795,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
             # Start a timer to periodically check timelimit
-            timelimitThread = _TimelimitThread(cgroups=cgroups,
-                                               hardtimelimit=cgroup_hardtimelimit,
-                                               softtimelimit=softtimelimit,
-                                               walltimelimit=walltimelimit,
-                                               pid_to_kill=pid_to_kill,
-                                               cores=cores,
-                                               callbackFn=self._set_termination_reason,
-                                               kill_process_fn=self._kill_process)
+            timelimitThread = _TimelimitThread(
+                cgroups=cgroups,
+                hardtimelimit=cgroup_hardtimelimit,
+                softtimelimit=softtimelimit,
+                walltimelimit=walltimelimit,
+                pid_to_kill=pid_to_kill,
+                cores=cores,
+                callbackFn=self._set_termination_reason,
+                kill_process_fn=self._kill_process,
+            )
             timelimitThread.start()
             return timelimitThread
         return None
@@ -658,14 +816,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if memlimit is not None:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
-                    cgroups=cgroups, pid_to_kill=pid_to_kill,
+                    cgroups=cgroups,
+                    pid_to_kill=pid_to_kill,
                     callbackFn=self._set_termination_reason,
-                    kill_process_fn=self._kill_process)
+                    kill_process_fn=self._kill_process,
+                )
                 oomThread.start()
                 return oomThread
             except OSError as e:
-                logging.critical("OSError %s during setup of OomEventListenerThread: %s.",
-                                 e.errno, e.strerror)
+                logging.critical(
+                    "OSError %s during setup of OomEventListenerThread: %s.",
+                    e.errno,
+                    e.strerror,
+                )
         return None
 
     def _setup_ulimit_time_limit(self, hardtimelimit, cgroups):
@@ -681,7 +844,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
     def _setup_file_hierarchy_limit(
-            self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill):
+        self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill
+    ):
         """Start thread that enforces any file-hiearchy limits."""
         if files_count_limit is not None or files_size_limit is not None:
             file_hierarchy_limit_thread = FileHierarchyLimitThread(
@@ -691,22 +855,35 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 cgroups=cgroups,
                 pid_to_kill=pid_to_kill,
                 callbackFn=self._set_termination_reason,
-                kill_process_fn=self._kill_process)
+                kill_process_fn=self._kill_process,
+            )
             file_hierarchy_limit_thread.start()
             return file_hierarchy_limit_thread
         return None
 
-
     # --- run execution ---
 
-    def execute_run(self, args, output_filename, stdin=None,
-                    hardtimelimit=None, softtimelimit=None, walltimelimit=None,
-                   cores=None, memlimit=None, memory_nodes=None,
-                   environments={}, workingDir=None, maxLogfileSize=None,
-                   cgroupValues={},
-                   files_count_limit=None, files_size_limit=None,
-                   error_filename=None, write_header=True,
-                   **kwargs):
+    def execute_run(
+        self,
+        args,
+        output_filename,
+        stdin=None,
+        hardtimelimit=None,
+        softtimelimit=None,
+        walltimelimit=None,
+        cores=None,
+        memlimit=None,
+        memory_nodes=None,
+        environments={},
+        workingDir=None,
+        maxLogfileSize=None,
+        cgroupValues={},
+        files_count_limit=None,
+        files_size_limit=None,
+        error_filename=None,
+        write_header=True,
+        **kwargs
+    ):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -733,7 +910,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # Check argument values and call the actual method _execute()
 
         if stdin == subprocess.PIPE:
-            sys.exit('Illegal value subprocess.PIPE for stdin')
+            sys.exit("Illegal value subprocess.PIPE for stdin")
         elif stdin is None:
             stdin = DEVNULL
 
@@ -763,13 +940,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if not cores:
                 sys.exit("Cannot execute run without any CPU core.")
             if not set(cores).issubset(self.cpus):
-                sys.exit("Cores {0} are not allowed to be used".format(list(set(cores).difference(self.cpus))))
+                sys.exit(
+                    "Cores {0} are not allowed to be used".format(
+                        list(set(cores).difference(self.cpus))
+                    )
+                )
 
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
             if not MEMORY in self.cgroups:
-                sys.exit("Memory limit specified, but cannot be implemented without cgroup support.")
+                sys.exit(
+                    "Memory limit specified, but cannot be implemented without cgroup support."
+                )
 
         if memory_nodes is not None:
             if self.memory_nodes is None:
@@ -777,7 +960,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
             if not set(memory_nodes).issubset(self.memory_nodes):
-                sys.exit("Memory nodes {0} are not allowed to be used".format(list(set(memory_nodes).difference(self.memory_nodes))))
+                sys.exit(
+                    "Memory nodes {0} are not allowed to be used".format(
+                        list(set(memory_nodes).difference(self.memory_nodes))
+                    )
+                )
 
         if workingDir:
             if not os.path.exists(workingDir):
@@ -785,16 +972,24 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if not os.path.isdir(workingDir):
                 sys.exit("Working directory {0} is not a directory.".format(workingDir))
             if not os.access(workingDir, os.X_OK):
-                sys.exit("Permission denied for working directory {0}.".format(workingDir))
+                sys.exit(
+                    "Permission denied for working directory {0}.".format(workingDir)
+                )
 
         for ((subsystem, option), _) in cgroupValues.items():
             if not subsystem in self._cgroup_subsystems:
-                sys.exit('Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
-                         'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
-                            option=option, subsystem=subsystem))
+                sys.exit(
+                    'Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
+                    'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
+                        option=option, subsystem=subsystem
+                    )
+                )
             if not self.cgroups.has_value(subsystem, option):
-                sys.exit('Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'
-                         .format(option=option, subsystem=subsystem))
+                sys.exit(
+                    'Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'.format(
+                        option=option, subsystem=subsystem
+                    )
+                )
 
         if files_count_limit is not None:
             if files_count_limit < 0:
@@ -804,33 +999,73 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
 
         try:
-            return self._execute(args, output_filename, error_filename, stdin, write_header,
-                                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
-                                 cores, memory_nodes,
-                                 cgroupValues,
-                                 environments, workingDir, maxLogfileSize,
-                                 files_count_limit, files_size_limit,
-                                 **kwargs)
+            return self._execute(
+                args,
+                output_filename,
+                error_filename,
+                stdin,
+                write_header,
+                hardtimelimit,
+                softtimelimit,
+                walltimelimit,
+                memlimit,
+                cores,
+                memory_nodes,
+                cgroupValues,
+                environments,
+                workingDir,
+                maxLogfileSize,
+                files_count_limit,
+                files_size_limit,
+                **kwargs
+            )
 
         except BenchExecException as e:
-            logging.critical("Cannot execute '%s': %s.",
-                util.escape_string_shell(args[0]), e)
-            return {'terminationreason': 'failed', 'exitcode': 0,
-                    'cputime': 0, 'walltime': 0}
+            logging.critical(
+                "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
+            )
+            return {
+                "terminationreason": "failed",
+                "exitcode": 0,
+                "cputime": 0,
+                "walltime": 0,
+            }
         except OSError as e:
-            logging.critical("OSError %s while starting '%s' in '%s': %s.",
-                e.errno, util.escape_string_shell(args[0]), workingDir or '.', e.strerror)
-            return {'terminationreason': 'failed', 'exitcode': 0,
-                    'cputime': 0, 'walltime': 0}
+            logging.critical(
+                "OSError %s while starting '%s' in '%s': %s.",
+                e.errno,
+                util.escape_string_shell(args[0]),
+                workingDir or ".",
+                e.strerror,
+            )
+            return {
+                "terminationreason": "failed",
+                "exitcode": 0,
+                "cputime": 0,
+                "walltime": 0,
+            }
 
-
-    def _execute(self, args, output_filename, error_filename, stdin, write_header,
-                 hardtimelimit, softtimelimit, walltimelimit, memlimit,
-                 cores, memory_nodes,
-                 cgroup_values,
-                 environments, workingDir, max_output_size,
-                 files_count_limit, files_size_limit,
-                 **kwargs):
+    def _execute(
+        self,
+        args,
+        output_filename,
+        error_filename,
+        stdin,
+        write_header,
+        hardtimelimit,
+        softtimelimit,
+        walltimelimit,
+        memlimit,
+        cores,
+        memory_nodes,
+        cgroup_values,
+        environments,
+        workingDir,
+        max_output_size,
+        files_count_limit,
+        files_size_limit,
+        **kwargs
+    ):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
@@ -839,12 +1074,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self._energy_measurement is not None:
             # Calculate which packages we should use for energy measurements
             if cores is None:
-                packages = True # We use all cores and thus all packages
+                packages = True  # We use all cores and thus all packages
             else:
-                all_siblings = set(util.flatten(
-                    resources.get_cores_of_same_package_as(core) for core in cores))
+                all_siblings = set(
+                    util.flatten(
+                        resources.get_cores_of_same_package_as(core) for core in cores
+                    )
+                )
                 if all_siblings == set(cores):
-                    packages = set(resources.get_cpu_package_for_core(core) for core in cores)
+                    packages = set(
+                        resources.get_cpu_package_for_core(core) for core in cores
+                    )
                 else:
                     # Disable energy measurements because we use only parts of a CPU
                     packages = None
@@ -862,7 +1102,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # finish measurements
             walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
-            energy = self._energy_measurement.stop() if self._energy_measurement else None
+            energy = (
+                self._energy_measurement.stop() if self._energy_measurement else None
+            )
 
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
@@ -871,19 +1113,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
-            os.setpgrp() # make subprocess to group-leader
-            os.nice(5) # increase niceness of subprocess
+            os.setpgrp()  # make subprocess to group-leader
+            os.nice(5)  # increase niceness of subprocess
             self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
         temp_dir = self._create_temp_dir()
         run_environment = self._setup_environment(environments)
-        outputFile = self._setup_output_file(output_filename, args, write_header=write_header)
+        outputFile = self._setup_output_file(
+            output_filename, args, write_header=write_header
+        )
         if error_filename is None:
             errorFile = outputFile
         else:
-            errorFile = self._setup_output_file(error_filename, args, write_header=write_header)
+            errorFile = self._setup_output_file(
+                error_filename, args, write_header=write_header
+            )
 
         timelimitThread = None
         oomThread = None
@@ -897,33 +1143,43 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         throttle_check = systeminfo.CPUThrottleCheck(cores)
         swap_check = systeminfo.SwapCheck()
 
-        logging.debug('Starting process.')
+        logging.debug("Starting process.")
 
         try:
-            pid, result_fn = self._start_execution(args=args,
-                stdin=stdin, stdout=outputFile, stderr=errorFile,
-                env=run_environment, cwd=workingDir, temp_dir=temp_dir,
-                memlimit=memlimit, memory_nodes=memory_nodes,
+            pid, result_fn = self._start_execution(
+                args=args,
+                stdin=stdin,
+                stdout=outputFile,
+                stderr=errorFile,
+                env=run_environment,
+                cwd=workingDir,
+                temp_dir=temp_dir,
+                memlimit=memlimit,
+                memory_nodes=memory_nodes,
                 cgroups=cgroups,
-                parent_setup_fn=preParent, child_setup_fn=preSubprocess,
+                parent_setup_fn=preParent,
+                child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent,
-                **kwargs)
+                **kwargs
+            )
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid)
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid
+            )
             oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
-                files_count_limit, files_size_limit, temp_dir, cgroups, pid)
+                files_count_limit, files_size_limit, temp_dir, cgroups, pid
+            )
 
             # wait until process has terminated
             returnvalue, ru_child, (walltime, energy) = result_fn()
-            result['walltime'] = walltime
+            result["walltime"] = walltime
         finally:
             # cleanup steps that need to get executed even in case of failure
-            logging.debug('Process terminated, exit code %s.', returnvalue)
+            logging.debug("Process terminated, exit code %s.", returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.discard(pid)
@@ -964,32 +1220,37 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # cleanup steps that are only relevant in case of success
         if throttle_check.has_throttled():
-            logging.warning('CPU throttled itself during benchmarking due to overheating. '
-                            'Benchmark results are unreliable!')
+            logging.warning(
+                "CPU throttled itself during benchmarking due to overheating. "
+                "Benchmark results are unreliable!"
+            )
         if swap_check.has_swapped():
-            logging.warning('System has swapped during benchmarking. '
-                            'Benchmark results are unreliable!')
+            logging.warning(
+                "System has swapped during benchmarking. "
+                "Benchmark results are unreliable!"
+            )
 
         if error_filename is not None:
             _reduce_file_size_if_necessary(error_filename, max_output_size)
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
-        result['exitcode'] = returnvalue
+        result["exitcode"] = returnvalue
         if energy:
             if packages == True:
-                result['cpuenergy'] = energy
+                result["cpuenergy"] = energy
             else:
-                result['cpuenergy'] = {pkg: energy[pkg] for pkg in energy if pkg in packages}
+                result["cpuenergy"] = {
+                    pkg: energy[pkg] for pkg in energy if pkg in packages
+                }
         if self._termination_reason:
-            result['terminationreason'] = self._termination_reason
-        elif memlimit and 'memory' in result and result['memory'] >= memlimit:
+            result["terminationreason"] = self._termination_reason
+        elif memlimit and "memory" in result and result["memory"] >= memlimit:
             # The kernel does not always issue OOM notifications and thus the OOMHandler
             # does not always run even in case of OOM. We detect this there and report OOM.
-            result['terminationreason'] = 'memory'
+            result["terminationreason"] = "memory"
 
         return result
-
 
     def _get_cgroup_measurements(self, cgroups, ru_child, result):
         """
@@ -1027,73 +1288,83 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # thus we warn if the difference is substantial and take the larger cputime_wait value.
             if cputime_wait > 0.5 and (cputime_wait * 0.95) > cputime_cgroups:
                 logging.warning(
-                    'Cputime measured by wait was %s, cputime measured by cgroup was only %s, '
-                    'perhaps measurement is flawed.',
-                    cputime_wait, cputime_cgroups)
-                result['cputime'] = cputime_wait
+                    "Cputime measured by wait was %s, cputime measured by cgroup was only %s, "
+                    "perhaps measurement is flawed.",
+                    cputime_wait,
+                    cputime_cgroups,
+                )
+                result["cputime"] = cputime_wait
             else:
-                result['cputime'] = cputime_cgroups
+                result["cputime"] = cputime_cgroups
 
-            for (core, coretime) in enumerate(cgroups.get_value(CPUACCT, 'usage_percpu').split(" ")):
+            for (core, coretime) in enumerate(
+                cgroups.get_value(CPUACCT, "usage_percpu").split(" ")
+            ):
                 try:
                     coretime = int(coretime)
                     if coretime != 0:
                         # convert nanoseconds to seconds
-                        result['cputime-cpu'+str(core)] = coretime/1000000000
+                        result["cputime-cpu" + str(core)] = coretime / 1000000000
                 except (OSError, ValueError) as e:
-                    logging.debug("Could not read CPU time for core %s from kernel: %s", core, e)
+                    logging.debug(
+                        "Could not read CPU time for core %s from kernel: %s", core, e
+                    )
         else:
             # For backwards compatibility, we report cputime_wait on systems without cpuacct cgroup.
             # TOOD We might remove this for BenchExec 2.0.
-            result['cputime'] = cputime_wait
+            result["cputime"] = cputime_wait
 
         if MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
             # For more details, c.f. the kernel documentation:
             # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-            memUsageFile = 'memsw.max_usage_in_bytes'
+            memUsageFile = "memsw.max_usage_in_bytes"
             if not cgroups.has_value(MEMORY, memUsageFile):
-                memUsageFile = 'max_usage_in_bytes'
+                memUsageFile = "max_usage_in_bytes"
             if not cgroups.has_value(MEMORY, memUsageFile):
-                logging.warning('Memory-usage is not available due to missing files.')
+                logging.warning("Memory-usage is not available due to missing files.")
             else:
                 try:
-                    result['memory'] = int(cgroups.get_value(MEMORY, memUsageFile))
+                    result["memory"] = int(cgroups.get_value(MEMORY, memUsageFile))
                 except IOError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
                         logging.critical(
                             "Kernel does not track swap memory usage, cannot measure memory usage."
-                            " Please set swapaccount=1 on your kernel command line.")
+                            " Please set swapaccount=1 on your kernel command line."
+                        )
                     else:
                         raise e
 
         if BLKIO in cgroups:
-            blkio_bytes_file = 'throttle.io_service_bytes'
+            blkio_bytes_file = "throttle.io_service_bytes"
             if cgroups.has_value(BLKIO, blkio_bytes_file):
                 bytes_read = 0
                 bytes_written = 0
                 for blkio_line in cgroups.get_file_lines(BLKIO, blkio_bytes_file):
                     try:
-                        dev_no, io_type, bytes_amount = blkio_line.split(' ')
+                        dev_no, io_type, bytes_amount = blkio_line.split(" ")
                         if io_type == "Read":
                             bytes_read += int(bytes_amount)
                         elif io_type == "Write":
                             bytes_written += int(bytes_amount)
                     except ValueError:
-                        pass # There are irrelevant lines in this file with a different structure
-                result['blkio-read'] = bytes_read
-                result['blkio-write'] = bytes_written
+                        pass  # There are irrelevant lines in this file with a different structure
+                result["blkio-read"] = bytes_read
+                result["blkio-write"] = bytes_written
 
         logging.debug(
-            'Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s',
-            result.get('walltime'), cputime_wait, cputime_cgroups, result.get('memory', None))
-
+            "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
+            result.get("walltime"),
+            cputime_wait,
+            cputime_cgroups,
+            result.get("memory", None),
+        )
 
     # --- other public functions ---
 
     def stop(self):
-        self._set_termination_reason('killed')
+        self._set_termination_reason("killed")
         super(RunExecutor, self).stop()
 
     def check_for_new_files_in_home(self):
@@ -1105,14 +1376,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if not self._user:
             return None
         try:
-            created_files = set(self._listdir(self._home_dir)).difference(self._home_dir_content)
+            created_files = set(self._listdir(self._home_dir)).difference(
+                self._home_dir_content
+            )
         except (subprocess.CalledProcessError, IOError):
             # Probably home directory does not exist
             created_files = []
         if created_files:
-            logging.warning('The tool created the following files in %s, '
-                            'this may influence later runs:\n\t%s',
-                            self._home_dir, '\n\t'.join(created_files))
+            logging.warning(
+                "The tool created the following files in %s, "
+                "this may influence later runs:\n\t%s",
+                self._home_dir,
+                "\n\t".join(created_files),
+            )
         return created_files
 
 
@@ -1123,8 +1399,9 @@ def _get_user_account_info(user):
     @raise KeyError: If user account is unknown
     @raise ValueError: If uid is not a valid number
     """
-    import pwd # Import here to avoid problems on other platforms
-    if user[0] == '#':
+    import pwd  # Import here to avoid problems on other platforms
+
+    if user[0] == "#":
         return pwd.getpwuid(int(user[1:]))
     else:
         return pwd.getpwnam(user)
@@ -1139,14 +1416,20 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     fileSize = os.path.getsize(fileName)
 
     if maxSize is None:
-        logging.debug("Size of logfile '%s' is %s bytes, size limit disabled.", fileName, fileSize)
-        return # disabled, nothing to do
+        logging.debug(
+            "Size of logfile '%s' is %s bytes, size limit disabled.", fileName, fileSize
+        )
+        return  # disabled, nothing to do
 
     if fileSize < (maxSize + 500):
-        logging.debug("Size of logfile '%s' is %s bytes, nothing to do.", fileName, fileSize)
+        logging.debug(
+            "Size of logfile '%s' is %s bytes, nothing to do.", fileName, fileSize
+        )
         return
 
-    logging.warning("Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize)
+    logging.warning(
+        "Logfile '%s' is too big (size %s bytes). Removing lines.", fileName, fileSize
+    )
     util.shrink_text_file(fileName, maxSize, _LOG_SHRINK_MARKER)
 
 
@@ -1163,29 +1446,36 @@ def _get_debug_output_after_crash(output_filename, base_path):
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     try:
-        with open(output_filename, 'r+') as outputFile:
+        with open(output_filename, "r+") as outputFile:
             for line in outputFile:
                 if foundDumpFile:
-                    dumpFileName = base_path + line.strip(' #\n')
-                    outputFile.seek(0, os.SEEK_END) # jump to end of log file
+                    dumpFileName = base_path + line.strip(" #\n")
+                    outputFile.seek(0, os.SEEK_END)  # jump to end of log file
                     try:
-                        with open(dumpFileName, 'r') as dumpFile:
+                        with open(dumpFileName, "r") as dumpFile:
                             util.copy_all_lines_from_to(dumpFile, outputFile)
                         os.remove(dumpFileName)
                     except IOError as e:
-                        logging.warning('Could not append additional segmentation fault information '
-                                        'from %s (%s)',
-                                        dumpFileName, e.strerror)
+                        logging.warning(
+                            "Could not append additional segmentation fault information "
+                            "from %s (%s)",
+                            dumpFileName,
+                            e.strerror,
+                        )
                     break
                 try:
-                    if util.decode_to_string(line).startswith('# An error report file with more information is saved as:'):
-                        logging.debug('Going to append error report file')
+                    if util.decode_to_string(line).startswith(
+                        "# An error report file with more information is saved as:"
+                    ):
+                        logging.debug("Going to append error report file")
                         foundDumpFile = True
                 except UnicodeDecodeError:
                     pass
                     # ignore invalid chars from logfile
     except IOError as e:
-        logging.warning('Could not analyze tool output for crash information (%s)', e.strerror)
+        logging.warning(
+            "Could not analyze tool output for crash information (%s)", e.strerror
+        )
 
 
 def _try_join_cancelled_thread(thread):
@@ -1193,8 +1483,10 @@ def _try_join_cancelled_thread(thread):
     instead of waiting infinitely."""
     thread.join(10)
     if thread.is_alive():
-        logging.warning("Thread %s did not terminate within grace period after cancellation",
-                        thread.name)
+        logging.warning(
+            "Thread %s did not terminate within grace period after cancellation",
+            thread.name,
+        )
 
 
 class _TimelimitThread(threading.Thread):
@@ -1202,8 +1494,18 @@ class _TimelimitThread(threading.Thread):
     Thread that periodically checks whether the given process has already
     reached its timelimit. After this happens, the process is terminated.
     """
-    def __init__(self, cgroups, kill_process_fn, hardtimelimit, softtimelimit, walltimelimit, pid_to_kill, cores,
-                 callbackFn=lambda reason: None):
+
+    def __init__(
+        self,
+        cgroups,
+        kill_process_fn,
+        hardtimelimit,
+        softtimelimit,
+        walltimelimit,
+        pid_to_kill,
+        cores,
+        callbackFn=lambda reason: None,
+    ):
         super(_TimelimitThread, self).__init__()
         self.name = "TimelimitThread-" + self.name
 
@@ -1221,8 +1523,8 @@ class _TimelimitThread(threading.Thread):
 
         self.cgroups = cgroups
         # set timelimits to large dummy value if no limit is given
-        self.timelimit = hardtimelimit or (60*60*24*365*100)
-        self.softtimelimit = softtimelimit or (60*60*24*365*100)
+        self.timelimit = hardtimelimit or (60 * 60 * 24 * 365 * 100)
+        self.softtimelimit = softtimelimit or (60 * 60 * 24 * 365 * 100)
         self.latestKillTime = util.read_monotonic_time() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
@@ -1246,35 +1548,45 @@ class _TimelimitThread(threading.Thread):
             logging.debug(
                 "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
                 "remaining soft CPU time: %s, remaining wall time: %s.",
-                self.pid_to_kill, usedCpuTime, remainingCpuTime,
-                remainingSoftCpuTime, remainingWallTime)
+                self.pid_to_kill,
+                usedCpuTime,
+                remainingCpuTime,
+                remainingSoftCpuTime,
+                remainingWallTime,
+            )
             if remainingCpuTime <= 0:
-                self.callback('cputime')
-                logging.debug('Killing process %s due to CPU time timeout.', self.pid_to_kill)
+                self.callback("cputime")
+                logging.debug(
+                    "Killing process %s due to CPU time timeout.", self.pid_to_kill
+                )
                 self.kill_process(self.pid_to_kill, self.cgroups)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
-                self.callback('walltime')
-                logging.warning('Killing process %s due to wall time timeout.', self.pid_to_kill)
+                self.callback("walltime")
+                logging.warning(
+                    "Killing process %s due to wall time timeout.", self.pid_to_kill
+                )
                 self.kill_process(self.pid_to_kill, self.cgroups)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
-                self.callback('cputime-soft')
+                self.callback("cputime-soft")
                 # soft time limit violated, ask process to terminate
                 self.kill_process(self.pid_to_kill, self.cgroups, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
-            remainingTime = min(remainingCpuTime/self.cpuCount,
-                                remainingSoftCpuTime/self.cpuCount,
-                                remainingWallTime)
+            remainingTime = min(
+                remainingCpuTime / self.cpuCount,
+                remainingSoftCpuTime / self.cpuCount,
+                remainingWallTime,
+            )
             self.finished.wait(remainingTime + 1)
 
     def cancel(self):
         self.finished.set()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -21,8 +21,9 @@ limitations under the License.
 
 import os
 import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import benchexec.runexecutor
 

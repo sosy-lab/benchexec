@@ -18,6 +18,7 @@ import benchexec.util as util
 
 from . import cbmc
 
+
 class Tool(cbmc.Tool):
     """
     Tool info for CBMC Path (http://www.cprover.org/cbmc/).
@@ -27,4 +28,4 @@ class Tool(cbmc.Tool):
     """
 
     def name(self):
-        return 'CBMC Path'
+        return "CBMC Path"

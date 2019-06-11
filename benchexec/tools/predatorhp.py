@@ -26,24 +26,20 @@ import subprocess
 import os
 import sys
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Wrapper for a Predator - Hunting Party
     http://www.fit.vutbr.cz/research/groups/verifit/tools/predator-hp/
     """
 
-    REQUIRED_PATHS = [
-                  "predator",
-                  "predator-bfs",
-                  "predator-dfs",
-                  "predatorHP.py",
-                  ]
+    REQUIRED_PATHS = ["predator", "predator-bfs", "predator-dfs", "predatorHP.py"]
 
     def executable(self):
-        return util.find_executable('predatorHP.py')
+        return util.find_executable("predatorHP.py")
 
     def name(self):
-        return 'PredatorHP'
+        return "PredatorHP"
 
     def version(self, executable):
         return self._version_from_tool(executable, use_stderr=True)
@@ -53,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + spec + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         status = "UNKNOWN"
         if "UNKNOWN" in output:
             status = result.RESULT_UNKNOWN
@@ -69,6 +65,6 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_MEMCLEANUP
         elif "FALSE" in output:
             status = result.RESULT_FALSE_REACH
-        if (status == "UNKNOWN" and isTimeout):
+        if status == "UNKNOWN" and isTimeout:
             status = "TIMEOUT"
         return status

@@ -20,10 +20,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     def showwarning(message, *args, **kwargs):
         if sys.stderr.isatty():
             sys.stderr.write("\033[31;1mWarning: " + str(message) + "\033[m\n")
@@ -31,8 +33,12 @@ if __name__ == '__main__':
             sys.stderr.write("Warning: " + str(message) + "\n")
 
     import warnings
+
     warnings.showwarning = showwarning
-    warnings.warn('Using benchexec.test_tool_wrapper is deprecated, please call benchexec.test_tool_info.')
+    warnings.warn(
+        "Using benchexec.test_tool_wrapper is deprecated, please call benchexec.test_tool_info."
+    )
 
     from benchexec import test_tool_info
+
     sys.exit(test_tool_info.main())

@@ -23,30 +23,27 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool):
-
     def executable(self):
-        return util.find_executable('feaver_cmd')
-
+        return util.find_executable("feaver_cmd")
 
     def name(self):
-        return 'Feaver'
-
+        return "Feaver"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"
         return [executable] + ["--file"] + tasks + options
 
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         if "collect2: ld returned 1 exit status" in output:
             status = "COMPILE ERROR"
 
         elif "Error (parse error" in output:
             status = "PARSE ERROR"
 
-        elif "error: (\"model\":" in output:
+        elif 'error: ("model":' in output:
             status = "MODEL ERROR"
 
         elif "Error: syntax error" in output:

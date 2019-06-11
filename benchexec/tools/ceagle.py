@@ -23,21 +23,19 @@ import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
 
+
 class Tool(benchexec.tools.template.BaseTool):
 
-    REQUIRED_PATHS = [
-        "sv-ceagle",
-        "z3"
-    ]
+    REQUIRED_PATHS = ["sv-ceagle", "z3"]
 
     def executable(self):
-        return util.find_executable('sv-ceagle')
+        return util.find_executable("sv-ceagle")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return 'Ceagle'
+        return "Ceagle"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         spec = ["--property-file=" + propertyfile] if propertyfile is not None else []
@@ -49,16 +47,16 @@ class Tool(benchexec.tools.template.BaseTool):
         stroutput = str(output)
 
         if isTimeout:
-            status = 'TIMEOUT'
-        elif 'TRUE' in stroutput:
+            status = "TIMEOUT"
+        elif "TRUE" in stroutput:
             status = result.RESULT_TRUE_PROP
-        elif 'FALSE(valid-deref)' in stroutput:
+        elif "FALSE(valid-deref)" in stroutput:
             status = result.RESULT_FALSE_DEREF
-        elif 'FALSE(no-overflow)' in stroutput:
+        elif "FALSE(no-overflow)" in stroutput:
             status = result.RESULT_FALSE_OVERFLOW
-        elif 'FALSE' in stroutput:
+        elif "FALSE" in stroutput:
             status = result.RESULT_FALSE_REACH
-        elif 'UNKNOWN' in stroutput:
+        elif "UNKNOWN" in stroutput:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_UNKNOWN

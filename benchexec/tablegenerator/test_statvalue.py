@@ -22,12 +22,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from decimal import Decimal
 import sys
 import unittest
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 from benchexec.tablegenerator import StatValue
 
-class TestStatValue(unittest.TestCase):
 
+class TestStatValue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.longMessage = True
@@ -55,23 +56,23 @@ class TestStatValue(unittest.TestCase):
     def test_two_values(self):
         v1 = Decimal(1.23)
         v2 = Decimal(4.56)
-        for t in [[v1,v2], [v2,v1]]:
+        for t in [[v1, v2], [v2, v1]]:
             s = StatValue.from_list(t)
-            self.assertEqual(s.sum, v1+v2)
-            self.assertAlmostEqual(s.avg, (v1+v2)/Decimal(2))
+            self.assertEqual(s.sum, v1 + v2)
+            self.assertAlmostEqual(s.avg, (v1 + v2) / Decimal(2))
             self.assertEqual(s.max, v2)
             self.assertEqual(s.min, v1)
-            self.assertAlmostEqual(s.median, (v1+v2)/Decimal(2))
+            self.assertAlmostEqual(s.median, (v1 + v2) / Decimal(2))
             self.assertAlmostEqual(s.stdev, Decimal(1.665))
 
     def test_three_values(self):
         v1 = Decimal(0.123)
         v2 = Decimal(4.56)
         v3 = Decimal(789)
-        for t in [[v1,v2,v3], [v3,v2,v1], [v2,v1,v3]]:
+        for t in [[v1, v2, v3], [v3, v2, v1], [v2, v1, v3]]:
             s = StatValue.from_list(t)
-            self.assertEqual(s.sum, v1+v2+v3)
-            self.assertAlmostEqual(s.avg, (v1+v2+v3)/Decimal(3))
+            self.assertEqual(s.sum, v1 + v2 + v3)
+            self.assertAlmostEqual(s.avg, (v1 + v2 + v3) / Decimal(3))
             self.assertEqual(s.max, v3)
             self.assertEqual(s.min, v1)
             self.assertEqual(s.median, v2)
@@ -79,7 +80,8 @@ class TestStatValue(unittest.TestCase):
 
     def test_nan(self):
         import math
-        nan = Decimal(float('nan'))
+
+        nan = Decimal(float("nan"))
         v = Decimal(0.123)
 
         s = StatValue.from_list([nan])
@@ -99,7 +101,7 @@ class TestStatValue(unittest.TestCase):
         self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
 
     def test_one_inf(self):
-        inf = Decimal(float('inf'))
+        inf = Decimal(float("inf"))
         v = Decimal(0.123)
 
         s = StatValue.from_list([inf])
@@ -119,8 +121,8 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not NaN, but " + str(s.stdev))
 
     def test_one_negative_inf(self):
-        ninf = Decimal(float('-inf'))
-        inf = Decimal(float('inf'))
+        ninf = Decimal(float("-inf"))
+        inf = Decimal(float("inf"))
         v = Decimal(0.123)
 
         s = StatValue.from_list([ninf])
@@ -140,7 +142,7 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
 
     def test_multiple_positive_inf(self):
-        inf = Decimal(float('inf'))
+        inf = Decimal(float("inf"))
         v = Decimal(0.123)
 
         # Equal number of infs
@@ -162,8 +164,8 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
 
     def test_multiple_negative_inf(self):
-        ninf = Decimal(float('-inf'))
-        inf = Decimal(float('inf'))
+        ninf = Decimal(float("-inf"))
+        inf = Decimal(float("inf"))
         v = Decimal(0.123)
 
         # Equal number of negative infs
@@ -186,8 +188,9 @@ class TestStatValue(unittest.TestCase):
 
     def test_multiple_positive_and_negative_inf(self):
         import math
-        inf = Decimal(float('inf'))
-        ninf = Decimal(float('-inf'))
+
+        inf = Decimal(float("inf"))
+        ninf = Decimal(float("-inf"))
         v = Decimal(0.123)
 
         s = StatValue.from_list([inf, ninf, v])

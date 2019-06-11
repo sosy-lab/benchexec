@@ -26,13 +26,27 @@ import benchexec.result as result
 
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     DIVINE info object
     """
 
-    BINS = ['divine', 'rundivine', 'lart', 'clang', 'opt']
-    LIBS = ['libc++abi.so.1', 'libc.so.6', 'libdl.so.2', 'libm.so.6', 'librt.so.1', 'libunwind.so.1', 'libc++.so.1', 'libdivinert.bc', 'libgcc_s.so.1', 'libpthread.so.0', 'libtinfo.so.5', 'libz.so.1']
+    BINS = ["divine", "rundivine", "lart", "clang", "opt"]
+    LIBS = [
+        "libc++abi.so.1",
+        "libc.so.6",
+        "libdl.so.2",
+        "libm.so.6",
+        "librt.so.1",
+        "libunwind.so.1",
+        "libc++.so.1",
+        "libdivinert.bc",
+        "libgcc_s.so.1",
+        "libpthread.so.0",
+        "libtinfo.so.5",
+        "libz.so.1",
+    ]
 
     def executable(self):
         """
@@ -41,7 +55,7 @@ class Tool(benchexec.tools.template.BaseTool):
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
-        return util.find_executable(self.BINS[0], os.path.join("bin", self.BINS[0]) )
+        return util.find_executable(self.BINS[0], os.path.join("bin", self.BINS[0]))
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -50,7 +64,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         Return the name of the tool, formatted for humans.
         """
-        return 'DIVINE'
+        return "DIVINE"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -74,7 +88,7 @@ class Tool(benchexec.tools.template.BaseTool):
         directory = os.path.dirname(executable)
 
         # Ignore propertyfile since we run only reachability
-        run = [os.path.join('.', directory, self.BINS[1]), directory] + options + tasks
+        run = [os.path.join(".", directory, self.BINS[1]), directory] + options + tasks
         return run
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -89,21 +103,21 @@ class Tool(benchexec.tools.template.BaseTool):
         """
 
         if not output:
-            return 'ERROR - no output'
+            return "ERROR - no output"
 
         last = output[-1]
 
         if isTimeout:
-            return 'TIMEOUT'
+            return "TIMEOUT"
 
         if returncode != 0:
-            return 'ERROR - Pre-run'
+            return "ERROR - Pre-run"
 
         if last is None:
-            return 'ERROR - no output'
-        elif 'result: true' in last:
+            return "ERROR - no output"
+        elif "result: true" in last:
             return result.RESULT_TRUE_PROP
-        elif 'result: false' in last:
+        elif "result: false" in last:
             return result.RESULT_FALSE_REACH
         else:
             return result.RESULT_UNKNOWN
@@ -116,5 +130,6 @@ class Tool(benchexec.tools.template.BaseTool):
         Returns a list of files or directories that are necessary to run the tool.
         """
         directory = os.path.dirname(executable)
-        return ([os.path.join('.', directory, x) for x in self.BINS] +
-                [os.path.join('.', directory, "..", "lib", x) for x in self.LIBS])
+        return [os.path.join(".", directory, x) for x in self.BINS] + [
+            os.path.join(".", directory, "..", "lib", x) for x in self.LIBS
+        ]

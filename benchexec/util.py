@@ -55,31 +55,37 @@ except AttributeError:
 try:
     glob.iglob("/", recursive=True)
 except TypeError:
+
     def maybe_recursive_iglob(pathname, recursive=False):
         """Workaround for glob.iglob not accepting parameter recursive on Python <= 3.4"""
         return glob.iglob(pathname)
+
+
 else:
     maybe_recursive_iglob = glob.iglob
 
 
-_BYTE_FACTOR = 1000 # byte in kilobyte
+_BYTE_FACTOR = 1000  # byte in kilobyte
 
 
 def is_windows():
-    return os.name == 'nt'
+    return os.name == "nt"
+
 
 def force_linux_path(path):
     if is_windows():
-        return path.replace('\\', '/')
+        return path.replace("\\", "/")
     return path
 
-def printOut(value, end='\n'):
+
+def printOut(value, end="\n"):
     """
     This function prints the given String immediately and flushes the output.
     """
     sys.stdout.write(value)
     sys.stdout.write(end)
     sys.stdout.flush()
+
 
 def is_code(filename):
     """
@@ -88,11 +94,11 @@ def is_code(filename):
     with open(filename, "r") as file:
         for line in file:
             # ignore comments and empty lines
-            if not is_comment(line) \
-                    and '{' in line: # <-- simple indicator for code
-                if '${' not in line: # <-- ${abc} variable to substitute
+            if not is_comment(line) and "{" in line:  # <-- simple indicator for code
+                if "${" not in line:  # <-- ${abc} variable to substitute
                     return True
     return False
+
 
 def is_comment(line):
     return not line or line.startswith("#") or line.startswith("//")
@@ -107,10 +113,17 @@ def flatten(iterable, exclude=[]):
 
 
 def get_list_from_xml(elem, tag="option", attributes=["name"]):
-    '''
+    """
     This function searches for all "option"-tags and returns a list with all attributes and texts.
-    '''
-    return flatten(([option.get(attr) for attr in attributes] + [option.text] for option in elem.findall(tag)), exclude=[None])
+    """
+    return flatten(
+        (
+            [option.get(attr) for attr in attributes] + [option.text]
+            for option in elem.findall(tag)
+        ),
+        exclude=[None],
+    )
+
 
 def get_single_child_from_xml(elem, tag):
     """
@@ -121,16 +134,21 @@ def get_single_child_from_xml(elem, tag):
     if not children:
         return None
     if len(children) > 1:
-        logging.warning('Tag "%s" has more than one child tags with name "%s" in input file, '
-                        'ignoring all but the first.',
-                        elem.tag, tag)
+        logging.warning(
+            'Tag "%s" has more than one child tags with name "%s" in input file, '
+            "ignoring all but the first.",
+            elem.tag,
+            tag,
+        )
     return children[0]
+
 
 def text_or_none(elem):
     """
     Retrieve the text content of an XML tag, or None if the element itself is None
     """
     return elem.text if elem is not None else None
+
 
 def copy_of_xml_element(elem):
     """
@@ -151,8 +169,8 @@ def decode_to_string(toDecode):
     because a subprocess can return bytes instead of a string.
     """
     try:
-        return toDecode.decode('utf-8')
-    except AttributeError: # bytesToDecode was of type string before
+        return toDecode.decode("utf-8")
+    except AttributeError:  # bytesToDecode was of type string before
         return toDecode
 
 
@@ -178,13 +196,13 @@ def parse_int_list(s):
     which will be expanded into "1,2,3,4,5".
     """
     result = []
-    for item in s.split(','):
-        item = item.strip().split('-')
+    for item in s.split(","):
+        item = item.strip().split("-")
         if len(item) == 1:
             result.append(int(item[0]))
         elif len(item) == 2:
             start, end = item
-            result.extend(range(int(start), int(end)+1))
+            result.extend(range(int(start), int(end) + 1))
         else:
             raise ValueError("invalid range: '{0}'".format(s))
     return result
@@ -196,32 +214,36 @@ def split_number_and_unit(s):
     @return a triple of the number (as int) and the unit
     """
     if not s:
-        raise ValueError('empty value')
+        raise ValueError("empty value")
     s = s.strip()
     pos = len(s)
-    while pos and not s[pos-1].isdigit():
+    while pos and not s[pos - 1].isdigit():
         pos -= 1
     number = int(s[:pos])
     unit = s[pos:].strip()
     return (number, unit)
+
 
 def parse_memory_value(s):
     """Parse a string that contains a number of bytes, optionally with a unit like MB.
     @return the number of bytes encoded by the string
     """
     number, unit = split_number_and_unit(s)
-    if not unit or unit == 'B':
+    if not unit or unit == "B":
         return number
-    elif unit == 'kB':
+    elif unit == "kB":
         return number * _BYTE_FACTOR
-    elif unit == 'MB':
+    elif unit == "MB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR
-    elif unit == 'GB':
+    elif unit == "GB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
-    elif unit == 'TB':
+    elif unit == "TB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     else:
-        raise ValueError('unknown unit: {} (allowed are B, kB, MB, GB, and TB)'.format(unit))
+        raise ValueError(
+            "unknown unit: {} (allowed are B, kB, MB, GB, and TB)".format(unit)
+        )
+
 
 def parse_timespan_value(s):
     """Parse a string that contains a time span, optionally with a unit like s.
@@ -237,7 +259,7 @@ def parse_timespan_value(s):
     elif unit == "d":
         return number * 24 * 60 * 60
     else:
-        raise ValueError('unknown unit: {} (allowed are s, min, h, and d)'.format(unit))
+        raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
 
 
 def expand_filename_pattern(pattern, base_dir):
@@ -272,8 +294,8 @@ def get_files(paths):
             for currentPath, dirs, files in os.walk(path):
                 # ignore hidden files, on Linux they start with '.',
                 # inplace replacement of 'dirs', because it is used later in os.walk
-                files = [f for f in files if not f.startswith('.')]
-                dirs[:] = [d for d in dirs if not d.startswith('.')]
+                files = [f for f in files if not f.startswith(".")]
+                dirs[:] = [d for d in dirs if not d.startswith(".")]
                 result.extend(os.path.join(currentPath, f) for f in files)
     return result if changed else paths
 
@@ -285,18 +307,18 @@ def substitute_vars(template, replacements):
     """
     result = template
     for (key, value) in replacements:
-        result = result.replace('${' + key + '}' , value)
-    if '${' in result:
+        result = result.replace("${" + key + "}", value)
+    if "${" in result:
         logging.warning("A variable was not replaced in '%s'.", result)
     return result
 
 
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
-    dirs = os.environ['PATH'].split(os.path.pathsep)
+    dirs = os.environ["PATH"].split(os.path.pathsep)
     if use_current_dir:
         dirs.append(os.path.curdir)
 
-    found_non_executable = [] # for nicer error message
+    found_non_executable = []  # for nicer error message
     for dir_ in dirs:
         name = os.path.join(dir_, program)
         if os.path.isfile(name):
@@ -314,8 +336,10 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
         if found_non_executable:
             sys.exit(
                 "ERROR: Could not find '{0}' executable, "
-                "but found file '{1}' that is not executable."
-                .format(program, found_non_executable[0]))
+                "but found file '{1}' that is not executable.".format(
+                    program, found_non_executable[0]
+                )
+            )
         else:
             sys.exit("ERROR: Could not find '{0}' executable.".format(program))
     else:
@@ -354,11 +378,15 @@ def makedirs(name, exist_ok=False):
 def rmtree(path, ignore_errors=False, onerror=None):
     """Same as shutil.rmtree, but supports directories without write or execute permissions."""
     if ignore_errors:
+
         def onerror(*args):
             pass
+
     elif onerror is None:
+
         def onerror(*args):
             raise
+
     for root, dirs, unused_files in os.walk(path):
         for directory in dirs:
             try:
@@ -368,6 +396,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
                 onerror(os.chmod, abs_directory, e)
     shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
 
+
 def copy_all_lines_from_to(inputFile, outputFile):
     """Copy all lines from an input file object to an output file object."""
     currentLine = inputFile.readline()
@@ -375,12 +404,14 @@ def copy_all_lines_from_to(inputFile, outputFile):
         outputFile.write(currentLine)
         currentLine = inputFile.readline()
 
+
 def write_file(content, *path):
     """
     Simply write some content to a file, overriding the file if necessary.
     """
     with open(os.path.join(*path), "w") as file:
         return file.write(content)
+
 
 def shrink_text_file(filename, max_size, removal_marker=None):
     """Shrink a text file to approximately maxSize bytes
@@ -402,11 +433,11 @@ def shrink_text_file(filename, max_size, removal_marker=None):
     # Then we copy the content of C into B, overwriting what is there.
     # Afterwards we truncate the file after A+C.
 
-    with open(filename, 'r+b') as output_file:
-        with open(filename, 'rb') as input_file:
+    with open(filename, "r+b") as output_file:
+        with open(filename, "rb") as input_file:
             # Position outputFile between A and B
             output_file.seek(max_size // 2)
-            output_file.readline() # jump to end of current line so that we truncate at line boundaries
+            output_file.readline()  # jump to end of current line so that we truncate at line boundaries
             if output_file.tell() == file_size:
                 # readline jumped to end of file because of a long line
                 return
@@ -417,7 +448,7 @@ def shrink_text_file(filename, max_size, removal_marker=None):
             # Position inputFile between B and C
             # jump to beginning of second part we want to keep from end of file
             input_file.seek(-max_size // 2, os.SEEK_END)
-            input_file.readline() # jump to end of current line so that we truncate at line boundaries
+            input_file.readline()  # jump to end of current line so that we truncate at line boundaries
 
             # Copy C over B
             copy_all_lines_from_to(input_file, output_file)
@@ -432,6 +463,7 @@ def read_file(*path):
     with open(os.path.join(*path)) as f:
         return f.read().strip()
 
+
 def read_key_value_pairs_from_file(*path):
     """
     Read key value pairs from a file (each pair on a separate line).
@@ -440,13 +472,14 @@ def read_key_value_pairs_from_file(*path):
     """
     with open(os.path.join(*path)) as f:
         for line in f:
-            yield line.split(' ', 1) #maxsplit=1
+            yield line.split(" ", 1)  # maxsplit=1
 
 
 class BZ2FileHack(bz2.BZ2File):
     """Hack for Python 3.2, where BZ2File cannot be used in a io.TextIOWrapper
     because it lacks several functions.
     """
+
     def __init__(self, filename, mode, *args, **kwargs):
         assert mode == "wb"
         bz2.BZ2File.__init__(self, filename, mode, *args, **kwargs)
@@ -464,14 +497,16 @@ class BZ2FileHack(bz2.BZ2File):
         pass
 
 
-ProcessExitCode = collections.namedtuple('ProcessExitCode', 'raw value signal')
+ProcessExitCode = collections.namedtuple("ProcessExitCode", "raw value signal")
 """Tuple for storing the exit status indication given by a os.wait() call.
 Only value or signal are present, not both
 (a process cannot return a value when it is killed by a signal).
 """
+
+
 @classmethod
 def _ProcessExitCode_from_raw(cls, exitcode):
-    if not (0 <= exitcode < 2**16):
+    if not (0 <= exitcode < 2 ** 16):
         raise ValueError("invalid exitcode " + str(exitcode))
     # calculation: exitcode == (returnvalue * 256) + exitsignal
     # highest bit of exitsignal shows only whether a core file was produced, we clear it
@@ -481,25 +516,42 @@ def _ProcessExitCode_from_raw(cls, exitcode):
         # signal 0 does not exist, this means there was no signal that killed the process
         exitsignal = None
     else:
-        assert returnvalue == 0,\
-            "returnvalue " + str(returnvalue) + ", although exitsignal is " + str(exitsignal)
+        assert returnvalue == 0, (
+            "returnvalue "
+            + str(returnvalue)
+            + ", although exitsignal is "
+            + str(exitsignal)
+        )
         returnvalue = None
     return cls(exitcode, returnvalue, exitsignal)
+
+
 ProcessExitCode.from_raw = _ProcessExitCode_from_raw
 
+
 def _ProcessExitCode__str__(self):
-    return (("exit signal " + str(self.signal)) if self.signal
-        else ("return value " + str(self.value)))
+    return (
+        ("exit signal " + str(self.signal))
+        if self.signal
+        else ("return value " + str(self.value))
+    )
+
+
 ProcessExitCode.__str__ = _ProcessExitCode__str__
+
 
 def _ProcessExitCode__bool__(self):
     return bool(self.signal or self.value)
+
+
 ProcessExitCode.__bool__ = _ProcessExitCode__bool__
 ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
+
 
 def dummy_fn(*args, **kwargs):
     """Dummy function that accepts all parameters but does nothing."""
     pass
+
 
 def add_files_to_git_repository(base_dir, files, description):
     """
@@ -511,49 +563,56 @@ def add_files_to_git_repository(base_dir, files, description):
     @param description: the commit message
     """
     if not os.path.isdir(base_dir):
-        printOut('Output path is not a directory, cannot add files to git repository.')
+        printOut("Output path is not a directory, cannot add files to git repository.")
         return
 
     # find out root directory of repository
-    gitRoot = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'],
-                               cwd=base_dir,
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    gitRoot = subprocess.Popen(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=base_dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     stdout = gitRoot.communicate()[0]
     if gitRoot.returncode != 0:
-        printOut('Cannot commit results to repository: git rev-parse failed, perhaps output path is not a git directory?')
+        printOut(
+            "Cannot commit results to repository: git rev-parse failed, perhaps output path is not a git directory?"
+        )
         return
     gitRootDir = decode_to_string(stdout).splitlines()[0]
 
     # check whether repository is clean
-    gitStatus = subprocess.Popen(['git','status','--porcelain', '--untracked-files=no'],
-                                 cwd=gitRootDir,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    gitStatus = subprocess.Popen(
+        ["git", "status", "--porcelain", "--untracked-files=no"],
+        cwd=gitRootDir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     (stdout, stderr) = gitStatus.communicate()
     if gitStatus.returncode != 0:
-        printOut('Git status failed! Output was:\n' + decode_to_string(stderr))
+        printOut("Git status failed! Output was:\n" + decode_to_string(stderr))
         return
 
     if stdout:
-        printOut('Git repository has local changes, not commiting results.')
+        printOut("Git repository has local changes, not commiting results.")
         return
 
     # add files to staging area
     files = [os.path.realpath(file) for file in files]
     # Use --force to add all files in result-files directory even if .gitignore excludes them
-    gitAdd = subprocess.Popen(['git', 'add', '--force', '--'] + files,
-                               cwd=gitRootDir)
+    gitAdd = subprocess.Popen(["git", "add", "--force", "--"] + files, cwd=gitRootDir)
     if gitAdd.wait() != 0:
-        printOut('Git add failed, will not commit results!')
+        printOut("Git add failed, will not commit results!")
         return
 
     # commit files
-    printOut('Committing results files to git repository in ' + gitRootDir)
-    gitCommit = subprocess.Popen(['git', 'commit', '--file=-', '--quiet'],
-                                 cwd=gitRootDir,
-                                 stdin=subprocess.PIPE)
-    gitCommit.communicate(description.encode('UTF-8'))
+    printOut("Committing results files to git repository in " + gitRootDir)
+    gitCommit = subprocess.Popen(
+        ["git", "commit", "--file=-", "--quiet"], cwd=gitRootDir, stdin=subprocess.PIPE
+    )
+    gitCommit.communicate(description.encode("UTF-8"))
     if gitCommit.returncode != 0:
-        printOut('Git commit failed!')
+        printOut("Git commit failed!")
         return
 
 
@@ -561,10 +620,11 @@ def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)
 
 
-def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level='INFO'):
+def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
     """Setup the logging framework with a basic configuration"""
     try:
         import coloredlogs
+
         coloredlogs.install(fmt=format, level=level)
     except ImportError:
         logging.basicConfig(format=format, level=level)
@@ -577,22 +637,23 @@ def _debug_current_process(sig, current_frame):
     # Import modules only if necessary, readline is for shell history support.
     import code, traceback, readline, threading  # @UnresolvedImport @UnusedImport
 
-    d={'_frame':current_frame}         # Allow access to frame object.
+    d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global
     d.update(current_frame.f_locals)
 
     i = code.InteractiveConsole(d)
-    message  = "Signal received : entering python shell.\n"
+    message = "Signal received : entering python shell.\n"
 
     threads = dict((thread.ident, thread) for thread in threading.enumerate())
     current_thread = threading.current_thread()
     for thread_id, frame in sys._current_frames().items():
         if current_thread.ident != thread_id:
             message += "\nTraceback of thread {}:\n".format(threads[thread_id])
-            message += ''.join(traceback.format_stack(frame))
+            message += "".join(traceback.format_stack(frame))
     message += "\nTraceback of current thread {}:\n".format(current_thread)
-    message += ''.join(traceback.format_stack(current_frame))
+    message += "".join(traceback.format_stack(current_frame))
     i.interact(message)
+
 
 def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces

@@ -38,32 +38,32 @@ from benchexec import libc
 from benchexec import util
 
 __all__ = [
-    'execute_in_namespace',
-    'setup_user_mapping',
-    'activate_network_interface',
-    'get_mount_points',
-    'remount_with_additional_flags',
-    'make_overlay_mount',
-    'mount_proc',
-    'make_bind_mount',
-    'get_my_pid_from_proc',
-    'drop_capabilities',
-    'forward_all_signals',
-    'setup_container_system_config',
-    'CONTAINER_UID',
-    'CONTAINER_GID',
-    'CONTAINER_HOME',
-    'CONTAINER_HOSTNAME',
-    ]
+    "execute_in_namespace",
+    "setup_user_mapping",
+    "activate_network_interface",
+    "get_mount_points",
+    "remount_with_additional_flags",
+    "make_overlay_mount",
+    "mount_proc",
+    "make_bind_mount",
+    "get_my_pid_from_proc",
+    "drop_capabilities",
+    "forward_all_signals",
+    "setup_container_system_config",
+    "CONTAINER_UID",
+    "CONTAINER_GID",
+    "CONTAINER_HOME",
+    "CONTAINER_HOSTNAME",
+]
 
 
-DEFAULT_STACK_SIZE = 1024*1024
-GUARD_PAGE_SIZE = 4096 # size of guard page at end of stack
+DEFAULT_STACK_SIZE = 1024 * 1024
+GUARD_PAGE_SIZE = 4096  # size of guard page at end of stack
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
-CONTAINER_HOME = '/home/benchexec'
-CONTAINER_HOSTNAME = 'benchexec'
+CONTAINER_HOME = "/home/benchexec"
+CONTAINER_HOSTNAME = "benchexec"
 
 CONTAINER_ETC_NSSWITCH_CONF = """
 passwd: files
@@ -84,13 +84,17 @@ CONTAINER_ETC_PASSWD = """
 root:x:0:0:root:/root:/bin/bash
 benchexec:x:{uid}:{gid}:benchexec:{home}:/bin/bash
 nobody:x:65534:65534:nobody:/:/bin/false
-""".format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
+""".format(
+    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
+)
 
 CONTAINER_ETC_GROUP = """
 root:x:0:
 benchexec:x:{gid}:
 nogroup:x:65534:
-""".format(uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME)
+""".format(
+    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
+)
 
 CONTAINER_ETC_HOSTS = """
 127.0.0.1       localhost {host}
@@ -98,16 +102,19 @@ CONTAINER_ETC_HOSTS = """
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(host=CONTAINER_HOSTNAME)
+""".format(
+    host=CONTAINER_HOSTNAME
+)
 
 CONTAINER_ETC_FILE_OVERRIDE = {
-    b'nsswitch.conf': CONTAINER_ETC_NSSWITCH_CONF,
-    b'passwd': CONTAINER_ETC_PASSWD,
-    b'group': CONTAINER_ETC_GROUP,
-    b'hosts': CONTAINER_ETC_HOSTS,
-    }
+    b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,
+    b"passwd": CONTAINER_ETC_PASSWD,
+    b"group": CONTAINER_ETC_GROUP,
+    b"hosts": CONTAINER_ETC_HOSTS,
+}
 
 LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -120,7 +127,9 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
         size + GUARD_PAGE_SIZE,
         libc.PROT_READ | libc.PROT_WRITE,
         libc.MAP_PRIVATE | libc.MAP_ANONYMOUS | libc.MAP_GROWSDOWN | libc.MAP_STACK,
-        -1, 0)
+        -1,
+        0,
+    )
 
     try:
         # create a guard page that crashes the application when it is written to (on stack overflow)
@@ -130,14 +139,20 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     finally:
         libc.munmap(base, size + GUARD_PAGE_SIZE)
 
+
 def execute_in_namespace(func, use_network_ns=True):
     """Execute a function in a child process in separate namespaces.
     @param func: a parameter-less function returning an int (which will be the process' exit value)
     @return: the PID of the created child process
     """
-    flags = (signal.SIGCHLD |
-        libc.CLONE_NEWNS | libc.CLONE_NEWUTS | libc.CLONE_NEWIPC | libc.CLONE_NEWUSER |
-        libc.CLONE_NEWPID)
+    flags = (
+        signal.SIGCHLD
+        | libc.CLONE_NEWNS
+        | libc.CLONE_NEWUTS
+        | libc.CLONE_NEWIPC
+        | libc.CLONE_NEWUSER
+        | libc.CLONE_NEWPID
+    )
     if use_network_ns:
         flags |= libc.CLONE_NEWNET
 
@@ -165,6 +180,7 @@ def execute_in_namespace(func, use_network_ns=True):
     with allocate_stack() as stack:
         pid = libc.clone(ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None)
     return pid
+
 
 def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
     """Write uid_map and gid_map in /proc to create a user mapping
@@ -196,15 +212,16 @@ def setup_user_mapping(pid, uid=os.getuid(), gid=os.getgid()):
     except IOError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
 
+
 def activate_network_interface(iface):
     """Bring up the given network interface.
     @raise OSError: if interface does not exist or permissions are missing
     """
     iface = iface.encode()
 
-    SIOCGIFFLAGS = 0x8913 # /usr/include/bits/ioctls.h
-    SIOCSIFFLAGS = 0x8914 # /usr/include/bits/ioctls.h
-    IFF_UP = 0x1 # /usr/include/net/if.h
+    SIOCGIFFLAGS = 0x8913  # /usr/include/bits/ioctls.h
+    SIOCSIFFLAGS = 0x8914  # /usr/include/bits/ioctls.h
+    IFF_UP = 0x1  # /usr/include/net/if.h
 
     # We need to use instances of "struct ifreq" for communicating with the kernel.
     # This struct is complex with a big contained union, we define here only the few necessary
@@ -218,15 +235,20 @@ def activate_network_interface(iface):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_IP)
     try:
         # Get current interface flags from kernel
-        ifreq = struct.pack(STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b'0' * 14)
+        ifreq = struct.pack(
+            STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b"0" * 14
+        )
         ifreq = fcntl.ioctl(sock, SIOCGIFFLAGS, ifreq)
         if_flags = struct.unpack(STRUCT_IFREQ_LAYOUT_IFFLAGS, ifreq)[1]
 
         # Set new flags
-        ifreq = struct.pack(STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | IFF_UP, b'0' * 14)
+        ifreq = struct.pack(
+            STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | IFF_UP, b"0" * 14
+        )
         fcntl.ioctl(sock, SIOCSIFFLAGS, ifreq)
     finally:
         sock.close()
+
 
 def get_mount_points():
     """Get all current mount points of the system.
@@ -235,11 +257,17 @@ def get_mount_points():
     where options is a list of bytes instances, and the others are bytes instances
     (this avoids encoding problems with mount points with problematic characters).
     """
+
     def decode_path(path):
         # Replace tab, space, newline, and backslash escapes with actual characters.
         # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
         # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
-        return path.replace(br"\011", b"\011").replace(br"\040", b"\040").replace(br"\012", b"\012").replace(br"\134", b"\134")
+        return (
+            path.replace(br"\011", b"\011")
+            .replace(br"\040", b"\040")
+            .replace(br"\012", b"\012")
+            .replace(br"\134", b"\134")
+        )
 
     with open("/proc/self/mounts", "rb") as mounts:
         # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
@@ -248,24 +276,37 @@ def get_mount_points():
             options = set(options.split(b","))
             yield (decode_path(source), decode_path(target), fstype, options)
 
+
 def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     """Remount an existing mount point with additional flags.
     @param mountpoint: the mount point as bytes
     @param existing_options: dict with current mount existing_options as bytes
     @param mountflags: int with additional mount existing_options (cf. libc.MS_* constants)
     """
-    mountflags |= libc.MS_REMOUNT|libc.MS_BIND
+    mountflags |= libc.MS_REMOUNT | libc.MS_BIND
     for option, flag in libc.MOUNT_FLAGS.items():
         if option in existing_options:
             mountflags |= flag
 
     libc.mount(None, mountpoint, None, mountflags, None)
 
+
 def make_overlay_mount(mount, lower, upper, work):
-    logging.debug("Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
-                  mount, lower, upper, work)
-    libc.mount(b"none", mount, b"overlay", 0,
-               b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work)
+    logging.debug(
+        "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
+        mount,
+        lower,
+        upper,
+        work,
+    )
+    libc.mount(
+        b"none",
+        mount,
+        b"overlay",
+        0,
+        b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work,
+    )
+
 
 def mount_proc(container_system_config):
     """Mount the /proc filesystem.
@@ -279,7 +320,9 @@ def mount_proc(container_system_config):
     if container_system_config and os.access(LXCFS_PROC_DIR, os.R_OK):
         for f in os.listdir(LXCFS_PROC_DIR):
             make_bind_mount(
-                os.path.join(LXCFS_PROC_DIR, f), os.path.join(b"/proc", f), private=True)
+                os.path.join(LXCFS_PROC_DIR, f), os.path.join(b"/proc", f), private=True
+            )
+
 
 def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
     """Make a bind mount.
@@ -298,12 +341,14 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
         flags |= libc.MS_RDONLY
     libc.mount(source, target, None, flags, None)
 
+
 def get_my_pid_from_procfs():
     """Get the PID of this process by reading from /proc (this is the PID of this process
     in the namespace in which that /proc instance has originally been mounted),
     which may be different from our PID according to os.getpid().
     """
     return int(os.readlink("/proc/self"))
+
 
 def drop_capabilities(keep=[]):
     """
@@ -312,30 +357,40 @@ def drop_capabilities(keep=[]):
     """
     capdata = (libc.CapData * 2)()
     for cap in keep:
-        capdata[0].effective |= (1 << cap)
-        capdata[0].permitted |= (1 << cap)
-    libc.capset(ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
-                ctypes.byref(capdata))
+        capdata[0].effective |= 1 << cap
+        capdata[0].permitted |= 1 << cap
+    libc.capset(
+        ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
+        ctypes.byref(capdata),
+    )
 
 
 _ALL_SIGNALS = range(1, signal.NSIG)
-_FORWARDABLE_SIGNALS = set(range(1, 32)).difference([signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD])
-_HAS_SIGWAIT = hasattr(signal, 'sigwait')
+_FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
+    [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
+)
+_HAS_SIGWAIT = hasattr(signal, "sigwait")
+
 
 def block_all_signals():
     """Block asynchronous delivery of all signals to this process."""
     if _HAS_SIGWAIT:
         signal.pthread_sigmask(signal.SIG_BLOCK, _ALL_SIGNALS)
 
+
 def _forward_signal(signum, target_pid, process_name):
     logging.debug("Forwarding signal %d to process %s.", signum, process_name)
     try:
         os.kill(target_pid, signum)
     except OSError as e:
-        logging.debug("Could not forward signal %d to process %s: %s", signum, process_name, e)
+        logging.debug(
+            "Could not forward signal %d to process %s: %s", signum, process_name, e
+        )
+
 
 def forward_all_signals_async(target_pid, process_name):
     """Install all signal handler that forwards all signals to the given process."""
+
     def forwarding_signal_handler(signum):
         _forward_signal(signum, process_name, forwarding_signal_handler.target_pid)
 
@@ -350,6 +405,7 @@ def forward_all_signals_async(target_pid, process_name):
 
     # Reactivate delivery of signals such that our handler gets called.
     reset_signal_handling()
+
 
 def wait_for_child_and_forward_all_signals(child_pid, process_name):
     """Wait for a child to terminate and in the meantime forward all signals the current process
@@ -373,6 +429,7 @@ def wait_for_child_and_forward_all_signals(child_pid, process_name):
 
         else:
             _forward_signal(signum, child_pid, process_name)
+
 
 def reset_signal_handling():
     if _HAS_SIGWAIT:
@@ -403,6 +460,7 @@ def close_open_fds(keep_files=[]):
                 # (the fd that was used by os.listdir() of course always fails)
                 pass
 
+
 def setup_container_system_config(basedir, mountdir=None):
     """Create a minimal system configuration for use in a container.
     @param basedir: The directory where the configuration files should be placed as bytes.
@@ -419,11 +477,15 @@ def setup_container_system_config(basedir, mountdir=None):
         if mountdir:
             # Create bind mount to "mountdir/etc/file"
             make_bind_mount(
-                os.path.join(etc, file), os.path.join(mountdir, b"etc", file), private=True)
+                os.path.join(etc, file),
+                os.path.join(mountdir, b"etc", file),
+                private=True,
+            )
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
     # Bind bounds for symlinks are not possible, so we do nothing for "mountdir/etc/mtab".
     # This is not a problem usually because most systems have the correct symlink anyway.
+
 
 def is_container_system_config_file(file):
     """Determine whether a given file is one of the files created by setup_container_system_config().
@@ -431,4 +493,6 @@ def is_container_system_config_file(file):
     """
     if not file.startswith("/etc/"):
         return False
-    return file in [os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE]
+    return file in [
+        os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE
+    ]

@@ -21,6 +21,7 @@ limitations under the License.
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class CSeqTool(benchexec.tools.template.BaseTool):
     """
     Abstract tool info for CSeq-based tools (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
@@ -54,7 +55,7 @@ class CSeqTool(benchexec.tools.template.BaseTool):
         return [executable] + options + spec + inputfile
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = '\n'.join(output)
+        output = "\n".join(output)
         status = result.RESULT_UNKNOWN
         if "FALSE" in output:
             status = result.RESULT_FALSE_REACH

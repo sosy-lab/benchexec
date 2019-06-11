@@ -21,22 +21,24 @@ import benchexec.tools.template
 import benchexec.result as result
 import benchexec.util as util
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """This calls javac and checks that a task consisting of Java files compiles."""
 
     def executable(self):
-        return util.find_executable('javac')
+        return util.find_executable("javac")
 
     def name(self):
-        return 'javac'
+        return "javac"
 
     def version(self, executable):
-        return (self
-            ._version_from_tool(executable, arg="-version", use_stderr=True)
-            .replace("javac ", ""))
+        return self._version_from_tool(
+            executable, arg="-version", use_stderr=True
+        ).replace("javac ", "")
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return ([executable]
+        return (
+            [executable]
             + options
             + [file for file in util.get_files(tasks) if file.endswith(".java")]
-            )
+        )

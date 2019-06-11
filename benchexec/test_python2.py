@@ -18,7 +18,9 @@
 
 import sys
 import unittest
-sys.dont_write_bytecode = True # prevent creation of .pyc files
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+
 
 class Python2Tests(unittest.TestSuite):
     """
@@ -28,8 +30,10 @@ class Python2Tests(unittest.TestSuite):
 
     def __init__(self):
         loader = unittest.TestLoader()
-        super(Python2Tests, self).__init__([
-            loader.loadTestsFromName('benchexec.test_cgroups'),
-            loader.loadTestsFromName('benchexec.test_runexecutor'),
-            loader.loadTestsFromName('benchexec.test_util'),
-            ])
+        super(Python2Tests, self).__init__(
+            [
+                loader.loadTestsFromName("benchexec.test_cgroups"),
+                loader.loadTestsFromName("benchexec.test_runexecutor"),
+                loader.loadTestsFromName("benchexec.test_util"),
+            ]
+        )

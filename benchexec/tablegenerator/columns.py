@@ -25,12 +25,14 @@ import logging
 
 from benchexec.tablegenerator import util
 
-__all__ = ['Column, ColumnType, ColumnMeasureType, get_column_type']
+__all__ = ["Column, ColumnType, ColumnMeasureType, get_column_type"]
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
 # Compile regular expression for detecting measurements only once.
-REGEX_MEASURE = re.compile(r'\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$')
+REGEX_MEASURE = re.compile(
+    r"\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$"
+)
 GROUP_SIGN = 1
 GROUP_SPECIAL_FLOATS_PART = 2
 GROUP_INT_PART = 3
@@ -41,26 +43,31 @@ GROUP_EXPONENT_PART = 7
 GROUP_EXPONENT_SIGN = 8
 GROUP_EXPONENT_VALUE = 9
 GROUP_UNIT = 10
-POSSIBLE_FORMAT_TARGETS = ['html', 'html_cell', 'tooltip', 'tooltip_stochastic', 'csv']
+POSSIBLE_FORMAT_TARGETS = ["html", "html_cell", "tooltip", "tooltip_stochastic", "csv"]
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
 UNIT_CONVERSION = {
-    's': {'ms': 1000, 'min': 1.0 / 60, 'h': 1.0 / 3600},
-    'B': {'kB': 1.0 / 10 ** 3, 'MB': 1.0 / 10 ** 6, 'GB': 1.0 / 10 ** 9},
-    'J': {'kJ': 1.0 / 10 ** 3, 'Ws': 1, 'kWs': 1.0 / 1000,
-          'Wh': 1.0 / 3600, 'kWh': 1.0 / (1000 * 3600), 'mWh': 1.0 / (1000 * 1000 * 3600)}
+    "s": {"ms": 1000, "min": 1.0 / 60, "h": 1.0 / 3600},
+    "B": {"kB": 1.0 / 10 ** 3, "MB": 1.0 / 10 ** 6, "GB": 1.0 / 10 ** 9},
+    "J": {
+        "kJ": 1.0 / 10 ** 3,
+        "Ws": 1,
+        "kWs": 1.0 / 1000,
+        "Wh": 1.0 / 3600,
+        "kWh": 1.0 / (1000 * 3600),
+        "mWh": 1.0 / (1000 * 1000 * 3600),
+    },
 }
 
-inf = float('inf')
+inf = float("inf")
 
 
 def enum(**enums):
-    return type('Enum', (), enums)
+    return type("Enum", (), enums)
 
 
 class ColumnEnumType(object):
-
     def __init__(self, _type, name):
         self._type = _type
         self.name = name
@@ -81,11 +88,11 @@ class ColumnEnumType(object):
 
 class ColumnType(object):
     column_types = enum(text=1, count=2, measure=3, status=4, main_status=5)
-    text = ColumnEnumType(column_types.text, 'text')
-    count = ColumnEnumType(column_types.count, 'count')
-    measure = ColumnEnumType(column_types.measure, 'measure')
-    status = ColumnEnumType(column_types.status, 'status')
-    main_status = ColumnEnumType(column_types.main_status, 'main_status')
+    text = ColumnEnumType(column_types.text, "text")
+    count = ColumnEnumType(column_types.count, "count")
+    measure = ColumnEnumType(column_types.measure, "measure")
+    status = ColumnEnumType(column_types.status, "status")
+    main_status = ColumnEnumType(column_types.main_status, "main_status")
 
 
 class ColumnMeasureType(object):
@@ -127,17 +134,33 @@ class Column(object):
       'scale_factor' must be a value other than 'None'.
     """
 
-    def __init__(self, title, pattern, num_of_digits, href, col_type=None,
-                 unit=None, source_unit=None, scale_factor=None, relevant_for_diff=None, display_title=None):
+    def __init__(
+        self,
+        title,
+        pattern,
+        num_of_digits,
+        href,
+        col_type=None,
+        unit=None,
+        source_unit=None,
+        scale_factor=None,
+        relevant_for_diff=None,
+        display_title=None,
+    ):
 
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
-            raise util.TableDefinitionError("Scale factor is defined, but display unit is not (in column {})"
-                                            .format(title))
+            raise util.TableDefinitionError(
+                "Scale factor is defined, but display unit is not (in column {})".format(
+                    title
+                )
+            )
 
         self.title = title
         self.pattern = pattern
-        self.number_of_significant_digits = int(num_of_digits) if num_of_digits else None
+        self.number_of_significant_digits = (
+            int(num_of_digits) if num_of_digits else None
+        )
         self.type = col_type
         self.unit = unit
         self.source_unit = source_unit
@@ -146,12 +169,15 @@ class Column(object):
         if relevant_for_diff is None:
             self.relevant_for_diff = False
         else:
-            self.relevant_for_diff = True \
-                if relevant_for_diff.lower() == "true" else False
+            self.relevant_for_diff = (
+                True if relevant_for_diff.lower() == "true" else False
+            )
         self.display_title = display_title
 
     def is_numeric(self):
-        return self.type.type == ColumnType.measure or self.type.type == ColumnType.count
+        return (
+            self.type.type == ColumnType.measure or self.type.type == ColumnType.count
+        )
 
     def format_title(self):
         title = self.display_title or self.title
@@ -177,10 +203,10 @@ class Column(object):
             return value
 
         if format_target not in POSSIBLE_FORMAT_TARGETS:
-            raise ValueError('Unknown format target')
+            raise ValueError("Unknown format target")
 
-        if value is None or value == '':
-            return ''
+        if value is None or value == "":
+            return ""
 
         # If the number ends with "s" or another unit, remove it.
         # Units should not occur in table cells, but in the table head.
@@ -188,11 +214,11 @@ class Column(object):
         number = float(number_str)
 
         if isnan(number):
-            return 'NaN'
+            return "NaN"
         elif number == inf:
-            return 'Inf'
+            return "Inf"
         elif number == -inf:
-            return '-Inf'
+            return "-Inf"
 
         # Apply the scale factor to the value
         if self.scale_factor is not None:
@@ -200,7 +226,10 @@ class Column(object):
 
         number_of_significant_digits = self.number_of_significant_digits
         max_dec_digits = 0
-        if number_of_significant_digits is None and format_target is "tooltip_stochastic":
+        if (
+            number_of_significant_digits is None
+            and format_target is "tooltip_stochastic"
+        ):
             return str(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         elif self.type.type == ColumnType.measure:
@@ -210,8 +239,14 @@ class Column(object):
 
         if number_of_significant_digits is not None:
             current_significant_digits = _get_significant_digits(number_str)
-            return _format_number(number, current_significant_digits, number_of_significant_digits, max_dec_digits,
-                                  isToAlign, format_target)
+            return _format_number(
+                number,
+                current_significant_digits,
+                number_of_significant_digits,
+                max_dec_digits,
+                isToAlign,
+                format_target,
+            )
         else:
             if number == float(number_str) or isnan(number) or isinf(number):
                 # TODO remove as soon as scaled values are handled correctly
@@ -222,24 +257,33 @@ class Column(object):
 
     def __str__(self):
         return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
-            self.__class__.__name__, self.title, self.pattern, self.number_of_significant_digits, self.href, self.type,
-            self.unit, self.scale_factor)
+            self.__class__.__name__,
+            self.title,
+            self.pattern,
+            self.number_of_significant_digits,
+            self.href,
+            self.type,
+            self.unit,
+            self.scale_factor,
+        )
 
 
-def _format_number_align(formattedValue, max_number_of_dec_digits, format_target="html"):
+def _format_number_align(
+    formattedValue, max_number_of_dec_digits, format_target="html"
+):
     alignment = max_number_of_dec_digits
 
-    if formattedValue.find('.') >= 0:
+    if formattedValue.find(".") >= 0:
         # Subtract spaces for digits after the decimal point.
-        alignment -= len(formattedValue) - formattedValue.find('.') - 1
-    elif max_number_of_dec_digits > 0 and format_target.startswith('html'):
+        alignment -= len(formattedValue) - formattedValue.find(".") - 1
+    elif max_number_of_dec_digits > 0 and format_target.startswith("html"):
         # Add punctuation space.
-        formattedValue += '&#x2008;'
+        formattedValue += "&#x2008;"
 
-    if format_target.startswith('html'):
-        whitespace = '&#x2007;'
+    if format_target.startswith("html"):
+        whitespace = "&#x2007;"
     else:
-        whitespace = ' '
+        whitespace = " "
     formattedValue += whitespace * alignment
 
     return formattedValue
@@ -277,8 +321,14 @@ def _get_significant_digits(value):
     return sig_digits
 
 
-def _format_number(number, initial_value_sig_digits, number_of_significant_digits, max_digits_after_decimal, isToAlign,
-                   format_target):
+def _format_number(
+    number,
+    initial_value_sig_digits,
+    number_of_significant_digits,
+    max_digits_after_decimal,
+    isToAlign,
+    format_target,
+):
     """
     If the value is a number (or number followed by a unit),
     this function returns a string-representation of the number
@@ -290,14 +340,18 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
     # Round to the given amount of significant digits
     intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
     if number == 0:
-        formatted_value = '0'
+        formatted_value = "0"
         if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
-            formatted_value += '.' + '0' * min(max_digits_after_decimal, initial_value_sig_digits)
+            formatted_value += "." + "0" * min(
+                max_digits_after_decimal, initial_value_sig_digits
+            )
 
     else:
-        float_value = round(number, - int(floor(log10(abs(number)))) + (number_of_significant_digits - 1))
+        float_value = round(
+            number, -int(floor(log10(abs(number)))) + (number_of_significant_digits - 1)
+        )
 
-        if not format_target.startswith('tooltip'):
+        if not format_target.startswith("tooltip"):
             max_digits_to_display = max_digits_after_decimal
         else:
             # This value may be too big, but extra digits will be cut below
@@ -312,37 +366,47 @@ def _format_number(number, initial_value_sig_digits, number_of_significant_digit
         digits_to_add = intended_digits - current_sig_digits
 
         if digits_to_add > 0:
-            if '.' not in formatted_value:
+            if "." not in formatted_value:
                 raise AssertionError(
-                    "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'"
-                        .format(formatted_value, number, float_value, intended_digits, max_digits_to_display,
-                                format_target))
-            formatted_value += "".join(['0'] * digits_to_add)
+                    "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'".format(
+                        formatted_value,
+                        number,
+                        float_value,
+                        intended_digits,
+                        max_digits_to_display,
+                        format_target,
+                    )
+                )
+            formatted_value += "".join(["0"] * digits_to_add)
         elif digits_to_add < 0:
-            if '.' in formatted_value[:digits_to_add]:
+            if "." in formatted_value[:digits_to_add]:
                 formatted_value = formatted_value[:digits_to_add]
             else:
                 formatted_value = str(round(float_value))
 
-            if formatted_value.endswith('.'):
+            if formatted_value.endswith("."):
                 formatted_value = formatted_value[:-1]
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
     if _is_to_cut(formatted_value, format_target, isToAlign):
-        assert formatted_value[0] == '0'
+        assert formatted_value[0] == "0"
         formatted_value = formatted_value[1:]
 
     # Alignment
     if isToAlign:
-        formatted_value = _format_number_align(formatted_value, max_digits_after_decimal, format_target)
+        formatted_value = _format_number_align(
+            formatted_value, max_digits_after_decimal, format_target
+        )
     return formatted_value
 
 
 def _is_to_cut(value, format_target, is_to_align):
-    correct_target = format_target == "html_cell" or (format_target == 'csv' and is_to_align)
+    correct_target = format_target == "html_cell" or (
+        format_target == "csv" and is_to_align
+    )
 
-    return correct_target and '.' in value and 1 > float(value) >= 0
+    return correct_target and "." in value and 1 > float(value) >= 0
 
 
 def get_column_type(column, column_values):
@@ -392,7 +456,7 @@ def _get_column_type_heur(column, column_values):
 
     for value in column_values:
 
-        if value is None or value == '':
+        if value is None or value == "":
             continue
 
         value_match = REGEX_MEASURE.match(str(value))
@@ -413,18 +477,24 @@ def _get_column_type_heur(column, column_values):
                     column_source_unit = curr_column_unit
                 elif column_source_unit != curr_column_unit:
                     raise util.TableDefinitionError(
-                        "Attribute sourceUnit different from real source unit: {} and {} (in column {})"
-                            .format(column_source_unit, curr_column_unit, column.title))
+                        "Attribute sourceUnit different from real source unit: {} and {} (in column {})".format(
+                            column_source_unit, curr_column_unit, column.title
+                        )
+                    )
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
-                        _check_unit_consistency(curr_column_unit, column_source_unit, column)
+                        _check_unit_consistency(
+                            curr_column_unit, column_source_unit, column
+                        )
                     else:
                         return text_type_tuple
                 else:
                     column_unit = curr_column_unit
 
             if column_scale_factor is None:
-                column_scale_factor = _get_scale_factor(column_unit, column_source_unit, column)
+                column_scale_factor = _get_scale_factor(
+                    column_unit, column_source_unit, column
+                )
 
             # Compute the number of decimal digits of the current value, considering the number of significant
             # digits for this column.
@@ -439,12 +509,18 @@ def _get_column_type_heur(column, column_values):
                 dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1
             else:
                 dec_digits_before_scale = 0
-            max_number_of_dec_digits_after_scale = max(0, dec_digits_before_scale - ceil(log10(column_scale_factor)))
+            max_number_of_dec_digits_after_scale = max(
+                0, dec_digits_before_scale - ceil(log10(column_scale_factor))
+            )
 
-            scaled_value = "{0:.{1}f}".format(scaled_value, max_number_of_dec_digits_after_scale)
+            scaled_value = "{0:.{1}f}".format(
+                scaled_value, max_number_of_dec_digits_after_scale
+            )
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
 
-            curr_dec_digits = _get_decimal_digits(scaled_value_match, column.number_of_significant_digits)
+            curr_dec_digits = _get_decimal_digits(
+                scaled_value_match, column.number_of_significant_digits
+            )
 
             try:
                 max_dec_digits = column_type.max_decimal_digits
@@ -454,10 +530,12 @@ def _get_column_type_heur(column, column_values):
             if curr_dec_digits > max_dec_digits:
                 max_dec_digits = curr_dec_digits
 
-            if (column_type and column_type.type == ColumnType.measure) or \
-                    scaled_value_match.group(GROUP_DEC_PART) is not None or \
-                    value_match.group(GROUP_DEC_PART) is not None or \
-                    scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None:
+            if (
+                (column_type and column_type.type == ColumnType.measure)
+                or scaled_value_match.group(GROUP_DEC_PART) is not None
+                or value_match.group(GROUP_DEC_PART) is not None
+                or scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None
+            ):
                 column_type = ColumnMeasureType(max_dec_digits)
 
             elif int(column_scale_factor) != column_scale_factor:
@@ -478,13 +556,17 @@ def _get_column_type_heur(column, column_values):
 def _get_scale_factor(unit, source_unit, column):
     if unit is None or unit == source_unit:
         return 1
-    elif source_unit in UNIT_CONVERSION.keys() and unit in UNIT_CONVERSION[source_unit].keys():
+    elif (
+        source_unit in UNIT_CONVERSION.keys()
+        and unit in UNIT_CONVERSION[source_unit].keys()
+    ):
         return UNIT_CONVERSION[source_unit][unit]
     else:
         # If the display unit is different from the source unit, a scale factor must be given explicitly
-        raise util.TableDefinitionError("Attribute displayUnit is different from sourceUnit," +
-                                        " but scaleFactor is not defined (in column {})"
-                                        .format(column.title))
+        raise util.TableDefinitionError(
+            "Attribute displayUnit is different from sourceUnit,"
+            + " but scaleFactor is not defined (in column {})".format(column.title)
+        )
 
 
 def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
@@ -498,7 +580,7 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         the number to the required amount of significant digits
     """
     # check that only decimal notation is used
-    assert 'e' not in decimal_number_match.group()
+    assert "e" not in decimal_number_match.group()
 
     try:
         num_of_digits = int(number_of_significant_digits)
@@ -511,29 +593,39 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     # If 1 > value > 0, only look at the decimal digits.
     # In the second condition, we have to remove the first character from the decimal part group because the
     # first character always is '.'
-    if int(decimal_number_match.group(GROUP_INT_PART)) == 0 \
-            and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0:
+    if (
+        int(decimal_number_match.group(GROUP_INT_PART)) == 0
+        and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0
+    ):
 
         max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
         num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = number of zeroes after decimal point + significant digits
-        curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(num_of_digits)
+        curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(
+            num_of_digits
+        )
 
     else:
-        max_num_of_digits = \
-            len(decimal_number_match.group(GROUP_INT_PART)) + len(decimal_number_match.group(GROUP_DEC_PART))
+        max_num_of_digits = len(decimal_number_match.group(GROUP_INT_PART)) + len(
+            decimal_number_match.group(GROUP_DEC_PART)
+        )
         num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
-        curr_dec_digits = int(num_of_digits) - len(decimal_number_match.group(GROUP_INT_PART))
+        curr_dec_digits = int(num_of_digits) - len(
+            decimal_number_match.group(GROUP_INT_PART)
+        )
 
     return curr_dec_digits
 
 
 def _check_unit_consistency(actual_unit, wanted_unit, column):
     if actual_unit and wanted_unit is None:
-        raise util.TableDefinitionError("Trying to convert from one unit to another, but source unit not specified"
-                                        " (in column {})".format(column.title))
+        raise util.TableDefinitionError(
+            "Trying to convert from one unit to another, but source unit not specified"
+            " (in column {})".format(column.title)
+        )
     elif wanted_unit != actual_unit:
-        raise util.TableDefinitionError("Source value of different unit than specified source unit: " +
-                                        "{} and {}"
-                                        " (in column {})".format(actual_unit, wanted_unit, column.title))
+        raise util.TableDefinitionError(
+            "Source value of different unit than specified source unit: " + "{} and {}"
+            " (in column {})".format(actual_unit, wanted_unit, column.title)
+        )

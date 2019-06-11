@@ -29,10 +29,12 @@ from benchexec.cgroups import MEMORY
 from benchexec import util
 
 from ctypes import cdll
-_libc = cdll.LoadLibrary('libc.so.6')
-_EFD_CLOEXEC = 0x80000 # from <sys/eventfd.h>: mark eventfd as close-on-exec
 
-_BYTE_FACTOR = 1000 # byte in kilobyte
+_libc = cdll.LoadLibrary("libc.so.6")
+_EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
+
+_BYTE_FACTOR = 1000  # byte in kilobyte
+
 
 class KillProcessOnOomThread(threading.Thread):
     """
@@ -58,7 +60,10 @@ class KillProcessOnOomThread(threading.Thread):
     @param process: The process instance to kill
     @param callbackFn: A one-argument function that is called in case of OOM with a string for the reason as argument
     """
-    def __init__(self, cgroups, kill_process_fn, pid_to_kill, callbackFn=lambda reason: None):
+
+    def __init__(
+        self, cgroups, kill_process_fn, pid_to_kill, callbackFn=lambda reason: None
+    ):
         super(KillProcessOnOomThread, self).__init__()
         self.name = "KillProcessOnOomThread-" + self.name
         self._finished = threading.Event()
@@ -67,25 +72,29 @@ class KillProcessOnOomThread(threading.Thread):
         self._callback = callbackFn
         self._kill_process = kill_process_fn
 
-        cgroup = cgroups[MEMORY] #for raw access
-        ofd = os.open(os.path.join(cgroup, 'memory.oom_control'), os.O_WRONLY)
+        cgroup = cgroups[MEMORY]  # for raw access
+        ofd = os.open(os.path.join(cgroup, "memory.oom_control"), os.O_WRONLY)
         try:
             # Important to use CLOEXEC, otherwise the benchmarked tool inherits
             # the file descriptor.
             self._efd = _libc.eventfd(0, _EFD_CLOEXEC)
 
             try:
-                util.write_file('{} {}'.format(self._efd, ofd),
-                                     cgroup, 'cgroup.event_control')
+                util.write_file(
+                    "{} {}".format(self._efd, ofd), cgroup, "cgroup.event_control"
+                )
 
                 # If everything worked, disable Kernel-side process killing.
                 # This is not allowed if memory.use_hierarchy is enabled,
                 # but we don't care.
                 try:
-                    os.write(ofd, '1'.encode('ascii'))
+                    os.write(ofd, "1".encode("ascii"))
                 except OSError as e:
-                    logging.debug("Failed to disable kernel-side OOM killer: error %s (%s)",
-                                  e.errno, e.strerror)
+                    logging.debug(
+                        "Failed to disable kernel-side OOM killer: error %s (%s)",
+                        e.errno,
+                        e.strerror,
+                    )
             except EnvironmentError as e:
                 os.close(self._efd)
                 raise e
@@ -108,19 +117,21 @@ class KillProcessOnOomThread(threading.Thread):
             # If read returned, this means the kernel sent us an event.
             # It does so either on OOM or if the cgroup is removed.
             if not self._finished.is_set():
-                self._callback('memory')
-                logging.debug('Killing process %s due to out-of-memory event from kernel.',
-                              self._pid_to_kill)
+                self._callback("memory")
+                logging.debug(
+                    "Killing process %s due to out-of-memory event from kernel.",
+                    self._pid_to_kill,
+                )
                 self._kill_process(self._pid_to_kill, self._cgroups)
                 # Also kill all children of subprocesses directly.
-                with open(os.path.join(self._cgroups[MEMORY], 'tasks'), 'rt') as tasks:
+                with open(os.path.join(self._cgroups[MEMORY], "tasks"), "rt") as tasks:
                     for task in tasks:
                         self._kill_process(int(task), self._cgroups)
 
                 # We now need to increase the memory limit of this cgroup
                 # to give the process a chance to terminate
-                self._reset_memory_limit('memory.memsw.limit_in_bytes')
-                self._reset_memory_limit('memory.limit_in_bytes')
+                self._reset_memory_limit("memory.memsw.limit_in_bytes")
+                self._reset_memory_limit("memory.limit_in_bytes")
 
         finally:
             close(self._efd)
@@ -129,12 +140,25 @@ class KillProcessOnOomThread(threading.Thread):
         if self._cgroups.has_value(MEMORY, limitFile):
             try:
                 # Write a high value (1 PB) as the limit
-                self._cgroups.set_value(MEMORY, limitFile,
-                                        str(1 * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR))
+                self._cgroups.set_value(
+                    MEMORY,
+                    limitFile,
+                    str(
+                        1
+                        * _BYTE_FACTOR
+                        * _BYTE_FACTOR
+                        * _BYTE_FACTOR
+                        * _BYTE_FACTOR
+                        * _BYTE_FACTOR
+                    ),
+                )
             except IOError as e:
-                logging.warning('Failed to increase %s after OOM: error %s (%s).',
-                                limitFile, e.errno, e.strerror)
-
+                logging.warning(
+                    "Failed to increase %s after OOM: error %s (%s).",
+                    limitFile,
+                    e.errno,
+                    e.strerror,
+                )
 
     def cancel(self):
         self._finished.set()

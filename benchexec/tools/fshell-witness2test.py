@@ -25,33 +25,36 @@ import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
 
+
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for witness2test
     (https://github.com/diffblue/cprover-sv-comp/pull/14).
     """
 
-    REQUIRED_PATHS = ['test-gen.sh', 'process_witness.py', 'TestEnvGenerator.pl', 'pycparser-master']
+    REQUIRED_PATHS = [
+        "test-gen.sh",
+        "process_witness.py",
+        "TestEnvGenerator.pl",
+        "pycparser-master",
+    ]
 
     def executable(self):
         """
         Find the path to the executable file that will get executed.
         @return a string pointing to an executable file
         """
-        return util.find_executable('test-gen.sh')
-
+        return util.find_executable("test-gen.sh")
 
     def version(self, executable):
         return self._version_from_tool(executable)
-
 
     def name(self):
         """
         Return the name of the tool, formatted for humans.
         @return a non-empty string
         """
-        return 'CProver witness2test'
-
+        return "CProver witness2test"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -72,9 +75,8 @@ class Tool(benchexec.tools.template.BaseTool):
         @return a list of strings that represent the command line to execute
         """
         if propertyfile:
-            options = options + ['--propertyfile', propertyfile]
+            options = options + ["--propertyfile", propertyfile]
         return [executable] + options + tasks
-
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -97,23 +99,25 @@ class Tool(benchexec.tools.template.BaseTool):
             if output:
                 result_str = output[-1].strip()
 
-                if result_str == 'TRUE':
+                if result_str == "TRUE":
                     status = result.RESULT_TRUE_PROP
-                elif 'FALSE' in result_str:
-                    if result_str == 'FALSE(valid-memtrack)':
+                elif "FALSE" in result_str:
+                    if result_str == "FALSE(valid-memtrack)":
                         status = result.RESULT_FALSE_MEMTRACK
-                    elif result_str == 'FALSE(valid-deref)':
+                    elif result_str == "FALSE(valid-deref)":
                         status = result.RESULT_FALSE_DEREF
-                    elif result_str == 'FALSE(valid-free)':
+                    elif result_str == "FALSE(valid-free)":
                         status = result.RESULT_FALSE_FREE
-                    elif result_str == 'FALSE(no-overflow)':
+                    elif result_str == "FALSE(no-overflow)":
                         status = result.RESULT_FALSE_OVERFLOW
                     else:
                         status = result.RESULT_FALSE_REACH
-                elif 'UNKNOWN' in output:
+                elif "UNKNOWN" in output:
                     status = result.RESULT_UNKNOWN
-        elif (output and
-             re.match(r'^INVALID WITNESS FILE', output[-1].strip()) is not None):
-            status += ' (invalid witness file)'
+        elif (
+            output
+            and re.match(r"^INVALID WITNESS FILE", output[-1].strip()) is not None
+        ):
+            status += " (invalid witness file)"
 
         return status

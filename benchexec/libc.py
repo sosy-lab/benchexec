@@ -34,26 +34,40 @@ _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
 _libc_with_GIL = _ctypes.PyDLL("libc.so.6", use_errno=True)
 """Reference to standard C library, and we will hold the GIL during all function calls."""
 
+
 def _check_errno(result, func, arguments):
     assert func.restype in [c_int, c_void_p]
-    if ((func.restype == c_int and result == -1) or
-            (func.restype == c_void_p and c_void_p(result).value == c_void_p(-1).value)):
+    if (func.restype == c_int and result == -1) or (
+        func.restype == c_void_p and c_void_p(result).value == c_void_p(-1).value
+    ):
         errno = _ctypes.get_errno()
         try:
             func_name = func.__name__
         except AttributeError:
             func_name = "__unknown__"
-        msg = func_name + "(" + ", ".join(map(str, arguments)) + ") failed: " + _os.strerror(errno)
+        msg = (
+            func_name
+            + "("
+            + ", ".join(map(str, arguments))
+            + ") failed: "
+            + _os.strerror(errno)
+        )
         raise OSError(errno, msg)
     return result
+
 
 # off_t is a signed integer type required for mmap.
 # In my tests it is equal to long on both 32bit and 64bit x86 Linux.
 c_off_t = c_long
 
-clone = _libc_with_GIL.clone # Important to have GIL, cf. container.py!
+clone = _libc_with_GIL.clone  # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
-clone.argtypes = [_ctypes.CFUNCTYPE(c_int), c_void_p, c_int, c_void_p] # fn, child_stack, flags, arg (varargs omitted)
+clone.argtypes = [
+    _ctypes.CFUNCTYPE(c_int),
+    c_void_p,
+    c_int,
+    c_void_p,
+]  # fn, child_stack, flags, arg (varargs omitted)
 clone.errcheck = _check_errno
 
 # /usr/include/linux/sched.h
@@ -67,7 +81,14 @@ CLONE_NEWNET = 0x40000000
 
 mmap = _libc.mmap
 """Map file into memory."""
-mmap.argtypes = [c_void_p, c_size_t, c_int, c_int, c_int, c_off_t] # add, length, prot, flags, fd, offset
+mmap.argtypes = [
+    c_void_p,
+    c_size_t,
+    c_int,
+    c_int,
+    c_int,
+    c_off_t,
+]  # add, length, prot, flags, fd, offset
 mmap.restype = c_void_p
 mmap.errcheck = _check_errno
 
@@ -78,18 +99,30 @@ munmap.errcheck = _check_errno
 
 mprotect = _libc.mprotect
 """Set protection on a region of memory."""
-mprotect.argtypes = [c_void_p, c_size_t, c_int] # addr, length, prot
+mprotect.argtypes = [c_void_p, c_size_t, c_int]  # addr, length, prot
 mprotect.errcheck = _check_errno
 
-PROT_NONE = 0x0 # /usr/include/bits/mman-linux.h
-MAP_GROWSDOWN = 0x00100 # /usr/include/bits/mman.h
-MAP_STACK = 0x20000 # /usr/include/bits/mman.h
-from mmap import PROT_EXEC, PROT_READ, PROT_WRITE, MAP_ANONYMOUS, MAP_PRIVATE  # @UnusedImport
+PROT_NONE = 0x0  # /usr/include/bits/mman-linux.h
+MAP_GROWSDOWN = 0x00100  # /usr/include/bits/mman.h
+MAP_STACK = 0x20000  # /usr/include/bits/mman.h
+from mmap import (
+    PROT_EXEC,
+    PROT_READ,
+    PROT_WRITE,
+    MAP_ANONYMOUS,
+    MAP_PRIVATE,
+)  # @UnusedImport
 
 
 mount = _libc.mount
 """Mount a filesystem."""
-mount.argtypes = [c_char_p, c_char_p, c_char_p, c_ulong, c_void_p] # source, target, fstype, mountflags, data
+mount.argtypes = [
+    c_char_p,
+    c_char_p,
+    c_char_p,
+    c_ulong,
+    c_void_p,
+]  # source, target, fstype, mountflags, data
 mount.errcheck = _check_errno
 
 # /usr/include/sys/mount.h
@@ -107,11 +140,11 @@ MOUNT_FLAGS = {
     b"nosuid": MS_NOSUID,
     b"nodev": MS_NODEV,
     b"noexec": MS_NOEXEC,
-    }
+}
 
 umount = _libc.umount
 """Unmount a filesystem."""
-umount.argtypes = [c_char_p] # target
+umount.argtypes = [c_char_p]  # target
 umount.errcheck = _check_errno
 
 
@@ -119,6 +152,8 @@ _sighandler_t = _ctypes.CFUNCTYPE(None, c_int)
 _libc.signal.argtypes = [c_int, _sighandler_t]
 _libc.signal.restype = c_void_p
 _libc.signal.errcheck = _check_errno
+
+
 def signal(signal, handler):
     """Set a signal handler similar to signal.signal(), but directly via libc."""
     _libc.signal(signal, _sighandler_t(handler))
@@ -126,18 +161,26 @@ def signal(signal, handler):
 
 class CapHeader(_ctypes.Structure):
     """Structure for first parameter of capset()."""
+
     _fields_ = ("version", c_uint32), ("pid", c_int)
+
 
 class CapData(_ctypes.Structure):
     """Structure for second parameter of capset()."""
-    _fields_ = ("effective", c_uint32), ("permitted", c_uint32), ("inheritable", c_uint32)
+
+    _fields_ = (
+        ("effective", c_uint32),
+        ("permitted", c_uint32),
+        ("inheritable", c_uint32),
+    )
+
 
 capset = _libc.capset
 """Configure the capabilities of the current thread."""
 capset.errcheck = _check_errno
 capset.argtypes = [_ctypes.POINTER(CapHeader), _ctypes.POINTER(CapData * 2)]
 
-LINUX_CAPABILITY_VERSION_3 = 0x20080522 # /usr/include/linux/capability.h
+LINUX_CAPABILITY_VERSION_3 = 0x20080522  # /usr/include/linux/capability.h
 CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h
 
 prctl = _libc.prctl
@@ -145,12 +188,13 @@ prctl = _libc.prctl
 prctl.errcheck = _check_errno
 prctl.argtypes = [c_int, c_ulong, c_ulong, c_ulong, c_ulong]
 
-PR_SET_DUMPABLE = 4 # /usr/include/linux/prctl.h
+PR_SET_DUMPABLE = 4  # /usr/include/linux/prctl.h
 SUID_DUMP_DISABLE = 0
 SUID_DUMP_USER = 1
 
 _libc.sethostname.errcheck = _check_errno
 _libc.sethostname.argtypes = [c_char_p, c_size_t]
+
 
 def sethostname(name):
     """Set the host name of the machine."""

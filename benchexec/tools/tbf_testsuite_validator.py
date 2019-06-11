@@ -31,16 +31,20 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = ["python_modules", "lib", "bin"]
 
     def program_files(self, executable):
-        return self._program_files_from_executable(executable, self.REQUIRED_PATHS, parent_dir=True)
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def executable(self):
-        return util.find_executable('tbf-testsuite-validator', 'bin/tbf-testsuite-validator')
+        return util.find_executable(
+            "tbf-testsuite-validator", "bin/tbf-testsuite-validator"
+        )
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return 'Tbf Test-suite Validator'
+        return "Tbf Test-suite Validator"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -53,24 +57,23 @@ class Tool(benchexec.tools.template.BaseTool):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
         for line in reversed(output):
-            if line.startswith('ERROR:'):
-                if 'timeout' in line.lower():
+            if line.startswith("ERROR:"):
+                if "timeout" in line.lower():
                     return "TIMEOUT"
                 else:
                     return "ERROR ({0})".format(returncode)
-            elif line.startswith('Result:') and 'FALSE' in line:
+            elif line.startswith("Result:") and "FALSE" in line:
                 return result.RESULT_FALSE_REACH
-            elif line.startswith('Result:') and 'TRUE' in line:
+            elif line.startswith("Result:") and "TRUE" in line:
                 return result.RESULT_TRUE_PROP
-            elif line.startswith('Result') and 'DONE' in line:
+            elif line.startswith("Result") and "DONE" in line:
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         for line in reversed(lines):
             if identifier in line:
-                start = line.find(':') + 1
-                end = line.find('(', start)
+                start = line.find(":") + 1
+                end = line.find("(", start)
                 return line[start:end].strip()
         return None
-

@@ -34,15 +34,16 @@ import sys
 from benchexec import util
 
 __all__ = [
-           'has_swap',
-           'is_turbo_boost_enabled',
-           'CPUThrottleCheck',
-           'SystemInfo',
-           'SwapCheck',
-           ]
+    "has_swap",
+    "is_turbo_boost_enabled",
+    "CPUThrottleCheck",
+    "SystemInfo",
+    "SwapCheck",
+]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
 _TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
+
 
 class SystemInfo(object):
     def __init__(self):
@@ -55,50 +56,58 @@ class SystemInfo(object):
 
         # get info about CPU
         cpuInfo = dict()
-        self.cpu_max_frequency = 'unknown'
-        cpuInfoFilename = '/proc/cpuinfo'
-        self.cpu_number_of_cores = 'unknown'
+        self.cpu_max_frequency = "unknown"
+        cpuInfoFilename = "/proc/cpuinfo"
+        self.cpu_number_of_cores = "unknown"
         if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
-            cpuInfoFile = open(cpuInfoFilename, 'rt')
-            cpuInfoLines = [tuple(line.split(':')) for line in
-                            cpuInfoFile.read()
-                                       .replace('\n\n', '\n').replace('\t', '')
-                                       .strip('\n').split('\n')]
+            cpuInfoFile = open(cpuInfoFilename, "rt")
+            cpuInfoLines = [
+                tuple(line.split(":"))
+                for line in cpuInfoFile.read()
+                .replace("\n\n", "\n")
+                .replace("\t", "")
+                .strip("\n")
+                .split("\n")
+            ]
             cpuInfo = dict(cpuInfoLines)
             cpuInfoFile.close()
-            self.cpu_number_of_cores = str(len([line for line in cpuInfoLines if line[0] == 'processor']))
-        self.cpu_model = cpuInfo.get('model name', 'unknown') \
-                               .strip() \
-                               .replace("(R)", "") \
-                               .replace("(TM)", "") \
-                               .replace("(tm)", "")
-        if 'cpu MHz' in cpuInfo:
+            self.cpu_number_of_cores = str(
+                len([line for line in cpuInfoLines if line[0] == "processor"])
+            )
+        self.cpu_model = (
+            cpuInfo.get("model name", "unknown")
+            .strip()
+            .replace("(R)", "")
+            .replace("(TM)", "")
+            .replace("(tm)", "")
+        )
+        if "cpu MHz" in cpuInfo:
             # convert to Hz
-            self.cpu_max_frequency = int(float(cpuInfo['cpu MHz'])) * 1000 * 1000
+            self.cpu_max_frequency = int(float(cpuInfo["cpu MHz"])) * 1000 * 1000
 
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above
-        freqInfoFilename = '/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq'
+        freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
         if os.path.isfile(freqInfoFilename) and os.access(freqInfoFilename, os.R_OK):
-            frequencyInfoFile = open(freqInfoFilename, 'rt')
-            cpu_max_frequency = frequencyInfoFile.read().strip('\n')
+            frequencyInfoFile = open(freqInfoFilename, "rt")
+            cpu_max_frequency = frequencyInfoFile.read().strip("\n")
             frequencyInfoFile.close()
-            self.cpu_max_frequency = int(cpu_max_frequency) * 1000 # convert to Hz
+            self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 
         # get info about memory
         memInfo = dict()
-        memInfoFilename = '/proc/meminfo'
+        memInfoFilename = "/proc/meminfo"
         if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
-            memInfoFile = open(memInfoFilename, 'rt')
-            memInfo = dict(tuple(s.split(': ')) for s in
-                            memInfoFile.read()
-                            .replace('\t', '')
-                            .strip('\n').split('\n'))
+            memInfoFile = open(memInfoFilename, "rt")
+            memInfo = dict(
+                tuple(s.split(": "))
+                for s in memInfoFile.read().replace("\t", "").strip("\n").split("\n")
+            )
             memInfoFile.close()
-        self.memory = memInfo.get('MemTotal', 'unknown').strip()
-        if self.memory.endswith(' kB'):
+        self.memory = memInfo.get("MemTotal", "unknown").strip()
+        if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte
             self.memory = int(self.memory[:-3]) * 1024
 
@@ -115,17 +124,24 @@ class CPUThrottleCheck(object):
     """
     Class for checking whether the CPU has throttled during some time period.
     """
+
     def __init__(self, cores=None):
         """
         Create an instance that monitors the given list of cores (or all CPUs).
         """
         self.cpu_throttle_count = {}
-        cpu_pattern = '[{0}]'.format(','.join(map(str, cores))) if cores else '*'
-        for file in glob.glob('/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count'.format(cpu_pattern)):
+        cpu_pattern = "[{0}]".format(",".join(map(str, cores))) if cores else "*"
+        for file in glob.glob(
+            "/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count".format(
+                cpu_pattern
+            )
+        ):
             try:
                 self.cpu_throttle_count[file] = int(util.read_file(file))
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
+                logging.warning(
+                    "Cannot read throttling count of CPU from kernel: %s", e
+                )
 
     def has_throttled(self):
         """
@@ -139,7 +155,9 @@ class CPUThrottleCheck(object):
                 if new_value > value:
                     return True
             except Exception as e:
-                logging.warning('Cannot read throttling count of CPU from kernel: %s', e)
+                logging.warning(
+                    "Cannot read throttling count of CPU from kernel: %s", e
+                )
         return False
 
 
@@ -147,16 +165,19 @@ class SwapCheck(object):
     """
     Class for checking whether the system has swapped during some period.
     """
+
     def __init__(self):
         self.swap_count = self._read_swap_count()
 
     def _read_swap_count(self):
         try:
-            return dict((k, int(v)) for k, v
-                                    in util.read_key_value_pairs_from_file('/proc/vmstat')
-                                    if k in ['pswpin', 'pswpout'])
+            return dict(
+                (k, int(v))
+                for k, v in util.read_key_value_pairs_from_file("/proc/vmstat")
+                if k in ["pswpin", "pswpout"]
+            )
         except Exception as e:
-            logging.warning('Cannot read swap count from kernel: %s', e)
+            logging.warning("Cannot read swap count from kernel: %s", e)
 
     def has_swapped(self):
         """
@@ -181,21 +202,25 @@ def is_turbo_boost_enabled():
         if os.path.exists(_TURBO_BOOST_FILE):
             boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
             if not (0 <= boost_enabled <= 1):
-                raise ValueError('Invalid value {} for turbo boost activation'.format(boost_enabled))
+                raise ValueError(
+                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                )
             return boost_enabled != 0
         if os.path.exists(_TURBO_BOOST_FILE_PSTATE):
             boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
             if not (0 <= boost_disabled <= 1):
-                raise ValueError('Invalid value {} for turbo boost activation'.format(boost_enabled))
+                raise ValueError(
+                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                )
             return boost_disabled != 1
     except ValueError as e:
         sys.exit("Could not read turbo-boost information from kernel: {0}".format(e))
 
 
 def has_swap():
-    with open('/proc/meminfo', 'r') as meminfo:
+    with open("/proc/meminfo", "r") as meminfo:
         for line in meminfo:
-            if line.startswith('SwapTotal:'):
+            if line.startswith("SwapTotal:"):
                 swap = line.split()[1]
                 if int(swap) == 0:
                     return False

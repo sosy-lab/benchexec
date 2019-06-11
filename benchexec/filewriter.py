@@ -23,6 +23,7 @@ import os
 
 from benchexec import util
 
+
 class FileWriter(object):
     """
     The class FileWriter is a wrapper for writing content into a file.
@@ -69,6 +70,6 @@ class FileWriter(object):
 
     def replace(self, newContent):
         # clear and append
-        self.__content = ''
+        self.__content = ""
         self.__needsRewrite = True
         self.append(newContent)
