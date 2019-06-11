@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-import subprocess
 import sys
 import os
 import re
@@ -57,32 +56,38 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
         executable = util.find_executable("cpa.sh", "scripts/cpa.sh")
-        executableDir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        if os.path.isdir(os.path.join(executableDir, "src")):
-            self._buildCPAchecker(executableDir)
-        if not os.path.isfile(os.path.join(executableDir, "cpachecker.jar")):
-            logging.warning(
-                "Required JAR file for CPAchecker not found in {0}.".format(
-                    executableDir
-                )
-            )
+        base_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
+        jar_file = os.path.join(base_dir, "cpachecker.jar")
+        bin_dir = os.path.join(base_dir, "bin")
+        src_dir = os.path.join(base_dir, "src")
+
+        # If this is a source checkout of CPAchecker, we heuristically check that
+        # sources are not newer than binaries (cpachecker.jar or files in bin/).
+        if os.path.isdir(src_dir):
+            src_mtime = self._find_newest_mtime(src_dir)
+
+            if os.path.isfile(jar_file):
+                if src_mtime > os.stat(jar_file).st_mtime:
+                    sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
+
+            elif os.path.isdir(bin_dir):
+                if src_mtime > self._find_newest_mtime(bin_dir):
+                    sys.exit("CPAchecker build is not uptodate, run 'ant'!")
+
         return executable
+
+    def _find_newest_mtime(self, path):
+        mtime = 0
+        for root, dirs, files, rootfd in os.fwalk(path):
+            for f in files:
+                mtime = max(mtime, os.stat(f, dir_fd=rootfd).st_mtime)
+
+        return mtime
 
     def program_files(self, executable):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
-
-    def _buildCPAchecker(self, executableDir):
-        logging.debug("Building CPAchecker in directory {0}.".format(executableDir))
-        ant = subprocess.Popen(
-            ["ant", "-lib", "lib/java/build", "-q", "jar"],
-            cwd=executableDir,
-            shell=util.is_windows(),
-        )
-        ant.communicate()
-        if ant.returncode:
-            sys.exit("Failed to build CPAchecker, please fix the build first.")
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "-help")
