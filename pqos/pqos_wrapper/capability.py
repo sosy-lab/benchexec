@@ -168,7 +168,12 @@ class PqosCapability(object):
 
                 @__type: The name of the capability.
         """
-        available_capabilities = {"l3ca": 1}
+        available_capabilities = {
+            "mon" : 0,
+            "l3ca": 1,
+            "l2ca" : 2,
+            "mba" : 3
+        }
         if __type not in available_capabilities.keys():
             wrapper_handle_error(
                 "Invalid capability requested, available options: {}".format(
