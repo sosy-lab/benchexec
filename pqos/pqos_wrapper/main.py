@@ -4,8 +4,13 @@
 import sys
 import ctypes
 import json
-from pqos_wrapper.utils import argument_parser, wrapper_handle_error, prepare_cmd_output
 from ctypes.util import find_library
+from pqos_wrapper.utils import (
+    argument_parser,
+    wrapper_handle_error,
+    prepare_cmd_output,
+    load_dynamic,
+)
 
 
 class CPqosConfig(ctypes.Structure):
@@ -81,6 +86,12 @@ class PqosWrapper(object):
         """
         return_dict = {}
         return_dict["load_pqos"] = self.load_pqos(self.config["interface"])
+
+        if self.config["check"] is not None:
+            return_dict["check_capability"] = self.check_capability(
+                self.config["check"]
+            )
+
         print(json.dumps(return_dict, indent=4))
 
     def load_pqos(self, interface):
@@ -103,3 +114,12 @@ class PqosWrapper(object):
         return prepare_cmd_output(
             "{} interface intialised".format(interface), "pqos_init"
         )
+
+    def check_capability(self, __type):
+        """
+            Check if the given pqos capability is present in the system.
+
+                @__type: The name of the capability to be searched.
+        """
+        cap = load_dynamic("pqos_wrapper.capability", "PqosCapability", self.lib)
+        return cap.get_type(__type)

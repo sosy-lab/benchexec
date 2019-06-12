@@ -4,12 +4,13 @@
 
 import argparse
 import sys
+from importlib import import_module
 
 
 def argument_parser(argv):
     """
         Create an argument parser for pqos_wrapper CLI and parse the given arguments.
-            
+
             @argv: the command line arguments passed to the CLI
     """
     parser = argparse.ArgumentParser(
@@ -21,6 +22,12 @@ def argument_parser(argv):
         dest="interface",
         default="MSR",
         help="Initialise pqos library using the given interface",
+    )
+    parser.add_argument(
+        "-c",
+        "--check",
+        dest="check",
+        help="Check if given capability is present in the system",
     )
     return vars(parser.parse_args(argv))
 
@@ -57,3 +64,14 @@ def prepare_cmd_output(message, function, error=False, returncode=0, **kwargs):
         "function_output": kwargs,
     }
     return cmd_output
+
+
+def load_dynamic(module_name, class_name, *args):
+    """
+        dynamically load an instance of a class from a module.
+
+            @module_name: name of the module to be imported.
+            @class_name: name of the class to be imported.
+    """
+    module = import_module(module_name)
+    return getattr(module, class_name)(*args)
