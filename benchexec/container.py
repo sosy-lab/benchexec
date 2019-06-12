@@ -431,8 +431,8 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     From a high-level mapping of desired directory modes, determine the actual mode
     for a given directory.
     """
-    if path == b"/proc":
-        # /proc is necessary for the grandchild to read PID, will be replaced later.
+    if fstype == b"proc":
+        # proc is necessary for the grandchild to read PID, will be replaced later.
         return DIR_READ_ONLY
     if util.path_is_below(path, b"/proc"):
         # Irrelevant.
@@ -557,6 +557,18 @@ def mount_proc(container_system_config):
             make_bind_mount(
                 os.path.join(LXCFS_PROC_DIR, f), os.path.join(b"/proc", f), private=True
             )
+
+        # Making the above bind mounts on top of /proc breaks nested containers.
+        # The reason for this is that the kernel does not allow mounting of a new proc
+        # file system (in the nested container) if the nested container does not have
+        # access to a clean and fully visible instance of the proc file system.
+        # So we give the container two instances: One in the expected place, with lxcfs
+        # bind mounts on top, and another one without these bind mounts that is hidden
+        # somewhere and hopefully will never be used by anybody. It does not matter
+        # where we hide the second proc instance, but we need a directory that always
+        # exists and is never used. /proc/1/ns always exists and because we disable
+        # PR_SET_DUMPABLE it would not be accessible anyway, so it fits the bill.
+        libc.mount(b"proc", b"/proc/1/ns", b"proc", 0, None)
 
 
 def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
