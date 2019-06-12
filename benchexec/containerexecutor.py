@@ -248,7 +248,9 @@ def main(argv=None):
     parser.add_argument(
         "--root",
         action="store_true",
-        help="use UID 0 and GID 0 (i.e., fake root account) within container",
+        help="Use UID 0 and GID 0 (i.e., fake root account) within container. "
+        "This is mostly safe, but processes can use this to circumvent some file system"
+        " restrictions of the container and access otherwise hidden directories.",
     )
     parser.add_argument(
         "--uid",
