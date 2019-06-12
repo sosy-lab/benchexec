@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+import os
+import sys
+sys.dont_write_bytecode = True # prevent creation of .pyc files
+sys.path.insert(0, '..')
+
+import pqos_wrapper.main as wrapper
+
+sys.exit(wrapper.PqosWrapper.main())
