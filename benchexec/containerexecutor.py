@@ -1010,7 +1010,19 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             util.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
-        os.chroot(mount_base)
+        # Now we make mount_base the new root directory. For this we need a place below
+        # mount_base where to move the old root directory.
+        # Explanation: https://unix.stackexchange.com/a/456777/15398
+        old_root = b"/proc"  # Does not matter, just needs to exist.
+        # These three steps together are the recommended sequence for calling pivot_root
+        # (http://man7.org/linux/man-pages/man8/pivot_root.8.html)
+        os.chdir(mount_base)
+        libc.pivot_root(mount_base, mount_base + old_root)
+        os.chroot(".")
+        # Now the container file system is at /,
+        # and the outer file system is visible at old_root in the container.
+        # We can just unmount old_root and finally make it inaccessible from container.
+        libc.umount2(old_root, libc.MNT_DETACH)
 
     def _setup_root_filesystem(self, root_dir):
         """Setup the filesystem layout in the given root directory.

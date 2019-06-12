@@ -152,6 +152,20 @@ umount = _libc.umount
 umount.argtypes = [c_char_p]  # target
 umount.errcheck = _check_errno
 
+umount2 = _libc.umount2
+"""Unmount a filesystem."""
+umount2.argtypes = [c_char_p, c_int]  # target, flags
+umount2.errcheck = _check_errno
+
+# /usr/include/sys/mount.h
+MNT_DETACH = 2
+
+
+pivot_root = _libc.pivot_root
+"""Replace root file system with a different directory."""
+pivot_root.argtypes = [c_char_p, c_char_p]
+pivot_root.errcheck = _check_errno
+
 
 _sighandler_t = _ctypes.CFUNCTYPE(None, c_int)
 _libc.signal.argtypes = [c_int, _sighandler_t]
