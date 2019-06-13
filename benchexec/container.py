@@ -48,9 +48,10 @@ __all__ = [
     "make_overlay_mount",
     "mount_proc",
     "make_bind_mount",
-    "get_my_pid_from_proc",
+    "get_my_pid_from_procfs",
     "drop_capabilities",
-    "forward_all_signals",
+    "forward_all_signals_async",
+    "wait_for_child_and_forward_signals",
     "setup_container_system_config",
     "CONTAINER_UID",
     "CONTAINER_GID",
@@ -235,39 +236,40 @@ def setup_user_mapping(
         logging.warning("Creating GID mapping into container failed: %s", e)
 
 
+_SIOCGIFFLAGS = 0x8913  # /usr/include/bits/ioctls.h
+_SIOCSIFFLAGS = 0x8914  # /usr/include/bits/ioctls.h
+_IFF_UP = 0x1  # /usr/include/net/if.h
+
+# We need to use instances of "struct ifreq" for communicating with the kernel.
+# This struct is complex with a big contained union, we define here only the few
+# necessary fields for the two cases we need.
+# The layout is given in the format used by the struct module:
+# ifr_name, ifr_addr.sa_family, padding
+_STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s"
+# ifr_name, ifr_flags, padding
+_STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s"
+
+
 def activate_network_interface(iface):
     """Bring up the given network interface.
     @raise OSError: if interface does not exist or permissions are missing
     """
     iface = iface.encode()
 
-    SIOCGIFFLAGS = 0x8913  # /usr/include/bits/ioctls.h
-    SIOCSIFFLAGS = 0x8914  # /usr/include/bits/ioctls.h
-    IFF_UP = 0x1  # /usr/include/net/if.h
-
-    # We need to use instances of "struct ifreq" for communicating with the kernel.
-    # This struct is complex with a big contained union, we define here only the few necessary
-    # fields for the two cases we need.
-    # The layout is given in the format used by the struct module:
-    # ifr_name, ifr_addr.sa_family, padding
-    STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s"
-    # ifr_name, ifr_flags, padding
-    STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s"
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_IP)
     try:
         # Get current interface flags from kernel
         ifreq = struct.pack(
-            STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b"0" * 14
+            _STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b"0" * 14
         )
-        ifreq = fcntl.ioctl(sock, SIOCGIFFLAGS, ifreq)
-        if_flags = struct.unpack(STRUCT_IFREQ_LAYOUT_IFFLAGS, ifreq)[1]
+        ifreq = fcntl.ioctl(sock, _SIOCGIFFLAGS, ifreq)
+        if_flags = struct.unpack(_STRUCT_IFREQ_LAYOUT_IFFLAGS, ifreq)[1]
 
         # Set new flags
         ifreq = struct.pack(
-            STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | IFF_UP, b"0" * 14
+            _STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | _IFF_UP, b"0" * 14
         )
-        fcntl.ioctl(sock, SIOCSIFFLAGS, ifreq)
+        fcntl.ioctl(sock, _SIOCSIFFLAGS, ifreq)
     finally:
         sock.close()
 
@@ -642,7 +644,7 @@ def forward_all_signals_async(target_pid, process_name):
     reset_signal_handling()
 
 
-def wait_for_child_and_forward_all_signals(child_pid, process_name):
+def wait_for_child_and_forward_signals(child_pid, process_name):
     """Wait for a child to terminate and in the meantime forward all signals
     that the current process receives to this child.
     @return a tuple of exit code and resource usage of the child as given by os.waitpid

@@ -31,7 +31,7 @@ import os as _os
 
 _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
 """Reference to standard C library."""
-_libc_with_GIL = _ctypes.PyDLL("libc.so.6", use_errno=True)
+_libc_with_gil = _ctypes.PyDLL("libc.so.6", use_errno=True)
 """Reference to standard C library, and we hold the GIL during all function calls."""
 
 
@@ -60,7 +60,7 @@ def _check_errno(result, func, arguments):
 # In my tests it is equal to long on both 32bit and 64bit x86 Linux.
 c_off_t = c_long
 
-clone = _libc_with_GIL.clone  # Important to have GIL, cf. container.py!
+clone = _libc_with_gil.clone  # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
 clone.argtypes = [
     _ctypes.CFUNCTYPE(c_int),

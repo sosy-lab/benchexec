@@ -38,8 +38,6 @@ import subprocess
 import sys
 import tempfile
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec.cgroups import Cgroup
@@ -53,6 +51,8 @@ from benchexec.container import (
     DIR_OVERLAY,
     DIR_FULL_ACCESS,
 )
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 _HAS_SIGWAIT = hasattr(signal, "sigwait")
 
@@ -146,12 +146,12 @@ def handle_basic_container_args(options, parser=None):
         if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
             error_fn("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         dir_modes["/tmp"] = DIR_FULL_ACCESS
-    elif not "/tmp" in dir_modes:
+    elif "/tmp" not in dir_modes:
         dir_modes["/tmp"] = DIR_HIDDEN
 
-    if not "/" in dir_modes:
+    if "/" not in dir_modes:
         dir_modes["/"] = DIR_OVERLAY
-    if not "/run" in dir_modes:
+    if "/run" not in dir_modes:
         dir_modes["/run"] = DIR_HIDDEN
 
     if options.container_system_config:
@@ -165,9 +165,9 @@ def handle_basic_container_args(options, parser=None):
         # /etc/resolv.conf is necessary for DNS lookups and on many systems is a symlink
         # to /run/resolvconf/resolv.conf or /run/systemd/resolve/sub-resolve.conf,
         # so we keep that directory accessible as well.
-        if not "/run/resolvconf" in dir_modes and os.path.isdir("/run/resolvconf"):
+        if "/run/resolvconf" not in dir_modes and os.path.isdir("/run/resolvconf"):
             dir_modes["/run/resolvconf"] = DIR_READ_ONLY
-        if not "/run/systemd/resolve" in dir_modes and os.path.isdir(
+        if "/run/systemd/resolve" not in dir_modes and os.path.isdir(
             "/run/systemd/resolve"
         ):
             dir_modes["/run/systemd/resolve"] = DIR_READ_ONLY
@@ -361,10 +361,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         if container_system_config:
             self._env_override["HOME"] = container.CONTAINER_HOME
-            if not container.CONTAINER_HOME in dir_modes:
+            if container.CONTAINER_HOME not in dir_modes:
                 dir_modes[container.CONTAINER_HOME] = DIR_HIDDEN
 
-        if not "/" in dir_modes:
+        if "/" not in dir_modes:
             raise ValueError("Need directory mode for '/'.")
         for path, kind in dir_modes.items():
             if kind not in DIR_MODES:
@@ -725,7 +725,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # cf. dumb-init project: https://github.com/Yelp/dumb-init
                 # Also wait for grandchild and return its result.
                 if _HAS_SIGWAIT:
-                    grandchild_result = container.wait_for_child_and_forward_all_signals(
+                    grandchild_result = container.wait_for_child_and_forward_signals(
                         grandchild_proc.pid, args[0]
                     )
                 else:
@@ -759,7 +759,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.close(from_parent)
 
                 return 0
-            except EnvironmentError as e:
+            except EnvironmentError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
             except:
