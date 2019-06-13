@@ -67,13 +67,15 @@ def add_basic_container_args(argument_parser):
         "--no-tmpfs",
         dest="tmpfs",
         action="store_false",
-        help='Store temporary files (e.t., tool output files) on the actual file system instead of a tmpfs ("RAM disk") that is included in the memory limit',
+        help="Store temporary files (e.t., tool output files) on the actual file system"
+        ' instead of a tmpfs ("RAM disk") that is included in the memory limit',
     )
     argument_parser.add_argument(
         "--keep-system-config",
         dest="container_system_config",
         action="store_false",
-        help="do not use a special minimal configuration for local user and host lookups inside the container",
+        help="do not use a special minimal configuration for local user and"
+        " host lookups inside the container",
     )
     argument_parser.add_argument(
         "--keep-tmp",
@@ -108,7 +110,8 @@ def add_basic_container_args(argument_parser):
         metavar="DIR",
         action="append",
         default=[],
-        help="give full access (read/write) to this host directory to processes inside container",
+        help="give full access (read/write) to this host directory"
+        " to processes inside container",
     )
 
 
@@ -123,9 +126,8 @@ def handle_basic_container_args(options, parser=None):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             error_fn(
-                "Cannot specify directory mode for '{}' because it does not exist or is no directory.".format(
-                    path
-                )
+                "Cannot specify directory mode for '{}' because it does not exist"
+                "or is no directory.".format(path)
             )
         if path in dir_modes:
             error_fn("Cannot specify multiple directory modes for '{}'.".format(path))
@@ -193,8 +195,8 @@ def add_container_output_args(argument_parser):
         metavar="PATTERN",
         action="append",
         default=[],
-        help="pattern for specifying which result files should be copied to the output directory "
-        "(default: '.')",
+        help="pattern for specifying which result files should be copied"
+        " to the output directory (default: '.')",
     )
 
 
@@ -232,14 +234,16 @@ def main(argv=None):
     # parse options
     parser = argparse.ArgumentParser(
         fromfile_prefix_chars="@",
-        description="""Execute a command inside a simple container, i.e., partially isolated from the host.
-           Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
-           Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+        description="""Execute a command inside a simple container, i.e., partially
+            isolated from the host. Command-line parameters can additionally be read
+            from a file if file name prefixed with '@' is given as argument.
+            Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
     )
     parser.add_argument(
         "--dir",
         metavar="DIR",
-        help="working directory for executing the command (default is current directory)",
+        help="working directory for executing the command"
+        " (default is current directory)",
     )
     parser.add_argument(
         "--root",
@@ -786,7 +790,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 )
                 child_exitcode = util.ProcessExitCode.from_raw(child_exitcode)
                 logging.debug(
-                    "Parent: child process of RunExecutor with PID %d terminated with %s.",
+                    "Parent: child process of RunExecutor with PID %d"
+                    " terminated with %s.",
                     child_pid,
                     child_exitcode,
                 )
@@ -826,12 +831,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # probably empty read, i.e., pipe closed,
                 # i.e., child or grandchild failed
                 check_child_exit_code()
-                assert (
-                    False
-                ), "Child process of RunExecutor terminated cleanly but did not send expected data."
+                assert False, (
+                    "Child process of RunExecutor terminated cleanly"
+                    " but did not send expected data."
+                )
 
             logging.debug(
-                "Parent: executing %s in grand child with PID %d via child with PID %d.",
+                "Parent: executing %s in grand child with PID %d"
+                " via child with PID %d.",
                 args[0],
                 grandchild_pid,
                 child_pid,
@@ -973,7 +980,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # The actual LXCFS setup will be done in mount_proc()
             if not os.access(mount_base + container.LXCFS_PROC_DIR, os.R_OK):
                 logging.info(
-                    "LXCFS is not available, some host information like the uptime leaks into the container."
+                    "LXCFS is not available,"
+                    " some host information like the uptime leaks into the container."
                 )
 
         if output_dir:
