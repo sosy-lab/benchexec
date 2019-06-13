@@ -37,6 +37,7 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
     put into a container. This means, for example, that the code of this module cannot
     make network connections and that any changes made to files on disk have no effect.
     """
+
     def __init__(self, tool_module, config):
         """Load tool-info module in subprocess.
         @param tool_module: The name of the module to load.
@@ -95,6 +96,7 @@ for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunct
 
 def _init_worker_process():
     """Initial setup of worker process from multiprocessing module."""
+
     def exit_handler(signum, frame):
         sys.exit(0)
 
@@ -109,7 +111,6 @@ def _init_worker_process():
 
 
 def _init_container_and_load_tool(
-    """Initialize container for the current process and load given tool-info module."""
     tool_module,
     temp_dir,
     network_access,
@@ -117,6 +118,7 @@ def _init_container_and_load_tool(
     container_system_config,
     container_tmpfs,  # ignored, tmpfs is always used
 ):
+    """Initialize container for the current process and load given tool-info module."""
     # Preparations
     temp_dir = temp_dir.encode()
     dir_modes = collections.OrderedDict(
