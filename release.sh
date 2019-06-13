@@ -122,7 +122,7 @@ git push --tags
 twine upload "$DIST_DIR/BenchExec"*
 
 read -p "Please enter next version number:  " -r
-sed -e "s/^__version__ = .*/__version__ = '$REPLY'/" -i benchexec/__init__.py
+sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
 git commit benchexec/__init__.py -m"Prepare version number for next development cycle."
 
 
