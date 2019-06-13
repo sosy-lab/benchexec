@@ -16,8 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module contains function declarations for several functions of libc (based on ctypes),
-and constants relevant for these functions.
+"""This module contains function declarations for several functions of libc
+(based on ctypes) and constants relevant for these functions.
 """
 
 # prepare for Python 3
@@ -32,7 +32,7 @@ import os as _os
 _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
 """Reference to standard C library."""
 _libc_with_GIL = _ctypes.PyDLL("libc.so.6", use_errno=True)
-"""Reference to standard C library, and we will hold the GIL during all function calls."""
+"""Reference to standard C library, and we hold the GIL during all function calls."""
 
 
 def _check_errno(result, func, arguments):

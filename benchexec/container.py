@@ -130,7 +130,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     """Allocate some memory that can be used as a stack.
     @return: a ctypes void pointer to the *top* of the stack.
     """
-    # Allocate memory with appropriate flags for a stack as in https://blog.fefe.de/?ts=a85c8ba7
+    # Allocate memory with appropriate flags for a stack as in
+    # https://blog.fefe.de/?ts=a85c8ba7
     base = libc.mmap(
         None,
         size + GUARD_PAGE_SIZE,
@@ -141,7 +142,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     )
 
     try:
-        # create a guard page that crashes the application when it is written to (on stack overflow)
+        # create a guard page that crashes the application when it is written to
+        # (on stack overflow)
         libc.mprotect(base, GUARD_PAGE_SIZE, libc.PROT_NONE)
 
         yield ctypes.c_void_p(base + size + GUARD_PAGE_SIZE)
@@ -151,7 +153,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
 
 def execute_in_namespace(func, use_network_ns=True):
     """Execute a function in a child process in separate namespaces.
-    @param func: a parameter-less function returning an int (which will be the process' exit value)
+    @param func: a parameter-less function returning an int
+        (which will be the process' exit value)
     @return: the PID of the created child process
     """
     flags = (
@@ -168,11 +171,11 @@ def execute_in_namespace(func, use_network_ns=True):
     # We use the syscall clone() here, which is similar to fork().
     # Calling it without letting Python know about it is dangerous (especially because
     # we want to execute Python code in the child, too), but so far it seems to work.
-    # Basically we attempt to do (almost) the same that os.fork() does (cf. function os_fork_impl
+    # Basically we attempt to do (almost) the same that os.fork() does (cf. os_fork_impl
     # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
-    # We currently do not take the import lock os.lock() does because it is only available
-    # via an internal API, and because the child should never import anything anyway
-    # (inside the container, modules might not be visible).
+    # We currently do not take the import lock os.lock() does because it is only
+    # available via an internal API, and because the child should never import anything
+    # anyway (inside the container, modules might not be visible).
     # It is very important, however, that we have the GIL during clone(),
     # otherwise the child will often deadlock when trying to execute Python code.
     # Luckily, the ctypes module allows us to hold the GIL while executing the
@@ -508,7 +511,8 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     """Remount an existing mount point with additional flags.
     @param mountpoint: the mount point as bytes
     @param existing_options: dict with current mount existing_options as bytes
-    @param mountflags: int with additional mount existing_options (cf. libc.MS_* constants)
+    @param mountflags: int with additional mount existing_options
+        (cf. libc.MS_* constants)
     """
     mountflags |= libc.MS_REMOUNT | libc.MS_BIND
     for option, flag in libc.MOUNT_FLAGS.items():
@@ -537,7 +541,8 @@ def make_overlay_mount(mount, lower, upper, work):
 
 def mount_proc(container_system_config):
     """Mount the /proc filesystem.
-    @param container_system_config: Whether to mount container-specific files in /proc"""
+    @param container_system_config: Whether to mount container-specific files in /proc
+    """
     # We keep a reference to the outer /proc somewhere else because we need it
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
@@ -556,8 +561,9 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
     @param source: the source directory as bytes
     @param target: the target directory as bytes
     @param recursive: whether to also recursively bind mount all mounts below source
-    @param private: whether to mark the bind as private, i.e., changes to the existing mounts
-        won't propagate and vice-versa (changes to files/dirs will still be visible).
+    @param private: whether to mark the bind as private,
+        i.e., changes to the existing mounts won't propagate and vice-versa
+        (changes to files/dirs will still be visible).
     """
     flags = libc.MS_BIND
     if recursive:
@@ -570,7 +576,8 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
 
 
 def get_my_pid_from_procfs():
-    """Get the PID of this process by reading from /proc (this is the PID of this process
+    """
+    Get the PID of this process by reading from /proc (this is the PID of this process
     in the namespace in which that /proc instance has originally been mounted),
     which may be different from our PID according to os.getpid().
     """
@@ -621,7 +628,8 @@ def forward_all_signals_async(target_pid, process_name):
     def forwarding_signal_handler(signum):
         _forward_signal(signum, process_name, forwarding_signal_handler.target_pid)
 
-    # Somehow we get a Python SystemError sometimes if we access target_pid directly from inside function.
+    # Somehow we get a Python SystemError sometimes
+    # if we access target_pid directly from inside function.
     forwarding_signal_handler.target_pid = target_pid
 
     for signum in _FORWARDABLE_SIGNALS:
@@ -635,8 +643,8 @@ def forward_all_signals_async(target_pid, process_name):
 
 
 def wait_for_child_and_forward_all_signals(child_pid, process_name):
-    """Wait for a child to terminate and in the meantime forward all signals the current process
-    receives to this child.
+    """Wait for a child to terminate and in the meantime forward all signals
+    that the current process receives to this child.
     @return a tuple of exit code and resource usage of the child as given by os.waitpid
     """
     assert _HAS_SIGWAIT
@@ -690,9 +698,9 @@ def close_open_fds(keep_files=[]):
 
 def setup_container_system_config(basedir, mountdir=None):
     """Create a minimal system configuration for use in a container.
-    @param basedir: The directory where the configuration files should be placed as bytes.
-    @param mountdir: If present, bind mounts to the configuration files will be added below
-        this path (given as bytes).
+    @param basedir: The directory where the configuration files should be placed (bytes)
+    @param mountdir: If present, bind mounts to the configuration files will be added
+       below this path (given as bytes).
     """
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
@@ -710,12 +718,13 @@ def setup_container_system_config(basedir, mountdir=None):
             )
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
-    # Bind bounds for symlinks are not possible, so we do nothing for "mountdir/etc/mtab".
-    # This is not a problem usually because most systems have the correct symlink anyway.
+    # Bind bounds for symlinks are not possible, so do nothing for "mountdir/etc/mtab".
+    # This is not a problem because most systems have the correct symlink anyway.
 
 
 def is_container_system_config_file(file):
-    """Determine whether a given file is one of the files created by setup_container_system_config().
+    """Determine whether a given file is one of the files created by
+    setup_container_system_config().
     @param file: Absolute file path as string.
     """
     if not file.startswith("/etc/"):
