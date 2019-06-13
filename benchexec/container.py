@@ -113,6 +113,7 @@ CONTAINER_ETC_FILE_OVERRIDE = {
     b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,
     b"passwd": CONTAINER_ETC_PASSWD,
     b"group": CONTAINER_ETC_GROUP,
+    b"hostname": CONTAINER_HOSTNAME + "\n",
     b"hosts": CONTAINER_ETC_HOSTS,
 }
 
