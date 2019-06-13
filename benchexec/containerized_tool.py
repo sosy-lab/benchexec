@@ -32,7 +32,18 @@ import benchexec.tools.template
 
 
 class ContainerizedTool(benchexec.tools.template.BaseTool):
+    """Wrapper for an instance of any subclass of benchexec.tools.template.BaseTool.
+    The module and the subclass instance will be loaded in a subprocess that has been
+    put into a container. This means, for example, that the code of this module cannot
+    make network connections and that any changes made to files on disk have no effect.
+    """
     def __init__(self, tool_module, config):
+        """Load tool-info module in subprocess.
+        @param tool_module: The name of the module to load.
+            Needs to define class named Tool.
+        @param config: A config object suitable for
+            benchexec.containerexecutor.handle_basic_container_args()
+        """
         # We use multiprocessing.Pool as an easy way for RPC with another process.
         self._pool = multiprocessing.Pool(1, _init_worker_process)
 
@@ -54,9 +65,9 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
         else:
             self.__doc__ = init_result
 
-    def _forward_call(self, method_name, *args, **kwargs):
+    def _forward_call(self, method_name, args, kwargs):
         """Call given method indirectly on the tool instance in the container."""
-        result = self._pool.apply(_call_tool_func, [method_name] + list(args), kwargs)
+        result = self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
         if isinstance(result, BaseException):
             # None of the methods are expected to return exceptions,
             # so we can assume that any exception should be raised.
@@ -69,7 +80,7 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
 
         @functools.wraps(method)  # lets proxy_function look like method (name and doc)
         def proxy_function(self, *args, **kwargs):
-            return self._forward_call(method_name, *args, **kwargs)
+            return self._forward_call(method_name, args, kwargs)
 
         setattr(cls, member_name, proxy_function)
 
@@ -83,6 +94,7 @@ for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunct
 
 
 def _init_worker_process():
+    """Initial setup of worker process from multiprocessing module."""
     def exit_handler(signum, frame):
         sys.exit(0)
 
@@ -97,6 +109,7 @@ def _init_worker_process():
 
 
 def _init_container_and_load_tool(
+    """Initialize container for the current process and load given tool-info module."""
     tool_module,
     temp_dir,
     network_access,
@@ -204,7 +217,12 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
     os.chdir(cwd)
 
 
-def _call_tool_func(name, *args, **kwargs):
+def _call_tool_func(name, args, kwargs):
+    """Call a method on the tool instance.
+    @param name: The method name to call.
+    @param args: List of arguments to be passed as positional arguments.
+    @param kwargs: Dict of arguments to be passed as keyword arguments.
+    """
     global tool
     try:
         return getattr(tool, name)(*args, **kwargs)
