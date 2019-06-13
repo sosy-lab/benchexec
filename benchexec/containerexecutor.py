@@ -29,7 +29,7 @@ import collections
 import shutil
 
 try:
-    import cPickle as pickle
+    import cPickle as pickle  # noqa: N813
 except ImportError:
     import pickle
 import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
@@ -398,7 +398,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def execute_run(
         self,
         args,
-        workingDir=None,
+        workingDir=None,  # noqa: N803 backwards-compatibility
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
@@ -564,8 +564,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # might read the bytes it has sent itself.
 
         # Error codes from child to parent
-        CHILD_OSERROR = 128
-        CHILD_UNKNOWN_ERROR = 129
+        CHILD_OSERROR = 128  # noqa: N806 local constant
+        CHILD_UNKNOWN_ERROR = 129  # noqa: N806 local constant
 
         # "downstream" pipe parent->grandchild
         from_parent, to_grandchild = os.pipe()
@@ -577,8 +577,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
         # until the pipes are closed, before it terminates.
-        MARKER_USER_MAPPING_COMPLETED = b"A"
-        MARKER_PARENT_COMPLETED = b"B"
+        MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
+        MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -762,7 +762,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             except EnvironmentError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
-            except:
+            except:  # noqa: E722
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")
