@@ -54,7 +54,7 @@ from benchexec.container import (
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-_HAS_SIGWAIT = hasattr(signal, "sigwait")
+_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
 
 
 def add_basic_container_args(argument_parser):

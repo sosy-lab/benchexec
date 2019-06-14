@@ -618,7 +618,7 @@ _ALL_SIGNALS = range(1, signal.NSIG)
 _FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
     [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
 )
-_HAS_SIGWAIT = hasattr(signal, "sigwait")
+_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
 
 
 def block_all_signals():
@@ -641,7 +641,7 @@ def forward_all_signals_async(target_pid, process_name):
     """Install all signal handler that forwards all signals to the given process."""
 
     def forwarding_signal_handler(signum):
-        _forward_signal(signum, process_name, forwarding_signal_handler.target_pid)
+        _forward_signal(signum, forwarding_signal_handler.target_pid, process_name)
 
     # Somehow we get a Python SystemError sometimes
     # if we access target_pid directly from inside function.
