@@ -975,8 +975,6 @@ class Run(object):
 
     def set_result(self, values, visible_columns={}):
         """Set the result of this run.
-        Use this method instead of manually setting the run attributes and calling after_execution(),
-        this method handles all this by itself.
         @param values: a dictionary with result values as returned by RunExecutor.execute_run(),
             may also contain arbitrary additional values
         @param visible_columns: a set of keys of values that should be visible by default
@@ -1009,19 +1007,12 @@ class Run(object):
             else:
                 self.values["@" + key] = value
 
-        self.after_execution(
-            exitcode, termination_reason=values.get("terminationreason")
-        )
+        termination_reason = values.get("terminationreason")
 
-    def after_execution(self, exitcode, forceTimeout=False, termination_reason=None):
-        """
-        @deprecated: use set_result() instead
-        """
         # termination reason is not fully precise for timeouts, so we guess "timeouts"
         # if time is too high
         isTimeout = (
-            forceTimeout
-            or termination_reason in ["cputime", "cputime-soft", "walltime"]
+            termination_reason in ["cputime", "cputime-soft", "walltime"]
             or self._is_timeout()
         )
 
