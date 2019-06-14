@@ -87,7 +87,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         output = self.run_cmd(
             *[tablegenerator] + list(args) + ["--outputpath", output_path or self.tmp]
         )
-        generated_files = set(os.path.join(self.tmp, x) for x in os.listdir(self.tmp))
+        generated_files = {os.path.join(self.tmp, x) for x in os.listdir(self.tmp)}
 
         csv_file = (
             os.path.join(self.tmp, table_prefix + ".csv") if "csv" in formats else None

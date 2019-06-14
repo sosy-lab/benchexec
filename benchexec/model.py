@@ -99,7 +99,7 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
         )
 
     # do not use keys twice
-    assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
+    assert len({key for (key, value) in keyValueList}) == len(keyValueList)
 
     return [util.substitute_vars(s, keyValueList) for s in oldList]
 
@@ -468,9 +468,9 @@ class RunSet(object):
         )
 
         # get run-set specific required files
-        required_files_pattern = set(
+        required_files_pattern = {
             tag.text for tag in rundefinitionTag.findall("requiredfiles")
-        )
+        }
 
         # get all runs, a run contains one sourcefile with options
         self.blocks = self.extract_runs_from_xml(
@@ -533,7 +533,7 @@ class RunSet(object):
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                set(tag.text for tag in sourcefilesTag.findall("requiredfiles"))
+                {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
             )
 
             # get lists of filenames

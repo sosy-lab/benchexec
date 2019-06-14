@@ -281,9 +281,9 @@ def _get_columns_relevant_for_diff(columns_to_show):
              none is marked relevant, the column named "status" will be
              returned in the set.
     """
-    cols = set([col.title for col in columns_to_show if col.relevant_for_diff])
+    cols = {col.title for col in columns_to_show if col.relevant_for_diff}
     if len(cols) == 0:
-        return set([col.title for col in columns_to_show if col.title == "status"])
+        return {col.title for col in columns_to_show if col.title == "status"}
     else:
         return cols
 
@@ -484,12 +484,12 @@ class RunSetResult(object):
             logging.warning("Result file '%s' is empty.", resultFile)
             return []
         else:  # show all available columns
-            column_names = set(
+            column_names = {
                 c.get("title")
                 for s in run_results
                 for c in s.findall("column")
                 if all_columns or c.get("hidden") != "true"
-            )
+            }
 
             # Put main columns first, then rest sorted alphabetically
             columns = [
@@ -711,12 +711,9 @@ def merge_task_lists(runset_results, tasks):
     for runset in runset_results:
         # create mapping from id to RunResult object
         # Use reversed list such that the first instance of equal tasks end up in dic
-        dic = dict(
-            [
-                (run_result.task_id, run_result)
-                for run_result in reversed(runset.results)
-            ]
-        )
+        dic = {
+            run_result.task_id: run_result for run_result in reversed(runset.results)
+        }
         runset.results = []  # clear and repopulate results
         for task in tasks:
             run_result = dic.get(task)
@@ -925,7 +922,7 @@ class Row(object):
         self.id = results[0].task_id
         self.has_sourcefile = results[0].sourcefiles_exist
         assert (
-            len(set(r.task_id for r in results)) == 1
+            len({r.task_id for r in results}) == 1
         ), "not all results are for same task"
         self.filename = self.id[0]
 
@@ -1019,10 +1016,10 @@ def filter_rows_with_differences(rows):
             # It's necessary to search for the index of a column every time
             # because they can differ between results
             status.append(
-                set(
+                {
                     res.values[get_index_of_column(col, res.columns)]
                     for res in listOfResults
-                )
+                }
             )
 
         return reduce(lambda x, y: x and (len(y) <= 1), status, True)

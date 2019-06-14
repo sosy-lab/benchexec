@@ -894,9 +894,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     )
                 )
                 if all_siblings == set(cores):
-                    packages = set(
+                    packages = {
                         resources.get_cpu_package_for_core(core) for core in cores
-                    )
+                    }
                 else:
                     # Disable energy measurements because we use only parts of a CPU
                     packages = None

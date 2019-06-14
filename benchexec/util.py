@@ -658,7 +658,7 @@ def _debug_current_process(sig, current_frame):
     i = code.InteractiveConsole(d)
     message = "Signal received : entering python shell.\n"
 
-    threads = dict((thread.ident, thread) for thread in threading.enumerate())
+    threads = {thread.ident: thread for thread in threading.enumerate()}
     current_thread = threading.current_thread()
     for thread_id, frame in sys._current_frames().items():
         if current_thread.ident != thread_id:
