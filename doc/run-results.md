@@ -100,12 +100,6 @@ The `<column>` tags may have an attribute `hidden` set to `true`.
 This indicates values that are typically not primarily interesting for users,
 and tools for displaying such results may choose to hide such columns by default.
 
-If `benchexec` is interrupted during the execution,
-result values may also be the empty string instead of missing completely
-for runs that were not yet executed.
-However, this is not guaranteed and may change in the future
-such that the values would not be present at all in this case.
-
 `benchexec` also reports the CPU time and wall time that was used for executing all runs
 (as measured by the operating system, not as aggregation of the individual values).
 These values are reported in the same way as for single runs,

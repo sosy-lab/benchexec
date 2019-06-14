@@ -225,18 +225,6 @@ class OutputHandler(object):
             columntitlesElem.append(columnElem)
         self.xml_header.append(columntitlesElem)
 
-        # Build dummy entries for output, later replaced by the results,
-        # The dummy XML elements are shared over all runs.
-        self.xml_dummy_elements = [
-            ET.Element("column", {"title": "status", "value": ""}),
-            ET.Element("column", {"title": "cputime", "value": ""}),
-            ET.Element("column", {"title": "walltime", "value": ""}),
-        ]
-        for column in self.benchmark.columns:
-            self.xml_dummy_elements.append(
-                ET.Element("column", {"title": column.title, "value": ""})
-            )
-
     def write_header_to_log(self, sysinfo):
         """
         This method writes information about benchmark and system into txt_file.
@@ -403,7 +391,6 @@ class OutputHandler(object):
                     prop_name for prop in run.properties for prop_name in prop.names
                 ]
                 run.xml.set("properties", " ".join(sorted(all_properties)))
-            run.xml.extend(self.xml_dummy_elements)
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
