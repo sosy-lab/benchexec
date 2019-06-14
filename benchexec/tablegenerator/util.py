@@ -115,11 +115,11 @@ def split_string_at_suffix(s, numbers_into_suffix=False):
     The flag 'numbers_into_suffix' determines whether the suffix consists of digits or non-digits.
     """
     if not s:
-        return (s, "")
+        return s, ""
     pos = len(s)
     while pos and numbers_into_suffix == s[pos - 1].isdigit():
         pos -= 1
-    return (s[:pos], s[pos:])
+    return s[:pos], s[pos:]
 
 
 def remove_unit(s):

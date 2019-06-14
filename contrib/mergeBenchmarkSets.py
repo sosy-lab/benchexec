@@ -62,7 +62,7 @@ def getWitnessResult(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
-        return ("witness missing", Result.CATEGORY_ERROR)
+        return "witness missing", Result.CATEGORY_ERROR
 
     # print(witness.get('name'))
     status_from_validation = witness.findall('column[@title="status"]')[0].get("value")
@@ -80,7 +80,7 @@ def getWitnessResult(witness, verification_result):
     # If the result from witness validation matches the result from verification,
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
-        return (status_from_verification, category_from_verification)
+        return status_from_verification, category_from_verification
     # An invalid witness counts as error of the verifier.
     if status_from_validation == "ERROR (invalid witness file)":
         return (
@@ -89,9 +89,9 @@ def getWitnessResult(witness, verification_result):
         )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == Result.CATEGORY_CORRECT:
-        return (status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED)
+        return status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED
 
-    return ("result invalid (" + status_from_verification + ")", Result.CATEGORY_ERROR)
+    return "result invalid (" + status_from_verification + ")", Result.CATEGORY_ERROR
 
 
 def main(argv=None):
@@ -201,8 +201,7 @@ def main(argv=None):
 
     filename = resultFile + ".merged.xml.bz2"
     print("    " + filename)
-    open_func = bz2.BZ2File if hasattr(bz2.BZ2File, "writable") else util.BZ2FileHack
-    with io.TextIOWrapper(open_func(filename, "wb"), encoding="utf-8") as xml_file:
+    with io.TextIOWrapper(bz2.BZ2File(filename, "wb"), encoding="utf-8") as xml_file:
         xml_file.write(
             xml_to_string(resultXML).replace("    \n", "").replace("  \n", "")
         )

@@ -343,8 +343,7 @@ def main(argv=None):
 
     def print_optional_result(key, unit=""):
         if key in result:
-            # avoid unicode literals such that the string can be parsed by Python 3.2
-            print(key + "=" + str(result[key]).replace("'u", "") + unit)
+            print(key + "=" + str(result[key]) + unit)
 
     # output results
     print_optional_result("terminationreason")

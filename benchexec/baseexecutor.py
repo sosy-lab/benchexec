@@ -216,7 +216,7 @@ class BaseExecutor(object):
                 pid,
                 e.strerror,
             )
-            return (0, None)
+            return 0, None
 
     def stop(self):
         self.PROCESS_KILLED = True

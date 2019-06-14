@@ -149,7 +149,7 @@ def load_tool_info(tool_name, config):
             'The module "{0}" does not define the necessary class "Tool", '
             "it cannot be used as tool info for BenchExec.".format(tool_module)
         )
-    return (tool_module, tool)
+    return tool_module, tool
 
 
 def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
@@ -294,7 +294,7 @@ class Benchmark(object):
 
         # get number of threads, default value is 1
         self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
-        if config.num_of_threads != None:
+        if config.num_of_threads is not None:
             self.num_of_threads = config.num_of_threads
         if self.num_of_threads < 1:
             logging.error("At least ONE thread must be given!")
@@ -414,7 +414,7 @@ class Benchmark(object):
 
         logging.debug("I'm loading some columns for the outputfile.")
         columns = []
-        if columnsTag != None:  # columnsTag is optional in XML file
+        if columnsTag is not None:  # columnsTag is optional in XML file
             for columnTag in columnsTag.findall("column"):
                 pattern = columnTag.text
                 title = columnTag.get("title", pattern)
