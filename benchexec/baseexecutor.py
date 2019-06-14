@@ -72,29 +72,6 @@ class BaseExecutor(object):
         self.SUB_PROCESS_PIDS_LOCK = threading.Lock()
         self.SUB_PROCESS_PIDS = set()
 
-    def _kill_process(self, pid, sig=signal.SIGKILL):
-        """Try to send signal to given process."""
-        try:
-            os.kill(pid, sig)
-        except OSError as e:
-            if e.errno == errno.ESRCH:
-                # process itself returned and exited before killing
-                logging.debug(
-                    "Failure %s while killing process %s with signal %s: %s",
-                    e.errno,
-                    pid,
-                    sig,
-                    e.strerror,
-                )
-            else:
-                logging.warning(
-                    "Failure %s while killing process %s with signal %s: %s",
-                    e.errno,
-                    pid,
-                    sig,
-                    e.strerror,
-                )
-
     def _get_result_files_base(self, temp_dir):
         """Given the temp directory that is created for each run, return the path to the directory
         where files created by the tool are stored."""
@@ -212,7 +189,7 @@ class BaseExecutor(object):
             for pid in self.SUB_PROCESS_PIDS:
                 logging.warning("Killing process %s forcefully.", pid)
                 try:
-                    self._kill_process(pid)
+                    util.kill_process(pid)
                 except EnvironmentError as e:
                     # May fail due to race conditions
                     logging.debug(e)

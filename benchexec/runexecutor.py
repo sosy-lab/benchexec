@@ -445,19 +445,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- utility functions ---
 
-    def _kill_process(self, pid, cgroups=None, sig=signal.SIGKILL):
-        """
-        Try to send signal to given process.
-        """
-        self._kill_process0(pid, sig)
-
-    def _kill_process0(self, pid, sig=signal.SIGKILL):
-        """
-        Send signal to given process.
-        """
-        # TODO inline
-        super(RunExecutor, self)._kill_process(pid, sig)
-
     def _set_termination_reason(self, reason):
         if not self._termination_reason:
             self._termination_reason = reason
@@ -632,7 +619,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 pid_to_kill=pid_to_kill,
                 cores=cores,
                 callbackFn=self._set_termination_reason,
-                kill_process_fn=self._kill_process,
             )
             timelimitThread.start()
             return timelimitThread
@@ -648,7 +634,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     cgroups=cgroups,
                     pid_to_kill=pid_to_kill,
                     callbackFn=self._set_termination_reason,
-                    kill_process_fn=self._kill_process,
                 )
                 oomThread.start()
                 return oomThread
@@ -681,10 +666,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 self._get_result_files_base(temp_dir),
                 files_count_limit=files_count_limit,
                 files_size_limit=files_size_limit,
-                cgroups=cgroups,
                 pid_to_kill=pid_to_kill,
                 callbackFn=self._set_termination_reason,
-                kill_process_fn=self._kill_process,
             )
             file_hierarchy_limit_thread.start()
             return file_hierarchy_limit_thread
@@ -1023,7 +1006,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 file_hierarchy_limit_thread.cancel()
 
             # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
-            cgroups.kill_all_tasks(self._kill_process0)
+            cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
@@ -1288,7 +1271,6 @@ class _TimelimitThread(threading.Thread):
     def __init__(
         self,
         cgroups,
-        kill_process_fn,
         hardtimelimit,
         softtimelimit,
         walltimelimit,
@@ -1318,7 +1300,6 @@ class _TimelimitThread(threading.Thread):
         self.latestKillTime = util.read_monotonic_time() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
-        self.kill_process = kill_process_fn
         self.finished = threading.Event()
 
     def read_cputime(self):
@@ -1349,7 +1330,7 @@ class _TimelimitThread(threading.Thread):
                 logging.debug(
                     "Killing process %s due to CPU time timeout.", self.pid_to_kill
                 )
-                self.kill_process(self.pid_to_kill, self.cgroups)
+                util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
@@ -1357,14 +1338,14 @@ class _TimelimitThread(threading.Thread):
                 logging.warning(
                     "Killing process %s due to wall time timeout.", self.pid_to_kill
                 )
-                self.kill_process(self.pid_to_kill, self.cgroups)
+                util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
                 self.callback("cputime-soft")
                 # soft time limit violated, ask process to terminate
-                self.kill_process(self.pid_to_kill, self.cgroups, signal.SIGTERM)
+                util.kill_process(self.pid_to_kill, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
             remainingTime = min(

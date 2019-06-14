@@ -538,6 +538,30 @@ ProcessExitCode.__bool__ = _ProcessExitCode__bool__
 ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
 
 
+def kill_process(pid, sig=signal.SIGKILL):
+    """Try to send signal to given process."""
+    try:
+        os.kill(pid, sig)
+    except OSError as e:
+        if e.errno == errno.ESRCH:
+            # process itself returned and exited before killing
+            logging.debug(
+                "Failure %s while killing process %s with signal %s: %s",
+                e.errno,
+                pid,
+                sig,
+                e.strerror,
+            )
+        else:
+            logging.warning(
+                "Failure %s while killing process %s with signal %s: %s",
+                e.errno,
+                pid,
+                sig,
+                e.strerror,
+            )
+
+
 def dummy_fn(*args, **kwargs):
     """Dummy function that accepts all parameters but does nothing."""
     pass
