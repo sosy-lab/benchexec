@@ -956,8 +956,6 @@ class Run(object):
 
         # dummy values, for output in case of interrupt
         self.status = ""
-        self.cputime = None
-        self.walltime = None
         self.category = result.CATEGORY_UNKNOWN
 
     def cmdline(self):
@@ -988,19 +986,13 @@ class Run(object):
                 self.values["@returnvalue"] = exitcode.value
 
         for key, value in values.items():
-            if key == "walltime":
-                self.walltime = value
-            elif key == "cputime":
-                self.cputime = value
-            elif key == "memory":
-                self.values["memory"] = value
-            elif key == "cpuenergy" and not isinstance(value, (str, bytes)):
+            if key == "cpuenergy" and not isinstance(value, (str, bytes)):
                 energy = intel_cpu_energy.format_energy_results(value)
                 for energy_key, energy_value in energy.items():
                     if energy_key != "cpuenergy":
                         energy_key = "@" + energy_key
                     self.values[energy_key] = energy_value
-            elif key == "cpuenergy":
+            elif key in ["walltime", "cputime", "memory", "cpuenergy"]:
                 self.values[key] = value
             elif key in visible_columns:
                 self.values[key] = value
@@ -1093,7 +1085,7 @@ class Run(object):
 
     def _is_timeout(self):
         """ try to find out whether the tool terminated because of a timeout """
-        if self.cputime is None:
+        if self.values.get("cputime") is None:
             is_cpulimit = False
         else:
             rlimits = self.runSet.benchmark.rlimits
@@ -1103,9 +1095,9 @@ class Run(object):
                 limit = rlimits[TIMELIMIT]
             else:
                 limit = float("inf")
-            is_cpulimit = self.cputime > limit
+            is_cpulimit = self.values["cputime"] > limit
 
-        if self.walltime is None:
+        if self.values.get("walltime") is None:
             is_walllimit = False
         else:
             rlimits = self.runSet.benchmark.rlimits
@@ -1113,7 +1105,7 @@ class Run(object):
                 limit = rlimits[WALLTIMELIMIT]
             else:
                 limit = float("inf")
-            is_walllimit = self.walltime > limit
+            is_walllimit = self.values["walltime"] > limit
 
         return is_cpulimit or is_walllimit
 

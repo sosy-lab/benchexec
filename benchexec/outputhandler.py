@@ -504,8 +504,8 @@ class OutputHandler(object):
         """
 
         # format times, type is changed from float to string!
-        cputime_str = util.format_number(run.cputime, TIME_PRECISION)
-        walltime_str = util.format_number(run.walltime, TIME_PRECISION)
+        cputime_str = util.format_number(run.values.get("cputime"), TIME_PRECISION)
+        walltime_str = util.format_number(run.values.get("walltime"), TIME_PRECISION)
 
         # format numbers, number_of_digits is optional, so it can be None
         for column in run.columns:
@@ -665,8 +665,6 @@ class OutputHandler(object):
         for elem in list(runElem):
             runElem.remove(elem)
         self.add_column_to_xml(runElem, "status", run.status)
-        self.add_column_to_xml(runElem, "cputime", run.cputime)
-        self.add_column_to_xml(runElem, "walltime", run.walltime)
         self.add_column_to_xml(runElem, "@category", run.category)  # hidden
         self.add_column_to_xml(runElem, "", run.values)
 
