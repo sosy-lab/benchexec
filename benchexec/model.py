@@ -353,22 +353,11 @@ class Benchmark(object):
             )
 
         if not self.run_sets:
-            for (i, rundefinitionTag) in enumerate(rootTag.findall("test")):
-                self.run_sets.append(
-                    RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
-                )
-            if self.run_sets:
-                logging.warning(
-                    "Benchmark file %s uses deprecated <test> tags. "
-                    "Please rename them to <rundefinition>.",
-                    benchmark_file,
-                )
-            else:
-                logging.warning(
-                    "Benchmark file %s specifies no runs to execute "
-                    "(no <rundefinition> tags found).",
-                    benchmark_file,
-                )
+            logging.warning(
+                "Benchmark file %s specifies no runs to execute "
+                "(no <rundefinition> tags found).",
+                benchmark_file,
+            )
 
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
             logging.warning(
