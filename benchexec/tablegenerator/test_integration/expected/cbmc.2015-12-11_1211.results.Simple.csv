@@ -1,6 +1,6 @@
 tool	CBMC 	CBMC 	CBMC 	CBMC 
 run set	cbmc	cbmc	cbmc	cbmc
-https://sosy-lab.github.io/benchexec/example-table/test/programs/benchmarks/	status	cputime (s)	walltime (s)	memUsage
+https://sosy-lab.github.io/benchexec/example-table/test/programs/benchmarks/	status	cputime (s)	walltime (s)	memory
 ntdrivers/cdaudio_false-unreach-call.i.cil.c	TIMEOUT	60.09630458	60.07749915122986	986857472
 ntdrivers/diskperf_false-unreach-call.i.cil.c	false(reach)	1.240757859	1.2597875595092773	104386560
 ntdrivers/floppy_false-unreach-call.i.cil.c	false(reach)	3.096028302	3.1074421405792236	139542528
