@@ -230,16 +230,15 @@ class Benchmark(object):
         logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
         def parse_memory_limit(value):
+            # In a future BenchExec version, we could treat unit-less limits as bytes
             try:
                 value = int(value)
-                logging.warning(
-                    'Value "%s" for memory limit interpreted as MB for backwards compatibility, '
-                    "specify a unit to make this unambiguous.",
-                    value,
-                )
-                return value * _BYTE_FACTOR * _BYTE_FACTOR
             except ValueError:
                 return util.parse_memory_value(value)
+            else:
+                raise ValueError(
+                    "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
+                )
 
         def handle_limit_value(name, key, cmdline_value, parse_fn):
             value = rootTag.get(key, None)

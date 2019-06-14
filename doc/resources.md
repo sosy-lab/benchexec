@@ -39,12 +39,6 @@ i.e., its usage of physical RAM plus swap usage.
 BenchExec also tries to disallow swapping of the benchmarked tool,
 if the kernel allows this.
 
-For backwards compatibility, the memory limit when given to `benchexec` without a unit suffix
-is interpreted as megabytes (a warning is shown for this).
-This behavior may change in a future major version of BenchExec.
-It is recommended to explicitly specify the unit to avoid confusion.
-In all other cases, memory values without a unit suffix are bytes.
-
 
 ## Wall Time
 
