@@ -47,9 +47,6 @@ The meanings of the current possible result values are as follows:
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
-- **exitcode**: A number indicating how the process exited,
-    as returned by the Python function [`os.wait`](https://docs.python.org/3/library/os.html#os.wait).
-    (**Deprecated**, use `returnvalue` and `exitsignal` instead.)
 
 
 In the result dictionary of a call to `RunExecutor.execute_run()`,
@@ -57,6 +54,8 @@ integer values are stored as `int`,
 decimal numbers as an instance of some arithmetic Python type,
 and other values as strings.
 More complex values are represented as a `dict`.
+Instead of `returnvalue` and `exitsignal`,
+an instance of `benchexec.util.ProcessExitCode` is returned in a field named `exitcode`.
 
 
 ### Additional Results of benchexec

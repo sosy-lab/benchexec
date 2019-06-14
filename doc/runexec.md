@@ -17,7 +17,6 @@ and print resource measurements to stdout. Example:
     $ runexec echo Test
     2015-03-06 12:54:01,707 - INFO - Starting command echo Test
     2015-03-06 12:54:01,708 - INFO - Writing output to output.log
-    exitcode=0
     returnvalue=0
     walltime=0.0024175643920898438s
     cputime=0.001671s

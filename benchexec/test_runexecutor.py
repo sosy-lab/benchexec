@@ -171,7 +171,14 @@ class TestRunExecutor(unittest.TestCase):
                 )
 
     def check_exitcode(self, result, exitcode, msg=None):
-        self.assertEqual(int(result["exitcode"]), exitcode, msg)
+        self.assertEqual(result["exitcode"].raw, exitcode, msg)
+
+    def check_exitcode_extern(self, result, exitcode, msg=None):
+        exitcode = util.ProcessExitCode.from_raw(exitcode)
+        if exitcode.value is not None:
+            self.assertEqual(int(result["returnvalue"]), exitcode.value, msg)
+        else:
+            self.assertEqual(int(result["exitsignal"]), exitcode.signal, msg)
 
     def test_command_output(self):
         if not os.path.exists("/bin/echo"):
@@ -520,7 +527,7 @@ class TestRunExecutor(unittest.TestCase):
                 line.partition("=") for line in runexec_output.decode().splitlines()
             )
         }
-        self.check_exitcode(result, 0, "exit code of process is not 0")
+        self.check_exitcode_extern(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
             float(result["walltime"].rstrip("s")),
             0.2,
@@ -660,7 +667,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists("/bin/echo"):
             self.skipTest("missing /bin/echo")
         (result, output) = self.execute_run_extern("/bin/echo", "TEST_TOKEN")
-        self.check_exitcode(result, 0, "exit code of /bin/echo is not zero")
+        self.check_exitcode_extern(result, 0, "exit code of /bin/echo is not zero")
         self.check_result_keys(result, "returnvalue")
 
         self.check_command_in_output(output, "/bin/echo TEST_TOKEN")
@@ -807,7 +814,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 result_files_patterns=result_files_patterns,
             )
             self.assertEqual(
-                result["exitcode"],
+                result["exitcode"].value,
                 0,
                 "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}".format(
                     " ".join(shell_cmd), result, "\n".join(output)

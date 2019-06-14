@@ -302,8 +302,8 @@ def main(argv=None):
         if stdin:
             stdin.close()
 
-    # exit_code is a special number:
-    exit_code = util.ProcessExitCode.from_raw(result["exitcode"])
+    # exit_code is a util.ProcessExitCode instance
+    exit_code = result.pop("exitcode", None)
 
     def print_optional_result(key, unit=""):
         if key in result:
@@ -311,10 +311,9 @@ def main(argv=None):
 
     # output results
     print_optional_result("terminationreason")
-    print("exitcode=" + str(exit_code.raw))
-    if exit_code.value is not None:
+    if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
-    if exit_code.signal is not None:
+    if exit_code is not None and exit_code.signal is not None:
         print("exitsignal=" + str(exit_code.signal))
     print("walltime=" + str(result["walltime"]) + "s")
     print("cputime=" + str(result["cputime"]) + "s")
@@ -824,12 +823,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.critical(
                 "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
             )
-            return {
-                "terminationreason": "failed",
-                "exitcode": 0,
-                "cputime": 0,
-                "walltime": 0,
-            }
+            return {"terminationreason": "failed", "cputime": 0, "walltime": 0}
         except OSError as e:
             logging.critical(
                 "OSError %s while starting '%s' in '%s': %s.",
@@ -838,12 +832,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 workingDir or ".",
                 e.strerror,
             )
-            return {
-                "terminationreason": "failed",
-                "exitcode": 0,
-                "cputime": 0,
-                "walltime": 0,
-            }
+            return {"terminationreason": "failed", "cputime": 0, "walltime": 0}
 
     def _execute(
         self,
@@ -1055,7 +1044,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
-        result["exitcode"] = returnvalue
+        result["exitcode"] = util.ProcessExitCode.from_raw(returnvalue)
         if energy:
             if packages == True:
                 result["cpuenergy"] = energy

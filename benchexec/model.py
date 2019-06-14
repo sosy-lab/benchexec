@@ -984,8 +984,6 @@ class Run(object):
         """
         exitcode = values.pop("exitcode", None)
         if exitcode is not None:
-            self.values["@exitcode"] = exitcode
-            exitcode = util.ProcessExitCode.from_raw(exitcode)
             if exitcode.signal:
                 self.values["@exitsignal"] = exitcode.signal
             else:
@@ -1026,9 +1024,6 @@ class Run(object):
             or termination_reason in ["cputime", "cputime-soft", "walltime"]
             or self._is_timeout()
         )
-
-        if isinstance(exitcode, int):
-            exitcode = util.ProcessExitCode.from_raw(exitcode)
 
         # read output
         try:

@@ -215,7 +215,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             expected_columns = {
                 column.get("title"): column for column in expected.findall("column")
             }
-            comparable_columns = ["status", "category", "exitcode", "returnvalue"]
+            comparable_columns = ["status", "category", "returnvalue"]
             for column in comparable_columns:
                 self.assertEqual(
                     actual_columns.get(column).get("value"),
