@@ -223,25 +223,6 @@ def main(argv=None):
                 "for more information."
             )
 
-    # For integrating into some benchmarking frameworks,
-    # there is a DEPRECATED special mode
-    # where the first and only command-line argument is a serialized dict
-    # with additional options
-    env = {}
-    if len(options.args) == 1 and options.args[0].startswith("{"):
-        data = eval(options.args[0])
-        options.args = data["args"]
-        env = data.get("env", {})
-        options.debug = data.get("debug", options.debug)
-        if "maxLogfileSize" in data:
-            try:
-                # convert MB to Bytes
-                options.maxOutputSize = (
-                    int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR
-                )
-            except ValueError:
-                options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
-
     if options.input == "-":
         stdin = sys.stdin
     elif options.input is not None:
@@ -309,7 +290,6 @@ def main(argv=None):
             memlimit=options.memlimit,
             memory_nodes=options.memoryNodes,
             cgroupValues=cgroup_values,
-            environments=env,
             workingDir=options.dir,
             maxLogfileSize=options.maxOutputSize,
             files_count_limit=options.filesCountLimit,
