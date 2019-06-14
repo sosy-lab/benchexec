@@ -37,7 +37,7 @@ The meanings of the current possible result values are as follows:
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
-- **memory** (from `runexec`) / **memUsage** (from `benchexec`):
+- **memory** / **memUsage** (before BenchExec 2.0):
     Peak memory consumption of run in bytes ([more information](resources.md#memory)).
     In future versions this value will get the suffix "B", currently there is no suffix.
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
@@ -90,11 +90,6 @@ The values of these will be extracted from the tool output by the tool-info modu
 and stored together with the result values that are determined by BenchExec.
 The content of these values can be arbitrary, but in most cases will be either a raw number,
 a number with a unit suffix, or plain text.
-
-Because the value for memory usage is named `memUsage` in `benchexec` result files
-only for backwards compatibility, we may change its name to `memory`
-in a future version (e.g., version 2.0) of BenchExec.
-Tools that read such files and want to be future-proof may use both names for value lookup.
 
 The `<column>` tags may have an attribute `hidden` set to `true`.
 This indicates values that are typically not primarily interesting for users,

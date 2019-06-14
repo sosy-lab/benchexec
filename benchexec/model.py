@@ -997,7 +997,7 @@ class Run(object):
             elif key == "cputime":
                 self.cputime = value
             elif key == "memory":
-                self.values["memUsage"] = value
+                self.values["memory"] = value
             elif key == "cpuenergy" and not isinstance(value, (str, bytes)):
                 energy = intel_cpu_energy.format_energy_results(value)
                 for energy_key, energy_value in energy.items():

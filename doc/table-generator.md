@@ -102,7 +102,7 @@ For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
 ```XML
-<column title="memUsage" sourceUnit="B" displayUnit="MB"/>
+<column title="memory" sourceUnit="B" displayUnit="MB"/>
 ```
 
 Additionally, it is possible to specify columns that should be considered when comparing different

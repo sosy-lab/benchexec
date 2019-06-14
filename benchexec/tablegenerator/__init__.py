@@ -61,7 +61,8 @@ MAIN_COLUMNS = [
     Column("category"),
     Column("cputime"),
     Column("walltime"),
-    Column("memUsage"),
+    Column("memory"),
+    Column("memUsage"),  # if old results are given
     Column("cpuenergy"),
 ]
 
