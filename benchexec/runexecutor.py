@@ -315,8 +315,8 @@ def main(argv=None):
         print("returnvalue=" + str(exit_code.value))
     if exit_code is not None and exit_code.signal is not None:
         print("exitsignal=" + str(exit_code.signal))
-    print("walltime=" + str(result["walltime"]) + "s")
-    print("cputime=" + str(result["cputime"]) + "s")
+    print_optional_result("walltime", "s")
+    print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
             print("{}={:.9f}s".format(key, result[key]))
@@ -823,7 +823,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.critical(
                 "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
             )
-            return {"terminationreason": "failed", "cputime": 0, "walltime": 0}
+            return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
                 "OSError %s while starting '%s' in '%s': %s.",
@@ -832,7 +832,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 workingDir or ".",
                 e.strerror,
             )
-            return {"terminationreason": "failed", "cputime": 0, "walltime": 0}
+            return {"terminationreason": "failed"}
 
     def _execute(
         self,
