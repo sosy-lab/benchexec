@@ -73,7 +73,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
                      |-- actual                        # output directory for benchexec runs
                      |-- *.xml                         # benchmark definitions used
         """
-        tmp_dir = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
+        tmp_dir = tempfile.mkdtemp(prefix="BenchExec_integration_test")
         relative_benchmark_dir = os.path.relpath(benchmarks_dir, base_dir)
         tmp_benchmarks_dir = os.path.join(tmp_dir, relative_benchmark_dir)
         shutil.copytree(benchmarks_dir, tmp_benchmarks_dir)

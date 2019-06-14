@@ -422,7 +422,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # preparations
         temp_dir = None
         if rootDir is None:
-            temp_dir = tempfile.mkdtemp(prefix="Benchexec_run_")
+            temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
 
         pid = None
         returnvalue = 0
