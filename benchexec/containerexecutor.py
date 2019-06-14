@@ -600,7 +600,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # such that parent can put us into the correct cgroups.  According to
                 # http://man7.org/linux/man-pages/man7/pid_namespaces.7.html,
                 # there are two ways to achieve this: sending a message with the PID
-                # via a socket (but Python < 3.3 lacks a convenient API for sendmsg),
+                # via a socket (but Python 2 lacks a convenient API for sendmsg),
                 # and reading /proc/self in the outer procfs instance
                 # (that's what we do).
                 my_outer_pid = container.get_my_pid_from_procfs()

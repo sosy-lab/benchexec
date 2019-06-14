@@ -46,7 +46,7 @@ except ImportError:
 
 
 try:
-    read_monotonic_time = time.monotonic
+    read_monotonic_time = time.monotonic  # does not exist on Python 2
 except AttributeError:
     # TODO Should probably warn about wall time affected by changing system clock
     read_monotonic_time = time.time

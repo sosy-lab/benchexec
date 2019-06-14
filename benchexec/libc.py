@@ -217,6 +217,6 @@ _libc.sethostname.argtypes = [c_char_p, c_size_t]
 
 def sethostname(name):
     """Set the host name of the machine."""
-    # TODO: replace with socket.sethostname, which is available from Python 3.3
+    # TODO: replace with socket.sethostname (not available on Python 2)
     name = name.encode()
     _libc.sethostname(name, len(name))

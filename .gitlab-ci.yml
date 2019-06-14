@@ -46,11 +46,6 @@ unit-tests:python-2.7:
   variables:
     PYTHON_VERSION: '2.7'
 
-unit-tests:python-3.2:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.2'
-
 unit-tests:python-3.4:
   <<: *unit-tests
   variables:

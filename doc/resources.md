@@ -48,9 +48,8 @@ In all other cases, memory values without a unit suffix are bytes.
 
 ## Wall Time
 
-Wall-time measurements may be inaccurate on systems with an old Python version (up to Python 3.2),
+Wall-time measurements may be inaccurate when using Python 2,
 if the system time changes during the benchmarking (e.g., due to daylight-savings time).
-The same is true regardless of the Python version for BenchExec 1.5 and older.
 
 BenchExec always limits the wall time, too, if the CPU time is limited.
 This is done to prevent infinitely-long hanging runs if no CPU time is used,
