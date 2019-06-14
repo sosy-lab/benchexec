@@ -137,8 +137,6 @@ Example:
 
 The full set of available parameters can be seen with `benchexec -h`.
 For explanation of the parameters for containers, please see [container mode](container.md).
-For executing benchmarks under a different user account with the parameter `--user`,
-please check the [respective documentation](separate-user.md).
 
 Command-line arguments can additionally be read from a file,
 if the file name prefixed with `@` is given as argument.

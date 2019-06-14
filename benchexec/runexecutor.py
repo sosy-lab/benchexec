@@ -52,7 +52,6 @@ _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
 _ULIMIT_DEFAULT_OVERHEAD = 30  # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
-_SUDO_ARGS = ["sudo", "--non-interactive", "-u"]
 
 try:
     from subprocess import DEVNULL
@@ -191,12 +190,6 @@ def main(argv=None):
         metavar="DIR",
         help="working directory for executing the command (default is current directory)",
     )
-    environment_args.add_argument(
-        "--user",
-        metavar="USER",
-        help="execute tool under given user account (needs password-less sudo setup, "
-        "not supported in combination with --container)",
-    )
 
     baseexecutor.add_basic_executor_options(parser)
 
@@ -204,8 +197,6 @@ def main(argv=None):
     baseexecutor.handle_basic_executor_options(options, parser)
 
     if options.container:
-        if options.user is not None:
-            sys.exit("Cannot use --user in combination with --container.")
         container_options = containerexecutor.handle_basic_container_args(
             options, parser
         )
@@ -221,13 +212,7 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if options.user is not None:
-            logging.warning(
-                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
-                "Consider using the container mode instead for isolating runs "
-                "(cf. https://github.com/sosy-lab/benchexec/issues/215)."
-            )
-        elif not options.no_container:
+        if not options.no_container:
             logging.warning(
                 "Neither --container or --no-container was specified, "
                 "not using containers for isolation of runs. "
@@ -287,7 +272,6 @@ def main(argv=None):
         cgroup_subsystems.add(subsystem)
 
     executor = RunExecutor(
-        user=options.user,
         cleanup_temp_dir=options.cleanup,
         additional_cgroup_subsystems=list(cgroup_subsystems),
         use_namespaces=options.container,
@@ -336,8 +320,6 @@ def main(argv=None):
         if stdin:
             stdin.close()
 
-    executor.check_for_new_files_in_home()
-
     # exit_code is a special number:
     exit_code = util.ProcessExitCode.from_raw(result["exitcode"])
 
@@ -371,7 +353,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     def __init__(
         self,
-        user=None,
         cleanup_temp_dir=True,
         additional_cgroup_subsystems=[],
         use_namespaces=False,
@@ -380,64 +361,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     ):
         """
         Create an instance of of RunExecutor.
-        @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
         super(RunExecutor, self).__init__(
             use_namespaces=use_namespaces, *args, **kwargs
         )
-        if use_namespaces and user:
-            raise ValueError(
-                "Combination of sudo mode of RunExecutor and namespaces is not supported"
-            )
         self._termination_reason = None
-        self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
         self._cgroup_subsystems = additional_cgroup_subsystems
-
-        if user is not None:
-            # Check if we are allowed to execute 'kill' with dummy signal.
-            sudo_check = self._build_cmdline(["kill", "-0", "0"])
-            logging.debug("Checking for capability to run with sudo as user %s.", user)
-            p = subprocess.Popen(
-                sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            try:
-                if p.wait():
-                    logging.error(
-                        'Calling "%s" failed with error code %s and the following output: %s\n%s',
-                        " ".join(sudo_check),
-                        p.returncode,
-                        p.stdout.read().decode().strip(),
-                        p.stderr.read().decode().strip(),
-                    )
-                    sys.exit(
-                        'Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(
-                            user
-                        )
-                    )
-            finally:
-                p.stdout.close()
-                p.stderr.close()
-
-            # Check home directory of user
-            try:
-                self._home_dir = _get_user_account_info(user).pw_dir
-            except (KeyError, ValueError) as e:
-                sys.exit("Unknown user {}: {}".format(user, e))
-            try:
-                self._home_dir_content = set(self._listdir(self._home_dir))
-            except (subprocess.CalledProcessError, IOError):
-                # Probably directory does not exist
-                self._home_dir_content = []
-            if self._home_dir_content:
-                logging.warning(
-                    "Home directory %s of user %s contains files and/or directories, it is "
-                    "recommended to do benchmarks with empty home to prevent undesired influences.",
-                    self._home_dir,
-                    user,
-                )
 
         self._energy_measurement = (
             intel_cpu_energy.EnergyMeasurement.create_if_supported()
@@ -470,18 +402,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups:
-            if self._user is not None:
-                # In sudo mode, we absolutely need at least one cgroup subsystem
-                # to be able to find the process where we need to send signals to
-                sys.exit(
-                    "Cannot reliably kill sub-processes without freezer cgroup,"
-                    + " this is necessary if --user is specified."
-                    + " Please enable this cgroup or do not specify --user."
-                )
-            else:
-                logging.warning(
-                    "Cannot reliably kill sub-processes without freezer cgroup."
-                )
+            logging.warning(
+                "Cannot reliably kill sub-processes without freezer cgroup."
+            )
 
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
@@ -522,75 +445,18 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     # --- utility functions ---
 
-    def _build_cmdline(self, args, env={}):
-        """
-        Build the final command line for executing the given command,
-        using sudo if necessary.
-        """
-        if self._user is None:
-            return super(RunExecutor, self)._build_cmdline(args, env)
-        result = _SUDO_ARGS + [self._user]
-        for var, value in env.items():
-            result.append(var + "=" + value)
-        return result + ["--"] + args
-
     def _kill_process(self, pid, cgroups=None, sig=signal.SIGKILL):
         """
-        Try to send signal to given process, either directly of with sudo.
-        Because we cannot send signals to the sudo process itself,
-        this method checks whether the target is the sudo process
-        and redirects the signal to sudo's child in this case.
+        Try to send signal to given process.
         """
-        if self._user is not None:
-            if not cgroups:
-                cgroups = find_cgroups_of_process(pid)
-            # In case we started a tool with sudo, we cannot kill the started
-            # process itself, because sudo always runs as root.
-            # So if we are asked to kill the started process itself (the first
-            # process in the cgroup), we instead kill the child of sudo
-            # (the second process in the cgroup).
-            pids = cgroups.get_all_tasks(FREEZER)
-            try:
-                if pid == next(pids):
-                    pid = next(pids)
-            except StopIteration:
-                # pids seems to not have enough values
-                pass
-            finally:
-                pids.close()
         self._kill_process0(pid, sig)
 
     def _kill_process0(self, pid, sig=signal.SIGKILL):
         """
-        Send signal to given process, either directly or with sudo.
-        If the target is the sudo process itself, the signal will be lost,
-        because we do not have the rights to send signals to sudo.
-        Use _kill_process() because of this.
+        Send signal to given process.
         """
-        if self._user is None:
-            super(RunExecutor, self)._kill_process(pid, sig)
-        else:
-            logging.debug("Sending signal %s to %s with sudo.", sig, pid)
-            try:
-                # Cast sig to int, under Python 3.5 the signal.SIG* constants are nums, not ints.
-                subprocess.check_call(
-                    args=self._build_cmdline(["kill", "-" + str(int(sig)), str(pid)])
-                )
-            except subprocess.CalledProcessError as e:
-                # may happen for example if process no longer exists
-                logging.debug(e)
-
-    def _listdir(self, path):
-        """Return the list of files in a directory, assuming that our user can read it."""
-        if self._user is None:
-            return os.listdir(path)
-        else:
-            args = self._build_cmdline(["/bin/ls", "-1A", path])
-            return (
-                subprocess.check_output(args, stderr=DEVNULL)
-                .decode("utf-8", errors="ignore")
-                .split("\n")
-            )
+        # TODO inline
+        super(RunExecutor, self)._kill_process(pid, sig)
 
     def _set_termination_reason(self, reason):
         if not self._termination_reason:
@@ -694,59 +560,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         return cgroups
 
-    def _create_temp_dir(self):
-        """Create a temporary directory for the run."""
-        if self._user is None:
-            base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
-        else:
-            create_temp_dir = self._build_cmdline(
-                [
-                    "python",
-                    "-c",
-                    "import tempfile;"
-                    'print(tempfile.mkdtemp(prefix="BenchExec_run_"))',
-                ]
-            )
-            base_dir = subprocess.check_output(create_temp_dir).decode().strip()
-        return base_dir
-
-    def _create_dirs_in_temp_dir(self, *paths):
-        if self._user is None:
-            super(RunExecutor, self)._create_dirs_in_temp_dir(*paths)
-        elif paths:
-            subprocess.check_call(
-                self._build_cmdline(["mkdir", "--mode=700"] + list(paths))
-            )
-
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
             logging.debug("Cleaning up temporary directory %s.", base_dir)
-            if self._user is None:
-                util.rmtree(base_dir, onerror=util.log_rmtree_error)
-            else:
-                rm = subprocess.Popen(
-                    self._build_cmdline(["rm", "-rf", "--", base_dir]),
-                    stderr=subprocess.PIPE,
-                )
-                rm_output = rm.stderr.read().decode()
-                rm.stderr.close()
-                if rm.wait() != 0 or rm_output:
-                    logging.warning(
-                        "Failed to clean up temp directory %s: %s.", base_dir, rm_output
-                    )
+            util.rmtree(base_dir, onerror=util.log_rmtree_error)
         else:
             logging.info("Skipping cleanup of temporary directory %s.", base_dir)
 
     def _setup_environment(self, environments):
         """Return map with desired environment variables for run."""
-        # If keepEnv is set or sudo is used, start from a fresh environment,
+        # If keepEnv is set, start from a fresh environment,
         # otherwise with the current one.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
-        if self._user is not None or environments.get("keepEnv", None) is not None:
+        if environments.get("keepEnv", None) is not None:
             run_environment = {}
         else:
             run_environment = os.environ.copy()
@@ -774,7 +604,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if write_header:
             output_file.write(
-                " ".join(map(util.escape_string_shell, self._build_cmdline(args)))
+                " ".join(map(util.escape_string_shell, args))
                 + "\n\n\n"
                 + "-" * 80
                 + "\n\n\n"
@@ -1118,7 +948,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
-        temp_dir = self._create_temp_dir()
+        temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
         run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(
             output_filename, args, write_header=write_header
@@ -1365,45 +1195,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     def stop(self):
         self._set_termination_reason("killed")
         super(RunExecutor, self).stop()
-
-    def check_for_new_files_in_home(self):
-        """Check that the user account's home directory now does not contain more files than
-        when this instance was created, and warn otherwise.
-        Does nothing if no user account was given to RunExecutor.
-        @return set of newly created files
-        """
-        if not self._user:
-            return None
-        try:
-            created_files = set(self._listdir(self._home_dir)).difference(
-                self._home_dir_content
-            )
-        except (subprocess.CalledProcessError, IOError):
-            # Probably home directory does not exist
-            created_files = []
-        if created_files:
-            logging.warning(
-                "The tool created the following files in %s, "
-                "this may influence later runs:\n\t%s",
-                self._home_dir,
-                "\n\t".join(created_files),
-            )
-        return created_files
-
-
-def _get_user_account_info(user):
-    """Get the user account info from the passwd database. Only works on Linux.
-    @param user The name of a user account or a numeric uid prefixed with '#'
-    @return a tuple that corresponds to the members of the passwd structure
-    @raise KeyError: If user account is unknown
-    @raise ValueError: If uid is not a valid number
-    """
-    import pwd  # Import here to avoid problems on other platforms
-
-    if user[0] == "#":
-        return pwd.getpwuid(int(user[1:]))
-    else:
-        return pwd.getpwnam(user)
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):

@@ -63,9 +63,6 @@ It is useful to install the system package `python3-lxml` before,
 otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
-If you want to run benchmarks under different user account than your own,
-please check the [respective documentation](separate-user.md) for how to setup sudo.
-
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
 and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
 [LXCFS](https://github.com/lxc/lxcfs) if desired.

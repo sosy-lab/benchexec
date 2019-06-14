@@ -219,13 +219,6 @@ class BenchExec(object):
             default=True,
             help="Disable assignment of more than one sibling virtual core to a single run",
         )
-        parser.add_argument(
-            "--user",
-            dest="users",
-            action="append",
-            metavar="USER",
-            help="Execute benchmarks under given user account(s) (needs password-less sudo setup).",
-        )
 
         parser.add_argument(
             "--no-compress-results",

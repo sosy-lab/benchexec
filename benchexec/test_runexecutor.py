@@ -711,18 +711,14 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(result, 0, "exit code of /bin/sh is not zero")
         temp_dir = output[-1]
         test_file = os.path.join(temp_dir, "test")
-        subprocess.check_call(
-            self.runexecutor._build_cmdline(["test", "-f", test_file])
-        )
+        subprocess.check_call(["test", "-f", test_file])
         self.assertEqual(
             "tmp", os.path.basename(temp_dir), "unexpected name of temp dir"
         )
         self.assertNotEqual(
             "/tmp", temp_dir, "temp dir should not be the global temp dir"
         )
-        subprocess.check_call(
-            self.runexecutor._build_cmdline(["rm", "-r", os.path.dirname(temp_dir)])
-        )
+        subprocess.check_call(["rm", "-r", os.path.dirname(temp_dir)])
 
     def test_require_cgroup_invalid(self):
         self.assertRaisesRegex(
@@ -758,84 +754,6 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(result, 0, "exit code of /bin/echo is not zero")
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
-
-
-class TestRunExecutorWithSudo(TestRunExecutor):
-    """
-    Run tests using the sudo mode of RunExecutor, if possible.
-    sudo is typically set up to allow executing as our own user,
-    so we try that. Note that this will not catch all problems,
-    for example if we forget to use "sudo kill" to send a signal
-    and instead send it directly, but requiring a second user for tests
-    would not be good, either.
-    """
-
-    # Use user name defined in environment variable if present,
-    # or fall back to current user (sudo always allows this).
-    # sudo allows refering to numerical uids with '#'.
-    user = os.environ.get("BENCHEXEC_TEST_USER", "#" + str(os.getuid()))
-
-    def setUp(self, *args, **kwargs):
-        try:
-            self.runexecutor = RunExecutor(user=self.user, *args, **kwargs)
-        except SystemExit as e:
-            # sudo seems not to be available
-            self.skipTest(e)
-
-    def check_exitcode(self, result, expected, msg=None):
-        actual = int(result["exitcode"])
-        if expected == 15 and actual == 0:
-            # On Ubuntu 16.04, sudo returns 0 if process is killed with signal 15
-            return
-
-        # Using sudo may affect the exit code:
-        # what was the returnsignal is now the returnvalue.
-        # The distinction between returnsignal and returnvalue of the actual
-        # process is lost.
-        # If the returnsignal (of the sudo process) is 0,
-        # we replace the exit code with the mixed returnsignal/returnvalue of
-        # the actual process (with bit for core dump cleared).
-        returnsignal = actual & 0x7F
-        returnvalue = (actual >> 8) & 0x7F
-        if returnsignal == 0:
-            actual = returnvalue
-
-        self.assertEqual(actual, expected, msg)
-
-    def check_command_in_output(self, output, cmd):
-        self.assertTrue(output[0].endswith(cmd), "run output misses executed command")
-
-    def test_detect_new_files_in_home(self):
-        if not os.path.exists("/bin/mktemp"):
-            self.skipTest("missing /bin/mktemp")
-        home_dir = runexecutor._get_user_account_info(self.user).pw_dir
-        tmp_file_pattern = ".BenchExec_test_runexecutor_XXXXXXXXXX"
-        (result, output) = self.execute_run(
-            "/bin/mktemp", "--tmpdir=" + home_dir, tmp_file_pattern
-        )
-        try:
-            self.check_exitcode(result, 0, "exit code of /bin/mktemp is not zero")
-            tmp_file = output[-1]
-            self.assertIn(
-                os.path.relpath(tmp_file, home_dir),
-                self.runexecutor.check_for_new_files_in_home(),
-                "runexecutor failed to detect new temporary file in home directory",
-            )
-        finally:
-            subprocess.check_call(self.runexecutor._build_cmdline(["rm", tmp_file]))
-
-    def test_append_environment_variable(self):
-        # sudo-mode has a suboptimal implementation for additionalEnv:
-        # If an environment variable is not modified, it will be cleared completely and in case of
-        # PATH sudo will set it. If PATH is specified in additionalEnv, we will copy the value
-        # from the current process (which is different than what sudo would set)
-        # and append the given string.
-        pass
-
-    def test_append_crash_dump_info(self):
-        # Does not work on some installations (e.g., Travis),
-        # and sudo mode is deprecated anyway.
-        pass
 
 
 class TestRunExecutorWithContainer(TestRunExecutor):

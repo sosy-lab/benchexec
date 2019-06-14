@@ -95,17 +95,6 @@ class BaseExecutor(object):
                     e.strerror,
                 )
 
-    def _create_dirs_in_temp_dir(self, *paths):
-        """Create some directories, all of which need to be below the temp_dir given to
-        _start_execution(). This can be overridden by subclasses if necessary.
-        """
-        for path in paths:
-            os.mkdir(path)
-
-    def _build_cmdline(self, args, env={}):
-        """Build the final command line for executing the given command."""
-        return args
-
     def _get_result_files_base(self, temp_dir):
         """Given the temp directory that is created for each run, return the path to the directory
         where files created by the tool are stored."""
@@ -150,15 +139,14 @@ class BaseExecutor(object):
         # Set HOME and TMPDIR to fresh directories.
         tmp_dir = os.path.join(temp_dir, "tmp")
         home_dir = os.path.join(temp_dir, "home")
-        self._create_dirs_in_temp_dir(tmp_dir, home_dir)
+        os.mkdir(tmp_dir)
+        os.mkdir(home_dir)
         env["HOME"] = home_dir
         env["TMPDIR"] = tmp_dir
         env["TMP"] = tmp_dir
         env["TEMPDIR"] = tmp_dir
         env["TEMP"] = tmp_dir
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
-
-        args = self._build_cmdline(args, env=env)
 
         parent_setup = parent_setup_fn()
 

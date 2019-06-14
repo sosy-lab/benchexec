@@ -335,16 +335,6 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def test_simple_compressed_results(self):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
-    def test_sudo(self):
-        # sudo allows refering to numerical uids with '#'
-        user = "#" + str(os.getuid())
-        try:
-            self.run_benchexec_and_compare_expected_files("--user", user)
-        except subprocess.CalledProcessError as e:
-            if "please fix your sudo setup" in e.output.decode():
-                self.skipTest(e)
-            raise e
-
     def test_validate_result_xml(self):
         self.run_cmd(
             benchexec,

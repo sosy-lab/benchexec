@@ -543,8 +543,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if root_dir is None:
             env.update(self._env_override)
 
-        args = self._build_cmdline(args, env=env)
-
         # We have three processes involved:
         # parent: the current Python process in which RunExecutor is executing
         # child: child process in new namespace (PID 1 in inner namespace),
