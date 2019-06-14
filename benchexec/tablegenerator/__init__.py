@@ -56,7 +56,14 @@ import zipfile
 parallel = Util.DummyExecutor()
 
 # Most important columns that should be shown first in tables (in the given order)
-MAIN_COLUMNS = ["status", "category", "cputime", "walltime", "memUsage", "cpuenergy"]
+MAIN_COLUMNS = [
+    Column("status"),
+    Column("category"),
+    Column("cputime"),
+    Column("walltime"),
+    Column("memUsage"),
+    Column("cpuenergy"),
+]
 
 NAME_START = "results"  # first part of filename of table
 
@@ -492,10 +499,12 @@ class RunSetResult(object):
             }
 
             # Put main columns first, then rest sorted alphabetically
-            columns = [
-                column for column in MAIN_COLUMNS if column in column_names
-            ] + sorted(column_names.difference(MAIN_COLUMNS))
-            return [Column(title, None, None, None) for title in columns]
+            custom_columns = column_names.difference(
+                column.title for column in MAIN_COLUMNS
+            )
+            return [
+                column for column in MAIN_COLUMNS if column.title in column_names
+            ] + [Column(title) for title in sorted(custom_columns)]
 
     @staticmethod
     def _extract_attributes_from_result(resultFile, resultTag):

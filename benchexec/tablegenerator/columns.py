@@ -137,9 +137,9 @@ class Column(object):
     def __init__(
         self,
         title,
-        pattern,
-        num_of_digits,
-        href,
+        pattern=None,
+        num_of_digits=None,
+        href=None,
         col_type=None,
         unit=None,
         source_unit=None,
