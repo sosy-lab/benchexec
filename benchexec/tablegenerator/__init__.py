@@ -557,6 +557,8 @@ class RunSetResult(object):
 
 
 def _get_run_tags_from_xml(result_elem):
+    # Here we keep support for <sourcefile> in order to be able to read old benchmark
+    # results (no reason to forbid this).
     return result_elem.findall("run") + result_elem.findall("sourcefile")
 
 
@@ -1996,7 +1998,7 @@ def create_argument_parser():
         "--common",
         action="store_true",
         dest="common",
-        help="Put only sourcefiles into the table for which all benchmarks contain results.",
+        help="Put only rows into the table for which all benchmarks contain results.",
     )
     parser.add_argument(
         "--no-diff",

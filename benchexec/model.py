@@ -85,12 +85,6 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
         keyValueList.append(
             ("inputfile_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
         )
-        # The following are deprecated: do not use anymore.
-        keyValueList.append(("sourcefile_name", os.path.basename(sourcefile)))
-        keyValueList.append(("sourcefile_path", os.path.dirname(sourcefile) or "."))
-        keyValueList.append(
-            ("sourcefile_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
-        )
     if sourcefile and sourcefile.endswith(".yml"):
         keyValueList.append(("taskdef_name", os.path.basename(sourcefile)))
         keyValueList.append(("taskdef_path", os.path.dirname(sourcefile) or "."))
@@ -309,9 +303,12 @@ class Benchmark(object):
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
 
         # get global source files, they are used in all run sets
-        globalSourcefilesTags = rootTag.findall("tasks") + rootTag.findall(
-            "sourcefiles"
-        )
+        if rootTag.findall("sourcefiles"):
+            sys.exit(
+                "Benchmark file {} has unsupported old format. "
+                "Rename <sourcefiles> tags to <tasks>.".format(benchmark_file)
+            )
+        globalSourcefilesTags = rootTag.findall("tasks")
 
         # get required files
         self._required_files = set()
@@ -461,10 +458,13 @@ class RunSet(object):
         }
 
         # get all runs, a run contains one sourcefile with options
+        if rundefinitionTag.findall("sourcefiles"):
+            sys.exit(
+                "Benchmark file {} has unsupported old format. "
+                "Rename <sourcefiles> tags to <tasks>.".format(benchmark.benchmark_file)
+            )
         self.blocks = self.extract_runs_from_xml(
-            globalSourcefilesTags
-            + rundefinitionTag.findall("tasks")
-            + rundefinitionTag.findall("sourcefiles"),
+            globalSourcefilesTags + rundefinitionTag.findall("tasks"),
             required_files_pattern,
         )
         self.runs = [run for block in self.blocks for run in block.runs]
@@ -909,7 +909,7 @@ class Run(object):
             )
         else:
             # we check two cases: direct filename or user-defined substitution, one of them must be a 'file'
-            # TODO: do we need the second case? it is equal to previous used option "-spec ${sourcefile_path}/ALL.prp"
+            # TODO: do we need the second case? it is equal to previous used option "-spec ${inputfile_path}/ALL.prp"
             expandedPropertyFiles = util.expand_filename_pattern(
                 self.propertyfile, self.runSet.benchmark.base_dir
             )
@@ -921,7 +921,7 @@ class Run(object):
             if expandedPropertyFiles:
                 if len(expandedPropertyFiles) > 1:
                     log_property_file_once(
-                        "Pattern {0} for sourcefile {1} in propertyfile tag matches more than one file. Only {2} will be used.".format(
+                        "Pattern {0} for input file {1} in propertyfile tag matches more than one file. Only {2} will be used.".format(
                             self.propertyfile, self.identifier, expandedPropertyFiles[0]
                         )
                     )
@@ -932,7 +932,7 @@ class Run(object):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
                 log_property_file_once(
-                    "Pattern {0} for sourcefile {1} in propertyfile tag did not match any file. It will be ignored.".format(
+                    "Pattern {0} for input file {1} in propertyfile tag did not match any file. It will be ignored.".format(
                         self.propertyfile, self.identifier
                     )
                 )

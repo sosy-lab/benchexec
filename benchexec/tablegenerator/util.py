@@ -141,10 +141,6 @@ def create_link(href, base_dir, runResult=None, href_base=None):
                 ("inputfile_name", os.path.basename(source_file)),
                 ("inputfile_path", os.path.dirname(source_file) or "."),
                 ("inputfile_path_abs", os.path.dirname(os.path.abspath(source_file))),
-                # The following are deprecated: do not use anymore.
-                ("sourcefile_name", os.path.basename(source_file)),
-                ("sourcefile_path", os.path.dirname(source_file) or "."),
-                ("sourcefile_path_abs", os.path.dirname(os.path.abspath(source_file))),
             ]
             + (
                 [

@@ -29,7 +29,6 @@ Naming conventions used within BenchExec:
 TOOL: a (verification) tool that should be executed
 EXECUTABLE: the executable file that should be called for running a TOOL
 INPUTFILE: one input file for the TOOL
-SOURCEFILE: deprecated name for INPUTFILE
 RUN: one execution of a TOOL on one INPUTFILE
 RUNSET: a set of RUNs of one TOOL with at most one RUN per INPUTFILE
 RUNDEFINITION: a template for the creation of a RUNSET with RUNS from one or more INPUTFILESETs
