@@ -319,7 +319,7 @@ def main(argv=None):
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
             print("{}={:.9f}s".format(key, result[key]))
-    print_optional_result("memory")
+    print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))

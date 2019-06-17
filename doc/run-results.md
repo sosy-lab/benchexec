@@ -38,8 +38,7 @@ The meanings of the current possible result values are as follows:
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
 - **memory** / **memUsage** (before BenchExec 2.0):
-    Peak memory consumption of run in bytes ([more information](resources.md#memory)).
-    In future versions this value will get the suffix "B", currently there is no suffix.
+    Peak memory consumption of run in bytes, as integer with suffix "B" ([more information](resources.md#memory)).
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
     This depends on the `blkio` cgroup and is still experimental.
     The value might not accurately represent disk I/O due to caches or if virtual block devices such as LVM, RAID, RAM disks etc. are used.
