@@ -71,7 +71,7 @@ class TestRunExecutor(unittest.TestCase):
     def setUp(self, *args, **kwargs):
         self.runexecutor = RunExecutor(*args, **kwargs)
 
-    def execute_run(self, *args, **kwargs):
+    def execute_run(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
@@ -81,14 +81,14 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         self.check_result_keys(result, "terminationreason")
-        self.assertNotEqual(
+        self.assertEqual(
             result.get("terminationreason"),
-            "failed",
-            "Unexpected failure, output is \n" + output,
+            expect_terminationreason,
+            "Unexpected terminationreason, output is \n" + output,
         )
         return (result, output.splitlines())
 
-    def execute_run_extern(self, *args, **kwargs):
+    def execute_run_extern(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             runexec_output = subprocess.check_output(
@@ -111,10 +111,10 @@ class TestRunExecutor(unittest.TestCase):
             )
         }
         self.check_result_keys(result, "terminationreason", "returnvalue")
-        self.assertNotEqual(
+        self.assertEqual(
             result.get("terminationreason"),
-            "failed",
-            "Unexpected failure, output is \n" + output,
+            expect_terminationreason,
+            "Unexpected terminationreason, output is \n" + output,
         )
         return (result, output.splitlines())
 
@@ -231,15 +231,9 @@ class TestRunExecutor(unittest.TestCase):
             "-c",
             "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
             hardtimelimit=1,
+            expect_terminationreason="cputime",
         )
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
-        if "terminationreason" in result:
-            # not produced currently if killed by ulimit
-            self.assertEqual(
-                result["terminationreason"],
-                "cputime",
-                'termination reason is not "cputime"',
-            )
         self.assertAlmostEqual(
             result["walltime"],
             1.4,
@@ -265,6 +259,7 @@ class TestRunExecutor(unittest.TestCase):
                 "-c",
                 "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
                 softtimelimit=1,
+                expect_terminationreason="cputime-soft",
             )
         except SystemExit as e:
             self.assertEqual(
@@ -273,11 +268,6 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
 
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
-        self.assertEqual(
-            result["terminationreason"],
-            "cputime-soft",
-            'termination reason is not "cputime-soft"',
-        )
         self.assertAlmostEqual(
             result["walltime"],
             4,
@@ -298,7 +288,9 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists("/bin/sleep"):
             self.skipTest("missing /bin/sleep")
         try:
-            (result, output) = self.execute_run("/bin/sleep", "10", walltimelimit=1)
+            (result, output) = self.execute_run(
+                "/bin/sleep", "10", walltimelimit=1, expect_terminationreason="walltime"
+            )
         except SystemExit as e:
             self.assertEqual(
                 str(e),
@@ -307,11 +299,6 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
-        self.assertEqual(
-            result["terminationreason"],
-            "walltime",
-            'termination reason is not "walltime"',
-        )
         self.assertAlmostEqual(
             result["walltime"],
             4,
@@ -338,16 +325,10 @@ class TestRunExecutor(unittest.TestCase):
             "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
             hardtimelimit=1,
             walltimelimit=5,
+            expect_terminationreason="cputime",
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
-        if "terminationreason" in result:
-            # not produced currently if killed by ulimit
-            self.assertEqual(
-                result["terminationreason"],
-                "cputime",
-                'termination reason is not "cputime"',
-            )
         self.assertAlmostEqual(
             result["walltime"],
             1.4,
@@ -375,6 +356,7 @@ class TestRunExecutor(unittest.TestCase):
                 softtimelimit=1,
                 hardtimelimit=2,
                 walltimelimit=5,
+                expect_terminationreason="cputime-soft",
             )
         except SystemExit as e:
             self.assertEqual(
@@ -383,11 +365,6 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
 
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
-        self.assertEqual(
-            result["terminationreason"],
-            "cputime-soft",
-            'termination reason is not "cputime-soft"',
-        )
         self.assertAlmostEqual(
             result["walltime"],
             1.4,
@@ -561,13 +538,12 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest("missing /bin/sleep")
         thread = _StopRunThread(1, self.runexecutor)
         thread.start()
-        (result, output) = self.execute_run("/bin/sleep", "10")
+        (result, output) = self.execute_run(
+            "/bin/sleep", "10", expect_terminationreason="killed"
+        )
         thread.join()
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
-        self.assertEqual(
-            result["terminationreason"], "killed", 'termination reason is not "killed"'
-        )
         self.assertAlmostEqual(
             result["walltime"],
             1,
@@ -884,7 +860,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
             )
-            self.assertNotIn("terminationreason", result)
             self.assertEqual(
                 result["exitcode"],
                 0,
@@ -1021,14 +996,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             "for i in $(seq 1 10000); do touch $i; done",
             files_count_limit=100,
             result_files_patterns=None,
+            expect_terminationreason="files-count",
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 15")
-        self.assertEqual(
-            result["terminationreason"],
-            "files-count",
-            'termination reason is not "files-count"',
-        )
 
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
@@ -1044,14 +1015,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             "for i in $(seq 1 100000); do echo $i >> TEST_FILE; done",
             files_size_limit=100,
             result_files_patterns=None,
+            expect_terminationreason="files-size",
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 15")
-        self.assertEqual(
-            result["terminationreason"],
-            "files-size",
-            'termination reason is not "files-size"',
-        )
 
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
