@@ -329,16 +329,9 @@ class TestRunExecutor(unittest.TestCase):
     def test_walltime_limit(self):
         if not os.path.exists("/bin/sleep"):
             self.skipTest("missing /bin/sleep")
-        try:
-            (result, output) = self.execute_run(
-                "/bin/sleep", "10", walltimelimit=1, expect_terminationreason="walltime"
-            )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e),
-                "Wall time limit is not implemented for systems without cpuacct cgroup.",
-            )
-            self.skipTest(e)
+        (result, output) = self.execute_run(
+            "/bin/sleep", "10", walltimelimit=1, expect_terminationreason="walltime"
+        )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -433,14 +426,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_input_is_redirected_from_devnull(self):
         if not os.path.exists("/bin/cat"):
             self.skipTest("missing /bin/cat")
-        try:
-            (result, output) = self.execute_run("/bin/cat", walltimelimit=1)
-        except SystemExit as e:
-            self.assertEqual(
-                str(e),
-                "Wall time limit is not implemented for systems without cpuacct cgroup.",
-            )
-            self.skipTest(e)
+        (result, output) = self.execute_run("/bin/cat", walltimelimit=1)
 
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
@@ -469,16 +455,7 @@ class TestRunExecutor(unittest.TestCase):
             tmp.write(b"TEST_TOKEN")
             tmp.flush()
             tmp.seek(0)
-            try:
-                (result, output) = self.execute_run(
-                    "/bin/cat", stdin=tmp, walltimelimit=1
-                )
-            except SystemExit as e:
-                self.assertEqual(
-                    str(e),
-                    "Wall time limit is not implemented for systems without cpuacct cgroup.",
-                )
-                self.skipTest(e)
+            (result, output) = self.execute_run("/bin/cat", stdin=tmp, walltimelimit=1)
 
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
