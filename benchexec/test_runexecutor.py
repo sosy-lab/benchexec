@@ -71,7 +71,9 @@ class TestRunExecutor(unittest.TestCase):
     def setUp(self, *args, **kwargs):
         self.runexecutor = RunExecutor(*args, **kwargs)
 
-    def execute_run(self, *args, expect_terminationreason=None, **kwargs):
+    def execute_run(self, *args, **kwargs):
+        # Make keyword-only argument after support for Python 2 is dropped
+        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
@@ -81,14 +83,23 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         self.check_result_keys(result, "terminationreason")
-        self.assertEqual(
-            result.get("terminationreason"),
-            expect_terminationreason,
-            "Unexpected terminationreason, output is \n" + output,
-        )
+        if isinstance(expect_terminationreason, list):
+            self.assertIn(
+                result.get("terminationreason"),
+                expect_terminationreason,
+                "Unexpected terminationreason, output is \n" + output,
+            )
+        else:
+            self.assertEqual(
+                result.get("terminationreason"),
+                expect_terminationreason,
+                "Unexpected terminationreason, output is \n" + output,
+            )
         return (result, output.splitlines())
 
-    def execute_run_extern(self, *args, expect_terminationreason=None, **kwargs):
+    def execute_run_extern(self, *args, **kwargs):
+        # Make keyword-only argument after support for Python 2 is dropped
+        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             runexec_output = subprocess.check_output(
@@ -111,11 +122,18 @@ class TestRunExecutor(unittest.TestCase):
             )
         }
         self.check_result_keys(result, "terminationreason", "returnvalue")
-        self.assertEqual(
-            result.get("terminationreason"),
-            expect_terminationreason,
-            "Unexpected terminationreason, output is \n" + output,
-        )
+        if isinstance(expect_terminationreason, list):
+            self.assertIn(
+                result.get("terminationreason"),
+                expect_terminationreason,
+                "Unexpected terminationreason, output is \n" + output,
+            )
+        else:
+            self.assertEqual(
+                result.get("terminationreason"),
+                expect_terminationreason,
+                "Unexpected terminationreason, output is \n" + output,
+            )
         return (result, output.splitlines())
 
     def check_command_in_output(self, output, cmd):
@@ -241,7 +259,7 @@ class TestRunExecutor(unittest.TestCase):
             "-c",
             "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
             hardtimelimit=1,
-            expect_terminationreason="cputime",
+            expect_terminationreason=["cputime", None],
         )
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -335,7 +353,7 @@ class TestRunExecutor(unittest.TestCase):
             "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
             hardtimelimit=1,
             walltimelimit=5,
-            expect_terminationreason="cputime",
+            expect_terminationreason=["cputime", None],
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
