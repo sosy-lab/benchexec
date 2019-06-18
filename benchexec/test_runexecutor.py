@@ -240,12 +240,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=0.2,
             msg="walltime of /bin/echo not as expected",
         )
-        self.assertAlmostEqual(
-            result["cputime"],
-            0.2,
-            delta=0.2,
-            msg="cputime of /bin/echo not as expected",
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                result["cputime"],
+                0.2,
+                delta=0.2,
+                msg="cputime of /bin/echo not as expected",
+            )
         self.check_result_keys(result)
 
     def test_wrong_command(self):
@@ -346,12 +347,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=3,
             msg="walltime is not approximately the time after which the process should have been killed",
         )
-        self.assertAlmostEqual(
-            result["cputime"],
-            0.2,
-            delta=0.2,
-            msg="cputime of /bin/sleep is not approximately zero",
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                result["cputime"],
+                0.2,
+                delta=0.2,
+                msg="cputime of /bin/sleep is not approximately zero",
+            )
 
         self.check_command_in_output(output, "/bin/sleep 10")
         for line in output[1:]:
@@ -447,12 +449,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=0.2,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
-        self.assertAlmostEqual(
-            result["cputime"],
-            0.2,
-            delta=0.2,
-            msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                result["cputime"],
+                0.2,
+                delta=0.2,
+                msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
+            )
         self.check_result_keys(result)
 
         self.check_command_in_output(output, "/bin/cat")
@@ -484,12 +487,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=0.2,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
-        self.assertAlmostEqual(
-            result["cputime"],
-            0.2,
-            delta=0.2,
-            msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                result["cputime"],
+                0.2,
+                delta=0.2,
+                msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
+            )
         self.check_result_keys(result)
 
         self.check_command_in_output(output, "/bin/cat")
@@ -546,12 +550,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=0.2,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
-        self.assertAlmostEqual(
-            float(result["cputime"].rstrip("s")),
-            0.2,
-            delta=0.2,
-            msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                float(result["cputime"].rstrip("s")),
+                0.2,
+                delta=0.2,
+                msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
+            )
         self.check_result_keys(result, "returnvalue")
 
         self.check_command_in_output(output, "/bin/cat")
@@ -597,12 +602,13 @@ class TestRunExecutor(unittest.TestCase):
             delta=0.5,
             msg="walltime is not approximately the time after which the process should have been killed",
         )
-        self.assertAlmostEqual(
-            result["cputime"],
-            0.2,
-            delta=0.2,
-            msg="cputime of /bin/sleep is not approximately zero",
-        )
+        if "cputime" in result:  # not present without cpuacct cgroup
+            self.assertAlmostEqual(
+                result["cputime"],
+                0.2,
+                delta=0.2,
+                msg="cputime of /bin/sleep is not approximately zero",
+            )
 
         self.check_command_in_output(output, "/bin/sleep 10")
         for line in output[1:]:

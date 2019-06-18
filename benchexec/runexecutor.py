@@ -374,10 +374,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
-            logging.warning(
-                "Without cpuacct cgroups, cputime measurement and limit "
-                "might not work correctly if subprocesses are started."
-            )
+            logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups:
@@ -1101,10 +1098,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     logging.debug(
                         "Could not read CPU time for core %s from kernel: %s", core, e
                     )
-        else:
-            # For backwards compatibility, we report cputime_wait on systems without cpuacct cgroup.
-            # TOOD We might remove this for BenchExec 2.0.
-            result["cputime"] = cputime_wait
 
         if MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
