@@ -871,6 +871,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     received = os.read(from_grandchild_copy, 1024)
                 else:
                     raise e
+
+            if not received:
+                # Typically this means the child exited prematurely because an error
+                # occurred, and check_child_exitcode() will handle this.
+                # We close the pipe first, otherwise child could hang infinitely.
+                os.close(from_grandchild_copy)
+                os.close(to_grandchild_copy)
+                check_child_exit_code()
+                assert False, "Child process terminated cleanly without sending result"
+
             exitcode, ru_child = pickle.loads(received)
 
             base_path = "/proc/{}/root".format(child_pid)

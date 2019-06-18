@@ -223,6 +223,16 @@ class TestRunExecutor(unittest.TestCase):
         )
         self.check_result_keys(result)
 
+    def test_wrong_command(self):
+        (result, _) = self.execute_run(
+            "/does/not/exist", expect_terminationreason="failed"
+        )
+
+    def test_wrong_command_extern(self):
+        (result, _) = self.execute_run(
+            "/does/not/exist", expect_terminationreason="failed"
+        )
+
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
@@ -811,6 +821,14 @@ class TestRunExecutorWithSudo(TestRunExecutor):
     def test_append_crash_dump_info(self):
         # Does not work on some installations (e.g., Travis),
         # and sudo mode is deprecated anyway.
+        pass
+
+    def test_wrong_command(self):
+        # Does not work, won't fix
+        pass
+
+    def test_wrong_command_extern(self):
+        # Does not work, won't fix
         pass
 
 
