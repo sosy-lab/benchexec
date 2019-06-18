@@ -85,7 +85,7 @@ class TestRunExecutor(unittest.TestCase):
         self.check_result_keys(result, "terminationreason")
         if isinstance(expect_terminationreason, list):
             self.assertIn(
-            result.get("terminationreason"),
+                result.get("terminationreason"),
                 expect_terminationreason,
                 "Unexpected terminationreason, output is \n" + output,
             )
@@ -94,7 +94,7 @@ class TestRunExecutor(unittest.TestCase):
                 result.get("terminationreason"),
                 expect_terminationreason,
                 "Unexpected terminationreason, output is \n" + output,
-        )
+            )
         return (result, output.splitlines())
 
     def execute_run_extern(self, *args, **kwargs):
@@ -124,10 +124,10 @@ class TestRunExecutor(unittest.TestCase):
         self.check_result_keys(result, "terminationreason", "returnvalue")
         if isinstance(expect_terminationreason, list):
             self.assertIn(
-            result.get("terminationreason"),
+                result.get("terminationreason"),
                 expect_terminationreason,
                 "Unexpected terminationreason, output is \n" + output,
-        )
+            )
         else:
             self.assertEqual(
                 result.get("terminationreason"),
