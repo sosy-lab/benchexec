@@ -97,7 +97,7 @@ class OutputHandler(object):
         timelimit = None
         corelimit = None
         if MEMLIMIT in self.benchmark.rlimits:
-            memlimit = self.benchmark.rlimits[MEMLIMIT]
+            memlimit = str(self.benchmark.rlimits[MEMLIMIT]) + "B"
         if SOFTTIMELIMIT in self.benchmark.rlimits:
             timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + "s"
         elif TIMELIMIT in self.benchmark.rlimits:
@@ -154,12 +154,12 @@ class OutputHandler(object):
             {
                 "model": cpu_model,
                 "cores": cpu_number_of_cores,
-                "frequency": str(cpu_max_frequency),
+                "frequency": str(cpu_max_frequency) + "Hz",
             },
         )
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ET.Element("ram", {"size": str(memory)})
+        ramElem = ET.Element("ram", {"size": str(memory) + "B"})
         systemInfo = ET.Element("systeminfo", {"hostname": hostname})
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
@@ -209,7 +209,7 @@ class OutputHandler(object):
             self.xml_header.set("displayName", self.benchmark.display_name)
 
         if memlimit is not None:
-            self.xml_header.set(MEMLIMIT, str(memlimit))
+            self.xml_header.set(MEMLIMIT, memlimit)
         if timelimit is not None:
             self.xml_header.set(TIMELIMIT, timelimit)
         if corelimit is not None:

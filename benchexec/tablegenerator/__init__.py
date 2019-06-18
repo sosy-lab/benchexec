@@ -1087,9 +1087,12 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "memlimit" or key == "ram":
 
                 def round_to_MB(value):
+                    number, unit = util.split_number_and_unit(value)
+                    if unit and unit != "B":
+                        return value
                     try:
                         return "{:.0f} MB".format(
-                            int(value) / _BYTE_FACTOR / _BYTE_FACTOR
+                            int(number) / _BYTE_FACTOR / _BYTE_FACTOR
                         )
                     except ValueError:
                         return value
@@ -1099,8 +1102,11 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "freq":
 
                 def round_to_MHz(value):
+                    number, unit = util.split_number_and_unit(value)
+                    if unit and unit != "Hz":
+                        return value
                     try:
-                        return "{:.0f} MHz".format(int(value) / 1000 / 1000)
+                        return "{:.0f} MHz".format(int(number) / 1000 / 1000)
                     except ValueError:
                         return value
 
