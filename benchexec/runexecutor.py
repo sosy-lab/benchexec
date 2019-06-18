@@ -27,7 +27,6 @@ import errno
 import logging
 import multiprocessing
 import os
-import resource
 import signal
 import subprocess
 import sys
@@ -49,7 +48,6 @@ from benchexec import systeminfo
 from benchexec import util
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
-_ULIMIT_DEFAULT_OVERHEAD = 30  # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
 
@@ -587,14 +585,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
-        # hard time limit with cgroups is optional (additionally enforce by ulimit)
-        cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
-
-        if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
+        if any([hardtimelimit, softtimelimit, walltimelimit]):
             # Start a timer to periodically check timelimit
             timelimitThread = _TimelimitThread(
                 cgroups=cgroups,
-                hardtimelimit=cgroup_hardtimelimit,
+                hardtimelimit=hardtimelimit,
                 softtimelimit=softtimelimit,
                 walltimelimit=walltimelimit,
                 pid_to_kill=pid_to_kill,
@@ -625,18 +620,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     e.strerror,
                 )
         return None
-
-    def _setup_ulimit_time_limit(self, hardtimelimit, cgroups):
-        """Setup time limit with ulimit for the current process."""
-        if hardtimelimit is not None:
-            # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
-            if CPUACCT in cgroups:
-                # Use a slightly higher limit to ensure cgroups get used
-                # (otherwise we cannot detect the timeout properly).
-                ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
-            else:
-                ulimit = hardtimelimit
-            resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
 
     def _setup_file_hierarchy_limit(
         self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill
@@ -716,6 +699,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit("Invalid time limit {0}.".format(hardtimelimit))
+            if not CPUACCT in self.cgroups:
+                sys.exit("Time limit cannot be specified without cpuacct cgroup.")
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
@@ -925,7 +910,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
             os.setpgrp()  # make subprocess to group-leader
-            self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)

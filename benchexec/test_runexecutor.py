@@ -261,13 +261,19 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        (result, output) = self.execute_run(
-            "/bin/sh",
-            "-c",
-            "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
-            hardtimelimit=1,
-            expect_terminationreason=["cputime", None],
-        )
+        try:
+            (result, output) = self.execute_run(
+                "/bin/sh",
+                "-c",
+                "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
+                hardtimelimit=1,
+                expect_terminationreason="cputime",
+            )
+        except SystemExit as e:
+            self.assertEqual(
+                str(e), "Time limit cannot be specified without cpuacct cgroup."
+            )
+            self.skipTest(e)
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
             result["walltime"],
@@ -354,14 +360,20 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_walltime_limit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        (result, output) = self.execute_run(
-            "/bin/sh",
-            "-c",
-            "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
-            hardtimelimit=1,
-            walltimelimit=5,
-            expect_terminationreason=["cputime", None],
-        )
+        try:
+            (result, output) = self.execute_run(
+                "/bin/sh",
+                "-c",
+                "i=0; while [ $i -lt 10000000 ]; do i=$(($i+1)); done; echo $i",
+                hardtimelimit=1,
+                walltimelimit=5,
+                expect_terminationreason="cputime",
+            )
+        except SystemExit as e:
+            self.assertEqual(
+                str(e), "Time limit cannot be specified without cpuacct cgroup."
+            )
+            self.skipTest(e)
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -395,7 +407,7 @@ class TestRunExecutor(unittest.TestCase):
             )
         except SystemExit as e:
             self.assertEqual(
-                str(e), "Soft time limit cannot be specified without cpuacct cgroup."
+                str(e), "Time limit cannot be specified without cpuacct cgroup."
             )
             self.skipTest(e)
 

@@ -1001,8 +1001,9 @@ class Run(object):
 
         termination_reason = values.get("terminationreason")
 
-        # termination reason is not fully precise for timeouts, so we guess "timeouts"
-        # if time is too high
+        # Termination reason was not fully precise for timeouts, so we guess "timeouts"
+        # if time is too high. Since removal of ulimit time limit this should not be
+        # necessary, but also does not harm. We might reconsider this in the future.
         isTimeout = (
             termination_reason in ["cputime", "cputime-soft", "walltime"]
             or self._is_timeout()

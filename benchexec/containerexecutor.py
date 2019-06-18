@@ -32,7 +32,6 @@ try:
     import cPickle as pickle  # noqa: N813
 except ImportError:
     import pickle
-import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import signal
 import subprocess
 import sys
