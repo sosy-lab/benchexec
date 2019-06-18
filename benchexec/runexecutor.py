@@ -925,7 +925,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
             os.setpgrp()  # make subprocess to group-leader
-            os.nice(5)  # increase niceness of subprocess
             self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
         # preparations that are not time critical
