@@ -1106,6 +1106,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 self._energy_measurement.stop() if self._energy_measurement else None
             )
 
+            # Because of https://github.com/sosy-lab/benchexec/issues/433, we want to
+            # kill all processes here. Furthermore, we have experienced cases where the
+            # container would just hang instead of killing all processes when its init
+            # process existed, and killing via cgroups prevents this.
+            # But if we do not have freezer, it is safer to just let all processes run
+            # until the container is killed.
+            if FREEZER in cgroups:
+                cgroups.kill_all_tasks(self._kill_process0)
+
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
 
@@ -1193,7 +1202,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if file_hierarchy_limit_thread:
                 file_hierarchy_limit_thread.cancel()
 
-            # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
+            # Make sure to kill all processes if there are still some
+            # (needs to come early to avoid accumulating more CPU time)
             cgroups.kill_all_tasks(self._kill_process0)
 
             # normally subprocess closes file, we do this again after all tasks terminated
