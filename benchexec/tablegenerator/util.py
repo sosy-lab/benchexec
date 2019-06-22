@@ -256,7 +256,8 @@ def flatten(list_):
 
 
 def to_json(obj):
-    return tempita.html(json.dumps(obj, sort_keys=True))
+    return tempita.html(json.dumps(obj, sort_keys=True, default=lambda x: x.__dict__ if "__dict__" in dir(x) else list(x)))
+
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
