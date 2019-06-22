@@ -1826,7 +1826,7 @@ def create_tables(
     # template_values.head = get_table_head(runSetResults, common_prefix) // needed for FE rendering
     template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
     template_values.rows = Util.prepare_rows_for_js(rows)
-    # TODO include stats
+    # stats see below (foot/foot_columns)
     
     futures = []
 

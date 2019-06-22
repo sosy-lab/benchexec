@@ -258,7 +258,17 @@ def flatten(list_):
 
 def to_json(obj):
     # return tempita.html(json.dumps(obj, sort_keys=True))
-    return tempita.html(json.dumps(obj, sort_keys=True, default=lambda x: x.__dict__ if "__dict__" in dir(x) else list(x)))
+    return tempita.html(json.dumps(obj, sort_keys=True, default=parse_json))
+
+def parse_json(obj):
+    if type(obj) is Decimal: # for decimal numbers
+        return float(obj)
+    elif "__dict__" in dir(obj): # e.g. for own Classes
+        return obj.__dict__
+    elif "__iter__" in dir(obj): # e.g. for Set
+        return list(obj)
+    else:
+        obj
 
 def prepare_run_sets_for_js(run_sets, columns):
     # javascript pendant:
