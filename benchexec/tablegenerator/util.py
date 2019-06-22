@@ -33,6 +33,7 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
+import copy
 
 import benchexec.util
 
@@ -256,8 +257,26 @@ def flatten(list_):
 
 
 def to_json(obj):
+    # return tempita.html(json.dumps(obj, sort_keys=True))
     return tempita.html(json.dumps(obj, sort_keys=True, default=lambda x: x.__dict__ if "__dict__" in dir(x) else list(x)))
 
+def prepare_run_sets_for_js(run_sets, columns):
+    # javascript pendant:
+    # // var tools = run_sets.map((rs, i) => {
+    # //   return { columns: columns_data[i], ...rs }
+    # // })
+    return [dict({'columns': columns[i]}, **rs) for i, rs in enumerate(run_sets)]
+
+def prepare_rows_for_js(rows):
+    row_exclude_keys = {'properties'}
+    results_exclude_keys = {'columns', 'task_id', 'sourcefiles_exist', 'status'}
+
+    def clean_up_row(row):
+        row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys}
+        row['results'] = [{k: v for k, v in res.__dict__.items() if k not in results_exclude_keys} for res in row['results']]
+        return row
+
+    return [clean_up_row(row) for row in copy.deepcopy(rows)]
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
