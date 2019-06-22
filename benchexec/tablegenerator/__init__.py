@@ -1827,6 +1827,8 @@ def create_tables(
     template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
     template_values.rows = Util.prepare_rows_for_js(rows)
     # stats see below (foot/foot_columns)
+    template_values.app_css = Util.read_frontend_file("style.css")
+    template_values.app_js = Util.read_frontend_file("script.js")
     
     futures = []
 

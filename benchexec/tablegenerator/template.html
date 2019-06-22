@@ -8,8 +8,13 @@
 
 <title>{{title}} &ndash; BenchExec results</title>
 </head>
+<style>
+{{app_css}}
+</style>
 
 <body>
+
+<div id="root"></div>
   
 <script type="text/javascript">
 
@@ -24,6 +29,10 @@ const data = {
 console.log('data', data);
 window.data = data;
 
+</script>
+
+<script>
+{{app_js|html}}
 </script>
 
 </body>

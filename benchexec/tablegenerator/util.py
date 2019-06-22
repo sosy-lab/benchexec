@@ -288,6 +288,9 @@ def prepare_rows_for_js(rows):
 
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
 
+def read_frontend_file(filename):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    return open(dir_path + "/react-table/" + filename, "r").read()
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     """
