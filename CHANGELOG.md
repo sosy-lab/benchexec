@@ -1,5 +1,21 @@
 # BenchExec Changelog
 
+## BenchExec 1.21
+
+This release contains only a few bug fixes:
+
+- Forwarding signals to the benchmarked process (and thus, stopping runs via Ctrl+C),
+  was broken on Python 2.
+- If the freezer cgroup was available but mounted in a separate hierarchy,
+  it was not used reliably as protection against fork bombs when killing processes.
+- Since BenchExec 1.19, an exception would occur if a non-existing command
+  was started in container mode.
+- Since BenchExec 1.19, copying output files from a container would occur
+  while subprocesses are still running and would be counted towards the
+  walltime limit. This is fixed, although subprocesses will still be running
+  if the freezer cgroup is not available (cf. #433).
+
+
 ## BenchExec 1.20
 
 - If `benchexec --container` is used, all code that is part of the tool-info
