@@ -134,3 +134,18 @@ There are a few restrictions, however:
 - Without container mode, almost no files are limited, only those that the tool
   writes to `$HOME` and `$TMPDIR` (which are fresh directories created by BenchExec).
 So the recommendation is (as always) to use the container mode and not use the `--full-access-dir` flag.
+
+
+## Processes and Threads
+
+The number of concurrent processes and threads is limited on Linux,
+thus a tool that creates a large number of them (a "fork bomb")
+can create problems for parallel runs and the rest of the system.
+BenchExec currently does not automatically handle this,
+but if `runexec` is used this can be done easily.
+Make the [`pids` cgroup](https://www.kernel.org/doc/Documentation/cgroup-v1/pids.txt)
+available in the same way as the other cgroups,
+and execute `runexec` with the additional parameter `--set-cgroup-value pids.max=1000`
+(or any different number).
+This will limit the amounts of processes and threads that can exist at the same time.
+Further enhancements should be discussed in [this issue](https://github.com/sosy-lab/benchexec/issues/235).

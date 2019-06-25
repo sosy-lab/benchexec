@@ -356,6 +356,12 @@ class Cgroup(object):
         """
         Kill all tasks in this cgroup forcefully.
         """
+        # Use freezer cgroup first if available because it helps against fork bombs
+        if FREEZER in self.per_subsystem:
+            kill_all_tasks_in_cgroup(self.per_subsystem[FREEZER])
+
+        # Make sure cgroups for all subsystems are empty,
+        # even if mounted in separate hierarchies (checking freezer again does not hurt)
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup(cgroup)
 
