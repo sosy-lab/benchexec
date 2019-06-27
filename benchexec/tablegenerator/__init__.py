@@ -1384,9 +1384,7 @@ def get_stats_of_run_set(runResults, correct_only):
     listsOfValues = zip(*[runResult.values for runResult in runResults])
 
     columns = runResults[0].columns
-    main_status_list = [
-        (runResult.category, runResult.status) for runResult in runResults
-    ]
+    status_list = [(runResult.category, runResult.status) for runResult in runResults]
 
     # collect some statistics
     totalRow = []
@@ -1405,14 +1403,11 @@ def get_stats_of_run_set(runResults, correct_only):
     for index, (column, values) in enumerate(zip(columns, listsOfValues)):
         col_type = column.type.type
         if col_type != ColumnType.text:
-            if col_type == ColumnType.main_status or col_type == ColumnType.status:
-                if col_type == ColumnType.main_status:
-                    status_col_index = index
-                    score = StatValue(
-                        sum(run_result.score or 0 for run_result in runResults)
-                    )
-                else:
-                    score = None
+            if col_type == ColumnType.status:
+                status_col_index = index
+                score = StatValue(
+                    sum(run_result.score or 0 for run_result in runResults)
+                )
 
                 total = StatValue(
                     len(
@@ -1465,7 +1460,7 @@ def get_stats_of_run_set(runResults, correct_only):
             else:
                 assert column.is_numeric()
                 total, correct, correctTrue, correctFalse, correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(
-                    values, main_status_list, column.title, correct_only
+                    values, status_list, column.title, correct_only
                 )
 
                 score = None

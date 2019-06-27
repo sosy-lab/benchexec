@@ -87,12 +87,11 @@ class ColumnEnumType(object):
 
 
 class ColumnType(object):
-    column_types = enum(text=1, count=2, measure=3, status=4, main_status=5)
+    column_types = enum(text=1, count=2, measure=3, status=4)
     text = ColumnEnumType(column_types.text, "text")
     count = ColumnEnumType(column_types.count, "count")
     measure = ColumnEnumType(column_types.measure, "measure")
     status = ColumnEnumType(column_types.status, "status")
-    main_status = ColumnEnumType(column_types.main_status, "main_status")
 
 
 class ColumnMeasureType(object):
@@ -431,11 +430,8 @@ def get_column_type(column, column_values):
 def _get_column_type_heur(column, column_values):
     text_type_tuple = ColumnType.text, None, None, 1
 
-    if "status" in column.title:
-        if column.title == "status":
-            return ColumnType.main_status, None, None, 1
-        else:
-            return ColumnType.status, None, None, 1
+    if column.title == "status":
+        return ColumnType.status, None, None, 1
 
     column_type = column.type or None
     if column_type and column_type.type == ColumnType.measure:
