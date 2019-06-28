@@ -41,7 +41,10 @@ class Pqos(object):
         self.reset_required = False
         self.cap = False
         self.cli_exists = False
-        if find_executable("pqos_wrapper") is not None:
+        if (
+            find_executable("pqos_wrapper", exitOnError=False, use_current_dir=False)
+            is not None
+        ):
             self.cli_exists = True
 
     def execute_command(self, function, *args):
