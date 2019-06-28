@@ -26,6 +26,8 @@ import logging
 import json
 from subprocess import check_output, CalledProcessError, STDOUT
 from benchexec.util import find_executable
+
+
 class Pqos(object):
     """
         The Pqos class defines methods to interact with pqos_wrapper cli.
@@ -39,10 +41,10 @@ class Pqos(object):
         self.reset_required = False
         self.cap = False
         self.cli_exists = False
-        if find_executable('pqos_wrapper') is not None:
+        if find_executable("pqos_wrapper") is not None:
             self.cli_exists = True
 
-    def execute_command(self,function, *args):
+    def execute_command(self, function, *args):
         """
             Execute a given pqos_wrapper command and log the output
         """
@@ -50,7 +52,7 @@ class Pqos(object):
         args_list = list(args)
         args_list.insert(0, self.CMD)
         try:
-            ret = json.loads(check_output(args_list, stderr = STDOUT))
+            ret = json.loads(check_output(args_list, stderr=STDOUT))
             logging.debug(ret[function]["message"])
         except CalledProcessError as e:
             ret = json.loads(e.output)
@@ -61,7 +63,7 @@ class Pqos(object):
     def check_capacity(self, technology):
         """
             Check if given intel rdt is supported.
-        """ 
+        """
         if self.execute_command("check_capability", "-c", technology):
             self.cap = True
 
@@ -71,7 +73,7 @@ class Pqos(object):
         """
         ret = []
         for benchmark in core_assignment:
-            ret.append("[" + ",".join(str(core) for core  in benchmark) + "]")
+            ret.append("[" + ",".join(str(core) for core in benchmark) + "]")
         return "[" + ",".join(ret) + "]"
 
     def allocate_l3ca(self, core_assignment):
@@ -79,9 +81,9 @@ class Pqos(object):
             This method checks if L3CAT is available and calls pqos_wrapper to
             allocate equal cache to each thread.
         """
-        self.check_capacity('l3ca')
+        self.check_capacity("l3ca")
         if self.cap == True:
-            core_string = self.convert_core_list(core_assignment)            
+            core_string = self.convert_core_list(core_assignment)
             if self.execute_command("allocate_resource", "-a", "l3ca", core_string):
                 self.reset_required = True
             else:
