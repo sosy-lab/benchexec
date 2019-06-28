@@ -114,7 +114,7 @@ def execute_benchmark(benchmark, output_handler):
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
-    pqos = Pqos() # The pqos class instance for cache allocation
+    pqos = Pqos()  # The pqos class instance for cache allocation
 
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
