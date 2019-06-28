@@ -114,6 +114,8 @@ def execute_benchmark(benchmark, output_handler):
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
+    pqos = Pqos() # The pqos class instance for cache allocation
+
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit(
@@ -126,7 +128,6 @@ def execute_benchmark(benchmark, output_handler):
             my_cgroups,
             benchmark.config.coreset,
         )
-        pqos = Pqos()
         if pqos.cli_exists:
             pqos.allocate_l3ca(coreAssignment)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
