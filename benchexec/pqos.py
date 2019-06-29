@@ -34,8 +34,6 @@ class Pqos(object):
     """
 
     CMD = "pqos_wrapper"
-    DEBUG = 0
-    WARNING = 1
 
     def __init__(self):
         self.reset_required = False
@@ -46,22 +44,22 @@ class Pqos(object):
             is not None
         ):
             self.cli_exists = True
+        else:
+            logging.warning("Could not set cache allocation, unable to find pqos_wrapper cli")
 
     def execute_command(self, function, *args):
         """
             Execute a given pqos_wrapper command and log the output
         """
-        success = True
-        args_list = list(args)
-        args_list.insert(0, self.CMD)
+        args_list = [self.CMD] + list(args)
         try:
             ret = json.loads(check_output(args_list, stderr=STDOUT))
             logging.debug(ret[function]["message"])
+            return True
         except CalledProcessError as e:
             ret = json.loads(e.output)
-            logging.warning(ret["message"])
-            success = False
-        return success
+            logging.warning("Could not set cache allocation...{}".format(ret["message"]))
+            return False
 
     def check_capacity(self, technology):
         """
@@ -85,7 +83,7 @@ class Pqos(object):
             allocate equal cache to each thread.
         """
         self.check_capacity("l3ca")
-        if self.cap == True:
+        if self.cap:
             core_string = self.convert_core_list(core_assignment)
             if self.execute_command("allocate_resource", "-a", "l3ca", core_string):
                 self.reset_required = True
