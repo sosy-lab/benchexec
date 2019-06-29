@@ -45,9 +45,11 @@ class Pqos(object):
         ):
             self.cli_exists = True
         else:
-            logging.warning("Could not set cache allocation, unable to find pqos_wrapper cli")
+            logging.warning(
+                "Could not set cache allocation, unable to find pqos_wrapper cli"
+            )
 
-    def execute_command(self, function, *args):
+    def execute_command(self, function, suppress_warning, *args):
         """
             Execute a given pqos_wrapper command and log the output
         """
@@ -57,15 +59,26 @@ class Pqos(object):
             logging.debug(ret[function]["message"])
             return True
         except CalledProcessError as e:
-            ret = json.loads(e.output)
-            logging.warning("Could not set cache allocation...{}".format(ret["message"]))
+            try:
+                ret = json.loads(e.output)
+                if not suppress_warning:
+                    logging.warning(
+                        "Could not set cache allocation...{}".format(ret["message"])
+                    )
+            except:
+                if not suppress_warning:
+                    logging.warning(
+                        "Could not set cache allocation...Unable to execute command {}".format(
+                            " ".join(args_list)
+                        )
+                    )
             return False
 
     def check_capacity(self, technology):
         """
             Check if given intel rdt is supported.
         """
-        if self.execute_command("check_capability", "-c", technology):
+        if self.execute_command("check_capability", False, "-c", technology):
             self.cap = True
 
     def convert_core_list(self, core_assignment):
@@ -85,7 +98,7 @@ class Pqos(object):
         self.check_capacity("l3ca")
         if self.cap:
             core_string = self.convert_core_list(core_assignment)
-            if self.execute_command("allocate_resource", "-a", "l3ca", core_string):
+            if self.execute_command("allocate_resource", False, "-a", "l3ca", core_string):
                 self.reset_required = True
             else:
                 self.reset_resources()
@@ -95,4 +108,4 @@ class Pqos(object):
             This method resets all resources to default.
         """
         self.reset_required = False
-        self.execute_command("reset_resources", "-r")
+        self.execute_command("reset_resources", True, "-r")
