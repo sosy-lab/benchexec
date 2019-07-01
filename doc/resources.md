@@ -135,3 +135,17 @@ There are a few restrictions, however:
 - Without container mode, almost no files are limited, only those that the tool
   writes to `$HOME` and `$TMPDIR` (which are fresh directories created by BenchExec).
 So the recommendation is (as always) to use the container mode and not use the `--full-access-dir` flag.
+
+# L3 Cache
+Benchexec now supports isolation of L3 cache between parallel threads in `benchexec` pipeline.  
+Benchexec uses `intel RDT` features available for select intel SKUs to allocate separate L3 cache for each parallel thread.  
+The `L3 cache allocation` is incorporated in the `benchexec` pipeline using [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) CLI which is a wrapper for the [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos)  
+Therefore for cache allocation to work:
+- [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) CLI needs to be installed.
+- Capabilities need to be set for the CLI using setcap : `sudo setcap cap_sys_rawio=eip $(EXECUTABLE_PATH)`
+- The user/group executing the benchmarks should have the read and write access for all CPU MSRs.
+
+## Allocation algorithm
+- The `pqos_wrapper` cli extracts the no of cache ways from `cpuid`, and these are distributed equally between threads.
+- All the cores in each thread are associated with a `class of service (COS)` and the appropriate cache bitmask is set for each `COS`.
+
