@@ -53,26 +53,27 @@ class Pqos(object):
         """
             Execute a given pqos_wrapper command and log the output
         """
-        args_list = [self.CMD] + list(args)
-        try:
-            ret = json.loads(check_output(args_list, stderr=STDOUT))
-            logging.debug(ret[function]["message"])
-            return True
-        except CalledProcessError as e:
+        if self.cli_exists:
+            args_list = [self.CMD] + list(args)
             try:
-                ret = json.loads(e.output)
-                if not suppress_warning:
-                    logging.warning(
-                        "Could not set cache allocation...{}".format(ret["message"])
-                    )
-            except:
-                if not suppress_warning:
-                    logging.warning(
-                        "Could not set cache allocation...Unable to execute command {}".format(
-                            " ".join(args_list)
+                ret = json.loads(check_output(args_list, stderr=STDOUT))
+                logging.debug(ret[function]["message"])
+                return True
+            except CalledProcessError as e:
+                try:
+                    ret = json.loads(e.output)
+                    if not suppress_warning:
+                        logging.warning(
+                            "Could not set cache allocation...{}".format(ret["message"])
                         )
-                    )
-            return False
+                except:
+                    if not suppress_warning:
+                        logging.warning(
+                            "Could not set cache allocation...Unable to execute command {}".format(
+                                " ".join(args_list)
+                            )
+                        )
+        return False
 
     def check_capacity(self, technology):
         """
@@ -107,5 +108,7 @@ class Pqos(object):
         """
             This method resets all resources to default.
         """
-        self.reset_required = False
-        self.execute_command("reset_resources", True, "-r")
+        if self.reset_required:
+            self.execute_command("reset_resources", True, "-r")
+            self.reset_required = False
+
