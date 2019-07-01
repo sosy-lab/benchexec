@@ -148,7 +148,8 @@ Therefore for cache allocation to work:
 
 ## Allocation algorithm
 - The `pqos_wrapper` cli extracts the no of cache ways from `cpuid`, and these are distributed equally between threads.
-- All the cores in each thread are associated with a `class of service (COS)` and the appropriate cache bitmask is set for each `COS`.
+- All the cores in each thread are associated with the first unused `class of service (COS)` for respective socket
+- The appropriate no of cache bits is set for each `COS` using cache bitmasks i.e `CBMs`.
 
 
 ## Processes and Threads
