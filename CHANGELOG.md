@@ -1,5 +1,31 @@
 # BenchExec Changelog
 
+## BenchExec 1.20
+
+- If `benchexec --container` is used, all code that is part of the tool-info
+  module (as well as all processes started by it) are now run in a separate
+  container with the same layout and restrictions as the run container.
+  Note, however, that it is not the same container, so any modifications
+  made by the tool-info module to files on disk are *not* visible in the runs!
+  The `test_tool_info` utility also has gained a parameter `--container`
+  for testing how a tool-info module behaves in a container.
+- Nested containers are now supported.
+  Due to a change to the internal implementation of the container mode,
+  commands like the following succeed now:
+  `containerexec -- containerexec --hidden-dir /sys -- /bin/bash`.
+  (Some parts of `/sys` need to be excluded because of kernel limitations.)
+  Note that nesting `runexec` or `benchexec` is still not supported,
+  because nested cgroups are not implemented,
+  so any cgroup-related features (resource limitations and measurements)
+  are missing. But nesting `containerexec` and `runexec --container`
+  (or vice-versa) now works.
+- `/etc/hostname` in container now also shows the container's host name
+  that exists since BenchExec 1.19.
+- Change how CPUs with several NUMA nodes per CPU are handled:
+  BenchExec will now treat each NUMA node like a separate CPU package
+  and avoid creating runs that span several NUMA nodes. Thanks @alohamora!
+
+
 ## BenchExec 1.19
 
 - In container mode, all temp directories are now on a `tmpfs` "RAM disk".

@@ -1070,6 +1070,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup, but does not check whether arguments are valid.
         """
+        timelimitThread = None
+        oomThread = None
+        file_hierarchy_limit_thread = None
 
         if self._energy_measurement is not None:
             # Calculate which packages we should use for energy measurements
@@ -1106,6 +1109,25 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 self._energy_measurement.stop() if self._energy_measurement else None
             )
 
+            # Because of https://github.com/sosy-lab/benchexec/issues/433, we want to
+            # kill all processes here. Furthermore, we have experienced cases where the
+            # container would just hang instead of killing all processes when its init
+            # process existed, and killing via cgroups prevents this.
+            # But if we do not have freezer, it is safer to just let all processes run
+            # until the container is killed.
+            if FREEZER in cgroups:
+                cgroups.kill_all_tasks(self._kill_process0)
+
+            # For a similar reason, we cancel all limits. Otherwise a run could have
+            # terminationreason=walltime because copying output files took a long time.
+            # Can be removed if #433 gets implemented properly.
+            if timelimitThread:
+                timelimitThread.cancel()
+            if oomThread:
+                oomThread.cancel()
+            if file_hierarchy_limit_thread:
+                file_hierarchy_limit_thread.cancel()
+
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
 
@@ -1131,9 +1153,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 error_filename, args, write_header=write_header
             )
 
-        timelimitThread = None
-        oomThread = None
-        file_hierarchy_limit_thread = None
         pid = None
         returnvalue = 0
         ru_child = None
@@ -1193,7 +1212,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if file_hierarchy_limit_thread:
                 file_hierarchy_limit_thread.cancel()
 
-            # Kill all remaining processes (needs to come early to avoid accumulating more CPU time)
+            # Make sure to kill all processes if there are still some
+            # (needs to come early to avoid accumulating more CPU time)
             cgroups.kill_all_tasks(self._kill_process0)
 
             # normally subprocess closes file, we do this again after all tasks terminated

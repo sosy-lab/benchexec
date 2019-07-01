@@ -48,9 +48,10 @@ __all__ = [
     "make_overlay_mount",
     "mount_proc",
     "make_bind_mount",
-    "get_my_pid_from_proc",
+    "get_my_pid_from_procfs",
     "drop_capabilities",
-    "forward_all_signals",
+    "forward_all_signals_async",
+    "wait_for_child_and_forward_signals",
     "setup_container_system_config",
     "CONTAINER_UID",
     "CONTAINER_GID",
@@ -112,6 +113,7 @@ CONTAINER_ETC_FILE_OVERRIDE = {
     b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,
     b"passwd": CONTAINER_ETC_PASSWD,
     b"group": CONTAINER_ETC_GROUP,
+    b"hostname": CONTAINER_HOSTNAME + "\n",
     b"hosts": CONTAINER_ETC_HOSTS,
 }
 
@@ -130,7 +132,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     """Allocate some memory that can be used as a stack.
     @return: a ctypes void pointer to the *top* of the stack.
     """
-    # Allocate memory with appropriate flags for a stack as in https://blog.fefe.de/?ts=a85c8ba7
+    # Allocate memory with appropriate flags for a stack as in
+    # https://blog.fefe.de/?ts=a85c8ba7
     base = libc.mmap(
         None,
         size + GUARD_PAGE_SIZE,
@@ -141,7 +144,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     )
 
     try:
-        # create a guard page that crashes the application when it is written to (on stack overflow)
+        # create a guard page that crashes the application when it is written to
+        # (on stack overflow)
         libc.mprotect(base, GUARD_PAGE_SIZE, libc.PROT_NONE)
 
         yield ctypes.c_void_p(base + size + GUARD_PAGE_SIZE)
@@ -151,7 +155,8 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
 
 def execute_in_namespace(func, use_network_ns=True):
     """Execute a function in a child process in separate namespaces.
-    @param func: a parameter-less function returning an int (which will be the process' exit value)
+    @param func: a parameter-less function returning an int
+        (which will be the process' exit value)
     @return: the PID of the created child process
     """
     flags = (
@@ -168,11 +173,11 @@ def execute_in_namespace(func, use_network_ns=True):
     # We use the syscall clone() here, which is similar to fork().
     # Calling it without letting Python know about it is dangerous (especially because
     # we want to execute Python code in the child, too), but so far it seems to work.
-    # Basically we attempt to do (almost) the same that os.fork() does (cf. function os_fork_impl
+    # Basically we attempt to do (almost) the same that os.fork() does (cf. os_fork_impl
     # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
-    # We currently do not take the import lock os.lock() does because it is only available
-    # via an internal API, and because the child should never import anything anyway
-    # (inside the container, modules might not be visible).
+    # We currently do not take the import lock os.lock() does because it is only
+    # available via an internal API, and because the child should never import anything
+    # anyway (inside the container, modules might not be visible).
     # It is very important, however, that we have the GIL during clone(),
     # otherwise the child will often deadlock when trying to execute Python code.
     # Luckily, the ctypes module allows us to hold the GIL while executing the
@@ -232,39 +237,40 @@ def setup_user_mapping(
         logging.warning("Creating GID mapping into container failed: %s", e)
 
 
+_SIOCGIFFLAGS = 0x8913  # /usr/include/bits/ioctls.h
+_SIOCSIFFLAGS = 0x8914  # /usr/include/bits/ioctls.h
+_IFF_UP = 0x1  # /usr/include/net/if.h
+
+# We need to use instances of "struct ifreq" for communicating with the kernel.
+# This struct is complex with a big contained union, we define here only the few
+# necessary fields for the two cases we need.
+# The layout is given in the format used by the struct module:
+# ifr_name, ifr_addr.sa_family, padding
+_STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s"
+# ifr_name, ifr_flags, padding
+_STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s"
+
+
 def activate_network_interface(iface):
     """Bring up the given network interface.
     @raise OSError: if interface does not exist or permissions are missing
     """
     iface = iface.encode()
 
-    SIOCGIFFLAGS = 0x8913  # /usr/include/bits/ioctls.h
-    SIOCSIFFLAGS = 0x8914  # /usr/include/bits/ioctls.h
-    IFF_UP = 0x1  # /usr/include/net/if.h
-
-    # We need to use instances of "struct ifreq" for communicating with the kernel.
-    # This struct is complex with a big contained union, we define here only the few necessary
-    # fields for the two cases we need.
-    # The layout is given in the format used by the struct module:
-    # ifr_name, ifr_addr.sa_family, padding
-    STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY = b"16sH14s"
-    # ifr_name, ifr_flags, padding
-    STRUCT_IFREQ_LAYOUT_IFFLAGS = b"16sH14s"
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_IP)
     try:
         # Get current interface flags from kernel
         ifreq = struct.pack(
-            STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b"0" * 14
+            _STRUCT_IFREQ_LAYOUT_IFADDR_SAFAMILY, iface, socket.AF_INET, b"0" * 14
         )
-        ifreq = fcntl.ioctl(sock, SIOCGIFFLAGS, ifreq)
-        if_flags = struct.unpack(STRUCT_IFREQ_LAYOUT_IFFLAGS, ifreq)[1]
+        ifreq = fcntl.ioctl(sock, _SIOCGIFFLAGS, ifreq)
+        if_flags = struct.unpack(_STRUCT_IFREQ_LAYOUT_IFFLAGS, ifreq)[1]
 
         # Set new flags
         ifreq = struct.pack(
-            STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | IFF_UP, b"0" * 14
+            _STRUCT_IFREQ_LAYOUT_IFFLAGS, iface, if_flags | _IFF_UP, b"0" * 14
         )
-        fcntl.ioctl(sock, SIOCSIFFLAGS, ifreq)
+        fcntl.ioctl(sock, _SIOCSIFFLAGS, ifreq)
     finally:
         sock.close()
 
@@ -425,8 +431,8 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     From a high-level mapping of desired directory modes, determine the actual mode
     for a given directory.
     """
-    if path == b"/proc":
-        # /proc is necessary for the grandchild to read PID, will be replaced later.
+    if fstype == b"proc":
+        # proc is necessary for the grandchild to read PID, will be replaced later.
         return DIR_READ_ONLY
     if util.path_is_below(path, b"/proc"):
         # Irrelevant.
@@ -508,7 +514,8 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     """Remount an existing mount point with additional flags.
     @param mountpoint: the mount point as bytes
     @param existing_options: dict with current mount existing_options as bytes
-    @param mountflags: int with additional mount existing_options (cf. libc.MS_* constants)
+    @param mountflags: int with additional mount existing_options
+        (cf. libc.MS_* constants)
     """
     mountflags |= libc.MS_REMOUNT | libc.MS_BIND
     for option, flag in libc.MOUNT_FLAGS.items():
@@ -537,7 +544,8 @@ def make_overlay_mount(mount, lower, upper, work):
 
 def mount_proc(container_system_config):
     """Mount the /proc filesystem.
-    @param container_system_config: Whether to mount container-specific files in /proc"""
+    @param container_system_config: Whether to mount container-specific files in /proc
+    """
     # We keep a reference to the outer /proc somewhere else because we need it
     # to convert our PID between the namespaces.
     libc.mount(b"proc", b"/proc", b"proc", 0, None)
@@ -550,14 +558,27 @@ def mount_proc(container_system_config):
                 os.path.join(LXCFS_PROC_DIR, f), os.path.join(b"/proc", f), private=True
             )
 
+        # Making the above bind mounts on top of /proc breaks nested containers.
+        # The reason for this is that the kernel does not allow mounting of a new proc
+        # file system (in the nested container) if the nested container does not have
+        # access to a clean and fully visible instance of the proc file system.
+        # So we give the container two instances: One in the expected place, with lxcfs
+        # bind mounts on top, and another one without these bind mounts that is hidden
+        # somewhere and hopefully will never be used by anybody. It does not matter
+        # where we hide the second proc instance, but we need a directory that always
+        # exists and is never used. /proc/1/ns always exists and because we disable
+        # PR_SET_DUMPABLE it would not be accessible anyway, so it fits the bill.
+        libc.mount(b"proc", b"/proc/1/ns", b"proc", 0, None)
+
 
 def make_bind_mount(source, target, recursive=False, private=False, read_only=False):
     """Make a bind mount.
     @param source: the source directory as bytes
     @param target: the target directory as bytes
     @param recursive: whether to also recursively bind mount all mounts below source
-    @param private: whether to mark the bind as private, i.e., changes to the existing mounts
-        won't propagate and vice-versa (changes to files/dirs will still be visible).
+    @param private: whether to mark the bind as private,
+        i.e., changes to the existing mounts won't propagate and vice-versa
+        (changes to files/dirs will still be visible).
     """
     flags = libc.MS_BIND
     if recursive:
@@ -570,7 +591,8 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
 
 
 def get_my_pid_from_procfs():
-    """Get the PID of this process by reading from /proc (this is the PID of this process
+    """
+    Get the PID of this process by reading from /proc (this is the PID of this process
     in the namespace in which that /proc instance has originally been mounted),
     which may be different from our PID according to os.getpid().
     """
@@ -596,7 +618,7 @@ _ALL_SIGNALS = range(1, signal.NSIG)
 _FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
     [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
 )
-_HAS_SIGWAIT = hasattr(signal, "sigwait")
+_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
 
 
 def block_all_signals():
@@ -619,9 +641,10 @@ def forward_all_signals_async(target_pid, process_name):
     """Install all signal handler that forwards all signals to the given process."""
 
     def forwarding_signal_handler(signum):
-        _forward_signal(signum, process_name, forwarding_signal_handler.target_pid)
+        _forward_signal(signum, forwarding_signal_handler.target_pid, process_name)
 
-    # Somehow we get a Python SystemError sometimes if we access target_pid directly from inside function.
+    # Somehow we get a Python SystemError sometimes
+    # if we access target_pid directly from inside function.
     forwarding_signal_handler.target_pid = target_pid
 
     for signum in _FORWARDABLE_SIGNALS:
@@ -634,9 +657,9 @@ def forward_all_signals_async(target_pid, process_name):
     reset_signal_handling()
 
 
-def wait_for_child_and_forward_all_signals(child_pid, process_name):
-    """Wait for a child to terminate and in the meantime forward all signals the current process
-    receives to this child.
+def wait_for_child_and_forward_signals(child_pid, process_name):
+    """Wait for a child to terminate and in the meantime forward all signals
+    that the current process receives to this child.
     @return a tuple of exit code and resource usage of the child as given by os.waitpid
     """
     assert _HAS_SIGWAIT
@@ -690,9 +713,9 @@ def close_open_fds(keep_files=[]):
 
 def setup_container_system_config(basedir, mountdir=None):
     """Create a minimal system configuration for use in a container.
-    @param basedir: The directory where the configuration files should be placed as bytes.
-    @param mountdir: If present, bind mounts to the configuration files will be added below
-        this path (given as bytes).
+    @param basedir: The directory where the configuration files should be placed (bytes)
+    @param mountdir: If present, bind mounts to the configuration files will be added
+       below this path (given as bytes).
     """
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
@@ -710,12 +733,13 @@ def setup_container_system_config(basedir, mountdir=None):
             )
 
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
-    # Bind bounds for symlinks are not possible, so we do nothing for "mountdir/etc/mtab".
-    # This is not a problem usually because most systems have the correct symlink anyway.
+    # Bind bounds for symlinks are not possible, so do nothing for "mountdir/etc/mtab".
+    # This is not a problem because most systems have the correct symlink anyway.
 
 
 def is_container_system_config_file(file):
-    """Determine whether a given file is one of the files created by setup_container_system_config().
+    """Determine whether a given file is one of the files created by
+    setup_container_system_config().
     @param file: Absolute file path as string.
     """
     if not file.startswith("/etc/"):

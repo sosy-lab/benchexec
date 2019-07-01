@@ -59,7 +59,7 @@ export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
 
 # Test and build under Python 3
 TEMP3="$(mktemp -d)"
-virtualenv -p /usr/bin/python3 --system-site-packages "$TEMP3"
+virtualenv -p /usr/bin/python3 "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
@@ -122,7 +122,7 @@ git push --tags
 twine upload "$DIST_DIR/BenchExec"*
 
 read -p "Please enter next version number:  " -r
-sed -e "s/^__version__ = .*/__version__ = '$REPLY'/" -i benchexec/__init__.py
+sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
 git commit benchexec/__init__.py -m"Prepare version number for next development cycle."
 
 

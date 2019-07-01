@@ -16,8 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module contains function declarations for several functions of libc (based on ctypes),
-and constants relevant for these functions.
+"""This module contains function declarations for several functions of libc
+(based on ctypes) and constants relevant for these functions.
 """
 
 # prepare for Python 3
@@ -31,8 +31,8 @@ import os as _os
 
 _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
 """Reference to standard C library."""
-_libc_with_GIL = _ctypes.PyDLL("libc.so.6", use_errno=True)
-"""Reference to standard C library, and we will hold the GIL during all function calls."""
+_libc_with_gil = _ctypes.PyDLL("libc.so.6", use_errno=True)
+"""Reference to standard C library, and we hold the GIL during all function calls."""
 
 
 def _check_errno(result, func, arguments):
@@ -60,7 +60,7 @@ def _check_errno(result, func, arguments):
 # In my tests it is equal to long on both 32bit and 64bit x86 Linux.
 c_off_t = c_long
 
-clone = _libc_with_GIL.clone  # Important to have GIL, cf. container.py!
+clone = _libc_with_gil.clone  # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
 clone.argtypes = [
     _ctypes.CFUNCTYPE(c_int),
@@ -151,6 +151,20 @@ umount = _libc.umount
 """Unmount a filesystem."""
 umount.argtypes = [c_char_p]  # target
 umount.errcheck = _check_errno
+
+umount2 = _libc.umount2
+"""Unmount a filesystem."""
+umount2.argtypes = [c_char_p, c_int]  # target, flags
+umount2.errcheck = _check_errno
+
+# /usr/include/sys/mount.h
+MNT_DETACH = 2
+
+
+pivot_root = _libc.pivot_root
+"""Replace root file system with a different directory."""
+pivot_root.argtypes = [c_char_p, c_char_p]
+pivot_root.errcheck = _check_errno
 
 
 _sighandler_t = _ctypes.CFUNCTYPE(None, c_int)

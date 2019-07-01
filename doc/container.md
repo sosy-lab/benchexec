@@ -52,10 +52,10 @@ Container mode uses two main kernel features:
 
 - **User Namespaces**: This is typically available in Linux 3.8 or newer,
   and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
-  Debian disables this feature for regular users, so the system administrator needs to enable it
+  Debian and Arch Linux disable this feature for regular users,
+  so the system administrator needs to enable it
   with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
-  Arch Linux has the feature [disabled completely](https://bugs.archlinux.org/task/36969).
 
 - **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
   (kernel option `CONFIG_OVERLAY_FS`).
@@ -211,9 +211,10 @@ in a container with `containerexec` than using `benchexec` or `runexec`.
 
 #### `Cannot execute ...: Creating namespace for container mode failed`
 Probably your kernel does not support unprivileged user namespaces, please check the system requirements above.
-On Debian, please ask your system administrator to enable them for you.
-Note that you cannot nest BenchExec containers currently,
-and using them inside other container solutions such as Docker is untested.
+On some distributions your system administrator needs to to enable them for you.
+Furthermore note that running BenchExec inside other container solutions
+such as Docker may or may not work depending on how the outer container
+is configured (for example for Docker, `--privileged` is necessary).
 You can still use BenchExec if you completely disable the container mode with `--no-container`.
 
 #### `Failed to configure container: [Errno 19] Creating overlay mount for '...' failed: No such device`
