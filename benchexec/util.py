@@ -37,6 +37,7 @@ import stat
 import subprocess
 import sys
 import time
+import ctypes
 from xml.etree import ElementTree
 
 try:
@@ -672,3 +673,22 @@ def activate_debug_shell_on_signal():
     and gives an interactive debugging shell.
     """
     signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler
+
+
+def get_capability(filename):
+    res = {"capabilities": [], "set": [], "error": False}
+    try:
+        libcap = ctypes.cdll.LoadLibrary("libcap.so")
+    except OSError:
+        res["error"] = True
+        logging.warning("Unable to find capabilities for {0}".format(filename))
+        return res
+    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
+    libcap.cap_to_text.restype = ctypes.c_char_p
+    cap_object = libcap.cap_to_text(cap_t, None)
+    libcap.cap_free(cap_t)
+    if cap_object != None:
+        cap_string = cap_object.decode("utf-8")
+        res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
+        res["set"] = [char for char in (cap_string.split("+")[1])]
+    return res

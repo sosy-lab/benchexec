@@ -25,7 +25,7 @@ import os
 import logging
 import json
 from subprocess import check_output, CalledProcessError, STDOUT
-from benchexec.util import find_executable
+from benchexec.util import find_executable, get_capability
 
 
 class Pqos(object):
@@ -34,15 +34,16 @@ class Pqos(object):
     """
 
     CMD = "pqos_wrapper"
+    CAP_SYS_RAWIO = "cap_sys_rawio"
 
     def __init__(self):
         self.reset_required = False
         self.cap = False
         self.cli_exists = False
-        if (
-            find_executable("pqos_wrapper", exitOnError=False, use_current_dir=False)
-            is not None
-        ):
+        self.executable_path = find_executable(
+            "pqos_wrapper", exitOnError=False, use_current_dir=False
+        )
+        if self.executable_path is not None:
             self.cli_exists = True
         else:
             logging.warning(
@@ -66,6 +67,7 @@ class Pqos(object):
                         logging.warning(
                             "Could not set cache allocation...{}".format(ret["message"])
                         )
+                        self.check_for_errors()
                 except:
                     if not suppress_warning:
                         logging.warning(
@@ -99,7 +101,9 @@ class Pqos(object):
         self.check_capacity("l3ca")
         if self.cap:
             core_string = self.convert_core_list(core_assignment)
-            if self.execute_command("allocate_resource", False, "-a", "l3ca", core_string):
+            if self.execute_command(
+                "allocate_resource", False, "-a", "l3ca", core_string
+            ):
                 self.reset_required = True
             else:
                 self.reset_resources()
@@ -112,3 +116,18 @@ class Pqos(object):
             self.execute_command("reset_resources", True, "-r")
             self.reset_required = False
 
+    def check_for_errors(self):
+        """
+            This method logs a detailed error on a failed pqos_error command.
+        """
+        cap = get_capability(self.executable_path)
+        if cap["error"] == False:
+            if self.CAP_SYS_RAWIO in cap["capabilities"]:
+                if not all(x in cap["set"] for x in ["e", "p"]):
+                    logging.warning(
+                        "Insufficient capabilities for pqos_wrapper, Please add e,p in cap_sys_rawio capability set of pqos_wrapper"
+                    )
+            else:
+                logging.warning(
+                    "Insufficient capabilities for pqos_wrapper, Please set capabilitiy cap_sys_rawio with e,p for pqos_wrapper"
+                )
