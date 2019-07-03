@@ -676,6 +676,11 @@ def activate_debug_shell_on_signal():
 
 
 def get_capability(filename):
+    """
+        Get names of capabilities and the corresponding capability set for given filename.
+
+            @filename: The complete path to the file
+    """
     res = {"capabilities": [], "set": [], "error": False}
     try:
         libcap = ctypes.cdll.LoadLibrary("libcap.so")
