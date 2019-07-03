@@ -1822,14 +1822,15 @@ def create_tables(
     )
     template_values.version = __version__
 
-    # prepare data for js react application
+    # prepare data for js react application---------------------------------------------------------
     # template_values.head = get_table_head(runSetResults, common_prefix) // needed for FE rendering
     template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
     template_values.rows = Util.prepare_rows_for_js(rows)
-    # stats see below (foot/foot_columns)
     template_values.app_css = Util.read_frontend_file("style.css")
     template_values.app_js = Util.read_frontend_file("script.js")
-    
+    # stats see below (foot/foot_columns)
+    # prepare data for js react application---------------------------------------------------------
+
     futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
@@ -1839,6 +1840,10 @@ def create_tables(
             stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
         else:
             stats = stats_columns = None
+
+        # prepare data for js react application (stats)---------------------------------------------------------
+        template_values.stats = Util.prepare_stats_for_js(stats, template_values.tools)
+        # prepare data for js react application (stats)---------------------------------------------------------
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":

@@ -34,6 +34,7 @@ from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
 import copy
+from functools import reduce
 
 import benchexec.util
 
@@ -255,7 +256,7 @@ def get_column_value(sourcefileTag, columnTitle, default=None):
 def flatten(list_):
     return [value for sublist in list_ for value in sublist]
 
-
+# parse -> cases: to big numbers / Key-Value / List
 def to_json(obj):
     # return tempita.html(json.dumps(obj, sort_keys=True))
     return tempita.html(json.dumps(obj, sort_keys=True, default=parse_json))
@@ -263,19 +264,22 @@ def to_json(obj):
 def parse_json(obj):
     if type(obj) is Decimal: # for decimal numbers
         return float(obj)
-    elif "__dict__" in dir(obj): # e.g. for own Classes
+    elif "__dict__" in dir(obj): # e.g. for own Classes (Key-value)
         return obj.__dict__
-    elif "__iter__" in dir(obj): # e.g. for Set
+    elif "__iter__" in dir(obj): # e.g. for Set (List)
         return list(obj)
     else:
         obj
+
+def merge_dicts(*dicts):
+    return dict(reduce(lambda acc,cur: acc + list(cur.items()), dicts, []))
 
 def prepare_run_sets_for_js(run_sets, columns):
     # javascript pendant:
     # // var tools = run_sets.map((rs, i) => {
     # //   return { columns: columns_data[i], ...rs }
     # // })
-    return [dict({'columns': columns[i]}, **rs) for i, rs in enumerate(run_sets)]
+    return [merge_dicts(rs, {'columns': columns[i]}) for i, rs in enumerate(run_sets)] #Tupel (index + column)
 
 def prepare_rows_for_js(rows):
     row_exclude_keys = {'properties'}
@@ -287,6 +291,21 @@ def prepare_rows_for_js(rows):
         return row
 
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
+
+def prepare_stats_for_js(stats, tools):
+    toolColumnCounts = [len(tool["columns"]) for tool in tools]
+
+    def get_stat_content(stat, i, count):
+        start = 0 if i == 0 else toolColumnCounts[i - 1]
+        return stat.content[start:start+count]
+    
+    def clean_up_stat(stat):
+        # toolContent0 = stat.content[0:toolColumnCounts[0]] => [0:9]
+        # toolContent1 = stat.content[toolColumnCounts[0]: toolColumnCounts[0] + toolColumnCounts[1]] => [9:(9+4)]
+        # return [toolContent0, toolContent1]
+        return [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
+
+    return [merge_dicts(stat, {"content": clean_up_stat(stat)}) for stat in copy.deepcopy(stats)] # add original stat infos
 
 def read_frontend_file(filename):
     dir_path = os.path.dirname(os.path.realpath(__file__))
