@@ -21,13 +21,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
+import queue
 import re
 import resource
 import subprocess
 import sys
 import threading
 import time
-from queue import Queue
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import BenchExecException
@@ -285,7 +285,7 @@ class _Worker(threading.Thread):
     A Worker is a deamonic thread, that takes jobs from the working_queue and runs them.
     """
 
-    working_queue = Queue()
+    working_queue = queue.Queue()
 
     def __init__(self, benchmark, my_cpus, my_memory_nodes, my_user, output_handler):
         threading.Thread.__init__(self)  # constuctor of superclass
@@ -299,8 +299,12 @@ class _Worker(threading.Thread):
         self.start()
 
     def run(self):
-        while not _Worker.working_queue.empty() and not STOPPED_BY_INTERRUPT:
-            currentRun = _Worker.working_queue.get_nowait()
+        while not STOPPED_BY_INTERRUPT:
+            try:
+                currentRun = _Worker.working_queue.get_nowait()
+            except queue.Empty:
+                return
+
             try:
                 logging.debug('Executing run "%s"', currentRun.identifier)
                 self.execute(currentRun)
