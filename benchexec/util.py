@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bz2
 import collections
+import errno
 import fnmatch
 import glob
 import logging
