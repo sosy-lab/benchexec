@@ -440,13 +440,6 @@ def parse_time_arg(s):
         raise argparse.ArgumentTypeError(e)
 
 
-def signal_handler_ignore(signum, frame):
-    """
-    Log and ignore all signals.
-    """
-    logging.warning("Received signal %d, ignoring it.", signum)
-
-
 def main(benchexec=None, argv=None):
     """
     The main method of BenchExec for use in a command-line script.
@@ -458,8 +451,6 @@ def main(benchexec=None, argv=None):
     """
     if sys.version_info < (3,):
         sys.exit("benchexec needs Python 3 to run.")
-    # ignore SIGTERM
-    signal.signal(signal.SIGTERM, signal_handler_ignore)
 
     def signal_stop(signum, frame):
         logging.debug("Received signal %d, terminating.", signum)
@@ -469,6 +460,7 @@ def main(benchexec=None, argv=None):
         if not benchexec:
             benchexec = BenchExec()
         signal.signal(signal.SIGINT, signal_stop)
+        signal.signal(signal.SIGTERM, signal_stop)
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
         sys.exit("Error: " + str(e))
