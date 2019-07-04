@@ -228,14 +228,10 @@ def execute_benchmark(benchmark, output_handler):
                 )
 
             # wait until all tasks are done or STOPPED_BY_INTERRUPT
-            try:
-                with FINISHED_NOTIFICATION:
-                    FINISHED_NOTIFICATION.wait_for(
-                        lambda: unfinished_runs == 0 or STOPPED_BY_INTERRUPT
-                    )
-            except KeyboardInterrupt:
-                stop()
-            assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
+            with FINISHED_NOTIFICATION:
+                FINISHED_NOTIFICATION.wait_for(
+                    lambda: unfinished_runs == 0 or STOPPED_BY_INTERRUPT
+                )
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
