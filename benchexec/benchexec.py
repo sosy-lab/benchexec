@@ -57,6 +57,12 @@ class BenchExec(object):
     def start(self, argv):
         """
         Start BenchExec.
+
+        Note that this method does not expect to be interrupted by KeyboardInterrupt
+        and does not guarantee proper cleanup if KeyboardInterrupt is raised!
+        If this method runs on the main thread of your program,
+        make sure to set a signal handler for signal.SIGINT that calls stop() instead.
+
         @param argv: command-line options for BenchExec
         """
         parser = self.create_argument_parser()
@@ -454,15 +460,18 @@ def main(benchexec=None, argv=None):
         sys.exit("benchexec needs Python 3 to run.")
     # ignore SIGTERM
     signal.signal(signal.SIGTERM, signal_handler_ignore)
+
+    def signal_stop(signum, frame):
+        logging.debug("Received signal %d, terminating.", signum)
+        benchexec.stop()
+
     try:
         if not benchexec:
             benchexec = BenchExec()
+        signal.signal(signal.SIGINT, signal_stop)
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
         sys.exit("Error: " + str(e))
-    except KeyboardInterrupt:  # this block is reached, when interrupt is thrown before or after a run set execution
-        benchexec.stop()
-        util.printOut("\n\nScript was interrupted by user, some runs may not be done.")
 
 
 if __name__ == "__main__":
