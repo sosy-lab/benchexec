@@ -42,6 +42,8 @@ from benchexec.intel_cpu_energy import EnergyMeasurement
 
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
+FINISHED_NOTIFICATION = threading.Condition(threading.Lock())
+"""Used for notification of main thread that all runs are finished or cancelled."""
 
 
 def init(config, benchmark):
@@ -206,29 +208,33 @@ def execute_benchmark(benchmark, output_handler):
             for run in runSet.runs:
                 _Worker.working_queue.put(run)
 
+            unfinished_runs = len(runSet.runs)
+
+            def run_finished():
+                nonlocal unfinished_runs
+                with FINISHED_NOTIFICATION:
+                    unfinished_runs -= 1
+                    if unfinished_runs == 0:
+                        FINISHED_NOTIFICATION.notify()
+
             # create some workers
             for i in range(benchmark.num_of_threads):
                 cores = coreAssignment[i] if coreAssignment else None
                 memBanks = memoryAssignment[i] if memoryAssignment else None
                 user = benchmark.config.users[i] if benchmark.config.users else None
                 WORKER_THREADS.append(
-                    _Worker(benchmark, cores, memBanks, user, output_handler)
+                    _Worker(
+                        benchmark, cores, memBanks, user, output_handler, run_finished
+                    )
                 )
 
-            # wait until all tasks are done,
-            # instead of queue.join(), we use a loop and sleep(1) to handle KeyboardInterrupt
-            finished = False
-            while not finished and not STOPPED_BY_INTERRUPT:
-                try:
-                    _Worker.working_queue.all_tasks_done.acquire()
-                    finished = _Worker.working_queue.unfinished_tasks == 0
-                finally:
-                    _Worker.working_queue.all_tasks_done.release()
-
-                try:
-                    time.sleep(0.1)  # sleep some time
-                except KeyboardInterrupt:
-                    stop()
+            # wait until all tasks are done or STOPPED_BY_INTERRUPT
+            try:
+                with FINISHED_NOTIFICATION:
+                    FINISHED_NOTIFICATION.wait()
+            except KeyboardInterrupt:
+                stop()
+            assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
@@ -279,6 +285,10 @@ def stop():
     for worker in WORKER_THREADS:
         worker.join()
 
+    # wake up main thread
+    with FINISHED_NOTIFICATION:
+        FINISHED_NOTIFICATION.notify()
+
 
 class _Worker(threading.Thread):
     """
@@ -287,8 +297,17 @@ class _Worker(threading.Thread):
 
     working_queue = queue.Queue()
 
-    def __init__(self, benchmark, my_cpus, my_memory_nodes, my_user, output_handler):
+    def __init__(
+        self,
+        benchmark,
+        my_cpus,
+        my_memory_nodes,
+        my_user,
+        output_handler,
+        run_finished_callback,
+    ):
         threading.Thread.__init__(self)  # constuctor of superclass
+        self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
         self.my_cpus = my_cpus
         self.my_memory_nodes = my_memory_nodes
@@ -315,6 +334,7 @@ class _Worker(threading.Thread):
                 logging.critical(e)
             except BaseException as e:
                 logging.exception("Exception during run execution")
+            self.run_finished_callback()
             _Worker.working_queue.task_done()
 
     def execute(self, run):
