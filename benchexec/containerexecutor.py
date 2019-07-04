@@ -578,9 +578,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # user mappings, then the grand child sends its outer PID back,
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
-        # until the pipes are closed, before it terminates.
+        # for the post_run marker, before it terminates.
         MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
         MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -757,7 +758,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Now the parent copies the output files, we need to wait until this is
                 # finished. If the child terminates, the container file system and its
                 # tmpfs go away.
-                os.read(from_parent, 1)
+                assert os.read(from_parent, 1) == MARKER_PARENT_POST_RUN_COMPLETED
                 os.close(from_parent)
 
                 return 0
@@ -896,6 +897,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 )
 
             os.close(from_grandchild_copy)
+            os.write(to_grandchild_copy, MARKER_PARENT_POST_RUN_COMPLETED)
             os.close(to_grandchild_copy)  # signal child that it can terminate
             check_child_exit_code()
 
