@@ -292,6 +292,7 @@ def main(argv=None):
         executor.stop()
 
     signal.signal(signal.SIGTERM, signal_handler_kill)
+    signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
     # actual run execution

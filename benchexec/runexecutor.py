@@ -265,6 +265,7 @@ def main(argv=None):
         executor.stop()
 
     signal.signal(signal.SIGTERM, signal_handler_kill)
+    signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))

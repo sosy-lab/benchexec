@@ -460,6 +460,7 @@ def main(benchexec=None, argv=None):
         if not benchexec:
             benchexec = BenchExec()
         signal.signal(signal.SIGINT, signal_stop)
+        signal.signal(signal.SIGQUIT, signal_stop)
         signal.signal(signal.SIGTERM, signal_stop)
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
