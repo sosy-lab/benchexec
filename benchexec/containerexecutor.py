@@ -286,7 +286,8 @@ def main(argv=None):
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
-    # ensure that process gets killed on interrupt/kill signal
+    # Ensure that process gets killed on interrupt/kill signal,
+    # and avoid KeyboardInterrupt because it could occur anywhere.
     def signal_handler_kill(signum, frame):
         executor.stop()
 
@@ -409,6 +410,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
+
+        Note that this method does not expect to be interrupted by KeyboardInterrupt
+        and does not guarantee proper cleanup if KeyboardInterrupt is raised!
+        If this method runs on the main thread of your program,
+        make sure to set a signal handler for signal.SIGTERM that calls stop() instead.
+
         @param args: the command line to run
         @param rootDir: None or a root directory that contains all relevant files
             for starting a new process

@@ -294,7 +294,8 @@ def main(argv=None):
         **container_options
     )
 
-    # ensure that process gets killed on interrupt/kill signal
+    # Ensure that process gets killed on interrupt/kill signal,
+    # and avoid KeyboardInterrupt because it could occur anywhere.
     def signal_handler_kill(signum, frame):
         executor.stop()
 
@@ -887,6 +888,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
+
+        Note that this method does not expect to be interrupted by KeyboardInterrupt
+        and does not guarantee proper cleanup if KeyboardInterrupt is raised!
+        If this method runs on the main thread of your program,
+        make sure to set a signal handler for signal.SIGTERM that calls stop() instead.
+
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
         @param stdin: What to uses as stdin for the process (None: /dev/null, a file descriptor, or a file object)

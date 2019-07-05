@@ -79,6 +79,22 @@ Further parameters for `execute_run` can be used to specify resource limits
 The result is a dictionary with the same information about the run
 that is printed to stdout by the `runexec` command-line tool (cf. [Run Results](run-results.md)).
 
+If `RunExecutor` is used on the main thread,
+caution must be taken to avoid `KeyboardInterrupt`, e.g., like this:
+
+```python
+import signal
+from benchexec.runexecutor import RunExecutor
+executor = RunExecutor()
+
+def stop_run(signum, frame):
+  executor.stop()
+
+signal.signal(signal.SIGTERM, stop_run)
+
+result = executor.execute_run(args=[<TOOL_CMD>], ...)
+```
+
 ## Python 2 Compatibility
 
 While BenchExec in general requires at least Python 3.2,
