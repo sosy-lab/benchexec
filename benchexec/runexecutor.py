@@ -154,12 +154,14 @@ def main(argv=None):
     container_on_args.add_argument(
         "--container",
         action="store_true",
-        help="force isolation of run in container (future default starting with BenchExec 2.0)",
+        dest="_ignored_container",
+        help="force isolation of run in container (default)",
     )
     container_on_args.add_argument(
         "--no-container",
-        action="store_true",
-        help="disable use of containers for isolation of runs (current default)",
+        action="store_false",
+        dest="container",
+        help="disable use of containers for isolation of runs",
     )
     containerexecutor.add_basic_container_args(container_args)
     containerexecutor.add_container_output_args(container_args)
@@ -210,16 +212,6 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if not options.no_container:
-            logging.warning(
-                "Neither --container or --no-container was specified, "
-                "not using containers for isolation of runs. "
-                "Either specify --no-container to silence this warning, "
-                "or specify --container to use containers for better isolation of runs "
-                "(this will be the default starting with BenchExec 2.0). "
-                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information."
-            )
 
     if options.input == "-":
         stdin = sys.stdin
@@ -331,21 +323,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     # --- object initialization ---
 
     def __init__(
-        self,
-        cleanup_temp_dir=True,
-        additional_cgroup_subsystems=[],
-        use_namespaces=False,
-        *args,
-        **kwargs
+        self, cleanup_temp_dir=True, additional_cgroup_subsystems=[], *args, **kwargs
     ):
         """
         Create an instance of of RunExecutor.
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(
-            use_namespaces=use_namespaces, *args, **kwargs
-        )
+        super(RunExecutor, self).__init__(*args, **kwargs)
         self._termination_reason = None
         self._should_cleanup_temp_dir = cleanup_temp_dir
         self._cgroup_subsystems = additional_cgroup_subsystems

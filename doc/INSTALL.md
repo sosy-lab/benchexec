@@ -74,8 +74,7 @@ To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
 can create and modify cgroups (see below for how to allow this).
 
-For container mode of BenchExec (available since BenchExec 1.9, default starting with BenchExec 2.0),
-a relatively recent kernel is needed.
+For container mode of BenchExec a relatively recent kernel is needed.
 Please see [container mode](container.md) for the system requirements.
 
 Without container mode, any Linux kernel version of the last several years is

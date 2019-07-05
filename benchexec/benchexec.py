@@ -419,13 +419,14 @@ def add_container_args(parser):
         container_on_args.add_argument(
             "--container",
             action="store_true",
-            help="force isolation of run in container "
-            "(future default starting with BenchExec 2.0)",
+            dest="_ignored_container",
+            help="force isolation of run in container (default)",
         )
         container_on_args.add_argument(
             "--no-container",
-            action="store_true",
-            help="disable use of containers for isolation of runs (current default)",
+            action="store_false",
+            dest="container",
+            help="disable use of containers for isolation of runs",
         )
         containerexecutor.add_basic_container_args(container_args)
 

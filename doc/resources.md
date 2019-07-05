@@ -30,8 +30,7 @@ from all processes started by the tool.
 Memory pages shared across multiple processes of a single run are counted only once.
 In addition, data stored by the tool on the filesystem
 is measured and limited by BenchExec as part of the memory consumption
-if [container mode](container.md) is used,
-except if this is disabled with `--no-tmpfs`
+except if this is disabled with `--no-container` or `--no-tmpfs`
 or if the tool writes to a directory in the full-access mode.
 
 On systems with swap, BenchExec always measures and limits the complete memory usage of the tool,
@@ -87,7 +86,7 @@ and not if only a subset of the CPU's cores is used per run.
 
 ## Disk Space and I/O
 
-In [container mode](container.md) (default from BenchExec 2.0),
+In the default [container mode](container.md),
 BenchExec redirects all write accesses to a `tmpfs` instance (a "RAM disk").
 Data stored on this RAM disk are counted towards the memory limit.
 Read accesses to pre-existing files are performed as usually

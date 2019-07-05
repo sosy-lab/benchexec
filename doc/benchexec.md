@@ -78,7 +78,7 @@ that is in the same directory as each input file, use
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 [which files should be copied to the output directory](container.md#retrieving-result-files)
-(only supported in [container mode](container.md)).
+(only supported if [container mode](container.md) is not turned off).
 
 ### Defining Tasks for BenchExec
 Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.

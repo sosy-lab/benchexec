@@ -1,31 +1,24 @@
 # BenchExec: Container Mode
 
-**Note**: Container mode is currently in **beta**!
-You are welcome to use it, but please note that future versions of BenchExec
-may change how the container mode works or how it is configured.
-If you use it, please tell us your experiences with it.
-
-Container mode is available since BenchExec 1.9,
-and BenchExec 2.0 will be the release where container mode is considered stable
-and enabled by default.
-Until then, it needs to be explicitly enabled with the flag `--container`
-for `benchexec` and `runexec`.
-The flag `--no-container` can always be given to explicitly disable container mode
-and the warning about it.
-There is now also an additional tool, `containerexec`,
-which is similar to `runexec` but provides only isolation of an application in a container,
-but no resource measurements and limitations.
-
 The container mode isolates the benchmarked process from other processes on the same system,
 in a similar way as for example Docker isolates applications
 (using operating-level system virtualization).
-This is recommended to improve reproducibility of results.
+This improves reliability of benchmarking and reproducibility of results.
 Contrary to using a VM, the application is still executed with native performance,
 because it is run directly on the host kernel, without any additional layers.
 By using an overlay filesystem (if available), the benchmarked process can still read from the host filesystem,
 but not modify any files except where specifically allowed.
 You can read more about it in our paper
 [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+There is also an additional tool, `containerexec`,
+which is similar to `runexec` but provides only isolation of an application in a container,
+but no resource measurements and limitations.
+
+Container mode is available since BenchExec 1.9
+and enabled by default since BenchExec 2.0.
+It can be disabled with the flag `--no-container` in case of problems,
+but instead we recommend configuring and troubleshooting
+the container appropriately as described below.
 
 The features of container mode are:
 

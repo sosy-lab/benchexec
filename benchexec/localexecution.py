@@ -51,17 +51,6 @@ def init(config, benchmark):
     if config.container:
         config.containerargs = containerexecutor.handle_basic_container_args(config)
         config.containerargs["use_namespaces"] = True
-    else:
-        if not config.no_container:
-            logging.warning(
-                "Neither --container or --no-container was specified, "
-                "not using containers for isolation of runs. "
-                "Either specify --no-container to silence this warning, "
-                "or specify --container to use containers for better isolation of runs "
-                "(this will be the default starting with BenchExec 2.0). "
-                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information."
-            )
 
     try:
         processes = subprocess.Popen(
