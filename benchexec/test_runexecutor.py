@@ -69,7 +69,7 @@ class TestRunExecutor(unittest.TestCase):
             cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     def setUp(self, *args, **kwargs):
-        self.runexecutor = RunExecutor(*args, **kwargs)
+        self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
 
     def execute_run(self, *args, **kwargs):
         # Make keyword-only argument after support for Python 2 is dropped
@@ -97,13 +97,22 @@ class TestRunExecutor(unittest.TestCase):
             )
         return (result, output.splitlines())
 
+    def get_runexec_cmdline(self, *args, **kwargs):
+        return [
+            python,
+            runexec,
+            "--no-container",
+            "--output",
+            kwargs["output_filename"],
+        ] + list(args)
+
     def execute_run_extern(self, *args, **kwargs):
         # Make keyword-only argument after support for Python 2 is dropped
         expect_terminationreason = kwargs.pop("expect_terminationreason", None)
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             runexec_output = subprocess.check_output(
-                args=[python, runexec] + list(args) + ["--output", output_filename],
+                args=self.get_runexec_cmdline(*args, output_filename=output_filename),
                 stderr=DEVNULL,
                 **kwargs
             ).decode()
@@ -483,17 +492,14 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest("missing /bin/cat")
 
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
-        cmd = [
-            python,
-            runexec,
+        cmd = self.get_runexec_cmdline(
             "--input",
             "-",
-            "--output",
-            output_filename,
             "--walltime",
             "1",
             "/bin/cat",
-        ]
+            output_filename=output_filename,
+        )
         try:
             process = subprocess.Popen(
                 args=cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=DEVNULL
@@ -781,6 +787,23 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.runexecutor = RunExecutor(
             use_namespaces=True, dir_modes=dir_modes, *args, **kwargs
         )
+
+    def get_runexec_cmdline(self, *args, **kwargs):
+        return [
+            python,
+            runexec,
+            "--container",
+            "--read-only-dir",
+            "/",
+            "--hidden-dir",
+            "/home",
+            "--hidden-dir",
+            "/tmp",
+            "--dir",
+            "/tmp",
+            "--output",
+            kwargs["output_filename"],
+        ] + list(args)
 
     def execute_run(self, *args, **kwargs):
         return super(TestRunExecutorWithContainer, self).execute_run(
