@@ -286,7 +286,8 @@ def main(argv=None):
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
-    # ensure that process gets killed on interrupt/kill signal
+    # Ensure that process gets killed on interrupt/kill signal,
+    # and avoid KeyboardInterrupt because it could occur anywhere.
     def signal_handler_kill(signum, frame):
         executor.stop()
 
@@ -409,6 +410,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
+
+        Note that this method does not expect to be interrupted by KeyboardInterrupt
+        and does not guarantee proper cleanup if KeyboardInterrupt is raised!
+        If this method runs on the main thread of your program,
+        make sure to set a signal handler for signal.SIGINT that calls stop() instead.
+
         @param args: the command line to run
         @param rootDir: None or a root directory that contains all relevant files
             for starting a new process
@@ -576,9 +583,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # user mappings, then the grand child sends its outer PID back,
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
-        # until the pipes are closed, before it terminates.
+        # for the post_run marker, before it terminates.
         MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
         MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -755,7 +763,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Now the parent copies the output files, we need to wait until this is
                 # finished. If the child terminates, the container file system and its
                 # tmpfs go away.
-                os.read(from_parent, 1)
+                assert os.read(from_parent, 1) == MARKER_PARENT_POST_RUN_COMPLETED
                 os.close(from_parent)
 
                 return 0
@@ -894,6 +902,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 )
 
             os.close(from_grandchild_copy)
+            os.write(to_grandchild_copy, MARKER_PARENT_POST_RUN_COMPLETED)
             os.close(to_grandchild_copy)  # signal child that it can terminate
             check_child_exit_code()
 
