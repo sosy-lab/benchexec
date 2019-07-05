@@ -214,8 +214,7 @@ def execute_benchmark(benchmark, output_handler):
                 nonlocal unfinished_runs
                 with FINISHED_NOTIFICATION:
                     unfinished_runs -= 1
-                    if unfinished_runs == 0:
-                        FINISHED_NOTIFICATION.notify()
+                    FINISHED_NOTIFICATION.notify()
 
             # create some workers
             for i in range(benchmark.num_of_threads):
@@ -231,7 +230,9 @@ def execute_benchmark(benchmark, output_handler):
             # wait until all tasks are done or STOPPED_BY_INTERRUPT
             try:
                 with FINISHED_NOTIFICATION:
-                    FINISHED_NOTIFICATION.wait()
+                    FINISHED_NOTIFICATION.wait_for(
+                        lambda: unfinished_runs == 0 or STOPPED_BY_INTERRUPT
+                    )
             except KeyboardInterrupt:
                 stop()
             assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
