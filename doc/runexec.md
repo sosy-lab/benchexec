@@ -90,7 +90,7 @@ executor = RunExecutor()
 def stop_run(signum, frame):
   executor.stop()
 
-signal.signal(signal.SIGTERM, stop_run)
+signal.signal(signal.SIGINT, stop_run)
 
 result = executor.execute_run(args=[<TOOL_CMD>], ...)
 ```

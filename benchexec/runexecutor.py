@@ -892,7 +892,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         Note that this method does not expect to be interrupted by KeyboardInterrupt
         and does not guarantee proper cleanup if KeyboardInterrupt is raised!
         If this method runs on the main thread of your program,
-        make sure to set a signal handler for signal.SIGTERM that calls stop() instead.
+        make sure to set a signal handler for signal.SIGINT that calls stop() instead.
 
         @param args: the command line to run
         @param output_filename: the file where the output should be written to
