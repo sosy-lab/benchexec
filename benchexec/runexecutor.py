@@ -377,9 +377,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
         self.cgroups.require_subsystem(FREEZER)
-        if FREEZER not in self.cgroups:
-            logging.warning(
-                "Cannot reliably kill sub-processes without freezer cgroup."
+        if FREEZER not in self.cgroups and not self._use_namespaces:
+            sys.exit(
+                "Cannot reliably kill sub-processes without freezer cgroup "
+                "or container mode. Please enable at least one of them."
             )
 
         self.cgroups.require_subsystem(MEMORY)

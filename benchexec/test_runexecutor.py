@@ -69,7 +69,15 @@ class TestRunExecutor(unittest.TestCase):
             cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     def setUp(self, *args, **kwargs):
-        self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+        try:
+            self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+        except SystemExit as e:
+            if str(e).startswith(
+                "Cannot reliably kill sub-processes without freezer cgroup"
+            ):
+                self.skipTest(e)
+            else:
+                raise e
 
     def execute_run(self, *args, **kwargs):
         # Make keyword-only argument after support for Python 2 is dropped
