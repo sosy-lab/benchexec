@@ -135,40 +135,29 @@ def is_url(path_or_url):
 
 
 def create_link(href, base_dir, runResult=None, href_base=None):
-    def get_replacements(source_file):
-        return (
+    def get_replacements(task_file):
+        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
+        return [
+            (var_prefix + "name", os.path.basename(task_file)),
+            (var_prefix + "path", os.path.dirname(task_file) or "."),
+            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
+        ] + (
             [
-                ("inputfile_name", os.path.basename(source_file)),
-                ("inputfile_path", os.path.dirname(source_file) or "."),
-                ("inputfile_path_abs", os.path.dirname(os.path.abspath(source_file))),
+                ("logfile_name", os.path.basename(runResult.log_file)),
+                (
+                    "logfile_path",
+                    os.path.dirname(
+                        os.path.relpath(runResult.log_file, href_base or ".")
+                    )
+                    or ".",
+                ),
+                (
+                    "logfile_path_abs",
+                    os.path.dirname(os.path.abspath(runResult.log_file)),
+                ),
             ]
-            + (
-                [
-                    ("taskdef_name", os.path.basename(source_file)),
-                    ("taskdef_path", os.path.dirname(source_file) or "."),
-                    ("taskdef_path_abs", os.path.dirname(os.path.abspath(source_file))),
-                ]
-                if source_file.endswith(".yml")
-                else []
-            )
-            + (
-                [
-                    ("logfile_name", os.path.basename(runResult.log_file)),
-                    (
-                        "logfile_path",
-                        os.path.dirname(
-                            os.path.relpath(runResult.log_file, href_base or ".")
-                        )
-                        or ".",
-                    ),
-                    (
-                        "logfile_path_abs",
-                        os.path.dirname(os.path.abspath(runResult.log_file)),
-                    ),
-                ]
-                if runResult.log_file
-                else []
-            )
+            if runResult.log_file
+            else []
         )
 
     source_file = (

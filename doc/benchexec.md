@@ -56,12 +56,18 @@ that will be expanded by BenchExec. The following variables are supported:
     ${logfile_path}         Directory where tool-output files will be stored
     ${logfile_path_abs}     Directory where tool-output files will be stored (absolute path)
     ${rundefinition_name}   Name of current run definition
+
+If task-definition files are used, the following variables are defined:
+
+    ${taskdef_name}       Name of current task-definition file (without path)
+    ${taskdef_path}       Directory of current task-definition file
+    ${taskdef_path_abs}   Directory of current task-definition file (absolute path)
+
+Otherwise, these variables can be used:
+
     ${inputfile_name}       Name of current input file (without path)
     ${inputfile_path}       Directory of current input file
     ${inputfile_path_abs}   Directory of current input file (absolute path)
-    ${taskdef_name}       Name of current task-definition file (without path, only if task-definition files are used)
-    ${taskdef_path}       Directory of current task-definition file (only if task-definition files are used)
-    ${taskdef_path_abs}   Directory of current task-definition file (absolute path, only if task-definition files are used)
 
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use

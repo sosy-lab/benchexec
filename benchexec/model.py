@@ -53,7 +53,7 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
 }
 
 
-def substitute_vars(oldList, runSet=None, sourcefile=None):
+def substitute_vars(oldList, runSet=None, task_file=None):
     """
     This method replaces special substrings from a list of string
     and return a new list.
@@ -79,17 +79,12 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
             ("test_name", runSet.real_name if runSet.real_name else ""),
         ]
 
-    if sourcefile:
-        keyValueList.append(("inputfile_name", os.path.basename(sourcefile)))
-        keyValueList.append(("inputfile_path", os.path.dirname(sourcefile) or "."))
+    if task_file:
+        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
+        keyValueList.append((var_prefix + "name", os.path.basename(task_file)))
+        keyValueList.append((var_prefix + "path", os.path.dirname(task_file) or "."))
         keyValueList.append(
-            ("inputfile_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
-        )
-    if sourcefile and sourcefile.endswith(".yml"):
-        keyValueList.append(("taskdef_name", os.path.basename(sourcefile)))
-        keyValueList.append(("taskdef_path", os.path.dirname(sourcefile) or "."))
-        keyValueList.append(
-            ("taskdef_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
+            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file)))
         )
 
     # do not use keys twice

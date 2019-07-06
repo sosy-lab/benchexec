@@ -86,7 +86,7 @@ by letting the tool info look for the given pattern in the output
 ```
 
 If the attribute `href` is given, the column will contain a link to the respective target
-(variables such as `${inputfile_name}` can be used to customize this link per task).
+(variables such as `${taskdef_name}` can be used to customize this link per task).
 If `href` specifies a relative path, it is interpreted as relative to the directory
 of the table-definition file and will be converted appropriately for the location of the output files.
 An absolute URL can also be given.
