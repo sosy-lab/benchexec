@@ -501,6 +501,10 @@ class RunSetResult(object):
                 if all_columns or c.get("hidden") != "true"
             }
 
+            if not column_names:
+                # completely empty results break stuff, add at least status column
+                return [MAIN_COLUMNS[0]]
+
             # Put main columns first, then rest sorted alphabetically
             custom_columns = column_names.difference(
                 column.title for column in MAIN_COLUMNS
