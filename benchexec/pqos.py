@@ -25,7 +25,7 @@ import os
 import logging
 import json
 from subprocess import check_output, CalledProcessError, STDOUT
-from benchexec.util import find_executable, get_capability
+from benchexec.util import find_executable, get_capability, check_msr
 
 
 class Pqos(object):
@@ -68,7 +68,7 @@ class Pqos(object):
                             "Could not set cache allocation...{}".format(ret["message"])
                         )
                         self.check_for_errors()
-                except:
+                except ValueError:
                     if not suppress_warning:
                         logging.warning(
                             "Could not set cache allocation...Unable to execute command {}".format(
@@ -131,3 +131,20 @@ class Pqos(object):
                 logging.warning(
                     "Insufficient capabilities for pqos_wrapper, Please set capabilitiy cap_sys_rawio with e,p for pqos_wrapper"
                 )
+        msr = check_msr()
+        if msr["loaded"]:
+            if msr["read"]:
+                if not msr["write"]:
+                    logging.warning(
+                        "Add write permissions for msr module for {}".format(
+                            msr["user"]
+                        )
+                    )
+            else:
+                logging.warning(
+                    "Add read and write permissions for msr module for {}".format(
+                        msr["user"]
+                    )
+                )
+        else:
+            logging.warning("Load msr module for using cache allocation")

@@ -38,6 +38,7 @@ import subprocess
 import sys
 import time
 import ctypes
+import grp
 from xml.etree import ElementTree
 
 try:
@@ -696,4 +697,29 @@ def get_capability(filename):
         cap_string = cap_object.decode("utf-8")
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
         res["set"] = [char for char in (cap_string.split("+")[1])]
+    return res
+
+
+def check_msr():
+    """
+        Checks if the msr driver is loaded and if the user executing
+        benchexec has the read and write permissions for msr.
+    """
+    res = {
+        "loaded": False,
+        "write": False,
+        "read": False,
+        "user": grp.getgrgid(os.getegid()).gr_name,
+    }
+    loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
+
+    if any(["msr" in module for module in loaded_modules]):
+        res["loaded"] = True
+    if res["loaded"]:
+        cpu_dirs = os.listdir("/dev/cpu")
+        cpu_dirs.remove("microcode")
+        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs]):
+            res["read"] = True
+        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs]):
+            res["write"] = True
     return res
