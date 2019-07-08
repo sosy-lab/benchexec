@@ -69,16 +69,6 @@ else:
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 
-def is_windows():
-    return os.name == "nt"
-
-
-def force_linux_path(path):
-    if is_windows():
-        return path.replace("\\", "/")
-    return path
-
-
 def printOut(value, end="\n"):
     """
     This function prints the given String immediately and flushes the output.
