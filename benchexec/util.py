@@ -502,6 +502,24 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
             returnvalue = None
         return cls(exitcode, returnvalue, exitsignal)
 
+    @classmethod
+    def create(cls, value=None, signal=None):
+        """
+        Create an instance of either a return value or an exit signal.
+        The other parameter must be None.
+        """
+        if value is None and signal is None:
+            raise ValueError("Need return value or exit signal for ProcessExitCode")
+        if value is not None and signal is not None:
+            raise ValueError("Cannot create ProcessExitCode with both value and signal")
+        if value is not None and not (0 <= value <= 255):
+            raise ValueError("Invalid value {} for return value".format(value))
+        if signal is not None and not (1 <= signal <= 127):
+            raise ValueError("Invalid value {} for exit signal".format(value))
+
+        exitcode = ((value or 0) * 256) + (signal or 0)
+        return cls(exitcode, value, signal)
+
     def __str__(self):
         return (
             ("exit signal " + str(self.signal))
