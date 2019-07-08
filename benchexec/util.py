@@ -478,55 +478,42 @@ def read_key_value_pairs_from_file(*path):
             yield line.split(" ", 1)  # maxsplit=1
 
 
-ProcessExitCode = collections.namedtuple("ProcessExitCode", "raw value signal")
-"""Tuple for storing the exit status indication given by a os.wait() call.
-Only value or signal are present, not both
-(a process cannot return a value when it is killed by a signal).
-"""
+class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signal")):
+    """Tuple for storing the exit status indication given by a os.wait() call.
+    Only value or signal are present, not both
+    (a process cannot return a value when it is killed by a signal).
+    """
 
+    @classmethod
+    def from_raw(cls, exitcode):
+        if not (0 <= exitcode < 2 ** 16):
+            raise ValueError("invalid exitcode " + str(exitcode))
+        # calculation: exitcode == (returnvalue * 256) + exitsignal
+        # highest bit of exitsignal shows only whether a core file was produced, we clear it
+        exitsignal = exitcode & 0x7F
+        returnvalue = exitcode >> 8
+        if exitsignal == 0:
+            # signal 0 does not exist, this means there was no signal that killed the process
+            exitsignal = None
+        else:
+            assert returnvalue == 0, "returnvalue {}, although exitsignal is {}".format(
+                returnvalue, exitsignal
+            )
+            returnvalue = None
+        return cls(exitcode, returnvalue, exitsignal)
 
-@classmethod
-def _ProcessExitCode_from_raw(cls, exitcode):
-    if not (0 <= exitcode < 2 ** 16):
-        raise ValueError("invalid exitcode " + str(exitcode))
-    # calculation: exitcode == (returnvalue * 256) + exitsignal
-    # highest bit of exitsignal shows only whether a core file was produced, we clear it
-    exitsignal = exitcode & 0x7F
-    returnvalue = exitcode >> 8
-    if exitsignal == 0:
-        # signal 0 does not exist, this means there was no signal that killed the process
-        exitsignal = None
-    else:
-        assert returnvalue == 0, (
-            "returnvalue "
-            + str(returnvalue)
-            + ", although exitsignal is "
-            + str(exitsignal)
+    def __str__(self):
+        return (
+            ("exit signal " + str(self.signal))
+            if self.signal
+            else ("return value " + str(self.value))
         )
-        returnvalue = None
-    return cls(exitcode, returnvalue, exitsignal)
 
+    def __bool__(self):
+        return bool(self.signal or self.value)
 
-ProcessExitCode.from_raw = _ProcessExitCode_from_raw
-
-
-def _ProcessExitCode__str__(self):
-    return (
-        ("exit signal " + str(self.signal))
-        if self.signal
-        else ("return value " + str(self.value))
-    )
-
-
-ProcessExitCode.__str__ = _ProcessExitCode__str__
-
-
-def _ProcessExitCode__bool__(self):
-    return bool(self.signal or self.value)
-
-
-ProcessExitCode.__bool__ = _ProcessExitCode__bool__
-ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
+    def __nonzero__(self):
+        return self.__bool__()
 
 
 def kill_process(pid, sig=signal.SIGKILL):
