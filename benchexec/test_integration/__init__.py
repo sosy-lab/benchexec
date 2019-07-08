@@ -97,6 +97,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         standard_args = [
             benchexec,
+            "--container",
+            "--read-only-dir",
+            "/",
             "--outputpath",
             self.output_dir,
             "--startTime",
