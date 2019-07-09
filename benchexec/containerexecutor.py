@@ -388,6 +388,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         )
         self._dir_modes = collections.OrderedDict(sorted_special_dirs)
 
+        def is_accessible(path):
+            mode = container.determine_directory_mode(self._dir_modes, path)
+            return os.access(path, os.R_OK) and mode not in [None, container.DIR_HIDDEN]
+
+        # Warn if LXCFS is not installed. This does not warn if LXCFS is hidden in the
+        # container, but we do not want a warning per run.
+        if not is_accessible(container.LXCFS_PROC_DIR):
+            logging.info(
+                "LXCFS is not available,"
+                " some host information like the uptime leaks into the container."
+            )
+
     def _get_result_files_base(self, temp_dir):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
@@ -996,14 +1008,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             ):
                 config_mount_base = mount_base
             container.setup_container_system_config(temp_base, config_mount_base)
-
-            # Warn if LXCFS is not installed.
-            # The actual LXCFS setup will be done in mount_proc()
-            if not os.access(mount_base + container.LXCFS_PROC_DIR, os.R_OK):
-                logging.info(
-                    "LXCFS is not available,"
-                    " some host information like the uptime leaks into the container."
-                )
 
         if output_dir:
             # We need a way to see temp_base in the container in order to be able to
