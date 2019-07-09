@@ -127,6 +127,14 @@ DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 
 LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
 
+# Python before 3.7 does not have BeforeFork and AfterFork_(Child|Parent)
+if not hasattr(ctypes.pythonapi, "PyOS_BeforeFork"):
+    ctypes.pythonapi.PyOS_BeforeFork = lambda: None
+if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Parent"):
+    ctypes.pythonapi.PyOS_AfterFork_Parent = lambda: None
+if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
+    ctypes.pythonapi.PyOS_AfterFork_Child = ctypes.pythonapi.PyOS_AfterFork
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -176,7 +184,9 @@ def execute_in_namespace(func, use_network_ns=True):
     # we want to execute Python code in the child, too), but so far it seems to work.
     # Basically we attempt to do (almost) the same that os.fork() does (cf. os_fork_impl
     # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
-    # We currently do not take the import lock os.lock() does because it is only
+    # On Python >= 3.7 we can call appropriate functions before and after fork that
+    # should handle everything correctly, on previous Python we do the best that we can.
+    # For example, we do not take the import lock because it is only
     # available via an internal API, and because the child should never import anything
     # anyway (inside the container, modules might not be visible).
     # It is very important, however, that we have the GIL during clone(),
@@ -185,15 +195,18 @@ def execute_in_namespace(func, use_network_ns=True):
     # function by using ctypes.PyDLL as library access instead of ctypes.CLL.
 
     def child_func():
-        # This is necessary for correcting the Python interpreter state after a
-        # fork-like operation. For example, it resets the GIL and fixes state of
-        # several modules like threading and signal.
-        ctypes.pythonapi.PyOS_AfterFork()
+        ctypes.pythonapi.PyOS_AfterFork_Child()
 
         return func()
 
     with allocate_stack() as stack:
-        pid = libc.clone(ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None)
+        try:
+            ctypes.pythonapi.PyOS_BeforeFork()
+            pid = libc.clone(
+                ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None
+            )
+        finally:
+            ctypes.pythonapi.PyOS_AfterFork_Parent()
     return pid
 
 

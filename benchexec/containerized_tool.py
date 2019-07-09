@@ -97,17 +97,14 @@ for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunct
 def _init_worker_process():
     """Initial setup of worker process from multiprocessing module."""
 
-    def exit_handler(signum, frame):
-        sys.exit(0)
-
     # Need to reset signal handling because multiprocessing relies on SIGTERM
     # but benchexec adds a handler for it.
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
-    # If Ctrl+C is pressed, each process receives SIGNIT, which is translated into a
-    # KeyboardInterrupt exception. The multiprocessing code handles this by showing a
-    # stack trace, we want a silent exit instead.
-    signal.signal(signal.SIGINT, exit_handler)
+    # If Ctrl+C is pressed, each process receives SIGINT. We need to ignore it because
+    # concurrent worker threads of benchexec might still attempt to use the tool-info
+    # module until all of them are stopped, so this process must stay alive.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def _init_container_and_load_tool(

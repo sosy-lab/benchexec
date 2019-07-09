@@ -42,8 +42,6 @@ from benchexec.intel_cpu_energy import EnergyMeasurement
 
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
-FINISHED_NOTIFICATION = threading.Condition(threading.Lock())
-"""Used for notification of main thread that all runs are finished or cancelled."""
 
 
 def init(config, benchmark):
@@ -167,13 +165,14 @@ def execute_benchmark(benchmark, output_handler):
             for run in runSet.runs:
                 _Worker.working_queue.put(run)
 
+            # keep a counter of unfinished runs for the below assertion
             unfinished_runs = len(runSet.runs)
+            unfinished_runs_lock = threading.Lock()
 
             def run_finished():
                 nonlocal unfinished_runs
-                with FINISHED_NOTIFICATION:
+                with unfinished_runs_lock:
                     unfinished_runs -= 1
-                    FINISHED_NOTIFICATION.notify()
 
             # create some workers
             for i in range(benchmark.num_of_threads):
@@ -183,11 +182,10 @@ def execute_benchmark(benchmark, output_handler):
                     _Worker(benchmark, cores, memBanks, output_handler, run_finished)
                 )
 
-            # wait until all tasks are done or STOPPED_BY_INTERRUPT
-            with FINISHED_NOTIFICATION:
-                FINISHED_NOTIFICATION.wait_for(
-                    lambda: unfinished_runs == 0 or STOPPED_BY_INTERRUPT
-                )
+            # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
+            for worker in WORKER_THREADS:
+                worker.join()
+            assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
 
             # get times after runSet
             walltime_after = util.read_monotonic_time()
@@ -230,14 +228,6 @@ def stop():
     util.printOut("killing subprocesses...")
     for worker in WORKER_THREADS:
         worker.stop()
-
-    # wait until all threads are stopped
-    for worker in WORKER_THREADS:
-        worker.join()
-
-    # wake up main thread
-    with FINISHED_NOTIFICATION:
-        FINISHED_NOTIFICATION.notify()
 
 
 class _Worker(threading.Thread):
