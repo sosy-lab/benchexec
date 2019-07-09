@@ -233,6 +233,10 @@ def execute_benchmark(benchmark, output_handler):
                     lambda: unfinished_runs == 0 or STOPPED_BY_INTERRUPT
                 )
 
+            # wait until all runs are finished
+            for worker in WORKER_THREADS:
+                worker.join()
+
             # get times after runSet
             walltime_after = util.read_monotonic_time()
             energy = energy_measurement.stop() if energy_measurement else None
@@ -277,10 +281,6 @@ def stop():
     util.printOut("killing subprocesses...")
     for worker in WORKER_THREADS:
         worker.stop()
-
-    # wait until all threads are stopped
-    for worker in WORKER_THREADS:
-        worker.join()
 
     # wake up main thread
     with FINISHED_NOTIFICATION:
