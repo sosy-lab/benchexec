@@ -38,7 +38,6 @@ import subprocess
 import sys
 import time
 import ctypes
-import grp
 from xml.etree import ElementTree
 
 try:
@@ -705,12 +704,7 @@ def check_msr():
         Checks if the msr driver is loaded and if the user executing
         benchexec has the read and write permissions for msr.
     """
-    res = {
-        "loaded": False,
-        "write": False,
-        "read": False,
-        "user": grp.getgrgid(os.getegid()).gr_name,
-    }
+    res = {"loaded": False, "write": False, "read": False}
     loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
 
     if any(["msr" in module for module in loaded_modules]):

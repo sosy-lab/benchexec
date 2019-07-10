@@ -24,6 +24,7 @@
 import os
 import logging
 import json
+import grp
 from subprocess import check_output, CalledProcessError, STDOUT
 from benchexec.util import find_executable, get_capability, check_msr
 
@@ -133,17 +134,18 @@ class Pqos(object):
                 )
         msr = check_msr()
         if msr["loaded"]:
+            current_user = grp.getgrgid(os.getegid()).gr_name
             if msr["read"]:
                 if not msr["write"]:
                     logging.warning(
                         "Add write permissions for msr module for {}".format(
-                            msr["user"]
+                            current_user
                         )
                     )
             else:
                 logging.warning(
                     "Add read and write permissions for msr module for {}".format(
-                        msr["user"]
+                        current_user
                     )
                 )
         else:
