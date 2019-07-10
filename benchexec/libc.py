@@ -62,8 +62,10 @@ c_off_t = c_long
 
 clone = _libc_with_gil.clone  # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
+CLONE_CALLBACK = _ctypes.CFUNCTYPE(c_int, c_void_p)
+"""Type use for callback functions of clone, can be used as decorator."""
 clone.argtypes = [
-    _ctypes.CFUNCTYPE(c_int),
+    CLONE_CALLBACK,
     c_void_p,
     c_int,
     c_void_p,

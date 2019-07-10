@@ -134,6 +134,9 @@ if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Parent"):
 if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
     ctypes.pythonapi.PyOS_AfterFork_Child = ctypes.pythonapi.PyOS_AfterFork
 
+_CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
+"""Type for callback of execute_in_namespace, nested in our primary callback."""
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -193,20 +196,23 @@ def execute_in_namespace(func, use_network_ns=True):
     # Luckily, the ctypes module allows us to hold the GIL while executing the
     # function by using ctypes.PyDLL as library access instead of ctypes.CLL.
 
-    def child_func():
-        ctypes.pythonapi.PyOS_AfterFork_Child()
-
-        return func()
+    func_p = _CLONE_NESTED_CALLBACK(func)  # store in variable to avoid GC
 
     with allocate_stack() as stack:
         try:
             ctypes.pythonapi.PyOS_BeforeFork()
-            pid = libc.clone(
-                ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None
-            )
+            pid = libc.clone(_clone_child_callback, stack, flags, func_p)
         finally:
             ctypes.pythonapi.PyOS_AfterFork_Parent()
     return pid
+
+
+@libc.CLONE_CALLBACK
+def _clone_child_callback(func_p):
+    """Used as callback for clone, calls the passed function pointer."""
+    ctypes.pythonapi.PyOS_AfterFork_Child()
+
+    return _CLONE_NESTED_CALLBACK(func_p)()
 
 
 def setup_user_mapping(
