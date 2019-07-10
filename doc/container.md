@@ -245,3 +245,12 @@ with several versions of the Linux kernel, including at least kernel versions 4.
 ([bug report](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1566471)).
 If a kernel upgrade does not help, please use a different access mode for NFS-mounted directories,
 such as `--hidden-dir` or `--read-only-dir`.
+
+### BenchExec sometimes hangs if many parallel runs are executed
+This happens if we clone the Python process while it is in an inconsistent state.
+Make sure to use BenchExec 1.22 or newer,
+where [#435](https://github.com/sosy-lab/benchexec/issues/435) is fixed.
+If it still occurs, please attach to all child process of BenchExec
+with `sudo gdb -p <PID>`, get a stack trace with `bt`,
+and [report an issue](https://github.com/sosy-lab/benchexec/issues/new) with as much information as possible.
+BenchExec will usually be able to continue if the hanging child process is killed.

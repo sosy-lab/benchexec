@@ -215,6 +215,10 @@ def execute_benchmark(benchmark, output_handler):
                 with unfinished_runs_lock:
                     unfinished_runs -= 1
 
+            # Avoid https://github.com/sosy-lab/benchexec/issues/435
+            py_switch_interval = sys.getswitchinterval()
+            sys.setswitchinterval(1000)
+
             # create some workers
             for i in range(benchmark.num_of_threads):
                 cores = coreAssignment[i] if coreAssignment else None
@@ -241,6 +245,8 @@ def execute_benchmark(benchmark, output_handler):
             )
             if energy and cpu_packages:
                 energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
+
+            sys.setswitchinterval(py_switch_interval)
 
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted", runSet)

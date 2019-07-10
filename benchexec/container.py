@@ -182,8 +182,9 @@ def execute_in_namespace(func, use_network_ns=True):
         flags |= libc.CLONE_NEWNET
 
     # We use the syscall clone() here, which is similar to fork().
-    # Calling it without letting Python know about it is dangerous (especially because
-    # we want to execute Python code in the child, too), but so far it seems to work.
+    # Calling it directly without going through a Python API is somewhat dangerous
+    # (especially because we want to execute Python code in the child, too), but so far
+    # it seems to work well enough (cf. explanation in _clone_child_callback).
     # Basically we attempt to do (almost) the same that os.fork() does (cf. os_fork_impl
     # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
     # On Python >= 3.7 we can call appropriate functions before and after fork that
@@ -210,6 +211,16 @@ def execute_in_namespace(func, use_network_ns=True):
 @libc.CLONE_CALLBACK
 def _clone_child_callback(func_p):
     """Used as callback for clone, calls the passed function pointer."""
+    # Strictly speaking, PyOS_AfterFork_Child should be called immediately after
+    # clone calls our callback before executing any Python code because the
+    # interpreter state is inconsistent, but here we are already in the Python
+    # world, so it could be too late. A safe way would use a C function to do this.
+    # A common problem are deadlocks if there is high thread contention in the
+    # Python interpeter (https://github.com/sosy-lab/benchexec/issues/435).
+    # For users of benchexec we avoid them in localexecution.py with
+    # sys.setswitchinterval(). Other users of ContainerExecutor should be safe as
+    # long as they do not use many threads. We cannot do anything before cloning
+    # because it might be too late anyway (gil_drop_request could be set already).
     ctypes.pythonapi.PyOS_AfterFork_Child()
 
     return _CLONE_NESTED_CALLBACK(func_p)()
