@@ -33,7 +33,6 @@ import os
 import signal
 import socket
 import struct
-import sys
 
 from benchexec import libc
 from benchexec import util
@@ -262,9 +261,10 @@ def _generate_native_clone_child_callback():
     mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
-    afterfork_address = ctypes.cast(
-        ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
-    ).value.to_bytes(8, byteorder=sys.byteorder)
+    # On Python 3 we could use to_bytes() instead of struct.pack
+    afterfork_address = struct.pack(
+        "Q", ctypes.cast(ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p).value
+    )
 
     # Generate machine code that does the same as _python_clone_child_callback
     # We use this C code as template (with dummy address for PyOS_AfterFork_Child):
