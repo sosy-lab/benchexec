@@ -1,5 +1,21 @@
 # BenchExec Changelog
 
+## BenchExec 1.22
+
+- More robust handling of Ctrl+C in `benchexec`.
+  For example, output files are now always fully written, whereas previously
+  pressing Ctrl+C at the wrong time could result in truncated files.
+  A side effect of this is that if you call
+  `benchexec.benchexec.BenchExec().start()` in own Python code,
+  you must now add a signal handler for `SIGINT`.
+  The same was already true for users of `RunExecutor`, this is now documented.
+- Fix Ctrl+C for `benchexec` in container mode.
+  In BenchExec 1.21, one would need to press Ctrl+C twice to stop `benchexec`.
+- Fix unreliable container mode on Python 3.7.
+- Some robustness improvements and fixes of rare deadlocks.
+- Decreased overhead of `benchexec` while runs are executing.
+
+
 ## BenchExec 1.21
 
 This release contains only a few bug fixes:
