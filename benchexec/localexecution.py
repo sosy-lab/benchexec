@@ -214,9 +214,13 @@ def execute_benchmark(benchmark, output_handler):
                 with unfinished_runs_lock:
                     unfinished_runs -= 1
 
-            # Avoid https://github.com/sosy-lab/benchexec/issues/435
-            py_switch_interval = sys.getswitchinterval()
-            sys.setswitchinterval(1000)
+            if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
+                logging.debug(
+                    "Using sys.setswitchinterval() workaround for #435 in container "
+                    "mode because native callback is not available."
+                )
+                py_switch_interval = sys.getswitchinterval()
+                sys.setswitchinterval(1000)
 
             # create some workers
             for i in range(benchmark.num_of_threads):
@@ -245,7 +249,8 @@ def execute_benchmark(benchmark, output_handler):
             if energy and cpu_packages:
                 energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
 
-            sys.setswitchinterval(py_switch_interval)
+            if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
+                sys.setswitchinterval(py_switch_interval)
 
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted", runSet)
