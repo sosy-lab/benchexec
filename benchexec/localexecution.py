@@ -27,7 +27,6 @@ import resource
 import subprocess
 import sys
 import threading
-import time
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import BenchExecException

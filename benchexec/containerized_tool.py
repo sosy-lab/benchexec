@@ -25,7 +25,6 @@ import multiprocessing
 import os
 import signal
 import tempfile
-import sys
 
 from benchexec import container, containerexecutor, libc, util
 import benchexec.tools.template
