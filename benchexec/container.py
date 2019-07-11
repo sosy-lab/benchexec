@@ -61,7 +61,7 @@ __all__ = [
 
 
 DEFAULT_STACK_SIZE = 1024 * 1024
-GUARD_PAGE_SIZE = 4096  # size of guard page at end of stack
+GUARD_PAGE_SIZE = libc.sysconf(libc.SC_PAGESIZE)  # size of guard page at end of stack
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
