@@ -102,9 +102,15 @@ mmap.argtypes = [
     c_int,
     c_int,
     c_off_t,
-]  # add, length, prot, flags, fd, offset
+]  # addr, length, prot, flags, fd, offset
 mmap.restype = c_void_p
 mmap.errcheck = _check_errno
+
+
+def mmap_anonymous(length, prot, flags=0):
+    """Allocate anonymous memory with mmap. Length must be multiple of page size."""
+    return mmap(None, length, prot, flags | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)
+
 
 munmap = _libc.munmap
 """Free mmap()ed memory."""

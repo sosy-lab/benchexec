@@ -145,13 +145,10 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     """
     # Allocate memory with appropriate flags for a stack as in
     # https://blog.fefe.de/?ts=a85c8ba7
-    base = libc.mmap(
-        None,
+    base = libc.mmap_anonymous(
         size + GUARD_PAGE_SIZE,
         libc.PROT_READ | libc.PROT_WRITE,
-        libc.MAP_PRIVATE | libc.MAP_ANONYMOUS | libc.MAP_GROWSDOWN | libc.MAP_STACK,
-        -1,
-        0,
+        libc.MAP_GROWSDOWN | libc.MAP_STACK,
     )
 
     try:
