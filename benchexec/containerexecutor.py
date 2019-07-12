@@ -32,7 +32,6 @@ try:
     import cPickle as pickle  # noqa: N813
 except ImportError:
     import pickle
-import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import signal
 import subprocess
 import sys
@@ -293,6 +292,7 @@ def main(argv=None):
         executor.stop()
 
     signal.signal(signal.SIGTERM, signal_handler_kill)
+    signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
     # actual run execution
@@ -448,7 +448,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # preparations
         temp_dir = None
         if rootDir is None:
-            temp_dir = tempfile.mkdtemp(prefix="Benchexec_run_")
+            temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
 
         pid = None
         returnvalue = 0
@@ -569,8 +569,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if root_dir is None:
             env.update(self._env_override)
 
-        args = self._build_cmdline(args, env=env)
-
         # We have three processes involved:
         # parent: the current Python process in which RunExecutor is executing
         # child: child process in new namespace (PID 1 in inner namespace),
@@ -627,7 +625,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # such that parent can put us into the correct cgroups.  According to
                 # http://man7.org/linux/man-pages/man7/pid_namespaces.7.html,
                 # there are two ways to achieve this: sending a message with the PID
-                # via a socket (but Python < 3.3 lacks a convenient API for sendmsg),
+                # via a socket (but Python 2 lacks a convenient API for sendmsg),
                 # and reading /proc/self in the outer procfs instance
                 # (that's what we do).
                 my_outer_pid = container.get_my_pid_from_procfs()

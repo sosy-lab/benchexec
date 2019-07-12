@@ -17,7 +17,6 @@ and print resource measurements to stdout. Example:
     $ runexec echo Test
     2015-03-06 12:54:01,707 - INFO - Starting command echo Test
     2015-03-06 12:54:01,708 - INFO - Writing output to output.log
-    exitcode=0
     returnvalue=0
     walltime=0.0024175643920898438s
     cputime=0.001671s
@@ -46,8 +45,6 @@ and can be seen in the directories `/sys/devices/system/cpu` and `/sys/devices/s
 Additional parameters allow to change the name of the output file and the working directory.
 The full set of available parameters can be seen with `runexec -h`.
 For explanation of the parameters for containers, please see [container mode](container.md).
-For executing benchmarks under a different user account with the parameter `--user`,
-please check the [respective documentation](separate-user.md).
 Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
@@ -97,7 +94,7 @@ result = executor.execute_run(args=[<TOOL_CMD>], ...)
 
 ## Python 2 Compatibility
 
-While BenchExec in general requires at least Python 3.2,
+While BenchExec in general requires at least Python 3.4,
 `runexec` should also work with Python 2.7,
 both when run as a stand-alone tool and when used as a Python module.
 This is also true for the `benchexc.check_cgroups` command

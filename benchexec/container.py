@@ -30,6 +30,7 @@ import errno
 import fcntl
 import logging
 import os
+import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import signal
 import socket
 import struct

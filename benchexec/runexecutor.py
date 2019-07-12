@@ -27,7 +27,6 @@ import errno
 import logging
 import multiprocessing
 import os
-import resource
 import signal
 import subprocess
 import sys
@@ -49,10 +48,8 @@ from benchexec import systeminfo
 from benchexec import util
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
-_ULIMIT_DEFAULT_OVERHEAD = 30  # seconds after cgroups cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
-_SUDO_ARGS = ["sudo", "--non-interactive", "-u"]
 
 try:
     from subprocess import DEVNULL
@@ -157,12 +154,14 @@ def main(argv=None):
     container_on_args.add_argument(
         "--container",
         action="store_true",
-        help="force isolation of run in container (future default starting with BenchExec 2.0)",
+        dest="_ignored_container",
+        help="force isolation of run in container (default)",
     )
     container_on_args.add_argument(
         "--no-container",
-        action="store_true",
-        help="disable use of containers for isolation of runs (current default)",
+        action="store_false",
+        dest="container",
+        help="disable use of containers for isolation of runs",
     )
     containerexecutor.add_basic_container_args(container_args)
     containerexecutor.add_container_output_args(container_args)
@@ -191,12 +190,6 @@ def main(argv=None):
         metavar="DIR",
         help="working directory for executing the command (default is current directory)",
     )
-    environment_args.add_argument(
-        "--user",
-        metavar="USER",
-        help="execute tool under given user account (needs password-less sudo setup, "
-        "not supported in combination with --container)",
-    )
 
     baseexecutor.add_basic_executor_options(parser)
 
@@ -204,8 +197,6 @@ def main(argv=None):
     baseexecutor.handle_basic_executor_options(options, parser)
 
     if options.container:
-        if options.user is not None:
-            sys.exit("Cannot use --user in combination with --container.")
         container_options = containerexecutor.handle_basic_container_args(
             options, parser
         )
@@ -221,41 +212,6 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if options.user is not None:
-            logging.warning(
-                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
-                "Consider using the container mode instead for isolating runs "
-                "(cf. https://github.com/sosy-lab/benchexec/issues/215)."
-            )
-        elif not options.no_container:
-            logging.warning(
-                "Neither --container or --no-container was specified, "
-                "not using containers for isolation of runs. "
-                "Either specify --no-container to silence this warning, "
-                "or specify --container to use containers for better isolation of runs "
-                "(this will be the default starting with BenchExec 2.0). "
-                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information."
-            )
-
-    # For integrating into some benchmarking frameworks,
-    # there is a DEPRECATED special mode
-    # where the first and only command-line argument is a serialized dict
-    # with additional options
-    env = {}
-    if len(options.args) == 1 and options.args[0].startswith("{"):
-        data = eval(options.args[0])
-        options.args = data["args"]
-        env = data.get("env", {})
-        options.debug = data.get("debug", options.debug)
-        if "maxLogfileSize" in data:
-            try:
-                # convert MB to Bytes
-                options.maxOutputSize = (
-                    int(data["maxLogfileSize"]) * _BYTE_FACTOR * _BYTE_FACTOR
-                )
-            except ValueError:
-                options.maxOutputSize = util.parse_memory_value(data["maxLogfileSize"])
 
     if options.input == "-":
         stdin = sys.stdin
@@ -287,7 +243,6 @@ def main(argv=None):
         cgroup_subsystems.add(subsystem)
 
     executor = RunExecutor(
-        user=options.user,
         cleanup_temp_dir=options.cleanup,
         additional_cgroup_subsystems=list(cgroup_subsystems),
         use_namespaces=options.container,
@@ -300,6 +255,7 @@ def main(argv=None):
         executor.stop()
 
     signal.signal(signal.SIGTERM, signal_handler_kill)
+    signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
     formatted_args = " ".join(map(util.escape_string_shell, options.args))
@@ -326,7 +282,6 @@ def main(argv=None):
             memlimit=options.memlimit,
             memory_nodes=options.memoryNodes,
             cgroupValues=cgroup_values,
-            environments=env,
             workingDir=options.dir,
             maxLogfileSize=options.maxOutputSize,
             files_count_limit=options.filesCountLimit,
@@ -337,29 +292,25 @@ def main(argv=None):
         if stdin:
             stdin.close()
 
-    executor.check_for_new_files_in_home()
-
-    # exit_code is a special number:
-    exit_code = util.ProcessExitCode.from_raw(result["exitcode"])
+    # exit_code is a util.ProcessExitCode instance
+    exit_code = result.pop("exitcode", None)
 
     def print_optional_result(key, unit=""):
         if key in result:
-            # avoid unicode literals such that the string can be parsed by Python 3.2
-            print(key + "=" + str(result[key]).replace("'u", "") + unit)
+            print(key + "=" + str(result[key]) + unit)
 
     # output results
     print_optional_result("terminationreason")
-    print("exitcode=" + str(exit_code.raw))
-    if exit_code.value is not None:
+    if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
-    if exit_code.signal is not None:
+    if exit_code is not None and exit_code.signal is not None:
         print("exitsignal=" + str(exit_code.signal))
-    print("walltime=" + str(result["walltime"]) + "s")
-    print("cputime=" + str(result["cputime"]) + "s")
+    print_optional_result("walltime", "s")
+    print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
             print("{}={:.9f}s".format(key, result[key]))
-    print_optional_result("memory")
+    print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
@@ -372,74 +323,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     # --- object initialization ---
 
     def __init__(
-        self,
-        user=None,
-        cleanup_temp_dir=True,
-        additional_cgroup_subsystems=[],
-        use_namespaces=False,
-        *args,
-        **kwargs
+        self, cleanup_temp_dir=True, additional_cgroup_subsystems=[], *args, **kwargs
     ):
         """
         Create an instance of of RunExecutor.
-        @param user None or an OS user as which the benchmarked process should be executed (via sudo).
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(
-            use_namespaces=use_namespaces, *args, **kwargs
-        )
-        if use_namespaces and user:
-            raise ValueError(
-                "Combination of sudo mode of RunExecutor and namespaces is not supported"
-            )
+        super(RunExecutor, self).__init__(*args, **kwargs)
         self._termination_reason = None
-        self._user = user
         self._should_cleanup_temp_dir = cleanup_temp_dir
         self._cgroup_subsystems = additional_cgroup_subsystems
-
-        if user is not None:
-            # Check if we are allowed to execute 'kill' with dummy signal.
-            sudo_check = self._build_cmdline(["kill", "-0", "0"])
-            logging.debug("Checking for capability to run with sudo as user %s.", user)
-            p = subprocess.Popen(
-                sudo_check, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            try:
-                if p.wait():
-                    logging.error(
-                        'Calling "%s" failed with error code %s and the following output: %s\n%s',
-                        " ".join(sudo_check),
-                        p.returncode,
-                        p.stdout.read().decode().strip(),
-                        p.stderr.read().decode().strip(),
-                    )
-                    sys.exit(
-                        'Cannot execute benchmark as user "{0}", please fix your sudo setup.'.format(
-                            user
-                        )
-                    )
-            finally:
-                p.stdout.close()
-                p.stderr.close()
-
-            # Check home directory of user
-            try:
-                self._home_dir = _get_user_account_info(user).pw_dir
-            except (KeyError, ValueError) as e:
-                sys.exit("Unknown user {}: {}".format(user, e))
-            try:
-                self._home_dir_content = set(self._listdir(self._home_dir))
-            except (subprocess.CalledProcessError, IOError):
-                # Probably directory does not exist
-                self._home_dir_content = []
-            if self._home_dir_content:
-                logging.warning(
-                    "Home directory %s of user %s contains files and/or directories, it is "
-                    "recommended to do benchmarks with empty home to prevent undesired influences.",
-                    self._home_dir,
-                    user,
-                )
 
         self._energy_measurement = (
             intel_cpu_energy.EnergyMeasurement.create_if_supported()
@@ -465,25 +359,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.require_subsystem(CPUACCT)
         if CPUACCT not in self.cgroups:
-            logging.warning(
-                "Without cpuacct cgroups, cputime measurement and limit "
-                "might not work correctly if subprocesses are started."
-            )
+            logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
         self.cgroups.require_subsystem(FREEZER)
-        if FREEZER not in self.cgroups:
-            if self._user is not None:
-                # In sudo mode, we absolutely need at least one cgroup subsystem
-                # to be able to find the process where we need to send signals to
-                sys.exit(
-                    "Cannot reliably kill sub-processes without freezer cgroup,"
-                    + " this is necessary if --user is specified."
-                    + " Please enable this cgroup or do not specify --user."
-                )
-            else:
-                logging.warning(
-                    "Cannot reliably kill sub-processes without freezer cgroup."
-                )
+        if FREEZER not in self.cgroups and not self._use_namespaces:
+            sys.exit(
+                "Cannot reliably kill sub-processes without freezer cgroup "
+                "or container mode. Please enable at least one of them."
+            )
 
         self.cgroups.require_subsystem(MEMORY)
         if MEMORY not in self.cgroups:
@@ -523,76 +406,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
     # --- utility functions ---
-
-    def _build_cmdline(self, args, env={}):
-        """
-        Build the final command line for executing the given command,
-        using sudo if necessary.
-        """
-        if self._user is None:
-            return super(RunExecutor, self)._build_cmdline(args, env)
-        result = _SUDO_ARGS + [self._user]
-        for var, value in env.items():
-            result.append(var + "=" + value)
-        return result + ["--"] + args
-
-    def _kill_process(self, pid, cgroups=None, sig=signal.SIGKILL):
-        """
-        Try to send signal to given process, either directly of with sudo.
-        Because we cannot send signals to the sudo process itself,
-        this method checks whether the target is the sudo process
-        and redirects the signal to sudo's child in this case.
-        """
-        if self._user is not None:
-            if not cgroups:
-                cgroups = find_cgroups_of_process(pid)
-            # In case we started a tool with sudo, we cannot kill the started
-            # process itself, because sudo always runs as root.
-            # So if we are asked to kill the started process itself (the first
-            # process in the cgroup), we instead kill the child of sudo
-            # (the second process in the cgroup).
-            pids = cgroups.get_all_tasks(FREEZER)
-            try:
-                if pid == next(pids):
-                    pid = next(pids)
-            except StopIteration:
-                # pids seems to not have enough values
-                pass
-            finally:
-                pids.close()
-        self._kill_process0(pid, sig)
-
-    def _kill_process0(self, pid, sig=signal.SIGKILL):
-        """
-        Send signal to given process, either directly or with sudo.
-        If the target is the sudo process itself, the signal will be lost,
-        because we do not have the rights to send signals to sudo.
-        Use _kill_process() because of this.
-        """
-        if self._user is None:
-            super(RunExecutor, self)._kill_process(pid, sig)
-        else:
-            logging.debug("Sending signal %s to %s with sudo.", sig, pid)
-            try:
-                # Cast sig to int, under Python 3.5 the signal.SIG* constants are nums, not ints.
-                subprocess.check_call(
-                    args=self._build_cmdline(["kill", "-" + str(int(sig)), str(pid)])
-                )
-            except subprocess.CalledProcessError as e:
-                # may happen for example if process no longer exists
-                logging.debug(e)
-
-    def _listdir(self, path):
-        """Return the list of files in a directory, assuming that our user can read it."""
-        if self._user is None:
-            return os.listdir(path)
-        else:
-            args = self._build_cmdline(["/bin/ls", "-1A", path])
-            return (
-                subprocess.check_output(args, stderr=DEVNULL)
-                .decode("utf-8", errors="ignore")
-                .split("\n")
-            )
 
     def _set_termination_reason(self, reason):
         if not self._termination_reason:
@@ -696,59 +509,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         return cgroups
 
-    def _create_temp_dir(self):
-        """Create a temporary directory for the run."""
-        if self._user is None:
-            base_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
-        else:
-            create_temp_dir = self._build_cmdline(
-                [
-                    "python",
-                    "-c",
-                    "import tempfile;"
-                    'print(tempfile.mkdtemp(prefix="BenchExec_run_"))',
-                ]
-            )
-            base_dir = subprocess.check_output(create_temp_dir).decode().strip()
-        return base_dir
-
-    def _create_dirs_in_temp_dir(self, *paths):
-        if self._user is None:
-            super(RunExecutor, self)._create_dirs_in_temp_dir(*paths)
-        elif paths:
-            subprocess.check_call(
-                self._build_cmdline(["mkdir", "--mode=700"] + list(paths))
-            )
-
     def _cleanup_temp_dir(self, base_dir):
         """Delete given temporary directory and all its contents."""
         if self._should_cleanup_temp_dir:
             logging.debug("Cleaning up temporary directory %s.", base_dir)
-            if self._user is None:
-                util.rmtree(base_dir, onerror=util.log_rmtree_error)
-            else:
-                rm = subprocess.Popen(
-                    self._build_cmdline(["rm", "-rf", "--", base_dir]),
-                    stderr=subprocess.PIPE,
-                )
-                rm_output = rm.stderr.read().decode()
-                rm.stderr.close()
-                if rm.wait() != 0 or rm_output:
-                    logging.warning(
-                        "Failed to clean up temp directory %s: %s.", base_dir, rm_output
-                    )
+            util.rmtree(base_dir, onerror=util.log_rmtree_error)
         else:
             logging.info("Skipping cleanup of temporary directory %s.", base_dir)
 
     def _setup_environment(self, environments):
         """Return map with desired environment variables for run."""
-        # If keepEnv is set or sudo is used, start from a fresh environment,
+        # If keepEnv is set, start from a fresh environment,
         # otherwise with the current one.
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
         # clearEnv specifies variables to delete.
-        if self._user is not None or environments.get("keepEnv", None) is not None:
+        if environments.get("keepEnv", None) is not None:
             run_environment = {}
         else:
             run_environment = os.environ.copy()
@@ -776,7 +553,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if write_header:
             output_file.write(
-                " ".join(map(util.escape_string_shell, self._build_cmdline(args)))
+                " ".join(map(util.escape_string_shell, args))
                 + "\n\n\n"
                 + "-" * 80
                 + "\n\n\n"
@@ -791,20 +568,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
-        # hard time limit with cgroups is optional (additionally enforce by ulimit)
-        cgroup_hardtimelimit = hardtimelimit if CPUACCT in cgroups else None
-
-        if any([cgroup_hardtimelimit, softtimelimit, walltimelimit]):
+        if any([hardtimelimit, softtimelimit, walltimelimit]):
             # Start a timer to periodically check timelimit
             timelimitThread = _TimelimitThread(
                 cgroups=cgroups,
-                hardtimelimit=cgroup_hardtimelimit,
+                hardtimelimit=hardtimelimit,
                 softtimelimit=softtimelimit,
                 walltimelimit=walltimelimit,
                 pid_to_kill=pid_to_kill,
                 cores=cores,
                 callbackFn=self._set_termination_reason,
-                kill_process_fn=self._kill_process,
             )
             timelimitThread.start()
             return timelimitThread
@@ -820,7 +593,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     cgroups=cgroups,
                     pid_to_kill=pid_to_kill,
                     callbackFn=self._set_termination_reason,
-                    kill_process_fn=self._kill_process,
                 )
                 oomThread.start()
                 return oomThread
@@ -832,18 +604,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
         return None
 
-    def _setup_ulimit_time_limit(self, hardtimelimit, cgroups):
-        """Setup time limit with ulimit for the current process."""
-        if hardtimelimit is not None:
-            # Also use ulimit for CPU time limit as a fallback if cgroups don't work.
-            if CPUACCT in cgroups:
-                # Use a slightly higher limit to ensure cgroups get used
-                # (otherwise we cannot detect the timeout properly).
-                ulimit = hardtimelimit + _ULIMIT_DEFAULT_OVERHEAD
-            else:
-                ulimit = hardtimelimit
-            resource.setrlimit(resource.RLIMIT_CPU, (ulimit, ulimit))
-
     def _setup_file_hierarchy_limit(
         self, files_count_limit, files_size_limit, temp_dir, cgroups, pid_to_kill
     ):
@@ -853,10 +613,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 self._get_result_files_base(temp_dir),
                 files_count_limit=files_count_limit,
                 files_size_limit=files_size_limit,
-                cgroups=cgroups,
                 pid_to_kill=pid_to_kill,
                 callbackFn=self._set_termination_reason,
-                kill_process_fn=self._kill_process,
             )
             file_hierarchy_limit_thread.start()
             return file_hierarchy_limit_thread
@@ -924,6 +682,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit("Invalid time limit {0}.".format(hardtimelimit))
+            if not CPUACCT in self.cgroups:
+                sys.exit("Time limit cannot be specified without cpuacct cgroup.")
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
@@ -1031,12 +791,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.critical(
                 "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
             )
-            return {
-                "terminationreason": "failed",
-                "exitcode": 0,
-                "cputime": 0,
-                "walltime": 0,
-            }
+            return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
                 "OSError %s while starting '%s' in '%s': %s.",
@@ -1045,12 +800,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 workingDir or ".",
                 e.strerror,
             )
-            return {
-                "terminationreason": "failed",
-                "exitcode": 0,
-                "cputime": 0,
-                "walltime": 0,
-            }
+            return {"terminationreason": "failed"}
 
     def _execute(
         self,
@@ -1092,9 +842,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     )
                 )
                 if all_siblings == set(cores):
-                    packages = set(
+                    packages = {
                         resources.get_cpu_package_for_core(core) for core in cores
-                    )
+                    }
                 else:
                     # Disable energy measurements because we use only parts of a CPU
                     packages = None
@@ -1123,7 +873,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # But if we do not have freezer, it is safer to just let all processes run
             # until the container is killed.
             if FREEZER in cgroups:
-                cgroups.kill_all_tasks(self._kill_process0)
+                cgroups.kill_all_tasks()
 
             # For a similar reason, we cancel all limits. Otherwise a run could have
             # terminationreason=walltime because copying output files took a long time.
@@ -1143,12 +893,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
             os.setpgrp()  # make subprocess to group-leader
-            os.nice(5)  # increase niceness of subprocess
-            self._setup_ulimit_time_limit(hardtimelimit, cgroups)
 
         # preparations that are not time critical
         cgroups = self._setup_cgroups(cores, memlimit, memory_nodes, cgroup_values)
-        temp_dir = self._create_temp_dir()
+        temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
         run_environment = self._setup_environment(environments)
         outputFile = self._setup_output_file(
             output_filename, args, write_header=write_header
@@ -1221,7 +969,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             # Make sure to kill all processes if there are still some
             # (needs to come early to avoid accumulating more CPU time)
-            cgroups.kill_all_tasks(self._kill_process0)
+            cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
@@ -1262,7 +1010,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         _reduce_file_size_if_necessary(output_filename, max_output_size)
 
-        result["exitcode"] = returnvalue
+        result["exitcode"] = util.ProcessExitCode.from_raw(returnvalue)
         if energy:
             if packages == True:
                 result["cpuenergy"] = energy
@@ -1336,10 +1084,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     logging.debug(
                         "Could not read CPU time for core %s from kernel: %s", core, e
                     )
-        else:
-            # For backwards compatibility, we report cputime_wait on systems without cpuacct cgroup.
-            # TOOD We might remove this for BenchExec 2.0.
-            result["cputime"] = cputime_wait
 
         if MEMORY in cgroups:
             # This measurement reads the maximum number of bytes of RAM+Swap the process used.
@@ -1393,45 +1137,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
     def stop(self):
         self._set_termination_reason("killed")
         super(RunExecutor, self).stop()
-
-    def check_for_new_files_in_home(self):
-        """Check that the user account's home directory now does not contain more files than
-        when this instance was created, and warn otherwise.
-        Does nothing if no user account was given to RunExecutor.
-        @return set of newly created files
-        """
-        if not self._user:
-            return None
-        try:
-            created_files = set(self._listdir(self._home_dir)).difference(
-                self._home_dir_content
-            )
-        except (subprocess.CalledProcessError, IOError):
-            # Probably home directory does not exist
-            created_files = []
-        if created_files:
-            logging.warning(
-                "The tool created the following files in %s, "
-                "this may influence later runs:\n\t%s",
-                self._home_dir,
-                "\n\t".join(created_files),
-            )
-        return created_files
-
-
-def _get_user_account_info(user):
-    """Get the user account info from the passwd database. Only works on Linux.
-    @param user The name of a user account or a numeric uid prefixed with '#'
-    @return a tuple that corresponds to the members of the passwd structure
-    @raise KeyError: If user account is unknown
-    @raise ValueError: If uid is not a valid number
-    """
-    import pwd  # Import here to avoid problems on other platforms
-
-    if user[0] == "#":
-        return pwd.getpwuid(int(user[1:]))
-    else:
-        return pwd.getpwnam(user)
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
@@ -1525,7 +1230,6 @@ class _TimelimitThread(threading.Thread):
     def __init__(
         self,
         cgroups,
-        kill_process_fn,
         hardtimelimit,
         softtimelimit,
         walltimelimit,
@@ -1555,7 +1259,6 @@ class _TimelimitThread(threading.Thread):
         self.latestKillTime = util.read_monotonic_time() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
-        self.kill_process = kill_process_fn
         self.finished = threading.Event()
 
     def read_cputime(self):
@@ -1586,7 +1289,7 @@ class _TimelimitThread(threading.Thread):
                 logging.debug(
                     "Killing process %s due to CPU time timeout.", self.pid_to_kill
                 )
-                self.kill_process(self.pid_to_kill, self.cgroups)
+                util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
             if remainingWallTime <= 0:
@@ -1594,14 +1297,14 @@ class _TimelimitThread(threading.Thread):
                 logging.warning(
                     "Killing process %s due to wall time timeout.", self.pid_to_kill
                 )
-                self.kill_process(self.pid_to_kill, self.cgroups)
+                util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
 
             if remainingSoftCpuTime <= 0:
                 self.callback("cputime-soft")
                 # soft time limit violated, ask process to terminate
-                self.kill_process(self.pid_to_kill, self.cgroups, signal.SIGTERM)
+                util.kill_process(self.pid_to_kill, signal.SIGTERM)
                 self.softtimelimit = self.timelimit
 
             remainingTime = min(

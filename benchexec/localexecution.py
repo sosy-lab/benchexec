@@ -46,27 +46,8 @@ STOPPED_BY_INTERRUPT = False
 def init(config, benchmark):
     config.containerargs = {}
     if config.container:
-        if config.users is not None:
-            sys.exit("Cannot use --user in combination with --container.")
         config.containerargs = containerexecutor.handle_basic_container_args(config)
         config.containerargs["use_namespaces"] = True
-    else:
-        if config.users is not None:
-            logging.warning(
-                "Executing benchmarks at another user with --user is deprecated and may be removed in the future. "
-                "Consider using the container mode instead for isolating runs "
-                "(cf. https://github.com/sosy-lab/benchexec/issues/215)."
-            )
-        elif not config.no_container:
-            logging.warning(
-                "Neither --container or --no-container was specified, "
-                "not using containers for isolation of runs. "
-                "Either specify --no-container to silence this warning, "
-                "or specify --container to use containers for better isolation of runs "
-                "(this will be the default starting with BenchExec 2.0). "
-                "Please read https://github.com/sosy-lab/benchexec/blob/master/doc/container.md "
-                "for more information."
-            )
 
     try:
         processes = subprocess.Popen(
@@ -125,11 +106,11 @@ def execute_benchmark(benchmark, output_handler):
             benchmark.config.coreset,
         )
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
-        cpu_packages = set(
+        cpu_packages = {
             get_cpu_package_for_core(core)
             for cores_of_run in coreAssignment
             for core in cores_of_run
-        )
+        }
     elif benchmark.config.coreset:
         sys.exit(
             "Please limit the number of cores first if you also want to limit the set of available cores."
@@ -150,28 +131,6 @@ def execute_benchmark(benchmark, output_handler):
             "Starting more than one benchmark in parallel affects the CPU frequency "
             "and thus makes the performance unreliable."
         )
-
-    if benchmark.num_of_threads > 1 and benchmark.config.users:
-        if len(benchmark.config.users) == 1:
-            logging.warning(
-                "Executing multiple parallel benchmarks under same user account. "
-                "Consider specifying multiple user accounts for increased separation of runs."
-            )
-            benchmark.config.users = [
-                benchmark.config.users[0] for i in range(benchmark.num_of_threads)
-            ]
-        elif len(benchmark.config.users) < benchmark.num_of_threads:
-            sys.exit(
-                "Distributing parallel runs to different user accounts was requested, but not enough accounts were given. Please specify {} user accounts, or only one account.".format(
-                    benchmark.num_of_threads
-                )
-            )
-        elif len(benchmark.config.users) != len(set(benchmark.config.users)):
-            sys.exit(
-                "Same user account was specified multiple times, please specify {} separate accounts, or only one account.".format(
-                    benchmark.num_of_threads
-                )
-            )
 
     throttle_check = systeminfo.CPUThrottleCheck()
     swap_check = systeminfo.SwapCheck()
@@ -226,11 +185,8 @@ def execute_benchmark(benchmark, output_handler):
             for i in range(benchmark.num_of_threads):
                 cores = coreAssignment[i] if coreAssignment else None
                 memBanks = memoryAssignment[i] if memoryAssignment else None
-                user = benchmark.config.users[i] if benchmark.config.users else None
                 WORKER_THREADS.append(
-                    _Worker(
-                        benchmark, cores, memBanks, user, output_handler, run_finished
-                    )
+                    _Worker(benchmark, cores, memBanks, output_handler, run_finished)
                 )
 
             # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
@@ -257,9 +213,6 @@ def execute_benchmark(benchmark, output_handler):
             output_handler.output_after_run_set(
                 runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
             )
-
-            for worker in WORKER_THREADS:
-                worker.cleanup()
 
     if throttle_check.has_throttled():
         logging.warning(
@@ -295,13 +248,7 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(
-        self,
-        benchmark,
-        my_cpus,
-        my_memory_nodes,
-        my_user,
-        output_handler,
-        run_finished_callback,
+        self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
     ):
         threading.Thread.__init__(self)  # constuctor of superclass
         self.run_finished_callback = run_finished_callback
@@ -309,7 +256,7 @@ class _Worker(threading.Thread):
         self.my_cpus = my_cpus
         self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
-        self.run_executor = RunExecutor(user=my_user, **benchmark.config.containerargs)
+        self.run_executor = RunExecutor(**benchmark.config.containerargs)
         self.setDaemon(True)
 
         self.start()
@@ -387,6 +334,3 @@ class _Worker(threading.Thread):
         # asynchronous call to runexecutor,
         # the worker will stop asap, but not within this method.
         self.run_executor.stop()
-
-    def cleanup(self):
-        self.run_executor.check_for_new_files_in_home()
