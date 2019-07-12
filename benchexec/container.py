@@ -138,8 +138,9 @@ if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
 _CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
 """Type for callback of execute_in_namespace, nested in our primary callback."""
 
-# TODO Use named fields on Python >= 3.3
-NATIVE_CLONE_CALLBACK_SUPPORTED = os.uname()[0] == "Linux" and os.uname()[4] == "x86_64"
+NATIVE_CLONE_CALLBACK_SUPPORTED = (
+    os.uname().sysname == "Linux" and os.uname().machine == "x86_64"
+)
 """Whether we use generated native code for clone or an unsafe Python fallback"""
 
 
