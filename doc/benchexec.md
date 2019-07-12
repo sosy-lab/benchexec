@@ -111,7 +111,7 @@ If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
-If a property file is given in the benchmark XML definition with the `<propertyfile>` tag,
+If a [property file](properties/INDEX.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
 `benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
 If none is found, the task defined by this task definition is ignored.
