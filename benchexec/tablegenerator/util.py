@@ -282,18 +282,22 @@ def prepare_run_sets_for_js(run_sets, columns):
     # // })
     return [merge_dicts(rs, {'columns': columns[i]}) for i, rs in enumerate(run_sets)] #Tupel (index + column)
 
-def prepare_rows_for_js(rows):
+def prepare_rows_for_js(rows, tools, base_dir, href_base):
     row_exclude_keys = {'properties'}
     results_exclude_keys = {'columns', 'task_id', 'sourcefiles_exist', 'status'}
+
+    def clean_up_results(res, i):
+        toolHref = [column.href for column in tools[i]['columns'] if column.title.endswith('status')][0]
+        href = create_link(toolHref or res.log_file, base_dir, res, href_base)
+        return merge_dicts({'href': href}, {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys})
 
     def clean_up_row(row):
         #(if key not in exclude) {res.__dict__.items.map((k, v) => {
         #    k: v (= key: value)
         #})}
-        # add link to source create_link(line.filename, base_dir) => line is row.filename
-        # add link to tooloutput to row['results'] => create_link(column.href or runResult.log_file, base_dir, runResult, href_base)
         row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys} 
-        row['results'] = [{k: v for k, v in res.__dict__.items() if k not in results_exclude_keys} for res in row['results']]
+        row['results'] = [clean_up_results(res, i) for i, res in enumerate(row['results'])]
+        row['href'] = create_link(row['filename'], base_dir)
         return row
 
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
