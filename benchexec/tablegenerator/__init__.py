@@ -1823,12 +1823,12 @@ def create_tables(
     template_values.version = __version__
 
     # prepare data for js react application---------------------------------------------------------
-    # template_values.head = get_table_head(runSetResults, common_prefix) // needed for FE rendering
+    # template_values.head = <see above>
     template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
     template_values.rows = Util.prepare_rows_for_js(rows)
     template_values.app_css = Util.read_frontend_file("style.css")
     template_values.app_js = Util.read_frontend_file("script.js")
-    # stats see below (foot/foot_columns)
+    # template_values.stats = <see below>
     # prepare data for js react application---------------------------------------------------------
 
     futures = []

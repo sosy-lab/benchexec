@@ -265,6 +265,7 @@ def parse_json(obj):
     if type(obj) is Decimal: # for decimal numbers
         return float(obj)
     elif "__dict__" in dir(obj): # e.g. for own Classes (Key-value)
+        # wenn die <Funktionen eines dictionaries> in dem object vorkommen, dann behandel es wie ein dictionary
         return obj.__dict__
     elif "__iter__" in dir(obj): # e.g. for Set (List)
         return list(obj)
@@ -277,7 +278,7 @@ def merge_dicts(*dicts):
 def prepare_run_sets_for_js(run_sets, columns):
     # javascript pendant:
     # // var tools = run_sets.map((rs, i) => {
-    # //   return { columns: columns_data[i], ...rs }
+    # //   return { ...rs, columns: columns_data[i] }
     # // })
     return [merge_dicts(rs, {'columns': columns[i]}) for i, rs in enumerate(run_sets)] #Tupel (index + column)
 
@@ -286,22 +287,28 @@ def prepare_rows_for_js(rows):
     results_exclude_keys = {'columns', 'task_id', 'sourcefiles_exist', 'status'}
 
     def clean_up_row(row):
-        row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys}
+        #(if key not in exclude) {res.__dict__.items.map((k, v) => {
+        #    k: v (= key: value)
+        #})}
+        # add link to source create_link(line.filename, base_dir) => line is row.filename
+        # add link to tooloutput to row['results'] => create_link(column.href or runResult.log_file, base_dir, runResult, href_base)
+        row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys} 
         row['results'] = [{k: v for k, v in res.__dict__.items() if k not in results_exclude_keys} for res in row['results']]
         return row
 
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
 
 def prepare_stats_for_js(stats, tools):
-    toolColumnCounts = [len(tool["columns"]) for tool in tools]
+    toolColumnCounts = [len(tool["columns"]) for tool in tools] #len === .length() => [9, 4, 6]
 
     def get_stat_content(stat, i, count):
-        start = 0 if i == 0 else toolColumnCounts[i - 1]
-        return stat.content[start:start+count]
-    
+        start = reduce(lambda acc, cur: acc + cur, toolColumnCounts[0:i], 0)
+        return stat.content[start:start+count]  #reduce(labda acc, cur: acc + curr) 
+
     def clean_up_stat(stat):
         # toolContent0 = stat.content[0:toolColumnCounts[0]] => [0:9]
-        # toolContent1 = stat.content[toolColumnCounts[0]: toolColumnCounts[0] + toolColumnCounts[1]] => [9:(9+4)]
+        # toolContent1 = stat.content[toolColumnCounts[0]: toolColumnCounts[0] + toolColumnCounts[1]] => [9:(9+4)]  
+        # toolContent2 = stats.content[toolColumnCounts[1]: toolColumnsCounts[0] + toolColumnCounts[1] + toolColumnCounts[2]] => TODO [4:4+6] 
         # return [toolContent0, toolContent1]
         return [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
 
