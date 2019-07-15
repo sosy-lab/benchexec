@@ -9,7 +9,7 @@ because it is run directly on the host kernel, without any additional layers.
 By using an overlay filesystem (if available), the benchmarked process can still read from the host filesystem,
 but not modify any files except where specifically allowed.
 You can read more about it in our paper
-[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 There is also an additional tool, `containerexec`,
 which is similar to `runexec` but provides only isolation of an application in a container,
 but no resource measurements and limitations.

@@ -109,7 +109,8 @@ and relative file names inside set files are interpreted as relative to the dire
 
 ### Task-Definition Files
 Such files can be used to specify more complex tasks,
-such as tasks with several input files or expected results.
+such as tasks with several input files
+or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
 and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
 
@@ -198,7 +199,7 @@ One can use this to create a reliable archive of experimental results.
 in the best possible way.
 More information on what should be considered when allocating hardware resources such as CPU cores
 can be found in our paper
-[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 Some additional technical information is also present in the documentation on [resource handling](resources.md).
 
 

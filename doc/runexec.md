@@ -99,3 +99,7 @@ While BenchExec in general requires at least Python 3.4,
 both when run as a stand-alone tool and when used as a Python module.
 This is also true for the `benchexc.check_cgroups` command
 that can be used to verify the [cgroups setup](INSTALL.md#setting-up-cgroups).
+
+*Compatibility with Python 2 will be removed in BenchExec 3.0 in January 2020.*
+Please add a comment to [#438](https://github.com/sosy-lab/benchexec/issues/438)
+if this is a problem for you.

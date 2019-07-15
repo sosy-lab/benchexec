@@ -1,5 +1,63 @@
 # BenchExec Changelog
 
+## BenchExec 2.0
+
+This release does not add new features compared to BenchExec 1.22,
+but removes several deprecated features and brings several other backwards-incompatible changes
+to make BenchExec more consistent and user-friendly:
+
+- Support for Python 3.2 and 3.3 is removed, the minimal Python version is now 3.4.
+  Additionally, `runexec`/`RunExecutor` continue to support Python 2.7
+  [until end of 2019](https://github.com/sosy-lab/benchexec/issues/438).
+- Support for running benchmarks as a different user with `sudo` is removed
+  (parameters `--user`/`--users`).
+  Use container mode as better method for isolating runs.
+- [Container mode](doc/container.md) is enabled by default.
+  It can be disabled with `--no-container`,
+  but this decreases reliability of benchmarking.
+- If the `cpuacct` cgroup is not available,
+  CPU-time measurements and limits are not supported.
+- Either container mode or the `freezer` cgroup are required
+  to ensure protection against fork bombs.
+- [Niceness](http://man7.org/linux/man-pages/man2/nice.2.html)
+  of benchmarked process is not changed, previously it was increased by 5.
+- Changes to input of `benchexec`:
+  - The memory limit given to `benchexec` requires an explicitly specified unit.
+  - Support for `<test>` tags, `<sourcefiles>` tags,
+    and variables named `${sourcefile_*}` removed from benchmark definitions.
+    Use `<rundefinition>`, `<tasks>`, and `${inputfile_*}` instead.
+  - Variables named `${taskdef_*}` are defined only if task-definition files are used,
+    and variables named `${inputfile_*}` only otherwise.
+- Changes to `table-generator`:
+  - A column named `memUsage` is automatically renamed to `memory`.
+  - A column named `memory` is automatically converted to Megabytes.
+  Both conversions are only applied if no `<column>` tags are used.
+- Changes to [run-result data](doc/run-results.md):
+  - In case of aborted or failed runs, no dummy results (e.g., `cputime` of 0s)
+    are present.
+  - The memory results of `benchexec` are named `memory`, not `memUsage`.
+  - Memory results have the unit `B` explicitly specified.
+    Furthermore, units are present in all attributes of the result XML files
+    where they were still missing.
+  - Result item `exitcode` is removed, only `RunExecutor.execute_run()` still returns it,
+    but as an object instance instead of an `int`.
+    Use `returnvalue` and `exitsignal` instead.
+- Module `benchexec.test_tool_wrapper` is removed, use `benchexec.test_tool_info` instead.
+- BenchExec (both `benchexec` and `runexec`) terminates itself cleanly after aborting all runs
+  if it receives one of the signals `SIGTERM`, `SIGINT` (Ctrl+C), or `SIGQUIT`.
+
+Furthermore, we declare the following features deprecated
+and plan on removing them for [BenchExec 3.0](https://github.com/sosy-lab/benchexec/milestone/8),
+which is expected to be released in January 2020:
+
+- Support for Python 2.7 and 3.4 (cf. [#438](https://github.com/sosy-lab/benchexec/issues/438))
+- Support for checking correctness of run results and computing scores
+  if task-definition files are *not* used (cf. [#439](https://github.com/sosy-lab/benchexec/issues/439))
+
+Please respond in the respective issue if one of these deprecations
+is a problem for you.
+
+
 ## BenchExec 1.22
 
 - More robust handling of Ctrl+C in `benchexec`.
