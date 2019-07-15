@@ -17,9 +17,9 @@ The following packages are optional but recommended dependencies:
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
 that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
 
-    apt install python3-tempita python3-coloredlogs lxcfs python3-yaml
-    dpkg -i benchexec_*.deb
+    apt install --install-recommends ./benchexec_*.deb
 
+Note that the leading `./` is important, otherwise `apt` will not find the package.
 This package also automatically configures the necessary cgroup permissions.
 Just add your user to the group `benchexec` and reboot:
 
