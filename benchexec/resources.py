@@ -95,8 +95,16 @@ def get_cpu_cores_per_run(
         cores_of_memory_region = collections.defaultdict(list)
         for core in allCpus:
             coreDir = "/sys/devices/system/cpu/cpu{0}/".format(core)
-            memory_region = _get_memory_banks_listed_in_dir(coreDir)[0]
-            cores_of_memory_region[memory_region].append(core)
+            memory_regions = _get_memory_banks_listed_in_dir(coreDir)
+            if memory_regions:
+                cores_of_memory_region[memory_regions[0]].append(core)
+            else:
+                # If some cores do not have NUMA information, skip using it completely
+                logging.warning(
+                    "Kernel does not have NUMA support. Use benchexec at your own risk."
+                )
+                cores_of_memory_region = {}
+                break
         logging.debug("Memory regions of cores are %s.", cores_of_memory_region)
 
         # read mapping of core to CPU ("physical package")
