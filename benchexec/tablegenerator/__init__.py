@@ -65,7 +65,10 @@ DEFAULT_OUTPUT_PATH = "results/"
 LIB_URL = "https://cdn.jsdelivr.net"
 LIB_URL_OFFLINE = "lib/javascript"
 
-TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "template.{format}")
+TEMPLATE_NAME = "template"
+TEMPLATE_NAME_REACT = "template_react"
+TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format}")
+
 TEMPLATE_FORMATS = ["html", "csv"]
 TEMPLATE_ENCODING = "UTF-8"
 TEMPLATE_NAMESPACE = {
@@ -1875,6 +1878,7 @@ def create_tables(
                     outfile,
                     this_template_values,
                     options.show_table and template_format == "html",
+                    options.template_name if template_format == "html" else TEMPLATE_NAME,
                 )
             )
 
@@ -1893,10 +1897,10 @@ def create_tables(
     return futures
 
 
-def write_table_in_format(template_format, outfile, template_values, show_table):
+def write_table_in_format(template_format, outfile, template_values, show_table, template_name):
     # read template
     Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
-    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
+    template_file = TEMPLATE_FILE_NAME.format(template=template_name,format=template_format)
     try:
         template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
     except NameError:
@@ -2047,6 +2051,15 @@ def create_argument_parser():
     )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
+    )
+    parser.add_argument(
+        "-r",
+        "--react",
+        action="store_const",
+        dest="template_name",
+        const=TEMPLATE_NAME_REACT,
+        default=TEMPLATE_NAME,
+        help="Use template_react.html instead of template.html",
     )
     return parser
 
