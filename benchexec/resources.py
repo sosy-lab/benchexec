@@ -92,19 +92,17 @@ def get_cpu_cores_per_run(
         logging.debug("List of available CPU cores is %s.", allCpus)
 
         # read mapping of core to memory region
-        memory_regions = []
+        cores_of_memory_region = collections.defaultdict(list)
         for core in allCpus:
             coreDir = "/sys/devices/system/cpu/cpu{0}/".format(core)
-            memory_regions.append(_get_memory_banks_listed_in_dir(coreDir)[0])
-        cores_of_memory_region = collections.defaultdict(list)
-        for core, memory_region in zip(allCpus, memory_regions):
+            memory_region = _get_memory_banks_listed_in_dir(coreDir)[0]
             cores_of_memory_region[memory_region].append(core)
         logging.debug("Memory regions of cores are %s.", cores_of_memory_region)
 
         # read mapping of core to CPU ("physical package")
-        physical_packages = [get_cpu_package_for_core(core) for core in allCpus]
         cores_of_package = collections.defaultdict(list)
-        for core, package in zip(allCpus, physical_packages):
+        for core in allCpus:
+            package = get_cpu_package_for_core(core)
             cores_of_package[package].append(core)
         logging.debug("Physical packages of cores are %s.", cores_of_package)
 
@@ -155,7 +153,7 @@ def _get_cpu_cores_per_run0(
     Do not call it directly, call getCpuCoresPerRun()!
     @param use_hyperthreading: A boolean to check if no-hyperthreading method is being used
     @param allCpus: the list of all available cores
-    @param cores_of_unit: a mapping from logical unit (can be memory region (NUMA node) or physical package(CPU), depending on the architecture of system) 
+    @param cores_of_unit: a mapping from logical unit (can be memory region (NUMA node) or physical package(CPU), depending on the architecture of system)
                           to lists of cores that belong to this unit
     @param siblings_of_core: a mapping from each core to a list of sibling cores including the core itself (a sibling is a core sharing the same physical core)
     """
