@@ -8,8 +8,11 @@
 # testing
 /coverage
 
-# production
-/build
+# production - include bundle JS
+!build/
+*build/*
+!build/static
+build/static/*.map
 
 # misc
 .DS_Store
