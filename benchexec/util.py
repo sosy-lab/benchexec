@@ -467,6 +467,14 @@ def read_file(*path):
         return f.read().strip()
 
 
+def try_read_file(*path):
+    """Read the full content of a file if possible, return None otherwise."""
+    try:
+        return read_file(*path).strip()
+    except OSError:
+        return NOne
+
+
 def read_key_value_pairs_from_file(*path):
     """
     Read key value pairs from a file (each pair on a separate line).

@@ -202,9 +202,16 @@ and the result files are placed in a directory besides the result XML file.
 Note that for investigating container-related problems, it can be easier to start an interactive shell
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
+#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system, please enable them with 'sysctl kernel.unprivileged_userns_clone=1' or disable container mode.`
+Unprivileged user namespaces are forbidden on your system
+(this is the default on Debian and Arch Linux).
+Please check the [system requirements](container.md#system-requirements)
+how to enable them.
+
 #### `Cannot execute ...: Creating namespace for container mode failed`
-Probably your kernel does not support unprivileged user namespaces, please check the system requirements above.
-On some distributions your system administrator needs to to enable them for you.
+It seems your kernel does not support unprivileged user namespaces.
+Please check the [system requirements](container.md#system-requirements)
+and make sure that the kernel is compiled with `CONFIG_USER_NS`.
 Furthermore note that running BenchExec inside other container solutions
 such as Docker may or may not work depending on how the outer container
 is configured (for example for Docker, `--privileged` is necessary).

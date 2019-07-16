@@ -801,10 +801,21 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     child, use_network_ns=not self._allow_network
                 )
             except OSError as e:
-                raise BenchExecException(
-                    "Creating namespace for container mode failed: "
-                    + os.strerror(e.errno)
-                )
+                if (
+                    e.errno == errno.EPERM
+                    and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone")
+                    == "0"
+                ):
+                    raise BenchExecException(
+                        "Unprivileged user namespaces forbidden on this system, please "
+                        "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                        "or disable container mode"
+                    )
+                else:
+                    raise BenchExecException(
+                        "Creating namespace for container mode failed: "
+                        + os.strerror(e.errno)
+                    )
             logging.debug(
                 "Parent: child process of RunExecutor with PID %d started.", child_pid
             )
