@@ -126,7 +126,7 @@ def handle_basic_container_args(options, parser=None):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             error_fn(
-                "Cannot specify directory mode for '{}' because it does not exist"
+                "Cannot specify directory mode for '{}' because it does not exist "
                 "or is no directory.".format(path)
             )
         if path in dir_modes:
