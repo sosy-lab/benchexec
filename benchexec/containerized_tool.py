@@ -211,7 +211,7 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
         container.setup_container_system_config(temp_base, config_mount_base)
 
     cwd = os.getcwd()
-    os.chroot(mount_base)
+    container.chroot(mount_base)
     os.chdir(cwd)
 
 
