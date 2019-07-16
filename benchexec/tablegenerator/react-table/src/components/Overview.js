@@ -1,15 +1,16 @@
 import React from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import "react-tabs/style/react-tabs.css";
-import data from '../data/new_href.json';  //change data here
 import Table from './ReactTable.js';
 import Summary from './Summary.js';
 import SelectColumn from './SelectColumn.js';
 import ScatterPlot from './ScatterPlot.js';
 import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
-    
-window.data = data;
+
+if (process.env.NODE_ENV !== 'production') {
+    window.data = require('../data/data.json');
+}
 
 export default class Overview extends React.Component {
     constructor(props) {

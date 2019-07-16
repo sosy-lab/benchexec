@@ -73,7 +73,8 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "tablegenerator": "npm run build && ../../../bin/table-generator --react -f html --no-diff -o build/ src/data/test.xml.bz2 && open build/test.html"
   },
   "eslintConfig": {
     "extends": "react-app"
