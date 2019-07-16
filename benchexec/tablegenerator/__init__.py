@@ -65,6 +65,9 @@ DEFAULT_OUTPUT_PATH = "results/"
 LIB_URL = "https://cdn.jsdelivr.net"
 LIB_URL_OFFLINE = "lib/javascript"
 
+
+REACT_FILE_NAME = os.path.join(os.path.dirname(__file__), "react-table/build/static/bundle.min.{format}")
+
 TEMPLATE_NAME = "template"
 TEMPLATE_NAME_REACT = "template_react"
 TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format}")
@@ -1826,13 +1829,15 @@ def create_tables(
     template_values.version = __version__
 
     # prepare data for js react application---------------------------------------------------------
-    # template_values.head = <see above>
-    template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
-    template_values.rows = Util.prepare_rows_for_js(rows, template_values.tools, outputPath, template_values.href_base)
+    if(options.template_name == TEMPLATE_NAME_REACT):
+        logging.info("Create react template...")
+        # template_values.head = <see above>
+        template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
+        template_values.rows = Util.prepare_rows_for_js(rows, template_values.tools, outputPath, template_values.href_base)
 
-    template_values.app_css = Util.read_frontend_file("style.css")
-    template_values.app_js = Util.read_frontend_file("script.js")
-    # template_values.stats = <see below>
+        template_values.app_css = Util.read_frontend_asset(REACT_FILE_NAME, "css")
+        template_values.app_js = Util.read_frontend_asset(REACT_FILE_NAME, "js")
+        # template_values.stats = <see below>
     # prepare data for js react application---------------------------------------------------------
 
     futures = []
@@ -1846,7 +1851,8 @@ def create_tables(
             stats = stats_columns = None
 
         # prepare data for js react application (stats)---------------------------------------------------------
-        template_values.stats = Util.prepare_stats_for_js(stats, template_values.tools)
+        if(options.template_name == TEMPLATE_NAME_REACT):
+            template_values.stats = Util.prepare_stats_for_js(stats, template_values.tools)
         # prepare data for js react application (stats)---------------------------------------------------------
 
         for template_format in options.format or TEMPLATE_FORMATS:

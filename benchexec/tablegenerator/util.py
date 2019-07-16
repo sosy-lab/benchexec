@@ -318,9 +318,8 @@ def prepare_stats_for_js(stats, tools):
 
     return [merge_dicts(stat, {"content": clean_up_stat(stat)}) for stat in copy.deepcopy(stats)] # add original stat infos
 
-def read_frontend_file(filename):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return open(dir_path + "/react-table/" + filename, "r").read()
+def read_frontend_asset(file_name, format):
+    return open(file_name.format(format=format), "r").read()
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     """
