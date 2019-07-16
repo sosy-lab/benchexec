@@ -1,0 +1,43 @@
+{
+  "name": "thesis-local",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.19",
+    "@fortawesome/free-solid-svg-icons": "^5.9.0",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "jszip": "^3.2.2",
+    "jszip-utils": "^0.1.0",
+    "node-sass": "^4.12.0",
+    "react": "^16.8.6",
+    "react-collapsible": "^2.6.0",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1",
+    "react-table": "^6.10.0",
+    "react-table-hoc-fixed-columns": "^2.1.0",
+    "react-tabs": "^3.0.0",
+    "react-tooltip-lite": "^1.9.5",
+    "react-vis": "^1.11.7"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

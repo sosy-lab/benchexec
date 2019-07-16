@@ -1,0 +1,236 @@
+.App {
+  // text-align: center;
+  font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
+}
+
+.overview {
+  ul {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 60px;
+    li {
+      width: 16%;
+      text-align: center;
+    }
+  }
+}
+
+.btn {
+  margin: 0 10px 9px 0;
+  text-align: center;
+  padding: auto;
+  height: 35px;
+  cursor: pointer;
+}
+    .btn-apply {
+      margin-left: 100px;
+      background-image: linear-gradient(to right, #0ba360, #3cba92, #30dd8a, #2bb673);
+      box-shadow: 0 4px 12px 0 rgba(23, 168, 108, 0.5);
+      -o-transition: all .4s ease-in-out;
+      -webkit-transition: all .4s ease-in-out;
+      transition: all .4s ease-in-out;
+      background-size: 300% 100%;
+    }
+    .btn-apply:hover {
+      background-position: 100% 0;
+      -o-transition: all .4s ease-in-out;
+      -webkit-transition: all .4s ease-in-out;
+      transition: all .4s ease-in-out;
+    }
+
+.summary {
+  width: 99%;
+  margin: auto;
+
+  // .rt-th {
+  //   text-align: center;
+  // }
+  .rt-thead .rt-th {
+    text-align: left;
+    .columns{
+      text-align: center;
+      cursor: pointer;
+    }
+  }
+  .toolInfo {
+    text-align: left;
+    margin: 20px;
+  }
+  .summary_span {
+    text-align: center;
+  }
+
+  .header__tool-infos {
+    text-align: left;
+    align-self: flex-end;
+    position: absolute;
+    bottom: 0;
+    tr {
+      border-top: 1px solid black;
+      
+    }
+  }
+}
+
+.mainTable {
+  //styling for the React Table
+  width: 99%;
+  margin: auto;
+  .rt-tbody {
+    padding-bottom: 45px;
+    span {
+      text-align: center;
+    }
+    .rt-td {
+      padding: 4px 4px;
+      border-right: 1px solid rgba(142, 142, 142, 0.3)!important;
+      // overflow: scroll;
+      text-align: right;
+    }
+  }
+  .pagination-bottom {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    background: white;
+  }
+
+  .cellLink {
+    cursor: pointer;
+
+  }
+}
+
+.quantilePlot {
+  margin: 20px;
+  select {
+    display: flex;
+    margin: auto;
+  }
+  .rv-discrete-color-legend {
+    position: absolute;
+    right: 0;
+    height: auto;
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: #e2e2e2;
+    }
+  }
+  } 
+
+
+.scetterPlot {
+  text-align: center;
+  &__select select {
+    margin: 10px;
+  }
+  &__plot {
+    margin: auto;
+  }
+  button {
+    margin: 10px;
+  }
+}
+
+.overlay {
+  position: fixed;
+  overflow: scroll;
+  top: 20px;
+  right: 20px;
+  left: 20px;
+  height: 80%;
+  z-index: 20;
+  background: white;
+  border: 5px solid grey;
+  padding: 10px;
+
+  h1 {
+    margin-bottom: 40px;
+  }
+  th, td {
+    cursor: pointer;
+    text-align: center;
+    label {
+      cursor: pointer;
+    }
+    background: white;
+    color: #ab0202;
+    // background: red;
+    &.checked {
+      color: black;
+    }
+    
+  }
+  th:first-child {
+    background: white;
+  }
+  td:first-child {
+    width: 30%;
+    text-align: left;
+  }
+  input {
+    display: none;
+  }
+
+
+  &__buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    button {
+      margin-top: 50px;
+    }
+  }
+
+  th {
+    border-bottom: 1px solid black;
+  }
+
+  .closing {
+    cursor: pointer;
+    position: fixed;
+    right: 35px;
+    top: 35px;
+  }
+}
+
+
+  .tooltip__action {
+    border: 1px solid black;
+  }
+
+.info {
+  font-size: 11px;
+  color: burlywood;
+  cursor: pointer;
+}
+
+.TIMEO, .ERROR {
+  color: magenta;
+  cursor: pointer;
+}
+.true, .false {
+  color: green;
+  cursor: pointer;
+}
+.done {
+  color: darkblue;
+  cursor: pointer;
+}
+
+.rt-td {
+  text-align: left;
+}
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
