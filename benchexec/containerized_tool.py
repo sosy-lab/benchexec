@@ -115,6 +115,11 @@ def _init_container_and_load_tool(
     container_tmpfs,  # ignored, tmpfs is always used
 ):
     """Initialize container for the current process and load given tool-info module."""
+    # Prepare for private home directory, some tools write there
+    if container_system_config:
+        dir_modes.setdefault(container.CONTAINER_HOME, container.DIR_HIDDEN)
+        os.environ["HOME"] = container.CONTAINER_HOME
+
     # Preparations
     temp_dir = temp_dir.encode()
     dir_modes = collections.OrderedDict(
