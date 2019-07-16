@@ -47,7 +47,7 @@ def init(config, benchmark):
     config.containerargs = {}
     if config.container:
         config.containerargs = containerexecutor.handle_basic_container_args(config)
-        config.containerargs["use_namespaces"] = True
+    config.containerargs["use_namespaces"] = config.container
 
     try:
         processes = subprocess.Popen(
