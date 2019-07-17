@@ -902,6 +902,15 @@ def setup_container_system_config(basedir, mountdir, dir_modes):
     # Bind bounds for symlinks are not possible, so do nothing for "mountdir/etc/mtab".
     # This is not a problem because most systems have the correct symlink anyway.
 
+    if not os.path.isdir(mountdir.decode() + CONTAINER_HOME):
+        logging.warning(
+            "Home directory in container should be %(h)s but this directory "
+            "cannot be created due to directory mode of parent directory. "
+            "It is recommended to use '--overlay-dir %(p)s' or '--hidden-dir %(p)s' "
+            "and overwrite directory modes for subdirectories where necessary.",
+            {"h": CONTAINER_HOME, "p": os.path.dirname(CONTAINER_HOME)},
+        )
+
 
 def is_container_system_config_file(file):
     """Determine whether a given file is one of the files created by
