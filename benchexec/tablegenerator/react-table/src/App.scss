@@ -84,7 +84,6 @@
     .rt-td {
       padding: 4px 4px;
       border-right: 1px solid rgba(142, 142, 142, 0.3)!important;
-      // overflow: scroll;
       text-align: right;
     }
   }
@@ -99,6 +98,18 @@
   .cellLink {
     cursor: pointer;
 
+  }
+  .correct {
+    color: green;
+  }
+  .error {
+    color: magenta;
+  }
+  .unknown {
+    color: orange;
+  }
+  .wrong {
+    color: red;
   }
 }
 
@@ -207,19 +218,6 @@
 .info {
   font-size: 11px;
   color: burlywood;
-  cursor: pointer;
-}
-
-.TIMEO, .ERROR {
-  color: magenta;
-  cursor: pointer;
-}
-.true, .false {
-  color: green;
-  cursor: pointer;
-}
-.done {
-  color: darkblue;
   cursor: pointer;
 }
 

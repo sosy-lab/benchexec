@@ -84,7 +84,7 @@ export default class Overview extends React.Component {
         }
     }
 
-    prepareTableValues = (el, tool, column, href) => {
+    prepareTableValues = (el, tool, column, href, row) => {
         const col = this.tools[tool].columns[column];
 
         // table
@@ -92,7 +92,7 @@ export default class Overview extends React.Component {
             return typeof el === 'string' ? (+el.replace('s', '')).toPrecision(3) : Math.round(+el);
         } else {
             if (typeof el === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
-                return el ? <div className={el.substr(0,5)} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</div> : null
+                return el ? <div className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</div> : null
             } else if(el) { // STATS
                 return col.type.name === "text" ? el : +el;
             }

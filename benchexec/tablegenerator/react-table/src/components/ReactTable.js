@@ -44,7 +44,7 @@ export default class Table extends React.Component {
                         ),
                         show: column.isVisible,
                         accessor: props => (
-                            this.props.prepareTableValues(props.results[j].values[i], j, i, props.results[j].href)
+                            this.props.prepareTableValues(props.results[j].values[i], j, i, props.results[j].href, props.results[j])
                         ),
                         sortMethod: (a, b, desc) => {
                             //default hast to be overwritten because of <span>
