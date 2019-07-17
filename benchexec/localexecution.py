@@ -182,7 +182,9 @@ def execute_benchmark(benchmark, output_handler):
                 sys.setswitchinterval(1000)
 
             # create some workers
-            for i in range(benchmark.num_of_threads):
+            for i in range(min(benchmark.num_of_threads, unfinished_runs)):
+                if STOPPED_BY_INTERRUPT:
+                    break
                 cores = coreAssignment[i] if coreAssignment else None
                 memBanks = memoryAssignment[i] if memoryAssignment else None
                 WORKER_THREADS.append(
