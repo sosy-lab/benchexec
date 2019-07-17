@@ -12,8 +12,8 @@ export default class LinkOverlay extends React.Component {
         this.state = {
             content: 'loading...'
         };
-        // this.link = this.props.link;
-        this.link="https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.logfiles/s3_clnt.blast.04_false-unreach-call.i.cil.c.log"
+        this.link = this.props.link;
+        // this.link="https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.logfiles/s3_clnt.blast.04_false-unreach-call.i.cil.c.log"
         this.content = 'text'
         this.cachedZipFileEntries = {}
     };
