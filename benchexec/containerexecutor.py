@@ -1015,15 +1015,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         make_tmpfs_dir(b"/run/shm")
 
         if self._container_system_config:
-            # If overlayfs is not used for /etc, we need additional bind mounts
-            # for files in /etc that we want to override, like /etc/passwd
-            config_mount_base = None
-            if (
-                container.determine_directory_mode(self._dir_modes, b"/etc")
-                != DIR_OVERLAY
-            ):
-                config_mount_base = mount_base
-            container.setup_container_system_config(temp_base, config_mount_base)
+            container.setup_container_system_config(
+                temp_base, mount_base, self._dir_modes
+            )
 
         if output_dir:
             # We need a way to see temp_base in the container in order to be able to

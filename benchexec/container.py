@@ -873,12 +873,16 @@ def close_open_fds(keep_files=[]):
                 pass
 
 
-def setup_container_system_config(basedir, mountdir=None):
+def setup_container_system_config(basedir, mountdir, dir_modes):
     """Create a minimal system configuration for use in a container.
     @param basedir: The directory where the configuration files should be placed (bytes)
-    @param mountdir: If present, bind mounts to the configuration files will be added
-       below this path (given as bytes).
+    @param mountdir: The base directory of the mount hierarchy in the container (bytes).
+    @param dir_modes: All directory modes in the container.
     """
+    # If overlayfs is not used for /etc, we need additional bind mounts
+    # for files in /etc that we want to override, like /etc/passwd
+    symlinks_required = determine_directory_mode(dir_modes, b"/etc") != DIR_OVERLAY
+
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
         os.mkdir(etc)
@@ -886,7 +890,7 @@ def setup_container_system_config(basedir, mountdir=None):
     for file, content in CONTAINER_ETC_FILE_OVERRIDE.items():
         # Create "basedir/etc/file"
         util.write_file(content, etc, file)
-        if mountdir:
+        if symlinks_required:
             # Create bind mount to "mountdir/etc/file"
             make_bind_mount(
                 os.path.join(etc, file),

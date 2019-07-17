@@ -209,11 +209,7 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
     make_tmpfs_dir(b"/run/shm")
 
     if container_system_config:
-        # If overlayfs is not used for /etc, we need additional bind mounts
-        # for files in /etc that we want to override, like /etc/passwd
-        etc_mode = container.determine_directory_mode(dir_modes, b"/etc")
-        config_mount_base = mount_base if etc_mode != container.DIR_OVERLAY else None
-        container.setup_container_system_config(temp_base, config_mount_base)
+        container.setup_container_system_config(temp_base, mount_base, dir_modes)
 
     cwd = os.getcwd()
     container.chroot(mount_base)
