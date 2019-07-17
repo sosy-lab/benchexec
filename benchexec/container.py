@@ -732,6 +732,26 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
     libc.mount(source, target, None, flags, None)
 
 
+def chroot(target):
+    """
+    Chroot into a target directory. This also affects the working directory, make sure
+    to call os.chdir() afterwards.
+    """
+    # We need to use pivot_root and not only chroot, and for this we need a place below
+    # target where to move the old root directory.
+    # Explanation: https://unix.stackexchange.com/a/456777/15398
+    old_root = b"/proc"  # Does not matter, just needs to exist.
+    # These three steps together are the recommended sequence for calling pivot_root
+    # (http://man7.org/linux/man-pages/man8/pivot_root.8.html)
+    os.chdir(target)
+    libc.pivot_root(target, target + old_root)
+    os.chroot(".")
+    # Now the container file system is at /,
+    # and the outer file system is visible at old_root in the container.
+    # We can just unmount old_root and finally make it inaccessible from container.
+    libc.umount2(old_root, libc.MNT_DETACH)
+
+
 def get_my_pid_from_procfs():
     """
     Get the PID of this process by reading from /proc (this is the PID of this process
