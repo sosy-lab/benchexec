@@ -46,6 +46,12 @@ to make BenchExec more consistent and user-friendly:
 - BenchExec (both `benchexec` and `runexec`) terminates itself cleanly after aborting all runs
   if it receives one of the signals `SIGTERM`, `SIGINT` (Ctrl+C), or `SIGQUIT`.
 
+Additionally, this release adds a fix for the container
+that is used since BenchExec 1.20 for the tool-info module.
+In this container, the environment variable `HOME` did not point to `/home/benchexec`
+as expected but to the user's real home directory.
+This broke tools like Ultimate if the `/home` was configured to be hidden or read-only.
+
 Furthermore, we declare the following features deprecated
 and plan on removing them for [BenchExec 3.0](https://github.com/sosy-lab/benchexec/milestone/8),
 which is expected to be released in January 2020:
