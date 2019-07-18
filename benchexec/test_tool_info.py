@@ -28,6 +28,7 @@ import sys
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+import benchexec
 import benchexec.benchexec
 from benchexec import model
 import benchexec.tools.template
@@ -283,7 +284,10 @@ def main(argv=None):
         format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
     )
 
-    tool = print_tool_info(options.tool, options)
+    try:
+        tool = print_tool_info(options.tool, options)
+    except benchexec.BenchExecException as e:
+        sys.exit(str(e))
 
     if options.tool_output:
         for file in options.tool_output:

@@ -18,6 +18,7 @@
 
 import collections
 import contextlib
+import errno
 import functools
 import inspect
 import logging
@@ -26,7 +27,7 @@ import os
 import signal
 import tempfile
 
-from benchexec import container, containerexecutor, libc, util
+from benchexec import BenchExecException, container, containerexecutor, libc, util
 import benchexec.tools.template
 
 
@@ -145,7 +146,22 @@ def _init_container_and_load_tool(
     )
     if not network_access:
         flags |= libc.CLONE_NEWNET
-    libc.unshare(flags)
+    try:
+        libc.unshare(flags)
+    except OSError as e:
+        if (
+            e.errno == errno.EPERM
+            and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone") == "0"
+        ):
+            return BenchExecException(
+                "Unprivileged user namespaces forbidden on this system, please "
+                "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                "or disable container mode"
+            )
+        else:
+            return BenchExecException(
+                "Creating namespace for container mode failed: " + os.strerror(e.errno)
+            )
 
     # Container config
     container.setup_user_mapping(os.getpid(), uid, gid)
