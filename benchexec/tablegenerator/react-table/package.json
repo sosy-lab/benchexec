@@ -74,7 +74,10 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "tablegenerator": "npm run build && ../../../bin/table-generator --react -f html --no-diff -o build/ src/data/test.xml.bz2 && open build/test.html"
+    "tablegenerator": "npm run build && ../../../bin/table-generator --react -f html --no-diff -o build/ src/data/test.xml.bz2 && open build/test.html",
+    "tableonline": "npm run build && ../../../bin/table-generator --react -f html --no-diff -o build/ -n online https://buildbot.sosy-lab.org/cpachecker/results/nightly-smg/00069.-r31496_integration-nightly-smg.2019-07-16_2200.results.xml.bz2 && open build/online.html",
+    "tableonlineold": "npm run build && ../../../bin/table-generator -f html --no-diff -o build/ -n online https://buildbot.sosy-lab.org/cpachecker/results/nightly-smg/00069.-r31496_integration-nightly-smg.2019-07-16_2200.results.xml.bz2 && open build/online.html"
+
   },
   "eslintConfig": {
     "extends": "react-app"

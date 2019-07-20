@@ -218,7 +218,7 @@ export default class Table extends React.Component {
                         ),
                         fixed: this.state.fixed ? 'left' : '',
                         accessor: props => (
-                            props.has_sourcefile ? <div className={props.hrefRow ? 'cellLink' : ''} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.hrefRow)}>{props.short_filename}</div> : <span title="This task has no associated file">{props.short_filename}</span>
+                            props.has_sourcefile ? <div className={props.hrefRow ? 'cellLink' : ''} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}>{props.short_filename}</div> : <span title="This task has no associated file">{props.short_filename}</span>
                         ),
                         filterMethod: (filter, row, column) => {
                             const id = filter.pivotId || filter.id
