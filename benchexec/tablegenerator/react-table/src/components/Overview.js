@@ -12,6 +12,8 @@ if (process.env.NODE_ENV !== 'production') {
     window.data = require('../data/data.json');
 }
 
+console.log('table data', window.data);
+
 export default class Overview extends React.Component {
     constructor(props) {
         super(props);
@@ -30,7 +32,7 @@ export default class Overview extends React.Component {
             table: this.data,
             filtered: [],
             tabIndex: 0,
-            quantileSelection: 1,
+            quantileSelection: this.tools[0].columns[0].title,
         }
     };
 
@@ -86,7 +88,7 @@ export default class Overview extends React.Component {
 
     prepareTableValues = (el, tool, column, href, row) => {
         const col = this.tools[tool].columns[column];
-
+        
         // table
         if (el && col.source_unit === "s") {
             return typeof el === 'string' ? (+el.replace('s', '')).toPrecision(3) : Math.round(+el);

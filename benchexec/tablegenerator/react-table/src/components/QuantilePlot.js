@@ -19,7 +19,10 @@ export default class Overlay extends React.Component {
         this.strokeStyle = "";
     };
     renderLegend = () => {
-        return (this.state.isValue) ? this.props.tools.map(tool => { return (this.props.getRunSets(tool))}) : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.title)
+        return (this.state.isValue) 
+            ? this.props.tools.map(tool => { 
+                return (this.props.getRunSets(tool))}) 
+            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible ? c.title : null).filter(Boolean);
     }
 
     renderAll = () => {
@@ -35,47 +38,47 @@ export default class Overlay extends React.Component {
             //var 2: compare different values of one RunSet
             let index = this.state.selection.split('-')[1]
             this.props.tools[index].columns.forEach((column, i) => {
-                if (!(column.type.name === "main_status" || column.type.name === "text")) {
+                if (!(column.type.name === "main_status" || column.type.name === "text") && column.isVisible) {
                     this[column.title] = [];
-                    return this.renderData(this.props.table, i, index, this[column.title])
+                    return this.renderData(this.props.table, column.title, index, this[column.title])
                 }
             })
         }
     }
     renderData = (runSets, column, tool, data) => {
         let arrayY = [];
-        
-        if(this.props.tools[tool].columns.length >= Number(column)+1 || !this.state.isValue) {
+        const index = this.props.tools[tool].columns.findIndex(value => value.title === column);
+        if(!this.state.isValue || this.props.tools[tool].columns.findIndex(value => value.title===column) >= 0) {
             if(this.state.correct) {
                 runSets.forEach(runSet => {
                     if(runSet.results[tool].category === "correct") {
-                        arrayY.push([this.props.preparePlotValues(runSet.results[tool].values[column], tool, +column), runSet.short_filename]);
-                        //hier muss runSet.short_filename mitgegeben werden
+                        arrayY.push([this.props.preparePlotValues(runSet.results[tool].values[index], tool, +index), runSet.short_filename]);
                     } 
                 });
             } else {
                 runSets.forEach(runSet => {
-                    arrayY.push([this.props.preparePlotValues(runSet.results[tool].values[column], tool, +column), runSet.short_filename]);
+                    arrayY.push([this.props.preparePlotValues(runSet.results[tool].values[index], tool, +index), runSet.short_filename]);
                 });
             }
-        }
-        if(this.state.quantile) {
-            
-            if(this.state.isValue && (this.possibleValues[this.state.selection].type.name==="text" || this.possibleValues[this.state.selection].type.name==="main_status")) {
-                arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
-            } else {
-                arrayY.sort((a, b) => (a[0] - b[0]));
+            if(this.state.quantile) {
+                if(this.state.isValue && (this.possibleValues[index].type.name==="text" || this.possibleValues[index].type.name==="main_status")) {
+                    arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
+                } else {
+                    arrayY.sort((a, b) => (a[0] - b[0]));
+                }
             }
         }
         
         arrayY.forEach((el, i) => {
-            if(el !== null) {
-                let object = {
+            const value = el[0];
+            const isLogAndInvalid = !this.state.linear && value <= 0;
+
+            if(value !== null && !isLogAndInvalid) {
+                data.push({
                     x: i,
-                    y: el[0],
+                    y: value,
                     info: el[1]
-                }
-                data.push(object);
+                });
             }
         });
     }
@@ -83,7 +86,7 @@ export default class Overlay extends React.Component {
     renderColumns = () => {
         this.props.tools.forEach(tool => {
             tool.columns.forEach(column => {
-                if (this.possibleValues.findIndex(value => value.title === column.title) < 0) {
+                if (column.isVisible && this.possibleValues.findIndex(value => value.title === column.title) < 0) {
                     this.possibleValues.push(column)
                 } 
             })
@@ -91,12 +94,11 @@ export default class Overlay extends React.Component {
         // kann man den oberen Teil rausziehen? Muss nur initial gemacht werden
         this.renderAll();
         return this.possibleValues.map(value => {
-            return <option key={value.title} value={this.possibleValues.indexOf(value)} name={value.title}>{value.title}</option>
+            return <option key={value.title} value={value.title} name={value.title}>{value.title}</option>
         })
     }
 
     renderLines = () => {
-        // this.stateLines = this.initialLines.map(line => ({ line, opacity: 0.7}))
         this.lineArray = this.initialLines;
         if (this.state.isValue) {
             return this.props.tools.map((tool, i) => {
@@ -133,8 +135,10 @@ export default class Overlay extends React.Component {
         //     isValue = false
         // }
         // const isValue = ev.target.value.length < 4;
-
-        this.setState({selection: ev.target.value, isValue:  ev.target.value.length < 4});
+        //TODO: isValue is true, wenn ev.target.value in einem Tool als column.title vorkommt
+        let isValue = this.props.tools.map(tool => {
+            return (tool.columns.findIndex(value => value.title === ev.target.value) >= 0)}).findIndex(value => value === true) >= 0;
+        this.setState({selection: ev.target.value, isValue: isValue });  
     }
     toggleQuantile = () => {
         this.setState(prevState => ({ 
@@ -161,9 +165,9 @@ export default class Overlay extends React.Component {
     }
     handlyType = () => {
         const { selection } = this.state;
-
         if (this.state.isValue) {
-            if(this.possibleValues[selection].type.name==="text" || this.possibleValues[selection].type.name==="main_status") {
+            const index = this.possibleValues.findIndex(value => value.title === selection);
+            if(this.possibleValues[index].type.name==="text" || this.possibleValues[index].type.name==="main_status") {
                 return 'ordinal'
             } else return this.state.linear ? 'linear': 'log'
         } else {
