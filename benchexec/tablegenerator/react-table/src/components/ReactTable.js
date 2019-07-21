@@ -18,6 +18,7 @@ export default class Table extends React.Component {
         };
 
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
+        this.typingTimer = -1;
 
     };
 
@@ -63,27 +64,33 @@ export default class Table extends React.Component {
                             return 0
                           },
                         filterMethod: (filter, row) => {
-                            if (filter.value === "all") {
-                                return true;
-                            }
-                            if (filter.value === "correct") {
-                                if(row._original.results[j].category === 'correct') {
-                                    return row[filter.id]
+                            switch(filter.value) {
+                                //case category has to be differentiated to the name of the status => space in String
+                                case "all ": {
+                                    return true;
                                 }
-                            } 
-                            if (filter.value === "wrong") {
-                                if(row._original.results[j].category === 'wrong') {
-                                    return row[filter.id]
+                                case "correct ": {
+                                    if(row._original.results[j].category === 'correct') {
+                                        return row[filter.id]
+                                    }
+                                    break;
+                                } 
+                                case "wrong ": {
+                                    if(row._original.results[j].category === 'wrong') {
+                                        return row[filter.id]
+                                    }
+                                    break;
                                 }
-                            }
-                            if (filter.value === "ERROR") {
-                                if(row._original.results[j].category === 'error') {
-                                    return row[filter.id]
+                                case "ERROR ": {        
+                                    if(row._original.results[j].category === 'error') {
+                                        return row[filter.id]
+                                    }
+                                    break;
                                 }
-                            }
-                            else {
-                                if(filter.value === row[filter.id].props.children) {
-                                    return row[filter.id]
+                                default: {
+                                    if(row[filter.id] && filter.value === row[filter.id].props.children) {
+                                        return row[filter.id]
+                                    }
                                 }
                             }
                         },
@@ -94,10 +101,10 @@ export default class Table extends React.Component {
                                         value = {filter ? filter.value : "all"}
                                     >
                                         <optgroup label="Category">
-                                            <option value = "all">Show all</option>
-                                            <option value = "correct">correct</option>
-                                            <option value = "wrong">wrong</option>
-                                            <option value = "ERROR">ERROR</option>
+                                            <option value = "all ">Show all</option>
+                                            <option value = "correct ">correct</option>
+                                            <option value = "wrong ">wrong</option>
+                                            <option value = "ERROR ">ERROR</option> 
                                         </optgroup>
                                         <optgroup>
                                             {this.collectStati(j, i)}
@@ -121,33 +128,38 @@ export default class Table extends React.Component {
                         },
                         filterMethod: (filter, row) => {
                             const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
+ 
                             const regex = filter.value.match(pattern);
-                            
-                            if (regex[2] === undefined) {
-                                return String(row[filter.id]).startsWith(filter.value);
-                            } else if(!(regex[3])) {
-                                if (row[filter.id] >= Number(regex[2])) {
-                                    return row[filter.id]
-                                }
-                            } else if(!(regex[2])) {
-                                if (row[filter.id] <= Number(regex[3])) {
+                                if (regex[2] === undefined) {
+                                    return String(row[filter.id]).startsWith(filter.value);
+                                } else if(!(regex[3])) {
+                                    if (row[filter.id] >= Number(regex[2])) {
+                                        return row[filter.id]
+                                    }
+                                } else if(!(regex[2])) {
+                                    if (row[filter.id] <= Number(regex[3])) {
+                                        return row[filter.id];
+                                    }
+                                } else if (row[filter.id] >= Number(regex[2]) && row[filter.id] <= Number(regex[3])){
                                     return row[filter.id];
                                 }
-                            } else if (row[filter.id] >= Number(regex[2]) && row[filter.id] <= Number(regex[3])){
-                                return row[filter.id];
-                            }
+                            
                         },
-                        // Filter: ({ filter, onChange }) => {
-                        //     console.log(({ filter, onChange }))
-                        //     return (
-                        //        <input
-                        //             onKeyPress={event => {
-                        //                 if (event.keyCode === 13 || event.which === 13) {
-                        //                        onChange(event.target.value)
-                        //                     }
-                        //            }}  
-                        //        />  
-                        //  )},
+                        Filter: ({ filter, onChange }) => {
+                            let value;
+                            return (
+                                <input
+                                    placeholder = "Min:Max"
+                                    defaultValue = {value ? value : (filter ? filter.value : filter)}
+                                    onChange = {event => {
+                                        value = event.target.value
+                                        clearTimeout(this.typingTimer)
+                                        this.typingTimer = setTimeout(() => {
+                                            onChange(value)
+                                        }, 500)}
+                                    }
+                               />  
+                         )},
                         sortMethod: (a, b, desc) => {
                             //default sort only if .toPrecision() => has to be parsed to Number
                             if(column.source_unit && column.source_unit === 's') {
@@ -212,6 +224,7 @@ export default class Table extends React.Component {
                         Header: () => (
                             <div
                                 onClick={this.props.selectColumn}
+                                className={"selectColumns"}
                             >
                                 <span>Click here to select columns</span>
                             </div>

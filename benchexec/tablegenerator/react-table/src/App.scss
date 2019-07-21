@@ -111,6 +111,19 @@
   .wrong {
     color: red;
   }
+  input {
+    width: 100%;
+    text-align: right;
+    &::placeholder {
+      color: lightgray;
+    }
+  }
+  select {
+    height: 100%;
+  }
+  .selectColumns {
+    text-align: left;
+  }
 }
 
 .quantilePlot {
