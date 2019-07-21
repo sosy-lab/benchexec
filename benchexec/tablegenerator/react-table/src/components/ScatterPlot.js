@@ -50,22 +50,28 @@ export default class ScatterPlot extends React.Component {
         if (this.state.correct) {
             this.props.table.forEach(row => {
                 if(row.results[this.state.toolX].category==="correct" && row.results[this.state.toolY].category==="correct" && row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    array.push(
+                    const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
+                    const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
+                    const isLogAndInvalid = !this.state.linear && x <= 0 && y <= 0;
+                    if(x !== null && y !== null && !isLogAndInvalid) array.push(
                         {
-                            x: this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX),
-                            y: this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY),
+                            x: x,
+                            y: y,
                             info: row.short_filename,
                         }
-                    ) 
+                    )
                 }
             })
         } else {
             this.props.table.forEach(row => {
                 if(row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    array.push(
+                    const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
+                    const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
+                    const isLogAndInvalid = !this.state.linear && x <= 0 && y <= 0;
+                    if(x !== null && y !== null && !isLogAndInvalid) array.push(
                         {
-                            x: this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX),
-                            y: this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY),
+                            x: x,
+                            y: y,
                             info: row.short_filename,
                         }
                     ) 
@@ -142,7 +148,7 @@ export default class ScatterPlot extends React.Component {
                     <XAxis title = {this.state.nameX} tickFormat = {(value) => value}/>
                     <YAxis title = {this.state.nameY} tickFormat = {(value) => value}/>
                     <DecorativeAxis
-                        axisStart={{x: 0, y: 0}}
+                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
                         axisEnd={{x: this.maxX, y: this.maxX}}
                         axisDomain={[0, 10000000000]}
                         style={{
@@ -152,7 +158,7 @@ export default class ScatterPlot extends React.Component {
                         }}
                     />  
                     <DecorativeAxis
-                        axisStart={{x: 0, y: 0}}
+                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
                         axisEnd={{x: this.maxX, y: this.maxX*this.state.line}}
                         axisDomain={[0, 10000000000]}
                         style={{
@@ -162,7 +168,7 @@ export default class ScatterPlot extends React.Component {
                         }}
                     />  
                     <DecorativeAxis
-                        axisStart={{x: 0, y: 0}}
+                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
                         axisEnd={{x: this.maxX*this.state.line, y: this.maxX}}
                         axisDomain={[0, 10000000000]}
                         style={{
