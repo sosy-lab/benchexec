@@ -53,7 +53,7 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
 }
 
 
-def substitute_vars(oldList, runSet=None, sourcefile=None):
+def substitute_vars(oldList, runSet=None, task_file=None):
     """
     This method replaces special substrings from a list of string
     and return a new list.
@@ -79,27 +79,16 @@ def substitute_vars(oldList, runSet=None, sourcefile=None):
             ("test_name", runSet.real_name if runSet.real_name else ""),
         ]
 
-    if sourcefile:
-        keyValueList.append(("inputfile_name", os.path.basename(sourcefile)))
-        keyValueList.append(("inputfile_path", os.path.dirname(sourcefile) or "."))
+    if task_file:
+        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
+        keyValueList.append((var_prefix + "name", os.path.basename(task_file)))
+        keyValueList.append((var_prefix + "path", os.path.dirname(task_file) or "."))
         keyValueList.append(
-            ("inputfile_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
-        )
-        # The following are deprecated: do not use anymore.
-        keyValueList.append(("sourcefile_name", os.path.basename(sourcefile)))
-        keyValueList.append(("sourcefile_path", os.path.dirname(sourcefile) or "."))
-        keyValueList.append(
-            ("sourcefile_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
-        )
-    if sourcefile and sourcefile.endswith(".yml"):
-        keyValueList.append(("taskdef_name", os.path.basename(sourcefile)))
-        keyValueList.append(("taskdef_path", os.path.dirname(sourcefile) or "."))
-        keyValueList.append(
-            ("taskdef_path_abs", os.path.dirname(os.path.abspath(sourcefile)))
+            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file)))
         )
 
     # do not use keys twice
-    assert len(set((key for (key, value) in keyValueList))) == len(keyValueList)
+    assert len({key for (key, value) in keyValueList}) == len(keyValueList)
 
     return [util.substitute_vars(s, keyValueList) for s in oldList]
 
@@ -149,7 +138,7 @@ def load_tool_info(tool_name, config):
             'The module "{0}" does not define the necessary class "Tool", '
             "it cannot be used as tool info for BenchExec.".format(tool_module)
         )
-    return (tool_module, tool)
+    return tool_module, tool
 
 
 def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
@@ -230,16 +219,15 @@ class Benchmark(object):
         logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
         def parse_memory_limit(value):
+            # In a future BenchExec version, we could treat unit-less limits as bytes
             try:
                 value = int(value)
-                logging.warning(
-                    'Value "%s" for memory limit interpreted as MB for backwards compatibility, '
-                    "specify a unit to make this unambiguous.",
-                    value,
-                )
-                return value * _BYTE_FACTOR * _BYTE_FACTOR
             except ValueError:
                 return util.parse_memory_value(value)
+            else:
+                raise ValueError(
+                    "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
+                )
 
         def handle_limit_value(name, key, cmdline_value, parse_fn):
             value = rootTag.get(key, None)
@@ -294,7 +282,7 @@ class Benchmark(object):
 
         # get number of threads, default value is 1
         self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
-        if config.num_of_threads != None:
+        if config.num_of_threads is not None:
             self.num_of_threads = config.num_of_threads
         if self.num_of_threads < 1:
             logging.error("At least ONE thread must be given!")
@@ -310,9 +298,12 @@ class Benchmark(object):
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
 
         # get global source files, they are used in all run sets
-        globalSourcefilesTags = rootTag.findall("tasks") + rootTag.findall(
-            "sourcefiles"
-        )
+        if rootTag.findall("sourcefiles"):
+            sys.exit(
+                "Benchmark file {} has unsupported old format. "
+                "Rename <sourcefiles> tags to <tasks>.".format(benchmark_file)
+            )
+        globalSourcefilesTags = rootTag.findall("tasks")
 
         # get required files
         self._required_files = set()
@@ -354,22 +345,11 @@ class Benchmark(object):
             )
 
         if not self.run_sets:
-            for (i, rundefinitionTag) in enumerate(rootTag.findall("test")):
-                self.run_sets.append(
-                    RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
-                )
-            if self.run_sets:
-                logging.warning(
-                    "Benchmark file %s uses deprecated <test> tags. "
-                    "Please rename them to <rundefinition>.",
-                    benchmark_file,
-                )
-            else:
-                logging.warning(
-                    "Benchmark file %s specifies no runs to execute "
-                    "(no <rundefinition> tags found).",
-                    benchmark_file,
-                )
+            logging.warning(
+                "Benchmark file %s specifies no runs to execute "
+                "(no <rundefinition> tags found).",
+                benchmark_file,
+            )
 
         if not any(runSet.should_be_executed() for runSet in self.run_sets):
             logging.warning(
@@ -414,7 +394,7 @@ class Benchmark(object):
 
         logging.debug("I'm loading some columns for the outputfile.")
         columns = []
-        if columnsTag != None:  # columnsTag is optional in XML file
+        if columnsTag is not None:  # columnsTag is optional in XML file
             for columnTag in columnsTag.findall("column"):
                 pattern = columnTag.text
                 title = columnTag.get("title", pattern)
@@ -468,15 +448,18 @@ class RunSet(object):
         )
 
         # get run-set specific required files
-        required_files_pattern = set(
+        required_files_pattern = {
             tag.text for tag in rundefinitionTag.findall("requiredfiles")
-        )
+        }
 
         # get all runs, a run contains one sourcefile with options
+        if rundefinitionTag.findall("sourcefiles"):
+            sys.exit(
+                "Benchmark file {} has unsupported old format. "
+                "Rename <sourcefiles> tags to <tasks>.".format(benchmark.benchmark_file)
+            )
         self.blocks = self.extract_runs_from_xml(
-            globalSourcefilesTags
-            + rundefinitionTag.findall("tasks")
-            + rundefinitionTag.findall("sourcefiles"),
+            globalSourcefilesTags + rundefinitionTag.findall("tasks"),
             required_files_pattern,
         )
         self.runs = [run for block in self.blocks for run in block.runs]
@@ -533,7 +516,7 @@ class RunSet(object):
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                set(tag.text for tag in sourcefilesTag.findall("requiredfiles"))
+                {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
             )
 
             # get lists of filenames
@@ -921,7 +904,7 @@ class Run(object):
             )
         else:
             # we check two cases: direct filename or user-defined substitution, one of them must be a 'file'
-            # TODO: do we need the second case? it is equal to previous used option "-spec ${sourcefile_path}/ALL.prp"
+            # TODO: do we need the second case? it is equal to previous used option "-spec ${inputfile_path}/ALL.prp"
             expandedPropertyFiles = util.expand_filename_pattern(
                 self.propertyfile, self.runSet.benchmark.base_dir
             )
@@ -933,7 +916,7 @@ class Run(object):
             if expandedPropertyFiles:
                 if len(expandedPropertyFiles) > 1:
                     log_property_file_once(
-                        "Pattern {0} for sourcefile {1} in propertyfile tag matches more than one file. Only {2} will be used.".format(
+                        "Pattern {0} for input file {1} in propertyfile tag matches more than one file. Only {2} will be used.".format(
                             self.propertyfile, self.identifier, expandedPropertyFiles[0]
                         )
                     )
@@ -944,7 +927,7 @@ class Run(object):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
                 log_property_file_once(
-                    "Pattern {0} for sourcefile {1} in propertyfile tag did not match any file. It will be ignored.".format(
+                    "Pattern {0} for input file {1} in propertyfile tag did not match any file. It will be ignored.".format(
                         self.propertyfile, self.identifier
                     )
                 )
@@ -968,8 +951,6 @@ class Run(object):
 
         # dummy values, for output in case of interrupt
         self.status = ""
-        self.cputime = None
-        self.walltime = None
         self.category = result.CATEGORY_UNKNOWN
 
     def cmdline(self):
@@ -987,8 +968,6 @@ class Run(object):
 
     def set_result(self, values, visible_columns={}):
         """Set the result of this run.
-        Use this method instead of manually setting the run attributes and calling after_execution(),
-        this method handles all this by itself.
         @param values: a dictionary with result values as returned by RunExecutor.execute_run(),
             may also contain arbitrary additional values
         @param visible_columns: a set of keys of values that should be visible by default
@@ -996,51 +975,34 @@ class Run(object):
         """
         exitcode = values.pop("exitcode", None)
         if exitcode is not None:
-            self.values["@exitcode"] = exitcode
-            exitcode = util.ProcessExitCode.from_raw(exitcode)
             if exitcode.signal:
                 self.values["@exitsignal"] = exitcode.signal
             else:
                 self.values["@returnvalue"] = exitcode.value
 
         for key, value in values.items():
-            if key == "walltime":
-                self.walltime = value
-            elif key == "cputime":
-                self.cputime = value
-            elif key == "memory":
-                self.values["memUsage"] = value
-            elif key == "cpuenergy" and not isinstance(value, (str, bytes)):
+            if key == "cpuenergy" and not isinstance(value, (str, bytes)):
                 energy = intel_cpu_energy.format_energy_results(value)
                 for energy_key, energy_value in energy.items():
                     if energy_key != "cpuenergy":
                         energy_key = "@" + energy_key
                     self.values[energy_key] = energy_value
-            elif key == "cpuenergy":
+            elif key in ["walltime", "cputime", "memory", "cpuenergy"]:
                 self.values[key] = value
             elif key in visible_columns:
                 self.values[key] = value
             else:
                 self.values["@" + key] = value
 
-        self.after_execution(
-            exitcode, termination_reason=values.get("terminationreason")
-        )
+        termination_reason = values.get("terminationreason")
 
-    def after_execution(self, exitcode, forceTimeout=False, termination_reason=None):
-        """
-        @deprecated: use set_result() instead
-        """
-        # termination reason is not fully precise for timeouts, so we guess "timeouts"
-        # if time is too high
+        # Termination reason was not fully precise for timeouts, so we guess "timeouts"
+        # if time is too high. Since removal of ulimit time limit this should not be
+        # necessary, but also does not harm. We might reconsider this in the future.
         isTimeout = (
-            forceTimeout
-            or termination_reason in ["cputime", "cputime-soft", "walltime"]
+            termination_reason in ["cputime", "cputime-soft", "walltime"]
             or self._is_timeout()
         )
-
-        if isinstance(exitcode, int):
-            exitcode = util.ProcessExitCode.from_raw(exitcode)
 
         # read output
         try:
@@ -1119,7 +1081,7 @@ class Run(object):
 
     def _is_timeout(self):
         """ try to find out whether the tool terminated because of a timeout """
-        if self.cputime is None:
+        if self.values.get("cputime") is None:
             is_cpulimit = False
         else:
             rlimits = self.runSet.benchmark.rlimits
@@ -1129,9 +1091,9 @@ class Run(object):
                 limit = rlimits[TIMELIMIT]
             else:
                 limit = float("inf")
-            is_cpulimit = self.cputime > limit
+            is_cpulimit = self.values["cputime"] > limit
 
-        if self.walltime is None:
+        if self.values.get("walltime") is None:
             is_walllimit = False
         else:
             rlimits = self.runSet.benchmark.rlimits
@@ -1139,7 +1101,7 @@ class Run(object):
                 limit = rlimits[WALLTIMELIMIT]
             else:
                 limit = float("inf")
-            is_walllimit = self.walltime > limit
+            is_walllimit = self.values["walltime"] > limit
 
         return is_cpulimit or is_walllimit
 

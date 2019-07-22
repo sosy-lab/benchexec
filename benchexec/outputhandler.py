@@ -97,7 +97,7 @@ class OutputHandler(object):
         timelimit = None
         corelimit = None
         if MEMLIMIT in self.benchmark.rlimits:
-            memlimit = self.benchmark.rlimits[MEMLIMIT]
+            memlimit = str(self.benchmark.rlimits[MEMLIMIT]) + "B"
         if SOFTTIMELIMIT in self.benchmark.rlimits:
             timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + "s"
         elif TIMELIMIT in self.benchmark.rlimits:
@@ -154,12 +154,12 @@ class OutputHandler(object):
             {
                 "model": cpu_model,
                 "cores": cpu_number_of_cores,
-                "frequency": str(cpu_max_frequency),
+                "frequency": str(cpu_max_frequency) + "Hz",
             },
         )
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ET.Element("ram", {"size": str(memory)})
+        ramElem = ET.Element("ram", {"size": str(memory) + "B"})
         systemInfo = ET.Element("systeminfo", {"hostname": hostname})
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
@@ -209,7 +209,7 @@ class OutputHandler(object):
             self.xml_header.set("displayName", self.benchmark.display_name)
 
         if memlimit is not None:
-            self.xml_header.set(MEMLIMIT, str(memlimit))
+            self.xml_header.set(MEMLIMIT, memlimit)
         if timelimit is not None:
             self.xml_header.set(TIMELIMIT, timelimit)
         if corelimit is not None:
@@ -225,18 +225,6 @@ class OutputHandler(object):
             columntitlesElem.append(columnElem)
         self.xml_header.append(columntitlesElem)
 
-        # Build dummy entries for output, later replaced by the results,
-        # The dummy XML elements are shared over all runs.
-        self.xml_dummy_elements = [
-            ET.Element("column", {"title": "status", "value": ""}),
-            ET.Element("column", {"title": "cputime", "value": ""}),
-            ET.Element("column", {"title": "walltime", "value": ""}),
-        ]
-        for column in self.benchmark.columns:
-            self.xml_dummy_elements.append(
-                ET.Element("column", {"title": column.title, "value": ""})
-            )
-
     def write_header_to_log(self, sysinfo):
         """
         This method writes information about benchmark and system into txt_file.
@@ -250,7 +238,7 @@ class OutputHandler(object):
             runSetName = run_sets[0].name
 
         columnWidth = 25
-        simpleLine = "-" * (60) + "\n\n"
+        simpleLine = "-" * 60 + "\n\n"
 
         def format_line(key, value):
             if value is None:
@@ -403,7 +391,6 @@ class OutputHandler(object):
                     prop_name for prop in run.properties for prop_name in prop.names
                 ]
                 run.xml.set("properties", " ".join(sorted(all_properties)))
-            run.xml.extend(self.xml_dummy_elements)
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
@@ -517,8 +504,8 @@ class OutputHandler(object):
         """
 
         # format times, type is changed from float to string!
-        cputime_str = util.format_number(run.cputime, TIME_PRECISION)
-        walltime_str = util.format_number(run.walltime, TIME_PRECISION)
+        cputime_str = util.format_number(run.values.get("cputime"), TIME_PRECISION)
+        walltime_str = util.format_number(run.values.get("walltime"), TIME_PRECISION)
 
         # format numbers, number_of_digits is optional, so it can be None
         for column in run.columns:
@@ -678,8 +665,6 @@ class OutputHandler(object):
         for elem in list(runElem):
             runElem.remove(elem)
         self.add_column_to_xml(runElem, "status", run.status)
-        self.add_column_to_xml(runElem, "cputime", run.cputime)
-        self.add_column_to_xml(runElem, "walltime", run.walltime)
         self.add_column_to_xml(runElem, "@category", run.category)  # hidden
         self.add_column_to_xml(runElem, "", run.values)
 
@@ -730,7 +715,7 @@ class OutputHandler(object):
                 value_suffix = "s"
             elif title.startswith("cpuenergy"):
                 value_suffix = "J"
-            elif title.startswith("blkio-"):
+            elif title.startswith("blkio-") or title.startswith("memory"):
                 value_suffix = "B"
 
         value = "{}{}".format(value, value_suffix)
@@ -877,12 +862,9 @@ class OutputHandler(object):
         """Writes a nicely formatted XML file with DOCTYPE, and compressed if necessary."""
         if self.compress_results:
             actual_filename = filename + ".bz2"
-            # Use BZ2File directly or our hack for Python 3.2
-            open_func = (
-                bz2.BZ2File if hasattr(bz2.BZ2File, "writable") else util.BZ2FileHack
-            )
+            open_func = bz2.BZ2File
         else:
-            # write content to temp file first to prevent loosing data
+            # write content to temp file first to prevent losing data
             # in existing file if writing fails
             actual_filename = filename + ".tmp"
             open_func = open

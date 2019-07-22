@@ -61,16 +61,13 @@ class KillProcessOnOomThread(threading.Thread):
     @param callbackFn: A one-argument function that is called in case of OOM with a string for the reason as argument
     """
 
-    def __init__(
-        self, cgroups, kill_process_fn, pid_to_kill, callbackFn=lambda reason: None
-    ):
+    def __init__(self, cgroups, pid_to_kill, callbackFn=lambda reason: None):
         super(KillProcessOnOomThread, self).__init__()
         self.name = "KillProcessOnOomThread-" + self.name
         self._finished = threading.Event()
         self._pid_to_kill = pid_to_kill
         self._cgroups = cgroups
         self._callback = callbackFn
-        self._kill_process = kill_process_fn
 
         cgroup = cgroups[MEMORY]  # for raw access
         ofd = os.open(os.path.join(cgroup, "memory.oom_control"), os.O_WRONLY)
@@ -122,11 +119,11 @@ class KillProcessOnOomThread(threading.Thread):
                     "Killing process %s due to out-of-memory event from kernel.",
                     self._pid_to_kill,
                 )
-                self._kill_process(self._pid_to_kill, self._cgroups)
+                util.kill_process(self._pid_to_kill)
                 # Also kill all children of subprocesses directly.
                 with open(os.path.join(self._cgroups[MEMORY], "tasks"), "rt") as tasks:
                     for task in tasks:
-                        self._kill_process(int(task), self._cgroups)
+                        util.kill_process(int(task))
 
                 # We now need to increase the memory limit of this cgroup
                 # to give the process a chance to terminate

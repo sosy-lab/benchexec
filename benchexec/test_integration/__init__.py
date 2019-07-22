@@ -73,7 +73,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
                      |-- actual                        # output directory for benchexec runs
                      |-- *.xml                         # benchmark definitions used
         """
-        tmp_dir = tempfile.mkdtemp(prefix="BenchExec.benchexec.integration_test")
+        tmp_dir = tempfile.mkdtemp(prefix="BenchExec_integration_test")
         relative_benchmark_dir = os.path.relpath(benchmarks_dir, base_dir)
         tmp_benchmarks_dir = os.path.join(tmp_dir, relative_benchmark_dir)
         shutil.copytree(benchmarks_dir, tmp_benchmarks_dir)
@@ -95,9 +95,19 @@ class BenchExecIntegrationTests(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_cmd(self, *args):
+        standard_args = [
+            benchexec,
+            "--container",
+            "--read-only-dir",
+            "/",
+            "--outputpath",
+            self.output_dir,
+            "--startTime",
+            "2015-01-01 00:00",
+        ]
         try:
             output = subprocess.check_output(
-                args=args, stderr=subprocess.STDOUT
+                args=standard_args + list(args), stderr=subprocess.STDOUT
             ).decode()
         except subprocess.CalledProcessError as e:
             print(e.output.decode())
@@ -118,16 +128,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         if not test_file:  # Assign default test file
             test_file = self.benchmark_test_file
         self.run_cmd(
-            *[
-                benchexec,
-                test_file,
-                "--outputpath",
-                self.output_dir,
-                "--startTime",
-                "2015-01-01 00:00",
-            ]
-            + ([] if compress else ["--no-compress-results"])
-            + list(args)
+            *[test_file] + ([] if compress else ["--no-compress-results"]) + list(args)
         )
         generated_files = set(os.listdir(self.output_dir))
 
@@ -215,7 +216,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             expected_columns = {
                 column.get("title"): column for column in expected.findall("column")
             }
-            comparable_columns = ["status", "category", "exitcode", "returnvalue"]
+            comparable_columns = ["status", "category", "returnvalue"]
             for column in comparable_columns:
                 self.assertEqual(
                     actual_columns.get(column).get("value"),
@@ -335,26 +336,8 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def test_simple_compressed_results(self):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
-    def test_sudo(self):
-        # sudo allows refering to numerical uids with '#'
-        user = "#" + str(os.getuid())
-        try:
-            self.run_benchexec_and_compare_expected_files("--user", user)
-        except subprocess.CalledProcessError as e:
-            if "please fix your sudo setup" in e.output.decode():
-                self.skipTest(e)
-            raise e
-
     def test_validate_result_xml(self):
-        self.run_cmd(
-            benchexec,
-            self.benchmark_test_file,
-            "--outputpath",
-            self.output_dir,
-            "--startTime",
-            "2015-01-01 00:00",
-            "--no-compress-results",
-        )
+        self.run_cmd(self.benchmark_test_file, "--no-compress-results")
         basename = "benchmark-example-rand.2015-01-01_0000."
         xml_files = ["results.xml"] + [
             "results." + files + ".xml" for files in benchmark_test_tasks
@@ -385,15 +368,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         benchmark_xml = os.path.join(self.benchmarks_dir, "benchmark-example-true.xml")
         self.run_cmd(
-            benchexec,
-            benchmark_xml,
-            "--outputpath",
-            self.output_dir,
-            "--startTime",
-            "2015-01-01 00:00",
-            "--no-compress-results",
-            "--rundefinition",
-            "no options",
+            benchmark_xml, "--no-compress-results", "--rundefinition", "no options"
         )
         actual_xml = os.path.join(
             self.output_dir,

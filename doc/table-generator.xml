@@ -5,7 +5,7 @@
   <!-- <column> defines which column should appear in the tables (can appear multiple times).
        If omitted, all columns are used. The following features (which can also be combined) are available. -->
   <!-- Pre-defined columns of BenchExec can be used: -->
-  <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memUsage*"/>
+  <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memory*"/>
   <!-- Columns can be renamed: -->
   <column title="*name of a column produced by BenchExec*" displayTitle="new name"/>
   <!-- Data can be extracted using a pattern from the output of the tool

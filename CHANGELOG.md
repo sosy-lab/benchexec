@@ -1,5 +1,37 @@
 # BenchExec Changelog
 
+## BenchExec 1.22
+
+- More robust handling of Ctrl+C in `benchexec`.
+  For example, output files are now always fully written, whereas previously
+  pressing Ctrl+C at the wrong time could result in truncated files.
+  A side effect of this is that if you call
+  `benchexec.benchexec.BenchExec().start()` in own Python code,
+  you must now add a signal handler for `SIGINT`.
+  The same was already true for users of `RunExecutor`, this is now documented.
+- Fix Ctrl+C for `benchexec` in container mode.
+  In BenchExec 1.21, one would need to press Ctrl+C twice to stop `benchexec`.
+- Fix unreliable container mode on Python 3.7.
+- Some robustness improvements and fixes of rare deadlocks.
+- Decreased overhead of `benchexec` while runs are executing.
+
+
+## BenchExec 1.21
+
+This release contains only a few bug fixes:
+
+- Forwarding signals to the benchmarked process (and thus, stopping runs via Ctrl+C),
+  was broken on Python 2.
+- If the freezer cgroup was available but mounted in a separate hierarchy,
+  it was not used reliably as protection against fork bombs when killing processes.
+- Since BenchExec 1.19, an exception would occur if a non-existing command
+  was started in container mode.
+- Since BenchExec 1.19, copying output files from a container would occur
+  while subprocesses are still running and would be counted towards the
+  walltime limit. This is fixed, although subprocesses will still be running
+  if the freezer cgroup is not available (cf. #433).
+
+
 ## BenchExec 1.20
 
 - If `benchexec --container` is used, all code that is part of the tool-info

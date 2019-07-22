@@ -56,7 +56,17 @@ import zipfile
 parallel = Util.DummyExecutor()
 
 # Most important columns that should be shown first in tables (in the given order)
-MAIN_COLUMNS = ["status", "category", "cputime", "walltime", "memUsage", "cpuenergy"]
+MAIN_COLUMNS = [
+    Column("status"),
+    Column("category"),
+    Column("cputime"),
+    Column("walltime"),
+    Column("memory", unit="MB", source_unit="B"),
+    Column(
+        "memUsage", display_title="memory", unit="MB", source_unit="B"
+    ),  # if old results are given
+    Column("cpuenergy"),
+]
 
 NAME_START = "results"  # first part of filename of table
 
@@ -281,9 +291,9 @@ def _get_columns_relevant_for_diff(columns_to_show):
              none is marked relevant, the column named "status" will be
              returned in the set.
     """
-    cols = set([col.title for col in columns_to_show if col.relevant_for_diff])
+    cols = {col.title for col in columns_to_show if col.relevant_for_diff}
     if len(cols) == 0:
-        return set([col.title for col in columns_to_show if col.title == "status"])
+        return {col.title for col in columns_to_show if col.title == "status"}
     else:
         return cols
 
@@ -484,18 +494,24 @@ class RunSetResult(object):
             logging.warning("Result file '%s' is empty.", resultFile)
             return []
         else:  # show all available columns
-            column_names = set(
+            column_names = {
                 c.get("title")
                 for s in run_results
                 for c in s.findall("column")
                 if all_columns or c.get("hidden") != "true"
-            )
+            }
+
+            if not column_names:
+                # completely empty results break stuff, add at least status column
+                return [MAIN_COLUMNS[0]]
 
             # Put main columns first, then rest sorted alphabetically
-            columns = [
-                column for column in MAIN_COLUMNS if column in column_names
-            ] + sorted(column_names.difference(MAIN_COLUMNS))
-            return [Column(title, None, None, None) for title in columns]
+            custom_columns = column_names.difference(
+                column.title for column in MAIN_COLUMNS
+            )
+            return [
+                column for column in MAIN_COLUMNS if column.title in column_names
+            ] + [Column(title) for title in sorted(custom_columns)]
 
     @staticmethod
     def _extract_attributes_from_result(resultFile, resultTag):
@@ -545,6 +561,8 @@ class RunSetResult(object):
 
 
 def _get_run_tags_from_xml(result_elem):
+    # Here we keep support for <sourcefile> in order to be able to read old benchmark
+    # results (no reason to forbid this).
     return result_elem.findall("run") + result_elem.findall("sourcefile")
 
 
@@ -614,11 +632,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
                     resultElem = parse(gzip.GzipFile(fileobj=f))
                 except IOError:
                     f.seek(0)
-                    try:
-                        resultElem = parse(bz2.BZ2File(f))
-                    except TypeError:
-                        # Python 3.2 does not support giving a file-like object to BZ2File
-                        resultElem = parse(io.BytesIO(bz2.decompress(f.read())))
+                    resultElem = parse(bz2.BZ2File(f))
             except IOError:
                 f.seek(0)
                 resultElem = parse(f)
@@ -715,12 +729,9 @@ def merge_task_lists(runset_results, tasks):
     for runset in runset_results:
         # create mapping from id to RunResult object
         # Use reversed list such that the first instance of equal tasks end up in dic
-        dic = dict(
-            [
-                (run_result.task_id, run_result)
-                for run_result in reversed(runset.results)
-            ]
-        )
+        dic = {
+            run_result.task_id: run_result for run_result in reversed(runset.results)
+        }
         runset.results = []  # clear and repopulate results
         for task in tasks:
             run_result = dic.get(task)
@@ -929,7 +940,7 @@ class Row(object):
         self.id = results[0].task_id
         self.has_sourcefile = results[0].sourcefiles_exist
         assert (
-            len(set(r.task_id for r in results)) == 1
+            len({r.task_id for r in results}) == 1
         ), "not all results are for same task"
         self.filename = self.id[0]
 
@@ -1023,10 +1034,10 @@ def filter_rows_with_differences(rows):
             # It's necessary to search for the index of a column every time
             # because they can differ between results
             status.append(
-                set(
+                {
                     res.values[get_index_of_column(col, res.columns)]
                     for res in listOfResults
-                )
+                }
             )
 
         return reduce(lambda x, y: x and (len(y) <= 1), status, True)
@@ -1084,9 +1095,12 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "memlimit" or key == "ram":
 
                 def round_to_MB(value):
+                    number, unit = util.split_number_and_unit(value)
+                    if unit and unit != "B":
+                        return value
                     try:
                         return "{:.0f} MB".format(
-                            int(value) / _BYTE_FACTOR / _BYTE_FACTOR
+                            int(number) / _BYTE_FACTOR / _BYTE_FACTOR
                         )
                     except ValueError:
                         return value
@@ -1096,8 +1110,11 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "freq":
 
                 def round_to_MHz(value):
+                    number, unit = util.split_number_and_unit(value)
+                    if unit and unit != "Hz":
+                        return value
                     try:
-                        return "{:.0f} MHz".format(int(value) / 1000 / 1000)
+                        return "{:.0f} MHz".format(int(number) / 1000 / 1000)
                     except ValueError:
                         return value
 
@@ -1382,9 +1399,7 @@ def get_stats_of_run_set(runResults, correct_only):
     listsOfValues = zip(*[runResult.values for runResult in runResults])
 
     columns = runResults[0].columns
-    main_status_list = [
-        (runResult.category, runResult.status) for runResult in runResults
-    ]
+    status_list = [(runResult.category, runResult.status) for runResult in runResults]
 
     # collect some statistics
     totalRow = []
@@ -1403,14 +1418,11 @@ def get_stats_of_run_set(runResults, correct_only):
     for index, (column, values) in enumerate(zip(columns, listsOfValues)):
         col_type = column.type.type
         if col_type != ColumnType.text:
-            if col_type == ColumnType.main_status or col_type == ColumnType.status:
-                if col_type == ColumnType.main_status:
-                    status_col_index = index
-                    score = StatValue(
-                        sum(run_result.score or 0 for run_result in runResults)
-                    )
-                else:
-                    score = None
+            if col_type == ColumnType.status:
+                status_col_index = index
+                score = StatValue(
+                    sum(run_result.score or 0 for run_result in runResults)
+                )
 
                 total = StatValue(
                     len(
@@ -1463,7 +1475,7 @@ def get_stats_of_run_set(runResults, correct_only):
             else:
                 assert column.is_numeric()
                 total, correct, correctTrue, correctFalse, correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(
-                    values, main_status_list, column.title, correct_only
+                    values, status_list, column.title, correct_only
                 )
 
                 score = None
@@ -1990,7 +2002,7 @@ def create_argument_parser():
         "--common",
         action="store_true",
         dest="common",
-        help="Put only sourcefiles into the table for which all benchmarks contain results.",
+        help="Put only rows into the table for which all benchmarks contain results.",
     )
     parser.add_argument(
         "--no-diff",

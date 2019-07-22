@@ -32,7 +32,6 @@ try:
     import cPickle as pickle  # noqa: N813
 except ImportError:
     import pickle
-import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import signal
 import subprocess
 import sys
@@ -50,6 +49,7 @@ from benchexec.container import (
     DIR_READ_ONLY,
     DIR_OVERLAY,
     DIR_FULL_ACCESS,
+    NATIVE_CLONE_CALLBACK_SUPPORTED,
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -286,11 +286,13 @@ def main(argv=None):
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
-    # ensure that process gets killed on interrupt/kill signal
+    # Ensure that process gets killed on interrupt/kill signal,
+    # and avoid KeyboardInterrupt because it could occur anywhere.
     def signal_handler_kill(signum, frame):
         executor.stop()
 
     signal.signal(signal.SIGTERM, signal_handler_kill)
+    signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
     # actual run execution
@@ -387,6 +389,24 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         )
         self._dir_modes = collections.OrderedDict(sorted_special_dirs)
 
+        def is_accessible(path):
+            mode = container.determine_directory_mode(self._dir_modes, path)
+            return os.access(path, os.R_OK) and mode not in [None, container.DIR_HIDDEN]
+
+        # Warn if LXCFS is not installed. This does not warn if LXCFS is hidden in the
+        # container, but we do not want a warning per run.
+        if not is_accessible(container.LXCFS_PROC_DIR):
+            logging.info(
+                "LXCFS is not available,"
+                " some host information like the uptime leaks into the container."
+            )
+
+        if not NATIVE_CLONE_CALLBACK_SUPPORTED:
+            logging.debug(
+                "Using a non-robust fallback for clone callback. If you have many "
+                "threads please read https://github.com/sosy-lab/benchexec/issues/435"
+            )
+
     def _get_result_files_base(self, temp_dir):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
@@ -409,6 +429,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """
         This method executes the command line and waits for the termination of it,
         handling all setup and cleanup.
+
+        Note that this method does not expect to be interrupted by KeyboardInterrupt
+        and does not guarantee proper cleanup if KeyboardInterrupt is raised!
+        If this method runs on the main thread of your program,
+        make sure to set a signal handler for signal.SIGINT that calls stop() instead.
+
         @param args: the command line to run
         @param rootDir: None or a root directory that contains all relevant files
             for starting a new process
@@ -422,7 +448,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # preparations
         temp_dir = None
         if rootDir is None:
-            temp_dir = tempfile.mkdtemp(prefix="Benchexec_run_")
+            temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
 
         pid = None
         returnvalue = 0
@@ -543,8 +569,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if root_dir is None:
             env.update(self._env_override)
 
-        args = self._build_cmdline(args, env=env)
-
         # We have three processes involved:
         # parent: the current Python process in which RunExecutor is executing
         # child: child process in new namespace (PID 1 in inner namespace),
@@ -578,9 +602,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # user mappings, then the grand child sends its outer PID back,
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
-        # until the pipes are closed, before it terminates.
+        # for the post_run marker, before it terminates.
         MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
         MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -600,7 +625,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # such that parent can put us into the correct cgroups.  According to
                 # http://man7.org/linux/man-pages/man7/pid_namespaces.7.html,
                 # there are two ways to achieve this: sending a message with the PID
-                # via a socket (but Python < 3.3 lacks a convenient API for sendmsg),
+                # via a socket (but Python 2 lacks a convenient API for sendmsg),
                 # and reading /proc/self in the outer procfs instance
                 # (that's what we do).
                 my_outer_pid = container.get_my_pid_from_procfs()
@@ -757,7 +782,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Now the parent copies the output files, we need to wait until this is
                 # finished. If the child terminates, the container file system and its
                 # tmpfs go away.
-                os.read(from_parent, 1)
+                assert os.read(from_parent, 1) == MARKER_PARENT_POST_RUN_COMPLETED
                 os.close(from_parent)
 
                 return 0
@@ -896,6 +921,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 )
 
             os.close(from_grandchild_copy)
+            os.write(to_grandchild_copy, MARKER_PARENT_POST_RUN_COMPLETED)
             os.close(to_grandchild_copy)  # signal child that it can terminate
             check_child_exit_code()
 
@@ -987,14 +1013,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             ):
                 config_mount_base = mount_base
             container.setup_container_system_config(temp_base, config_mount_base)
-
-            # Warn if LXCFS is not installed.
-            # The actual LXCFS setup will be done in mount_proc()
-            if not os.access(mount_base + container.LXCFS_PROC_DIR, os.R_OK):
-                logging.info(
-                    "LXCFS is not available,"
-                    " some host information like the uptime leaks into the container."
-                )
 
         if output_dir:
             # We need a way to see temp_base in the container in order to be able to

@@ -244,7 +244,7 @@
 <td colspan="1">status</td>
 <td colspan="1">cputime (s)</td>
 <td colspan="1">walltime (s)</td>
-<td colspan="1">memUsage</td>
+<td colspan="1">memory</td>
 <td colspan="1">Aliasing</td>
 <td colspan="1">Arrays</td>
 <td colspan="1">Boolean</td>
@@ -307,7 +307,7 @@
 <td colspan="1">status</td>
 <td colspan="1">cputime (s)</td>
 <td colspan="1">walltime (s)</td>
-<td colspan="1">memUsage</td>
+<td colspan="1">memory</td>
 <td colspan="1">Aliasing</td>
 <td colspan="1">Arrays</td>
 <td colspan="1">Boolean</td>
@@ -477,7 +477,7 @@ $('.scriptonly').show();
 
 // All the data from the table head in nice JS data structures.
 var run_sets = [{"benchmarkname": "configselection", "branch": "", "cores": "8", "cpu": "Intel Xeon E3-1230 v5 @ 3.40 GHz", "cpuCores": "2", "date": "2018-06-27 14:40:12 CEST", "filename": "benchexec/tablegenerator/test_integration/results/nan_and_inf.xml", "freq": "3.8 GHz", "generator": "BenchExec 1.17-dev", "host": "apollon*", "memlimit": "15000 MB", "name": "Model-Based-Selection", "niceName": "Model-Based-Selection", "options": "-heap 10000M -benchmark -configselection-heuristic", "os": "Linux 4.4.0-128-generic", "ram": "33553 MB", "timelimit": "900 s", "tool": "CPAchecker", "toolmodule": "benchexec.tools.cpachecker", "turbo": ", Turbo Boost: disabled", "version": "1.7-svn 28500M"}];   // list with the attributes of all run sets
-var columns = [["status", "cputime (s)", "walltime (s)", "memUsage", "Aliasing", "Arrays", "Boolean", "Composite types", "Config", "Floats", "Loops", "host"]]; // nested list with all the columns headings
+var columns = [["status", "cputime (s)", "walltime (s)", "memory", "Aliasing", "Arrays", "Boolean", "Composite types", "Config", "Floats", "Loops", "host"]]; // nested list with all the columns headings
 var dataColumnsOffset = 1; // index of first column in table with data
 var headerColumnsOffset = 1;      // index of first column in header that belongs to data column
 var columnsToRunset = [];         // for each data column of the table the runSet it belongs to (first column is 0)

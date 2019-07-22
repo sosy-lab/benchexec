@@ -4,5 +4,5 @@
   <column title="status"/>
   <column title="cputime" numberOfDigits="3"/>
   <column title="walltime" numberOfDigits="2"/>
-  <column title="memUsage" numberOfDigits="5"/>
+  <column title="memUsage" displayTitle="memory" numberOfDigits="5"/>
 </table>

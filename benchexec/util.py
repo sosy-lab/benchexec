@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bz2
 import collections
+import errno
 import fnmatch
 import glob
 import logging
@@ -47,7 +48,7 @@ except ImportError:
 
 
 try:
-    read_monotonic_time = time.monotonic
+    read_monotonic_time = time.monotonic  # does not exist on Python 2
 except AttributeError:
     # TODO Should probably warn about wall time affected by changing system clock
     read_monotonic_time = time.time
@@ -67,16 +68,6 @@ else:
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
-
-
-def is_windows():
-    return os.name == "nt"
-
-
-def force_linux_path(path):
-    if is_windows():
-        return path.replace("\\", "/")
-    return path
 
 
 def printOut(value, end="\n"):
@@ -222,7 +213,7 @@ def split_number_and_unit(s):
         pos -= 1
     number = int(s[:pos])
     unit = s[pos:].strip()
-    return (number, unit)
+    return number, unit
 
 
 def parse_memory_value(s):
@@ -488,77 +479,84 @@ def read_key_value_pairs_from_file(*path):
             yield line.split(" ", 1)  # maxsplit=1
 
 
-class BZ2FileHack(bz2.BZ2File):
-    """Hack for Python 3.2, where BZ2File cannot be used in a io.TextIOWrapper
-    because it lacks several functions.
+class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signal")):
+    """Tuple for storing the exit status indication given by a os.wait() call.
+    Only value or signal are present, not both
+    (a process cannot return a value when it is killed by a signal).
     """
 
-    def __init__(self, filename, mode, *args, **kwargs):
-        assert mode == "wb"
-        bz2.BZ2File.__init__(self, filename, mode, *args, **kwargs)
+    @classmethod
+    def from_raw(cls, exitcode):
+        if not (0 <= exitcode < 2 ** 16):
+            raise ValueError("invalid exitcode " + str(exitcode))
+        # calculation: exitcode == (returnvalue * 256) + exitsignal
+        # highest bit of exitsignal shows only whether a core file was produced, we clear it
+        exitsignal = exitcode & 0x7F
+        returnvalue = exitcode >> 8
+        if exitsignal == 0:
+            # signal 0 does not exist, this means there was no signal that killed the process
+            exitsignal = None
+        else:
+            assert returnvalue == 0, "returnvalue {}, although exitsignal is {}".format(
+                returnvalue, exitsignal
+            )
+            returnvalue = None
+        return cls(exitcode, returnvalue, exitsignal)
 
-    def readable(self):
-        return False
+    @classmethod
+    def create(cls, value=None, signal=None):
+        """
+        Create an instance of either a return value or an exit signal.
+        The other parameter must be None.
+        """
+        if value is None and signal is None:
+            raise ValueError("Need return value or exit signal for ProcessExitCode")
+        if value is not None and signal is not None:
+            raise ValueError("Cannot create ProcessExitCode with both value and signal")
+        if value is not None and not (0 <= value <= 255):
+            raise ValueError("Invalid value {} for return value".format(value))
+        if signal is not None and not (1 <= signal <= 127):
+            raise ValueError("Invalid value {} for exit signal".format(value))
 
-    def seekable(self):
-        return False
+        exitcode = ((value or 0) * 256) + (signal or 0)
+        return cls(exitcode, value, signal)
 
-    def writable(self):
-        return True
-
-    def flush(self):
-        pass
-
-
-ProcessExitCode = collections.namedtuple("ProcessExitCode", "raw value signal")
-"""Tuple for storing the exit status indication given by a os.wait() call.
-Only value or signal are present, not both
-(a process cannot return a value when it is killed by a signal).
-"""
-
-
-@classmethod
-def _ProcessExitCode_from_raw(cls, exitcode):
-    if not (0 <= exitcode < 2 ** 16):
-        raise ValueError("invalid exitcode " + str(exitcode))
-    # calculation: exitcode == (returnvalue * 256) + exitsignal
-    # highest bit of exitsignal shows only whether a core file was produced, we clear it
-    exitsignal = exitcode & 0x7F
-    returnvalue = exitcode >> 8
-    if exitsignal == 0:
-        # signal 0 does not exist, this means there was no signal that killed the process
-        exitsignal = None
-    else:
-        assert returnvalue == 0, (
-            "returnvalue "
-            + str(returnvalue)
-            + ", although exitsignal is "
-            + str(exitsignal)
+    def __str__(self):
+        return (
+            ("exit signal " + str(self.signal))
+            if self.signal
+            else ("return value " + str(self.value))
         )
-        returnvalue = None
-    return cls(exitcode, returnvalue, exitsignal)
+
+    def __bool__(self):
+        return bool(self.signal or self.value)
+
+    def __nonzero__(self):
+        return self.__bool__()
 
 
-ProcessExitCode.from_raw = _ProcessExitCode_from_raw
-
-
-def _ProcessExitCode__str__(self):
-    return (
-        ("exit signal " + str(self.signal))
-        if self.signal
-        else ("return value " + str(self.value))
-    )
-
-
-ProcessExitCode.__str__ = _ProcessExitCode__str__
-
-
-def _ProcessExitCode__bool__(self):
-    return bool(self.signal or self.value)
-
-
-ProcessExitCode.__bool__ = _ProcessExitCode__bool__
-ProcessExitCode.__nonzero__ = _ProcessExitCode__bool__
+def kill_process(pid, sig=signal.SIGKILL):
+    """Try to send signal to given process."""
+    try:
+        os.kill(pid, sig)
+    except OSError as e:
+        if e.errno == errno.ESRCH:
+            # process itself returned and exited before killing
+            logging.debug(
+                "Failure %s while killing process %s with signal %s: %s",
+                e.errno,
+                pid,
+                sig,
+                e.strerror,
+            )
+        else:
+            logging.warning(
+                "Failure %s while killing process %s with signal %s: %s",
+                e.errno,
+                pid,
+                sig,
+                e.strerror,
+            )
 
 
 def dummy_fn(*args, **kwargs):
@@ -657,7 +655,7 @@ def _debug_current_process(sig, current_frame):
     i = code.InteractiveConsole(d)
     message = "Signal received : entering python shell.\n"
 
-    threads = dict((thread.ident, thread) for thread in threading.enumerate())
+    threads = {thread.ident: thread for thread in threading.enumerate()}
     current_thread = threading.current_thread()
     for thread_id, frame in sys._current_frames().items():
         if current_thread.ident != thread_id:

@@ -10,7 +10,6 @@ getent passwd
 echo ------------------------
 
 PRIMARY_USER="$1"
-SECONDARY_USER="$2"
 
 # Set up cgroups
 for i in blkio cpuacct cpuset freezer memory cpu; do
@@ -21,7 +20,3 @@ for i in blkio cpuacct cpuset freezer memory cpu; do
   chgrp "$(id -g "$PRIMARY_USER")" /sys/fs/cgroup/$i
   chmod g+rwx /sys/fs/cgroup/$i
 done
-
-# Set up sudo
-adduser --disabled-login --gecos "" "$SECONDARY_USER"
-echo "$PRIMARY_USER ALL=($SECONDARY_USER) NOPASSWD: ALL" >> /etc/sudoers

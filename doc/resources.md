@@ -30,8 +30,7 @@ from all processes started by the tool.
 Memory pages shared across multiple processes of a single run are counted only once.
 In addition, data stored by the tool on the filesystem
 is measured and limited by BenchExec as part of the memory consumption
-if [container mode](container.md) is used,
-except if this is disabled with `--no-tmpfs`
+except if this is disabled with `--no-container` or `--no-tmpfs`
 or if the tool writes to a directory in the full-access mode.
 
 On systems with swap, BenchExec always measures and limits the complete memory usage of the tool,
@@ -39,18 +38,11 @@ i.e., its usage of physical RAM plus swap usage.
 BenchExec also tries to disallow swapping of the benchmarked tool,
 if the kernel allows this.
 
-For backwards compatibility, the memory limit when given to `benchexec` without a unit suffix
-is interpreted as megabytes (a warning is shown for this).
-This behavior may change in a future major version of BenchExec.
-It is recommended to explicitly specify the unit to avoid confusion.
-In all other cases, memory values without a unit suffix are bytes.
-
 
 ## Wall Time
 
-Wall-time measurements may be inaccurate on systems with an old Python version (up to Python 3.2),
+Wall-time measurements may be inaccurate when using Python 2,
 if the system time changes during the benchmarking (e.g., due to daylight-savings time).
-The same is true regardless of the Python version for BenchExec 1.5 and older.
 
 BenchExec always limits the wall time, too, if the CPU time is limited.
 This is done to prevent infinitely-long hanging runs if no CPU time is used,
@@ -94,7 +86,7 @@ and not if only a subset of the CPU's cores is used per run.
 
 ## Disk Space and I/O
 
-In [container mode](container.md) (default from BenchExec 2.0),
+In the default [container mode](container.md),
 BenchExec redirects all write accesses to a `tmpfs` instance (a "RAM disk").
 Data stored on this RAM disk are counted towards the memory limit.
 Read accesses to pre-existing files are performed as usually

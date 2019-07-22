@@ -43,9 +43,7 @@ class FileHierarchyLimitThread(threading.Thread):
         path,
         files_count_limit,
         files_size_limit,
-        kill_process_fn,
         pid_to_kill,
-        cgroups,
         callbackFn=lambda reason: None,
     ):
         super(FileHierarchyLimitThread, self).__init__()
@@ -56,9 +54,7 @@ class FileHierarchyLimitThread(threading.Thread):
         self._files_count_limit = files_count_limit
         self._files_size_limit = files_size_limit
 
-        self._kill_process = kill_process_fn
         self._pid_to_kill = pid_to_kill
-        self._cgroups = cgroups
         self._callback = callbackFn
         self._finished = threading.Event()
 
@@ -77,7 +73,7 @@ class FileHierarchyLimitThread(threading.Thread):
             files_count,
             files_size,
         )
-        self._kill_process(self._pid_to_kill, self._cgroups)
+        util.kill_process(self._pid_to_kill)
         return reason
 
     def run(self):

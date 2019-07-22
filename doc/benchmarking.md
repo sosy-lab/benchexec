@@ -10,9 +10,11 @@ please read our paper [Reliable Benchmarking: Requirements and Solutions](https:
 New versions of BenchExec might contain features or bug fixes
 that make benchmarking more precise.
 
-### Enable container mode
-The [container mode](container.md) available with `--container` since BenchExec 1.9
-isolates individual runs and makes benchmarking more reliable.
+### Use container mode
+The [container mode](container.md) should not be turned off
+because it isolates individual runs and makes benchmarking more reliable.
+Also make sure to configure the container (e.g., directory access)
+as restrictive as possible.
 
 ### Specify memory limit
 Without a fixed memory limit, the amount of memory available for benchmarking

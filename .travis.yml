@@ -10,9 +10,7 @@ python:
 install:
   - pip install .
 before_script:
-  - sudo ./.travis-setup.sh "$USER" "$BENCHEXEC_TEST_USER"
-env:
-  - BENCHEXEC_TEST_USER=benchmarks
+  - sudo ./.travis-setup.sh "$USER"
 script:
   - python setup.py test
 notifications:

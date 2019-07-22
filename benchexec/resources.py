@@ -428,7 +428,7 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
         else:
             allMems = set(itertools.chain(*memoryAssignment))
 
-        memSizes = dict((mem, _get_memory_bank_size(mem)) for mem in allMems)
+        memSizes = {mem: _get_memory_bank_size(mem) for mem in allMems}
     except ValueError as e:
         sys.exit("Could not read memory information from kernel: {0}".format(e))
 

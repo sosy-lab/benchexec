@@ -86,7 +86,7 @@ by letting the tool info look for the given pattern in the output
 ```
 
 If the attribute `href` is given, the column will contain a link to the respective target
-(variables such as `${inputfile_name}` can be used to customize this link per task).
+(variables such as `${taskdef_name}` can be used to customize this link per task).
 If `href` specifies a relative path, it is interpreted as relative to the directory
 of the table-definition file and will be converted appropriately for the location of the output files.
 An absolute URL can also be given.
@@ -102,7 +102,7 @@ For example, this can be used to convert the memory column to MB
 by using the following line in a table-definition file:
 
 ```XML
-<column title="memUsage" sourceUnit="B" displayUnit="MB"/>
+<column title="memory" sourceUnit="B" displayUnit="MB"/>
 ```
 
 Additionally, it is possible to specify columns that should be considered when comparing different

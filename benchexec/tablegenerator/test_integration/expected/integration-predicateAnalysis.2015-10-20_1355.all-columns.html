@@ -247,7 +247,7 @@
 <td colspan="1">cputime (s)</td>
 <td colspan="1">walltime (s)</td>
 <td colspan="1">category</td>
-<td colspan="1">memUsage</td>
+<td colspan="1">memory</td>
 <td colspan="1">vcloud-cpuCores</td>
 <td colspan="1">host</td>
 <td colspan="1">vcloud-outerwalltime (s)</td>
@@ -8498,7 +8498,7 @@
 <td colspan="1">cputime (s)</td>
 <td colspan="1">walltime (s)</td>
 <td colspan="1">category</td>
-<td colspan="1">memUsage</td>
+<td colspan="1">memory</td>
 <td colspan="1">vcloud-cpuCores</td>
 <td colspan="1">host</td>
 <td colspan="1">vcloud-outerwalltime (s)</td>
@@ -8687,7 +8687,7 @@ $('.scriptonly').show();
 
 // All the data from the table head in nice JS data structures.
 var run_sets = [{"benchmarkname": "integration-predicateAnalysis", "branch": "", "cores": "80", "cpu": "Intel Xeon E7- 4870 @ 2.40 GHz", "cpuCores": "2", "date": "2015-10-23 13:48:29 CEST", "filename": "results/integration-predicateAnalysis.2015-10-23_1348.results.xml.bz2", "freq": "2.4 GHz", "host": "node-*", "memlimit": "3000 MB", "name": "", "niceName": "integration-predicateAnalysis", "options": "-noout -heap 2000M -predicateAnalysis", "os": "Linux 3.0.80-0.7-default", "ram": "[1084265 MB; 1084131 MB; 1084266 MB; 948571 MB]", "timelimit": "60 s", "tool": "CPAchecker", "toolmodule": "benchexec.tools.cpachecker", "turbo": "", "version": "1.4-svn 18152M"}];   // list with the attributes of all run sets
-var columns = [["status", "cputime (s)", "walltime (s)", "category", "memUsage", "vcloud-cpuCores", "host", "vcloud-outerwalltime (s)", "vcloud-memoryNodes", "vcloud-memoryLimit", "exitcode", "vcloud-returnvalue", "vcloud-cpuCoresDetails", "vcloud-memoryNodesAllocation"]]; // nested list with all the columns headings
+var columns = [["status", "cputime (s)", "walltime (s)", "category", "memory", "vcloud-cpuCores", "host", "vcloud-outerwalltime (s)", "vcloud-memoryNodes", "vcloud-memoryLimit", "exitcode", "vcloud-returnvalue", "vcloud-cpuCoresDetails", "vcloud-memoryNodesAllocation"]]; // nested list with all the columns headings
 var dataColumnsOffset = 2; // index of first column in table with data
 var headerColumnsOffset = 1;      // index of first column in header that belongs to data column
 var columnsToRunset = [];         // for each data column of the table the runSet it belongs to (first column is 0)
