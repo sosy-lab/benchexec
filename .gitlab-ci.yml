@@ -3,17 +3,13 @@
 # gitlab-runner exec docker --docker-privileged --docker-volumes /sys/fs/cgroup:/sys/fs/cgroup:rw --env CI_REGISTRY_IMAGE=registry.gitlab.com/sosy-lab/software/benchexec <<JOB_NAME>>
 
 variables:
-  # We use two user accounts, one executes runexec as the other via sudo
   PRIMARY_USER: benchexec
-  SECONDARY_USER: benchmarks
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
 before_script:
-  # Create users and give sudo permission
+  # Create user, we do not want to test as root
   - adduser --disabled-login --gecos "" $PRIMARY_USER
-  - adduser --disabled-login --gecos "" $SECONDARY_USER
-  - 'echo "$PRIMARY_USER ALL=($SECONDARY_USER) NOPASSWD: ALL" >> /etc/sudoers'
   # Activate coverage for subprocesses
   - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
   # Give $PRIMARY_USER permission to create cgroups
@@ -28,7 +24,6 @@ before_script:
   stage: test
   script:
     - sudo -u $PRIMARY_USER
-        BENCHEXEC_TEST_USER=$SECONDARY_USER
         COVERAGE_PROCESS_START=.coveragerc
         coverage run setup.py test
   after_script:
@@ -45,11 +40,6 @@ unit-tests:python-2.7:
   <<: *unit-tests
   variables:
     PYTHON_VERSION: '2.7'
-
-unit-tests:python-3.2:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.2'
 
 unit-tests:python-3.4:
   <<: *unit-tests

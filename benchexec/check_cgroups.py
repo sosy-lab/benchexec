@@ -46,7 +46,7 @@ def check_cgroup_availability(wait=1):
     @raise SystemExit: if cgroups are not usable
     """
     logging.basicConfig(format="%(levelname)s: %(message)s")
-    runexecutor = RunExecutor()
+    runexecutor = RunExecutor(use_namespaces=False)
     my_cgroups = runexecutor.cgroups
 
     if not (

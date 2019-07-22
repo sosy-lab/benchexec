@@ -75,12 +75,12 @@
   thead tr:last-child td { border-bottom:3px solid rgb(85, 85, 85)}
   tr.statistics { white-space: nowrap }
   tfoot tr:first-child td { border-top:3px solid rgb(85, 85, 85)}
-  .status, .main_status { text-align: center; }
-  .status.correct, .main_status.correct { color:green}
-  .status.correct-unconfirmed, .main_status.correct-unconfirmed { color: orange; }
-  .status.wrong, .main_status.wrong { color:red; font-weight: bold; }
-  .status.unknown, .main_status.unknown { color:orange; font-weight: bold; }
-  .status.error, .main_status.error { color:magenta; font-weight: bold; }
+  .status { text-align: center; }
+  .status.correct { color:green}
+  .status.correct-unconfirmed { color: orange; }
+  .status.wrong { color:red; font-weight: bold; }
+  .status.unknown { color:orange; font-weight: bold; }
+  .status.error { color:magenta; font-weight: bold; }
   .link { text-align: center; color:DarkSlateBlue; }
   .text { font-family: monospace; }
   #dataTable tbody .measure, #dataTable tbody .count {
@@ -242,7 +242,7 @@
   {{for runResult in line.results}}
   {{for column, value in zip(runResult.columns, runResult.values)}}
   {{py:ccsclass = runResult.category + ' ' + str(column.type.type)}}
-  {{if column.title.endswith('status') or column.href}}
+  {{if (column.title == 'status') or column.href}}
     {{py:value = (value or column.pattern or '-').lower()}}
     {{if runResult.log_file or column.href}}
 <td class="{{ccsclass}} link" title="Click here to show output of tool"><a href="{{create_link(column.href or runResult.log_file, base_dir, runResult, href_base)}}">{{value}}</a></td>
@@ -931,7 +931,7 @@ function fillRowFilterField(columnIndex) {
     // determinate options
     var options = [];
     var columnName = columnTitleCells[columnIndex].textContent;
-    if (columnName.endsWith('status')) {
+    if (columnName == 'status') {
         options = options.concat(['correct', 'wrong', 'unknown']);
     }
     $('#dataTable > tbody > tr').filter(':visible').each(function(_, row) {
@@ -1011,7 +1011,7 @@ function hideRows(values, columnIndex, invertFilter) {
         }
 
         // special case: show 'correct', 'wrong' and 'unknown' results
-        if (!isVisible && columnName.endsWith('status')) {
+        if (!isVisible && columnName == 'status') {
             var classNames = row.cells[columnIndex + dataColumnsOffset].className.split(' ');
             for (var j = 0; j < values.length; j++) {
                 var value = values[j];
@@ -1411,7 +1411,7 @@ function isValidStatisticsColumn(columnIndex, allowStatus) {
   if (columnClasses.contains('measure') || columnClasses.contains('count')) {
     return true;
   }
-  if (allowStatus && (columnClasses.contains('status') || columnClasses.contains('main_status'))) {
+  if (allowStatus && columnClasses.contains('status')) {
     return true;
   }
   return false;

@@ -62,8 +62,10 @@ c_off_t = c_long
 
 clone = _libc_with_gil.clone  # Important to have GIL, cf. container.py!
 """Create copy of current process, similar to fork()."""
+CLONE_CALLBACK = _ctypes.CFUNCTYPE(c_int, c_void_p)
+"""Type use for callback functions of clone, can be used as decorator."""
 clone.argtypes = [
-    _ctypes.CFUNCTYPE(c_int),
+    CLONE_CALLBACK,
     c_void_p,
     c_int,
     c_void_p,
@@ -84,6 +86,13 @@ unshare.argtypes = [c_int]
 unshare.errcheck = _check_errno
 
 
+sysconf = _libc.sysconf
+"""Retrieve information about system"""
+sysconf.argtypes = [c_int]
+sysconf.restype = c_long
+SC_PAGESIZE = 30  # /usr/include/bits/confname.h
+
+
 mmap = _libc.mmap
 """Map file into memory."""
 mmap.argtypes = [
@@ -93,9 +102,15 @@ mmap.argtypes = [
     c_int,
     c_int,
     c_off_t,
-]  # add, length, prot, flags, fd, offset
+]  # addr, length, prot, flags, fd, offset
 mmap.restype = c_void_p
 mmap.errcheck = _check_errno
+
+
+def mmap_anonymous(length, prot, flags=0):
+    """Allocate anonymous memory with mmap. Length must be multiple of page size."""
+    return mmap(None, length, prot, flags | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)
+
 
 munmap = _libc.munmap
 """Free mmap()ed memory."""
@@ -217,6 +232,6 @@ _libc.sethostname.argtypes = [c_char_p, c_size_t]
 
 def sethostname(name):
     """Set the host name of the machine."""
-    # TODO: replace with socket.sethostname, which is available from Python 3.3
+    # TODO: replace with socket.sethostname (not available on Python 2)
     name = name.encode()
     _libc.sethostname(name, len(name))

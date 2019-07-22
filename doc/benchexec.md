@@ -56,12 +56,18 @@ that will be expanded by BenchExec. The following variables are supported:
     ${logfile_path}         Directory where tool-output files will be stored
     ${logfile_path_abs}     Directory where tool-output files will be stored (absolute path)
     ${rundefinition_name}   Name of current run definition
+
+If task-definition files are used, the following variables are defined:
+
+    ${taskdef_name}       Name of current task-definition file (without path)
+    ${taskdef_path}       Directory of current task-definition file
+    ${taskdef_path_abs}   Directory of current task-definition file (absolute path)
+
+Otherwise, these variables can be used:
+
     ${inputfile_name}       Name of current input file (without path)
     ${inputfile_path}       Directory of current input file
     ${inputfile_path_abs}   Directory of current input file (absolute path)
-    ${taskdef_name}       Name of current task-definition file (without path, only if task-definition files are used)
-    ${taskdef_path}       Directory of current task-definition file (only if task-definition files are used)
-    ${taskdef_path_abs}   Directory of current task-definition file (absolute path, only if task-definition files are used)
 
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use
@@ -72,7 +78,7 @@ that is in the same directory as each input file, use
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 [which files should be copied to the output directory](container.md#retrieving-result-files)
-(only supported in [container mode](container.md)).
+(only supported if [container mode](container.md) is not turned off).
 
 ### Defining Tasks for BenchExec
 Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.
@@ -111,7 +117,7 @@ If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
-If a property file is given in the benchmark XML definition with the `<propertyfile>` tag,
+If a [property file](properties/INDEX.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
 `benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
 If none is found, the task defined by this task definition is ignored.
@@ -137,8 +143,6 @@ Example:
 
 The full set of available parameters can be seen with `benchexec -h`.
 For explanation of the parameters for containers, please see [container mode](container.md).
-For executing benchmarks under a different user account with the parameter `--user`,
-please check the [respective documentation](separate-user.md).
 
 Command-line arguments can additionally be read from a file,
 if the file name prefixed with `@` is given as argument.

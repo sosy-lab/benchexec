@@ -171,11 +171,11 @@ class SwapCheck(object):
 
     def _read_swap_count(self):
         try:
-            return dict(
-                (k, int(v))
+            return {
+                k: int(v)
                 for k, v in util.read_key_value_pairs_from_file("/proc/vmstat")
                 if k in ["pswpin", "pswpout"]
-            )
+            }
         except Exception as e:
             logging.warning("Cannot read swap count from kernel: %s", e)
 

@@ -86,6 +86,7 @@ Contributors:
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
+- [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)

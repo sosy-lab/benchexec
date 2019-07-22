@@ -277,21 +277,6 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run files="[../../../doc/separate-user.md]" name="../../../doc/separate-user.md">
-    <column title="cpuenergy" value="0.004150J"/>
-    <column title="cputime" value="0.004495594s"/>
-    <column title="memUsage" value="385024"/>
-    <column title="status" value="true"/>
-    <column title="walltime" value="0.014731775008840486s"/>
-    <column hidden="true" title="category" value="missing"/>
-    <column hidden="true" title="cpuenergy-pkg0" value="0.004150J"/>
-    <column hidden="true" title="cpuenergy-pkg0-core" value="0.000671J"/>
-    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.002930J"/>
-    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.001343J"/>
-    <column hidden="true" title="cputime-cpu2" value="0.004495594s"/>
-    <column hidden="true" title="exitcode" value="0"/>
-    <column hidden="true" title="returnvalue" value="0"/>
-  </run>
   <run files="[../../../doc/table-generator.md]" name="../../../doc/table-generator.md">
     <column title="cpuenergy" value="0.005127J"/>
     <column title="cputime" value="0.004317205s"/>
@@ -450,7 +435,7 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/separate-user.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]" name="../../../doc/task-definition-example.yml">
+  <run files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]" name="../../../doc/task-definition-example.yml">
     <column title="cpuenergy" value="0.011597J"/>
     <column title="cputime" value="0.004660596s"/>
     <column title="memUsage" value="385024"/>

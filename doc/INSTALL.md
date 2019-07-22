@@ -2,7 +2,7 @@
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.2.
+BenchExec requires at least Python 3.4.
 (The [runexec](runexec.md) tool and module also works with Python 2.7.)
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
@@ -17,7 +17,7 @@ The following packages are optional but recommended dependencies:
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
 that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
 
-    apt install python3-tempita python3-coloredlogs lxcfs
+    apt install python3-tempita python3-coloredlogs lxcfs python3-yaml
     dpkg -i benchexec_*.deb
 
 This package also automatically configures the necessary cgroup permissions.
@@ -63,9 +63,6 @@ It is useful to install the system package `python3-lxml` before,
 otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
-If you want to run benchmarks under different user account than your own,
-please check the [respective documentation](separate-user.md) for how to setup sudo.
-
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
 and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
 [LXCFS](https://github.com/lxc/lxcfs) if desired.
@@ -77,8 +74,7 @@ To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
 can create and modify cgroups (see below for how to allow this).
 
-For container mode of BenchExec (available since BenchExec 1.9, default starting with BenchExec 2.0),
-a relatively recent kernel is needed.
+For container mode of BenchExec a relatively recent kernel is needed.
 Please see [container mode](container.md) for the system requirements.
 
 Without container mode, any Linux kernel version of the last several years is

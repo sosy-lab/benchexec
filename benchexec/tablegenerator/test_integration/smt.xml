@@ -7,5 +7,5 @@
   <column title="score"/>
   <column title="cputime"/>
   <column title="walltime"/>
-  <column title="memUsage"/>
+  <column title="memUsage" displayTitle="memory"/>
 </table>

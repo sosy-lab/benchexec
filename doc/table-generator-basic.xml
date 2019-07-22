@@ -10,5 +10,5 @@
   <column title="status"/>
   <column title="cputime" displayTitle="CPU Time"/>
   <column title="walltime" displayTitle="Wall Time"/>
-  <column title="memUsage" displayTitle="Memory" sourceUnit="B" displayUnit="MB"/>
+  <column title="memory" displayTitle="Memory" sourceUnit="B" displayUnit="MB"/>
 </table>
