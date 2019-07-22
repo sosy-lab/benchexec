@@ -126,7 +126,7 @@ def handle_basic_container_args(options, parser=None):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             error_fn(
-                "Cannot specify directory mode for '{}' because it does not exist"
+                "Cannot specify directory mode for '{}' because it does not exist "
                 "or is no directory.".format(path)
             )
         if path in dir_modes:
@@ -801,10 +801,21 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     child, use_network_ns=not self._allow_network
                 )
             except OSError as e:
-                raise BenchExecException(
-                    "Creating namespace for container mode failed: "
-                    + os.strerror(e.errno)
-                )
+                if (
+                    e.errno == errno.EPERM
+                    and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone")
+                    == "0"
+                ):
+                    raise BenchExecException(
+                        "Unprivileged user namespaces forbidden on this system, please "
+                        "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                        "or disable container mode"
+                    )
+                else:
+                    raise BenchExecException(
+                        "Creating namespace for container mode failed: "
+                        + os.strerror(e.errno)
+                    )
             logging.debug(
                 "Parent: child process of RunExecutor with PID %d started.", child_pid
             )
@@ -1004,15 +1015,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         make_tmpfs_dir(b"/run/shm")
 
         if self._container_system_config:
-            # If overlayfs is not used for /etc, we need additional bind mounts
-            # for files in /etc that we want to override, like /etc/passwd
-            config_mount_base = None
-            if (
-                container.determine_directory_mode(self._dir_modes, b"/etc")
-                != DIR_OVERLAY
-            ):
-                config_mount_base = mount_base
-            container.setup_container_system_config(temp_base, config_mount_base)
+            container.setup_container_system_config(
+                temp_base, mount_base, self._dir_modes
+            )
 
         if output_dir:
             # We need a way to see temp_base in the container in order to be able to
@@ -1040,19 +1045,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             util.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
-        # Now we make mount_base the new root directory. For this we need a place below
-        # mount_base where to move the old root directory.
-        # Explanation: https://unix.stackexchange.com/a/456777/15398
-        old_root = b"/proc"  # Does not matter, just needs to exist.
-        # These three steps together are the recommended sequence for calling pivot_root
-        # (http://man7.org/linux/man-pages/man8/pivot_root.8.html)
-        os.chdir(mount_base)
-        libc.pivot_root(mount_base, mount_base + old_root)
-        os.chroot(".")
-        # Now the container file system is at /,
-        # and the outer file system is visible at old_root in the container.
-        # We can just unmount old_root and finally make it inaccessible from container.
-        libc.umount2(old_root, libc.MNT_DETACH)
+        # Now we make mount_base the new root directory.
+        container.chroot(mount_base)
 
     def _setup_root_filesystem(self, root_dir):
         """Setup the filesystem layout in the given root directory.

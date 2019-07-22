@@ -115,6 +115,11 @@ def _init_container_and_load_tool(
     container_tmpfs,  # ignored, tmpfs is always used
 ):
     """Initialize container for the current process and load given tool-info module."""
+    # Prepare for private home directory, some tools write there
+    if container_system_config:
+        dir_modes.setdefault(container.CONTAINER_HOME, container.DIR_HIDDEN)
+        os.environ["HOME"] = container.CONTAINER_HOME
+
     # Preparations
     temp_dir = temp_dir.encode()
     dir_modes = collections.OrderedDict(
@@ -204,14 +209,10 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
     make_tmpfs_dir(b"/run/shm")
 
     if container_system_config:
-        # If overlayfs is not used for /etc, we need additional bind mounts
-        # for files in /etc that we want to override, like /etc/passwd
-        etc_mode = container.determine_directory_mode(dir_modes, b"/etc")
-        config_mount_base = mount_base if etc_mode != container.DIR_OVERLAY else None
-        container.setup_container_system_config(temp_base, config_mount_base)
+        container.setup_container_system_config(temp_base, mount_base, dir_modes)
 
     cwd = os.getcwd()
-    os.chroot(mount_base)
+    container.chroot(mount_base)
     os.chdir(cwd)
 
 

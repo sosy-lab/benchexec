@@ -29,8 +29,11 @@ If the used property matches the format of the property files of [SV-COMP](http:
 
 There exists a historical mode of operation for `benchexec`
 without task-definition files.
-In this mode, expected results are encoded in the name of the input file of each task
-and only the specific property files in this directory are valid:
+[Starting with BenchExec 3.0](https://github.com/sosy-lab/benchexec/issues/439)
+`benchexec` will no longer check for expected results in this mode.
+Until then, expected results can be encoded in the name of the input file of each task
+and only the specific property files in this directory are valid
+if no task-definition files are used:
 
 - [unreach-call](unreach-call.prp): Reachability of an error function in a program (defined by [SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
 - [unreach-label](unreach-label.prp): Reachability of an error label in a program (defined by [previous SV-Comp](http://sv-comp.sosy-lab.org/2014/rules.php))
