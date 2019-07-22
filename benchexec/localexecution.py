@@ -35,6 +35,7 @@ from benchexec import cgroups
 from benchexec import containerexecutor
 from benchexec.resources import *
 from benchexec.runexecutor import RunExecutor
+from benchexec.pqos import Pqos
 from benchexec import systeminfo
 from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
@@ -113,6 +114,8 @@ def execute_benchmark(benchmark, output_handler):
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
+    pqos = Pqos()  # The pqos class instance for cache allocation
+
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit(
@@ -125,6 +128,7 @@ def execute_benchmark(benchmark, output_handler):
             my_cgroups,
             benchmark.config.coreset,
         )
+        pqos.allocate_l3ca(coreAssignment)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
         cpu_packages = set(
             get_cpu_package_for_core(core)
@@ -260,7 +264,7 @@ def execute_benchmark(benchmark, output_handler):
             "System has swapped during benchmarking. "
             "Benchmark results are unreliable!"
         )
-
+    pqos.reset_resources()
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
     return 0

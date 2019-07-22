@@ -37,6 +37,7 @@ import stat
 import subprocess
 import sys
 import time
+import ctypes
 from xml.etree import ElementTree
 
 try:
@@ -672,3 +673,47 @@ def activate_debug_shell_on_signal():
     and gives an interactive debugging shell.
     """
     signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler
+
+
+def get_capability(filename):
+    """
+        Get names of capabilities and the corresponding capability set for given filename.
+
+            @filename: The complete path to the file
+    """
+    res = {"capabilities": [], "set": [], "error": False}
+    try:
+        libcap = ctypes.cdll.LoadLibrary("libcap.so")
+    except OSError:
+        res["error"] = True
+        logging.warning("Unable to find capabilities for {0}".format(filename))
+        return res
+    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
+    libcap.cap_to_text.restype = ctypes.c_char_p
+    cap_object = libcap.cap_to_text(cap_t, None)
+    libcap.cap_free(cap_t)
+    if cap_object != None:
+        cap_string = cap_object.decode("utf-8")
+        res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
+        res["set"] = [char for char in (cap_string.split("+")[1])]
+    return res
+
+
+def check_msr():
+    """
+        Checks if the msr driver is loaded and if the user executing
+        benchexec has the read and write permissions for msr.
+    """
+    res = {"loaded": False, "write": False, "read": False}
+    loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
+
+    if any(["msr" in module for module in loaded_modules]):
+        res["loaded"] = True
+    if res["loaded"]:
+        cpu_dirs = os.listdir("/dev/cpu")
+        cpu_dirs.remove("microcode")
+        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs]):
+            res["read"] = True
+        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs]):
+            res["write"] = True
+    return res
