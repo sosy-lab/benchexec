@@ -11,22 +11,26 @@ $orange: #e58900;
   padding: auto;
   height: 35px;
   cursor: pointer;
+
+  background-image: linear-gradient(to left, $orange, white);
+  box-shadow: 0 4px 12px 0 rgba($orange, 0.2);
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+  background-size: 300% 100%;
+
+  &:hover {
+    background-position: 100% 0;
+    -o-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+  }
 }
-    .btn-apply {
-      margin-left: 100px;
-      background-image: linear-gradient(to right, #0ba360, #3cba92, #30dd8a, #2bb673);
-      box-shadow: 0 4px 12px 0 rgba(23, 168, 108, 0.5);
-      -o-transition: all .4s ease-in-out;
-      -webkit-transition: all .4s ease-in-out;
-      transition: all .4s ease-in-out;
-      background-size: 300% 100%;
-    }
-    .btn-apply:hover {
-      background-position: 100% 0;
-      -o-transition: all .4s ease-in-out;
-      -webkit-transition: all .4s ease-in-out;
-      transition: all .4s ease-in-out;
-    }
+.btn-apply {
+  margin-left: 100px;
+  background-image: linear-gradient(to right, $orange, white);
+  box-shadow: 0 4px 12px 0 rgba($orange, 0.5);
+}
 
 //------------------overview------------------
 .overview {
@@ -142,6 +146,7 @@ $orange: #e58900;
     width: 100%;
     z-index: 10;
     background: white;
+
   }
 
   .cellLink {
@@ -211,7 +216,7 @@ $orange: #e58900;
 .overlay {
   position: fixed;
   overflow: scroll;
-  top: 20px;
+  top: 80px;
   right: 20px;
   left: 20px;
   height: 80%;
@@ -230,8 +235,8 @@ $orange: #e58900;
       cursor: pointer;
     }
     background: white;
-    color: #ab0202;
-    // background: red;
+    // color: #ab0202;
+    color: $orange;
     &.checked {
       color: black;
     }
@@ -253,8 +258,9 @@ $orange: #e58900;
     width: 100%;
     display: flex;
     justify-content: center;
-    button {
+    .btn {
       margin-top: 50px;
+      width: 20vw;
     }
   }
 
@@ -266,7 +272,7 @@ $orange: #e58900;
     cursor: pointer;
     position: fixed;
     right: 35px;
-    top: 35px;
+    top: 93px;
   }
 }
 

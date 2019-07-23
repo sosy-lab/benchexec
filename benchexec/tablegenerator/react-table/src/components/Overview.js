@@ -120,7 +120,7 @@ export default class Overview extends React.Component {
             <div className="App">
             <main>
                 <div className="overview">
-                    <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex })}>
+                    <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex, showSelectColumns: false, showLinkOverlay: false })}>
                         <TabList>
                             <Tab>Summary</Tab>
                             <Tab> Table </Tab>
