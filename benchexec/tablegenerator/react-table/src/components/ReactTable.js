@@ -3,6 +3,7 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import withFixedColumns from 'react-table-hoc-fixed-columns';
 import 'react-table-hoc-fixed-columns/lib/styles.css'
+import "react-table/react-table.css";
 
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
@@ -19,7 +20,8 @@ export default class Table extends React.Component {
 
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
         this.typingTimer = -1;
-
+        this.width = (window.innerWidth*0.20-3);
+        this.height = window.innerHeight-50;
     };
 
 
@@ -207,7 +209,7 @@ export default class Table extends React.Component {
         [
             {
                 Header: () => (
-                    <div>
+                    <div className="fixed">
                         <form>
                             <label title="Fix the first column">
                                 Fixed task:
@@ -219,7 +221,7 @@ export default class Table extends React.Component {
                 fixed: this.state.fixed ? 'left' : '',
                 columns: [
                     {
-                        minWidth: 250,
+                        width: this.width,
                         id: 'short_filename',
                         Header: () => (
                             <div
@@ -231,7 +233,7 @@ export default class Table extends React.Component {
                         ),
                         fixed: this.state.fixed ? 'left' : '',
                         accessor: props => (
-                            props.has_sourcefile ? <div className={props.hrefRow ? 'cellLink' : ''} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}>{props.short_filename}</div> : <span title="This task has no associated file">{props.short_filename}</span>
+                            props.has_sourcefile ? <div className={props.href ? 'row__name--cellLink' : 'row__name'} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}>{props.short_filename}</div> : <span title="This task has no associated file">{props.short_filename}</span>
                         ),
                         filterMethod: (filter, row, column) => {
                             const id = filter.pivotId || filter.id
@@ -245,9 +247,9 @@ export default class Table extends React.Component {
                 return {   
                     id: 'results',
                     Header: () => (
-                        <div className="header__tool-infos">
+                        <span className="header__tool-infos">
                             {this.props.getRunSets(this.props.tools[i])}
-                        </div>
+                        </span>
                     ),
                     columns: toolColumn,
                 };
@@ -260,6 +262,7 @@ export default class Table extends React.Component {
                     data={this.data}
                     filterable = {true}
                     filtered = {this.props.filtered}
+                    // style = {{ borderRight: '1px solid rgba(142, 142, 142, 0.7)', backgroundColor: '#dadada',}}
                     columns= {columns}
                     defaultPageSize = {250}
                     pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
@@ -268,6 +271,7 @@ export default class Table extends React.Component {
                     onFilteredChange={filtered => {
                         this.props.filterPlotData(filtered);
                     }}
+                    style={{ maxHeight: this.height }}
                 >
                     {(state, makeTable, instance) => {
                         this.props.setFilter(state.sortedData);

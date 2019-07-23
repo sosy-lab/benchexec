@@ -18,7 +18,11 @@ export default class Overview extends React.Component {
     constructor(props) {
         super(props);
         this.tableHeader = window.data.head;
-        this.tools = window.data.tools.map(t => ({...t, columns: t.columns.map(c => ({ ...c, isVisible: true }))}));
+        this.tools = window.data.tools.map(t => ({
+            ...t, 
+            isVisible: true, 
+            columns: t.columns.map(c => ({ ...c, isVisible: true }))
+        }));
         this.columns = window.data.tools.map(t => t.columns.map(c => c.title));
         this.data = window.data.rows;
         this.stats = window.data.stats;
@@ -32,7 +36,7 @@ export default class Overview extends React.Component {
             table: this.data,
             filtered: [],
             tabIndex: 0,
-            quantileSelection: this.tools[0].columns[0].title,
+            quantilePreSelection: this.tools[0].columns[0],
         }
     };
 
@@ -101,14 +105,18 @@ export default class Overview extends React.Component {
         }
     }
 
-    changeTab = (event, index, tab) => {
+    changeTab = (event, column, tab) => {
+        console.log('indeeeex', column)
         this.setState({
             tabIndex: tab,
-            quantileSelection: index,
+            quantilePreSelection: column,
         })
     }
+    // const firstVisibleCol = this.tools.map(tool => tool.columns).flat().find(col => col.isVisible).title;
+    
 
     render() {
+        
         return (
             <div className="App">
             <main>
@@ -119,8 +127,10 @@ export default class Overview extends React.Component {
                             <Tab> Table </Tab>
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
-                            <button disabled={this.state.filtered.length>0 ? false : true} onClick={this.resetFilters}>Reset all Filters</button>
-                            <a href="https://github.com/sosy-lab/benchexec" rel='noreferrer noopener' className="info">Number of Rows: {this.state.table.length}</a>
+                            <Tab> 
+                                <button disabled={this.state.filtered.length>0 ? false : true} onClick={this.resetFilters}>Reset all Filters</button>
+                                <a href="https://github.com/sosy-lab/benchexec" rel='noreferrer noopener' className="info">Number of Rows: {this.state.table.length}</a>
+                            </Tab>
                         </TabList>
                         <TabPanel>
                             <Summary    
@@ -149,7 +159,7 @@ export default class Overview extends React.Component {
                             <QuantilePlot 
                                 table={this.state.table}
                                 tools={this.state.tools}
-                                selection={this.state.quantileSelection}
+                                preSelection={this.state.quantilePreSelection}
                                 preparePlotValues = {this.preparePlotValues}
                                 getRunSets={this.getRunSets} />
                         </TabPanel>
@@ -160,6 +170,9 @@ export default class Overview extends React.Component {
                                 tools={this.state.tools}
                                 getRunSets={this.getRunSets}
                                 preparePlotValues = {this.preparePlotValues} />
+                        </TabPanel>
+                        <TabPanel>
+                            <p>Info and Links</p>
                         </TabPanel>
                     </Tabs>
                 </div>

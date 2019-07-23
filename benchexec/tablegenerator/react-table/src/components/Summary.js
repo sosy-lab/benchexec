@@ -18,7 +18,7 @@ export default class Summary extends React.Component {
             fixed: true,
         }
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
-
+        this.width = (window.innerWidth*0.20-3);
     };
     handleInputChange = (event) => {
         const target = event.target;
@@ -38,7 +38,7 @@ export default class Summary extends React.Component {
                 return {
                     id: column.title+j,
                     Header: () => (
-                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, i, 2)}>{column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')}</div>
+                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')}</div>
                         ),
                         show: column.isVisible,
                         accessor: props => (
@@ -78,8 +78,8 @@ export default class Summary extends React.Component {
                     fixed: this.state.fixed ? 'left' : '',
                     columns: [
                         {
-                            minWidth: 250,
                             id: 'summary',
+                            width: this.width,
                             Header: () => (
                                 <div
                                     onClick={this.props.selectColumn}

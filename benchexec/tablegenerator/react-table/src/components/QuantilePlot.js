@@ -4,9 +4,14 @@ import {XYPlot, LineMarkSeries, VerticalGridLines, HorizontalGridLines, XAxis, Y
 export default class Overlay extends React.Component {
     constructor(props) {
         super(props);
-
+        
+        const visibleColumn = this.props.preSelection.isVisible ? 
+                    this.props.preSelection : this.props.tools.map(tool => tool.columns).flat().find(col => col.isVisible);
+        
+        console.log('consturctoöörr', visibleColumn, visibleColumn.title);
+        
         this.state = {
-            selection: this.props.selection,
+            selection: visibleColumn.title,
             quantile: true,
             linear: true,
             correct: true,
@@ -48,7 +53,7 @@ export default class Overlay extends React.Component {
     renderData = (runSets, column, tool, data) => {
         let arrayY = [];
         const index = this.props.tools[tool].columns.findIndex(value => value.title === column);
-        if(!this.state.isValue || this.props.tools[tool].columns.findIndex(value => value.title===column) >= 0) {
+        if(!this.state.isValue || index >= 0) {
             if(this.state.correct) {
                 runSets.forEach(runSet => {
                     if(runSet.results[tool].category === "correct") {
@@ -61,7 +66,8 @@ export default class Overlay extends React.Component {
                 });
             }
             if(this.state.quantile) {
-                if(this.state.isValue && (this.possibleValues[index].type.name==="text" || this.possibleValues[index].type.name==="main_status")) {
+                const currentValue = this.possibleValues.find(value => value.title === column);
+                if(this.state.isValue && (currentValue.type.name==="text" || currentValue.type.name==="main_status")) {
                     arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
                 } else {
                     arrayY.sort((a, b) => (a[0] - b[0]));
@@ -104,11 +110,9 @@ export default class Overlay extends React.Component {
             return this.props.tools.map((tool, i) => {
                     let task = this.state.selection;
                     let data = this[task+i] 
-                    
-                    // TODO hier läuft was falsch :)
                     return (data.length > 0) ? 
-                            <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :
-                            null;
+                    <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : 
+                    null
             }).filter(el => !!el);
         } else {
             let index = this.state.selection.split('-')[1]
@@ -167,7 +171,7 @@ export default class Overlay extends React.Component {
         const { selection } = this.state;
         if (this.state.isValue) {
             const index = this.possibleValues.findIndex(value => value.title === selection);
-            if(this.possibleValues[index].type.name==="text" || this.possibleValues[index].type.name==="main_status") {
+            if((this.possibleValues[index].type && this.possibleValues[index].type.name==="text") || (this.possibleValues[index].type && this.possibleValues[index].type.name==="main_status")) {
                 return 'ordinal'
             } else return this.state.linear ? 'linear': 'log'
         } else {

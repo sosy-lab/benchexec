@@ -52,14 +52,16 @@ export default class ScatterPlot extends React.Component {
                 if(row.results[this.state.toolX].category==="correct" && row.results[this.state.toolY].category==="correct" && row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
                     const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
                     const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
-                    const isLogAndInvalid = !this.state.linear && x <= 0 && y <= 0;
-                    if(x !== null && y !== null && !isLogAndInvalid) array.push(
-                        {
-                            x: x,
-                            y: y,
-                            info: row.short_filename,
-                        }
-                    )
+                    const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
+                    if(x !== null && y !== null && !isLogAndInvalid) {
+                        array.push(
+                            {
+                                x: x,
+                                y: y,
+                                info: row.short_filename,
+                            }
+                        )
+                    }
                 }
             })
         } else {
@@ -67,7 +69,7 @@ export default class ScatterPlot extends React.Component {
                 if(row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
                     const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
                     const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
-                    const isLogAndInvalid = !this.state.linear && x <= 0 && y <= 0;
+                    const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
                     if(x !== null && y !== null && !isLogAndInvalid) array.push(
                         {
                             x: x,

@@ -2,19 +2,9 @@
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
 }
+$orange: #e58900;
 
-.overview {
-  ul {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 60px;
-    li {
-      width: 16%;
-      text-align: center;
-    }
-  }
-}
-
+//------------------common------------------
 .btn {
   margin: 0 10px 9px 0;
   text-align: center;
@@ -38,18 +28,51 @@
       transition: all .4s ease-in-out;
     }
 
-.summary {
-  width: 99%;
-  margin: auto;
+//------------------overview------------------
+.overview {
+  .react-tabs__tab-list {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 5px;
+    position: fixed;
+    top: 0;
+    padding-top: 10px;
+    z-index: 100;
+    background: $orange;
 
-  // .rt-th {
-  //   text-align: center;
-  // }
-  .rt-thead .rt-th {
+    .react-tabs__tab {
+      width: 18%;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      background: rgba(255, 255, 255, 0.5);
+      &--selected {
+        background: white;
+      }
+    }
+  }
+  .react-tabs__tab-panel {
+    padding-top: 45px;
+  }
+}
+
+//------------------summary------------------
+.summary {
+  .rt-table {
+    width: 99%;
+  }
+  margin: auto;
+  background: white;
+
+  .rt-thead, .rt-th {
     text-align: left;
+    background: white;
     .columns{
       text-align: center;
       cursor: pointer;
+    }
+    &.-headerGroups.rthfc {
+      background: white!important;
     }
   }
   .toolInfo {
@@ -72,12 +95,27 @@
   }
 }
 
+//------------------table------------------
 .mainTable {
-  //styling for the React Table
-  width: 99%;
-  margin: auto;
+  .rt-table {
+    width: 99%;
+    padding-bottom: 20px;
+  }
+  .rt-thead {
+    &.-headerGroups > div > div{
+      border-right: 1px solid #c5c5c5;
+      background: white;
+      span {
+        margin: 0;
+      }
+      &:first-child {
+        width: 30vw;
+      }
+    }
+  }
+
   .rt-tbody {
-    padding-bottom: 45px;
+    margin-bottom: 20px;
     span {
       text-align: center;
     }
@@ -85,6 +123,17 @@
       padding: 4px 4px;
       border-right: 1px solid rgba(142, 142, 142, 0.3)!important;
       text-align: right;
+    }
+    .row__name {
+      text-align: left;
+      display: inline-block;
+      width: auto!important;
+      &--cellLink {
+        cursor: pointer;
+      }
+    }
+    .rt-tr-group:last-child {
+      border-bottom: 1px solid lightgrey;
     }
   }
   .pagination-bottom {
@@ -121,9 +170,7 @@
   select {
     height: 100%;
   }
-  .selectColumns {
-    text-align: left;
-  }
+
 }
 
 .quantilePlot {
