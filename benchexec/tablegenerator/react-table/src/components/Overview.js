@@ -28,6 +28,9 @@ export default class Overview extends React.Component {
         this.data = window.data.rows;
         this.stats = window.data.stats;
         this.filtered = [];
+        this.lastVisit = localStorage.getItem('lastVisit') ? new Date(localStorage.getItem('lastVisit')) : new Date();
+        this.nextVisit = this.addDays(this.lastVisit, 30);
+        this.today = new Date();
 
         this.state = {
             showSelectColumns: false,
@@ -36,11 +39,16 @@ export default class Overview extends React.Component {
             tools: this.tools,
             table: this.data,
             filtered: [],
-            tabIndex: 4,
+            tabIndex: (localStorage.getItem('lastVisit') ? (this.nextVisit > this.today ? 0 : 4) : 4),
             quantilePreSelection: this.tools[0].columns[0],
         }
-        this.lastVisit = localStorage.getItem('lastVisit')
     };
+
+    addDays = (date, days) => {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      }
 
 // -----------------------SelectColumns-----------------------
     toggleSelectColumns = () => {
@@ -113,11 +121,9 @@ export default class Overview extends React.Component {
             quantilePreSelection: column,
         })
     }
-    // const firstVisibleCol = this.tools.map(tool => tool.columns).flat().find(col => col.isVisible).title;
     
 
     render() {
-        console.log('last Visit: ', this.lastVisit)
         return (
             <div className="App">
             <main>
@@ -129,7 +135,7 @@ export default class Overview extends React.Component {
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
                             <Tab> Info </Tab>
-                            <button className="reset" disabled={this.state.filtered.length>0 ? false : true} onClick={this.resetFilters}> Reset Filters</button>
+                            <button className="reset" disabled={this.state.filtered.length > 0 ? false : true} onClick={this.resetFilters}> Reset Filters</button>
                         </TabList>
                         <TabPanel>
                             <Summary    
@@ -173,6 +179,7 @@ export default class Overview extends React.Component {
                         <TabPanel>
                             <Info
                                 selectColumn={this.toggleSelectColumns}
+                                nextVisit={this.nextVisit}
                             >
                             </Info>
                         </TabPanel>

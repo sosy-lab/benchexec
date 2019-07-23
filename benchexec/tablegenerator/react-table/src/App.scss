@@ -2,7 +2,7 @@
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
 }
-$orange: #e58900;
+$key-color: #e58900;
 
 //------------------common------------------
 .btn {
@@ -12,8 +12,8 @@ $orange: #e58900;
   height: 35px;
   cursor: pointer;
 
-  background-image: linear-gradient(to left, $orange, white);
-  box-shadow: 0 4px 12px 0 rgba($orange, 0.2);
+  background-image: linear-gradient(to left, $key-color, white);
+  box-shadow: 0 4px 12px 0 rgba($key-color, 0.2);
   -o-transition: all .4s ease-in-out;
   -webkit-transition: all .4s ease-in-out;
   transition: all .4s ease-in-out;
@@ -28,15 +28,15 @@ $orange: #e58900;
 }
 .btn-apply {
   margin-left: 100px;
-  background-image: linear-gradient(to right, $orange, white);
-  box-shadow: 0 4px 12px 0 rgba($orange, 0.5);
+  background-image: linear-gradient(to right, $key-color, white);
+  box-shadow: 0 4px 12px 0 rgba($key-color, 0.5);
 }
 
 //------------------overview------------------
 .overview {
-  background: $orange;
+  background: $key-color;
   .react-tabs {
-    background: $orange;
+    background: $key-color;
   }
   .react-tabs__tab-list {
     display: flex;
@@ -46,7 +46,7 @@ $orange: #e58900;
     top: 0;
     padding-top: 10px;
     z-index: 100;
-    background: $orange;
+    background: $key-color;
     align-items: flex-start;
     
     .react-tabs__tab {
@@ -67,20 +67,25 @@ $orange: #e58900;
     padding-top: 43px;
     background: white;
   }
-  .reset {
-    position: absolute;
-    width: 8vw;
-    top: 0;
-    right: 3px;
-    padding-top: 17px;
-    padding-bottom: 3px;
-    border-radius: 0 0 8px 8px;
-    background: rgba(255, 255, 255, 0.5);
-    border: none;
-    text-decoration: underline;
-    font-size: 10pt;
+  button {
     cursor: pointer;
+    &:disabled {
+      cursor: not-allowed;
+    }
+    &.reset {
+      position: absolute;
+      width: 8vw;
+      top: 0;
+      right: 3px;
+      padding-top: 17px;
+      padding-bottom: 3px;
+      border-radius: 0 0 8px 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border: none;
+      font-size: 10pt;
+    }
   }
+  
 }
 
 //------------------summary------------------
@@ -134,6 +139,7 @@ $orange: #e58900;
       background: white;
       span {
         margin: 0;
+        cursor: pointer;
       }
       &:first-child {
         width: 30vw;
@@ -178,15 +184,19 @@ $orange: #e58900;
   }
   .correct {
     color: green;
+    cursor: pointer;
   }
   .error {
     color: magenta;
+    cursor: pointer;
   }
   .unknown {
-    color: orange;
+    color: $key-color;
+    cursor: pointer;
   }
   .wrong {
     color: red;
+    cursor: pointer;
   }
   input {
     width: 100%;
@@ -215,11 +225,11 @@ $orange: #e58900;
     border: 1px solid rgb(186, 186, 186);
   }
 
-  .rv-discrete-color-legend-item.clickable {
-    &:hover {
-      background: #e2e2e2;
+    .rv-discrete-color-legend-item.clickable {
+      &:hover {
+        background: #e2e2e2;
+      }
     }
-  }
   } 
 
 
@@ -238,11 +248,22 @@ $orange: #e58900;
 
 .info {
   margin: 40px;
-  h1 {
+
+  &-header {
     margin: 40px 0;
+    display: flex;
+    justify-content: space-between;
+    h1 {
+      margin: 0;
+    }
+    span {
+      font-size: 9pt;
+      border: 1px solid $key-color;
+    }
   }
   .link {
     text-decoration: underline;
+    color: $key-color;
   }
 }
 
@@ -269,7 +290,7 @@ $orange: #e58900;
     }
     background: white;
     // color: #ab0202;
-    color: $orange;
+    color: lightgray;
     &.checked {
       color: black;
     }
