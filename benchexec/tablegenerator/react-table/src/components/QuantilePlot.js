@@ -107,13 +107,11 @@ export default class Overlay extends React.Component {
         this.lineArray = this.initialLines;
         if (this.state.isValue) {
             return this.props.tools.map((tool, i) => {
-                if(tool.isVisible) {
-                    let task = this.state.selection;
-                    let data = this[task+i] 
-                    return (data.length > 0) ? 
-                    <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : 
-                    null
-                }    
+                let task = this.state.selection;
+                let data = this[task+i] 
+                return (data.length > 0 && tool.isVisible) ? 
+                <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : 
+                null
             }).filter(el => !!el);
         } else {
             let index = this.state.selection.split('-')[1]

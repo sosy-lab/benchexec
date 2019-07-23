@@ -20,7 +20,7 @@ export default class Table extends React.Component {
 
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
         this.typingTimer = -1;
-        this.width = (window.innerWidth*0.20-3);
+        this.width = (window.innerWidth*0.20);
         this.height = window.innerHeight-50;
     };
 

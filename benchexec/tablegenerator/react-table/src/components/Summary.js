@@ -18,7 +18,7 @@ export default class Summary extends React.Component {
             fixed: true,
         }
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
-        this.width = (window.innerWidth*0.20-3);
+        this.width = (window.innerWidth*0.20);
     };
     handleInputChange = (event) => {
         const target = event.target;

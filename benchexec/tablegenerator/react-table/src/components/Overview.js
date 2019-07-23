@@ -123,13 +123,11 @@ export default class Overview extends React.Component {
                     <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex, showSelectColumns: false, showLinkOverlay: false })}>
                         <TabList>
                             <Tab>Summary</Tab>
-                            <Tab> Table </Tab>
+                            <Tab> Table ({this.state.table.length})</Tab>
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
-                            <Tab> 
-                                <button disabled={this.state.filtered.length>0 ? false : true} onClick={this.resetFilters}>Reset all Filters</button>
-                                <a href="https://github.com/sosy-lab/benchexec" rel='noreferrer noopener' className="info">Number of Rows: {this.state.table.length}</a>
-                            </Tab>
+                            <Tab> Info </Tab>
+                            <button className="reset" disabled={this.state.filtered.length>0 ? false : true} onClick={this.resetFilters}> Reset Filters</button>
                         </TabList>
                         <TabPanel>
                             <Summary    

@@ -34,29 +34,52 @@ $orange: #e58900;
 
 //------------------overview------------------
 .overview {
+  background: $orange;
+  .react-tabs {
+    background: $orange;
+  }
   .react-tabs__tab-list {
     display: flex;
-    justify-content: space-between;
-    width: 100%;
+    width: 100vw;
     margin-bottom: 5px;
     position: fixed;
     top: 0;
     padding-top: 10px;
     z-index: 100;
     background: $orange;
-
+    align-items: flex-start;
+    
     .react-tabs__tab {
-      width: 18%;
+      width: 18vw;
+      margin-right: 1px;
       text-align: center;
       border-radius: 8px 8px 0 0;
       background: rgba(255, 255, 255, 0.5);
       &--selected {
         background: white;
       }
+      &:nth-last-child(2){
+        width: 9vw;
+      }
     }
   }
   .react-tabs__tab-panel {
-    padding-top: 45px;
+    padding-top: 43px;
+    background: white;
+  }
+  .reset {
+    position: absolute;
+    width: 8vw;
+    top: 0;
+    right: 3px;
+    padding-top: 17px;
+    padding-bottom: 3px;
+    border-radius: 0 0 8px 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    text-decoration: underline;
+    font-size: 10pt;
+    cursor: pointer;
   }
 }
 
