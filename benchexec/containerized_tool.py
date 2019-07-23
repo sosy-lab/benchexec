@@ -107,15 +107,26 @@ def _init_worker_process():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def _init_container_and_load_tool(
-    tool_module,
+def _init_container_and_load_tool(tool_module, *args, **kwargs):
+    """Initialize container for the current process and load given tool-info module."""
+    try:
+        _init_container(*args, **kwargs)
+    except EnvironmentError as e:
+        raise BenchExecException("Failed to configure container: " + str(e))
+    _load_tool(tool_module)
+
+
+def _init_container(
     temp_dir,
     network_access,
     dir_modes,
     container_system_config,
     container_tmpfs,  # ignored, tmpfs is always used
 ):
-    """Initialize container for the current process and load given tool-info module."""
+    """
+    Create a fork of this process in a container. This method only returns in the fork,
+    so calling it seems like moving the current process into a container.
+    """
     # Prepare for private home directory, some tools write there
     if container_system_config:
         dir_modes.setdefault(container.CONTAINER_HOME, container.DIR_HIDDEN)
@@ -189,6 +200,8 @@ def _init_container_and_load_tool(
     container.drop_capabilities()
     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
 
+
+def _load_tool(tool_module):
     logging.debug("Loading tool-info module %s in container", tool_module)
     global tool
     try:
