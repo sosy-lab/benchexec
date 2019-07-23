@@ -89,6 +89,7 @@ export default class SelectColumn extends React.Component {
         let list = this.props.tools
         list[tool].columns[index].isVisible = value;
         this.setState({ list: list })
+        
     }
 
     handleSelectColumns = (event) => {
@@ -104,6 +105,7 @@ export default class SelectColumn extends React.Component {
                 this.setState({ list: list });
             }
         })
+        //if all columns are deselected: isVisibile: false else isVisible: true
     }
     deselectTool = (i, event) => {
         const target=event.target
@@ -113,6 +115,7 @@ export default class SelectColumn extends React.Component {
             return column.isVisible = value;
         })
         this.setState({ list: list });
+        list[i].isVisible = value;
     }
 
     deselectAll = () => {
@@ -133,9 +136,14 @@ export default class SelectColumn extends React.Component {
             deselect: !prevState.deselect,
         }));
     }
+    checkTools = () => {
+        this.props.tools.forEach(tool => {
+            tool.columns.findIndex(column => column.isVisible) < 0 ? tool.isVisible = false : tool.isVisible = true;
+        })
+    }
 
     render() {
-
+        this.checkTools();
         return (
             <div className="overlay">
                 <FontAwesomeIcon icon={faTimes} onClick={this.props.close} className="closing" />

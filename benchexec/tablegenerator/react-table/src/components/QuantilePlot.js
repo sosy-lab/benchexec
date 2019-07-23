@@ -8,8 +8,6 @@ export default class Overlay extends React.Component {
         const visibleColumn = this.props.preSelection.isVisible ? 
                     this.props.preSelection : this.props.tools.map(tool => tool.columns).flat().find(col => col.isVisible);
         
-        console.log('consturctoöörr', visibleColumn, visibleColumn.title);
-        
         this.state = {
             selection: visibleColumn.title,
             quantile: true,
@@ -25,8 +23,9 @@ export default class Overlay extends React.Component {
     };
     renderLegend = () => {
         return (this.state.isValue) 
-            ? this.props.tools.map(tool => { 
-                return (this.props.getRunSets(tool))}) 
+            ? this.props.tools.filter(t => t.isVisible).map(tool => { 
+                return this.props.getRunSets(tool);
+            }) 
             : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible ? c.title : null).filter(Boolean);
     }
 
@@ -108,11 +107,13 @@ export default class Overlay extends React.Component {
         this.lineArray = this.initialLines;
         if (this.state.isValue) {
             return this.props.tools.map((tool, i) => {
+                if(tool.isVisible) {
                     let task = this.state.selection;
                     let data = this[task+i] 
                     return (data.length > 0) ? 
                     <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : 
                     null
+                }    
             }).filter(el => !!el);
         } else {
             let index = this.state.selection.split('-')[1]
@@ -186,7 +187,7 @@ export default class Overlay extends React.Component {
                 <select name="Select Column" value={this.state.selection} onChange={this.handleColumn}>
                     <optgroup label="RunSets">
                         {this.props.tools.map((runset, i) => {
-                            return <option key={"runset-"+i} value={"runset-"+i} name={"runset-"+i}>{this.props.getRunSets(runset, i)}</option>
+                            return runset.isVisible ? <option key={"runset-"+i} value={"runset-"+i} name={"runset-"+i}>{this.props.getRunSets(runset, i)}</option> : null;
                         })}
                     </optgroup>
                     <optgroup lable="columns">
@@ -202,7 +203,6 @@ export default class Overlay extends React.Component {
                     {this.state.value ? <Hint value={this.state.value} /> : null}
                     <DiscreteColorLegend 
                         items={this.renderLegend()} 
-                        
                         onItemClick={(Object, item) => {
                             let line = '';
                             this.state.isValue ? line = Object.toString() : line = Object.toString();

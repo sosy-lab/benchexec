@@ -106,7 +106,6 @@ export default class Overview extends React.Component {
     }
 
     changeTab = (event, column, tab) => {
-        console.log('indeeeex', column)
         this.setState({
             tabIndex: tab,
             quantilePreSelection: column,
