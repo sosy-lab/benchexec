@@ -236,6 +236,16 @@ $orange: #e58900;
   }
 }
 
+.info {
+  margin: 40px;
+  h1 {
+    margin: 40px 0;
+  }
+  .link {
+    text-decoration: underline;
+  }
+}
+
 .overlay {
   position: fixed;
   overflow: scroll;
@@ -299,25 +309,7 @@ $orange: #e58900;
   }
 }
 
-
-  .tooltip__action {
-    border: 1px solid black;
-  }
-
-.info {
-  font-size: 11px;
-  color: burlywood;
-  cursor: pointer;
-}
-
 .rt-td {
   text-align: left;
 }
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+

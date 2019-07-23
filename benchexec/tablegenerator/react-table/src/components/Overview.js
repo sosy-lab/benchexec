@@ -3,6 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import "react-tabs/style/react-tabs.css";
 import Table from './ReactTable.js';
 import Summary from './Summary.js';
+import Info from './Info.js';
 import SelectColumn from './SelectColumn.js';
 import ScatterPlot from './ScatterPlot.js';
 import QuantilePlot from './QuantilePlot.js';
@@ -35,9 +36,10 @@ export default class Overview extends React.Component {
             tools: this.tools,
             table: this.data,
             filtered: [],
-            tabIndex: 0,
+            tabIndex: 4,
             quantilePreSelection: this.tools[0].columns[0],
         }
+        this.lastVisit = localStorage.getItem('lastVisit')
     };
 
 // -----------------------SelectColumns-----------------------
@@ -115,7 +117,7 @@ export default class Overview extends React.Component {
     
 
     render() {
-        
+        console.log('last Visit: ', this.lastVisit)
         return (
             <div className="App">
             <main>
@@ -169,7 +171,10 @@ export default class Overview extends React.Component {
                                 preparePlotValues = {this.preparePlotValues} />
                         </TabPanel>
                         <TabPanel>
-                            <p>Info and Links</p>
+                            <Info
+                                selectColumn={this.toggleSelectColumns}
+                            >
+                            </Info>
                         </TabPanel>
                     </Tabs>
                 </div>
