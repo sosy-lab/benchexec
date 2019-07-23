@@ -58,12 +58,12 @@ class Pqos(object):
         if self.cli_exists:
             args_list = [self.CMD] + list(args)
             try:
-                ret = json.loads(check_output(args_list, stderr=STDOUT))
+                ret = json.loads(check_output(args_list, stderr=STDOUT).decode())
                 logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
                 try:
-                    ret = json.loads(e.output)
+                    ret = json.loads(e.output.decode())
                     if not suppress_warning:
                         logging.warning(
                             "Could not set cache allocation...{}".format(ret["message"])
