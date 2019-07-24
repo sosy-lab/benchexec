@@ -18,17 +18,8 @@ export default class Summary extends React.Component {
             fixed: true,
         }
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
-        this.width = (window.innerWidth*0.20);
+        this.width = (window.innerWidth*0.15);
     };
-    handleInputChange = (event) => {
-        const target = event.target;
-        const value = target.checked;
-        const name = target.name;
-    
-        this.setState({
-          [name]: value
-        });
-      }
 
     renderResultTable = () => {
         return this.props.tools.map((tool, j) => {
@@ -48,66 +39,76 @@ export default class Summary extends React.Component {
             });
         });
     }
-
-    renderToolInfo = (i) => {
-        let header = this.props.tableHeader;
-        
-        return this.infos.map(row => {
-            return (header[row]) ? <p key={header[row].id} className="header__tool-row">{header[row].content[i][0]} </p> : null;
-        })
+    handleInputChange = (event) => {
+        const target = event.target;
+        const value = target.checked;
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
     }
 
     render() {
         const toolColumns = this.renderResultTable();
-        const column = 
-            [
-                {
-                    Header: () => (
-                        <div className="toolsHeader">
-                            <form>
-                                <label>
-                                    Fixed:
-                                </label>
-                                <input name="fixed" type="checkbox" checked={this.state.fixed} onChange={this.handleInputChange} />
-                            </form>
-                                {this.infos.map(row => {
-                                    return this.props.tableHeader[row] ? <p key={row}> {row} </p> : null
-                                })}
-                        </div>
-                    ),
-                    fixed: this.state.fixed ? 'left' : '',
-                    columns: [
-                        {
-                            id: 'summary',
-                            width: this.width,
-                            Header: () => (
-                                <div
-                                    onClick={this.props.selectColumn}
-                                >
-                                    <span>Click here to select columns</span>
-                                </div>
-                            ),
-                            accessor: props => (
-                                <div dangerouslySetInnerHTML={{ __html: props.title }} title={props.description}/>
-                            )
-                        }
-                    ]
-                },
-                ...toolColumns.map((toolColumn, i) => {
-                    return {   
-                        id: 'results',
+        const column = [
+            {
+                Header: () => (
+                    <div className="toolsHeader">
+                        <form>
+                            <label>
+                                Fixed:
+                            </label>
+                            <input name="fixed" type="checkbox" checked={this.state.fixed} onChange={this.handleInputChange} />
+                        </form>
+                    </div>
+                ),
+                fixed: this.state.fixed ? 'left' : '',
+                width: this.width,
+                columns: [
+                    {
+                        id: 'summary',
+                        width: this.width,
                         Header: () => (
-                            <div className="header__tool-infos">
-                                {this.renderToolInfo(i)}
-                            </div>  
+                            <div
+                                onClick={this.props.selectColumn}
+                            >
+                                <span>Click here to select columns</span>
+                            </div>
                         ),
-                        columns: toolColumn
-                    };
-                })
-            ]
+                        accessor: props => (
+                            <div dangerouslySetInnerHTML={{ __html: props.title }} title={props.description} className="tr"/>
+                        )
+                    },
+                ]
+            },
+            ...toolColumns.map((toolColumn, i) => {
+                return {   
+                    id: 'results',
+                    Header: () => (
+                        <div className="header__tool-infos">
+                            {this.props.getRunSets(this.props.tools[i], i)}
+                        </div>  
+                    ),
+                    columns: toolColumn
+                };
+            })
+        ]
 
         return (
              <div className = "summary">
+                 <h2>Toolinformation</h2>
+                <table>
+                    <tbody>
+                        {this.infos.filter(info => this.props.tableHeader[info] !== null).map((row, i) => {
+                            return  <tr key={'tr-'+row}> 
+                                        <th key={'td-'+row}>{row}</th>
+                                        {this.props.tableHeader[row].content.map((tool, j) => <td colSpan={tool[1]} key={tool[0]+j} className="header__tool-row">{tool[0]} </td>)}
+                                    </tr>
+                        })}
+                    </tbody>
+                </table>
+                <h2>Summary</h2>
                 <ReactTableFixedColumns
                     data={this.props.stats}
                     columns= {column}
@@ -116,6 +117,7 @@ export default class Summary extends React.Component {
                     minRows = {0}
                     sortable = {false}
                 />
+                <p>Generated by <a className ="link" href="https://github.com/sosy-lab/benchexec" target="_blank" rel="noopener noreferrer"> BenchExec</a></p>
             </div>
         )
     }

@@ -10,7 +10,7 @@ import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
 if (process.env.NODE_ENV !== 'production') {
-    window.data = require('../data/data.json');
+    window.data = require('../data/summaryTest.json');
 }
 
 console.log('table data', window.data);
@@ -143,6 +143,7 @@ export default class Overview extends React.Component {
                                 selectColumn={this.toggleSelectColumns}
                                 stats = {this.stats}
                                 prepareTableValues = {this.prepareTableValues}
+                                getRunSets={this.getRunSets}
                                 changeTab= {this.changeTab} />
                         </TabPanel>
                         <TabPanel>

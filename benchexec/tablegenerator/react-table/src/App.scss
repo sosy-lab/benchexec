@@ -93,23 +93,40 @@ $key-color: #e58900;
 
 //------------------summary------------------
 .summary {
-  .rt-table {
-    width: 99%;
-  }
   margin: auto;
+  padding-top: 31px;
   background: white;
-
-  .rt-thead, .rt-th {
-    text-align: left;
-    background: white;
-    .columns{
-      text-align: center;
-      cursor: pointer;
+  text-align: center;
+  table {
+    border-collapse: collapse;
+    margin: 40px 0;
+    td, th {
+      border: 1px solid #ddd;
+      padding: 8px;
     }
-    &.-headerGroups.rthfc {
-      background: white!important;
+    
+    tr:nth-child(even){background-color: #f2f2f2;}
+    
+    tr:hover {background-color: #ddd;}
+    
+    th {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      text-align: left;
+      width: 14vw;
     }
   }
+  .rt-table {
+    border: 1px solid #ddd; 
+    .rt-td {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .tr {
+      font-weight: 700;
+    }
+  }
+
   .toolInfo {
     text-align: left;
     margin: 20px;
@@ -118,15 +135,8 @@ $key-color: #e58900;
     text-align: center;
   }
 
-  .header__tool-infos {
-    text-align: left;
-    align-self: flex-end;
-    position: absolute;
-    bottom: 0;
-    tr {
-      border-top: 1px solid black;
-      
-    }
+  p {
+    margin-top: 40px;
   }
 }
 
