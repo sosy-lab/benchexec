@@ -2,7 +2,7 @@
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
 }
-$key-color: #e58900;
+$key-color: #009440;
 
 //------------------common------------------
 .btn {
@@ -142,6 +142,7 @@ $key-color: #e58900;
 
 //------------------table------------------
 .mainTable {
+  margin-top: 20px;
   a {
     text-decoration: none;
   }
@@ -164,12 +165,11 @@ $key-color: #e58900;
   }
 
   .rt-tbody {
-    margin-bottom: 20px;
     span {
       text-align: center;
     }
     .rt-td {
-      padding: 4px 4px;
+      padding: 8px 4px;
       border-right: 1px solid rgba(142, 142, 142, 0.3)!important;
       text-align: right;
     }
