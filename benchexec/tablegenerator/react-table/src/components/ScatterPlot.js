@@ -19,10 +19,27 @@ export default class ScatterPlot extends React.Component {
             nameX: this.props.getRunSets(this.props.tools[0]) + " " + this.props.columns[0][1],
             nameY: this.props.getRunSets(this.props.tools[0]) + " " + this.props.columns[0][1],
             value: false,
+            width: window.innerWidth,
+            height: window.innerHeight,
         }
         this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
         this.maxX = '';
     };
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+
+    updateDimensions = () => {
+        this.setState({
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+    }
 
     renderColumns = () => {
         return this.props.tools.map((runset, i) => {
@@ -144,7 +161,7 @@ export default class ScatterPlot extends React.Component {
                         })}
                     </select>
                 </div>
-                <XYPlot className="scetterPlot__plot" height={window.innerHeight - 200} width={window.innerWidth - 100} margin={{left: 90}} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}>
+                <XYPlot className="scetterPlot__plot" height={this.state.height - 200} width={this.state.width - 100} margin={{left: 90}} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}>
                     <VerticalGridLines />
                     <HorizontalGridLines />
                     <XAxis title = {this.state.nameX} tickFormat = {(value) => value}/>

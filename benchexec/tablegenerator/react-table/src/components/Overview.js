@@ -19,19 +19,16 @@ export default class Overview extends React.Component {
     constructor(props) {
         super(props);
         this.tableHeader = window.data.head;
-        this.tools = window.data.tools.map(t => ({
-            ...t, 
+        this.tools = window.data.tools.map(tool => ({
+            ...tool, 
             isVisible: true, 
-            columns: t.columns.map(c => ({ ...c, isVisible: true }))
+            columns: tool.columns.map(c => ({ ...c, isVisible: true }))
         }));
         this.columns = window.data.tools.map(t => t.columns.map(c => c.title));
         this.data = window.data.rows;
         this.stats = window.data.stats;
         this.filtered = [];
-        this.lastVisit = localStorage.getItem('lastVisit') ? new Date(localStorage.getItem('lastVisit')) : new Date();
-        this.nextVisit = this.addDays(this.lastVisit, 30);
-        this.today = new Date();
-
+        
         this.state = {
             showSelectColumns: false,
             showLinkOverlay: false,
@@ -39,7 +36,7 @@ export default class Overview extends React.Component {
             tools: this.tools,
             table: this.data,
             filtered: [],
-            tabIndex: (localStorage.getItem('lastVisit') ? (this.nextVisit > this.today ? 0 : 4) : 4),
+            tabIndex: 0,
             quantilePreSelection: this.tools[0].columns[0],
         }
     };
@@ -108,7 +105,7 @@ export default class Overview extends React.Component {
             return typeof el === 'string' ? (+el.replace('s', '')).toPrecision(3) : Math.round(+el);
         } else {
             if (typeof el === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
-                return el ? <div className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</div> : null
+                return el ? <div href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</div> : null
             } else if(el) { // STATS
                 return col.type.name === "text" ? el : +el;
             }
@@ -179,7 +176,6 @@ export default class Overview extends React.Component {
                         <TabPanel>
                             <Info
                                 selectColumn={this.toggleSelectColumns}
-                                nextVisit={this.nextVisit}
                             >
                             </Info>
                         </TabPanel>

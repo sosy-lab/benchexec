@@ -1,23 +1,12 @@
 import React from 'react';
 
 export default class info extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state= {
-            
-        }
-        this.date = new Date();
-    };
-    
-    
+   
     render() {
-        localStorage.setItem('lastVisit', this.date);
         return (
              <div className = "info">
                  <div className ="info-header">
                     <h1>Info and Help</h1>
-                    <span className="date">This Window will be shown on the<br/> {this.props.nextVisit.toString()}</span>
                 </div>
 
                 <h3>Summary:</h3> 
