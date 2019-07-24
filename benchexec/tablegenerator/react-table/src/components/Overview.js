@@ -75,6 +75,8 @@ export default class Overview extends React.Component {
 
     // -----------------------Link Overlay-----------------------
     toggleLinkOverlay = (ev, hrefRow) => {
+        ev.preventDefault();
+        
         this.setState(prevState => ({ 
             showLinkOverlay: !prevState.showLinkOverlay,
             link: hrefRow,
@@ -105,7 +107,7 @@ export default class Overview extends React.Component {
             return typeof el === 'string' ? (+el.replace('s', '')).toPrecision(3) : Math.round(+el);
         } else {
             if (typeof el === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
-                return el ? <div href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</div> : null
+                return el ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</a> : null
             } else if(el) { // STATS
                 return col.type.name === "text" ? el : +el;
             }

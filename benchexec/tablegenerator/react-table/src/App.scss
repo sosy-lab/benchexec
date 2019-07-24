@@ -132,6 +132,9 @@ $key-color: #e58900;
 
 //------------------table------------------
 .mainTable {
+  a {
+    text-decoration: none;
+  }
   .rt-table {
     width: 99%;
     padding-bottom: 20px;
@@ -164,8 +167,10 @@ $key-color: #e58900;
       text-align: left;
       display: inline-block;
       width: auto!important;
+      color: black;
       &--cellLink {
         cursor: pointer;
+        color: black;
       }
     }
     .rt-tr-group:last-child {
