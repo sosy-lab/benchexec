@@ -45,13 +45,13 @@ $key-color: #009440;
     margin-bottom: 5px;
     position: fixed;
     top: 0;
-    padding-top: 10px;
+    padding: 10px 10px 0;
     z-index: 100;
     background: $key-color;
     align-items: flex-start;
     
     .react-tabs__tab {
-      width: 18vw;
+      // width: 18vw;
       height: 23px;
       margin-right: 1px;
       text-align: center;
@@ -61,10 +61,8 @@ $key-color: #009440;
       &--selected {
         background: white;
       }
-      &:nth-last-child(2){
-        width: 7vw;
-      }
     }
+
   }
   .react-tabs__tab-panel {
     padding-top: 43px;
@@ -73,13 +71,13 @@ $key-color: #009440;
   button {
     cursor: pointer;
     &:disabled {
-      cursor: not-allowed;
+      display: none;
     }
     &.reset {
-      position: relative;
+      position: fixed;
       width: 8vw;
-      top: -10px;
-      right: 0;
+      top: 0px;
+      right: 10px;
       padding-top: 5px;
       padding-bottom: 5px;
       border-radius: 0 0 8px 8px;
@@ -94,7 +92,7 @@ $key-color: #009440;
 //------------------summary------------------
 .summary {
   margin: auto;
-  padding-top: 31px;
+  padding-top: 30px;
   background: white;
   text-align: center;
   table {
@@ -167,6 +165,13 @@ $key-color: #009440;
   .rt-tbody {
     span {
       text-align: center;
+    }
+    .row_id {
+      font-size: 9pt;
+      border-left: 1px solid black;
+      padding-left: 5px;
+      height: 100%;
+      color: #484848;
     }
     .rt-td {
       padding: 8px 4px;

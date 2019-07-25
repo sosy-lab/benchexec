@@ -10,7 +10,7 @@ import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
 if (process.env.NODE_ENV !== 'production') {
-    window.data = require('../data/summaryTest.json');
+    window.data = require('../data/data.json');
 }
 
 console.log('table data', window.data);
@@ -27,6 +27,7 @@ export default class Overview extends React.Component {
         this.columns = window.data.tools.map(t => t.columns.map(c => c.title));
         this.data = window.data.rows;
         this.stats = window.data.stats;
+        this.properties = window.data.props;
         this.filtered = [];
         
         this.state = {
@@ -37,16 +38,10 @@ export default class Overview extends React.Component {
             table: this.data,
             filtered: [],
             tabIndex: 0,
-            quantilePreSelection: this.tools[0].columns[0],
+            quantilePreSelection: this.tools[0].columns[1],
         }
+        // this.filterRowId();
     };
-
-    addDays = (date, days) => {
-        const result = new Date(date);
-        result.setDate(result.getDate() + days);
-        return result;
-      }
-
 // -----------------------SelectColumns-----------------------
     toggleSelectColumns = () => {
         this.setState(prevState => ({ 
@@ -91,7 +86,7 @@ export default class Overview extends React.Component {
     preparePlotValues = (el, tool, column) => {
         const col = this.tools[tool].columns[column];
         if (typeof el === 'string') {
-            return col.source_unit === 's' ? +el.replace('s', '') : 
+            return col.source_unit ? +el.replace(col.source_unit, '') : 
                     col.type.name === 'text' || col.type.name === 'main_status' ? el : +el;
         }
         else {
@@ -122,9 +117,19 @@ export default class Overview extends React.Component {
             quantilePreSelection: column,
         })
     }
+
+    // filterRowId = () => {
+    //     this.data.map(row => {
+    //         return row.id.map((el, i) => {
+    //             console.log(el, i)
+    //             return this.properties[i]
+    //         })
+    //     })
+    // }
     
 
     render() {
+        console.log(this.properties)
         return (
             <div className="App">
             <main>
@@ -153,6 +158,7 @@ export default class Overview extends React.Component {
                                 tableHeader={this.tableHeader}
                                 data={this.data}
                                 tools={this.state.tools}
+                                properties={this.properties}
                                 selectColumn={this.toggleSelectColumns}
                                 getRunSets={this.getRunSets}
                                 prepareTableValues = {this.prepareTableValues}

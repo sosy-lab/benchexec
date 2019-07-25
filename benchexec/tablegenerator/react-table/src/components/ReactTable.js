@@ -20,7 +20,7 @@ export default class Table extends React.Component {
 
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
         this.typingTimer = -1;
-        this.width = (window.innerWidth*0.15);
+        this.width = (window.innerWidth*0.3);
         this.height = window.innerHeight-50;
     };
 
@@ -128,7 +128,6 @@ export default class Table extends React.Component {
                 } else { 
                     return {
                         id: column.title+j,
-                        
                         Header: () => (
                             column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')
                         ),
@@ -161,9 +160,11 @@ export default class Table extends React.Component {
                         },
                         Filter: ({ filter, onChange }) => {
                             let value;
+                            let type = column.type._type._type ? column.type._type._type : column.type._type;
+                            let placeholder = (type === 2 || type === 3) ? 'Min:Max' : 'text'
                             return (
                                 <input
-                                    placeholder = "Min:Max"
+                                    placeholder = {placeholder}
                                     defaultValue = {value ? value : (filter ? filter.value : filter)}
                                     onChange = {event => {
                                         value = event.target.value
@@ -245,7 +246,14 @@ export default class Table extends React.Component {
                         ),
                         fixed: this.state.fixed ? 'left' : '',
                         accessor: props => (
-                            props.has_sourcefile ? <a className={props.href ? 'row__name--cellLink' : 'row__name'} href={props.href} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}>{props.short_filename}</a> : <span title="This task has no associated file">{props.short_filename}</span>
+                                props.has_sourcefile 
+                                    ?   <a className={props.href ? 'row__name--cellLink' : 'row__name'} href={props.href} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}> 
+                                            {props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}  
+                                        </a> 
+                                    : <span title="This task has no associated file">{props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}</span>
+                                // <div>
+                                //     {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span>{id}</span>)}
+                                // </div>
                         ),
                         filterMethod: (filter, row, column) => {
                             const id = filter.pivotId || filter.id

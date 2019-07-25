@@ -310,10 +310,7 @@ def prepare_stats_for_js(stats, tools):
         return stat.content[start:start+count]  #reduce(labda acc, cur: acc + curr) 
 
     def clean_up_stat(stat):
-        # toolContent0 = stat.content[0:toolColumnCounts[0]] => [0:9]
-        # toolContent1 = stat.content[toolColumnCounts[0]: toolColumnCounts[0] + toolColumnCounts[1]] => [9:(9+4)]  
-        # toolContent2 = stats.content[toolColumnCounts[1]: toolColumnsCounts[0] + toolColumnCounts[1] + toolColumnCounts[2]] => TODO [4:4+6] 
-        # return [toolContent0, toolContent1]
+
         return [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
 
     return [merge_dicts(stat, {"content": clean_up_stat(stat)}) for stat in copy.deepcopy(stats)] # add original stat infos

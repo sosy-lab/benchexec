@@ -11,7 +11,7 @@ export default class Overlay extends React.Component {
         this.state = {
             selection: visibleColumn.title,
             quantile: true,
-            linear: true,
+            linear: false,
             correct: true,
             isValue: true, //one Value more RunSets = true; oneRunSet more Values = false
             isInvisible: [], 
