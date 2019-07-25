@@ -10,7 +10,7 @@ export default class ScatterPlot extends React.Component {
             dataX: "0-1",
             dataY: "0-1",
             correct: true,
-            linear: true,
+            linear: false,
             toolX: 0,
             toolY: 0,
             line: 10,
@@ -167,31 +167,29 @@ export default class ScatterPlot extends React.Component {
                     <XAxis title = {this.state.nameX} tickFormat = {(value) => value}/>
                     <YAxis title = {this.state.nameY} tickFormat = {(value) => value}/>
                     <DecorativeAxis
+                        className='middle-line'
                         axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
                         axisEnd={{x: this.maxX, y: this.maxX}}
                         axisDomain={[0, 10000000000]}
                         style={{
-                            line: {stroke: '#ff0000', fill: '#ff0000'},
-                            ticks: {stroke: '#ADDDE1', opacity: 0},
-                            text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
+                            ticks: {stroke: '#009440', opacity: 0},
+                            text: {stroke: 'none', fill: '#009440', fontWeight: 600, opacity: 0}
                         }}
                     />  
                     <DecorativeAxis
-                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
-                        axisEnd={{x: this.maxX, y: this.maxX*this.state.line}}
-                        axisDomain={[0, 10000000000]}
-                        style={{
-                            line: {stroke: '#ff0000', fill: '#ff0000'},
-                            ticks: {stroke: '#ADDDE1', opacity: 0},
-                            text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
-                        }}
-                    />  
-                    <DecorativeAxis
-                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
+                        axisStart={{x: this.state.linear ? 0 : this.state.line, y: this.state.linear ? 0 : 1}}
                         axisEnd={{x: this.maxX*this.state.line, y: this.maxX}}
                         axisDomain={[0, 10000000000]}
                         style={{
-                            line: {stroke: '#ADDDE1'},
+                            ticks: {stroke: '#ADDDE1', opacity: 0},
+                            text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
+                        }}
+                    />  
+                    <DecorativeAxis
+                        axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : this.state.line}}
+                        axisEnd={{x: this.maxX, y: this.maxX*this.state.line}}
+                        axisDomain={[0, 10000000000]}
+                        style={{
                             ticks: {stroke: '#ADDDE1', opacity: 0},
                             text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
                         }}

@@ -261,6 +261,11 @@ $key-color: #009440;
   &__select select {
     margin: 10px;
   }
+  .middle-line {
+      .rv-xy-plot__axis__line {
+        stroke: $key-color;
+      }
+  }
   &__plot {
     margin: auto;
   }
