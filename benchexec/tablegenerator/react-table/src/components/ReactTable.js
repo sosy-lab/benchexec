@@ -36,6 +36,17 @@ export default class Table extends React.Component {
         });
       }
 
+    definePadding = (value, digits) => {
+        let padding = 8;
+
+        if (value.toString().split(".")[1]) {
+            padding = padding* (digits - value.toString().split(".")[1].length)
+        } else {
+            padding = padding*(digits+1)
+        }
+        return `0 ${padding}px 0 0`;
+    }
+
     renderColumns = () => {
         return this.props.tools.map((tool, j) => {
             return tool.columns.map((column, i) => {
@@ -117,6 +128,7 @@ export default class Table extends React.Component {
                 } else { 
                     return {
                         id: column.title+j,
+                        
                         Header: () => (
                             column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')
                         ),
@@ -125,8 +137,8 @@ export default class Table extends React.Component {
                             this.props.prepareTableValues(props.results[j].values[i], j, i)
                         ),
                         Cell: row => {
-                            let paddingRight = (row.value && row.value.toString().split(".")[1] && row.value.toString().split(".")[1].length === 1) ? '0 8px 0 0' : '0'
-                            return <div style={{padding: paddingRight}}>{row.value}</div> //hier könnte ihre Clicklistener stehen (Quantile-Plot)
+                            let paddingRight = (row.value && column.type._max_decimal_digits) ? this.definePadding(row.value, column.type._max_decimal_digits) : '0'
+                            return <div style={{padding: paddingRight}}>{row.value}</div>
                         },
                         filterMethod: (filter, row) => {
                             const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
@@ -164,7 +176,7 @@ export default class Table extends React.Component {
                          )},
                         sortMethod: (a, b, desc) => {
                             //default sort only if .toPrecision() => has to be parsed to Number
-                            if(column.source_unit && column.source_unit === 's') {
+                            if(column.source_unit) {
                                 a = Number(a)
                                 b = Number(b)
                             } 

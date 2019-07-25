@@ -104,7 +104,6 @@ export default class Overview extends React.Component {
         
         // table
         if (el && col.source_unit) {
-            console.log(col.source_unit)
             return typeof el === 'string'  ? 
                 col.type._max_decimal_digits ? (+el.replace(col.source_unit, '')).toPrecision(col.type._max_decimal_digits+1) : (+el.replace(col.source_unit, ''))
                 : Math.round(+el);
