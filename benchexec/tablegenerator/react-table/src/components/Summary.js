@@ -98,7 +98,7 @@ export default class Summary extends React.Component {
 
         return (
              <div className = "summary">
-                 <h2>Toolinformation</h2>
+                 <h2>Environment</h2>
                 <table>
                     <tbody>
                         {this.infos.filter(info => this.props.tableHeader[info] !== null).map((row, i) => {

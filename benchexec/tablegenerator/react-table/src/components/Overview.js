@@ -103,8 +103,11 @@ export default class Overview extends React.Component {
         const col = this.tools[tool].columns[column];
         
         // table
-        if (el && col.source_unit === "s") {
-            return typeof el === 'string' ? (+el.replace('s', '')).toPrecision(3) : Math.round(+el);
+        if (el && col.source_unit) {
+            console.log(col.source_unit)
+            return typeof el === 'string'  ? 
+                col.type._max_decimal_digits ? (+el.replace(col.source_unit, '')).toPrecision(col.type._max_decimal_digits+1) : (+el.replace(col.source_unit, ''))
+                : Math.round(+el);
         } else {
             if (typeof el === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
                 return el ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</a> : null
