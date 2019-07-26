@@ -251,9 +251,6 @@ export default class Table extends React.Component {
                                             {props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}  
                                         </a> 
                                     : <span title="This task has no associated file">{props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}</span>
-                                // <div>
-                                //     {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span>{id}</span>)}
-                                // </div>
                         ),
                         filterMethod: (filter, row, column) => {
                             const id = filter.pivotId || filter.id

@@ -73,8 +73,8 @@ export default class ScatterPlot extends React.Component {
                     if(x !== null && y !== null && !isLogAndInvalid) {
                         array.push(
                             {
-                                x: x,
-                                y: y,
+                                x: typeof x === 'number' ? Number(x.toPrecision(3)) : x,
+                                y: typeof y === 'number' ? Number(y.toPrecision(3)) : y,
                                 info: row.short_filename,
                             }
                         )
@@ -89,8 +89,8 @@ export default class ScatterPlot extends React.Component {
                     const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
                     if(x !== null && y !== null && !isLogAndInvalid) array.push(
                         {
-                            x: x,
-                            y: y,
+                            x: typeof x === 'number' ? Number(x.toPrecision(3)) : x,
+                            y: typeof y === 'number' ? Number(y.toPrecision(3)) : y,
                             info: row.short_filename,
                         }
                     ) 
@@ -196,7 +196,6 @@ export default class ScatterPlot extends React.Component {
                     /> 
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 
                     {this.state.value ? <Hint value={this.state.value} /> : null}
-                    {/* <LineSeries data={this.lineData} color='red' /> */}
                 </XYPlot>
                 <button className="btn" onClick={this.toggleLinear}>{this.state.linear ? 'Switch to Logarithmic Scale' : 'Switch to Linear Scale'}</button>
                 <button className="btn" onClick={this.toggleCorrectResults}>{this.state.correct ? 'Switch to All Results' : 'Switch to Correct Results Only'}</button>

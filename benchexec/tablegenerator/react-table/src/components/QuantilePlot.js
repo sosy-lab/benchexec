@@ -81,7 +81,7 @@ export default class Overlay extends React.Component {
             if(value !== null && !isLogAndInvalid) {
                 data.push({
                     x: i,
-                    y: value,
+                    y: typeof value === 'number' ? Number(value.toPrecision(3)) : value,
                     info: el[1]
                 });
             }
@@ -128,17 +128,6 @@ export default class Overlay extends React.Component {
     }
 
     handleColumn = (ev) => {
-        // let isValue;
-
-        // if (ev.target.value.length < 4) {
-        //     // this.setState({isValue: true});
-        //     isValue = true;
-        // } else {
-        //     // this.setState({isValue: false});
-        //     isValue = false
-        // }
-        // const isValue = ev.target.value.length < 4;
-        //TODO: isValue is true, wenn ev.target.value in einem Tool als column.title vorkommt
         let isValue = this.props.tools.map(tool => {
             return (tool.columns.findIndex(value => value.title === ev.target.value) >= 0)}).findIndex(value => value === true) >= 0;
         this.setState({selection: ev.target.value, isValue: isValue });  
