@@ -34,11 +34,20 @@ export default class Summary extends React.Component {
                         ),
                         show: column.isVisible,
                         accessor: props => (
-                        props.content[j][i] ? <div className="summary_span">{this.props.prepareTableValues(props.content[j][i].sum, j, i)}</div> : <div className="summary_span">-</div>
+                        props.content[j][i] ? <div className="summary_span" title={this.renderTooltip(props.content[j][i], j, i)}>{this.props.prepareTableValues(props.content[j][i].sum, j, i)}</div> : <div className="summary_span">-</div>
                     ),
                 }
             });
         });
+    }
+    renderTooltip = (cell, j, i) => {
+        let string = '';
+        Object.keys(cell).forEach(key => { 
+            // let value = this.props.prepareTableValues(cell[key], j, i);
+            if(cell[key] && key!=='sum') (string += `, ${key}: ${cell[key].toFixed(1)}`)
+        });
+        
+        return string.substr(2)
     }
     handleInputChange = (event) => {
         const target = event.target;

@@ -10,7 +10,7 @@ import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
 if (process.env.NODE_ENV !== 'production') {
-    window.data = require('../data/data.json');
+    window.data = require('../data/summaryTest.json');
 }
 
 console.log('table data', window.data);
@@ -86,7 +86,7 @@ export default class Overview extends React.Component {
     preparePlotValues = (el, tool, column) => {
         const col = this.tools[tool].columns[column];
         if (typeof el === 'string') {
-            return col.source_unit ? +el.replace(col.source_unit, '') : 
+            return col.source_unit ? (+el.replace(col.source_unit, '')) : 
                     col.type.name === 'text' || col.type.name === 'main_status' ? el : +el;
         }
         else {
@@ -116,20 +116,9 @@ export default class Overview extends React.Component {
             tabIndex: tab,
             quantilePreSelection: column,
         })
-    }
-
-    // filterRowId = () => {
-    //     this.data.map(row => {
-    //         return row.id.map((el, i) => {
-    //             console.log(el, i)
-    //             return this.properties[i]
-    //         })
-    //     })
-    // }
-    
+    } 
 
     render() {
-        console.log(this.properties)
         return (
             <div className="App">
             <main>

@@ -21,6 +21,19 @@ export default class Overlay extends React.Component {
         this.initialLines = [];
         this.strokeStyle = "";
     };
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+    updateDimensions = () => {
+        this.setState({
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+    }
     renderLegend = () => {
         return (this.state.isValue) 
             ? this.props.tools.filter(t => t.isVisible).map(tool => { 

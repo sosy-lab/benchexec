@@ -5,6 +5,11 @@
 $key-color: #009440;
 
 //------------------common------------------
+.link {
+  text-decoration: underline;
+  color: $key-color;
+  cursor: pointer;
+}
 .btn {
   margin: 0 10px 9px 0;
   text-align: center;
@@ -57,7 +62,7 @@ $key-color: #009440;
       text-align: center;
       border-radius: 8px 8px 0 0;
       background: rgba(255, 255, 255, 0.5);
-      font-size: 1.3vw;
+      font-size: 1vw;
       &--selected {
         background: white;
       }
@@ -143,6 +148,15 @@ $key-color: #009440;
   margin-top: 20px;
   a {
     text-decoration: none;
+  }
+  .fixed {
+    justify-content: space-around;
+    width: 33%;
+    margin: auto;
+
+    input {
+      margin-right: 40px;
+    }
   }
   .rt-table {
     width: 99%;
@@ -289,10 +303,6 @@ $key-color: #009440;
       border: 1px solid $key-color;
       padding: 5px;
     }
-  }
-  .link {
-    text-decoration: underline;
-    color: $key-color;
   }
 }
 
