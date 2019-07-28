@@ -34,17 +34,25 @@ export default class Summary extends React.Component {
                         ),
                         show: column.isVisible,
                         accessor: props => (
-                        props.content[j][i] ? <div className="summary_span" title={this.renderTooltip(props.content[j][i], j, i)}>{this.props.prepareTableValues(props.content[j][i].sum, j, i)}</div> : <div className="summary_span">-</div>
+                        props.content[j][i] ? <div className="summary_span" title={this.renderTooltip(props.content[j][i], j, i)}>{this.prepareStatsValues(props.content[j][i].sum, j, i)}</div> : <div className="summary_span">-</div>
                     ),
                 }
             });
         });
     }
+    prepareStatsValues = (el, tool, column) => {
+        const col = this.props.tools[tool].columns[column];
+        if (el) {
+            return col.type._max_decimal_digits ? +el.toPrecision(col.type._max_decimal_digits+1) : Math.round(+el);
+        } 
+    }
+
     renderTooltip = (cell, j, i) => {
         let string = '';
         Object.keys(cell).forEach(key => { 
-            // let value = this.props.prepareTableValues(cell[key], j, i);
-            if(cell[key] && key!=='sum') (string += `, ${key}: ${cell[key].toFixed(1)}`)
+            let value = this.prepareStatsValues(cell[key], j, i);
+            // if(cell[key] && key!=='sum') (string += `, ${key}: ${cell[key].toFixed(2)}`)
+            if(cell[key] && key!=='sum') (string += `, ${key}: ${value}`)
         });
         
         return string.substr(2)
@@ -115,7 +123,7 @@ export default class Summary extends React.Component {
                                         <th key={'td-'+row}>{row}</th>
                                         {this.props.tableHeader[row].content.map((tool, j) => <td colSpan={tool[1]} key={tool[0]+j} className="header__tool-row">{tool[0]} </td>)}
                                     </tr>
-                        })}
+                                })}
                     </tbody>
                 </table>
                 <h2>Summary</h2>

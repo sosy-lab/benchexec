@@ -20,9 +20,9 @@ export default class info extends React.Component {
                     <ul>
                         <li><strong>Select columns:</strong> <br/> To costumize your columns, click on the field on the left side "Click here to select columns" or <span className = "link" onClick={this.props.selectColumn}>here</span>.</li>
                         <li><strong>Horizontally scrolling:</strong> <br/>To scroll horizontally through the hole table deselect the checkbox "Fixed task" above the select coulmns.</li>
-                        <li><strong>Filtering:</strong> <br/> You can filter every row on the top of it. Write the your maximum like ":n", your minimum like "n:" minimum and maximum like "m:n" or a concrete value.</li>
+                        <li><strong>Filtering:</strong> <br/> You can filter every row on the top of it. Write the your maximum like ":n", your minimum like "n:", minimum and maximum like "m:n" or a concrete value.</li>
                         <li><strong>Status:</strong> <br/> You can select the shown status or the category of your visible results via the selection field.</li>
-                        <li><strong>Sorting:</strong> <br/> You can sort the values of your rows by clicking on the column-header (asc and desc).  If you hold "shift" you can sort your results by more than one column</li>
+                        <li><strong>Sorting:</strong> <br/> You can sort the values of your rows by clicking on the column-header (asc and desc).  Hold <code>shift</code> for multi-sorting</li>
                         <li><strong>Search:</strong> <br/> Search your task in the textfiled above the task-coulumn.</li>
                         <li><strong>Link to source code:</strong> <br/> As before, click on the status / the task.</li>
                     </ul>
@@ -30,6 +30,7 @@ export default class info extends React.Component {
                 <h3> Quantile Plot and Scatter Plot</h3>
                     <ul>
                         <li>These Tabs are the same as before</li>
+                        <li>Select your values and additional lines</li>
                     </ul>
 
                 <h3>Reset Filters</h3>

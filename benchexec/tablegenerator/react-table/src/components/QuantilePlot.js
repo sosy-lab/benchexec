@@ -20,6 +20,7 @@ export default class Overlay extends React.Component {
         this.possibleValues = [];
         this.initialLines = [];
         this.strokeStyle = "";
+        this.lineCount = 1;
     };
     componentDidMount() {
         window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
@@ -118,21 +119,22 @@ export default class Overlay extends React.Component {
 
     renderLines = () => {
         this.lineArray = this.initialLines;
+        this.lineCount = 0;
         if (this.state.isValue) {
             return this.props.tools.map((tool, i) => {
                 let task = this.state.selection;
                 let data = this[task+i] 
-                return (data.length > 0 && tool.isVisible) ? 
-                <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : 
-                null
+                if(data.length > 0) this.lineCount++;
+                return (tool.isVisible ? <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> : null)
             }).filter(el => !!el);
         } else {
             let index = this.state.selection.split('-')[1]
             return this.props.tools[index].columns.map((column, i) => {
                 let data = this[column.title];
                 this.lineArray.push(column.title)
+                if(data.length > 0) this.lineCount++;
                 return <LineMarkSeries data={data} key={column.title} opacity={this.handleLineState(column.title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/>
-            })
+            }).filter(el => !!el);
         }
     }
 
@@ -195,12 +197,13 @@ export default class Overlay extends React.Component {
                     </optgroup>
                 </select>
                 <XYPlot height={window.innerHeight - 200} width={window.innerWidth - 100} margin={{left: 90}} yType={this.handlyType()}>
+                    {this.renderLines()}
                     <VerticalGridLines />
                     <HorizontalGridLines />
-                    <XAxis tickFormat = {(value) => value}/>
-                    <YAxis tickFormat = {(value) => value}/>
-                    {this.renderLines()}
+                    <XAxis tickFormat = {value => value}/>
+                    <YAxis tickFormat = {value => value}/>
                     {this.state.value ? <Hint value={this.state.value} /> : null}
+                    {this.lineCount === 0 ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null}
                     <DiscreteColorLegend 
                         items={this.renderLegend()} 
                         onItemClick={(Object, item) => {

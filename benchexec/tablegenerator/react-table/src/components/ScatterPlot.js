@@ -24,6 +24,7 @@ export default class ScatterPlot extends React.Component {
         }
         this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
         this.maxX = '';
+        this.lineCount = true;
     };
 
     componentDidMount() {
@@ -97,7 +98,8 @@ export default class ScatterPlot extends React.Component {
                 }
             })
         }
-        this.maxX = this.findMaxValues(array)
+        this.maxX = this.findMaxValues(array);
+        (array.length === 0) ? this.lineCount = false : this.lineCount = true;
         this.dataArray = array;
     }
     findMaxValues = (array) => {
@@ -164,8 +166,7 @@ export default class ScatterPlot extends React.Component {
                 <XYPlot className="scetterPlot__plot" height={this.state.height - 200} width={this.state.width - 100} margin={{left: 90}} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}>
                     <VerticalGridLines />
                     <HorizontalGridLines />
-                    <XAxis title = {this.state.nameX} tickFormat = {(value) => value}/>
-                    <YAxis title = {this.state.nameY} tickFormat = {(value) => value}/>
+                    
                     <DecorativeAxis
                         className='middle-line'
                         axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
@@ -194,6 +195,9 @@ export default class ScatterPlot extends React.Component {
                             text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
                         }}
                     /> 
+                    {this.lineCount === false ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null}
+                    <XAxis title = {this.state.nameX} tickFormat = {value => value} />
+                    <YAxis title = {this.state.nameY} tickFormat = {value => value} />
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 
                     {this.state.value ? <Hint value={this.state.value} /> : null}
                 </XYPlot>
