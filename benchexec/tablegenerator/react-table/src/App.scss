@@ -104,9 +104,23 @@ $key-color: #71bcff;
   table {
     border-collapse: collapse;
     margin: 40px 0;
+    width: 100%;
     td, th {
       border: 1px solid #ddd;
       padding: 8px;
+    }
+    .options {
+      ul {
+        margin: 0;
+        padding: 0 0 0 17px;
+      }
+      li {
+        text-align: left;
+        font-size: 9pt;
+        &:first-child {
+          display: none;
+        }
+      }
     }
     
     tr:nth-child(even){background-color: #f2f2f2;}

@@ -66,6 +66,11 @@ export default class Summary extends React.Component {
           [name]: value
         });
     }
+    renderOptions = (text) => {
+        return text.split('-').map(option => {
+            return <li key={option}>{option}</li>
+        })
+    }
 
     render() {
         const toolColumns = this.renderResultTable();
@@ -121,7 +126,9 @@ export default class Summary extends React.Component {
                         {this.infos.filter(info => this.props.tableHeader[info] !== null).map((row, i) => {
                             return  <tr key={'tr-'+row}> 
                                         <th key={'td-'+row}>{row}</th>
-                                        {this.props.tableHeader[row].content.map((tool, j) => <td colSpan={tool[1]} key={tool[0]+j} className="header__tool-row">{tool[0]} </td>)}
+                                        {this.props.tableHeader[row].content.map((tool, j) => {
+                                            return row !=='options' ? <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row'>{tool[0]} </td> : <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row options'><ul>{this.renderOptions(tool[0])}</ul></td>})
+                                        }
                                     </tr>
                                 })}
                     </tbody>
