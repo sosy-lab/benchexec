@@ -19,18 +19,23 @@ export default class LinkOverlay extends React.Component {
 
     loadContent = (url) => {
         console.log('load content', url);
-        
         if(url) {
             fetch(url)
                 .then(response => {
-                    response.text()
-                    .then(content => {
-                        this.setState({ content });
-                    })
-                    .catch(e => {
-                        console.log('Error: Resource not readable', url, e);
+                    //status 404/403 => Fehler?
+                    if (response.status === 200 || response.status === 0) {
+                        response.text()
+                            .then(content => {
+                                this.setState({ content });
+                            })
+                            .catch(e => {
+                                console.log('Error: Stream not readable', url, e);
+                                this.attemptLoadingFromZIP(url);
+                            });
+                    } else {
+                        console.log('Error: Loading file not possible', response);
                         this.attemptLoadingFromZIP(url);
-                    });
+                    }
                 })
                 .catch(e => {
                     console.log('Error: Resource not found', url, e);
@@ -43,19 +48,18 @@ export default class LinkOverlay extends React.Component {
         console.log('Text is not received. Try as zip?', url);
         const splitPos = url.lastIndexOf('/');
         const zipUrl = url.substring(0, splitPos) + ".zip";
-        const logfile = decodeURIComponent(url.substring(splitPos));
+        const urlArray = url.split('/');
+        const logfile = decodeURIComponent(`${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`); // <folder>/<logfile>
 
-        fetch(zipUrl)       // 1) fetch the url
-            .then(function (response) {    // TODO use first fetch methods             // 2) filter on 200 OK
-                if (response.status === 200 || response.status === 0) {
-                    return Promise.resolve(response.blob());
-                } else {
-                    return Promise.reject(new Error(response.statusText));
-                }
-            })
-            .then(JSZip.loadAsync)                            // 3) chain with the zip promise
-            .then((zip) => zip.file(logfile).async("string")) // 4) chain with the text content promise
-            .then((content) => {                    // 5) display the result
+        fetch(zipUrl)                                           // 1) fetch the url
+            .then((response) => 
+                (response.status === 200 || response.status === 0) ? // 2) filter on 200 OK
+                    Promise.resolve(response.blob()) :    //=> then-case
+                    Promise.reject(new Error(response.statusText)) //=> ERROR-case  
+            )
+            .then(JSZip.loadAsync)                              // 3) chain with the zip promise
+            .then((zip) => zip.file(logfile).async("string"))   // 4) chain with the text content promise
+            .then((content) => {                                // 5) display the result
                 this.setState({ content });
             }, (error) => {
                 console.log('ERROR receiving ZIP', error);
