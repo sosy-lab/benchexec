@@ -38,6 +38,7 @@ import stat
 import subprocess
 import sys
 import time
+from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
 
@@ -689,7 +690,8 @@ def get_capability(filename):
     """
     res = {"capabilities": [], "set": [], "error": False}
     try:
-        libcap = ctypes.cdll.LoadLibrary("libcap.so")
+        libcap_path = find_library(u"cap")
+        libcap = ctypes.cdll.LoadLibrary(libcap_path)
     except OSError:
         res["error"] = True
         logging.warning("Unable to find capabilities for {0}".format(filename))
