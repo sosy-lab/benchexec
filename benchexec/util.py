@@ -690,7 +690,7 @@ def get_capability(filename):
     """
     res = {"capabilities": [], "set": [], "error": False}
     try:
-        libcap_path = find_library(u"cap")
+        libcap_path = find_library("cap")
         libcap = ctypes.cdll.LoadLibrary(libcap_path)
     except OSError:
         res["error"] = True
