@@ -40,7 +40,7 @@ export default class Overlay extends React.Component {
             ? this.props.tools.filter(t => t.isVisible).map(tool => { 
                 return this.props.getRunSets(tool);
             }) 
-            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible ? c.title : null).filter(Boolean);
+            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "main_status" ? c.title : null).filter(Boolean);
     }
 
     renderAll = () => {
@@ -118,7 +118,6 @@ export default class Overlay extends React.Component {
     }
 
     renderLines = () => {
-        this.lineArray = this.initialLines;
         this.lineCount = 0;
         if (this.state.isValue) {
             return this.props.tools.map((tool, i) => {
@@ -132,10 +131,10 @@ export default class Overlay extends React.Component {
         } else {
             let index = this.state.selection.split('-')[1]
             return this.props.tools[index].columns.map((column, i) => {
-                let data = this[column.title];
-                this.lineArray.push(column.title)
+                let data;
+                if(column.isVisible) data = this[column.title];
                 if(data && data.length > 0) this.lineCount++;
-                return <LineMarkSeries data={data} key={column.title} opacity={this.handleLineState(column.title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/>
+                return (data && column.type.name !== "text" && column.type.name !== "main_status") ? <LineMarkSeries data={data} key={column.title} opacity={this.handleLineState(column.title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :null
             }).filter(el => !!el);
         }
     }
