@@ -10,7 +10,7 @@ import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
 if (process.env.NODE_ENV !== 'production') {
-    window.data = require('../data/summaryTest.json');
+    window.data = require('../data/data_formatted.json');
 }
 
 console.log('table data', window.data);
@@ -85,27 +85,19 @@ export default class Overview extends React.Component {
 
     preparePlotValues = (el, tool, column) => {
         const col = this.tools[tool].columns[column];
-        if (typeof el === 'string') {
-            return col.source_unit ? (+el.replace(col.source_unit, '')) : 
-                    col.type.name === 'text' || col.type.name === 'main_status' ? el : +el;
-        }
-        else {
-            return el;
-        }
+        return col.unit ? (el.original) : el.original;
     }
 
     prepareTableValues = (el, tool, column, href, row) => {
         const col = this.tools[tool].columns[column];
         
         // table
-        if (el && col.source_unit) {
-            return typeof el === 'string'  ? 
-                col.type._max_decimal_digits ? (+el.replace(col.source_unit, '')).toPrecision(col.type._max_decimal_digits+1) : (+el.replace(col.source_unit, ''))
-                : Math.round(+el);
+        if (el.formatted && col.unit) {
+            return el.formatted
         } else {
-            if (typeof el === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
-                return el ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el}</a> : null
-            } else if(el) { // STATS => check if it could be remove
+            if (typeof el.formatted === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
+                return el.formatted ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el.formatted}</a> : null
+            } else if(el.formatted) { // STATS => check if it could be remove
                 return col.type.name === "text" ? el : (col.type._max_decimal_digits ? +el.toPrecision(col.type._max_decimal_digits+1) : +el);
             }
         }

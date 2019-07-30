@@ -288,7 +288,7 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
 
     def prepare_values(column, value):
         return {
-            'original': column.format_value(value, False, 'html_cell'),
+            'original': column.format_value(value, False, 'html'),
             'formatted': column.format_value(value, True, 'html_cell'),
         }
 
@@ -296,7 +296,7 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
         values = [prepare_values(column, res.values[i]) for i, column in enumerate(res.columns)]
         toolHref = [column.href for column in tools[i]['columns'] if column.title.endswith('status')][0]
         href = create_link(toolHref or res.log_file, base_dir, res, href_base)
-        return merge_dicts({'href': href, 'values': values}, {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys})
+        return merge_dicts({k: v for k, v in res.__dict__.items() if k not in results_exclude_keys}, {'href': href, 'values': values})
 
     def clean_up_row(row):
         #(if key not in exclude) {res.__dict__.items.map((k, v) => {

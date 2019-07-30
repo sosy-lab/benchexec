@@ -52,7 +52,7 @@ export default class Table extends React.Component {
             return tool.columns.map((column, i) => {
                 if(column.type.name === "main_status" || column.type.name === "status") {
                     return {
-                        id: column.title+j,
+                        id: column.title+column.unit+j,
                         Header: () => (
                             <span title="Click here to sort. Hold shift to multi-sort">{column.title}</span>
                         ),
@@ -127,7 +127,7 @@ export default class Table extends React.Component {
                     }
                 } else { 
                     return {
-                        id: column.title+j,
+                        id: column.title+column.unit+j,
                         Header: () => (
                             <div title="Click here to sort. Hold shift to multi-sort"> {column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')} </div>
                         ),
@@ -146,11 +146,11 @@ export default class Table extends React.Component {
                                 if (regex[2] === undefined) {
                                     return String(row[filter.id]).startsWith(filter.value);
                                 } else if(!(regex[3])) {
-                                    if (row[filter.id] >= Number(regex[2])) {
+                                    if (+row[filter.id] >= Number(regex[2])) {
                                         return row[filter.id]
                                     }
                                 } else if(!(regex[2])) {
-                                    if (row[filter.id] <= Number(regex[3])) {
+                                    if (+row[filter.id] <= Number(regex[3])) {
                                         return row[filter.id];
                                     }
                                 } else if (row[filter.id] >= Number(regex[2]) && row[filter.id] <= Number(regex[3])){
@@ -177,7 +177,7 @@ export default class Table extends React.Component {
                          )},
                         sortMethod: (a, b, desc) => {
                             //default sort only if .toPrecision() => has to be parsed to Number
-                            if(column.source_unit) {
+                            if(column.unit) {
                                 a = Number(a)
                                 b = Number(b)
                             } 
@@ -200,7 +200,7 @@ export default class Table extends React.Component {
     }
     collectStati = (tool, column) => {
         let statiArray = this.data.map(row => {
-            return row.results[tool].values[column]
+            return row.results[tool].values[column].formatted
         });
         return [...new Set(statiArray)].map(status => {
             return status ? <option value = {status} key = {status}>{status}</option> : null
@@ -247,10 +247,10 @@ export default class Table extends React.Component {
                         fixed: this.state.fixed ? 'left' : '',
                         accessor: props => (
                                 props.has_sourcefile 
-                                    ?   <a className={props.href ? 'row__name--cellLink' : 'row__name'} href={props.href} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}> 
-                                            {props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}  
+                                    ?   <a key = {props.href} className={props.href ? 'row__name--cellLink' : 'row__name'} href={props.href} title="Click here to show source code" onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}> 
+                                            {props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span key = {id} className="row_id">{id}</span>)}  
                                         </a> 
-                                    : <span title="This task has no associated file">{props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}</span>
+                                    : <span key = {props.href} title="This task has no associated file">{props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}</span>
                         ),
                         filterMethod: (filter, row, column) => {
                             const id = filter.pivotId || filter.id
