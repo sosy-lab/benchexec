@@ -28,23 +28,24 @@ export default class Summary extends React.Component {
             return tool.columns.map((column, i) => {
                 
                 return {
-                    id: column.title+j,
+                    id: column.title+column.unit+j,
                     Header: () => (
                         <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')}</div>
                         ),
                         show: column.isVisible,
                         accessor: props => (
-                        props.content[j][i] ? <div className="summary_span" title={this.renderTooltip(props.content[j][i], j, i)}>{this.prepareStatsValues(props.content[j][i].sum, j, i)}</div> : <div className="summary_span">-</div>
+                        props.content[j][i] ? <div dangerouslySetInnerHTML={{ __html: props.content[j][i].sum }} className="summary_span" title={this.renderTooltip(props.content[j][i], j, i)}></div> : <div className="summary_span">-</div>
                     ),
                 }
             });
         });
     }
     prepareStatsValues = (el, tool, column) => {
-        const col = this.props.tools[tool].columns[column];
-        if (el) {
-            return col.type._max_decimal_digits ? +el.toPrecision(col.type._max_decimal_digits+1) : Math.round(+el);
-        } 
+        return el;
+        // const col = this.props.tools[tool].columns[column];
+        // if (el) {
+        //     return col.type._max_decimal_digits ? +el.toPrecision(col.type._max_decimal_digits+1) : Math.round(+el);
+        // } 
     }
 
     renderTooltip = (cell, j, i) => {

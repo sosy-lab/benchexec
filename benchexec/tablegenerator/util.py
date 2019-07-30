@@ -321,7 +321,7 @@ def prepare_stats_for_js(stats, tools):
 
     def clean_up_stat(stat):
         content_splitted = [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
-        return [[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(content_splitted)]
+        return [[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} if content is not None else content for colIndex, content in enumerate(toolContent)] for toolIndex, toolContent in enumerate(content_splitted)]
 
     return [merge_dicts(stat, {"content": clean_up_stat(stat)}) for stat in copy.deepcopy(stats)] # add original stat infos
     # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
