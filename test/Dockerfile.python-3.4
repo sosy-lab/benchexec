@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install \
   coverage \
-  lxml \
+  'lxml<4.4.0' \
   nose \
   pyyaml \
   tempita==0.5.2
