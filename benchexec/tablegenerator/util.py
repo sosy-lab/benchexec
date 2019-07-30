@@ -286,10 +286,17 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
     row_exclude_keys = {'properties'}
     results_exclude_keys = {'columns', 'task_id', 'sourcefiles_exist', 'status'}
 
+    def prepare_values(column, value):
+        return {
+            'original': column.format_value(value, False, 'html_cell'),
+            'formatted': column.format_value(value, True, 'html_cell'),
+        }
+
     def clean_up_results(res, i):
+        values = [prepare_values(column, res.values[i]) for i, column in enumerate(res.columns)]
         toolHref = [column.href for column in tools[i]['columns'] if column.title.endswith('status')][0]
         href = create_link(toolHref or res.log_file, base_dir, res, href_base)
-        return merge_dicts({'href': href}, {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys})
+        return merge_dicts({'href': href, 'values': values}, {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys})
 
     def clean_up_row(row):
         #(if key not in exclude) {res.__dict__.items.map((k, v) => {
@@ -305,15 +312,19 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
 def prepare_stats_for_js(stats, tools):
     toolColumnCounts = [len(tool["columns"]) for tool in tools] #len === .length() => [9, 4, 6]
 
+    def prepare_values(column, value, key):
+        return column.format_value(value, True, 'html_cell') if key is 'sum' else column.format_value(value, False, 'tooltip')
+
     def get_stat_content(stat, i, count):
         start = reduce(lambda acc, cur: acc + cur, toolColumnCounts[0:i], 0)
         return stat.content[start:start+count]  #reduce(labda acc, cur: acc + curr) 
 
     def clean_up_stat(stat):
-
-        return [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
+        content_splitted = [get_stat_content(stat, i, count) for (i, count) in enumerate(toolColumnCounts)]
+        return [[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(content_splitted)]
 
     return [merge_dicts(stat, {"content": clean_up_stat(stat)}) for stat in copy.deepcopy(stats)] # add original stat infos
+    # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
 
 def read_frontend_asset(file_name, format):
     return open(file_name.format(format=format), "r").read()
