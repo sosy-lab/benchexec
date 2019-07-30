@@ -160,7 +160,6 @@ $key-color: #71bcff;
 
 //------------------table------------------
 .mainTable {
-  margin-top: 20px;
   a {
     text-decoration: none;
   }
@@ -175,7 +174,7 @@ $key-color: #71bcff;
   }
   .rt-table {
     width: 99%;
-    padding-bottom: 20px;
+    margin-bottom: 40px;
   }
   .rt-thead {
     &.-headerGroups > div > div{
@@ -192,6 +191,7 @@ $key-color: #71bcff;
   }
 
   .rt-tbody {
+    overflow: scroll;
     span {
       text-align: center;
     }
