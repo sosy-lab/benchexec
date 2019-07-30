@@ -12,21 +12,20 @@ stages:
   - test
   - deploy
 
-before_script:
-  # Create user, we do not want to test as root
-  - adduser --disabled-login --gecos "" $PRIMARY_USER
-  # Activate coverage for subprocesses
-  - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
-  # Give $PRIMARY_USER permission to create cgroups
-  - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
-  - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-  # Install BenchExec
-  - sudo -u $PRIMARY_USER pip install --user .
-  # Start lxcfs
-  - lxcfs /var/lib/lxcfs &
-
 .unit-tests: &unit-tests
   stage: test
+  before_script:
+    # Create user, we do not want to test as root
+    - adduser --disabled-login --gecos "" $PRIMARY_USER
+    # Activate coverage for subprocesses
+    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
+    # Give $PRIMARY_USER permission to create cgroups
+    - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
+    - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+    # Install BenchExec
+    - sudo -u $PRIMARY_USER pip install --user .
+    # Start lxcfs
+    - lxcfs /var/lib/lxcfs &
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
