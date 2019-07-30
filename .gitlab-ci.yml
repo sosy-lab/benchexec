@@ -96,3 +96,49 @@ flake8:
   script:
     - flake8
   allow_failure: true # need to fix existing code first
+
+
+# Build Docker images
+# following this guideline: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+.build-docker:
+  stage: images
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /root/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --dockerfile $CI_PROJECT_DIR/$DOCKERFILE --destination $CI_REGISTRY_IMAGE/$IMAGE
+  only:
+    - schedules
+    - web
+
+build-docker:test:python-2.7:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-2.7
+    IMAGE: test:python-2.7
+
+build-docker:test:python-3.4:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.4
+    IMAGE: test:python-3.4
+
+build-docker:test:python-3.5:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.5
+    IMAGE: test:python-3.5
+
+build-docker:test:python-3.6:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.6
+    IMAGE: test:python-3.6
+
+build-docker:test:python-3.7:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.7
+    IMAGE: test:python-3.7
