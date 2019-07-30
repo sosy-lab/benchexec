@@ -7,6 +7,11 @@ variables:
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
+stages:
+  - images
+  - test
+  - deploy
+
 before_script:
   # Create user, we do not want to test as root
   - adduser --disabled-login --gecos "" $PRIMARY_USER
