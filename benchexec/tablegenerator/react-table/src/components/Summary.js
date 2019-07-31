@@ -27,11 +27,10 @@ export default class Summary extends React.Component {
             
             return tool.columns.map((column, i) => {
                 
-                console.log(`${j}_${column.display_title}_${i}`)
                 return {
                     id: `${j}_${column.display_title}_${i}`,
                     Header: () => (
-                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.display_title}</div>
+                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''}</div>
                         ),
                         show: column.isVisible,
                         accessor: props => (
@@ -120,6 +119,7 @@ export default class Summary extends React.Component {
                             return  <tr key={'tr-'+row}> 
                                         <th key={'td-'+row}>{row}</th>
                                         {this.props.tableHeader[row].content.map((tool, j) => {
+                                            console.log(tool, j)
                                             return row !=='options' ? <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row'>{tool[0]} </td> : <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row options'><ul>{this.renderOptions(tool[0])}</ul></td>})
                                         }
                                     </tr>
