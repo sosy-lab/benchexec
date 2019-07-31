@@ -24,6 +24,7 @@ export default class ScatterPlot extends React.Component {
         }
         this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
         this.maxX = '';
+        this.minX = '';
         this.lineCount = true;
     };
 
@@ -68,43 +69,56 @@ export default class ScatterPlot extends React.Component {
         if (this.state.correct) {
             this.props.table.forEach(row => {
                 if(row.results[this.state.toolX].category==="correct" && row.results[this.state.toolY].category==="correct" && row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
-                    const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
+                    const x = row.results[this.state.toolX].values[this.state.columnX].original;
+                    const y = row.results[this.state.toolY].values[this.state.columnY].original;
                     const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
                     if(x !== null && y !== null && !isLogAndInvalid) {
                         array.push(
                             {
-                                x: typeof x === 'number' ? Number(x.toPrecision(3)) : x,
-                                y: typeof y === 'number' ? Number(y.toPrecision(3)) : y,
+                                x: x,
+                                y: y,
                                 info: row.short_filename,
                             }
                         )
                     }
                 }
             })
+            console.log(array)
         } else {
             this.props.table.forEach(row => {
                 if(row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    const x = this.props.preparePlotValues(row.results[this.state.toolX].values[this.state.columnX], this.state.toolX, this.state.columnX);
-                    const y = this.props.preparePlotValues(row.results[this.state.toolY].values[this.state.columnY], this.state.toolY, this.state.columnY);
+                    const x = row.results[this.state.toolX].values[this.state.columnX].original;
+                    const y = row.results[this.state.toolY].values[this.state.columnY].original;
                     const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
                     if(x !== null && y !== null && !isLogAndInvalid) array.push(
                         {
-                            x: typeof x === 'number' ? Number(x.toPrecision(3)) : x,
-                            y: typeof y === 'number' ? Number(y.toPrecision(3)) : y,
+                            x: x,
+                            y: y,
                             info: row.short_filename,
                         }
                     ) 
                 }
             })
         }
-        this.maxX = this.findMaxValues(array);
+        this.maxX = this.findMaxValues(array)[0];
+        this.maxY = this.findMaxValues(array)[1];
+        this.minX = this.findMinValues(array)[0];
+        this.minY = this.findMinValues(array)[1];
         (array.length === 0) ? this.lineCount = false : this.lineCount = true;
         this.dataArray = array;
+        console.log(this.minX, this.maxX)
     }
     findMaxValues = (array) => {
-        return Math.max(...array.map(el => el.x));
+        const maxX = Math.max(...array.map(el => el.x)) < 3 ? 3 : Math.max(...array.map(el => el.x))
+        const maxY = Math.max(...array.map(el => el.y)) < 3 ? 3 : Math.max(...array.map(el => el.y))
+        return [maxX, maxY];
     }
+    findMinValues = (array) => {
+        const minX = Math.min(...array.map(el => el.x)) > 2 ? 1 : Math.min(...array.map(el => el.x))
+        const minY = Math.min(...array.map(el => el.y)) > 2 ? 1 : Math.min(...array.map(el => el.y))
+        return [minX, minY];
+    }
+
 
     toggleCorrectResults = () => {
         this.setState(prevState => ({ 
@@ -163,14 +177,22 @@ export default class ScatterPlot extends React.Component {
                         })}
                     </select>
                 </div>
-                <XYPlot className="scetterPlot__plot" height={this.state.height - 200} width={this.state.width - 100} margin={{left: 90}} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}>
-                    <VerticalGridLines />
-                    <HorizontalGridLines />
+                <XYPlot className="scetterPlot__plot" 
+                        height={this.state.height - 200} 
+                        width={this.state.width - 100} 
+                        margin={{left: 90}} 
+                        yType={this.handlType(this.state.toolY, this.state.columnY)} 
+                        xType={this.handlType(this.state.toolX, this.state.columnX)}
+                        xDomain={this.handlType(this.state.toolX, this.state.columnX) !== 'ordinal' ? [this.minX, this.maxX] : null}
+                        yDomain={this.handlType(this.state.toolY, this.state.columnY) !== 'ordinal' ? [this.minY, this.maxY] : null}
+                        >
+                    <VerticalGridLines yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
+                    <HorizontalGridLines yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     
                     <DecorativeAxis
                         className='middle-line'
                         axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
-                        axisEnd={{x: this.maxX, y: this.maxX}}
+                        axisEnd={{x: this.maxX, y: this.maxY}}
                         axisDomain={[0, 10000000000]}
                         style={{
                             ticks: {stroke: '#009440', opacity: 0},
@@ -179,7 +201,7 @@ export default class ScatterPlot extends React.Component {
                     />  
                     <DecorativeAxis
                         axisStart={{x: this.state.linear ? 0 : this.state.line, y: this.state.linear ? 0 : 1}}
-                        axisEnd={{x: this.maxX*this.state.line, y: this.maxX}}
+                        axisEnd={{x: this.maxX*this.state.line, y: this.maxY}}
                         axisDomain={[0, 10000000000]}
                         style={{
                             ticks: {stroke: '#ADDDE1', opacity: 0},
@@ -196,8 +218,8 @@ export default class ScatterPlot extends React.Component {
                         }}
                     /> 
                     {this.lineCount === false ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null}
-                    <XAxis title = {this.state.nameX} tickFormat = {value => value} />
-                    <YAxis title = {this.state.nameY} tickFormat = {value => value} />
+                    <XAxis title = {this.state.nameX} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
+                    <YAxis title = {this.state.nameY} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 
                     {this.state.value ? <Hint value={this.state.value} /> : null}
                 </XYPlot>
