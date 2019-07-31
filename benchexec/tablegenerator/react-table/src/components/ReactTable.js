@@ -36,25 +36,15 @@ export default class Table extends React.Component {
         });
       }
 
-    definePadding = (value, digits) => {
-        let padding = 8;
-
-        if (value.toString().split(".")[1]) {
-            padding = padding* (digits - value.toString().split(".")[1].length)
-        } else {
-            padding = padding*(digits+1)
-        }
-        return `0 ${padding}px 0 0`;
-    }
 
     renderColumns = () => {
         return this.props.tools.map((tool, j) => {
             return tool.columns.map((column, i) => {
                 if(column.type.name === "main_status" || column.type.name === "status") {
                     return {
-                        id: column.title+column.unit+j,
+                        id: column.display_title+j,
                         Header: () => (
-                            <span title="Click here to sort. Hold shift to multi-sort">{column.title}</span>
+                            <span title="Click here to sort. Hold shift to multi-sort">{column.display_title}</span>
                         ),
                         show: column.isVisible,
                         accessor: props => (
@@ -127,33 +117,33 @@ export default class Table extends React.Component {
                     }
                 } else { 
                     return {
-                        id: column.title+column.unit+j,
+                        id: column.display_title+j,
                         Header: () => (
-                            <div title="Click here to sort. Hold shift to multi-sort"> {column.title + (column.source_unit ? " (" + column.source_unit + ")" : '')} </div>
+                            <div title="Click here to sort. Hold shift to multi-sort"> {column.display_title} </div>
                         ),
                         show: column.isVisible,
                         accessor: props => (
                             this.props.prepareTableValues(props.results[j].values[i], j, i)
+                            // console.log(this.props.prepareTableValues(props.results[j].values[i], j, i))
                         ),
                         Cell: row => {
-                            let paddingRight = (row.value && column.type._max_decimal_digits) ? this.definePadding(row.value, column.type._max_decimal_digits) : '0'
-                            return <div style={{padding: paddingRight}}>{row.value}</div>
+                            return <div dangerouslySetInnerHTML={{ __html: row.value.formatted }} />
                         },
-                        filterMethod: (filter, row) => {
+                        filterMethod: (filter, row, cell) => {
                             const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
  
                             const regex = filter.value.match(pattern);
                                 if (regex[2] === undefined) {
-                                    return String(row[filter.id]).startsWith(filter.value);
+                                    return String(row[filter.id].formatted).startsWith(filter.value);
                                 } else if(!(regex[3])) {
-                                    if (+row[filter.id] >= Number(regex[2])) {
+                                    if (+row[filter.id].original >= Number(regex[2])) {
                                         return row[filter.id]
                                     }
                                 } else if(!(regex[2])) {
-                                    if (+row[filter.id] <= Number(regex[3])) {
+                                    if (+row[filter.id].original <= Number(regex[3])) {
                                         return row[filter.id];
                                     }
-                                } else if (row[filter.id] >= Number(regex[2]) && row[filter.id] <= Number(regex[3])){
+                                } else if (row[filter.id].original >= Number(regex[2]) && row[filter.id].original <= Number(regex[3])){
                                     return row[filter.id];
                                 }
                             
@@ -176,11 +166,8 @@ export default class Table extends React.Component {
                                />  
                          )},
                         sortMethod: (a, b, desc) => {
-                            //default sort only if .toPrecision() => has to be parsed to Number
-                            if(column.unit) {
-                                a = Number(a)
-                                b = Number(b)
-                            } 
+                                a = +a.original
+                                b = +b.original
                             a = a === null || a === undefined ? -Infinity : a
                             b = b === null || b === undefined ? -Infinity : b
                             a = typeof a === 'string' ? a.toLowerCase() : a

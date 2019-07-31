@@ -10,7 +10,7 @@ import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
 if (process.env.NODE_ENV !== 'production') {
-    window.data = require('../data/data_formatted.json');
+    window.data = require('../data/data.json');
 }
 
 console.log('table data', window.data);
@@ -90,16 +90,10 @@ export default class Overview extends React.Component {
 
     prepareTableValues = (el, tool, column, href, row) => {
         const col = this.tools[tool].columns[column];
-        
-        // table
-        if (el.formatted && col.unit) {
-            return el.formatted
+        if (col.type.name === "main_status" || col.type.name === "status") {
+            return el.formatted ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el.formatted}</a> : null
         } else {
-            if (typeof el.formatted === 'string' && (col.type.name === "main_status" || col.type.name === "status")) {
-                return el.formatted ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el.formatted}</a> : null
-            } else if(el.formatted) { // STATS => check if it could be remove
-                return col.type.name === "text" ? el : (col.type._max_decimal_digits ? +el.toPrecision(col.type._max_decimal_digits+1) : +el);
-            }
+            return el;
         }
     }
 

@@ -280,7 +280,13 @@ def prepare_run_sets_for_js(run_sets, columns):
     # // var tools = run_sets.map((rs, i) => {
     # //   return { ...rs, columns: columns_data[i] }
     # // })
-    return [merge_dicts(rs, {'columns': columns[i]}) for i, rs in enumerate(run_sets)] #Tupel (index + column)
+    
+    def set_column_title(columns):
+        for column in columns:
+            column.display_title = column.display_title if column.display_title is not None else column.title
+        return columns
+
+    return [merge_dicts(rs, {'columns': set_column_title(columns[i])}) for i, rs in enumerate(run_sets)] #Tupel (index + column)
 
 def prepare_rows_for_js(rows, tools, base_dir, href_base):
     row_exclude_keys = {'properties'}
@@ -288,8 +294,9 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
 
     def prepare_values(column, value):
         return {
-            'original': column.format_value(value, False, 'html'),
+            'original': column.format_value(value, False, 'csv'),
             'formatted': column.format_value(value, True, 'html_cell'),
+            #'href': after survey
         }
 
     def clean_up_results(res, i):
@@ -299,9 +306,6 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
         return merge_dicts({k: v for k, v in res.__dict__.items() if k not in results_exclude_keys}, {'href': href, 'values': values})
 
     def clean_up_row(row):
-        #(if key not in exclude) {res.__dict__.items.map((k, v) => {
-        #    k: v (= key: value)
-        #})}
         row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys} 
         row['results'] = [clean_up_results(res, i) for i, res in enumerate(row['results'])]
         row['href'] = create_link(row['filename'], base_dir)

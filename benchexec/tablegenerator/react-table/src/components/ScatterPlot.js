@@ -46,7 +46,7 @@ export default class ScatterPlot extends React.Component {
         return this.props.tools.map((runset, i) => {
             return <optgroup key={"runset"+i} label={this.props.getRunSets(runset, i)}>
                     {runset.columns.map((column, j) => {
-                        return column.isVisible ? <option key={i+column.title+column.unit} value={i+"-"+j} name={`${column.title} (${column.unit})`}>{`${column.title} (${column.unit})`}</option> : null
+                        return column.isVisible ? <option key={i+column.display_title} value={i+"-"+j} name={column.display_title}>{column.display_title}</option> : null
                     })}
                 </optgroup>
         })

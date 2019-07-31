@@ -49,9 +49,9 @@ export default class SelectColumn extends React.Component {
     };
     renderColumns = (index) => {
         return this.props.tools[index].columns.map(column => {
-            return  <td id={'td'+index+column.title} key={'key'+index+column.title} className={column.isVisible ? 'checked' : ''}>
+            return  <td id={'td'+index+column.display_title} key={'key'+index+column.display_title} className={column.isVisible ? 'checked' : ''}>
                     <label>
-                        {column.title}<input id={index+'--'+column.title} name={index+'--'+column.title} type="checkbox" checked={column.isVisible} onChange={this.handleSelecion}></input>
+                        {column.display_title}<input id={index+'--'+column.display_title} name={index+'--'+column.display_title} type="checkbox" checked={column.isVisible} onChange={this.handleSelecion}></input>
                     </label>
                     </td>
         });
@@ -60,7 +60,7 @@ export default class SelectColumn extends React.Component {
     renderSelectColumns = () => {
         this.props.tools.forEach(tool => {
             tool.columns.forEach(column => {
-                if (this.selectable.findIndex(value => value.title === column.title) < 0) {
+                if (this.selectable.findIndex(value => value.display_title === column.display_title) < 0) {
                     this.selectable.push(column)
                 } 
             })
@@ -68,9 +68,9 @@ export default class SelectColumn extends React.Component {
         return this.selectable.map((column, i) => {
             //column.isVisible === alle columns true
             //gehe durch alle tools -> im Tool column mit column.title? -> isVisible?
-            return <th id={'td-all-'+column.title} key={'key'+column.title} className={column.isVisible ? 'checked' : ''}>
+            return <th id={'td-all-'+column.display_title} key={'key'+column.display_title} className={column.isVisible ? 'checked' : ''}>
                 <label>
-                    {column.title}<input name={column.title} type="checkbox" checked={column.isVisible} onChange={this.handleSelectColumns}></input>
+                    {column.display_title}<input name={column.display_title} type="checkbox" checked={column.isVisible} onChange={this.handleSelectColumns}></input>
                 </label>
                 </th>
         })
@@ -85,7 +85,7 @@ export default class SelectColumn extends React.Component {
         let tool = split[0];
         let column = split[1];
 
-        let index = this.props.tools[tool].columns.findIndex(el => el.title === column)
+        let index = this.props.tools[tool].columns.findIndex(el => el.display_title === column)
         let list = this.props.tools
         list[tool].columns[index].isVisible = value;
         this.setState({ list: list })
@@ -99,7 +99,7 @@ export default class SelectColumn extends React.Component {
 
         let list = this.state.list;
         list.forEach(tool => {
-            let index = tool.columns.findIndex(el => el.title === name)
+            let index = tool.columns.findIndex(el => el.display_title === name)
             if(tool.columns[index]) {
                 tool.columns[index].isVisible = value
                 this.setState({ list: list });

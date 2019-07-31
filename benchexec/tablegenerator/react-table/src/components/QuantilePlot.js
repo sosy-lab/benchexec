@@ -9,7 +9,7 @@ export default class Overlay extends React.Component {
                     this.props.preSelection : this.props.tools.map(tool => tool.columns).flat().find(col => col.isVisible);
         
         this.state = {
-            selection: visibleColumn.title+visibleColumn.unit,
+            selection: visibleColumn.display_title,
             quantile: true,
             linear: false,
             correct: true,
@@ -40,7 +40,7 @@ export default class Overlay extends React.Component {
             ? this.props.tools.filter(t => t.isVisible).map(tool => { 
                 return this.props.getRunSets(tool);
             }) 
-            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "main_status" ? `${c.title} (${c.unit})` : null).filter(Boolean);
+            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "main_status" ? c.display_title : null).filter(Boolean);
     }
 
     renderAll = () => {
@@ -57,15 +57,15 @@ export default class Overlay extends React.Component {
             let index = this.state.selection.split('-')[1]
             this.props.tools[index].columns.forEach((column, i) => {
                 if (!(column.type.name === "main_status" || column.type.name === "text") && column.isVisible) {
-                    this[column.title+column.unit] = [];
-                    return this.renderData(this.props.table, column.title+column.unit, index, this[column.title+column.unit])
+                    this[column.display_title] = [];
+                    return this.renderData(this.props.table, column.display_title, index, this[column.display_title])
                 }
             })
         }
     }
     renderData = (runSets, column, tool, data) => {
         let arrayY = [];
-        const index = this.props.tools[tool].columns.findIndex(value => value.title+value.unit === column);
+        const index = this.props.tools[tool].columns.findIndex(value => value.display_title === column);
         if(!this.state.isValue || index >= 0) {
             if(this.state.correct) {
                 runSets.forEach(runSet => {
@@ -79,7 +79,7 @@ export default class Overlay extends React.Component {
                 });
             }
             if(this.state.quantile) {
-                const currentValue = this.possibleValues.find(value => value.title+value.unit === column);
+                const currentValue = this.possibleValues.find(value => value.display_title === column);
                 if(this.state.isValue && (currentValue.type.name==="text" || currentValue.type.name==="main_status")) {
                     arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
                 } else {
@@ -105,7 +105,7 @@ export default class Overlay extends React.Component {
     renderColumns = () => {
         this.props.tools.forEach(tool => {
             tool.columns.forEach(column => {
-                if (column.isVisible && this.possibleValues.findIndex(value => value.title === column.title && value.unit === column.unit) < 0) {
+                if (column.isVisible && this.possibleValues.findIndex(value => value.display_title === column.display_title) < 0) {
                     this.possibleValues.push(column)
                 } 
             })
@@ -113,7 +113,7 @@ export default class Overlay extends React.Component {
         // kann man den oberen Teil rausziehen? Muss nur initial gemacht werden
         this.renderAll();
         return this.possibleValues.map(value => {
-            return <option key={value.title+value.unit} value={value.title+value.unit} name={value.title+value.unit}>{`${value.title} (${value.unit})`}</option>
+            return <option key={value.display_title} value={value.display_title} name={value.display_title}>{value.display_title}</option>
         })
     }
 
@@ -132,9 +132,9 @@ export default class Overlay extends React.Component {
             let index = this.state.selection.split('-')[1]
             return this.props.tools[index].columns.map((column, i) => {
                 let data;
-                if(column.isVisible) data = this[column.title+column.unit];
+                if(column.isVisible) data = this[column.display_title];
                 if(data && data.length > 0) this.lineCount++;
-                return (data && column.type.name !== "text" && column.type.name !== "main_status") ? <LineMarkSeries data={data} key={column.title+column.unit} opacity={this.handleLineState(column.title+column.unit)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :null
+                return (data && column.type.name !== "text" && column.type.name !== "main_status") ? <LineMarkSeries data={data} key={column.display_title} opacity={this.handleLineState(column.display_title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :null
             }).filter(el => !!el);
         }
     }
@@ -145,7 +145,7 @@ export default class Overlay extends React.Component {
 
     handleColumn = (ev) => {
         let isValue = this.props.tools.map(tool => {
-            return (tool.columns.findIndex(value => value.title+value.unit === ev.target.value) >= 0)}).findIndex(value => value === true) >= 0;
+            return (tool.columns.findIndex(value => value.display_title === ev.target.value) >= 0)}).findIndex(value => value === true) >= 0;
         this.setState({selection: ev.target.value, isValue: isValue });  
     }
     toggleQuantile = () => {
@@ -174,7 +174,7 @@ export default class Overlay extends React.Component {
     handlyType = () => {
         const { selection } = this.state;
         if (this.state.isValue) {
-            const index = this.possibleValues.findIndex(value => value.title+value.unit === selection);
+            const index = this.possibleValues.findIndex(value => value.display_title === selection);
             if((this.possibleValues[index].type && this.possibleValues[index].type.name==="text") || (this.possibleValues[index].type && this.possibleValues[index].type.name==="main_status")) {
                 return 'ordinal'
             } else return this.state.linear ? 'linear': 'log'
@@ -207,9 +207,7 @@ export default class Overlay extends React.Component {
                         items={this.renderLegend()} 
                         onItemClick={(Object, item) => {
                             let line = '';
-                            // const objTool = Object.toString().split('(')[0].concat(Object.toString().split('(')[1].split(')')[0])
-                            // console.log('Object: ', this.state.isInvisible)
-                            this.state.isValue ? line = Object.toString() : line = Object.toString().split(' ')[0]+(Object.toString().split('(')[1].split(')')[0]);
+                            line = Object.toString();
                             if (this.state.isInvisible.indexOf(line) < 0) {
                                 this.setState({
                                     isInvisible: this.state.isInvisible.concat([line])
