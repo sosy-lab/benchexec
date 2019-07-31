@@ -70,12 +70,12 @@ export default class Overlay extends React.Component {
             if(this.state.correct) {
                 runSets.forEach(runSet => {
                     if(runSet.results[tool].category === "correct") {
-                        arrayY.push([+this.props.preparePlotValues(runSet.results[tool].values[index], tool, +index), runSet.short_filename]);
+                        arrayY.push([runSet.results[tool].values[index].original, runSet.short_filename]);
                     } 
                 });
             } else {
                 runSets.forEach(runSet => {
-                    arrayY.push([+this.props.preparePlotValues(runSet.results[tool].values[index], tool, +index), runSet.short_filename]);
+                    arrayY.push([runSet.results[tool].values[index].original, runSet.short_filename]);
                 });
             }
             if(this.state.quantile) {
@@ -83,7 +83,7 @@ export default class Overlay extends React.Component {
                 if(this.state.isValue && (currentValue.type.name==="text" || currentValue.type.name==="main_status")) {
                     arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
                 } else {
-                    arrayY.sort((a, b) => (a[0] - b[0]));
+                    arrayY.sort((a, b) => (+(a[0]) - +(b[0])));
                 }
             }
         }
@@ -94,8 +94,8 @@ export default class Overlay extends React.Component {
 
             if(value !== null && !isLogAndInvalid) {
                 data.push({
-                    x: i,
-                    y: value,
+                    x: i+1,
+                    y: this.handlyType() === 'ordinal' ? value : +value,
                     info: el[1]
                 });
             }
