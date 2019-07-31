@@ -27,8 +27,9 @@ export default class Summary extends React.Component {
             
             return tool.columns.map((column, i) => {
                 
+                console.log(`${j}_${column.display_title}_${i}`)
                 return {
-                    id: column.display_title+j,
+                    id: `${j}_${column.display_title}_${i}`,
                     Header: () => (
                         <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.display_title}</div>
                         ),

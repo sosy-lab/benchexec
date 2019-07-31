@@ -42,7 +42,7 @@ export default class Table extends React.Component {
             return tool.columns.map((column, i) => {
                 if(column.type.name === "main_status" || column.type.name === "status") {
                     return {
-                        id: column.display_title+j,
+                        id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
                             <span title="Click here to sort. Hold shift to multi-sort">{column.display_title}</span>
                         ),
@@ -117,7 +117,7 @@ export default class Table extends React.Component {
                     }
                 } else { 
                     return {
-                        id: column.display_title+j,
+                        id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
                             <div title="Click here to sort. Hold shift to multi-sort"> {column.display_title} </div>
                         ),
