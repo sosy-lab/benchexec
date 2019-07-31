@@ -60,7 +60,7 @@ export default class Summary extends React.Component {
     }
     renderOptions = (text) => {
         return text.split('-').map(option => {
-            return <li key={option}>{option}</li>
+            return <li key={option}><code>{`-${option}`}</code></li>
         })
     }
 
