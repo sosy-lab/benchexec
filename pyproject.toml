@@ -1,2 +1,3 @@
 [tool.black]
 include = 'bin|\.py$'
+exclude = 'node_modules'

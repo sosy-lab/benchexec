@@ -66,7 +66,9 @@ LIB_URL = "https://cdn.jsdelivr.net"
 LIB_URL_OFFLINE = "lib/javascript"
 
 
-REACT_FILE_NAME = os.path.join(os.path.dirname(__file__), "react-table/build/static/bundle.min.{format}")
+REACT_FILE_NAME = os.path.join(
+    os.path.dirname(__file__), "react-table/build/static/bundle.min.{format}"
+)
 
 TEMPLATE_NAME = "template"
 TEMPLATE_NAME_REACT = "template_react"
@@ -1829,11 +1831,15 @@ def create_tables(
     template_values.version = __version__
 
     # prepare data for js react application---------------------------------------------------------
-    if(options.template_name == TEMPLATE_NAME_REACT):
+    if options.template_name == TEMPLATE_NAME_REACT:
         logging.info("Create react template...")
         # template_values.head = <see above>
-        template_values.tools = Util.prepare_run_sets_for_js(template_values.run_sets, template_values.columns)
-        template_values.rows = Util.prepare_rows_for_js(rows, template_values.tools, outputPath, template_values.href_base)
+        template_values.tools = Util.prepare_run_sets_for_js(
+            template_values.run_sets, template_values.columns
+        )
+        template_values.rows = Util.prepare_rows_for_js(
+            rows, template_values.tools, outputPath, template_values.href_base
+        )
 
         template_values.app_css = Util.read_frontend_asset(REACT_FILE_NAME, "css")
         template_values.app_js = Util.read_frontend_asset(REACT_FILE_NAME, "js")
@@ -1851,8 +1857,10 @@ def create_tables(
             stats = stats_columns = None
 
         # prepare data for js react application (stats)---------------------------------------------------------
-        if(options.template_name == TEMPLATE_NAME_REACT):
-            template_values.stats = Util.prepare_stats_for_js(stats, template_values.tools)
+        if options.template_name == TEMPLATE_NAME_REACT:
+            template_values.stats = Util.prepare_stats_for_js(
+                stats, template_values.tools
+            )
         # prepare data for js react application (stats)---------------------------------------------------------
 
         for template_format in options.format or TEMPLATE_FORMATS:
@@ -1884,7 +1892,9 @@ def create_tables(
                     outfile,
                     this_template_values,
                     options.show_table and template_format == "html",
-                    options.template_name if template_format == "html" else TEMPLATE_NAME,
+                    options.template_name
+                    if template_format == "html"
+                    else TEMPLATE_NAME,
                 )
             )
 
@@ -1903,10 +1913,14 @@ def create_tables(
     return futures
 
 
-def write_table_in_format(template_format, outfile, template_values, show_table, template_name):
+def write_table_in_format(
+    template_format, outfile, template_values, show_table, template_name
+):
     # read template
     Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
-    template_file = TEMPLATE_FILE_NAME.format(template=template_name,format=template_format)
+    template_file = TEMPLATE_FILE_NAME.format(
+        template=template_name, format=template_format
+    )
     try:
         template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
     except NameError:
