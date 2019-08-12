@@ -109,6 +109,7 @@ def execute_benchmark(benchmark, output_handler):
             benchmark.config.coreset,
         )
         pqos.allocate_l3ca(coreAssignment)
+        pqos.start_monitoring(coreAssignment)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
         cpu_packages = {
             get_cpu_package_for_core(core)
@@ -230,6 +231,7 @@ def execute_benchmark(benchmark, output_handler):
             "System has swapped during benchmarking. "
             "Benchmark results are unreliable!"
         )
+    pqos.stop_monitoring()
     pqos.reset_resources()
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 

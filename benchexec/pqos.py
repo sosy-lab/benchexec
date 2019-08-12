@@ -25,7 +25,8 @@ import os
 import logging
 import json
 import grp
-from subprocess import check_output, CalledProcessError, STDOUT
+from signal import SIGINT
+from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
 from benchexec.util import find_executable, get_capability, check_msr
 
 
@@ -40,6 +41,7 @@ class Pqos(object):
     def __init__(self):
         self.reset_required = False
         self.cli_exists = False
+        self.mon_process = None
         self.executable_path = find_executable(
             "pqos_wrapper", exitOnError=False, use_current_dir=False
         )
@@ -50,22 +52,26 @@ class Pqos(object):
                 "Could not set cache allocation, unable to find pqos_wrapper cli"
             )
 
-    def execute_command(self, function, suppress_warning, *args):
+    def execute_command(self, __type, function, suppress_warning, *args):
         """
             Execute a given pqos_wrapper command and log the output
 
+                @__type: The type of command being executed (monitoring or l3ca)
                 @function_name: The name of the function being executed in pqos_wrapper
                 @suppress_warning: A boolean to decide wether to print warning on failing execution
         """
         if self.cli_exists:
             args_list = [self.CMD] + list(args)
             try:
-                ret = json.loads(check_output(args_list, stderr=STDOUT).decode())
-                logging.debug(ret[function]["message"])
+                if "-m" in args_list:
+                    self.mon_process = Popen(args_list, stdout=PIPE, stderr=PIPE)
+                else:
+                    ret = json.loads(check_output(args_list, stderr=STDOUT).decode())
+                    logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
                 if not suppress_warning:
-                    self.print_error_message(e.output.decode(), "l3ca", args_list)
+                    self.print_error_message(e.output.decode(), __type, args_list)
         return False
 
     def print_error_message(self, err, __type, args_list):
@@ -97,7 +103,9 @@ class Pqos(object):
 
                 @technology: The intel rdt to be tested 
         """
-        return self.execute_command("check_capability", False, "-c", technology)
+        return self.execute_command(
+            technology, "check_capability", False, "-c", technology
+        )
 
     def convert_core_list(self, core_assignment):
         """
@@ -120,18 +128,50 @@ class Pqos(object):
         if self.check_capacity("l3ca"):
             core_string = self.convert_core_list(core_assignment)
             if self.execute_command(
-                "allocate_resource", False, "-a", "l3ca", core_string
+                "l3ca", "allocate_resource", False, "-a", "l3ca", core_string
             ):
                 self.reset_required = True
             else:
                 self.reset_resources()
+
+    def start_monitoring(self, core_assignment):
+        """
+            This method checks if monitoring capability is available and calls pqos_wrapper to
+            monitor events on given lists of cores.
+
+                @core_assignment: The list of cores assigned to each run
+        """
+        if self.check_capacity("mon"):
+            core_string = self.convert_core_list(core_assignment)
+            self.execute_command("mon", "monitor_events", False, "-m", core_string)
+
+    def stop_monitoring(self):
+        """
+            This method stops monitoring by sending SIGINT to the monitoring process
+            and resets all the RMID to 0 
+        """
+        if self.mon_process:
+            self.mon_process.send_signal(SIGINT)
+            mon_output = self.mon_process.communicate()
+            if self.mon_process.returncode == 0:
+                mon_data = json.loads(mon_output[0].decode())
+                logging.debug(mon_data["monitor_events"]["message"])
+                logging.debug(mon_data["monitor_events"]["function_output"])
+            else:
+                self.print_error_message(
+                    mon_output[1].decode(), "mon", self.mon_process.args
+                )
+            self.execute_command("mon", "reset_monitoring", True, "-rm")
+            self.mon_process = None
+        else:
+            logging.warning("No monitoring process started")
 
     def reset_resources(self):
         """
             This method resets all resources to default.
         """
         if self.reset_required:
-            self.execute_command("reset_resources", True, "-r")
+            self.execute_command("l3ca", "reset_resources", True, "-r")
             self.reset_required = False
 
     def check_for_errors(self):
