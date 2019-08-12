@@ -39,7 +39,6 @@ class Pqos(object):
 
     def __init__(self):
         self.reset_required = False
-        self.cap = False
         self.cli_exists = False
         self.executable_path = find_executable(
             "pqos_wrapper", exitOnError=False, use_current_dir=False
@@ -54,6 +53,9 @@ class Pqos(object):
     def execute_command(self, function, suppress_warning, *args):
         """
             Execute a given pqos_wrapper command and log the output
+
+                @function_name: The name of the function being executed in pqos_wrapper
+                @suppress_warning: A boolean to decide wether to print warning on failing execution
         """
         if self.cli_exists:
             args_list = [self.CMD] + list(args)
@@ -62,32 +64,46 @@ class Pqos(object):
                 logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
-                try:
-                    ret = json.loads(e.output.decode())
-                    if not suppress_warning:
-                        logging.warning(
-                            "Could not set cache allocation...{}".format(ret["message"])
-                        )
-                        self.check_for_errors()
-                except ValueError:
-                    if not suppress_warning:
-                        logging.warning(
-                            "Could not set cache allocation...Unable to execute command {}".format(
-                                " ".join(args_list)
-                            )
-                        )
+                if not suppress_warning:
+                    self.print_error_message(e.output.decode(), "l3ca", args_list)
         return False
+
+    def print_error_message(self, err, __type, args_list):
+        """
+            Prints error message returned from pqos_wrapper
+
+                @err: The error output returned by pqos_wrapper
+                @__type: The type of command being executed (monitoring or l3ca)
+                @args_list: The command being executed as a list 
+        """
+        msg_prefix = {
+            "mon": "Could not monitor events",
+            "l3ca": "Could not set cache allocation",
+        }
+        try:
+            ret = json.loads(err)
+            logging.warning("{0}...{1}".format(msg_prefix[__type], ret["message"]))
+            self.check_for_errors()
+        except ValueError:
+            logging.warning(
+                "{0}...Unable to execute command {1}".format(
+                    msg_prefix[__type], " ".join(args_list)
+                )
+            )
 
     def check_capacity(self, technology):
         """
             Check if given intel rdt is supported.
+
+                @technology: The intel rdt to be tested 
         """
-        if self.execute_command("check_capability", False, "-c", technology):
-            self.cap = True
+        return self.execute_command("check_capability", False, "-c", technology)
 
     def convert_core_list(self, core_assignment):
         """
             Convert a double list to a string.
+
+                @core_assignment: The double list of cores
         """
         ret = []
         for benchmark in core_assignment:
@@ -98,9 +114,10 @@ class Pqos(object):
         """
             This method checks if L3CAT is available and calls pqos_wrapper to
             allocate equal cache to each thread.
+
+                @core_assignment: The list of cores assigned to each run
         """
-        self.check_capacity("l3ca")
-        if self.cap:
+        if self.check_capacity("l3ca"):
             core_string = self.convert_core_list(core_assignment)
             if self.execute_command(
                 "allocate_resource", False, "-a", "l3ca", core_string
