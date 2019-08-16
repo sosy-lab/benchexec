@@ -17,7 +17,6 @@ and print resource measurements to stdout. Example:
     $ runexec echo Test
     2015-03-06 12:54:01,707 - INFO - Starting command echo Test
     2015-03-06 12:54:01,708 - INFO - Writing output to output.log
-    exitcode=0
     returnvalue=0
     walltime=0.0024175643920898438s
     cputime=0.001671s
@@ -46,8 +45,6 @@ and can be seen in the directories `/sys/devices/system/cpu` and `/sys/devices/s
 Additional parameters allow to change the name of the output file and the working directory.
 The full set of available parameters can be seen with `runexec -h`.
 For explanation of the parameters for containers, please see [container mode](container.md).
-For executing benchmarks under a different user account with the parameter `--user`,
-please check the [respective documentation](separate-user.md).
 Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
@@ -79,10 +76,30 @@ Further parameters for `execute_run` can be used to specify resource limits
 The result is a dictionary with the same information about the run
 that is printed to stdout by the `runexec` command-line tool (cf. [Run Results](run-results.md)).
 
+If `RunExecutor` is used on the main thread,
+caution must be taken to avoid `KeyboardInterrupt`, e.g., like this:
+
+```python
+import signal
+from benchexec.runexecutor import RunExecutor
+executor = RunExecutor()
+
+def stop_run(signum, frame):
+  executor.stop()
+
+signal.signal(signal.SIGINT, stop_run)
+
+result = executor.execute_run(args=[<TOOL_CMD>], ...)
+```
+
 ## Python 2 Compatibility
 
-While BenchExec in general requires at least Python 3.2,
+While BenchExec in general requires at least Python 3.4,
 `runexec` should also work with Python 2.7,
 both when run as a stand-alone tool and when used as a Python module.
 This is also true for the `benchexc.check_cgroups` command
 that can be used to verify the [cgroups setup](INSTALL.md#setting-up-cgroups).
+
+*Compatibility with Python 2 will be removed in BenchExec 3.0 in January 2020.*
+Please add a comment to [#438](https://github.com/sosy-lab/benchexec/issues/438)
+if this is a problem for you.

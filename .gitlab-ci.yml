@@ -3,32 +3,31 @@
 # gitlab-runner exec docker --docker-privileged --docker-volumes /sys/fs/cgroup:/sys/fs/cgroup:rw --env CI_REGISTRY_IMAGE=registry.gitlab.com/sosy-lab/software/benchexec <<JOB_NAME>>
 
 variables:
-  # We use two user accounts, one executes runexec as the other via sudo
   PRIMARY_USER: benchexec
-  SECONDARY_USER: benchmarks
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
-before_script:
-  # Create users and give sudo permission
-  - adduser --disabled-login --gecos "" $PRIMARY_USER
-  - adduser --disabled-login --gecos "" $SECONDARY_USER
-  - 'echo "$PRIMARY_USER ALL=($SECONDARY_USER) NOPASSWD: ALL" >> /etc/sudoers'
-  # Activate coverage for subprocesses
-  - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
-  # Give $PRIMARY_USER permission to create cgroups
-  - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
-  - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-  # Install BenchExec
-  - sudo -u $PRIMARY_USER pip install --user .
-  # Start lxcfs
-  - lxcfs /var/lib/lxcfs &
+stages:
+  - images
+  - test
+  - deploy
 
 .unit-tests: &unit-tests
   stage: test
+  before_script:
+    # Create user, we do not want to test as root
+    - adduser --disabled-login --gecos "" $PRIMARY_USER
+    # Activate coverage for subprocesses
+    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
+    # Give $PRIMARY_USER permission to create cgroups
+    - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
+    - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+    # Install BenchExec
+    - sudo -u $PRIMARY_USER pip install --user .
+    # Start lxcfs
+    - lxcfs /var/lib/lxcfs &
   script:
     - sudo -u $PRIMARY_USER
-        BENCHEXEC_TEST_USER=$SECONDARY_USER
         COVERAGE_PROCESS_START=.coveragerc
         coverage run setup.py test
   after_script:
@@ -45,11 +44,6 @@ unit-tests:python-2.7:
   <<: *unit-tests
   variables:
     PYTHON_VERSION: '2.7'
-
-unit-tests:python-3.2:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.2'
 
 unit-tests:python-3.4:
   <<: *unit-tests
@@ -106,3 +100,49 @@ flake8:
   script:
     - flake8
   allow_failure: true # need to fix existing code first
+
+
+# Build Docker images
+# following this guideline: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+.build-docker:
+  stage: images
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /root/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --dockerfile $CI_PROJECT_DIR/$DOCKERFILE --destination $CI_REGISTRY_IMAGE/$IMAGE
+  only:
+    - schedules
+    - web
+
+build-docker:test:python-2.7:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-2.7
+    IMAGE: test:python-2.7
+
+build-docker:test:python-3.4:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.4
+    IMAGE: test:python-3.4
+
+build-docker:test:python-3.5:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.5
+    IMAGE: test:python-3.5
+
+build-docker:test:python-3.6:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.6
+    IMAGE: test:python-3.6
+
+build-docker:test:python-3.7:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.7
+    IMAGE: test:python-3.7

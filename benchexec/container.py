@@ -30,6 +30,7 @@ import errno
 import fcntl
 import logging
 import os
+import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import signal
 import socket
 import struct
@@ -61,7 +62,7 @@ __all__ = [
 
 
 DEFAULT_STACK_SIZE = 1024 * 1024
-GUARD_PAGE_SIZE = 4096  # size of guard page at end of stack
+GUARD_PAGE_SIZE = libc.sysconf(libc.SC_PAGESIZE)  # size of guard page at end of stack
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
@@ -126,6 +127,21 @@ DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 
 LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
 
+# Python before 3.7 does not have BeforeFork and AfterFork_(Child|Parent)
+if not hasattr(ctypes.pythonapi, "PyOS_BeforeFork"):
+    ctypes.pythonapi.PyOS_BeforeFork = lambda: None
+if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Parent"):
+    ctypes.pythonapi.PyOS_AfterFork_Parent = lambda: None
+if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
+    ctypes.pythonapi.PyOS_AfterFork_Child = ctypes.pythonapi.PyOS_AfterFork
+
+_CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
+"""Type for callback of execute_in_namespace, nested in our primary callback."""
+
+# TODO Use named fields on Python 3
+NATIVE_CLONE_CALLBACK_SUPPORTED = os.uname()[0] == "Linux" and os.uname()[4] == "x86_64"
+"""Whether we use generated native code for clone or an unsafe Python fallback"""
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):
@@ -134,13 +150,10 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     """
     # Allocate memory with appropriate flags for a stack as in
     # https://blog.fefe.de/?ts=a85c8ba7
-    base = libc.mmap(
-        None,
+    base = libc.mmap_anonymous(
         size + GUARD_PAGE_SIZE,
         libc.PROT_READ | libc.PROT_WRITE,
-        libc.MAP_PRIVATE | libc.MAP_ANONYMOUS | libc.MAP_GROWSDOWN | libc.MAP_STACK,
-        -1,
-        0,
+        libc.MAP_GROWSDOWN | libc.MAP_STACK,
     )
 
     try:
@@ -170,30 +183,159 @@ def execute_in_namespace(func, use_network_ns=True):
     if use_network_ns:
         flags |= libc.CLONE_NEWNET
 
-    # We use the syscall clone() here, which is similar to fork().
-    # Calling it without letting Python know about it is dangerous (especially because
-    # we want to execute Python code in the child, too), but so far it seems to work.
-    # Basically we attempt to do (almost) the same that os.fork() does (cf. os_fork_impl
+    # We need to use the syscall clone(), which is similar to fork(), but not available
+    # in the Python API. We can call it directly using ctypes, but then the state of the
+    # Python interpreter is inconsistent, so we need to fix that. Python >= 3.7 has
+    # three C functions that should be called before and after fork/clone:
+    # https://docs.python.org/3/c-api/sys.html#c.PyOS_BeforeFork
+    # This is the same that os.fork() does (cf. os_fork_impl
     # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
-    # We currently do not take the import lock os.lock() does because it is only
-    # available via an internal API, and because the child should never import anything
-    # anyway (inside the container, modules might not be visible).
-    # It is very important, however, that we have the GIL during clone(),
+    # Furthermore, it is very important that we have the GIL during clone(),
     # otherwise the child will often deadlock when trying to execute Python code.
     # Luckily, the ctypes module allows us to hold the GIL while executing the
     # function by using ctypes.PyDLL as library access instead of ctypes.CLL.
 
-    def child_func():
-        # This is necessary for correcting the Python interpreter state after a
-        # fork-like operation. For example, it resets the GIL and fixes state of
-        # several modules like threading and signal.
-        ctypes.pythonapi.PyOS_AfterFork()
+    # Two difficulties remain:
+    # 1. On Python < 3.7, only PyOS_AfterFork() (to be called in the child) exists.
+    # Other cleanup done by os_fork_impl is not accessible to us, so we ignore it.
+    # For example, we do not take the import lock because it is only
+    # available via an internal API, and because the child should never import anything
+    # anyway (inside the container, modules might not be visible).
 
-        return func()
+    # 2. On all Python versions, the interpreter state in the child is inconsistent
+    # until PyOS_AfterFork_Child() is called. However, if we pass the Python function
+    # _python_clone_child_callback() as callback to clone and do the cleanup in
+    # its first line, it is too late because the Python interpreter is already used.
+    # This actually causes problems if benchexec is executed with a high number of
+    # parallel runs because of thread contention, the gil_drop_request and a deadlock
+    # in drop_gil (cf. https://github.com/sosy-lab/benchexec/issues/435).
+    # So we should avoid executing Python code at all before PyOS_AfterFork_Child().
+    # We do not want to take the hassle of shipping C code with BenchExec, so we use
+    # _generate_native_clone_child_callback() to generate machine code on the fly
+    # as replacement for _python_clone_child_callback(). This works for x86_64 Linux
+    # and we expect practically all BenchExec users to fall in this category. For others
+    # there is still the pure Python callback, which in practice works totally fine as
+    # long as there does not exist a huge number of threads.
+    # There is a workaround using sys.setswitchinterval(), however, it is too late to
+    # apply it here in this function, because gil_drop_request could already be set.
+    # Summary:
+    # - For Linux x86_64 we use native code from _generate_native_clone_child_callback()
+    # - Otherwise, we use sys.setswitchinterval() as workaround in localexecution.py.
+    # - Direct users of ContainerExecutor are fine in practice if they use few threads.
+
+    func_p = _CLONE_NESTED_CALLBACK(func)  # store in variable to avoid GC
 
     with allocate_stack() as stack:
-        pid = libc.clone(ctypes.CFUNCTYPE(ctypes.c_int)(child_func), stack, flags, None)
+        try:
+            ctypes.pythonapi.PyOS_BeforeFork()
+            pid = libc.clone(_clone_child_callback, stack, flags, func_p)
+        finally:
+            ctypes.pythonapi.PyOS_AfterFork_Parent()
     return pid
+
+
+@libc.CLONE_CALLBACK
+def _python_clone_child_callback(func_p):
+    """Used as callback for clone, calls the passed function pointer."""
+    # Strictly speaking, PyOS_AfterFork_Child should be called immediately after
+    # clone calls our callback before executing any Python code because the
+    # interpreter state is inconsistent, but here we are already in the Python
+    # world, so it could be too late. For more information cf. execute_in_namespace()
+    # and https://github.com/sosy-lab/benchexec/issues/435.
+    # Thus we use this function only as fallback of architectures where we have no
+    # native callback. For benchexec we combine it with the sys.setswitchinterval()
+    # workaround in localexecution.py. Other users of ContainerExecutor should be safe
+    # as long as they do not use many threads. We cannot do anything before cloning
+    # because it might be too late anyway (gil_drop_request could be set already).
+    ctypes.pythonapi.PyOS_AfterFork_Child()
+
+    return _CLONE_NESTED_CALLBACK(func_p)()
+
+
+def _generate_native_clone_child_callback():
+    """Generate Linux x86_64 machine code
+    that does the same as _python_clone_child_callback"""
+    # Inspired by https://csl.name/post/python-jit/
+
+    # Allocate one page of memory where we put the code
+    page_size = libc.sysconf(libc.SC_PAGESIZE)
+    mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
+
+    # Get address of PyOS_AfterFork_Child that we want to call
+    # On Python 3 we could use to_bytes() instead of struct.pack
+    afterfork_address = struct.pack(
+        "Q", ctypes.cast(ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p).value
+    )
+
+    # Generate machine code that does the same as _python_clone_child_callback
+    # We use this C code as template (with dummy address for PyOS_AfterFork_Child):
+    """
+    int clone_child_callback(int (*func_p)()) {
+      void (*PyOS_AfterFork_Child)() = (void*)0xffeeddccbbaa9988;
+      PyOS_AfterFork_Child();
+      return func_p();
+    }
+    """
+    # We compile this code and disassemble it with
+    """
+    gcc -Os -fPIC -shared -fomit-frame-pointer -march=native clone_child_callback.c \
+        -o clone_child_callback.o
+    objdump -d --disassembler-options=suffix clone_child_callback.o
+    """
+    # This gives the following code (machine code left, assembler right):
+    #
+    # <clone_child_callback>:
+    # Store address in rdx:
+    #     48 ba 88 99 aa bb cc    movabsq $0xffeeddccbbaa9988,%rdx
+    #     dd ee ff
+    # Allocate space on stack:
+    #     48 83 ec 18             subq   $0x18,%rsp
+    # Clear eax:
+    #     31 c0                   xorl   %eax,%eax
+    # Copy rdi (value of parameter func_p) to stack:
+    #     48 89 7c 24 08          movq   %rdi,0x8(%rsp)
+    # Call rdx (where address is stored):
+    #     ff d2                   callq  *%rdx
+    # Copy stack value func_p back to rdi:
+    #     48 8b 7c 24 08          movq   0x8(%rsp),%rdi
+    # Clear eax:
+    #     31 c0                   xorl   %eax,%eax
+    # Deallocate space on stack:
+    #     48 83 c4 18             addq   $0x18,%rsp
+    # Call function pointer in rdi (func_p) as tail call:
+    #     ff e7                   jmpq   *%rdi
+    #
+    # The following creates exactly the same machine code, just with the real address:
+    movabsq_address_rdx = b"\x48\xba" + afterfork_address
+    subq_0x18_rsp = b"\x48\x83\xec\x18"
+    xorl_eax_eax = b"\x32\xc0"
+    movq_rdi_stack = b"\x48\x89\x7c\x24\x08"
+    callq_rdx = b"\xff\xd2"
+    movq_stack_rdi = b"\x48\x8b\x7c\x24\x08"
+    addq_0x18_rsp = b"\x48\x83\xc4\x18"
+    jmpq_rdi = b"\xff\xe7"
+    code = (
+        movabsq_address_rdx
+        + subq_0x18_rsp
+        + xorl_eax_eax
+        + movq_rdi_stack
+        + callq_rdx
+        + movq_stack_rdi
+        + xorl_eax_eax
+        + addq_0x18_rsp
+        + jmpq_rdi
+    )
+    ctypes.memmove(mem, code, len(code))
+
+    # Make code executable
+    libc.mprotect(mem, page_size, libc.PROT_READ | libc.PROT_EXEC)
+    return libc.CLONE_CALLBACK(mem)
+
+
+if NATIVE_CLONE_CALLBACK_SUPPORTED:
+    _clone_child_callback = _generate_native_clone_child_callback()
+else:
+    _clone_child_callback = _python_clone_child_callback
 
 
 def setup_user_mapping(
@@ -590,6 +732,26 @@ def make_bind_mount(source, target, recursive=False, private=False, read_only=Fa
     libc.mount(source, target, None, flags, None)
 
 
+def chroot(target):
+    """
+    Chroot into a target directory. This also affects the working directory, make sure
+    to call os.chdir() afterwards.
+    """
+    # We need to use pivot_root and not only chroot, and for this we need a place below
+    # target where to move the old root directory.
+    # Explanation: https://unix.stackexchange.com/a/456777/15398
+    old_root = b"/proc"  # Does not matter, just needs to exist.
+    # These three steps together are the recommended sequence for calling pivot_root
+    # (http://man7.org/linux/man-pages/man8/pivot_root.8.html)
+    os.chdir(target)
+    libc.pivot_root(target, target + old_root)
+    os.chroot(".")
+    # Now the container file system is at /,
+    # and the outer file system is visible at old_root in the container.
+    # We can just unmount old_root and finally make it inaccessible from container.
+    libc.umount2(old_root, libc.MNT_DETACH)
+
+
 def get_my_pid_from_procfs():
     """
     Get the PID of this process by reading from /proc (this is the PID of this process
@@ -711,12 +873,16 @@ def close_open_fds(keep_files=[]):
                 pass
 
 
-def setup_container_system_config(basedir, mountdir=None):
+def setup_container_system_config(basedir, mountdir, dir_modes):
     """Create a minimal system configuration for use in a container.
     @param basedir: The directory where the configuration files should be placed (bytes)
-    @param mountdir: If present, bind mounts to the configuration files will be added
-       below this path (given as bytes).
+    @param mountdir: The base directory of the mount hierarchy in the container (bytes).
+    @param dir_modes: All directory modes in the container.
     """
+    # If overlayfs is not used for /etc, we need additional bind mounts
+    # for files in /etc that we want to override, like /etc/passwd
+    symlinks_required = determine_directory_mode(dir_modes, b"/etc") != DIR_OVERLAY
+
     etc = os.path.join(basedir, b"etc")
     if not os.path.exists(etc):
         os.mkdir(etc)
@@ -724,7 +890,7 @@ def setup_container_system_config(basedir, mountdir=None):
     for file, content in CONTAINER_ETC_FILE_OVERRIDE.items():
         # Create "basedir/etc/file"
         util.write_file(content, etc, file)
-        if mountdir:
+        if symlinks_required:
             # Create bind mount to "mountdir/etc/file"
             make_bind_mount(
                 os.path.join(etc, file),
@@ -735,6 +901,15 @@ def setup_container_system_config(basedir, mountdir=None):
     os.symlink(b"/proc/self/mounts", os.path.join(etc, b"mtab"))
     # Bind bounds for symlinks are not possible, so do nothing for "mountdir/etc/mtab".
     # This is not a problem because most systems have the correct symlink anyway.
+
+    if not os.path.isdir(mountdir.decode() + CONTAINER_HOME):
+        logging.warning(
+            "Home directory in container should be %(h)s but this directory "
+            "cannot be created due to directory mode of parent directory. "
+            "It is recommended to use '--overlay-dir %(p)s' or '--hidden-dir %(p)s' "
+            "and overwrite directory modes for subdirectories where necessary.",
+            {"h": CONTAINER_HOME, "p": os.path.dirname(CONTAINER_HOME)},
+        )
 
 
 def is_container_system_config_file(file):

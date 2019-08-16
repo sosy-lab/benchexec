@@ -75,10 +75,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     @functools.lru_cache()
     def executable(self):
-        exec = util.find_executable("Ultimate.py")
-        for (dirpath, dirnames, filenames) in os.walk(exec):
+        exe = util.find_executable("Ultimate.py")
+        for (dirpath, dirnames, filenames) in os.walk(exe):
             if "Ultimate" in filenames and "plugins" in dirnames:
-                return exec
+                return exe
             break
         # possibly another Ultimate.py was found, check in the current dir
         current = os.getcwd()
@@ -93,7 +93,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
         sys.exit(
             "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
-                str(exec), str(current)
+                str(exe), str(current)
             )
         )
 
@@ -134,34 +134,33 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
-                "Cannot run Java to determine Ultimate version (API {0}): {1}".format(
-                    api, e.strerror
-                )
+                "Cannot run Java to determine Ultimate version (API %s): %s",
+                api,
+                e.strerror,
             )
             return ""
-        if stderr:
+        stdout = util.decode_to_string(stdout).strip()
+        if stderr or process.returncode:
             logging.warning(
-                "Cannot determine Ultimate version (API {0}). Error output: {1}".format(
-                    api, util.decode_to_string(stderr)
-                )
-            )
-            return ""
-        if process.returncode:
-            logging.warning(
-                "Cannot determine Ultimate version (API {0}). Exit code : {1}\nCommand was {2}".format(
-                    api, process.returncode, " ".join(cmd)
-                )
+                "Cannot determine Ultimate version (API %s).\n"
+                "Command was:     %s\n"
+                "Exit code:       %s\n"
+                "Error output:    %s\n"
+                "Standard output: %s",
+                api,
+                " ".join(map(util.escape_string_shell, cmd)),
+                process.returncode,
+                util.decode_to_string(stderr),
+                stdout,
             )
             return ""
 
-        version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(
-            util.decode_to_string(stdout)
-        )
+        version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(stdout)
         if not version_ultimate_match:
             logging.warning(
-                "Cannot determine Ultimate version, output (API {0}): {1}".format(
-                    api, util.decode_to_string(stdout)
-                )
+                "Cannot determine Ultimate version (API %s), output was: %s",
+                api,
+                stdout,
             )
             return ""
         return version_ultimate_match.group(1)

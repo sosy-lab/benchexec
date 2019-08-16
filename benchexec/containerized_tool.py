@@ -18,6 +18,7 @@
 
 import collections
 import contextlib
+import errno
 import functools
 import inspect
 import logging
@@ -25,9 +26,8 @@ import multiprocessing
 import os
 import signal
 import tempfile
-import sys
 
-from benchexec import container, containerexecutor, libc, util
+from benchexec import BenchExecException, container, containerexecutor, libc, util
 import benchexec.tools.template
 
 
@@ -97,28 +97,41 @@ for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunct
 def _init_worker_process():
     """Initial setup of worker process from multiprocessing module."""
 
-    def exit_handler(signum, frame):
-        sys.exit(0)
-
     # Need to reset signal handling because multiprocessing relies on SIGTERM
     # but benchexec adds a handler for it.
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
-    # If Ctrl+C is pressed, each process receives SIGNIT, which is translated into a
-    # KeyboardInterrupt exception. The multiprocessing code handles this by showing a
-    # stack trace, we want a silent exit instead.
-    signal.signal(signal.SIGINT, exit_handler)
+    # If Ctrl+C is pressed, each process receives SIGINT. We need to ignore it because
+    # concurrent worker threads of benchexec might still attempt to use the tool-info
+    # module until all of them are stopped, so this process must stay alive.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def _init_container_and_load_tool(
-    tool_module,
+def _init_container_and_load_tool(tool_module, *args, **kwargs):
+    """Initialize container for the current process and load given tool-info module."""
+    try:
+        _init_container(*args, **kwargs)
+    except EnvironmentError as e:
+        raise BenchExecException("Failed to configure container: " + str(e))
+    _load_tool(tool_module)
+
+
+def _init_container(
     temp_dir,
     network_access,
     dir_modes,
     container_system_config,
     container_tmpfs,  # ignored, tmpfs is always used
 ):
-    """Initialize container for the current process and load given tool-info module."""
+    """
+    Create a fork of this process in a container. This method only returns in the fork,
+    so calling it seems like moving the current process into a container.
+    """
+    # Prepare for private home directory, some tools write there
+    if container_system_config:
+        dir_modes.setdefault(container.CONTAINER_HOME, container.DIR_HIDDEN)
+        os.environ["HOME"] = container.CONTAINER_HOME
+
     # Preparations
     temp_dir = temp_dir.encode()
     dir_modes = collections.OrderedDict(
@@ -144,7 +157,22 @@ def _init_container_and_load_tool(
     )
     if not network_access:
         flags |= libc.CLONE_NEWNET
-    libc.unshare(flags)
+    try:
+        libc.unshare(flags)
+    except OSError as e:
+        if (
+            e.errno == errno.EPERM
+            and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone") == "0"
+        ):
+            return BenchExecException(
+                "Unprivileged user namespaces forbidden on this system, please "
+                "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                "or disable container mode"
+            )
+        else:
+            return BenchExecException(
+                "Creating namespace for container mode failed: " + os.strerror(e.errno)
+            )
 
     # Container config
     container.setup_user_mapping(os.getpid(), uid, gid)
@@ -172,6 +200,8 @@ def _init_container_and_load_tool(
     container.drop_capabilities()
     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
 
+
+def _load_tool(tool_module):
     logging.debug("Loading tool-info module %s in container", tool_module)
     global tool
     try:
@@ -208,14 +238,10 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
     make_tmpfs_dir(b"/run/shm")
 
     if container_system_config:
-        # If overlayfs is not used for /etc, we need additional bind mounts
-        # for files in /etc that we want to override, like /etc/passwd
-        etc_mode = container.determine_directory_mode(dir_modes, b"/etc")
-        config_mount_base = mount_base if etc_mode != container.DIR_OVERLAY else None
-        container.setup_container_system_config(temp_base, config_mount_base)
+        container.setup_container_system_config(temp_base, mount_base, dir_modes)
 
     cwd = os.getcwd()
-    os.chroot(mount_base)
+    container.chroot(mount_base)
     os.chdir(cwd)
 
 

@@ -5,20 +5,20 @@ Maintainer: Philipp Wendler <debian@philippwendler.de>
 Build-Depends: debhelper (>= 9),
                dh-python,
                dh-systemd (>= 1.5) | debhelper (>= 9.20160709),
-               python3 (>= 3.2),
+               python3 (>= 3.4),
                python3-setuptools,
                python3-lxml,
                python3-nose,
                python3-tempita
 Standards-Version: 3.9.6.1
-X-Python3-Version: >= 3.2
+X-Python3-Version: >= 3.4
 Homepage: https://github.com/sosy-lab/benchexec
 Vcs-Git: https://github.com/sosy-lab/benchexec.git
 Vcs-Browser: https://github.com/sosy-lab/benchexec
 
 Package: benchexec
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}
+Depends: ${python3:Depends}, python3-pkg-resources, ${misc:Depends}
 Recommends: cpu-energy-meter, lxcfs, python3-coloredlogs
 Description: Framework for Reliable Benchmarking and Resource Measurement
  BenchExec allows benchmarking non-interactive tools on Linux systems.

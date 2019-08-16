@@ -37,9 +37,8 @@ The meanings of the current possible result values are as follows:
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
-- **memory** (from `runexec`) / **memUsage** (from `benchexec`):
-    Peak memory consumption of run in bytes ([more information](resources.md#memory)).
-    In future versions this value will get the suffix "B", currently there is no suffix.
+- **memory** / **memUsage** (before BenchExec 2.0):
+    Peak memory consumption of run in bytes, as integer with suffix "B" ([more information](resources.md#memory)).
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
     This depends on the `blkio` cgroup and is still experimental.
     The value might not accurately represent disk I/O due to caches or if virtual block devices such as LVM, RAID, RAM disks etc. are used.
@@ -48,9 +47,6 @@ The meanings of the current possible result values are as follows:
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).
-- **exitcode**: A number indicating how the process exited,
-    as returned by the Python function [`os.wait`](https://docs.python.org/3/library/os.html#os.wait).
-    (**Deprecated**, use `returnvalue` and `exitsignal` instead.)
 
 
 In the result dictionary of a call to `RunExecutor.execute_run()`,
@@ -58,6 +54,8 @@ integer values are stored as `int`,
 decimal numbers as an instance of some arithmetic Python type,
 and other values as strings.
 More complex values are represented as a `dict`.
+Instead of `returnvalue` and `exitsignal`,
+an instance of `benchexec.util.ProcessExitCode` is returned in a field named `exitcode`.
 
 
 ### Additional Results of benchexec
@@ -91,20 +89,9 @@ and stored together with the result values that are determined by BenchExec.
 The content of these values can be arbitrary, but in most cases will be either a raw number,
 a number with a unit suffix, or plain text.
 
-Because the value for memory usage is named `memUsage` in `benchexec` result files
-only for backwards compatibility, we may change its name to `memory`
-in a future version (e.g., version 2.0) of BenchExec.
-Tools that read such files and want to be future-proof may use both names for value lookup.
-
 The `<column>` tags may have an attribute `hidden` set to `true`.
 This indicates values that are typically not primarily interesting for users,
 and tools for displaying such results may choose to hide such columns by default.
-
-If `benchexec` is interrupted during the execution,
-result values may also be the empty string instead of missing completely
-for runs that were not yet executed.
-However, this is not guaranteed and may change in the future
-such that the values would not be present at all in this case.
 
 `benchexec` also reports the CPU time and wall time that was used for executing all runs
 (as measured by the operating system, not as aggregation of the individual values).

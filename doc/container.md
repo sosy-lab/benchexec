@@ -1,31 +1,24 @@
 # BenchExec: Container Mode
 
-**Note**: Container mode is currently in **beta**!
-You are welcome to use it, but please note that future versions of BenchExec
-may change how the container mode works or how it is configured.
-If you use it, please tell us your experiences with it.
-
-Container mode is available since BenchExec 1.9,
-and BenchExec 2.0 will be the release where container mode is considered stable
-and enabled by default.
-Until then, it needs to be explicitly enabled with the flag `--container`
-for `benchexec` and `runexec`.
-The flag `--no-container` can always be given to explicitly disable container mode
-and the warning about it.
-There is now also an additional tool, `containerexec`,
-which is similar to `runexec` but provides only isolation of an application in a container,
-but no resource measurements and limitations.
-
 The container mode isolates the benchmarked process from other processes on the same system,
 in a similar way as for example Docker isolates applications
-(using operating-level system virtualization).
-This is recommended to improve reproducibility of results.
+(using namespaces for operating-level system virtualization).
+This improves reliability of benchmarking and reproducibility of results.
 Contrary to using a VM, the application is still executed with native performance,
 because it is run directly on the host kernel, without any additional layers.
 By using an overlay filesystem (if available), the benchmarked process can still read from the host filesystem,
 but not modify any files except where specifically allowed.
 You can read more about it in our paper
-[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+There is also an additional tool, `containerexec`,
+which is similar to `runexec` but provides only isolation of an application in a container,
+but no resource measurements and limitations.
+
+Container mode is available since BenchExec 1.9
+and enabled by default since BenchExec 2.0.
+It can be disabled with the flag `--no-container` in case of problems,
+but instead we recommend configuring and troubleshooting
+the container appropriately as described below.
 
 The features of container mode are:
 
@@ -44,36 +37,6 @@ The features of container mode are:
 Note that while BenchExec containers rely on the same kernel features as similar solutions,
 they are not meant as a secure solution for restricting potentially malicious applications.
 **Execution of untrusted applications in a BenchExec container is at your own risk.**
-
-
-## System Requirements
-
-Container mode uses two main kernel features:
-
-- **User Namespaces**: This is typically available in Linux 3.8 or newer,
-  and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
-  Debian and Arch Linux disable this feature for regular users,
-  so the system administrator needs to enable it
-  with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
-  in `/etc/sysctl.conf`.
-
-- **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
-  (kernel option `CONFIG_OVERLAY_FS`).
-  However, it seems that only Ubuntu allows regular users to create such mounts in a container.
-  Users of other distributions can still use container mode, but have to choose a different mode
-  of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
-  Alternatively, you could compile your own kernel and include [this patch](http://kernel.ubuntu.com/git/ubuntu/ubuntu-xenial.git/commit?id=0c29f9eb00d76a0a99804d97b9e6aba5d0bf19b3).
-  Note that creating overlays over NFS mounts is not stable at least until Linux 4.5,
-  thus it is recommended to specify a different directory mode for every NFS mount on the system.
-
-**Summary**: It is recommended to use Ubuntu since 15.04 (Vivid Vervet),
-or Ubuntu 14.04 LTS with a newer kernel from the official [LTS Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
-Be careful with overlays over NFS.
-Users of other distributions or older kernels need to avoid using overlay mounts.
-
-Apart from these kernel requirements,
-it is recommended to install [LXCFS](https://github.com/lxc/lxcfs),
-e.g., with `sudo apt install lxcfs`.
 
 
 ## Container Configuration
@@ -102,7 +65,7 @@ The respective mode can be specified with the command-line parameters
 `--hidden-dir`, `--read-only-dir`, `--overlay-dir`, and `--full-access-dir`.
 Directory modes are applied recursively,
 i.e., for all subdirectories which do not have a mode specified explicitly.
-For the overlay mode, please note the system requirements mentioned above.
+For the overlay mode, please note the [INSTALL.md#kernel-requirements](system requirements).
 
 The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
 i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,
@@ -209,22 +172,30 @@ and the result files are placed in a directory besides the result XML file.
 Note that for investigating container-related problems, it can be easier to start an interactive shell
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
+#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system, please enable them with 'sysctl kernel.unprivileged_userns_clone=1' or disable container mode.`
+Unprivileged user namespaces are forbidden on your system
+(this is the default on Debian and Arch Linux).
+Please check the [system requirements](INSTALL.md#kernel-requirements)
+how to enable them.
+
 #### `Cannot execute ...: Creating namespace for container mode failed`
-Probably your kernel does not support unprivileged user namespaces, please check the system requirements above.
-On some distributions your system administrator needs to to enable them for you.
+It seems your kernel does not support unprivileged user namespaces.
+Please check the [system requirements](INSTALL.md#kernel-requirements)
+and make sure that the kernel is compiled with `CONFIG_USER_NS`.
 Furthermore note that running BenchExec inside other container solutions
 such as Docker may or may not work depending on how the outer container
 is configured (for example for Docker, `--privileged` is necessary).
 You can still use BenchExec if you completely disable the container mode with `--no-container`.
 
 #### `Failed to configure container: [Errno 19] Creating overlay mount for '...' failed: No such device`
-Your kernel does not support the overlay filesystem, please check the system requirements above.
+Your kernel does not support the overlay filesystem,
+please check the [system requirements](INSTALL.md#kernel-requirements).
 You can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
 Your kernel does not allow mounting the overlay filesystem inside a container
-(this is apparently only possible on Ubuntu).
+(this is only possible on Ubuntu).
 You can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
@@ -241,7 +212,16 @@ Make sure that the executable exists and it is visible inside the container
 
 #### Problems when accessing files in container: process dies, `Operation not supported`, `No such device or address`
 These are symptoms that occur when an overlay is mounted over an NFS share
-with several versions of the Linux kernel, including at least kernel versions 4.2 to 4.5
+with several versions of the Linux kernel, including at least kernel versions up to 4.5
 ([bug report](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1566471)).
 If a kernel upgrade does not help, please use a different access mode for NFS-mounted directories,
 such as `--hidden-dir` or `--read-only-dir`.
+
+### BenchExec sometimes hangs if many parallel runs are executed
+This happens if we clone the Python process while it is in an inconsistent state.
+Make sure to use BenchExec 1.22 or newer,
+where [#435](https://github.com/sosy-lab/benchexec/issues/435) is fixed.
+If it still occurs, please attach to all child process of BenchExec
+with `sudo gdb -p <PID>`, get a stack trace with `bt`,
+and [report an issue](https://github.com/sosy-lab/benchexec/issues/new) with as much information as possible.
+BenchExec will usually be able to continue if the hanging child process is killed.

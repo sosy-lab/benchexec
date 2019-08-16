@@ -87,7 +87,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         output = self.run_cmd(
             *[tablegenerator] + list(args) + ["--outputpath", output_path or self.tmp]
         )
-        generated_files = set(os.path.join(self.tmp, x) for x in os.listdir(self.tmp))
+        generated_files = {os.path.join(self.tmp, x) for x in os.listdir(self.tmp)}
 
         csv_file = (
             os.path.join(self.tmp, table_prefix + ".csv") if "csv" in formats else None
@@ -398,28 +398,6 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ],
             table_prefix="integration-predicateAnalysis.2015-10-20_1355.all-columns",
             formats=["html"],
-        )
-
-    def test_single_table_validation_unconfirmed(self):
-        self.generate_tables_and_compare_content(
-            ["-x", os.path.join(here, "simple-table-with-validation-unconfirmed.xml")],
-            table_prefix="simple-table-with-validation-unconfirmed.table",
-        )
-
-    def test_single_table_validation_all_confirmed(self):
-        self.generate_tables_and_compare_content(
-            [
-                "-x",
-                os.path.join(here, "simple-table-with-validation-all-confirmed.xml"),
-            ],
-            table_prefix="simple-table-with-validation-all-confirmed.table",
-        )
-
-    def test_multi_table_validation(self):
-        self.generate_tables_and_compare_content(
-            ["-x", os.path.join(here, "multi-table-with-validation.xml")],
-            table_prefix="multi-table-with-validation.table",
-            diff_prefix="multi-table-with-validation.diff",
         )
 
     def test_dump_count_single_table(self):

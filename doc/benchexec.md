@@ -56,12 +56,18 @@ that will be expanded by BenchExec. The following variables are supported:
     ${logfile_path}         Directory where tool-output files will be stored
     ${logfile_path_abs}     Directory where tool-output files will be stored (absolute path)
     ${rundefinition_name}   Name of current run definition
+
+If task-definition files are used, the following variables are defined:
+
+    ${taskdef_name}       Name of current task-definition file (without path)
+    ${taskdef_path}       Directory of current task-definition file
+    ${taskdef_path_abs}   Directory of current task-definition file (absolute path)
+
+Otherwise, these variables can be used:
+
     ${inputfile_name}       Name of current input file (without path)
     ${inputfile_path}       Directory of current input file
     ${inputfile_path_abs}   Directory of current input file (absolute path)
-    ${taskdef_name}       Name of current task-definition file (without path, only if task-definition files are used)
-    ${taskdef_path}       Directory of current task-definition file (only if task-definition files are used)
-    ${taskdef_path_abs}   Directory of current task-definition file (absolute path, only if task-definition files are used)
 
 For example, to pass as additional tool parameter the name of a file
 that is in the same directory as each input file, use
@@ -72,7 +78,7 @@ that is in the same directory as each input file, use
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 [which files should be copied to the output directory](container.md#retrieving-result-files)
-(only supported in [container mode](container.md)).
+(only supported if [container mode](container.md) is not turned off).
 
 ### Defining Tasks for BenchExec
 Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.
@@ -103,7 +109,8 @@ and relative file names inside set files are interpreted as relative to the dire
 
 ### Task-Definition Files
 Such files can be used to specify more complex tasks,
-such as tasks with several input files or expected results.
+such as tasks with several input files
+or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
 and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
 
@@ -111,7 +118,7 @@ If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
-If a property file is given in the benchmark XML definition with the `<propertyfile>` tag,
+If a [property file](properties/INDEX.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
 `benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
 If none is found, the task defined by this task definition is ignored.
@@ -137,8 +144,6 @@ Example:
 
 The full set of available parameters can be seen with `benchexec -h`.
 For explanation of the parameters for containers, please see [container mode](container.md).
-For executing benchmarks under a different user account with the parameter `--user`,
-please check the [respective documentation](separate-user.md).
 
 Command-line arguments can additionally be read from a file,
 if the file name prefixed with `@` is given as argument.
@@ -194,7 +199,7 @@ One can use this to create a reliable archive of experimental results.
 in the best possible way.
 More information on what should be considered when allocating hardware resources such as CPU cores
 can be found in our paper
-[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/~dbeyer/Publications/2017-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 Some additional technical information is also present in the documentation on [resource handling](resources.md).
 
 

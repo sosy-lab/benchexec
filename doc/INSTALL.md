@@ -2,8 +2,9 @@
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.2.
-(The [runexec](runexec.md) tool and module also works with Python 2.7.)
+BenchExec requires at least Python 3.4.
+(The [runexec](runexec.md) tool and module also works with Python 2.7,
+though this will be [removed in 2020](https://github.com/sosy-lab/benchexec/issues/438).)
 Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
@@ -17,9 +18,9 @@ The following packages are optional but recommended dependencies:
 For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
 that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
 
-    apt install python3-tempita python3-coloredlogs lxcfs
-    dpkg -i benchexec_*.deb
+    apt install --install-recommends ./benchexec_*.deb
 
+Note that the leading `./` is important, otherwise `apt` will not find the package.
 This package also automatically configures the necessary cgroup permissions.
 Just add your user to the group `benchexec` and reboot:
 
@@ -63,9 +64,6 @@ It is useful to install the system package `python3-lxml` before,
 otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
-If you want to run benchmarks under different user account than your own,
-please check the [respective documentation](separate-user.md) for how to setup sudo.
-
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
 and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
 [LXCFS](https://github.com/lxc/lxcfs) if desired.
@@ -77,31 +75,39 @@ To execute benchmarks and reliably measure and limit their resource consumption,
 BenchExec requires that the user which executes the benchmarks
 can create and modify cgroups (see below for how to allow this).
 
-For container mode of BenchExec (available since BenchExec 1.9, default starting with BenchExec 2.0),
-a relatively recent kernel is needed.
-Please see [container mode](container.md) for the system requirements.
+If you are using an Ubuntu version that is still supported,
+everything else should work out of the box.
+For other distributions, please read the following detailed requirements.
 
-Without container mode, any Linux kernel version of the last several years is
-acceptable, though there have been performance improvements for the memory
-controller in version 3.3, and cgroups in general are still getting improved, thus,
-using a recent kernel is also a good idea.
+Using BenchExec on kernels without NUMA support
+is not guaranteed to work (but this is enabled by all common distributions).
 
-### Warning for Users of Linux Kernel up to 3.13 (e.g., Ubuntu 14.04)
+Without container mode (i.e., `--no-container`),
+any Linux kernel version of the last several years is
+acceptable, though newer is better in general.
+We recommend at least Linux 3.14 because older versions need
+[special care](https://github.com/sosy-lab/benchexec/blob/b19a591/doc/INSTALL.md#warning-for-users-of-linux-kernel-up-to-313-eg-ubuntu-1404).
 
-There is a race condition in the Linux kernel up to version 3.13
-that sometimes causes the machine to freeze if a process hits its memory limit
-([blog post with description](https://community.nitrous.io/posts/stability-and-a-linux-oom-killer-bug),
-[commits fixing it](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/log/?id=4d4048be8a93769350efa31d2482a038b7de73d0&qt=range&q=9853a407b97d8d066b5a865173a4859a3e69fd8a...4d4048be8a93769350efa31d2482a038b7de73d0),
-[entry in Ubuntu bug tracker](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1510196)).
-The kernel log then contains messages like `BUG: soft lookup`
-and `Memory cgroup out of memory` or similar immediately before the crash,
-and the machine needs to be rebooted.
+In container mode, BenchExec uses two main kernel features:
 
-So far we have experienced this only if the cgroup option `memory.use_hierarchy` is enabled.
-Thus, if you use kernel 3.13 or older with `memory.use_hierarchy`,
-please upgrade or make sure your kernel contains the above fixes.
-For Ubuntu 14.04, upgrading can be done using the officially supported
-[Ubuntu LTS Hardware Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
+- **User Namespaces**: This is typically available in Linux 3.8 or newer,
+  and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
+  Debian and Arch Linux disable this feature for regular users,
+  so the system administrator needs to enable it
+  with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
+  in `/etc/sysctl.conf`.
+
+- **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
+  (kernel option `CONFIG_OVERLAY_FS`).
+  However, only Ubuntu allows regular users to create such mounts in a container.
+  Users of other distributions can still use container mode, but have to choose a different mode
+  of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
+  Alternatively, you could compile your own kernel and include [this patch](http://kernel.ubuntu.com/git/ubuntu/ubuntu-xenial.git/commit?id=0c29f9eb00d76a0a99804d97b9e6aba5d0bf19b3).
+  Note that creating overlays over NFS mounts is not stable at least until Linux 4.5,
+  thus it is recommended to specify a different [directory mode](container.md#directory-access-modes)
+  for every NFS mount on the system.
+
+If container mode does not work, please check the [common problems](container.md#common-problems).
 
 
 ## Setting up Cgroups
@@ -115,8 +121,7 @@ Just add your user to the group `benchexec` and reboot:
 
 ### Setting up Cgroups on Machines with systemd
 
-This is relevant for most users of Debian >= 8, Fedora >= 15, Redhat >= 7, Suse SLES >= 12, Ubuntu >= 15.04,
-and potentially other distributions.
+Most distributions today use systemd, and
 systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
 Thus it would interfere with the cgroups usage of BenchExec.
 
@@ -198,6 +203,8 @@ please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it:
 
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
+
+Note that you additionally need the `--privileged` flag for container mode.
 
 ### Testing Cgroups Setup and Known Problems
 
