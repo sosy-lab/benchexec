@@ -133,6 +133,7 @@ export default class Table extends React.Component {
                             const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
  
                             const regex = filter.value.match(pattern);
+                            console.log(regex)
                                 if (regex[2] === undefined) {
                                     return String(row[filter.id].formatted).startsWith(filter.value);
                                 } else if(!(regex[3])) {
@@ -165,26 +166,29 @@ export default class Table extends React.Component {
                                     }
                                />  
                          )},
-                        sortMethod: (a, b, desc) => {
-                                a = +a.original
-                                b = +b.original
-                            a = a === null || a === undefined ? -Infinity : a
-                            b = b === null || b === undefined ? -Infinity : b
-                            a = typeof a === 'string' ? a.toLowerCase() : a
-                            b = typeof b === 'string' ? b.toLowerCase() : b
-                            if (a > b) {
-                                return 1
-                            }
-                            if (a < b) {
-                                return -1
-                            }
-                            return 0
-                        }
+                        sortMethod: this.sortMethod
                     }
                 }
             });
         });
     }
+
+    sortMethod = (a, b) => {
+        a = +a.original
+        b = +b.original
+        a = a === null || a === undefined ? -Infinity : a
+        b = b === null || b === undefined ? -Infinity : b
+        // a = typeof a === 'string' ? a.toLowerCase() : a
+        // b = typeof b === 'string' ? b.toLowerCase() : b
+        if (a > b) {
+            return 1
+        }
+        if (a < b) {
+            return -1
+        }
+        return 0
+    }
+
     collectStati = (tool, column) => {
         let statiArray = this.data.map(row => {
             return row.results[tool].values[column].formatted

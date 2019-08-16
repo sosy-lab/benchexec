@@ -14,7 +14,7 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "8.0.5",
     "babel-plugin-named-asset-import": "^0.3.2",
-    "babel-preset-react-app": "^9.0.0",
+    "babel-preset-react-app": "^7.0.0",
     "camelcase": "^5.2.0",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
     "css-loader": "2.1.1",
@@ -33,7 +33,6 @@
     "html-webpack-plugin": "4.0.0-beta.5",
     "identity-obj-proxy": "3.0.0",
     "is-wsl": "^1.1.0",
-    "jest": "24.7.1",
     "jest-environment-jsdom-fourteen": "0.1.0",
     "jest-resolve": "24.7.1",
     "jest-watch-typeahead": "0.3.0",
@@ -78,7 +77,6 @@
     "tablegeneratorold": "npm run build && ../../../bin/table-generator -f html --no-diff -o build/ src/data/test.xml.bz2 && open build/test.html",
     "tableonline": "npm run build && ../../../bin/table-generator --react -f html --no-diff -o build/ -n online https://buildbot.sosy-lab.org/cpachecker/results/nightly-smg/00069.-r31496_integration-nightly-smg.2019-07-16_2200.results.xml.bz2 && open build/online.html",
     "tableonlineold": "npm run build && ../../../bin/table-generator -f html --no-diff -o build/ -n online https://buildbot.sosy-lab.org/cpachecker/results/nightly-smg/00069.-r31496_integration-nightly-smg.2019-07-16_2200.results.xml.bz2 && open build/online.html"
-
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -144,5 +142,9 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "jest": "^24.7.1",
+    "react-test-renderer": "^16.8.6"
   }
 }

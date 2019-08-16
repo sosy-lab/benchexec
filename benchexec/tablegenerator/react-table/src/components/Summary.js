@@ -49,8 +49,7 @@ export default class Summary extends React.Component {
         
         return string.substr(2)
     }
-    handleInputChange = (event) => {
-        const target = event.target;
+    handleInputChange = ({target}) => {
         const value = target.checked;
         const name = target.name;
     

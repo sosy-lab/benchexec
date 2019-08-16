@@ -9,6 +9,7 @@ import ScatterPlot from './ScatterPlot.js';
 import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 
+//example date for development
 if (process.env.NODE_ENV !== 'production') {
     window.data = require('../data/data.json');
 }
@@ -42,10 +43,21 @@ export default class Overview extends React.Component {
         }
         // this.filterRowId();
     };
+
 // -----------------------SelectColumns-----------------------
     toggleSelectColumns = () => {
         this.setState(prevState => ({ 
             showSelectColumns: !prevState.showSelectColumns,
+        }));
+    }
+    
+// -----------------------Link Overlay-----------------------
+    toggleLinkOverlay = (ev, hrefRow) => {
+        ev.preventDefault();
+        
+        this.setState(prevState => ({ 
+            showLinkOverlay: !prevState.showLinkOverlay,
+            link: hrefRow,
         }));
     }
 
@@ -68,25 +80,10 @@ export default class Overview extends React.Component {
         })
     }
 
-    // -----------------------Link Overlay-----------------------
-    toggleLinkOverlay = (ev, hrefRow) => {
-        ev.preventDefault();
-        
-        this.setState(prevState => ({ 
-            showLinkOverlay: !prevState.showLinkOverlay,
-            link: hrefRow,
-        }));
-    }
-
-    // -----------------------Common Functions-----------------------
-    getRunSets = (runset, i) => {
+// -----------------------Common Functions-----------------------
+    getRunSets = (runset) => {
         return `${runset.tool} ${runset.date} ${runset.niceName}`
     }  
-
-    preparePlotValues = (el, tool, column) => {
-        const col = this.tools[tool].columns[column];
-        return col.unit ? (el.original) : el.original;
-    }
 
     prepareTableValues = (el, tool, column, href, row) => {
         const col = this.tools[tool].columns[column];
@@ -97,7 +94,7 @@ export default class Overview extends React.Component {
         }
     }
 
-    changeTab = (event, column, tab) => {
+    changeTab = (_, column, tab) => {
         this.setState({
             tabIndex: tab,
             quantilePreSelection: column,
@@ -116,7 +113,7 @@ export default class Overview extends React.Component {
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
                             <Tab> Info </Tab>
-                            <button className="reset" disabled={this.state.filtered.length > 0 ? false : true} onClick={this.resetFilters}> Reset Filters</button>
+                            <button className="reset" disabled={!!!this.state.filtered.length} onClick={this.resetFilters}> Reset Filters</button>
                         </TabList>
                         <TabPanel>
                             <Summary    
@@ -148,7 +145,6 @@ export default class Overview extends React.Component {
                                 table={this.state.table}
                                 tools={this.state.tools}
                                 preSelection={this.state.quantilePreSelection}
-                                preparePlotValues = {this.preparePlotValues}
                                 getRunSets={this.getRunSets} />
                         </TabPanel>
                         <TabPanel>
@@ -157,7 +153,7 @@ export default class Overview extends React.Component {
                                 columns={this.columns}
                                 tools={this.state.tools}
                                 getRunSets={this.getRunSets}
-                                preparePlotValues = {this.preparePlotValues} />
+                                />
                         </TabPanel>
                         <TabPanel>
                             <Info
@@ -168,17 +164,17 @@ export default class Overview extends React.Component {
                     </Tabs>
                 </div>
                 <div> 
-                    {this.state.showSelectColumns ? <SelectColumn 
+                    {this.state.showSelectColumns && <SelectColumn 
                                                     close={this.toggleSelectColumns}
                                                     select={this.selectColumns}
                                                     currColumns = {this.state.columns}
                                                     tableHeader = {this.tableHeader}
                                                     getRunSets={this.getRunSets}
-                                                    tools={this.state.tools} /> : null }
-                    {this.state.showLinkOverlay ? <LinkOverlay 
+                                                    tools={this.state.tools} />}
+                    {this.state.showLinkOverlay && <LinkOverlay 
                                                     close={this.toggleLinkOverlay}
                                                     link={this.state.link}
-                                                    toggleLinkOverlay={this.toggleLinkOverlay} /> : null } 
+                                                    toggleLinkOverlay={this.toggleLinkOverlay} /> } 
                 </div>
             </main>
             </div>

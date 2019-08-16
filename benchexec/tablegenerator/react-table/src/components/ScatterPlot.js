@@ -83,7 +83,6 @@ export default class ScatterPlot extends React.Component {
                     }
                 }
             })
-            console.log(array)
         } else {
             this.props.table.forEach(row => {
                 if(row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
@@ -106,7 +105,6 @@ export default class ScatterPlot extends React.Component {
         this.minY = this.findMinValues(array)[1];
         (array.length === 0) ? this.lineCount = false : this.lineCount = true;
         this.dataArray = array;
-        console.log(this.minX, this.maxX)
     }
     findMaxValues = (array) => {
         const maxX = Math.max(...array.map(el => el.x)) < 3 ? 3 : Math.max(...array.map(el => el.x))

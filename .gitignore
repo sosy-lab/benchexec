@@ -11,3 +11,4 @@ coverage
 /.idea/vcs.xml
 /.idea/workspace.xml
 /benchexec/.idea
+node_modules/
