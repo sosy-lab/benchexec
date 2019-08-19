@@ -49,7 +49,7 @@ class Pqos(object):
             self.cli_exists = True
         else:
             logging.warning(
-                "Could not set cache allocation, unable to find pqos_wrapper cli"
+                "Unable to find pqos_wrapper cli, please install it for cache allocation and monitoring"
             )
 
     def execute_command(self, __type, function, suppress_warning, *args):
@@ -150,21 +150,24 @@ class Pqos(object):
             This method stops monitoring by sending SIGINT to the monitoring process
             and resets all the RMID to 0 
         """
+        ret = {}
         if self.mon_process:
             self.mon_process.send_signal(SIGINT)
             mon_output = self.mon_process.communicate()
             if self.mon_process.returncode == 0:
                 mon_data = json.loads(mon_output[0].decode())
                 logging.debug(mon_data["monitor_events"]["message"])
-                logging.debug(mon_data["monitor_events"]["function_output"])
+                ret = mon_data["monitor_events"]["function_output"]["monitoring_data"]
             else:
                 self.print_error_message(
                     mon_output[1].decode(), "mon", self.mon_process.args
                 )
+            self.mon_process.kill()
             self.execute_command("mon", "reset_monitoring", True, "-rm")
             self.mon_process = None
         else:
             logging.warning("No monitoring process started")
+        return ret
 
     def reset_resources(self):
         """

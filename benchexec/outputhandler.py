@@ -581,13 +581,15 @@ class OutputHandler(object):
         if os.path.isdir(run.result_files_folder):
             self.all_created_files.add(run.result_files_folder)
 
-    def output_after_run_set(self, runSet, cputime=None, walltime=None, energy={}):
+    def output_after_run_set(
+        self, runSet, cputime=None, walltime=None, energy={}, cache={}
+    ):
         """
         The method output_after_run_set() stores the times of a run set in XML.
         @params cputime, walltime: accumulated times of the run set
         """
 
-        self.add_values_to_run_set_xml(runSet, cputime, walltime, energy)
+        self.add_values_to_run_set_xml(runSet, cputime, walltime, energy, cache)
 
         # write results to files
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
@@ -676,7 +678,7 @@ class OutputHandler(object):
             runElem, key=lambda elem: (elem.get("hidden", ""), elem.get("title"))
         )
 
-    def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy):
+    def add_values_to_run_set_xml(self, runSet, cputime, walltime, energy, cache):
         """
         This function adds the result values to the XML representation of a runSet.
         """
@@ -685,6 +687,8 @@ class OutputHandler(object):
         energy = intel_cpu_energy.format_energy_results(energy)
         for energy_key, energy_value in energy.items():
             self.add_column_to_xml(runSet.xml, energy_key, energy_value)
+        for cache_key, cache_value in cache.items():
+            self.add_column_to_xml(runSet.xml, cache_key, cache_value)
 
     def add_column_to_xml(self, xml, title, value, prefix="", value_suffix=""):
         if value is None:

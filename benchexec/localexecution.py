@@ -109,7 +109,6 @@ def execute_benchmark(benchmark, output_handler):
             benchmark.config.coreset,
         )
         pqos.allocate_l3ca(coreAssignment)
-        pqos.start_monitoring(coreAssignment)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
         cpu_packages = {
             get_cpu_package_for_core(core)
@@ -158,6 +157,9 @@ def execute_benchmark(benchmark, output_handler):
             run_sets_executed += 1
             # get times before runSet
             energy_measurement = EnergyMeasurement.create_if_supported()
+            # start monitoring for runSet
+            if coreAssignment:
+                pqos.start_monitoring(coreAssignment)
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
             walltime_before = util.read_monotonic_time()
             if energy_measurement:
@@ -204,6 +206,7 @@ def execute_benchmark(benchmark, output_handler):
             # get times after runSet
             walltime_after = util.read_monotonic_time()
             energy = energy_measurement.stop() if energy_measurement else None
+            monitoring_data = pqos.stop_monitoring()
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) - (
@@ -218,7 +221,11 @@ def execute_benchmark(benchmark, output_handler):
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted", runSet)
             output_handler.output_after_run_set(
-                runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
+                runSet,
+                cputime=usedCpuTime,
+                walltime=usedWallTime,
+                energy=energy,
+                cache=monitoring_data,
             )
 
     if throttle_check.has_throttled():
@@ -231,7 +238,6 @@ def execute_benchmark(benchmark, output_handler):
             "System has swapped during benchmarking. "
             "Benchmark results are unreliable!"
         )
-    pqos.stop_monitoring()
     pqos.reset_resources()
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
