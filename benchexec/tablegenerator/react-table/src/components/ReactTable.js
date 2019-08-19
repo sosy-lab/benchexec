@@ -44,7 +44,7 @@ export default class Table extends React.Component {
                     return {
                         id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
-                            <span title="Click here to sort. Hold shift to multi-sort">{column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''}</span>
+                            <span title="Click here to sort. Hold shift to multi-sort" className="btn">{column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''}</span>
                         ),
                         show: column.isVisible,
                         accessor: props => (

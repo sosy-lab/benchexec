@@ -11,10 +11,12 @@ export default (props) => (
                 <li>Find your environment information and the summary which was on the bottom of the table</li>
                 <li><strong>Select columns:</strong> <br/> To customize your columns, click on the field on the left side "Click here to select columns" or <span className = "link" onClick={props.selectColumn}>here</span>.</li>
                 <li><strong>Link to quantile plot:</strong> <br/>With a click on the column-title you are leaded directly to the corresponding quantile plot</li>
+                <li><strong>Fixed task</strong> <br/>Deselect the box to scroll horizontal in the hole table, select it to scroll only in the results. The tasks will be fixed on the left side. </li>
             </ul>
                 
         <h3>Table: </h3>
             <ul>
+            <li><strong>Fixed task</strong> <br/>Deselect the box to scroll horizontal in the hole table, select it to scroll only in the results. The tasks will be fixed on the left side. </li>
                 <li><strong>Select columns:</strong> <br/> To customize your columns, click on the field on the left side "Click here to select columns" or <span className = "link" onClick={props.selectColumn}>here</span>.</li>
                 <li><strong>Horizontally scrolling:</strong> <br/>To scroll horizontally through the hole table deselect the checkbox "Fixed task" above the selected columns.</li>
                 <li><strong>Filtering:</strong> <br/> You can filter every row on the top of it. Write the your maximum like ":n", your minimum like "n:", minimum and maximum like "m:n" or a concrete value / text.</li>

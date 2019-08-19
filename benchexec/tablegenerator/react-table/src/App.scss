@@ -18,7 +18,7 @@ $key-color: #71bcff;
   height: 35px;
   cursor: pointer;
 
-  background-image: linear-gradient(to left, $key-color, white);
+  //background-image: linear-gradient(to left, $key-color, white);
   box-shadow: 0 4px 12px 0 rgba($key-color, 0.2);
   -o-transition: all .4s ease-in-out;
   -webkit-transition: all .4s ease-in-out;
@@ -26,16 +26,21 @@ $key-color: #71bcff;
   background-size: 300% 100%;
 
   &:hover {
-    background-position: 100% 0;
-    -o-transition: all .4s ease-in-out;
-    -webkit-transition: all .4s ease-in-out;
-    transition: all .4s ease-in-out;
+    // background-position: 100% 0;
+    // -o-transition: all .4s ease-in-out;
+    // -webkit-transition: all .4s ease-in-out;
+    // transition: all .4s ease-in-out;
+    background: $key-color;
   }
 }
 .btn-apply {
   margin-left: 100px;
-  background-image: linear-gradient(to right, $key-color, white);
+  background: $key-color;
+  //background-image: linear-gradient(to right, $key-color, white);
   box-shadow: 0 4px 12px 0 rgba($key-color, 0.5);
+  &:hover {
+    background: white;
+  }
 }
 
 //------------------overview------------------
@@ -52,6 +57,7 @@ $key-color: #71bcff;
     position: fixed;
     top: 0;
     padding: 10px 10px 0;
+    font-weight: 700;
     z-index: 100;
     background: $key-color;
     align-items: flex-start;
@@ -144,6 +150,12 @@ $key-color: #71bcff;
     .tr {
       font-weight: 700;
     }
+    .rt-tr {
+      span {
+        cursor: pointer;
+        font-weight: 700;
+      }
+    }
   }
 
   .toolInfo {
@@ -176,6 +188,7 @@ $key-color: #71bcff;
   .rt-table {
     width: 99%;
     margin-bottom: 40px;
+
   }
   .rt-thead {
     &.-headerGroups > div > div{
@@ -184,6 +197,7 @@ $key-color: #71bcff;
       span {
         margin: 0;
         cursor: pointer;
+        font-weight: 700;
       }
       &:first-child {
         width: 30vw;
@@ -205,7 +219,7 @@ $key-color: #71bcff;
     }
     .rt-td {
       padding: 8px 4px;
-      border-right: 1px solid rgba(142, 142, 142, 0.3)!important;
+      border-right: 2px solid rgba(142, 142, 142, 0.3)!important;
       text-align: right;
     }
     .row__name {
@@ -217,6 +231,9 @@ $key-color: #71bcff;
         cursor: pointer;
         color: black;
       }
+    }
+    .rt-tr-group {
+      border-bottom: 1px solid rgba(0, 0, 0, .32)!important;
     }
     .rt-tr-group:last-child {
       border-bottom: 1px solid lightgrey;
@@ -345,7 +362,7 @@ $key-color: #71bcff;
     }
     background: white;
     // color: #ab0202;
-    color: lightgray;
+    color: #8e8d8d;
     &.checked {
       color: black;
     }

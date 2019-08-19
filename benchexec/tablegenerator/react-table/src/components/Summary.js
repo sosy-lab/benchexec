@@ -118,7 +118,6 @@ export default class Summary extends React.Component {
                             return  <tr key={'tr-'+row}> 
                                         <th key={'td-'+row}>{row}</th>
                                         {this.props.tableHeader[row].content.map((tool, j) => {
-                                            console.log(tool, j)
                                             return row !=='options' ? <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row'>{tool[0]} </td> : <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row options'><ul>{this.renderOptions(tool[0])}</ul></td>})
                                         }
                                     </tr>
