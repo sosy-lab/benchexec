@@ -146,14 +146,19 @@ $key-color: #71bcff;
     .rt-td {
       padding-top: 8px;
       padding-bottom: 8px;
+      border-right: 1px solid rgba(0, 0, 0, .32)!important;
     }
     .tr {
       font-weight: 700;
     }
     .rt-tr {
+      
       span {
         cursor: pointer;
         font-weight: 700;
+      }
+      &-group {
+        border: 1px solid rgba(0, 0, 0, .32)!important; 
       }
     }
   }
