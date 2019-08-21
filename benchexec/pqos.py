@@ -157,7 +157,9 @@ class Pqos(object):
             if self.mon_process.returncode == 0:
                 mon_data = json.loads(mon_output[0].decode())
                 logging.debug(mon_data["monitor_events"]["message"])
-                ret = mon_data["monitor_events"]["function_output"]["monitoring_data"]
+                ret = self.flatten_mon_data(
+                    mon_data["monitor_events"]["function_output"]["monitoring_data"]
+                )
             else:
                 self.print_error_message(
                     mon_output[1].decode(), "mon", self.mon_process.args
@@ -168,6 +170,28 @@ class Pqos(object):
         else:
             logging.warning("No monitoring process started")
         return ret
+
+    @staticmethod
+    def flatten_mon_data(mon_data):
+        """
+            Converts the monitoring data array received from pqos_wrapper
+            to a flattened dictionary for output_after_run_set function
+
+                @mon_data: The array of data received from pqos_wrapper monitoring cli
+        """
+        flatten_dict = {}
+        for data in mon_data:
+            core_str = ",".join(str(core) for core in data["cores"])
+            data.pop("cores", None)
+            for key, val in data.items():
+                if isinstance(val, dict):
+                    for sub_key, sub_val in val.items():
+                        flatten_key = "{0}_{1}_cpus{2}".format(key, sub_key, core_str)
+                        flatten_dict[flatten_key] = sub_val
+                else:
+                    flatten_key = "{0}_cpus{1}".format(key, core_str)
+                    flatten_dict[flatten_key] = val
+        return flatten_dict
 
     def reset_resources(self):
         """
@@ -209,4 +233,4 @@ class Pqos(object):
                     )
                 )
         else:
-            logging.warning("Load msr module for using cache allocation")
+            logging.warning("Load msr module for using cache allocation/monitoring")

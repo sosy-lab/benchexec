@@ -721,6 +721,11 @@ class OutputHandler(object):
                 value_suffix = "J"
             elif title.startswith("blkio-") or title.startswith("memory"):
                 value_suffix = "B"
+            elif title.startswith("llc"):
+                if not title.startswith("llc_misses"):
+                    value_suffix = "B"
+            elif title.startswith("mbm"):
+                value_suffix = "B/s"
 
         value = "{}{}".format(value, value_suffix)
 
