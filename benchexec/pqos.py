@@ -148,7 +148,7 @@ class Pqos(object):
     def stop_monitoring(self):
         """
             This method stops monitoring by sending SIGINT to the monitoring process
-            and resets all the RMID to 0 
+            and resets the RMID for monitored cores to 0 
         """
         ret = {}
         if self.mon_process:
@@ -165,17 +165,22 @@ class Pqos(object):
                     mon_output[1].decode(), "mon", self.mon_process.args
                 )
             self.mon_process.kill()
-            self.execute_command("mon", "reset_monitoring", True, "-rm")
             self.mon_process = None
         else:
             logging.warning("No monitoring process started")
         return ret
 
+    def reset_monitoring(self):
+        """
+            Reset monitoring RMID to 0 for all cores
+        """
+        self.execute_command("mon", "reset_monitoring", True, "-rm")
+
     @staticmethod
     def flatten_mon_data(mon_data):
         """
             Converts the monitoring data array received from pqos_wrapper
-            to a flattened dictionary for output_after_run_set function
+            to a flattened dictionary
 
                 @mon_data: The array of data received from pqos_wrapper monitoring cli
         """
@@ -186,10 +191,18 @@ class Pqos(object):
             for key, val in data.items():
                 if isinstance(val, dict):
                     for sub_key, sub_val in val.items():
-                        flatten_key = "{0}_{1}_cpus{2}".format(key, sub_key, core_str)
+                        if len(mon_data) > 1:
+                            flatten_key = "{0}_{1}_cpus{2}".format(
+                                key, sub_key, core_str
+                            )
+                        else:
+                            flatten_key = "{0}_{1}".format(key, sub_key)
                         flatten_dict[flatten_key] = sub_val
                 else:
-                    flatten_key = "{0}_cpus{1}".format(key, core_str)
+                    if len(mon_data) > 1:
+                        flatten_key = "{0}_cpus{1}".format(key, core_str)
+                    else:
+                        flatten_key = key
                     flatten_dict[flatten_key] = val
         return flatten_dict
 

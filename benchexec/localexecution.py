@@ -95,6 +95,7 @@ def execute_benchmark(benchmark, output_handler):
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
     pqos = Pqos()  # The pqos class instance for cache allocation
+    pqos.reset_monitoring()
 
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
@@ -157,9 +158,6 @@ def execute_benchmark(benchmark, output_handler):
             run_sets_executed += 1
             # get times before runSet
             energy_measurement = EnergyMeasurement.create_if_supported()
-            # start monitoring for runSet
-            if coreAssignment:
-                pqos.start_monitoring(coreAssignment)
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
             walltime_before = util.read_monotonic_time()
             if energy_measurement:
@@ -206,7 +204,6 @@ def execute_benchmark(benchmark, output_handler):
             # get times after runSet
             walltime_after = util.read_monotonic_time()
             energy = energy_measurement.stop() if energy_measurement else None
-            monitoring_data = pqos.stop_monitoring()
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
             usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) - (
@@ -221,11 +218,7 @@ def execute_benchmark(benchmark, output_handler):
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted", runSet)
             output_handler.output_after_run_set(
-                runSet,
-                cputime=usedCpuTime,
-                walltime=usedWallTime,
-                energy=energy,
-                cache=monitoring_data,
+                runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
             )
 
     if throttle_check.has_throttled():
@@ -307,6 +300,9 @@ class _Worker(threading.Thread):
 
         args = run.cmdline()
         logging.debug("Command line of run is %s", args)
+        pqos = Pqos()
+        if self.my_cpus:
+            pqos.start_monitoring([self.my_cpus])
         run_result = self.run_executor.execute_run(
             args,
             output_filename=run.log_file,
@@ -324,6 +320,8 @@ class _Worker(threading.Thread):
             files_count_limit=benchmark.config.filesCountLimit,
             files_size_limit=benchmark.config.filesSizeLimit,
         )
+        mon_data = pqos.stop_monitoring()
+        run_result.update(mon_data)
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.
