@@ -38,9 +38,10 @@ class Pqos(object):
     CMD = "pqos_wrapper"
     CAP_SYS_RAWIO = "cap_sys_rawio"
 
-    def __init__(self):
+    def __init__(self, show_warnings=False):
         self.reset_required = False
         self.cli_exists = False
+        self.show_warnings = show_warnings
         self.mon_process = None
         self.executable_path = find_executable(
             "pqos_wrapper", exitOnError=False, use_current_dir=False
@@ -48,9 +49,10 @@ class Pqos(object):
         if self.executable_path is not None:
             self.cli_exists = True
         else:
-            logging.warning(
-                "Unable to find pqos_wrapper cli, please install it for cache allocation and monitoring"
-            )
+            if self.show_warnings:
+                logging.warning(
+                    "Unable to find pqos_wrapper cli, please install it for cache allocation and monitoring"
+                )
 
     def execute_command(self, __type, function, suppress_warning, *args):
         """
@@ -70,7 +72,7 @@ class Pqos(object):
                     logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
-                if not suppress_warning:
+                if self.show_warnings and (not suppress_warning):
                     self.print_error_message(e.output.decode(), __type, args_list)
         return False
 
@@ -161,13 +163,15 @@ class Pqos(object):
                     mon_data["monitor_events"]["function_output"]["monitoring_data"]
                 )
             else:
-                self.print_error_message(
-                    mon_output[1].decode(), "mon", self.mon_process.args
-                )
+                if self.show_warnings:
+                    self.print_error_message(
+                        mon_output[1].decode(), "mon", self.mon_process.args
+                    )
             self.mon_process.kill()
             self.mon_process = None
         else:
-            logging.warning("No monitoring process started")
+            if self.show_warnings:
+                logging.warning("No monitoring process started")
         return ret
 
     def reset_monitoring(self):

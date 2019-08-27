@@ -94,7 +94,7 @@ def execute_benchmark(benchmark, output_handler):
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
-    pqos = Pqos()  # The pqos class instance for cache allocation
+    pqos = Pqos(show_warnings=True)  # The pqos class instance for cache allocation
     pqos.reset_monitoring()
 
     if CORELIMIT in benchmark.rlimits:
@@ -322,6 +322,12 @@ class _Worker(threading.Thread):
         )
         mon_data = pqos.stop_monitoring()
         run_result.update(mon_data)
+        if not mon_data:
+            logging.debug(
+                "Could not monitor cache and memory bandwidth events for run: {}".format(
+                    run.identifier
+                )
+            )
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.
