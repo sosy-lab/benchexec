@@ -58,7 +58,7 @@ runexec = os.path.join(bin_dir, "runexec")
 if sys.version_info[0] == 2:
     python = "python2"
     trivial_run_grace_time = 0.4
-else
+else:
     python = "python3"
     trivial_run_grace_time = 0.2
 
