@@ -206,23 +206,13 @@ class Tool(benchexec.tools.template.BaseTool):
                 if line.startswith("TRUE"):
                     newStatus = result.RESULT_TRUE_PROP
                 elif line.startswith("FALSE"):
-                    newStatus = result.RESULT_FALSE_REACH
+                    newStatus = result.RESULT_FALSE_PROP
                     match = re.match(
-                        r".* Property violation \(([^:]*)(:.*)?\) found by chosen configuration.*",
+                        r".* Property violation \(([a-zA-Z0-9_-]+)(:.*)?\) found by chosen configuration.*",
                         line,
                     )
-                    if match and match.group(1) in [
-                        "valid-deref",
-                        "valid-free",
-                        "valid-memtrack",
-                        "valid-memcleanup",
-                        "no-overflow",
-                        "no-deadlock",
-                        "termination",
-                    ]:
-                        newStatus = (
-                            result.RESULT_FALSE_PROP + "(" + match.group(1) + ")"
-                        )
+                    if match:
+                        newStatus += "(" + match.group(1) + ")"
                 else:
                     newStatus = result.RESULT_UNKNOWN
 
