@@ -30,7 +30,7 @@ export default class Summary extends React.Component {
                 return {
                     id: `${j}_${column.display_title}_${i}`,
                     Header: () => (
-                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''}</div>
+                        <div className="columns" title="Show Quantile Plot of this column" onClick={(e) => this.props.changeTab(e, column, 2)}>{column.display_title}{column.unit ? ` (${column.unit})` : ''}</div>
                         ),
                         show: column.isVisible,
                         accessor: props => (

@@ -44,7 +44,7 @@ export default class Table extends React.Component {
                     return {
                         id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
-                            <span title="Click here to sort. Hold shift to multi-sort" className="btn">{column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''}</span>
+                            <span title="Click here to sort. Hold shift to multi-sort" className="btn">{column.display_title}{column.unit ? ` (${column.unit})` : ''}</span>
                         ),
                         show: column.isVisible,
                         accessor: props => (
@@ -119,7 +119,7 @@ export default class Table extends React.Component {
                     return {
                         id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
-                            <div title="Click here to sort. Hold shift to multi-sort"> {column.display_title.split('-')[0]}{column.unit ? ` (${column.unit})` : ''} </div>
+                            <div title="Click here to sort. Hold shift to multi-sort"> {column.display_title}{column.unit ? ` (${column.unit})` : ''} </div>
                         ),
                         show: column.isVisible,
                         accessor: props => (
@@ -158,19 +158,19 @@ export default class Table extends React.Component {
         const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
 
         const regex = filter.value.match(pattern);
-            if (regex[2] === undefined) {
-                return String(row[filter.id].formatted).startsWith(filter.value);
-            } else if(!(regex[3])) {
-                if (+row[filter.id].original >= Number(regex[2])) {
-                    return row[filter.id]
-                }
-            } else if(!(regex[2])) {
-                if (+row[filter.id].original <= Number(regex[3])) {
-                    return row[filter.id];
-                }
-            } else if (row[filter.id].original >= Number(regex[2]) && row[filter.id].original <= Number(regex[3])){
+        if (regex[2] === undefined) {
+            return String(row[filter.id].formatted).startsWith(filter.value);
+        } else if(!(regex[3])) {
+            if (+row[filter.id].original >= Number(regex[2])) {
+                return row[filter.id]
+            }
+        } else if(!(regex[2])) {
+            if (+row[filter.id].original <= Number(regex[3])) {
                 return row[filter.id];
             }
+        } else if (row[filter.id].original >= Number(regex[2]) && row[filter.id].original <= Number(regex[3])){
+            return row[filter.id];
+        }
     }
 
     sortMethod = (a, b) => {
