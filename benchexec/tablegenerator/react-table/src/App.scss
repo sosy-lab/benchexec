@@ -300,13 +300,12 @@ $key-color: #71bcff;
     border: 1px solid rgb(186, 186, 186);
   }
 
-    .rv-discrete-color-legend-item.clickable {
-      &:hover {
-        background: #e2e2e2;
-      }
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: #e2e2e2;
     }
-  } 
-
+  }
+} 
 
 .scetterPlot {
   text-align: center;
@@ -323,6 +322,15 @@ $key-color: #71bcff;
   }
   button {
     margin: 10px;
+  }
+}
+
+.plot {
+  &__noresults {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
 

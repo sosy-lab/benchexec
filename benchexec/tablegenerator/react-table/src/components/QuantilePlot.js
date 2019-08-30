@@ -87,6 +87,8 @@ export default class Overlay extends React.Component {
                 }
             }
         }
+
+        this.hasInvalidLog = false;
         
         arrayY.forEach((el, i) => {
             const value = el[0];
@@ -98,6 +100,10 @@ export default class Overlay extends React.Component {
                     y: this.handlyType() === 'ordinal' ? value : +value,
                     info: el[1]
                 });
+            }
+
+            if(isLogAndInvalid) {
+                this.hasInvalidLog = true;
             }
         });
     }
@@ -128,7 +134,7 @@ export default class Overlay extends React.Component {
                     <LineMarkSeries data={data} key={tool.benchmarkname+tool.date} opacity={this.handleLineState(this.props.getRunSets(tool))} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/>
                     : null)
                 }).filter(el => !!el);
-            } else {
+        } else {
             let index = this.state.selection.split('-')[1]
             return this.props.tools[index].columns.map((column, i) => {
                 let data;
@@ -220,8 +226,8 @@ export default class Overlay extends React.Component {
                         }}
                         />
                     {this.renderLines()}
-                    {this.lineCount === 0 ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null}
                 </XYPlot>
+                    {this.lineCount === 0 && <div className="plot__noresults">{this.hasInvalidLog ? "All results have undefined values" : "No correct results"}</div>}
                     <button className="btn" onClick={this.toggleQuantile}>{this.state.quantile ? 'Switch to Direct Plot' : 'Switch to Quantile Plot'}</button>
                     <button className="btn" onClick={this.toggleLinear}>{this.state.linear ? 'Switch to Logarithmic Scale' : 'Switch to Linear Scale'}</button>
                     <button className="btn" onClick={this.toggleCorrect}>{this.state.correct ? 'Switch to All Results' : 'Switch to Correct Results Only'}</button>

@@ -25,7 +25,7 @@ export default class ScatterPlot extends React.Component {
         this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
         this.maxX = '';
         this.minX = '';
-        this.lineCount = true;
+        this.lineCount = 1;
     };
 
     componentDidMount() {
@@ -65,6 +65,7 @@ export default class ScatterPlot extends React.Component {
         let array = [];
         this.arrayX = [];
         this.arrayY = [];
+        this.hasInvalidLog = false;
 
         if (this.state.correct) {
             this.props.table.forEach(row => {
@@ -81,6 +82,9 @@ export default class ScatterPlot extends React.Component {
                             }
                         )
                     }
+                    if(isLogAndInvalid) {
+                        this.hasInvalidLog = true;
+                    }
                 }
             })
         } else {
@@ -96,6 +100,9 @@ export default class ScatterPlot extends React.Component {
                             info: row.short_filename,
                         }
                     ) 
+                    if(isLogAndInvalid) {
+                        this.hasInvalidLog = true;
+                    }
                 }
             })
         }
@@ -103,7 +110,7 @@ export default class ScatterPlot extends React.Component {
         this.maxY = this.findMaxValues(array)[1];
         this.minX = this.findMinValues(array)[0];
         this.minY = this.findMinValues(array)[1];
-        (array.length === 0) ? this.lineCount = false : this.lineCount = true;
+        this.lineCount = array.length;
         this.dataArray = array;
     }
     findMaxValues = (array) => {
@@ -215,12 +222,13 @@ export default class ScatterPlot extends React.Component {
                             text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
                         }}
                     /> 
-                    {this.lineCount === false ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null}
+                    {/* {this.lineCount === false ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null} */}
                     <XAxis title = {this.state.nameX} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     <YAxis title = {this.state.nameY} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 
                     {this.state.value ? <Hint value={this.state.value} /> : null}
                 </XYPlot>
+                {this.lineCount === 0 && <div className="plot__noresults">{this.hasInvalidLog ? "All results have undefined values" : "No correct results"}</div>}
                 <button className="btn" onClick={this.toggleLinear}>{this.state.linear ? 'Switch to Logarithmic Scale' : 'Switch to Linear Scale'}</button>
                 <button className="btn" onClick={this.toggleCorrectResults}>{this.state.correct ? 'Switch to All Results' : 'Switch to Correct Results Only'}</button>
             </div>
