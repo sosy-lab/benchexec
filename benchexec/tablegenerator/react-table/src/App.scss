@@ -69,7 +69,7 @@ $key-color: #71bcff;
       text-align: center;
       border-radius: 8px 8px 0 0;
       background: rgba(255, 255, 255, 0.5);
-      font-size: 1vw;
+      font-size: 14px;
       &--selected {
         background: white;
       }
@@ -87,15 +87,15 @@ $key-color: #71bcff;
     }
     &.reset {
       position: fixed;
-      width: 8vw;
-      top: 0px;
+      width: 90px;
+      top: 0;
       right: 10px;
       padding-top: 5px;
       padding-bottom: 5px;
       border-radius: 0 0 8px 8px;
       background: rgba(255, 255, 255, 0.5);
       border: none;
-      font-size: 1vw;
+      font-size: 12px;
     }
   }
   
@@ -287,17 +287,17 @@ $key-color: #71bcff;
 }
 
 .quantilePlot {
+  position: relative;
   margin: 20px;
   select {
     display: flex;
     margin: auto;
   }
   .rv-discrete-color-legend {
-    position: absolute;
-    right: 0;
-    height: auto;
     padding: 0;
     border: 1px solid rgb(186, 186, 186);
+    float: right;
+    max-width: 50%;
   }
 
   .rv-discrete-color-legend-item.clickable {
@@ -307,7 +307,8 @@ $key-color: #71bcff;
   }
 } 
 
-.scetterPlot {
+.scatterPlot {
+  position: relative;
   text-align: center;
   &__select select {
     margin: 10px;

@@ -165,8 +165,8 @@ export default class ScatterPlot extends React.Component {
     render() {
         this.renderData();
         return (
-            <div className="scetterPlot">
-                <div className="scetterPlot__select">
+            <div className="scatterPlot">
+                <div className="scatterPlot__select">
                     <span> X: </span><select name="Value XAxis" value={this.state.dataX} onChange={this.handleX}>
                         {this.renderColumns()}
                     </select>
@@ -182,7 +182,7 @@ export default class ScatterPlot extends React.Component {
                         })}
                     </select>
                 </div>
-                <XYPlot className="scetterPlot__plot" 
+                <XYPlot className="scatterPlot__plot" 
                         height={this.state.height - 200} 
                         width={this.state.width - 100} 
                         margin={{left: 90}} 

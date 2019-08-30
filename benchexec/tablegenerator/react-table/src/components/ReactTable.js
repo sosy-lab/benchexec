@@ -4,7 +4,7 @@ import 'react-table/react-table.css'
 import withFixedColumns from 'react-table-hoc-fixed-columns';
 import 'react-table-hoc-fixed-columns/lib/styles.css'
 import "react-table/react-table.css";
-
+import Utils from '../utils/utils'
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -23,8 +23,6 @@ export default class Table extends React.Component {
         this.width = (window.innerWidth*0.3);
         this.height = window.innerHeight-50;
     };
-
-
 
     handleInputChange = (event) => {
         const target = event.target;
@@ -129,7 +127,7 @@ export default class Table extends React.Component {
                         Cell: row => {
                             return <div dangerouslySetInnerHTML={{ __html: row.value.formatted }} />
                         },
-                        filterMethod: this.filterMethod,
+                        filterMethod: Utils.filterByRegex,
                         Filter: ({ filter, onChange }) => {
                             let value;
                             let type = column.type._type._type ? column.type._type._type : column.type._type;
@@ -147,46 +145,11 @@ export default class Table extends React.Component {
                                     }
                                />  
                          )},
-                        sortMethod: this.sortMethod
+                        sortMethod: Utils.sortMethod
                     }
                 }
             });
         });
-    }
-
-    filterMethod = (filter, row, cell) => {
-        const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
-
-        const regex = filter.value.match(pattern);
-        if (regex[2] === undefined) {
-            return String(row[filter.id].formatted).startsWith(filter.value);
-        } else if(!(regex[3])) {
-            if (+row[filter.id].original >= Number(regex[2])) {
-                return row[filter.id]
-            }
-        } else if(!(regex[2])) {
-            if (+row[filter.id].original <= Number(regex[3])) {
-                return row[filter.id];
-            }
-        } else if (row[filter.id].original >= Number(regex[2]) && row[filter.id].original <= Number(regex[3])){
-            return row[filter.id];
-        }
-    }
-
-    sortMethod = (a, b) => {
-        a = +a.original
-        b = +b.original
-        a = a === null || a === undefined ? -Infinity : a
-        b = b === null || b === undefined ? -Infinity : b
-        // a = typeof a === 'string' ? a.toLowerCase() : a
-        // b = typeof b === 'string' ? b.toLowerCase() : b
-        if (a > b) {
-            return 1
-        }
-        if (a < b) {
-            return -1
-        }
-        return 0
     }
 
     collectStati = (tool, column) => {
@@ -204,7 +167,6 @@ export default class Table extends React.Component {
             return (header[row]) ? <p key={row} className="header__tool-row">{header[row].content[i][0]} </p> : null;
         })
     }
-
     
     render() {
         this.data = this.props.data;

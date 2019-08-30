@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
     window.data = require('../data/data.json');
 }
 
-console.log('table data', window.data);
+// console.log('table data', window.data);
 
 export default class Overview extends React.Component {
     constructor(props) {
@@ -113,7 +113,7 @@ export default class Overview extends React.Component {
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
                             <Tab> Info </Tab>
-                            <button className="reset" disabled={!!!this.state.filtered.length} onClick={this.resetFilters}> Reset Filters</button>
+                            {!this.state.filtered.length && <button className="reset" onClick={this.resetFilters}>Reset Filters</button>}
                         </TabList>
                         <TabPanel>
                             <Summary    
