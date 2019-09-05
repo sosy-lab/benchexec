@@ -22,9 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import os
 import queue
-import re
 import resource
-import subprocess
 import sys
 import threading
 
@@ -48,21 +46,6 @@ def init(config, benchmark):
     if config.container:
         config.containerargs = containerexecutor.handle_basic_container_args(config)
     config.containerargs["use_namespaces"] = config.container
-
-    try:
-        processes = subprocess.Popen(
-            ["ps", "-eo", "cmd"], stdout=subprocess.PIPE
-        ).communicate()[0]
-        if (
-            len(re.findall(r"python.*benchmark\.py", util.decode_to_string(processes)))
-            > 1
-        ):
-            logging.warning(
-                "Already running instance of this script detected. "
-                "Please make sure to not interfere with somebody else's benchmarks."
-            )
-    except OSError:
-        pass  # this does not work on Windows
 
     benchmark.executable = benchmark.tool.executable()
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
