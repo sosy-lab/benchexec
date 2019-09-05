@@ -243,7 +243,7 @@ class TestPqos(unittest.TestCase):
         pqos.reset_resources = MagicMock(return_value=0)
         pqos.allocate_l3ca([[0, 1], [2, 3]])
         self.assertEqual(pqos.reset_required, False)
-        pqos.reset_resources.assert_called_once()
+        pqos.reset_resources.assert_called_once_with()
 
     @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
