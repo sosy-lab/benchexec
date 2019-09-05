@@ -109,7 +109,8 @@ class Pqos(object):
             technology, "check_capability", False, "-c", technology
         )
 
-    def convert_core_list(self, core_assignment):
+    @staticmethod
+    def convert_core_list(core_assignment):
         """
             Convert a double list to a string.
 
