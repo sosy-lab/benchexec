@@ -137,6 +137,9 @@ class MockPopen:
         return 0
 
     def communicate(self):
+        """
+            mock Popen.communicate function
+        """
         if self.returncode == 0:
             return (mock_check_output(self.args_list), None)
         return (None, json.dumps(mock_pqos_wrapper_error).encode())
@@ -160,12 +163,19 @@ class TestPqos(unittest.TestCase):
 
     @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
     def test_pqos_init(self, mock_find_executable):
+        """
+            Test for initialisation of pqos module
+        """
         pqos = Pqos()
         self.assertIsInstance(pqos, Pqos)
         self.assertEqual(pqos.cli_exists, True)
 
     @patch("benchexec.pqos.find_executable", return_value=None)
     def test_pqos_init_error(self, mock_find_executable):
+        """
+            Test for initialisation of pqos module when pqos_wrapper CLI is not present
+            in the system.
+        """
         pqos = Pqos()
         self.assertIsInstance(pqos, Pqos)
         self.assertEqual(pqos.cli_exists, False)
@@ -176,6 +186,9 @@ class TestPqos(unittest.TestCase):
     def test_pqos_execute_command(
         self, mock_find_executable, mock_check_output, mock_popen
     ):
+        """
+            Test for Pqos.execute_command function
+        """
         pqos = Pqos()
         ret = pqos.execute_command("mon", "reset_monitoring", True, "-rm")
         self.assertEqual(ret, True)
@@ -194,6 +207,9 @@ class TestPqos(unittest.TestCase):
 
     @patch("benchexec.pqos.find_executable", return_value=None)
     def test_pqos_execute_command_cli_non_existent(self, mock_find_executable):
+        """
+            Test for Pqos.execute_command function when pqos_wrapper CLI is not present.
+        """
         pqos = Pqos()
         ret = pqos.execute_command("mon", "reset_monitoring", True, "-rm")
         self.assertEqual(ret, False)
@@ -215,6 +231,9 @@ class TestPqos(unittest.TestCase):
     def test_pqos_execute_command_cli_error(
         self, mock_find_executable, mock_check_output
     ):
+        """
+            Test for Pqos.execute_command function when pqos_wrapper throws an error
+        """
         pqos = Pqos()
         ret = pqos.execute_command("mon", "reset_monitoring", True, "-rm")
         self.assertEqual(ret, False)
@@ -230,6 +249,9 @@ class TestPqos(unittest.TestCase):
     @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
     def test_pqos_allocate_l3ca(self, mock_find_executable, mock_check_output):
+        """
+            Test for pqos.allocate_l3ca
+        """
         pqos = Pqos()
         pqos.allocate_l3ca([[0, 1], [2, 3]])
         self.assertEqual(pqos.reset_required, True)
@@ -239,6 +261,9 @@ class TestPqos(unittest.TestCase):
         "benchexec.pqos.check_output", side_effect=mock_check_output_capability_error
     )
     def test_pqos_allocate_l3ca_error(self, mock_find_executable, mock_check_output):
+        """
+            Test for pqos.allocate_l3ca when pqos_wrapper throws an error
+        """
         pqos = Pqos()
         pqos.reset_resources = MagicMock(return_value=0)
         pqos.allocate_l3ca([[0, 1], [2, 3]])
@@ -251,6 +276,9 @@ class TestPqos(unittest.TestCase):
     def test_pqos_stop_monitoring(
         self, mock_find_executable, mock_check_output, mock_popen
     ):
+        """
+            Test for pqos.stop_monitoring
+        """
         flatten_mon_data = {
             "ipc": 0.987,
             "llc_misses": 10240,
@@ -268,6 +296,9 @@ class TestPqos(unittest.TestCase):
     @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
     def test_pqos_stop_monitoring_not_started(self, mock_find_executable, mock_popen):
+        """
+            Test for pqos.stop_monitoring, when monitoring is not started before
+        """
         pqos = Pqos()
         ret = pqos.stop_monitoring()
         self.assertDictEqual(ret, {})
@@ -279,6 +310,9 @@ class TestPqos(unittest.TestCase):
     def test_pqos_stop_monitoring_error(
         self, mock_find_executable, mock_check_output, mock_popen
     ):
+        """
+            Test for pqos.stop_monitoring, when pqos_wrapper throws an error
+        """
         pqos = Pqos()
         pqos.start_monitoring([[0, 1, 2]])
         pqos.mon_process.returncode = 1
@@ -287,6 +321,9 @@ class TestPqos(unittest.TestCase):
         self.assertEqual(pqos.mon_process, None)
 
     def test_pqos_flatten_mon_data(self):
+        """
+            Test for Pqos.flatten_mon_data when single monitoring data is received
+        """
         flatten_mon_data = {
             "ipc": 0.987,
             "llc_misses": 10240,
@@ -304,6 +341,9 @@ class TestPqos(unittest.TestCase):
         self.assertDictEqual(ret, flatten_mon_data)
 
     def test_pqos_flatten_mon_data_multiple(self):
+        """
+            Test for Pqos.flatten_mon_data when multiple monitoring data are received
+        """
         flatten_mon_data_multiple = {
             "ipc_cpus0,1,2": 0.987,
             "llc_misses_cpus0,1,2": 10240,
@@ -331,5 +371,8 @@ class TestPqos(unittest.TestCase):
         self.assertDictEqual(ret, flatten_mon_data_multiple)
 
     def test_pqos_convert_core_list(self):
+        """
+            Test for pqos.convert_core_list function
+        """
         ret = Pqos.convert_core_list([[0, 1], [2, 3]])
         self.assertEqual(ret, "[[0,1],[2,3]]")
