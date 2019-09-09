@@ -130,18 +130,18 @@ So the recommendation is (as always) to use the container mode and not use the `
 
 
 ## L3 Cache
-Benchexec now supports isolation of L3 cache between parallel threads in `benchexec` pipeline.  
-Benchexec uses `intel RDT` features available for select intel SKUs to allocate separate L3 cache for each parallel thread.  
-The `L3 cache allocation` is incorporated in the `benchexec` pipeline using [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) CLI which is a wrapper for the [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos)  
-Therefore for cache allocation to work:
+
+On certain Intel CPUs, BenchExec supports isolation of L3 cache between parallel runs
+if [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper)
+and the [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos) are installed.
+If possible, the L3 cache of the CPU is separated into partitions
+and each run is assigned to one partition.
+This has the effect that each run has the same amount of L3 cache available
+and is not influenced by other cache-hungry runs that are executing in parallel.
+Furthermore, this also allows measuring cache allocation and memory-bandwidth usage.
 - [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) CLI needs to be installed.
 - Capabilities need to be set for the CLI using setcap : `sudo setcap cap_sys_rawio=eip $(EXECUTABLE_PATH)`
 - The user/group executing the benchmarks should have the read and write access for all CPU MSRs.
-
-### Allocation algorithm
-- The `pqos_wrapper` cli extracts the no of cache ways from `cpuid`, and these are distributed equally between threads.
-- All the cores in each thread are associated with the first unused `class of service (COS)` for respective socket
-- The appropriate no of cache bits is set for each `COS` using cache bitmasks i.e `CBMs`.
 
 
 ## Processes and Threads
