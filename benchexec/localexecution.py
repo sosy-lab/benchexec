@@ -307,9 +307,8 @@ class _Worker(threading.Thread):
         run_result.update(mon_data)
         if not mon_data:
             logging.debug(
-                "Could not monitor cache and memory bandwidth events for run: {}".format(
-                    run.identifier
-                )
+                "Could not monitor cache and memory bandwidth events for run: %s",
+                run.identifier,
             )
 
         if self.run_executor.PROCESS_KILLED:

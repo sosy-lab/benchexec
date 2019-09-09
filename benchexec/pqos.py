@@ -50,8 +50,10 @@ class Pqos(object):
             self.cli_exists = True
         else:
             if self.show_warnings:
-                logging.warning(
-                    "Unable to find pqos_wrapper cli, please install it for cache allocation and monitoring"
+                logging.info(
+                    "Unable to find pqos_wrapper, please install it for "
+                    "cache allocation and monitoring if your CPU supports Intel RDT"
+                    "(cf. https://gitlab.com/sosy-lab/software/pqos-wrapper)."
                 )
 
     def execute_command(self, __type, function, suppress_warning, *args):
