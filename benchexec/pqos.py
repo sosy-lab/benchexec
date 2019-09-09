@@ -84,7 +84,7 @@ class Pqos(object):
 
                 @err: The error output returned by pqos_wrapper
                 @__type: The type of command being executed (monitoring or l3ca)
-                @args_list: The command being executed as a list 
+                @args_list: The command being executed as a list
         """
         msg_prefix = {
             "mon": "Could not monitor events",
@@ -105,7 +105,7 @@ class Pqos(object):
         """
             Check if given intel rdt is supported.
 
-                @technology: The intel rdt to be tested 
+                @technology: The intel rdt to be tested
         """
         return self.execute_command(
             technology, "check_capability", False, "-c", technology
@@ -153,7 +153,7 @@ class Pqos(object):
     def stop_monitoring(self):
         """
             This method stops monitoring by sending SIGINT to the monitoring process
-            and resets the RMID for monitored cores to 0 
+            and resets the RMID for monitored cores to 0
         """
         ret = {}
         if self.mon_process:
