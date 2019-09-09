@@ -139,9 +139,6 @@ and each run is assigned to one partition.
 This has the effect that each run has the same amount of L3 cache available
 and is not influenced by other cache-hungry runs that are executing in parallel.
 Furthermore, this also allows measuring cache allocation and memory-bandwidth usage.
-- [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) CLI needs to be installed.
-- Capabilities need to be set for the CLI using setcap : `sudo setcap cap_sys_rawio=eip $(EXECUTABLE_PATH)`
-- The user/group executing the benchmarks should have the read and write access for all CPU MSRs.
 
 
 ## Processes and Threads
