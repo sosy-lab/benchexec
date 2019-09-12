@@ -368,27 +368,27 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if self._contains_overapproximation_result(line):
                 return "UNKNOWN: OverapproxCex"
             if line.find(termination_false_string) != -1:
-                return "FALSE(TERM)"
+                return result.RESULT_FALSE_TERMINATION
             if line.find(termination_true_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(ltl_false_string) != -1:
                 return "FALSE(valid-ltl)"
             if line.find(ltl_true_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(unsafety_string) != -1:
-                return "FALSE"
+                return result.RESULT_FALSE_REACH
             if line.find(mem_deref_false_string) != -1:
-                return "FALSE(valid-deref)"
+                return result.RESULT_FALSE_DEREF
             if line.find(mem_deref_false_string_2) != -1:
-                return "FALSE(valid-deref)"
+                return result.RESULT_FALSE_DEREF
             if line.find(mem_free_false_string) != -1:
-                return "FALSE(valid-free)"
+                return result.RESULT_FALSE_FREE
             if line.find(mem_memtrack_false_string) != -1:
-                return "FALSE(valid-memtrack)"
+                return result.RESULT_FALSE_MEMTRACK
             if line.find(overflow_false_string) != -1:
-                return "FALSE(OVERFLOW)"
+                return result.RESULT_FALSE_OVERFLOW
             if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(treeautomizer_unsat) != -1:
                 return "unsat"
             if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
