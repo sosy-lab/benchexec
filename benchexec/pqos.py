@@ -52,7 +52,7 @@ class Pqos(object):
             if self.show_warnings:
                 logging.info(
                     "Unable to find pqos_wrapper, please install it for "
-                    "cache allocation and monitoring if your CPU supports Intel RDT"
+                    "cache allocation and monitoring if your CPU supports Intel RDT "
                     "(cf. https://gitlab.com/sosy-lab/software/pqos-wrapper)."
                 )
 
