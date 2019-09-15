@@ -7,9 +7,10 @@ class App extends Component {
 		return (
 			<div className="App">
 				<main>
-            <Overview />
-        </main>
-        <footer className="App-footer"></footer>
+            		<Overview />
+					{/* imports the component Overview with all subcomponents */}
+        		</main>
+        		<footer className="App-footer"></footer>
 			</div>
 		);
 	}

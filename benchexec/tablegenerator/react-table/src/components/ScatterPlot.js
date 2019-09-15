@@ -28,6 +28,7 @@ export default class ScatterPlot extends React.Component {
         this.lineCount = 1;
     };
 
+// ----------------------resizer-------------------------------
     componentDidMount() {
         window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
     }
@@ -42,7 +43,7 @@ export default class ScatterPlot extends React.Component {
             height: window.innerHeight,
         });
     }
-
+// --------------------rendering-----------------------------
     renderColumns = () => {
         return this.props.tools.map((runset, i) => {
             return <optgroup key={"runset"+i} label={this.props.getRunSets(runset, i)}>
@@ -51,14 +52,6 @@ export default class ScatterPlot extends React.Component {
                     })}
                 </optgroup>
         })
-    }
-
-    handlType = (tool, column) =>  {
-        if(this.props.tools[tool].columns[column].type.name==="text" || this.props.tools[tool].columns[column].type.name==="main_status") {
-            return 'ordinal'
-        } else {
-            return this.state.linear ? 'linear': 'log'
-        }
     }
 
     renderData = () =>  {
@@ -124,7 +117,14 @@ export default class ScatterPlot extends React.Component {
         return [minX, minY];
     }
 
-
+// ------------------------handeling----------------------------  
+    handlType = (tool, column) =>  {
+        if(this.props.tools[tool].columns[column].type.name==="text" || this.props.tools[tool].columns[column].type.name==="main_status") {
+            return 'ordinal'
+        } else {
+            return this.state.linear ? 'linear': 'log'
+        }
+    }
     toggleCorrectResults = () => {
         this.setState(prevState => ({ 
             correct: !prevState.correct,
@@ -161,6 +161,7 @@ export default class ScatterPlot extends React.Component {
             line: target.value
         })
     }
+
 
     render() {
         this.renderData();
@@ -222,7 +223,6 @@ export default class ScatterPlot extends React.Component {
                             text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
                         }}
                     /> 
-                    {/* {this.lineCount === false ? (window.confirm('No correct results, show all results?') ? this.setState({correct: false}) : null) : null} */}
                     <XAxis title = {this.state.nameX} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     <YAxis title = {this.state.nameY} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 

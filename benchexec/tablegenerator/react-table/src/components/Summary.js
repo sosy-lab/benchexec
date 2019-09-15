@@ -49,6 +49,8 @@ export default class Summary extends React.Component {
         
         return string.substr(2)
     }
+
+    //fix columns
     handleInputChange = ({target}) => {
         const value = target.checked;
         const name = target.name;
@@ -65,6 +67,7 @@ export default class Summary extends React.Component {
 
     render() {
         const toolColumns = this.renderResultTable();
+        //preperation of columns for a ReactTable
         const column = [
             {
                 Header: () => (

@@ -8,8 +8,9 @@ import SelectColumn from './SelectColumn.js';
 import ScatterPlot from './ScatterPlot.js';
 import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
+import Reset from './Reset.js';
 
-//example date for development
+//example data for development
 if (process.env.NODE_ENV !== 'production') {
     window.data = require('../data/data.json');
 }
@@ -19,6 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 export default class Overview extends React.Component {
     constructor(props) {
         super(props);
+        //imported data
         this.tableHeader = window.data.head;
         this.tools = window.data.tools.map(tool => ({
             ...tool, 
@@ -30,7 +32,9 @@ export default class Overview extends React.Component {
         this.stats = window.data.stats;
         this.properties = window.data.props;
         this.filtered = [];
-        
+
+        //data is handled and changed here; To use it in other components hand it over with component
+        //To change data in component (e.g. filter): function to change has to be in overview
         this.state = {
             showSelectColumns: false,
             showLinkOverlay: false,
@@ -41,7 +45,6 @@ export default class Overview extends React.Component {
             tabIndex: 0,
             quantilePreSelection: this.tools[0].columns[1],
         }
-        // this.filterRowId();
     };
 
 // -----------------------SelectColumns-----------------------
@@ -113,7 +116,7 @@ export default class Overview extends React.Component {
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
                             <Tab> Info </Tab>
-                            {!this.state.filtered.length && <button className="reset" onClick={this.resetFilters}>Reset Filters</button>}
+                            {!!this.state.filtered.length && <Reset resetFilters={this.resetFilters} />}
                         </TabList>
                         <TabPanel>
                             <Summary    

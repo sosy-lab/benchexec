@@ -23,22 +23,22 @@ export default class Table extends React.Component {
         this.width = (window.innerWidth*0.3);
         this.height = window.innerHeight-50;
     };
-
-    handleInputChange = (event) => {
-        const target = event.target;
+    //fix columns
+    handleInputChange = ({target}) => {
         const value = target.checked;
         const name = target.name;
     
         this.setState({
           [name]: value
         });
-      }
-
+    }
 
     renderColumns = () => {
         return this.props.tools.map((tool, j) => {
             return tool.columns.map((column, i) => {
-                if(column.type.name === "main_status" || column.type.name === "status") {
+
+                //distinguish between column type status (dropdown filter) and other types (input field)
+                if(column.type.name === "status") {
                     return {
                         id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
@@ -113,7 +113,9 @@ export default class Table extends React.Component {
                                     </select> 
                         }
                     }
-                } else { 
+                } 
+                //other column types with input field filtering
+                else { 
                     return {
                         id: `${j}_${column.display_title}_${i}`,
                         Header: () => (
@@ -122,7 +124,6 @@ export default class Table extends React.Component {
                         show: column.isVisible,
                         accessor: props => (
                             this.props.prepareTableValues(props.results[j].values[i], j, i)
-                            // console.log(this.props.prepareTableValues(props.results[j].values[i], j, i))
                         ),
                         Cell: row => {
                             return <div dangerouslySetInnerHTML={{ __html: row.value.formatted }} />
@@ -170,7 +171,7 @@ export default class Table extends React.Component {
     
     render() {
         this.data = this.props.data;
-        const toolColumns = this.renderColumns(); // TODO rename method
+        const toolColumns = this.renderColumns();
         let columns = 
         [
             {
@@ -232,7 +233,6 @@ export default class Table extends React.Component {
                     data={this.data}
                     filterable = {true}
                     filtered = {this.props.filtered}
-                    // style = {{ borderRight: '1px solid rgba(142, 142, 142, 0.7)', backgroundColor: '#dadada',}}
                     columns= {columns}
                     defaultPageSize = {250}
                     pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}

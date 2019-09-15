@@ -13,7 +13,7 @@ export default class Overlay extends React.Component {
             quantile: true,
             linear: false,
             correct: true,
-            isValue: true, //one Value more RunSets = true; oneRunSet more Values = false
+            isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
             isInvisible: [], 
         }
 
@@ -22,8 +22,10 @@ export default class Overlay extends React.Component {
         this.strokeStyle = "";
         this.lineCount = 1;
     };
+
+// ----------------------resizer-------------------------------
     componentDidMount() {
-        window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
+        window.addEventListener("resize", this.updateDimensions);
     }
 
     componentWillUnmount() {
@@ -35,6 +37,7 @@ export default class Overlay extends React.Component {
             height: window.innerHeight,
         });
     }
+// --------------------rendering-----------------------------
     renderLegend = () => {
         return (this.state.isValue) 
             ? this.props.tools.filter(t => t.isVisible).map(tool => { 
@@ -116,7 +119,6 @@ export default class Overlay extends React.Component {
                 } 
             })
         })
-        // kann man den oberen Teil rausziehen? Muss nur initial gemacht werden
         this.renderAll();
         return this.possibleValues.map(value => {
             return <option key={value.display_title} value={value.display_title} name={value.display_title}>{value.display_title}</option>
@@ -145,6 +147,7 @@ export default class Overlay extends React.Component {
         }
     }
 
+// ------------------------handeling----------------------------
     handleLineState = (line) => {
         return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;
     }

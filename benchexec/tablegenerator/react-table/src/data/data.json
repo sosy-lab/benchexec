@@ -130,7 +130,7 @@
           "title": "status",
           "type": {
             "_type": 5,
-            "name": "main_status"
+            "name": "status"
           },
           "unit": null
         },

@@ -16,7 +16,7 @@ export default class SelectColumn extends React.Component {
         this.selectable = [];
     };
    
-    // -------------------------Closing-------------------------
+// -------------------------Closing-------------------------
     close = () => {
         this.props.select()
         this.setState(prevState => ({ 
@@ -35,7 +35,7 @@ export default class SelectColumn extends React.Component {
     document.removeEventListener("keydown", this.escFunction, false);
     }
     
-    // -------------------------Rendering-------------------------
+// -------------------------Rendering-------------------------
     renderRunSets = () => {
         return this.props.tools.map((tool, i) => {
             let isVisible = this.props.tools[i].columns.findIndex(value => value.isVisible === true) > -1;
@@ -66,8 +66,8 @@ export default class SelectColumn extends React.Component {
             })
         })
         return this.selectable.map((column, i) => {
-            //column.isVisible === alle columns true
-            //gehe durch alle tools -> im Tool column mit column.title? -> isVisible?
+            //column.isVisible === all columns true
+            //in all tools => in Tool: column with column.title? => isVisible?
             return <th id={'td-all-'+column.display_title} key={'key'+column.display_title} className={column.isVisible ? 'checked' : ''}>
                 <label>
                     {column.display_title}<input name={column.display_title} type="checkbox" checked={column.isVisible} onChange={this.handleSelectColumns}></input>
@@ -76,7 +76,7 @@ export default class SelectColumn extends React.Component {
         })
     }
 
-    // -------------------------Handling-------------------------
+// -------------------------Handling-------------------------
     handleSelecion = (event) => {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;

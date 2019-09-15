@@ -22,7 +22,7 @@ export default class LinkOverlay extends React.Component {
         if(url) {
             fetch(url)
                 .then(response => {
-                    //status 404/403 => Fehler?
+                    //status 404/403 => error?
                     if (response.status === 200 || response.status === 0) {
                         response.text()
                             .then(content => {
@@ -51,15 +51,15 @@ export default class LinkOverlay extends React.Component {
         const urlArray = url.split('/');
         const logfile = decodeURIComponent(`${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`); // <folder>/<logfile>
 
-        fetch(zipUrl)                                           // 1) fetch the url
+        fetch(zipUrl)                                                   // 1) fetch the url
             .then((response) => 
-                (response.status === 200 || response.status === 0) ? // 2) filter on 200 OK
-                    Promise.resolve(response.blob()) :    //=> then-case
+                (response.status === 200 || response.status === 0) ?    // 2) filter on 200 OK
+                    Promise.resolve(response.blob()) :                  //=> then-case
                     Promise.reject(new Error(response.statusText)) //=> ERROR-case  
             )
-            .then(JSZip.loadAsync)                              // 3) chain with the zip promise
-            .then((zip) => zip.file(logfile).async("string"))   // 4) chain with the text content promise
-            .then((content) => {                                // 5) display the result
+            .then(JSZip.loadAsync)                                      // 3) chain with the zip promise
+            .then((zip) => zip.file(logfile).async("string"))           // 4) chain with the text content promise
+            .then((content) => {                                        // 5) display the result
                 this.setState({ content });
             }, (error) => {
                 console.log('ERROR receiving ZIP', error);
