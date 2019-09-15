@@ -119,7 +119,7 @@ export default class ScatterPlot extends React.Component {
 
 // ------------------------handeling----------------------------  
     handlType = (tool, column) =>  {
-        if(this.props.tools[tool].columns[column].type.name==="text" || this.props.tools[tool].columns[column].type.name==="main_status") {
+        if(this.props.tools[tool].columns[column].type.name==="text" || this.props.tools[tool].columns[column].type.name==="status") {
             return 'ordinal'
         } else {
             return this.state.linear ? 'linear': 'log'

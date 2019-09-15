@@ -43,7 +43,7 @@ export default class Overlay extends React.Component {
             ? this.props.tools.filter(t => t.isVisible).map(tool => { 
                 return this.props.getRunSets(tool);
             }) 
-            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "main_status" ? c.display_title : null).filter(Boolean);
+            : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "status" ? c.display_title : null).filter(Boolean);
     }
 
     renderAll = () => {
@@ -59,7 +59,7 @@ export default class Overlay extends React.Component {
             //var 2: compare different values of one RunSet
             let index = this.state.selection.split('-')[1]
             this.props.tools[index].columns.forEach((column, i) => {
-                if (!(column.type.name === "main_status" || column.type.name === "text") && column.isVisible) {
+                if (!(column.type.name === "status" || column.type.name === "text") && column.isVisible) {
                     this[column.display_title] = [];
                     return this.renderData(this.props.table, column.display_title, index, this[column.display_title])
                 }
@@ -83,7 +83,7 @@ export default class Overlay extends React.Component {
             }
             if(this.state.quantile) {
                 const currentValue = this.possibleValues.find(value => value.display_title === column);
-                if(this.state.isValue && (currentValue.type.name==="text" || currentValue.type.name==="main_status")) {
+                if(this.state.isValue && (currentValue.type.name==="text" || currentValue.type.name==="status")) {
                     arrayY.sort((a,b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0)); ;
                 } else {
                     arrayY.sort((a, b) => (+(a[0]) - +(b[0])));
@@ -142,7 +142,7 @@ export default class Overlay extends React.Component {
                 let data;
                 if(column.isVisible) data = this[column.display_title];
                 if(data && data.length > 0) this.lineCount++;
-                return (data && column.type.name !== "text" && column.type.name !== "main_status") ? <LineMarkSeries data={data} key={column.display_title} opacity={this.handleLineState(column.display_title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :null
+                return (data && column.type.name !== "text" && column.type.name !== "status") ? <LineMarkSeries data={data} key={column.display_title} opacity={this.handleLineState(column.display_title)} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> :null
             }).filter(el => !!el);
         }
     }
@@ -184,7 +184,7 @@ export default class Overlay extends React.Component {
         const { selection } = this.state;
         if (this.state.isValue) {
             const index = this.possibleValues.findIndex(value => value.display_title === selection);
-            if((this.possibleValues[index].type && this.possibleValues[index].type.name==="text") || (this.possibleValues[index].type && this.possibleValues[index].type.name==="main_status")) {
+            if((this.possibleValues[index].type && this.possibleValues[index].type.name==="text") || (this.possibleValues[index].type && this.possibleValues[index].type.name==="status")) {
                 return 'ordinal'
             } else return this.state.linear ? 'linear': 'log'
         } else {
