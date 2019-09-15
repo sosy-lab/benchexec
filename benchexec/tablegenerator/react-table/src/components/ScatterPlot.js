@@ -198,7 +198,7 @@ export default class ScatterPlot extends React.Component {
                     <DecorativeAxis
                         className='middle-line'
                         axisStart={{x: this.state.linear ? 0 : 1, y: this.state.linear ? 0 : 1}}
-                        axisEnd={{x: this.maxX, y: this.maxY}}
+                        axisEnd={{x: this.maxX > this.maxY ? this.maxX : this.maxY, y: this.maxX > this.maxY ? this.maxX : this.maxY}}
                         axisDomain={[0, 10000000000]}
                         style={{
                             ticks: {stroke: '#009440', opacity: 0},
