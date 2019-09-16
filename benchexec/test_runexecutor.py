@@ -54,7 +54,13 @@ here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
 runexec = os.path.join(bin_dir, "runexec")
-python = "python2" if sys.version_info[0] == 2 else "python3"
+
+if sys.version_info[0] == 2:
+    python = "python2"
+    trivial_run_grace_time = 0.4
+else:
+    python = "python3"
+    trivial_run_grace_time = 0.2
 
 
 class TestRunExecutor(unittest.TestCase):
@@ -253,15 +259,15 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(result, 0, "exit code of /bin/echo is not zero")
         self.assertAlmostEqual(
             result["walltime"],
-            0.2,
-            delta=0.2,
+            trivial_run_grace_time,
+            delta=trivial_run_grace_time,
             msg="walltime of /bin/echo not as expected",
         )
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 result["cputime"],
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg="cputime of /bin/echo not as expected",
             )
         self.check_result_keys(result)
@@ -360,8 +366,8 @@ class TestRunExecutor(unittest.TestCase):
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 result["cputime"],
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg="cputime of /bin/sleep is not approximately zero",
             )
 
@@ -448,15 +454,15 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
             result["walltime"],
-            0.2,
-            delta=0.2,
+            trivial_run_grace_time,
+            delta=trivial_run_grace_time,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 result["cputime"],
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
             )
         self.check_result_keys(result)
@@ -477,15 +483,15 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
             result["walltime"],
-            0.2,
-            delta=0.2,
+            trivial_run_grace_time,
+            delta=trivial_run_grace_time,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 result["cputime"],
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
             )
         self.check_result_keys(result)
@@ -537,15 +543,15 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode_extern(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
             float(result["walltime"].rstrip("s")),
-            0.2,
-            delta=0.2,
+            trivial_run_grace_time,
+            delta=trivial_run_grace_time,
             msg='walltime of "/bin/cat < /dev/null" is not approximately zero',
         )
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 float(result["cputime"].rstrip("s")),
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg='cputime of "/bin/cat < /dev/null" is not approximately zero',
             )
         self.check_result_keys(result, "returnvalue")
@@ -596,8 +602,8 @@ class TestRunExecutor(unittest.TestCase):
         if "cputime" in result:  # not present without cpuacct cgroup
             self.assertAlmostEqual(
                 result["cputime"],
-                0.2,
-                delta=0.2,
+                trivial_run_grace_time,
+                delta=trivial_run_grace_time,
                 msg="cputime of /bin/sleep is not approximately zero",
             )
 

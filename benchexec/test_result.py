@@ -906,6 +906,13 @@ class TestResult(unittest.TestCase):
                 self.expected_result(False), RESULT_FALSE_PROP, [test_prop]
             ),
         )
+        # arbitrary subproperties allowed if property does not specify one
+        self.assertEqual(
+            CATEGORY_CORRECT,
+            get_result_category(
+                self.expected_result(False), RESULT_FALSE_PROP + "(a)", [test_prop]
+            ),
+        )
 
         test_prop = Property("dummy.prp", False, True, "test prop", ["a", "b", "c"])
         self.assertEqual(
