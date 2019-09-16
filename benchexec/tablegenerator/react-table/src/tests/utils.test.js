@@ -1,5 +1,6 @@
 import Utils from "../utils/utils";
 
+//Example data set to test the filtering by regex
 const rows = [
 	{
 		test: {
@@ -33,6 +34,7 @@ const rows = [
 	}
 ];
 
+//Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
 const getFilteredData = (regex) => rows.filter(row => Utils.filterByRegex({ id: "test", value: regex }, row))
 
 test("filterByRegex single entry without result", () => {
@@ -51,6 +53,8 @@ test("filterByRegex single entry without result", () => {
 		)
 	).toBe(false);
 });
+
+//use function getFilteredData to generate test cases with data set 'rows'
 
 test("filterByRegex greater 10", () => {
 	expect(getFilteredData('10:').length).toBe(4);
