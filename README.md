@@ -10,7 +10,6 @@
 
 
 **News**:
-- **User survey about usability of soon-to-be-released improved version of our HTML tables**: please fill out this [form](https://docs.google.com/forms/d/e/1FAIpQLSfD85-Z_FVlb_iF8iT33CY9He2R4hWtRKtYyFM10Oni6zINRg/viewform) until 2019-08-11 and forward it to other users of BenchExec.
 - BenchExec 2.0 isolates runs by default using [containers](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md).
 - BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
