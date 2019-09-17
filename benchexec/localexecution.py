@@ -32,6 +32,7 @@ from benchexec import cgroups
 from benchexec import containerexecutor
 from benchexec.resources import *
 from benchexec.runexecutor import RunExecutor
+from benchexec.pqos import Pqos
 from benchexec import systeminfo
 from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
@@ -76,6 +77,9 @@ def execute_benchmark(benchmark, output_handler):
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
     cpu_packages = None
+    pqos = Pqos(show_warnings=True)  # The pqos class instance for cache allocation
+    pqos.reset_monitoring()
+
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             sys.exit(
@@ -88,6 +92,7 @@ def execute_benchmark(benchmark, output_handler):
             my_cgroups,
             benchmark.config.coreset,
         )
+        pqos.allocate_l3ca(coreAssignment)
         memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
         cpu_packages = {
             get_cpu_package_for_core(core)
@@ -209,7 +214,7 @@ def execute_benchmark(benchmark, output_handler):
             "System has swapped during benchmarking. "
             "Benchmark results are unreliable!"
         )
-
+    pqos.reset_resources()
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
     return 0
@@ -278,6 +283,9 @@ class _Worker(threading.Thread):
 
         args = run.cmdline()
         logging.debug("Command line of run is %s", args)
+        pqos = Pqos()
+        if self.my_cpus:
+            pqos.start_monitoring([self.my_cpus])
         run_result = self.run_executor.execute_run(
             args,
             output_filename=run.log_file,
@@ -295,6 +303,13 @@ class _Worker(threading.Thread):
             files_count_limit=benchmark.config.filesCountLimit,
             files_size_limit=benchmark.config.filesSizeLimit,
         )
+        mon_data = pqos.stop_monitoring()
+        run_result.update(mon_data)
+        if not mon_data:
+            logging.debug(
+                "Could not monitor cache and memory bandwidth events for run: %s",
+                run.identifier,
+            )
 
         if self.run_executor.PROCESS_KILLED:
             # If the run was interrupted, we ignore the result and cleanup.

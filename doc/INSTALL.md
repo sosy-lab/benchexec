@@ -12,6 +12,9 @@ The following packages are optional but recommended dependencies:
 - [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) will let BenchExec measure energy consumption on Intel CPUs.
 - [LXCFS](https://github.com/lxc/lxcfs) provides better container isolation.
 - [coloredlogs](https://pypi.org/project/coloredlogs/) provides nicer log output.
+- [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) and [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos)
+  provide isolation of L3 cache and measurement of cache usage and memory bandwidth
+  (only in `benchexec`).
 
 ### Debian/Ubuntu
 
@@ -28,6 +31,10 @@ Just add your user to the group `benchexec` and reboot:
 
 Afterwards, please check whether everything works
 or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+Note that [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper)
+is currently not available as a Debian package and needs to be installed manually
+according to its documentation.
 
 ### Other Distributions
 
@@ -50,8 +57,9 @@ to the PATH environment by adding the following line to your `~/.profile` file:
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
-[LXCFS](https://github.com/lxc/lxcfs) if desired.
+and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter),
+[LXCFS](https://github.com/lxc/lxcfs),
+and [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) if desired.
 
 ### Development version
 
@@ -65,8 +73,9 @@ otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
-[LXCFS](https://github.com/lxc/lxcfs) if desired.
+and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter),
+[LXCFS](https://github.com/lxc/lxcfs),
+and [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) if desired.
 
 
 ## Kernel Requirements
