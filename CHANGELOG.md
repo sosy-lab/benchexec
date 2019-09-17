@@ -1,5 +1,16 @@
 # BenchExec Changelog
 
+## BenchExec 2.1
+
+`benchexec` can now partition the Level 3 cache of the CPU for parallel runs
+and measure cache usage and memory bandwidth,
+at least on some Intel CPUs and if the [pqos](https://github.com/intel/intel-cmt-cat/tree/master/pqos)
+and [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper) are installed.
+More information is in the [documentation](https://gitlab.com/sosy-lab/software/pqos-wrapper/wikis/home).
+
+Furthermore, some error messages for systems without container support were improved.
+
+
 ## BenchExec 2.0
 
 This release does not add new features compared to BenchExec 1.22,
