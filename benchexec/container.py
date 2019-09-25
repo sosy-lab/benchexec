@@ -782,6 +782,8 @@ _FORBIDDEN_SYSCALLS = [
     b"add_key",
     b"request_key",
     b"keyctl",
+    # userfaultfd allows to block kernel code, better avoid it
+    b"userfaultfd",
 ]
 
 
