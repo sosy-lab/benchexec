@@ -778,6 +778,10 @@ def drop_capabilities(keep=[]):
 
 
 _FORBIDDEN_SYSCALLS = [
+    # Kernel keyrings are not namespaced before Linux 5.2.
+    b"add_key",
+    b"request_key",
+    b"keyctl",
 ]
 
 
