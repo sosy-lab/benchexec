@@ -192,6 +192,7 @@ def _init_container(
     container.mount_proc(container_system_config)  # only possible in child
     container.drop_capabilities()
     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
+    container.setup_seccomp_filter()
 
 
 def _load_tool(tool_module):

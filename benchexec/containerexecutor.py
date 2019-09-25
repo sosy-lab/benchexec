@@ -722,6 +722,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     )
                     return CHILD_OSERROR
 
+                container.setup_seccomp_filter()
+
                 try:
                     grandchild_proc = subprocess.Popen(
                         args,

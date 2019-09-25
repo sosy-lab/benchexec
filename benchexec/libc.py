@@ -222,7 +222,10 @@ prctl = _libc.prctl
 prctl.errcheck = _check_errno
 prctl.argtypes = [c_int, c_ulong, c_ulong, c_ulong, c_ulong]
 
-PR_SET_DUMPABLE = 4  # /usr/include/linux/prctl.h
+# /usr/include/linux/prctl.h
+PR_SET_DUMPABLE = 4
+PR_GET_SECCOMP = 21
+PR_SET_SECCOMP = 22
 SUID_DUMP_DISABLE = 0
 SUID_DUMP_USER = 1
 

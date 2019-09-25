@@ -36,6 +36,7 @@ import socket
 import struct
 
 from benchexec import libc
+from benchexec import seccomp
 from benchexec import util
 
 __all__ = [
@@ -774,6 +775,24 @@ def drop_capabilities(keep=[]):
         ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
         ctypes.byref(capdata),
     )
+
+
+_FORBIDDEN_SYSCALLS = [
+]
+
+
+def setup_seccomp_filter():
+    if not seccomp.is_available():
+        return
+    try:
+        with seccomp.SeccompFilter() as s:
+            for syscall in _FORBIDDEN_SYSCALLS:
+                s.add_rule(seccomp.SCMP_ACT_ENOSYS, syscall)
+            # enable for debugging
+            # _ s.print_to(1)
+            s.activate()
+    except OSError as e:
+        logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
 _ALL_SIGNALS = range(1, signal.NSIG)
