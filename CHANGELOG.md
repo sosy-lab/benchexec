@@ -1,5 +1,27 @@
 # BenchExec Changelog
 
+## BenchExec 2.2
+
+This release fixes two security issues, all users are encouraged to update:
+
+- Since BenchExec 2.1, the setup of the container for the tool-info module
+  (which was added in BenchExec 1.20) could silently fail, for example
+  if user namespaces are disabled on the system. In this case the tool-info
+  module would be executed outside of the container.
+  Run execution was not affected.
+- The kernel offers a keyring feature for storage of keys related to features
+  like Kerberos and ecryptfs. Before Linux 5.2, there existed one keyring per
+  user, and BenchExec did not prevent access from the tool inside the container
+  to the kernel keyring of the user who started BenchExec.
+  Now such accesses are forbidden (on all kernel versions) using
+  [seccomp](http://man7.org/linux/man-pages/man2/seccomp.2.html)
+  if [libseccomp2](https://github.com/seccomp/libseccomp) is installed,
+  which should the case on any standard distribution.
+  Note that seccomp filters do have a slight performance impact
+  and could prevent some binaries on exotic architectures from working.
+  In such a case please file a [bug report](https://github.com/sosy-lab/benchexec/issues/new).
+
+
 ## BenchExec 2.1
 
 `benchexec` can now partition the Level 3 cache of the CPU for parallel runs
