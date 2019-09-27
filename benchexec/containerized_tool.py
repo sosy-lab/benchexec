@@ -66,12 +66,7 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
 
     def _forward_call(self, method_name, args, kwargs):
         """Call given method indirectly on the tool instance in the container."""
-        result = self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
-        if isinstance(result, BaseException):
-            # None of the methods are expected to return exceptions,
-            # so we can assume that any exception should be raised.
-            raise result
-        return result
+        return self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
 
     @classmethod
     def _add_proxy_function(cls, method_name, method):
@@ -246,7 +241,4 @@ def _call_tool_func(name, args, kwargs):
     @param kwargs: Dict of arguments to be passed as keyword arguments.
     """
     global tool
-    try:
-        return getattr(tool, name)(*args, **kwargs)
-    except BaseException as e:
-        return e
+    return getattr(tool, name)(*args, **kwargs)
