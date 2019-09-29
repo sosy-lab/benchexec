@@ -169,7 +169,6 @@ export default class Overview extends React.Component {
                 <div> 
                     {this.state.showSelectColumns && <SelectColumn 
                                                     close={this.toggleSelectColumns}
-                                                    select={this.selectColumns}
                                                     currColumns = {this.state.columns}
                                                     tableHeader = {this.tableHeader}
                                                     getRunSets={this.getRunSets}

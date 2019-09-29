@@ -18,7 +18,6 @@ export default class SelectColumn extends React.Component {
    
 // -------------------------Closing-------------------------
     close = () => {
-        this.props.select()
         this.setState(prevState => ({ 
             showOverlay: !prevState.showOverlay,
         }));
@@ -89,7 +88,6 @@ export default class SelectColumn extends React.Component {
         let list = this.props.tools
         list[tool].columns[index].isVisible = value;
         this.setState({ list: list })
-        
     }
 
     handleSelectColumns = (event) => {
