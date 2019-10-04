@@ -58,6 +58,8 @@ class Tool(benchexec.tools.template.BaseTool):
 		return 'Nitwit'
 
 	def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+		if propertyfile:
+			options = options + ["-p", propertyfile]
 		return [executable] + options + tasks
 
 	def determine_result(self, returncode, returnsignal, output, isTimeout):
