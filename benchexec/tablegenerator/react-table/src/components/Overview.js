@@ -116,7 +116,7 @@ export default class Overview extends React.Component {
                             <Tab> Quantile Plot </Tab>
                             <Tab> Scatter Plot </Tab>
                             <Tab> Info </Tab>
-                            {!!this.state.filtered.length && <Reset resetFilters={this.resetFilters} />}
+                            <Reset isFiltered={!!this.state.filtered.length} resetFilters={this.resetFilters} />
                         </TabList>
                         <TabPanel>
                             <Summary    

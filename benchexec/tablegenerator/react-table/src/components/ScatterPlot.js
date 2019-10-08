@@ -30,7 +30,7 @@ export default class ScatterPlot extends React.Component {
 
 // ----------------------resizer-------------------------------
     componentDidMount() {
-        window.addEventListener("resize", this.updateDimensions); // TODO add in quantile + maybe use debounce
+        window.addEventListener("resize", this.updateDimensions);
     }
 
     componentWillUnmount() {
@@ -67,13 +67,11 @@ export default class ScatterPlot extends React.Component {
                     const y = row.results[this.state.toolY].values[this.state.columnY].original;
                     const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
                     if(x !== null && y !== null && !isLogAndInvalid) {
-                        array.push(
-                            {
-                                x: x,
-                                y: y,
-                                info: row.short_filename,
-                            }
-                        )
+                        array.push({
+                            x: x,
+                            y: y,
+                            info: row.short_filename,
+                        })
                     }
                     if(isLogAndInvalid) {
                         this.hasInvalidLog = true;
@@ -86,13 +84,14 @@ export default class ScatterPlot extends React.Component {
                     const x = row.results[this.state.toolX].values[this.state.columnX].original;
                     const y = row.results[this.state.toolY].values[this.state.columnY].original;
                     const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
-                    if(x !== null && y !== null && !isLogAndInvalid) array.push(
-                        {
+                    if(x !== null && y !== null && !isLogAndInvalid) {
+
+                        array.push({
                             x: x,
                             y: y,
                             info: row.short_filename,
-                        }
-                    ) 
+                        }) 
+                    }
                     if(isLogAndInvalid) {
                         this.hasInvalidLog = true;
                     }
