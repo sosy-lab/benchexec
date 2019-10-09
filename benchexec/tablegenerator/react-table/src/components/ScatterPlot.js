@@ -4,8 +4,8 @@ import {XYPlot, MarkSeries, VerticalGridLines, HorizontalGridLines, XAxis, YAxis
 export default class ScatterPlot extends React.Component {
     constructor(props) {
         super(props);
+        const defaultName = this.props.getRunSets(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-        this.columns = this.props.column;
         this.state = {
             dataX: "0-1",
             dataY: "0-1",
@@ -16,12 +16,13 @@ export default class ScatterPlot extends React.Component {
             line: 10,
             columnX: 1,
             columnY: 1,
-            nameX: this.props.getRunSets(this.props.tools[0]) + " " + this.props.columns[0][1],
-            nameY: this.props.getRunSets(this.props.tools[0]) + " " + this.props.columns[0][1],
+            nameX: defaultName,
+            nameY: defaultName,
             value: false,
             width: window.innerWidth,
             height: window.innerHeight,
-        }
+        };
+        
         this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
         this.maxX = '';
         this.minX = '';

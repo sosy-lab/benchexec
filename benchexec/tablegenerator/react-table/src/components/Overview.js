@@ -50,9 +50,10 @@ export default class Overview extends React.Component {
     };
 
 // -----------------------SelectColumns-----------------------
-    toggleSelectColumns = () => {
+    toggleSelectColumns = (ev, tools) => {
         this.setState(prevState => ({ 
             showSelectColumns: !prevState.showSelectColumns,
+            tools: tools || prevState.tools,
         }));
     }
     

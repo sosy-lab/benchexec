@@ -9,8 +9,9 @@ export default class Overlay extends React.Component {
         const visibleColumn = this.props.preSelection.isVisible ? 
                     this.props.preSelection : this.props.tools.map(tool => tool.columns).flat().find(col => col.isVisible);
         
+        // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
         this.state = {
-            selection: visibleColumn.display_title,
+            selection: visibleColumn && visibleColumn.display_title ,
             quantile: true,
             linear: false,
             correct: true,
@@ -19,8 +20,6 @@ export default class Overlay extends React.Component {
         }
 
         this.possibleValues = [];
-        this.initialLines = [];
-        this.strokeStyle = "";
         this.lineCount = 1;
     };
 
@@ -44,7 +43,6 @@ export default class Overlay extends React.Component {
         return (this.state.isValue) 
             ? this.props.tools.filter(t => t.isVisible).map(tool => this.props.getRunSets(tool)) 
             : this.props.tools[this.state.selection.split('-')[1]].columns.map(c => c.isVisible && c.type.name !== "text" && c.type.name !== "status" ? c.display_title : null).filter(Boolean);
-            // TODO: tut ".filter(Boolean)" wirklich das was ich möchte? => lässt nur alle true values durch
     }
 
     renderAll = () => {
@@ -103,19 +101,6 @@ export default class Overlay extends React.Component {
         });
 
         this[field] = newArray;
-        
-        // TODO: Alternative:
-        // const isOrdinal = this.handleType() === 'ordinal';
-        // arrayY = arrayY.map((el, i) => ({
-        //     x: i+1,
-        //     y: isOrdinal ? el[0] : +el[0],
-        //     info: el[1],
-        //     isNull: el[0] === null,
-        //     isLogAndInvalid: !this.state.linear && el[0] <= 0,
-        // }));
-        
-        // this[field] = arrayY.filter(el => !el.isNull && !el.isLogAndInvalid); // only add valid ones
-        // this.hasInvalidLog = arrayY.some(el => el.isLogAndInvalid); // if at least one is invalid show error
     }
 
     sortArray = (array, column) => {

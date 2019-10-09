@@ -10,11 +10,8 @@ export default class Summary extends React.Component {
 
     constructor(props) {
         super(props);
+        
         this.state= {
-            showTotal: true,
-            showLocal: true,
-            showCorrect: true,
-            showIncorrect: true,
             fixed: true,
         }
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];

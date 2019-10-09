@@ -11,17 +11,16 @@ export default class Table extends React.Component {
 
     constructor(props) {
         super(props);
+
         this.data = this.props.data;
         this.state = {
             fixed: true,
-            showLinkOverlay: false,
-            link: '',
         };
 
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
         this.typingTimer = -1;
-        this.width = (window.innerWidth*0.3);
-        this.height = window.innerHeight-50;
+        this.width = window.innerWidth * 0.3;
+        this.height = window.innerHeight - 50;
     };
     //fix columns
     handleInputChange = ({target}) => {
