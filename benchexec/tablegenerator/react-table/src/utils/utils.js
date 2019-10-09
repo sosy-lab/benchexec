@@ -1,5 +1,20 @@
 export default {
 
+    prepareTableData(data) {
+        return {
+            tableHeader: data.head,
+            tools: data.tools.map(tool => ({
+                ...tool, 
+                isVisible: true, 
+                columns: tool.columns.map(c => ({ ...c, isVisible: true }))
+            })),
+            columns: data.tools.map(t => t.columns.map(c => c.title)),
+            table: data.rows,
+            stats: data.stats,
+            properties: data.props,
+        };
+    },
+
     filterByRegex(filter, row, cell) {
         const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/
 
@@ -34,5 +49,5 @@ export default {
             return -1
         }
         return 0
-    }
+    },
 }

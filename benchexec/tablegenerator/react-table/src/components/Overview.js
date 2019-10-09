@@ -9,6 +9,7 @@ import ScatterPlot from './ScatterPlot.js';
 import QuantilePlot from './QuantilePlot.js';
 import LinkOverlay from './LinkOverlay.js';
 import Reset from './Reset.js';
+import Utils from '../utils/utils'
 
 //example data for development
 if (process.env.NODE_ENV !== 'production') {
@@ -20,30 +21,31 @@ if (process.env.NODE_ENV !== 'production') {
 export default class Overview extends React.Component {
     constructor(props) {
         super(props);
-        //imported data
-        this.tableHeader = window.data.head;
-        this.tools = window.data.tools.map(tool => ({
-            ...tool, 
-            isVisible: true, 
-            columns: tool.columns.map(c => ({ ...c, isVisible: true }))
-        }));
-        this.columns = window.data.tools.map(t => t.columns.map(c => c.title));
-        this.data = window.data.rows;
-        this.stats = window.data.stats;
-        this.properties = window.data.props;
-        this.filtered = [];
+        //imported data  
+        const { tableHeader, tools, columns, table, stats, properties } = Utils.prepareTableData(window.data);
+        
+        this.originalTable = table;
+        this.originalTools = tools;
+        
+        this.columns = columns;
+        this.stats = stats;
+        this.tableHeader = tableHeader;
+        this.properties = properties;
+
+        this.filteredData = [];
 
         //data is handled and changed here; To use it in other components hand it over with component
         //To change data in component (e.g. filter): function to change has to be in overview
         this.state = {
+            tools,
+            table,
+
             showSelectColumns: false,
             showLinkOverlay: false,
-            columns: this.columns,
-            tools: this.tools,
-            table: this.data,
             filtered: [],
             tabIndex: 0,
-            quantilePreSelection: this.tools[0].columns[1],
+
+            quantilePreSelection: tools[0].columns[1],
         }
     };
 
@@ -78,7 +80,7 @@ export default class Overview extends React.Component {
     }
     resetFilters = () => {
         this.setState({
-            table: this.data,
+            table: this.originalTable,
             filtered: []
         })
     }
@@ -89,7 +91,7 @@ export default class Overview extends React.Component {
     }  
 
     prepareTableValues = (el, tool, column, href, row) => {
-        const col = this.tools[tool].columns[column];
+        const col = this.originalTools[tool].columns[column];
         if (col.type.name === "main_status" || col.type.name === "status") {
             return el.formatted ? <a href={href} className={row.category} onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null} title="Click here to show output of tool">{el.formatted}</a> : null
         } else {
@@ -112,10 +114,10 @@ export default class Overview extends React.Component {
                     <Tabs selectedIndex={this.state.tabIndex} onSelect={tabIndex => this.setState({ tabIndex, showSelectColumns: false, showLinkOverlay: false })}>
                         <TabList>
                             <Tab>Summary</Tab>
-                            <Tab> Table ({this.state.table.length})</Tab>
-                            <Tab> Quantile Plot </Tab>
-                            <Tab> Scatter Plot </Tab>
-                            <Tab> Info </Tab>
+                            <Tab>Table ({this.state.table.length})</Tab>
+                            <Tab>Quantile Plot</Tab>
+                            <Tab>Scatter Plot</Tab>
+                            <Tab>Info</Tab>
                             <Reset isFiltered={!!this.state.filtered.length} resetFilters={this.resetFilters} />
                         </TabList>
                         <TabPanel>
@@ -123,25 +125,25 @@ export default class Overview extends React.Component {
                                 tools={this.state.tools}
                                 tableHeader={this.tableHeader}
                                 selectColumn={this.toggleSelectColumns}
-                                stats = {this.stats}
-                                prepareTableValues = {this.prepareTableValues}
+                                stats={this.stats}
+                                prepareTableValues={this.prepareTableValues}
                                 getRunSets={this.getRunSets}
-                                changeTab= {this.changeTab} />
+                                changeTab={this.changeTab} />
                         </TabPanel>
                         <TabPanel>
                             <Table      
                                 tableHeader={this.tableHeader}
-                                data={this.data}
+                                data={this.originalTable}
                                 tools={this.state.tools}
                                 properties={this.properties}
                                 selectColumn={this.toggleSelectColumns}
                                 getRunSets={this.getRunSets}
-                                prepareTableValues = {this.prepareTableValues}
-                                setFilter = {this.setFilter}
-                                filterPlotData = {this.filterPlotData}
-                                filtered = {this.state.filtered}
+                                prepareTableValues={this.prepareTableValues}
+                                setFilter={this.setFilter}
+                                filterPlotData={this.filterPlotData}
+                                filtered={this.state.filtered}
                                 toggleLinkOverlay={this.toggleLinkOverlay}
-                                changeTab= {this.changeTab} />
+                                changeTab={this.changeTab} />
                         </TabPanel>
                         <TabPanel>
                             <QuantilePlot 
@@ -169,8 +171,8 @@ export default class Overview extends React.Component {
                 <div> 
                     {this.state.showSelectColumns && <SelectColumn 
                                                     close={this.toggleSelectColumns}
-                                                    currColumns = {this.state.columns}
-                                                    tableHeader = {this.tableHeader}
+                                                    currColumns={this.columns}
+                                                    tableHeader={this.tableHeader}
                                                     getRunSets={this.getRunSets}
                                                     tools={this.state.tools} />}
                     {this.state.showLinkOverlay && <LinkOverlay 

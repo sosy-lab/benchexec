@@ -18,7 +18,7 @@ export default class Summary extends React.Component {
             fixed: true,
         }
         this.infos = ['displayName', 'tool', 'limit', 'host', 'os', 'system', 'date', 'runset', 'branch', 'options', 'property'];
-        this.headerWidth = (window.innerWidth*0.15);
+        this.headerWidth = window.innerWidth * 0.15;
         this.width = window.innerWidth;
     };
 
@@ -42,27 +42,20 @@ export default class Summary extends React.Component {
     }
 
     renderTooltip = (cell) => {
-        let string = '';
-        Object.keys(cell).forEach(key => { 
-            if(cell[key] && key!=='sum') (string += `, ${key}: ${cell[key]}`)
-        });
-        
-        return string.substr(2)
+        return Object.keys(cell).filter(key => cell[key] && key !== 'sum').map(key => `${key}: ${cell[key]}`).join(', ');
     }
+
 
     //fix columns
     handleInputChange = ({target}) => {
-        const value = target.checked;
-        const name = target.name;
-    
         this.setState({
-          [name]: value
+          [target.name]: target.checked
         });
     }
     renderOptions = (text) => {
-        return text.split('-').map(option => {
-            return <li key={option}><code>{`-${option}`}</code></li>
-        })
+        return text.split('-').map(option => 
+            <li key={option}><code>{`-${option}`}</code></li>
+        );
     }
 
     render() {
@@ -117,14 +110,16 @@ export default class Summary extends React.Component {
                  <h2>Environment</h2>
                 <table>
                     <tbody>
-                        {this.infos.filter(info => this.props.tableHeader[info] !== null).map((row, i) => {
-                            return  <tr key={'tr-'+row}> 
-                                        <th key={'td-'+row}>{row}</th>
-                                        {this.props.tableHeader[row].content.map((tool, j) => {
-                                            return row !=='options' ? <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row'>{tool[0]} </td> : <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row options'><ul>{this.renderOptions(tool[0])}</ul></td>})
-                                        }
-                                    </tr>
-                                })}
+                        {this.infos.filter(info => this.props.tableHeader[info] !== null).map((row, i) => (
+                            <tr key={'tr-'+row}> 
+                                <th key={'td-'+row}>{row}</th>
+                                {
+                                    this.props.tableHeader[row].content.map((tool, j) => (
+                                        row !=='options' ? <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row'>{tool[0]} </td> : <td colSpan={tool[1]} key={tool[0]+j} className='header__tool-row options'><ul>{this.renderOptions(tool[0])}</ul></td>
+                                    ))
+                                }
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
                 <h2>Summary</h2>

@@ -43,81 +43,73 @@ export default class ScatterPlot extends React.Component {
             height: window.innerHeight,
         });
     }
-// --------------------rendering-----------------------------
+    
+    // --------------------rendering-----------------------------
     renderColumns = () => {
-        return this.props.tools.map((runset, i) => {
-            return <optgroup key={"runset"+i} label={this.props.getRunSets(runset, i)}>
-                    {runset.columns.map((column, j) => {
-                        return column.isVisible ? <option key={i+column.display_title} value={i+"-"+j} name={column.display_title}>{column.display_title}</option> : null
-                    })}
-                </optgroup>
-        })
+        return this.props.tools.map((runset, i) => (
+            <optgroup key={"runset"+i} label={this.props.getRunSets(runset, i)}>
+                {runset.columns.map((column, j) => {
+                    return column.isVisible ? <option key={i+column.display_title} value={i+"-"+j} name={column.display_title}>{column.display_title}</option> : null
+                })}
+            </optgroup>
+        ))
     }
 
     renderData = () =>  {
         let array = [];
-        this.arrayX = [];
-        this.arrayY = [];
         this.hasInvalidLog = false;
-
-        if (this.state.correct) {
-            this.props.table.forEach(row => {
-                if(row.results[this.state.toolX].category==="correct" && row.results[this.state.toolY].category==="correct" && row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    const x = row.results[this.state.toolX].values[this.state.columnX].original;
-                    const y = row.results[this.state.toolY].values[this.state.columnY].original;
-                    const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
-                    if(x !== null && y !== null && !isLogAndInvalid) {
-                        array.push({
-                            x: x,
-                            y: y,
-                            info: row.short_filename,
-                        })
-                    }
-                    if(isLogAndInvalid) {
-                        this.hasInvalidLog = true;
-                    }
+    
+        this.props.table.forEach(row => {
+            const resX = row.results[this.state.toolX];
+            const resY = row.results[this.state.toolY];
+            const hasValues = resX.values[this.state.columnX] && resY.values[this.state.columnY];
+            
+            if(hasValues && (!this.state.correct || (this.state.correct && resX.category === "correct" && resY.category === "correct"))) {
+                const x = resX.values[this.state.columnX].original;
+                const y = resY.values[this.state.columnY].original;
+                const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
+    
+                if(x !== null && y !== null && !isLogAndInvalid) {
+                    array.push({
+                        x,
+                        y,
+                        info: row.short_filename,
+                    })
                 }
-            })
-        } else {
-            this.props.table.forEach(row => {
-                if(row.results[this.state.toolX].values[this.state.columnX] && row.results[this.state.toolY].values[this.state.columnY]) {
-                    const x = row.results[this.state.toolX].values[this.state.columnX].original;
-                    const y = row.results[this.state.toolY].values[this.state.columnY].original;
-                    const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
-                    if(x !== null && y !== null && !isLogAndInvalid) {
-
-                        array.push({
-                            x: x,
-                            y: y,
-                            info: row.short_filename,
-                        }) 
-                    }
-                    if(isLogAndInvalid) {
-                        this.hasInvalidLog = true;
-                    }
+                if(isLogAndInvalid) {
+                    this.hasInvalidLog = true;
                 }
-            })
-        }
-        this.maxX = this.findMaxValues(array)[0];
-        this.maxY = this.findMaxValues(array)[1];
-        this.minX = this.findMinValues(array)[0];
-        this.minY = this.findMinValues(array)[1];
+            }
+        });
+
+        this.setMinMaxValues(array);
+
         this.lineCount = array.length;
         this.dataArray = array;
     }
-    findMaxValues = (array) => {
-        const maxX = Math.max(...array.map(el => el.x)) < 3 ? 3 : Math.max(...array.map(el => el.x))
-        const maxY = Math.max(...array.map(el => el.y)) < 3 ? 3 : Math.max(...array.map(el => el.y))
-        return [maxX, maxY];
+
+    setMinMaxValues = (array) => {
+        const xValues = array.map(el => el.x);
+        const yValues = array.map(el => el.y);
+
+        this.maxX = this.findMaxValue(xValues);
+        this.maxY = this.findMaxValue(yValues);
+        this.minX = this.findMinValue(xValues);
+        this.minY = this.findMinValue(yValues);
     }
-    findMinValues = (array) => {
-        const minX = Math.min(...array.map(el => el.x)) > 2 ? 1 : Math.min(...array.map(el => el.x))
-        const minY = Math.min(...array.map(el => el.y)) > 2 ? 1 : Math.min(...array.map(el => el.y))
-        return [minX, minY];
+
+    findMaxValue = (values) => {
+        const max = Math.max(...values);
+        return max < 3 ? 3 : max;
+    }
+
+    findMinValue = (values) => {
+        const min = Math.min(...values);
+        return min > 2 ? 1 : min;
     }
 
 // ------------------------handeling----------------------------  
-    handlType = (tool, column) =>  {
+    handleType = (tool, column) =>  {
         if(this.props.tools[tool].columns[column].type.name==="text" || this.props.tools[tool].columns[column].type.name==="status") {
             return 'ordinal'
         } else {
@@ -135,24 +127,14 @@ export default class ScatterPlot extends React.Component {
         }))
     }
 
-    handleX = (ev) => {
+    handleAxis = (ev, axis) => {
         this.array = [];
-        let splitted = ev.target.value.split("-", 2)
-        this.setState({ 
-            dataX: ev.target.value, 
-            toolX: splitted[0],
-            columnX: splitted[1],  
-            nameX: this.props.getRunSets(this.props.tools[splitted[0]]) + " " + this.props.columns[splitted[0]][splitted[1]],
-        })
-    }
-    handleY = (ev) => {
-        this.array = [];
-        let splitted = ev.target.value.split("-", 2)
+        const splitted = ev.target.value.split("-", 2)
         this.setState({
-            dataY: ev.target.value,
-            toolY: splitted[0],
-            columnY: splitted[1],  
-            nameY: this.props.getRunSets(this.props.tools[splitted[0]])  + " " + this.props.columns[splitted[0]][splitted[1]],
+            [`data${axis}`]: ev.target.value,
+            [`tool${axis}`]: splitted[0],
+            [`column${axis}`]: splitted[1],  
+            [`name${axis}`]: this.props.getRunSets(this.props.tools[splitted[0]])  + " " + this.props.columns[splitted[0]][splitted[1]],
         })
     }
     handleLine = ({target}) => {
@@ -161,16 +143,15 @@ export default class ScatterPlot extends React.Component {
         })
     }
 
-
     render() {
         this.renderData();
         return (
             <div className="scatterPlot">
                 <div className="scatterPlot__select">
-                    <span> X: </span><select name="Value XAxis" value={this.state.dataX} onChange={this.handleX}>
+                    <span> X: </span><select name="Value XAxis" value={this.state.dataX} onChange={(ev) => this.handleAxis(ev, 'X')}>
                         {this.renderColumns()}
                     </select>
-                    <span> Y: </span><select name="Value YAxis" value={this.state.dataY} onChange={this.handleY}>
+                    <span> Y: </span><select name="Value YAxis" value={this.state.dataY} onChange={(ev) => this.handleAxis(ev, 'Y')}>
                         {this.renderColumns()}
                     </select>
                     <span>
@@ -186,13 +167,13 @@ export default class ScatterPlot extends React.Component {
                         height={this.state.height - 200} 
                         width={this.state.width - 100} 
                         margin={{left: 90}} 
-                        yType={this.handlType(this.state.toolY, this.state.columnY)} 
-                        xType={this.handlType(this.state.toolX, this.state.columnX)}
-                        xDomain={this.handlType(this.state.toolX, this.state.columnX) !== 'ordinal' ? [this.minX, this.maxX] : null}
-                        yDomain={this.handlType(this.state.toolY, this.state.columnY) !== 'ordinal' ? [this.minY, this.maxY] : null}
+                        yType={this.handleType(this.state.toolY, this.state.columnY)} 
+                        xType={this.handleType(this.state.toolX, this.state.columnX)}
+                        xDomain={this.handleType(this.state.toolX, this.state.columnX) !== 'ordinal' ? [this.minX, this.maxX] : null}
+                        yDomain={this.handleType(this.state.toolY, this.state.columnY) !== 'ordinal' ? [this.minY, this.maxY] : null}
                         >
-                    <VerticalGridLines yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
-                    <HorizontalGridLines yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
+                    <VerticalGridLines yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)}/>
+                    <HorizontalGridLines yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)}/>
                     
                     <DecorativeAxis
                         className='middle-line'
@@ -222,8 +203,8 @@ export default class ScatterPlot extends React.Component {
                             text: {stroke: 'none', fill: '#6b6b76', fontWeight: 600, opacity: 0}
                         }}
                     /> 
-                    <XAxis title = {this.state.nameX} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
-                    <YAxis title = {this.state.nameY} tickFormat = {value => value} yType={this.handlType(this.state.toolY, this.state.columnY)} xType={this.handlType(this.state.toolX, this.state.columnX)}/>
+                    <XAxis title = {this.state.nameX} tickFormat = {value => value} yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)}/>
+                    <YAxis title = {this.state.nameY} tickFormat = {value => value} yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)}/>
                     <MarkSeries data={this.dataArray} onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})} onValueMouseOut={(datapoint, event) => this.setState({value: null})}/> 
                     {this.state.value ? <Hint value={this.state.value} /> : null}
                 </XYPlot>

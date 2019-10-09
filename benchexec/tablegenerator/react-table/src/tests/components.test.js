@@ -56,35 +56,18 @@ it("Hide reset button", () => {
 	expect(component).toMatchSnapshot();
 });
 
-// it("Render Summary", () => {
-// 	const component = renderer
-// 		.create(
-// 			<Summary    
-// 				tools={overviewInstance.originalTools}
-// 				tableHeader={overviewInstance.tableHeader}
-// 				selectColumn={overviewInstance.toggleSelectColumns}
-// 				stats = {overviewInstance.stats}
-// 				prepareTableValues = {overviewInstance.prepareTableValues}
-// 				getRunSets={overviewInstance.getRunSets}
-// 				changeTab= {overviewInstance.changeTab} />
-// 		).toJSON();
+it("Render Summary", () => {
+	const component = renderer
+		.create(
+			<Summary    
+				tools={overviewInstance.originalTools}
+				tableHeader={overviewInstance.tableHeader}
+				selectColumn={overviewInstance.toggleSelectColumns}
+				stats = {overviewInstance.stats}
+				prepareTableValues = {overviewInstance.prepareTableValues}
+				getRunSets={overviewInstance.getRunSets}
+				changeTab= {overviewInstance.changeTab} />
+		).toJSON();
 
-// 	expect(component).toMatchSnapshot();
-// });
-
-// it("Render Summary - enzyme", () => {
-// 	const summary = shallow(<Summary    
-// 				tools={overviewInstance.tools}
-// 				tableHeader={overviewInstance.tableHeader}
-// 				selectColumn={overviewInstance.toggleSelectColumns}
-// 				stats = {overviewInstance.stats}
-// 				prepareTableValues = {overviewInstance.prepareTableValues}
-// 				getRunSets={overviewInstance.getRunSets}
-// 				changeTab= {overviewInstance.changeTab} />
-// 		);
-
-// 	// summary.find('stats').simulate('click');
-// 	// console.log("summary.find('stats')", summary.find('[text="Click here to select columns"]').simulate('click'));
-	
-// 	// expect(component).toMatchSnapshot();
-// });
+	expect(component).toMatchSnapshot();
+});

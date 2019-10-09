@@ -65,35 +65,19 @@ export default class Table extends React.Component {
                             return 0
                           },
                         filterMethod: (filter, row) => {
-                            switch(filter.value) {
-                                //case category has to be differentiated to the name of the status => space in String
-                                case "all ": {
-                                    return true;
-                                }
-                                case "correct ": {
-                                    if(row._original.results[j].category === 'correct') {
-                                        return row[filter.id]
-                                    }
-                                    break;
-                                } 
-                                case "wrong ": {
-                                    if(row._original.results[j].category === 'wrong') {
-                                        return row[filter.id]
-                                    }
-                                    break;
-                                }
-                                case "ERROR ": {        
-                                    if(row._original.results[j].category === 'error') {
-                                        return row[filter.id]
-                                    }
-                                    break;
-                                }
-                                default: {
-                                    if(row[filter.id] && filter.value === row[filter.id].props.children) {
-                                        return row[filter.id]
-                                    }
-                                }
+                            //case category has to be differentiated to the name of the status => space in String (e.g. "ERROR ")
+                            const cleanFilterValue = filter.value.trim().toLowerCase();
+
+                            if (cleanFilterValue === 'all') {
+                                return true;
                             }
+                            else if (['correct', 'wrong', 'error'].includes(cleanFilterValue) && row._original.results[j].category === cleanFilterValue) {
+                                return row[filter.id]
+                            }
+                            else if(row[filter.id] && filter.value === row[filter.id].props.children) {
+                                return row[filter.id];
+                            }
+
                         },
                         Filter: ({ filter, onChange }) => {
                             return  <select
@@ -131,13 +115,13 @@ export default class Table extends React.Component {
                         filterMethod: Utils.filterByRegex,
                         Filter: ({ filter, onChange }) => {
                             let value;
-                            let type = column.type._type._type ? column.type._type._type : column.type._type;
-                            let placeholder = (type === 2 || type === 3) ? 'Min:Max' : 'text'
+                            const type = column.type._type._type ? column.type._type._type : column.type._type;
+                            const placeholder = (type === 2 || type === 3) ? 'Min:Max' : 'text'
                             return (
                                 <input
-                                    placeholder = {placeholder}
-                                    defaultValue = {value ? value : (filter ? filter.value : filter)}
-                                    onChange = {event => {
+                                    placeholder={placeholder}
+                                    defaultValue={value ? value : (filter ? filter.value : filter)}
+                                    onChange={event => {
                                         value = event.target.value
                                         clearTimeout(this.typingTimer)
                                         this.typingTimer = setTimeout(() => {
@@ -154,26 +138,23 @@ export default class Table extends React.Component {
     }
 
     collectStati = (tool, column) => {
-        let statiArray = this.data.map(row => {
-            return row.results[tool].values[column].formatted
-        });
-        return [...new Set(statiArray)].map(status => {
-            return status ? <option value = {status} key = {status}>{status}</option> : null
-        })
+        const statiArray = this.data.map(row => row.results[tool].values[column].formatted);
+        return [...new Set(statiArray)].map(status => 
+            status ? <option value = {status} key = {status}>{status}</option> : null
+        );
     }
     renderToolInfo = (i) => {
-        let header = this.props.tableHeader;
+        const header = this.props.tableHeader;
         
-        return this.infos.map(row => {
-            return (header[row]) ? <p key={row} className="header__tool-row">{header[row].content[i][0]} </p> : null;
-        })
+        return this.infos.map(row => 
+            (header[row]) ? <p key={row} className="header__tool-row">{header[row].content[i][0]} </p> : null
+        );
     }
     
     render() {
         this.data = this.props.data;
         const toolColumns = this.renderColumns();
-        let columns = 
-        [
+        const columns = [
             {
                 Header: () => (
                     <div className="fixed">
@@ -207,15 +188,14 @@ export default class Table extends React.Component {
                                     : <span key = {props.href} title="This task has no associated file">{props.short_filename} {props.id.filter((id, i) => id !== null && i !== 0 && this.props.properties[i]).map(id => <span className="row_id">{id}</span>)}</span>
                         ),
                         filterMethod: (filter, row, column) => {
-                            const id = filter.pivotId || filter.id
+                            const id = filter.pivotId || filter.id;
                             return row[id].props.children !== undefined ? String(row[id].props.children).includes(filter.value) : false;
                         },
 
                     }
                 ]
             },
-            ...toolColumns.map((toolColumn, i) => {
-                return {   
+            ...toolColumns.map((toolColumn, i) => ({   
                     id: 'results',
                     Header: () => (
                         <span className="header__tool-infos">
@@ -223,9 +203,8 @@ export default class Table extends React.Component {
                         </span>
                     ),
                     columns: toolColumn,
-                };
-            })
-        ]
+            }))
+        ];
         
         return (
             <div className ="mainTable">
