@@ -1,6 +1,7 @@
 .App {
   // text-align: center;
-  font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma, Arial, Verdana, sans-serif;
+  font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,
+    Arial, Verdana, sans-serif;
 }
 // $key-color: #009440;
 $key-color: #71bcff;
@@ -20,9 +21,9 @@ $key-color: #71bcff;
 
   //background-image: linear-gradient(to left, $key-color, white);
   box-shadow: 0 4px 12px 0 rgba($key-color, 0.2);
-  -o-transition: all .4s ease-in-out;
-  -webkit-transition: all .4s ease-in-out;
-  transition: all .4s ease-in-out;
+  -o-transition: all 0.4s ease-in-out;
+  -webkit-transition: all 0.4s ease-in-out;
+  transition: all 0.4s ease-in-out;
   background-size: 300% 100%;
 
   &:hover {
@@ -69,7 +70,7 @@ $key-color: #71bcff;
     z-index: 100;
     background: $key-color;
     align-items: flex-start;
-    
+
     .react-tabs__tab {
       // width: 18vw;
       height: 23px;
@@ -82,7 +83,6 @@ $key-color: #71bcff;
         background: white;
       }
     }
-
   }
   .react-tabs__tab-panel {
     padding-top: 43px;
@@ -106,7 +106,6 @@ $key-color: #71bcff;
       font-size: 12px;
     }
   }
-  
 }
 
 //------------------summary------------------
@@ -119,7 +118,8 @@ $key-color: #71bcff;
     border-collapse: collapse;
     margin: 40px 0;
     width: 100%;
-    td, th {
+    td,
+    th {
       border: 1px solid #ddd;
       padding: 8px;
     }
@@ -137,11 +137,15 @@ $key-color: #71bcff;
         }
       }
     }
-    
-    tr:nth-child(even){background-color: #f2f2f2;}
-    
-    tr:hover {background-color: #ddd;}
-    
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #ddd;
+    }
+
     th {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -150,23 +154,22 @@ $key-color: #71bcff;
     }
   }
   .rt-table {
-    border: 1px solid #ddd; 
+    border: 1px solid #ddd;
     .rt-td {
       padding-top: 8px;
       padding-bottom: 8px;
-      border-right: 1px solid rgba(0, 0, 0, .32)!important;
+      border-right: 1px solid rgba(0, 0, 0, 0.32) !important;
     }
     .tr {
       font-weight: 700;
     }
     .rt-tr {
-      
       span {
         cursor: pointer;
         font-weight: 700;
       }
       &-group {
-        border: 1px solid rgba(0, 0, 0, .32)!important; 
+        border: 1px solid rgba(0, 0, 0, 0.32) !important;
       }
     }
   }
@@ -201,10 +204,9 @@ $key-color: #71bcff;
   .rt-table {
     width: 99%;
     margin-bottom: 40px;
-
   }
   .rt-thead {
-    &.-headerGroups > div > div{
+    &.-headerGroups > div > div {
       border-right: 1px solid #c5c5c5;
       background: white;
       span {
@@ -232,13 +234,13 @@ $key-color: #71bcff;
     }
     .rt-td {
       padding: 8px 4px;
-      border-right: 2px solid rgba(142, 142, 142, 0.3)!important;
+      border-right: 2px solid rgba(142, 142, 142, 0.3) !important;
       text-align: right;
     }
     .row__name {
       text-align: left;
       display: inline-block;
-      width: auto!important;
+      width: auto !important;
       color: black;
       &--cellLink {
         cursor: pointer;
@@ -246,7 +248,7 @@ $key-color: #71bcff;
       }
     }
     .rt-tr-group {
-      border-bottom: 1px solid rgba(0, 0, 0, .32)!important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.32) !important;
     }
     .rt-tr-group:last-child {
       border-bottom: 1px solid lightgrey;
@@ -258,12 +260,10 @@ $key-color: #71bcff;
     width: 100%;
     z-index: 10;
     background: white;
-
   }
 
   .cellLink {
     cursor: pointer;
-
   }
   .correct {
     color: green;
@@ -291,7 +291,6 @@ $key-color: #71bcff;
   select {
     height: 100%;
   }
-
 }
 
 .quantilePlot {
@@ -313,7 +312,7 @@ $key-color: #71bcff;
       background: #e2e2e2;
     }
   }
-} 
+}
 
 .scatterPlot {
   position: relative;
@@ -322,9 +321,9 @@ $key-color: #71bcff;
     margin: 10px;
   }
   .middle-line {
-      .rv-xy-plot__axis__line {
-        stroke: $key-color;
-      }
+    .rv-xy-plot__axis__line {
+      stroke: $key-color;
+    }
   }
   &__plot {
     margin: auto;
@@ -376,7 +375,8 @@ $key-color: #71bcff;
   h1 {
     margin-bottom: 40px;
   }
-  th, td {
+  th,
+  td {
     cursor: pointer;
     text-align: center;
     label {
@@ -388,7 +388,6 @@ $key-color: #71bcff;
     &.checked {
       color: black;
     }
-    
   }
   th:first-child {
     background: white;
@@ -400,7 +399,6 @@ $key-color: #71bcff;
   input {
     display: none;
   }
-
 
   &__buttons {
     width: 100%;
@@ -427,4 +425,3 @@ $key-color: #71bcff;
 .rt-td {
   text-align: left;
 }
-
