@@ -32,6 +32,14 @@ $key-color: #71bcff;
     // transition: all .4s ease-in-out;
     background: $key-color;
   }
+
+  &:disabled {
+    background: darkgrey;
+    cursor: default;
+    &:hover {
+      background: darkgrey;
+    }
+  }
 }
 .btn-apply {
   margin-left: 100px;

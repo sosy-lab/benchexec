@@ -42,7 +42,6 @@ export default class Summary extends React.Component {
         return Object.keys(cell).filter(key => cell[key] && key !== 'sum').map(key => `${key}: ${cell[key]}`).join(', ');
     }
 
-
     //fix columns
     handleInputChange = ({target}) => {
         this.setState({

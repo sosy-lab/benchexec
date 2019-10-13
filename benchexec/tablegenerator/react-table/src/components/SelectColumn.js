@@ -147,7 +147,12 @@ export default class SelectColumn extends React.Component {
                 </table>
                 <div className="overlay__buttons">
                     <button className="btn" onClick={this.deselectAll}>{this.state.deselect ? 'Deselect all' : 'Select all'}</button>
-                    <button className="btn btn-apply" onClick={this.props.close}>Apply and close</button>
+                    <button 
+                        className="btn btn-apply" 
+                        onClick={this.props.close} 
+                        disabled={!this.state.list.filter(tool => tool.isVisible).length}>
+                            Apply and close
+                    </button>
                     <input/>
                 </div>
             </div>
