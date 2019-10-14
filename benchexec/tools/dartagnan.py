@@ -24,13 +24,13 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     def executable(self):
-        return util.find_executable("java")
+        return util.find_executable("./Dartagnan-SVCOMP.sh")
 
     def name(self):
         return "Dartagnan"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        return [executable, "-jar", "svcomp/target/svcomp-jar-with-dependencies.jar"] + options + tasks
+        return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_ERROR
