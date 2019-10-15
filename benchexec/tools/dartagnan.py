@@ -28,10 +28,13 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Dartagnan"
-
+    
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         return [executable] + options + tasks
 
+    def version(self, executable):
+        return self._version_from_tool(executable)
+    
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_ERROR
         if output:
