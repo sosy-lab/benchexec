@@ -43,3 +43,6 @@ class Tool(benchexec.tools.template.BaseTool):
             elif "UNKNOWN" in result_str:
                 status = result.RESULT_UNKNOWN
         return status
+
+    def program_files(self, executable):
+        return [executable] + self._program_files_from_executable(executable, self.REQUIRED_PATHS)
