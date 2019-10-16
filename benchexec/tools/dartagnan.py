@@ -48,4 +48,4 @@ class Tool(benchexec.tools.template.BaseTool):
         return status
 
     def program_files(self, executable):
-        return [executable] + self._program_files_from_executable(executable, self.REQUIRED_PATHS)
+        return [executable]
