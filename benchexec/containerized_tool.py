@@ -51,29 +51,22 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
         container_options = containerexecutor.handle_basic_container_args(config)
         temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
 
-        # Call function that loads tool module and returns its doc or an exception
-        init_result = self._pool.apply(
-            _init_container_and_load_tool, [tool_module, temp_dir], container_options
-        )
-
-        # Outside the container, the temp_dir is just an empty directory, because the
-        # tmpfs mount is only visible inside. We can remove it immediately.
-        with contextlib.suppress(OSError):
-            os.rmdir(temp_dir)
-
-        if isinstance(init_result, BaseException):
-            raise init_result  # Loading failed
-        else:
-            self.__doc__ = init_result
+        # Call function that loads tool module and returns its doc
+        try:
+            self.__doc__ = self._pool.apply(
+                _init_container_and_load_tool,
+                [tool_module, temp_dir],
+                container_options,
+            )
+        finally:
+            # Outside the container, the temp_dir is just an empty directory, because
+            # the tmpfs mount is only visible inside. We can remove it immediately.
+            with contextlib.suppress(OSError):
+                os.rmdir(temp_dir)
 
     def _forward_call(self, method_name, args, kwargs):
         """Call given method indirectly on the tool instance in the container."""
-        result = self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
-        if isinstance(result, BaseException):
-            # None of the methods are expected to return exceptions,
-            # so we can assume that any exception should be raised.
-            raise result
-        return result
+        return self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
 
     @classmethod
     def _add_proxy_function(cls, method_name, method):
@@ -113,7 +106,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
         _init_container(*args, **kwargs)
     except EnvironmentError as e:
         raise BenchExecException("Failed to configure container: " + str(e))
-    _load_tool(tool_module)
+    return _load_tool(tool_module)
 
 
 def _init_container(
@@ -164,13 +157,13 @@ def _init_container(
             e.errno == errno.EPERM
             and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone") == "0"
         ):
-            return BenchExecException(
+            raise BenchExecException(
                 "Unprivileged user namespaces forbidden on this system, please "
                 "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
                 "or disable container mode"
             )
         else:
-            return BenchExecException(
+            raise BenchExecException(
                 "Creating namespace for container mode failed: " + os.strerror(e.errno)
             )
 
@@ -199,16 +192,13 @@ def _init_container(
     container.mount_proc(container_system_config)  # only possible in child
     container.drop_capabilities()
     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
+    container.setup_seccomp_filter()
 
 
 def _load_tool(tool_module):
     logging.debug("Loading tool-info module %s in container", tool_module)
     global tool
-    try:
-        tool = __import__(tool_module, fromlist=["Tool"]).Tool()
-    except BaseException as e:
-        tool = None
-        return e
+    tool = __import__(tool_module, fromlist=["Tool"]).Tool()
     return tool.__doc__
 
 
@@ -254,5 +244,6 @@ def _call_tool_func(name, args, kwargs):
     global tool
     try:
         return getattr(tool, name)(*args, **kwargs)
-    except BaseException as e:
-        return e
+    except SystemExit as e:
+        # SystemExit would terminate the worker process instead of being propagated.
+        raise BenchExecException(str(e.code))

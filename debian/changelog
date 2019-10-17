@@ -1,3 +1,15 @@
+benchexec (2.2-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 27 Sep 2019 10:36:43 +0200
+
+benchexec (2.1-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 17 Sep 2019 15:29:04 +0200
+
 benchexec (2.0-1) bionic; urgency=medium
 
   * New upstream version.

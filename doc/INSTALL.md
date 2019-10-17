@@ -9,9 +9,13 @@ Thus, make sure to use Python 3 for installation as described below,
 otherwise only `runexec` will get installed.
 
 The following packages are optional but recommended dependencies:
-- [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) will let BenchExec measure energy consumption on Intel CPUs.
-- [LXCFS](https://github.com/lxc/lxcfs) provides better container isolation.
-- [coloredlogs](https://pypi.org/project/coloredlogs/) provides nicer log output.
+- [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.
+- [libseccomp2] provides better container isolation.
+- [LXCFS] provides better container isolation.
+- [coloredlogs] provides nicer log output.
+- [pqos_wrapper] and [pqos library][pqos]
+  provide isolation of L3 cache and measurement of cache usage and memory bandwidth
+  (only in `benchexec`).
 
 ### Debian/Ubuntu
 
@@ -28,6 +32,9 @@ Just add your user to the group `benchexec` and reboot:
 
 Afterwards, please check whether everything works
 or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
+
+Note that [pqos_wrapper] is currently not available as a Debian package
+and needs to be installed manually according to its documentation.
 
 ### Other Distributions
 
@@ -50,8 +57,7 @@ to the PATH environment by adding the following line to your `~/.profile` file:
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
-[LXCFS](https://github.com/lxc/lxcfs) if desired.
+and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 ### Development version
 
@@ -65,8 +71,7 @@ otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) and
-[LXCFS](https://github.com/lxc/lxcfs) if desired.
+and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 
 ## Kernel Requirements
@@ -106,6 +111,9 @@ In container mode, BenchExec uses two main kernel features:
   Note that creating overlays over NFS mounts is not stable at least until Linux 4.5,
   thus it is recommended to specify a different [directory mode](container.md#directory-access-modes)
   for every NFS mount on the system.
+
+Furthermore, BenchExec uses [seccomp](http://man7.org/linux/man-pages/man2/seccomp.2.html),
+which is available since Linux 3.17, but Linux 4.8 or newer is recommended.
 
 If container mode does not work, please check the [common problems](container.md#common-problems).
 
@@ -238,3 +246,10 @@ setting `cgroup_enable=memory` on the kernel command line, similar to
 ## Installation for Development
 
 Please refer to the [development instructions](DEVELOPMENT.md).
+
+[coloredlogs]: https://pypi.org/project/coloredlogs/
+[cpu-energy-meter]: https://github.com/sosy-lab/cpu-energy-meter
+[libseccomp2]: https://github.com/seccomp/libseccomp
+[LXCFS]: https://github.com/lxc/lxcfs
+[pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
+[pqos_wrapper]: https://gitlab.com/sosy-lab/software/pqos-wrapper
