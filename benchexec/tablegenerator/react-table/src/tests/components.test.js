@@ -12,6 +12,10 @@ import Reset from "../components/Reset.js";
 import Summary from "../components/Summary.js";
 // import Utils from "../utils/utils";
 
+// mock uniqid to have consistent names
+// https://stackoverflow.com/a/44538270/396730
+jest.mock('uniqid', ()=>(i)=>i + 'uniqid')
+
 configure({ adapter: new Adapter() });
 
 let overview, overviewJson, overviewInstance;

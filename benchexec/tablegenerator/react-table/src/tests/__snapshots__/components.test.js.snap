@@ -133,7 +133,7 @@ exports[`Render Summary 1`] = `
     Summary
   </h2>
   <div
-    className="ReactTable -highlight rthfc-sktwi3ykk1peqg02 rthfc -sp"
+    className="ReactTable -highlight rthfc-uniqid rthfc -sp"
     style={Object {}}
   >
     <div
