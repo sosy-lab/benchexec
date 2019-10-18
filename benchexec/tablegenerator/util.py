@@ -364,10 +364,6 @@ def prepare_stats_for_js(stats, tools):
     # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
 
 
-def read_frontend_asset(file_name, format):
-    return open(file_name.format(format=format), "r").read()
-
-
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     """
     Returns a list where sequences of post-fixed entries are shortened to their common prefix.

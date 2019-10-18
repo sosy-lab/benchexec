@@ -1853,8 +1853,12 @@ def create_tables(
             rows, template_values.tools, outputPath, template_values.href_base
         )
 
-        template_values.app_css = Util.read_frontend_asset(REACT_FILE_NAME, "css")
-        template_values.app_js = Util.read_frontend_asset(REACT_FILE_NAME, "js")
+        template_values.app_css = benchexec.util.read_file(
+            REACT_FILE_NAME.format(format="css")
+        )
+        template_values.app_js = benchexec.util.read_file(
+            REACT_FILE_NAME.format(format="js")
+        )
         # template_values.stats = <see below>
     # prepare data for js react application---------------------------------------------------------
 
