@@ -30,6 +30,7 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = [
         "lib",
         "exp-in",
+        "seeds",
         "fuzzEngine",
         "scripts",
         "supportFiles",
