@@ -115,7 +115,15 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 "--version",
             ],
             # 1
-            [self.get_java(), "-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
+            [
+                self.get_java(),
+                "-Xss4m",
+                "-jar",
+                launcher_jar,
+                "-data",
+                data_dir,
+                "--version",
+            ],
         ]
 
         self.api = len(cmds)
@@ -452,10 +460,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     @functools.lru_cache(maxsize=1)
     def get_java(self):
         candidates = [
-            'java',
-            '/usr/bin/java',
-            '/opt/oracle-jdk-bin-1.8.0.202/bin/java',
-            '/usr/lib/jvm/java-8-openjdk-amd64/bin/java'
+            "java",
+            "/usr/bin/java",
+            "/opt/oracle-jdk-bin-1.8.0.202/bin/java",
+            "/usr/lib/jvm/java-8-openjdk-amd64/bin/java",
         ]
         for c in candidates:
             candidate = self.which(c)
@@ -463,7 +471,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 continue
             try:
                 process = subprocess.Popen(
-                    [candidate,'-version'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                    [candidate, "-version"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                 )
                 (stdout, stderr) = process.communicate()
             except OSError as e:
@@ -474,7 +484,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 continue
             if "1.8" in stdout:
                 return candidate
-        raise BenchExecException("Could not find a suitable Java version: Need Java 1.8")
+        raise BenchExecException(
+            "Could not find a suitable Java version: Need Java 1.8"
+        )
 
     def which(self, program):
         def is_exe(fpath):
