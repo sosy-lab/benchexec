@@ -104,7 +104,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         cmds = [
             # 2
             [
-                "java",
+                self.get_java(),
                 "-Xss4m",
                 "-jar",
                 launcher_jar,
@@ -115,7 +115,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 "--version",
             ],
             # 1
-            ["java", "-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
+            [self.get_java(), "-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
         ]
 
         self.api = len(cmds)
@@ -245,7 +245,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         if "-tc" in options or "--toolchain" in options:
             # ignore executable (old executable is just around for backwards compatibility)
             mem_bytes = rlimits.get(MEMLIMIT, None)
-            cmdline = ["java"]
+            cmdline = [self.get_java()]
 
             # -ea has to be given directly to java
             if "-ea" in options:
@@ -368,27 +368,27 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if self._contains_overapproximation_result(line):
                 return "UNKNOWN: OverapproxCex"
             if line.find(termination_false_string) != -1:
-                return "FALSE(TERM)"
+                return result.RESULT_FALSE_TERMINATION
             if line.find(termination_true_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(ltl_false_string) != -1:
                 return "FALSE(valid-ltl)"
             if line.find(ltl_true_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(unsafety_string) != -1:
-                return "FALSE"
+                return result.RESULT_FALSE_REACH
             if line.find(mem_deref_false_string) != -1:
-                return "FALSE(valid-deref)"
+                return result.RESULT_FALSE_DEREF
             if line.find(mem_deref_false_string_2) != -1:
-                return "FALSE(valid-deref)"
+                return result.RESULT_FALSE_DEREF
             if line.find(mem_free_false_string) != -1:
-                return "FALSE(valid-free)"
+                return result.RESULT_FALSE_FREE
             if line.find(mem_memtrack_false_string) != -1:
-                return "FALSE(valid-memtrack)"
+                return result.RESULT_FALSE_MEMTRACK
             if line.find(overflow_false_string) != -1:
-                return "FALSE(OVERFLOW)"
+                return result.RESULT_FALSE_OVERFLOW
             if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
-                return "TRUE"
+                return result.RESULT_TRUE_PROP
             if line.find(treeautomizer_unsat) != -1:
                 return "unsat"
             if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
@@ -447,4 +447,46 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             if identifier in line:
                 start_position = line.find("=") + 1
                 return line[start_position:].strip()
+        return None
+
+    @functools.lru_cache(maxsize=1)
+    def get_java(self):
+        candidates = [
+            'java',
+            '/usr/bin/java',
+            '/opt/oracle-jdk-bin-1.8.0.202/bin/java',
+            '/usr/lib/jvm/java-8-openjdk-amd64/bin/java'
+        ]
+        for c in candidates:
+            candidate = self.which(c)
+            if not candidate:
+                continue
+            try:
+                process = subprocess.Popen(
+                    [candidate,'-version'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+                (stdout, stderr) = process.communicate()
+            except OSError as e:
+                continue
+
+            stdout = util.decode_to_string(stdout).strip()
+            if not stdout:
+                continue
+            if "1.8" in stdout:
+                return candidate
+        raise BenchExecException("Could not find a suitable Java version: Need Java 1.8")
+
+    def which(self, program):
+        def is_exe(fpath):
+            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+        fpath, fname = os.path.split(program)
+        if fpath:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_file = os.path.join(path, program)
+                if is_exe(exe_file):
+                    return exe_file
         return None
