@@ -38,8 +38,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return "BRICK"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        self.options = options
-
         return [executable] + options + tasks
 
     def version(self, executable):
