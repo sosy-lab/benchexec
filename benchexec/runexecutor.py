@@ -36,6 +36,7 @@ import tempfile
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
@@ -195,6 +196,7 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options, parser)
+    logging.debug("This is runexec %s.", __version__)
 
     if options.container:
         container_options = containerexecutor.handle_basic_container_args(
