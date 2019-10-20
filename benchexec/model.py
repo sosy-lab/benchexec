@@ -216,8 +216,6 @@ class Benchmark(object):
         self.executable = None
         self.display_name = rootTag.get("displayName")
 
-        logging.debug("The tool to be benchmarked is %s.", self.tool_name)
-
         def parse_memory_limit(value):
             # In a future BenchExec version, we could treat unit-less limits as bytes
             try:

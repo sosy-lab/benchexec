@@ -342,9 +342,11 @@ class BenchExec(object):
         )
 
         logging.debug(
-            "I'm benchmarking %r consisting of %s run sets.",
+            "I'm benchmarking %r consisting of %s run sets using %s %s.",
             benchmark_file,
             len(benchmark.run_sets),
+            benchmark.tool_name,
+            benchmark.tool_version or "(unknown version)",
         )
 
         try:
