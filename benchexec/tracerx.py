@@ -89,11 +89,11 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         for line in output:
             if line.startswith("KLEE: ERROR: "):
-                if line.find("ASSERTION FAIL:") != -1:
+                if "ASSERTION FAIL:" in line:
                     return result.RESULT_FALSE_REACH
-                elif line.find("memory error: out of bound pointer") != -1:
+                elif "memory error: out of bound pointer" in line:
                     return result.RESULT_FALSE_DEREF
-                elif line.find("overflow") != -1:
+                elif "overflow" in line:
                     return result.RESULT_FALSE_OVERFLOW
                 else:
                     return "ERROR ({0})".format(returncode)
@@ -106,6 +106,6 @@ class Tool(benchexec.tools.template.BaseTool):
         # stop after the first line, that contains the searched text
         for line in lines:
             if line.startswith("KLEE: done: ") and line.find(identifier + " = ") != -1:
-                startPosition = line.rfind("=") + 2
-                return line[startPosition:].strip()
+                splittedLine = line.split(" = ")
+                return splittedLine[1].strip()
         return None
