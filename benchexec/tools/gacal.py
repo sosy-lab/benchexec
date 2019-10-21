@@ -1,7 +1,7 @@
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
-Copyright (C) 2007-2015  Dirk Beyer
+Copyright (C) 2007-2019  Dirk Beyer
 All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,19 +18,13 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
-import tempfile
-import re
-import subprocess
-import logging
-
-
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for GACAL.
     URL: https://gitlab.com/bquiring/sv-comp-submission
     """
 
-    REQUIRED_PATHS = ["run-gacal.py"]
+    REQUIRED_PATHS = ["run-gacal.py", "parser", "src", "scripts"]
 
     def executable(self):
         return util.find_executable("run-gacal.py")
@@ -39,18 +33,17 @@ class Tool(benchexec.tools.template.BaseTool):
         return "GACAL"
 
     def version(self, executable):
-        return "1.0"
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, is_timeout):
-        lines = " ".join(output)
-        if "VERIFICATION_SUCCESSFUL" in lines:
-            return result.RESULT_TRUE_PROP
-        elif "VERIFICATION_FAILED" in lines:
-            return result.RESULT_FALSE_REACH
-        elif "NOT SUPPORTED" in lines or "UNKNOWN" in lines:
-            return result.RESULT_UNKNOWN
-        else:
-            return result.RESULT_ERROR
+        for line in output:
+            if "VERIFICATION_SUCCESSFUL" in line:
+                return result.RESULT_TRUE_PROP
+            elif "VERIFICATION_FAILED" in line:
+                return result.RESULT_FALSE_REACH
+            elif "NOT SUPPORTED" in line or "UNKNOWN" in line:
+                return result.RESULT_UNKNOWN
+        return result.RESULT_UNKNOWN
