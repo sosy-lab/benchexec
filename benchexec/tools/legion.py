@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable("legion-sv")
 
     def version(self, executable):
-        "0.1-testcomp2020"
+        return self._version_from_tool(executable)
 
     def name(self):
         return "Legion"
