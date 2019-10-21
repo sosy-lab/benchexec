@@ -19,6 +19,8 @@ before_script:
   - sed -i benchexec/test_integration/__init__.py -e '/test_simple_parallel/ i \    @unittest.skipIf(sys.version_info < (3,7), "Fails nondeterministically if load is high")'
 script:
   - python setup.py test
+  # Revert local modification before checking source format
+  - git checkout .
   - if which black; then black . --check --diff; fi
 notifications:
   email:
