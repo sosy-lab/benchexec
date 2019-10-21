@@ -9,7 +9,8 @@ python:
   - "3.7"
 install:
   - pip install .
-  - pip install black
+  # Install code formatter black, but only on versions where it is available
+  - pip install black || true
 before_script:
   - sudo ./.travis-setup.sh "$USER"
   # Disable one specific test that often fails on Travis.
@@ -18,7 +19,7 @@ before_script:
   - sed -i benchexec/test_integration/__init__.py -e '/test_simple_parallel/ i \    @unittest.skipIf(sys.version_info < (3,7), "Fails nondeterministically if load is high")'
 script:
   - python setup.py test
-  - black . --check --diff
+  - if which black; then black . --check --diff; fi
 notifications:
   email:
     - benchexec-dev@googlegroups.com
