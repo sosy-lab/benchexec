@@ -130,6 +130,12 @@ def load_tool_info(tool_name, config):
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
     except ImportError as ie:
+        logging.debug(
+            "Did not find module '%s'. "
+            "Python probably looked for it in one of the following paths:\n  %s",
+            tool_module,
+            "\n  ".join(path or "." for path in sys.path),
+        )
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
         )
