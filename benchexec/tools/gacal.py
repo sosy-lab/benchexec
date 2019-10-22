@@ -34,7 +34,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return "GACAL"
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, use_stderr=True)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
