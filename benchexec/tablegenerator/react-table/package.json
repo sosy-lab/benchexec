@@ -11,7 +11,6 @@
     "react": "^16.10.2",
     "react-app-polyfill": "^1.0.4",
     "react-collapsible": "^2.6.0",
-    "react-dev-utils": "^9.1.0",
     "react-dom": "^16.10.2",
     "react-table": "^6.10.3",
     "react-table-hoc-fixed-columns": "^2.1.1",
@@ -94,8 +93,6 @@
     ]
   },
   "devDependencies": {
-    "jest": "^24.9.0",
-    "react-test-renderer": "^16.10.2",
     "@babel/core": "7.4.3",
     "@svgr/webpack": "4.1.0",
     "@typescript-eslint/eslint-plugin": "1.6.0",
@@ -125,6 +122,7 @@
     "html-webpack-plugin": "4.0.0-beta.5",
     "identity-obj-proxy": "3.0.0",
     "is-wsl": "^1.1.0",
+    "jest": "^24.9.0",
     "jest-environment-jsdom-fourteen": "0.1.0",
     "jest-resolve": "24.7.1",
     "jest-watch-typeahead": "0.3.0",
@@ -137,6 +135,8 @@
     "postcss-normalize": "7.0.1",
     "postcss-preset-env": "6.6.0",
     "postcss-safe-parser": "4.0.1",
+    "react-dev-utils": "^9.1.0",
+    "react-test-renderer": "^16.10.2",
     "resolve": "1.10.0",
     "sass-loader": "7.1.0",
     "semver": "6.0.0",
