@@ -7,15 +7,11 @@
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.6",
     "jszip": "^3.2.2",
-    "jszip-utils": "^0.1.0",
     "react": "^16.10.2",
-    "react-app-polyfill": "^1.0.4",
-    "react-collapsible": "^2.6.0",
     "react-dom": "^16.10.2",
     "react-table": "^6.10.3",
     "react-table-hoc-fixed-columns": "^2.1.1",
     "react-tabs": "^3.0.0",
-    "react-tooltip-lite": "^1.10.0",
     "react-vis": "^1.11.7"
   },
   "scripts": {
@@ -46,9 +42,6 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts"
-    ],
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
     ],
     "setupFilesAfterEnv": [],
     "testMatch": [
