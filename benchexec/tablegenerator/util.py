@@ -269,11 +269,7 @@ def prepare_run_sets_for_js(run_sets, columns):
 
     def set_column_title(columns):
         for column in columns:
-            column.display_title = (
-                column.display_title
-                if column.display_title is not None
-                else column.title
-            )
+            column.display_title = column.display_title or column.title
         return columns
 
     return [
