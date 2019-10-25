@@ -24,10 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
     (http://www.cs.sun.ac.za/coastal/).
     """
 
-    REQUIRED_PATHS = [
-		"coastal",
-		"coastal-sv-comp"
-	]
+    REQUIRED_PATHS = ["coastal", "coastal-sv-comp"]
 
     def executable(self):
         return util.find_executable("coastal-sv-comp")
