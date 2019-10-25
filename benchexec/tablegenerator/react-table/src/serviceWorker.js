@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * BenchExec is a framework for reliable benchmarking.
+ * This file is part of BenchExec.
+ * Copyright (C) Dirk Beyer. All rights reserved.
+ */
 // This optional code is used to register a service worker.
 // register() is not called by default.
 

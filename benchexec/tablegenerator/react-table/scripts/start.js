@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * BenchExec is a framework for reliable benchmarking.
+ * This file is part of BenchExec.
+ * Copyright (C) Dirk Beyer. All rights reserved.
+ */
 'use strict';
 
 // Do this as the first thing so that any code reading it knows the right env.
