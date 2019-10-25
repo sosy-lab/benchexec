@@ -21,34 +21,30 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for Dartagnan (https://github.com/hernanponcedeleon/Dat3M).
+    Tool info for GACAL.
+    URL: https://gitlab.com/bquiring/sv-comp-submission
     """
 
-    REQUIRED_PATHS = ["svcomp/target", "dartagnan/target", "cat", "lib", "smack"]
+    REQUIRED_PATHS = ["run-gacal.py", "parser", "src", "scripts"]
 
     def executable(self):
-        return util.find_executable("./Dartagnan-SVCOMP.sh")
+        return util.find_executable("run-gacal.py")
 
     def name(self):
-        return "Dartagnan"
-
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        return [executable] + options + tasks
+        return "GACAL"
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        status = result.RESULT_ERROR
-        if output:
-            result_str = output[-1].strip()
-            if "FAIL" in result_str:
-                status = result.RESULT_FALSE_PROP
-            elif "PASS" in result_str:
-                status = result.RESULT_TRUE_PROP
-            elif "UNKNOWN" in result_str:
-                status = result.RESULT_UNKNOWN
-        return status
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        return [executable] + options + tasks
 
-    def program_files(self, executable):
-        return [executable] + self.REQUIRED_PATHS
+    def determine_result(self, returncode, returnsignal, output, is_timeout):
+        for line in output:
+            if "VERIFICATION_SUCCESSFUL" in line:
+                return result.RESULT_TRUE_PROP
+            elif "VERIFICATION_FAILED" in line:
+                return result.RESULT_FALSE_REACH
+            elif "NOT SUPPORTED" in line or "UNKNOWN" in line:
+                return result.RESULT_UNKNOWN
+        return result.RESULT_UNKNOWN
