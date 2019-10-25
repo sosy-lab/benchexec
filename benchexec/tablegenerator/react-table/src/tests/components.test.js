@@ -24,7 +24,7 @@ jest.mock("uniqid", () => i => i + "uniqid");
 
 configure({ adapter: new Adapter() });
 
-let overview, overviewJson, overviewInstance;
+let overview, overviewInstance;
 
 beforeAll(() => {
   // IMPORTANT! - data should remain the same to keep the table snapshot correct.
@@ -32,7 +32,6 @@ beforeAll(() => {
   window.data = require("../data/data.json");
 
   overview = renderer.create(<Overview />);
-  overviewJson = overview.toJSON();
   overviewInstance = overview.getInstance();
 });
 
