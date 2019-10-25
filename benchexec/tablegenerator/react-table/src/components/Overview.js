@@ -16,8 +16,6 @@ if (process.env.NODE_ENV !== "production") {
   window.data = require("../data/data.json");
 }
 
-// console.log('table data', window.data);
-
 export default class Overview extends React.Component {
   constructor(props) {
     super(props);

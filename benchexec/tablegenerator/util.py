@@ -242,9 +242,7 @@ def flatten(list_):
     return [value for sublist in list_ for value in sublist]
 
 
-# parse -> cases: to big numbers / Key-Value / List
 def to_json(obj):
-    # return tempita.html(json.dumps(obj, sort_keys=True))
     return tempita.html(json.dumps(obj, sort_keys=True, default=parse_json))
 
 
@@ -252,7 +250,6 @@ def parse_json(obj):
     if type(obj) is Decimal:  # for decimal numbers
         return float(obj)
     elif "__dict__" in dir(obj):  # e.g. for own Classes (Key-value)
-        # wenn die <Funktionen eines dictionaries> in dem object vorkommen, dann behandel es wie ein dictionary
         return obj.__dict__
     elif "__iter__" in dir(obj):  # e.g. for Set (List)
         return list(obj)
@@ -266,9 +263,9 @@ def merge_dicts(*dicts):
 
 def prepare_run_sets_for_js(run_sets, columns):
     # javascript pendant:
-    # // var tools = run_sets.map((rs, i) => {
-    # //   return { ...rs, columns: columns_data[i] }
-    # // })
+    # var tools = run_sets.map((rs, i) => {
+    #   return { ...rs, columns: columns_data[i] }
+    # })
 
     def set_column_title(columns):
         for column in columns:
@@ -282,7 +279,7 @@ def prepare_run_sets_for_js(run_sets, columns):
     return [
         merge_dicts(rs, {"columns": set_column_title(columns[i])})
         for i, rs in enumerate(run_sets)
-    ]  # Tupel (index + column)
+    ]  # Tuple (index + column)
 
 
 def prepare_rows_for_js(rows, tools, base_dir, href_base):

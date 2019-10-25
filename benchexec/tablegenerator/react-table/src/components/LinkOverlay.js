@@ -2,7 +2,6 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import JSZip from "jszip";
-// import JSZipUtils from 'jszip-utils'
 
 export default class LinkOverlay extends React.Component {
   constructor(props) {

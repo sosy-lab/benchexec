@@ -1842,10 +1842,9 @@ def create_tables(
     )
     template_values.version = __version__
 
-    # prepare data for js react application---------------------------------------------------------
+    # prepare data for js react application
     if options.template_name == TEMPLATE_NAME_REACT:
         logging.info("Create react template...")
-        # template_values.head = <see above>
         template_values.tools = Util.prepare_run_sets_for_js(
             template_values.run_sets, template_values.columns
         )
@@ -1860,7 +1859,6 @@ def create_tables(
             REACT_FILE_NAME.format(format="js")
         )
         # template_values.stats = <see below>
-    # prepare data for js react application---------------------------------------------------------
 
     futures = []
 
@@ -1872,12 +1870,11 @@ def create_tables(
         else:
             stats = stats_columns = None
 
-        # prepare data for js react application (stats)---------------------------------------------------------
+        # prepare data for js react application (stats)
         if options.template_name == TEMPLATE_NAME_REACT:
             template_values.stats = Util.prepare_stats_for_js(
                 stats, template_values.tools
             )
-        # prepare data for js react application (stats)---------------------------------------------------------
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":
