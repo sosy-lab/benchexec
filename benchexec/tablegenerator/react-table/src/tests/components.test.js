@@ -20,7 +20,7 @@ import Summary from "../components/Summary.js";
 
 // mock uniqid to have consistent names
 // https://stackoverflow.com/a/44538270/396730
-jest.mock('uniqid', ()=>(i)=>i + 'uniqid')
+jest.mock("uniqid", () => i => i + "uniqid");
 
 configure({ adapter: new Adapter() });
 
