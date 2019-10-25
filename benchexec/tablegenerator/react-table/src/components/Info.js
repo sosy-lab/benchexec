@@ -6,6 +6,70 @@
  */
 import React from "react";
 
+const dependencies = require("../data/dependencies.json");
+
+class Dependency extends React.Component {
+  knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"];
+  linkifyLicense = license => (
+    <a
+      key={license}
+      href={"https://spdx.org/licenses/" + license}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {license}
+    </a>
+  );
+  linkifyLicenses = licensesString =>
+    licensesString
+      .split(/([A-Za-z0-9.-]+)/)
+      .map(s => (this.knownLicenses.includes(s) ? this.linkifyLicense(s) : s));
+
+  render = () => (
+    <div>
+      <h4>
+        <a
+          href={
+            "https://www.npmjs.com/package/" +
+            this.props.name +
+            "/v/" +
+            this.props.version
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {this.props.name} {this.props.version}
+        </a>
+      </h4>
+      {this.props.repository && (
+        <>
+          Source:{" "}
+          <a
+            href={this.props.repository}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {this.props.repository}
+          </a>
+          <br />
+        </>
+      )}
+      {this.props.copyright && (
+        <>
+          {this.props.copyright}
+          <br />
+        </>
+      )}
+      License: <>{this.linkifyLicenses(this.props.licenses)}</>
+      <br />
+      <details>
+        <summary>Full text of license</summary>
+        <pre>{dependencies.licenses[this.props.licenseId]}</pre>
+      </details>
+    </div>
+  );
+}
+
 export default props => (
   <div className="info">
     <div className="info-header">
@@ -113,5 +177,19 @@ export default props => (
         BenchExec
       </a>
     </p>
+    <details>
+      <summary>
+        This application includes third-party dependencies under different
+        licenses. Click here to view them.
+      </summary>
+      {dependencies.dependencies.map(dependency => {
+        return (
+          <Dependency
+            key={dependency.name + dependency.version}
+            {...dependency}
+          />
+        );
+      })}
+    </details>
   </div>
 );

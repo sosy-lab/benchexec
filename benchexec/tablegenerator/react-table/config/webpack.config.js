@@ -213,6 +213,7 @@ module.exports = function(webpackEnv) {
               ascii_only: true
             }
           },
+          extractComments: false,
           // Use multi-process parallel running to improve the build speed
           // Default number of concurrent runs: os.cpus().length - 1
           // Disabled on WSL (Windows Subsystem for Linux) due to an issue with Terser
@@ -236,10 +237,12 @@ module.exports = function(webpackEnv) {
       splitChunks: {
         chunks: "all",
         cacheGroups: {
+          // Put dependencies.json into separate chunk.
+          // If added to to the main bundle, it will change on every change of a dependency.
           vendors: {
             chunks: "all",
             name: "vendors",
-            test: /node_modules/
+            test: /(node_modules|src\/data\/dependencies\.json)/
           }
         }
       }
