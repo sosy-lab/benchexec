@@ -42,6 +42,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "jpf-jdart.jar",
         "RunJPF.jar",
         "version.txt",
+        "jdart.sh",
+        "run-jdart.sh",
     ]
 
     def executable(self):

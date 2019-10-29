@@ -1,7 +1,7 @@
 """
 BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
-Copyright (C) 2007-2019  Dirk Beyer
+Copyright (C) 2007-2018  Dirk Beyer
 All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -21,30 +20,35 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for GACAL.
-    URL: https://gitlab.com/bquiring/sv-comp-submission
+    Tool info for COASTAL
+    (http://www.cs.sun.ac.za/coastal/).
     """
 
-    REQUIRED_PATHS = ["run-gacal.py", "parser", "src", "scripts"]
+    REQUIRED_PATHS = ["coastal", "coastal-sv-comp"]
 
     def executable(self):
-        return util.find_executable("run-gacal.py")
+        return util.find_executable("coastal-sv-comp")
 
     def name(self):
-        return "GACAL"
+        return "COASTAL"
 
     def version(self, executable):
-        return self._version_from_tool(executable, use_stderr=True)
+        output = self._version_from_tool(executable, arg="--version")
+        first_line = output.splitlines()[0]
+        return first_line.strip()
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        options = options + ["--propertyfile", propertyfile]
         return [executable] + options + tasks
 
-    def determine_result(self, returncode, returnsignal, output, is_timeout):
+    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        # parse output
+        status = result.RESULT_UNKNOWN
+
         for line in output:
-            if "VERIFICATION_SUCCESSFUL" in line:
-                return result.RESULT_TRUE_PROP
-            elif "VERIFICATION_FAILED" in line:
-                return result.RESULT_FALSE_REACH
-            elif "NOT SUPPORTED" in line or "UNKNOWN" in line:
-                return result.RESULT_UNKNOWN
-        return result.RESULT_UNKNOWN
+            if "UNSAFE" in line:
+                status = result.RESULT_FALSE_PROP
+            elif "SAFE" in line:
+                status = result.RESULT_TRUE_PROP
+
+        return status
