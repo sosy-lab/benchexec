@@ -4,9 +4,9 @@
  * This file is part of BenchExec.
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
-'use strict';
+"use strict";
 
-const { resolveModuleName } = require('ts-pnp');
+const { resolveModuleName } = require("ts-pnp");
 
 exports.resolveModuleName = (
   typescript,
