@@ -33,8 +33,6 @@ const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
 
 const postcssNormalize = require("postcss-normalize");
 
-// Source maps are resource heavy and can cause out of memory issue for large source files.
-const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== "false";
@@ -107,7 +105,7 @@ module.exports = function(webpackEnv) {
             // which in turn let's users customize the target behavior as per their needs.
             postcssNormalize()
           ],
-          sourceMap: isEnvProduction && shouldUseSourceMap
+          sourceMap: false
         }
       }
     ].filter(Boolean);
@@ -115,7 +113,7 @@ module.exports = function(webpackEnv) {
       loaders.push({
         loader: require.resolve(preProcessor),
         options: {
-          sourceMap: isEnvProduction && shouldUseSourceMap
+          sourceMap: false
         }
       });
     }
@@ -127,9 +125,7 @@ module.exports = function(webpackEnv) {
     // Stop compilation early in production
     bail: isEnvProduction,
     devtool: isEnvProduction
-      ? shouldUseSourceMap
-        ? "source-map"
-        : false
+      ? false
       : isEnvDevelopment && "cheap-module-source-map",
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
@@ -224,22 +220,13 @@ module.exports = function(webpackEnv) {
           parallel: !isWsl,
           // Enable file caching
           cache: true,
-          sourceMap: shouldUseSourceMap
+          sourceMap: false
         }),
         // This is only used in production mode
         new OptimizeCSSAssetsPlugin({
           cssProcessorOptions: {
             parser: safePostCssParser,
-            map: shouldUseSourceMap
-              ? {
-                  // `inline: false` forces the sourcemap to be output into a
-                  // separate file
-                  inline: false,
-                  // `annotation: true` appends the sourceMappingURL to the end of
-                  // the css file, helping the browser find the sourcemap
-                  annotation: true
-                }
-              : false
+            map: false
           }
         })
       ],
@@ -408,7 +395,7 @@ module.exports = function(webpackEnv) {
               exclude: cssModuleRegex,
               use: getStyleLoaders({
                 importLoaders: 1,
-                sourceMap: isEnvProduction && shouldUseSourceMap
+                sourceMap: false
               }),
               // Don't consider CSS imports dead code even if the
               // containing package claims to have no side effects.
@@ -422,7 +409,7 @@ module.exports = function(webpackEnv) {
               test: cssModuleRegex,
               use: getStyleLoaders({
                 importLoaders: 1,
-                sourceMap: isEnvProduction && shouldUseSourceMap,
+                sourceMap: false,
                 modules: true,
                 getLocalIdent: getCSSModuleLocalIdent
               })
@@ -436,7 +423,7 @@ module.exports = function(webpackEnv) {
               use: getStyleLoaders(
                 {
                   importLoaders: 2,
-                  sourceMap: isEnvProduction && shouldUseSourceMap
+                  sourceMap: false
                 },
                 "sass-loader"
               ),
@@ -453,7 +440,7 @@ module.exports = function(webpackEnv) {
               use: getStyleLoaders(
                 {
                   importLoaders: 2,
-                  sourceMap: isEnvProduction && shouldUseSourceMap,
+                  sourceMap: false,
                   modules: true,
                   getLocalIdent: getCSSModuleLocalIdent
                 },
