@@ -13,9 +13,11 @@
 
 <title>{{title}} &ndash; BenchExec results</title>
 </head>
+{{for file_content in app_css}}
 <style>
-{{app_css}}
+{{file_content}}
 </style>
+{{endfor}}
 
 <body>
 
@@ -34,9 +36,11 @@ const data = {
 window.data = data;
 </script>
 
+{{for file_content in app_js}}
 <script>
-{{app_js|html}}
+{{file_content|html}}
 </script>
+{{endfor}}
 
 </body>
 </html>

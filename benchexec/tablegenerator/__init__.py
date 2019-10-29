@@ -76,9 +76,10 @@ LIB_URL = "https://cdn.jsdelivr.net"
 LIB_URL_OFFLINE = "lib/javascript"
 
 
-REACT_FILE_NAME = os.path.join(
-    os.path.dirname(__file__), "react-table/build/bundle.min.{format}"
-)
+REACT_FILES = [
+    os.path.join(os.path.dirname(__file__), "react-table", "build", path)
+    for path in ["vendors.min.", "bundle.min."]
+]
 
 TEMPLATE_NAME = "template"
 TEMPLATE_NAME_REACT = "template_react"
@@ -1879,12 +1880,12 @@ def create_tables(
             rows, template_values.tools, outputPath, template_values.href_base
         )
 
-        template_values.app_css = Util.read_bundled_file(
-            REACT_FILE_NAME.format(format="css")
-        )
-        template_values.app_js = Util.read_bundled_file(
-            REACT_FILE_NAME.format(format="js")
-        )
+        template_values.app_css = [
+            Util.read_bundled_file(path + "css") for path in REACT_FILES
+        ]
+        template_values.app_js = [
+            Util.read_bundled_file(path + "js") for path in REACT_FILES
+        ]
         # template_values.stats = <see below>
 
     futures = []
