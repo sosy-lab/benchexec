@@ -446,9 +446,12 @@ class RunSetResult(object):
                 run_result.values[run_result.columns.index(column)]
                 for run_result in self.results
             )
-            column.type, column.unit, column.source_unit, column.scale_factor = get_column_type(
-                column, column_values
-            )
+            (
+                column.type,
+                column.unit,
+                column.source_unit,
+                column.scale_factor,
+            ) = get_column_type(column, column_values)
 
         del self._xml_results
 
@@ -1263,9 +1266,12 @@ def get_stats(rows, local_summary, correct_only):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
-        column_type, column_unit, column_source_unit, column_scale_factor = get_column_type(
-            column, column_values
-        )
+        (
+            column_type,
+            column_unit,
+            column_source_unit,
+            column_scale_factor,
+        ) = get_column_type(column, column_values)
         new_column = Column(
             column.title,
             column.pattern,
@@ -1474,14 +1480,36 @@ def get_stats_of_run_set(runResults, correct_only):
 
             else:
                 assert column.is_numeric()
-                total, correct, correctTrue, correctFalse, correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse, incorrect, wrongTrue, wrongFalse = get_stats_of_number_column(
+                (
+                    total,
+                    correct,
+                    correctTrue,
+                    correctFalse,
+                    correctUnconfirmed,
+                    correctUnconfirmedTrue,
+                    correctUnconfirmedFalse,
+                    incorrect,
+                    wrongTrue,
+                    wrongFalse,
+                ) = get_stats_of_number_column(
                     values, status_list, column.title, correct_only
                 )
 
                 score = None
 
         else:
-            total, correct, correctTrue, correctFalse, correctUnconfirmed, correctUnconfirmedTrue, correctUnconfirmedFalse, incorrect, wrongTrue, wrongFalse = (
+            (
+                total,
+                correct,
+                correctTrue,
+                correctFalse,
+                correctUnconfirmed,
+                correctUnconfirmedTrue,
+                correctUnconfirmedFalse,
+                incorrect,
+                wrongTrue,
+                wrongFalse,
+            ) = (
                 None,
                 None,
                 None,
