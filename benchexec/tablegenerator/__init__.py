@@ -85,7 +85,6 @@ TEMPLATE_NAME_REACT = "template_react"
 TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format}")
 
 TEMPLATE_FORMATS = ["html", "csv"]
-TEMPLATE_ENCODING = "UTF-8"
 TEMPLATE_NAMESPACE = {
     "flatten": Util.flatten,
     "json": Util.to_json,
@@ -1880,10 +1879,10 @@ def create_tables(
             rows, template_values.tools, outputPath, template_values.href_base
         )
 
-        template_values.app_css = benchexec.util.read_file(
+        template_values.app_css = Util.read_bundled_file(
             REACT_FILE_NAME.format(format="css")
         )
-        template_values.app_js = benchexec.util.read_file(
+        template_values.app_js = Util.read_bundled_file(
             REACT_FILE_NAME.format(format="js")
         )
         # template_values.stats = <see below>
@@ -1962,11 +1961,7 @@ def write_table_in_format(
     template_file = TEMPLATE_FILE_NAME.format(
         template=template_name, format=template_format
     )
-    try:
-        template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
-    except NameError:
-        with open(template_file, mode="r") as f:
-            template_content = f.read()
+    template_content = Util.read_bundled_file(template_file)
     template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
 
     result = template.substitute(**template_values)

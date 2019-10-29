@@ -408,6 +408,15 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
+def read_bundled_file(name):
+    """Read a file that is packaged together with this application."""
+    try:
+        return __loader__.get_data(name).decode("UTF-8")
+    except NameError:
+        with open(name, mode="r") as f:
+            return f.read()
+
+
 class _DummyFuture(object):
     def __init__(self, result):
         self._result = result
