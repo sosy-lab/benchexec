@@ -37,6 +37,7 @@ import subprocess
 import sys
 import tempfile
 
+from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec.cgroups import Cgroup
@@ -272,6 +273,7 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options, parser)
+    logging.debug("This is containerexec %s.", __version__)
     container_options = handle_basic_container_args(options, parser)
     container_output_options = handle_container_output_args(options, parser)
 

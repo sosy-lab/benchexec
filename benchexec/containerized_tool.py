@@ -242,4 +242,8 @@ def _call_tool_func(name, args, kwargs):
     @param kwargs: Dict of arguments to be passed as keyword arguments.
     """
     global tool
-    return getattr(tool, name)(*args, **kwargs)
+    try:
+        return getattr(tool, name)(*args, **kwargs)
+    except SystemExit as e:
+        # SystemExit would terminate the worker process instead of being propagated.
+        raise BenchExecException(str(e.code))
