@@ -77,7 +77,7 @@ LIB_URL_OFFLINE = "lib/javascript"
 
 
 REACT_FILE_NAME = os.path.join(
-    os.path.dirname(__file__), "react-table/build/static/bundle.min.{format}"
+    os.path.dirname(__file__), "react-table/build/bundle.min.{format}"
 )
 
 TEMPLATE_NAME = "template"

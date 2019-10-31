@@ -9,10 +9,9 @@
 /coverage
 
 # production - include bundle JS
-!build/
-*build/*
-!build/static
-build/static/*.map
+/build/*
+!/build/*.min.js
+!/build/*.min.css
 
 # misc
 .DS_Store

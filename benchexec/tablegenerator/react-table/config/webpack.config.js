@@ -160,9 +160,8 @@ module.exports = function(webpackEnv) {
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       filename: isEnvProduction
-        ? "static/bundle.min.js"
-        : // ? 'static/js/[name].[contenthash:8].js'
-          isEnvDevelopment && "static/js/bundle.js",
+        ? "bundle.min.js"
+        : isEnvDevelopment && "bundle.js",
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
@@ -543,8 +542,7 @@ module.exports = function(webpackEnv) {
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
-          filename: "static/bundle.min.css",
-          // filename: 'static/css/[name].[contenthash:8].css',
+          filename: "bundle.min.css",
           chunkFilename: "static/css/[name].[contenthash:8].chunk.css"
         }),
       // Moment.js is an extremely popular library that bundles large locale files
