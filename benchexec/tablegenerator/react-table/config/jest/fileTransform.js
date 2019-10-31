@@ -4,10 +4,10 @@
  * This file is part of BenchExec.
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
-'use strict';
+"use strict";
 
-const path = require('path');
-const camelcase = require('camelcase');
+const path = require("path");
+const camelcase = require("camelcase");
 
 // This is a custom Jest transformer turning file imports into filenames.
 // http://facebook.github.io/jest/docs/en/webpack.html
@@ -20,7 +20,7 @@ module.exports = {
       // Based on how SVGR generates a component name:
       // https://github.com/smooth-code/svgr/blob/01b194cf967347d43d4cbe6b434404731b87cf27/packages/core/src/state.js#L6
       const pascalCaseFileName = camelcase(path.parse(filename).name, {
-        pascalCase: true,
+        pascalCase: true
       });
       const componentName = `Svg${pascalCaseFileName}`;
       return `const React = require('react');
@@ -42,5 +42,5 @@ module.exports = {
     }
 
     return `module.exports = ${assetFilename};`;
-  },
+  }
 };
