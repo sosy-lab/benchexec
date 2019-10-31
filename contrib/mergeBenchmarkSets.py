@@ -155,7 +155,7 @@ def main(argv=None):
                     try:
                         coverage_float = float(coverage_value)
                     except ValueError:
-                        coverage_float = 0.00
+                        continue
                     scoreColumn = ET.Element(
                         "column",
                         {"title": "score", "value": str(coverage_float / 100)},
