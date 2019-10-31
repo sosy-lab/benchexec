@@ -9,10 +9,10 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@fortawesome/react-fontawesome": "^0.1.6",
+    "@fortawesome/react-fontawesome": "^0.1.7",
     "jszip": "^3.2.2",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-table": "^6.10.3",
     "react-table-hoc-fixed-columns": "^2.1.1",
     "react-tabs": "^3.0.0",
