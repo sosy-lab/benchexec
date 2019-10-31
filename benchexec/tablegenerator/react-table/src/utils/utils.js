@@ -42,24 +42,50 @@ const filterByRegex = (filter, row, cell) => {
   return false;
 };
 
+const isNil = data => data === undefined || data === null;
+
 const sortMethod = (a, b) => {
-  a = +a.original;
-  b = +b.original;
-  a = a === null || a === undefined ? -Infinity : a;
-  b = b === null || b === undefined ? -Infinity : b;
-  // a = typeof a === 'string' ? a.toLowerCase() : a
-  // b = typeof b === 'string' ? b.toLowerCase() : b
-  if (a > b) {
-    return 1;
-  }
-  if (a < b) {
-    return -1;
-  }
-  return 0;
+  const aValue = a.original || -Infinity;
+  const bValue = b.original || -Infinity;
+  return bValue - aValue;
 };
+
+const pathOr = (defaultValue, path) => data => {
+  if (!path || !(path instanceof Array) || !data) {
+    return undefined;
+  }
+  let subPathResult = data;
+  for (const node of path) {
+    subPathResult = subPathResult[node];
+    if (isNil(subPathResult)) {
+      return defaultValue;
+    }
+  }
+  return subPathResult;
+};
+
+const pipe = (...functions) => data => {
+  let subResult = data;
+  for (const func of functions) {
+    subResult = func(subResult);
+  }
+  return subResult;
+};
+
+const maybeTransformToLowercase = data =>
+  data && typeof data === "string" ? data.toLowerCase() : data;
 
 const isOkStatus = status => {
   return status === 0 || status === 200;
 };
 
-export { prepareTableData, filterByRegex, sortMethod, isOkStatus };
+export {
+  prepareTableData,
+  filterByRegex,
+  sortMethod,
+  isOkStatus,
+  pathOr,
+  isNil,
+  pipe,
+  maybeTransformToLowercase
+};

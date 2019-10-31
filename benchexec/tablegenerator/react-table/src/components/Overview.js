@@ -98,13 +98,15 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Common Functions-----------------------
-  getRunSets = runset => {
-    return `${runset.tool} ${runset.date} ${runset.niceName}`;
+  getRunSets = ({ tool, date, niceName }) => {
+    return `${tool} ${date} ${niceName}`;
   };
 
   prepareTableValues = (el, tool, column, href, row) => {
-    const col = this.originalTools[tool].columns[column];
-    if (col.type.name === "main_status" || col.type.name === "status") {
+    const {
+      type: { name: columnName }
+    } = this.originalTools[tool].columns[column];
+    if (columnName === "main_status" || columnName === "status") {
       return el.formatted ? (
         <a
           href={href}
