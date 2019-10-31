@@ -26,10 +26,11 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-        "run-gacal.py",
+        "gacal",
+        "gacal.core",
         "parser",
+        "run-gacal.py",
         "src",
-        "scripts",
     ]
 
     def executable(self):
