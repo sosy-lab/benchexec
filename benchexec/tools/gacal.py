@@ -25,7 +25,12 @@ class Tool(benchexec.tools.template.BaseTool):
     URL: https://gitlab.com/bquiring/sv-comp-submission
     """
 
-    REQUIRED_PATHS = ["run-gacal.py", "parser", "src", "scripts"]
+    REQUIRED_PATHS = [
+        "run-gacal.py",
+        "parser",
+        "src",
+        "scripts",
+    ]
 
     def executable(self):
         return util.find_executable("run-gacal.py")
