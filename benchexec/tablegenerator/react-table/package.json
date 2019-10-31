@@ -145,7 +145,6 @@
     "ts-pnp": "^1.1.4",
     "url-loader": "^2.2.0",
     "webpack": "^4.41.2",
-    "webpack-dev-server": "^3.9.0",
-    "workbox-webpack-plugin": "4.2.0"
+    "webpack-dev-server": "^3.9.0"
   }
 }
