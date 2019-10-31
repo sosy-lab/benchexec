@@ -141,7 +141,7 @@ def main(argv=None):
         for witnessSet in witnessSets:
             witness = witnessSet.get(run, None)
             # copy data from witness
-            if witness is not None:
+            if witness is not None and len(witness) > 0:
                 if result.get("properties") == "coverage-error-call":
                     status_from_validation = witness.findall('column[@title="status"]')[
                         0
