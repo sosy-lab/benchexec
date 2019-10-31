@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for Dartagnan (https://github.com/hernanponcedeleon/Dat3M).
     """
 
-    REQUIRED_PATHS = ["svcomp/target", "dartagnan/target", "cat", "lib", "smack"]
+    REQUIRED_PATHS = ["svcomp/target", "dartagnan/target", "cat", "lib", "smack", "output"]
 
     def executable(self):
         return util.find_executable("./Dartagnan-SVCOMP.sh")
