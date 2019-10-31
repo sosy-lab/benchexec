@@ -65,14 +65,10 @@ def getWitnessResult(witness, verification_result):
         return "witness missing", Result.CATEGORY_ERROR
 
     # print(witness.get('name'))
-    status_from_validation = witness.findall('column[@title="status"]')[0].get("value")
+    status_from_validation = witness.find('column[@title="status"]').get("value")
     try:
-        status_from_verification = verification_result.findall(
-            'column[@title="status"]'
-        )[0].get("value")
-        category_from_verification = verification_result.findall(
-            'column[@title="category"]'
-        )[0].get("value")
+        status_from_verification = verification_result.find('column[@title="status"]').get("value")
+        category_from_verification = verification_result.find('column[@title="category"]').get("value")
     except:
         status_from_verification = "not found"
         category_from_verification = "not found"
@@ -128,12 +124,8 @@ def main(argv=None):
     for result in resultXML.findall("run"):
         run = result.get("name")
         try:
-            status_from_verification = result.findall('column[@title="status"]')[0].get(
-                "value"
-            )
-            category_from_verification = result.findall('column[@title="category"]')[
-                0
-            ].get("value")
+            status_from_verification = result.find('column[@title="status"]').get("value")
+            category_from_verification = result.find('column[@title="category"]').get("value")
         except:
             status_from_verification = "not found"
             category_from_verification = "not found"
@@ -143,9 +135,7 @@ def main(argv=None):
             # copy data from witness
             if witness is not None and len(witness) > 0:
                 if result.get("properties") == "coverage-error-call":
-                    status_from_validation = witness.findall('column[@title="status"]')[
-                        0
-                    ].get("value")
+                    status_from_validation = witness.find('column[@title="status"]').get("value")
                     if status_from_validation == "true":
                         statusWit, categoryWit = (status_from_verification, "correct")
                         category_from_verification = "correct"
@@ -156,11 +146,9 @@ def main(argv=None):
                 elif result.get("properties") == "coverage-branches":
                     try:
                         coverage_value = (
-                            witness.findall('column[@title="branches_covered"]')[0]
-                            .get("value")
-                            .replace("%", "")
+                            witness.find('column[@title="branches_covered"]').get("value").replace("%", "")
                         )
-                    except IndexError:
+                    except:
                         coverage_value = "0.00"
                     statusWit, categoryWit = (status_from_verification, "correct")
                     category_from_verification = "correct"
@@ -196,8 +184,8 @@ def main(argv=None):
         ):
             # print(run, statusWit, categoryWit)
             try:
-                result.findall('column[@title="status"]')[0].set("value", statusWit)
-                result.findall('column[@title="category"]')[0].set("value", categoryWit)
+                result.find('column[@title="status"]').set("value", statusWit)
+                result.find('column[@title="category"]').set("value", categoryWit)
             except:
                 pass
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
