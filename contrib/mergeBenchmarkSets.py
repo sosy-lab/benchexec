@@ -164,7 +164,10 @@ def main(argv=None):
                         coverage_value = "0.00"
                     statusWit, categoryWit = (status_from_verification, "correct")
                     category_from_verification = "correct"
-                    coverage_float = float(coverage_value)
+                    try:
+                        coverage_float = float(coverage_value)
+                    except ValueError:
+                        coverage_float = 0.00
                     scoreColumn = ET.Element(
                         "column",
                         {"title": "score", "value": str(coverage_float / 100)},
