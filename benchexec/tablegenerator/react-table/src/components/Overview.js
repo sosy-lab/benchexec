@@ -15,7 +15,7 @@ import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
-import Utils from "../utils/utils";
+import { prepareTableData } from "../utils/utils";
 
 //example data for development
 if (process.env.NODE_ENV !== "production") {
@@ -33,7 +33,7 @@ export default class Overview extends React.Component {
       table,
       stats,
       properties
-    } = Utils.prepareTableData(window.data);
+    } = prepareTableData(window.data);
 
     this.originalTable = table;
     this.originalTools = tools;

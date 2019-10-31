@@ -4,7 +4,7 @@
  * This file is part of BenchExec.
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
-import Utils from "../utils/utils";
+import { filterByRegex, isOkStatus } from "../utils/utils";
 
 //Example data set to test the filtering by regex
 const rows = [
@@ -42,11 +42,11 @@ const rows = [
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
 const getFilteredData = regex =>
-  rows.filter(row => Utils.filterByRegex({ id: "test", value: regex }, row));
+  rows.filter(row => filterByRegex({ id: "test", value: regex }, row));
 
 test("filterByRegex single entry without result", () => {
   expect(
-    Utils.filterByRegex(
+    filterByRegex(
       {
         id: "test",
         value: "10:"
@@ -73,4 +73,25 @@ test("filterByRegex equals 10", () => {
 
 test("filterByRegex between 10.3 and 10.7", () => {
   expect(getFilteredData("10.3:10.7").length).toBe(1);
+});
+
+describe("isStatusOk", () => {
+  test("should return true if status code is 0", () => {
+    expect(isOkStatus(0)).toBe(true);
+  });
+  test("should return true if status code is 200", () => {
+    expect(isOkStatus(200)).toBe(true);
+  });
+  test("should return false if other integer is passed", () => {
+    expect(isOkStatus(404)).toBe(false);
+  });
+  test("should return false if string is passed", () => {
+    expect(isOkStatus("hi there")).toBe(false);
+  });
+  test("should return false if object is passed", () => {
+    expect(isOkStatus({ a: "b" })).toBe(false);
+  });
+  test("should return false if nothing is passed", () => {
+    expect(isOkStatus()).toBe(false);
+  });
 });

@@ -19,14 +19,14 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 ## Test Datasets
 
-There are 4 different Data sets to test the App in the folder data. 
-Change the data: 
+There are 4 different Data sets to test the App in the folder data.
+Change the data:
+
 - Go to Overview.js line 2, there the data is imported
-- Change the filte to the one you want from the data folder (e.g. new_middle.json)
+- Change the filter to the one you want from the data folder (e.g. new_middle.json)
 - Save the file
 
 ### next section is not important for the normal testing
-
 
 ### `npm run build`
 
@@ -38,7 +38,6 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can’t go back!**
@@ -48,7 +47,6 @@ If you aren’t satisfied with the build tool and configuration choices, you can
 Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
 
 ## Learn More
 

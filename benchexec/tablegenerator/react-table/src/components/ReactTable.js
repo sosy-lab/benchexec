@@ -10,7 +10,7 @@ import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
-import Utils from "../utils/utils";
+import { filterByRegex, sortMethod } from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -75,7 +75,7 @@ export default class Table extends React.Component {
                 props.results[j]
               ),
             sortMethod: (a, b, desc) => {
-              //default hast to be overwritten because of <span>
+              //default has to be overwritten because of <span>
               a = a ? a.props.children : null;
               b = b ? b.props.children : null;
               a = a === null || a === undefined ? -Infinity : a;
@@ -148,7 +148,7 @@ export default class Table extends React.Component {
                 />
               );
             },
-            filterMethod: Utils.filterByRegex,
+            filterMethod: filterByRegex,
             Filter: ({ filter, onChange }) => {
               let value;
               const type = column.type._type._type
@@ -169,7 +169,7 @@ export default class Table extends React.Component {
                 />
               );
             },
-            sortMethod: Utils.sortMethod
+            sortMethod: sortMethod
           };
         }
       });

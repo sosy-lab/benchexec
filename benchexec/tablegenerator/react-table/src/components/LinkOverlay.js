@@ -8,6 +8,7 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import JSZip from "jszip";
+import { isOkStatus } from "../utils/utils";
 
 export default class LinkOverlay extends React.Component {
   constructor(props) {
@@ -20,35 +21,32 @@ export default class LinkOverlay extends React.Component {
     this.loadContent(this.props.link);
   }
 
-  loadContent = url => {
+  loadContent = async url => {
     console.log("load content", url);
     if (url) {
-      fetch(url)
-        .then(response => {
-          //status 404/403 => error?
-          if (response.status === 200 || response.status === 0) {
-            response
-              .text()
-              .then(content => {
-                this.setState({ content });
-              })
-              .catch(e => {
-                console.log("Error: Stream not readable", url, e);
-                this.attemptLoadingFromZIP(url);
-              });
-          } else {
-            console.log("Error: Loading file not possible", response);
+      try {
+        const response = await fetch(url);
+        //status 404/403 => error?
+        if (isOkStatus(response.status)) {
+          try {
+            const content = await response.text();
+            this.setState({ content });
+          } catch (e) {
+            console.log("Error: Stream not readable", url, e);
             this.attemptLoadingFromZIP(url);
           }
-        })
-        .catch(e => {
-          console.log("Error: Resource not found", url, e);
+        } else {
+          console.log("Error: Loading file not possible", response);
           this.attemptLoadingFromZIP(url);
-        });
+        }
+      } catch (e) {
+        console.log("Error: Resource not found", url, e);
+        this.attemptLoadingFromZIP(url);
+      }
     }
   };
 
-  attemptLoadingFromZIP = url => {
+  attemptLoadingFromZIP = async url => {
     console.log("Text is not received. Try as zip?", url);
     const splitPos = url.lastIndexOf("/");
     const zipUrl = url.substring(0, splitPos) + ".zip";
@@ -57,25 +55,23 @@ export default class LinkOverlay extends React.Component {
       `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`
     ); // <folder>/<logfile>
 
-    fetch(zipUrl) // 1) fetch the url
-      .then(
-        response =>
-          response.status === 200 || response.status === 0 // 2) filter on 200 OK
-            ? Promise.resolve(response.blob()) //=> then-case
-            : Promise.reject(new Error(response.statusText)) //=> ERROR-case
-      )
-      .then(JSZip.loadAsync) // 3) chain with the zip promise
-      .then(zip => zip.file(logfile).async("string")) // 4) chain with the text content promise
-      .then(
-        content => {
-          // 5) display the result
-          this.setState({ content });
-        },
-        error => {
-          console.log("ERROR receiving ZIP", error);
-          this.setState({ error: `${error}` });
-        }
-      );
+    const response = await fetch(zipUrl);
+    const { status, statusText } = response;
+    if (isOkStatus(status)) {
+      try {
+        const data = await response.blob();
+        const zip = await JSZip.loadAsync(data);
+
+        const fileContent = await zip.file(logfile).async("string");
+
+        this.setState({ content: fileContent });
+      } catch (error) {
+        console.log("ERROR receiving ZIP", error);
+        this.setState({ error: `${error}` });
+      }
+    } else {
+      throw new Error(statusText);
+    }
   };
 
   escFunction = event => {
