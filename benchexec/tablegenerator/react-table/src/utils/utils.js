@@ -44,15 +44,9 @@ const filterByRegex = (filter, row, cell) => {
 
 const isNil = data => data === undefined || data === null;
 
-const sortMethod = (a, b) => {
-  const aValue = a.original || -Infinity;
-  const bValue = b.original || -Infinity;
-  return bValue - aValue;
-};
-
 const pathOr = (defaultValue, path) => data => {
   if (!path || !(path instanceof Array) || !data) {
-    return undefined;
+    return defaultValue;
   }
   let subPathResult = data;
   for (const node of path) {
@@ -62,6 +56,14 @@ const pathOr = (defaultValue, path) => data => {
     }
   }
   return subPathResult;
+};
+
+const getOriginalOrNegInfinity = pathOr(-Infinity, ["original"]);
+
+const sortMethod = (a, b) => {
+  const aValue = getOriginalOrNegInfinity(a);
+  const bValue = getOriginalOrNegInfinity(b);
+  return bValue - aValue;
 };
 
 const pipe = (...functions) => data => {
