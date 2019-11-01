@@ -172,7 +172,7 @@ exports[`Render Summary 1`] = `
             >
               <form>
                 <label>
-                  Fixed:
+                  Fixed row title:
                 </label>
                 <input
                   checked={true}
@@ -2030,7 +2030,7 @@ exports[`Render Summary 1`] = `
       target="_blank"
     >
        
-      BenchExec
+      BenchExec 
     </a>
   </p>
 </div>

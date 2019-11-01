@@ -75,106 +75,120 @@ export default props => (
     <div className="info-header">
       <h1>Info and Help</h1>
     </div>
-    <h3>Summary:</h3>
+    <h3>Summary</h3>
     <ul>
+      <li>Shows environment information and a summary of the results.</li>
       <li>
-        Find your environment information and the summary which was on the
-        bottom of the table
-      </li>
-      <li>
-        <strong>Select columns:</strong> <br /> To customize your columns, click
-        on the field on the left side "Click here to select columns" or{" "}
+        <strong>Select columns:</strong> <br /> The columns to show can be
+        selected by clicking on <em>Click here to select columns</em> or{" "}
         <span className="link" onClick={props.selectColumn}>
           here
         </span>
         .
       </li>
       <li>
-        <strong>Link to quantile plot:</strong> <br />
-        With a click on the column-title you are leaded directly to the
-        corresponding quantile plot
+        <strong>Quantile plot:</strong> <br />A quantile plot for a column can
+        be shown by clicking on the respective column header (e.g.,{" "}
+        <em>cputime</em>).
       </li>
       <li>
-        <strong>Fixed task</strong> <br />
-        Deselect the box to scroll horizontal in the hole table, select it to
-        scroll only in the results. The tasks will be fixed on the left side.{" "}
+        <strong>Fixed row title:</strong> <br />
+        Deselect to let the left-most column scroll together with the rest of
+        the table.
       </li>
     </ul>
-    <h3>Table: </h3>
+    <h3>Table</h3>
     <ul>
+      <li>Shows the detailed results.</li>
       <li>
-        <strong>Fixed task</strong> <br />
-        Deselect the box to scroll horizontal in the hole table, select it to
-        scroll only in the results. The tasks will be fixed on the left side.{" "}
+        <strong>Fixed task:</strong> <br />
+        Deselect to let the left-most column with the task name scroll together
+        with the rest of the table.
       </li>
       <li>
-        <strong>Select columns:</strong> <br /> To customize your columns, click
-        on the field on the left side "Click here to select columns" or{" "}
+        <strong>Select columns:</strong> <br /> The columns to show can be
+        selected by clicking on <em>Click here to select columns</em> or{" "}
         <span className="link" onClick={props.selectColumn}>
           here
         </span>
         .
       </li>
       <li>
-        <strong>Horizontally scrolling:</strong> <br />
-        To scroll horizontally through the hole table deselect the checkbox
-        "Fixed task" above the selected columns.
+        <strong>Filter rows:</strong> <br />
+        Filters can be applied to every column in the row below the column
+        header. Numeric columns accept a range filter like <em>min:max</em>,
+        where both <em>min</em> and <em>max</em> are numeric values that can
+        also be omitted for half-open ranges. For text columns (like the task
+        name) any row matches that contains the entered filter value. Several
+        filters can be combined and will be applied together. All filters can be
+        deleted at once with the <em>Rest Filters</em> button in the top right
+        corner.
       </li>
       <li>
-        <strong>Filtering:</strong> <br /> You can filter every row on the top
-        of it. Write the your maximum like ":n", your minimum like "n:", minimum
-        and maximum like "m:n" or a concrete value / text.
+        <strong>Sort rows:</strong> <br /> Rows can be sorted by clicking on the
+        column header. Clicking again will toggle the sort order (ascending vs.
+        descending). Hold <kbd>Shift</kbd> while clicking for adding a column to
+        the sort order.
       </li>
       <li>
-        <strong>Status:</strong> <br /> You can select the shown status or the
-        category of your visible results via the selection field.
+        <strong>Tool output:</strong> <br />
+        Clicking on a cell in the status column will show the tool output of
+        this run.
       </li>
       <li>
-        <strong>Sorting:</strong> <br /> You can sort the values of your rows by
-        clicking on the column-header (asc and desc). Hold <code>shift</code>{" "}
-        for multi-sorting
-      </li>
-      <li>
-        <strong>Search:</strong> <br /> Search your task in the text field above
-        the task-column.
-      </li>
-      <li>
-        <strong>Link to source code:</strong> <br /> As before, click on the
-        status / the task.
+        <strong>Task definition:</strong> <br /> Clicking on the task name will
+        show the content of the respective file.
       </li>
     </ul>
     <h3> Quantile Plot and Scatter Plot</h3>
     <ul>
-      <li>Select your values and additional lines</li>
-      <li>Default settings are a logarithmic view with correct results only</li>
-    </ul>
-    <h3>Reset Filters</h3>
-    <ul>
       <li>
-        At any time you can reset all your the filters you have set in the table
+        Shows plots of the results that are currently visible in the table.
+      </li>
+      <li>
+        <strong>Correct results only:</strong> <br />
+        In addition to the currently applied filter, the plots by default show
+        only correct results. Click <em>Switch to All Results</em> to toggle
+        this behavior.
+      </li>
+      <li>
+        <strong>Select columns:</strong>
+        <br />
+        The drop-down fields above the plots allow to choose which columns are
+        shown in the plot.
       </li>
     </ul>
-    <h3>Questions and Feedback </h3>
-    <span>
-      Fell free to write an e-Mail to{" "}
-      <a
-        className="link"
-        href="mailto:wendler@sosy.ifi.lmu.de?subject=[HTMLResultTablegenerator]"
-      >
-        Dr. Philipp Wendler
-      </a>
-    </span>
-    #{/* TODO: functional mail adress, e.g. tablegenerator@sosy.ifi.lmu.de */}
+    <h3>About</h3>
     <p>
-      Generated by{" "}
+      This table was generated by{" "}
       <a
         className="link"
         href="https://github.com/sosy-lab/benchexec"
         target="_blank"
         rel="noopener noreferrer"
       >
-        {" "}
-        BenchExec
+        BenchExec {window.data.version}
+      </a>
+      . For feedback, questions, and bug reports please use our{" "}
+      <a
+        className="link"
+        href="https://github.com/sosy-lab/benchexec/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22HTML+table%22"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        issue tracker
+      </a>
+      .
+    </p>
+    <p>
+      License:{" "}
+      <a
+        className="link"
+        href="https://www.apache.org/licenses/LICENSE-2.0"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Apache 2.0 License
       </a>
     </p>
     <details>

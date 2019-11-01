@@ -97,7 +97,9 @@ export default class Table extends React.Component {
               if (cleanFilterValue === "all") {
                 return true;
               } else if (
-                ["correct", "wrong", "error"].includes(cleanFilterValue) &&
+                ["correct", "wrong", "error", "unknown"].includes(
+                  cleanFilterValue
+                ) &&
                 row._original.results[j].category === cleanFilterValue
               ) {
                 return row[filter.id];
@@ -115,13 +117,14 @@ export default class Table extends React.Component {
                   style={{ width: "100%" }}
                   value={filter ? filter.value : "all"}
                 >
+                  <option value="all ">Show all</option>
                   <optgroup label="Category">
-                    <option value="all ">Show all</option>
                     <option value="correct ">correct</option>
                     <option value="wrong ">wrong</option>
-                    <option value="ERROR ">ERROR</option>
+                    <option value="error ">error</option>
+                    <option value="unknown ">unknown</option>
                   </optgroup>
-                  <optgroup>{this.collectStati(j, i)}</optgroup>
+                  <optgroup label="Status">{this.collectStati(j, i)}</optgroup>
                 </select>
               );
             }

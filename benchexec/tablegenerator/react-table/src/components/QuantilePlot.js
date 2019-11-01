@@ -304,7 +304,7 @@ export default class Overlay extends React.Component {
           value={this.state.selection}
           onChange={this.handleColumn}
         >
-          <optgroup label="RunSets">
+          <optgroup label="Run sets">
             {this.props.tools.map((runset, i) => {
               return runset.isVisible ? (
                 <option
@@ -317,7 +317,7 @@ export default class Overlay extends React.Component {
               ) : null;
             })}
           </optgroup>
-          <optgroup lable="columns">{this.renderColumns()}</optgroup>
+          <optgroup label="Columns">{this.renderColumns()}</optgroup>
         </select>
         <XYPlot
           height={window.innerHeight - 200}

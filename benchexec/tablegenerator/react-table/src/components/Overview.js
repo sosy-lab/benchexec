@@ -16,6 +16,8 @@ import QuantilePlot from "./QuantilePlot.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
 import Utils from "../utils/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
 //example data for development
 if (process.env.NODE_ENV !== "production") {
@@ -147,7 +149,9 @@ export default class Overview extends React.Component {
                 <Tab>Table ({this.state.table.length})</Tab>
                 <Tab>Quantile Plot</Tab>
                 <Tab>Scatter Plot</Tab>
-                <Tab>Info</Tab>
+                <Tab>
+                  Info <FontAwesomeIcon icon={faQuestionCircle} />
+                </Tab>
                 <Reset
                   isFiltered={!!this.state.filtered.length}
                   resetFilters={this.resetFilters}

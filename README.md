@@ -76,6 +76,7 @@ Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 Contributors:
 - [Aditya Arora](https://github.com/alohamora)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
+- [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)

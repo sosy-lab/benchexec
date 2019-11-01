@@ -96,7 +96,7 @@ export default class Summary extends React.Component {
         Header: () => (
           <div className="toolsHeader">
             <form>
-              <label>Fixed:</label>
+              <label>Fixed row title:</label>
               <input
                 name="fixed"
                 type="checkbox"
@@ -192,7 +192,7 @@ export default class Summary extends React.Component {
             rel="noopener noreferrer"
           >
             {" "}
-            BenchExec
+            BenchExec {window.data.version}
           </a>
         </p>
       </div>
