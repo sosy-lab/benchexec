@@ -283,11 +283,15 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
     results_exclude_keys = {"columns", "task_id", "sourcefiles_exist", "status"}
 
     def prepare_values(column, value):
-        return {
+        result = {
             "original": column.format_value(value, False, "csv"),
             "formatted": column.format_value(value, True, "html_cell"),
-            #'href': after survey
         }
+        if column.href:
+            result["href"] = column.href
+            if not result["formatted"]:
+                result["formatted"] = column.pattern
+        return result
 
     def clean_up_results(res, i):
         values = [

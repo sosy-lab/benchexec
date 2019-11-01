@@ -145,10 +145,21 @@ export default class Table extends React.Component {
             accessor: props =>
               this.props.prepareTableValues(props.results[j].values[i], j, i),
             Cell: row => {
+              if (row.value.href) {
+                return (
+                  <a
+                    href={row.value.href}
+                    onClick={ev =>
+                      this.props.toggleLinkOverlay(ev, row.value.href)
+                    }
+                    dangerouslySetInnerHTML={{ __html: row.value.formatted }}
+                  ></a>
+                );
+              }
               return (
                 <div
                   dangerouslySetInnerHTML={{ __html: row.value.formatted }}
-                />
+                ></div>
               );
             },
             filterMethod: Utils.filterByRegex,
