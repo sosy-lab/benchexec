@@ -128,12 +128,12 @@ def main(argv=None):
     for result in resultXML.findall("run"):
         run = result.get("name")
         try:
-            status_from_verification = result.find(
-                'column[@title="status"]'
-            ).get("value")
-            category_from_verification = result.find(
-                'column[@title="category"]'
-            ).get("value")
+            status_from_verification = result.find('column[@title="status"]').get(
+                "value"
+            )
+            category_from_verification = result.find('column[@title="category"]').get(
+                "value"
+            )
         except:
             status_from_verification = "not found"
             category_from_verification = "not found"
@@ -155,9 +155,11 @@ def main(argv=None):
                         result.append(scoreColumn)
                 elif result.get("properties") == "coverage-branches":
                     try:
-                        coverage_value = witness.find(
-                            'column[@title="branches_covered"]'
-                        ).get("value").replace("%", "")
+                        coverage_value = (
+                            witness.find('column[@title="branches_covered"]')
+                            .get("value")
+                            .replace("%", "")
+                        )
                     except:
                         coverage_value = "0.00"
                     statusWit, categoryWit = (status_from_verification, "correct")
