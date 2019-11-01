@@ -17,6 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import re
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
@@ -71,8 +72,10 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def get_value_from_output(self, lines, identifier):
         for line in reversed(lines):
-            if identifier in line:
-                start = line.find(":") + 1
-                end = line.find("(", start)
-                return line[start:end].strip()
+            pattern = identifier
+            if pattern[-1] != ":":
+                pattern += ":"
+            match = re.match("^" + pattern + "([^(]*)", line)
+            if match and match.group(1):
+                return match.group(1).strip()
         return None
