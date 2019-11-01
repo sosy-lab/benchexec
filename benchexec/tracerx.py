@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for Tracer-X (https://www.comp.nus.edu.sg/~tracerx/).
     """
 
-    REQUIRED_PATHS = ["bin", "include", "klee_build", "libraries"]
+    REQUIRED_PATHS = ["bin", "include", "tracerx_build", "libraries"]
 
     def executable(self):
         return util.find_executable("bin/tracerx")
@@ -71,7 +71,9 @@ class Tool(benchexec.tools.template.BaseTool):
             options += [
                 "--max-cputime-hard=" + str(rlimits[benchexec.model.HARDTIMELIMIT])
             ]
-
+        # print(executable)
+        # print(options)
+        # print(tasks)
         return [executable] + options + tasks
 
     def name(self):
@@ -87,9 +89,12 @@ class Tool(benchexec.tools.template.BaseTool):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
+        # print(output)
         for line in output:
             if line.startswith("KLEE: ERROR: "):
                 if "ASSERTION FAIL:" in line:
+                    # print(line)
+                    # print("result.RESULT_FALSE_REACH")
                     return result.RESULT_FALSE_REACH
                 elif "memory error: out of bound pointer" in line:
                     return result.RESULT_FALSE_DEREF
