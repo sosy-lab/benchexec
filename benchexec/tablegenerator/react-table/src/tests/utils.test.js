@@ -5,7 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import {
-  filterByRegex,
+  applyFilter,
   isOkStatus,
   pipe,
   maybeTransformToLowercase,
@@ -49,11 +49,11 @@ const rows = [
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
 const getFilteredData = regex =>
-  rows.filter(row => filterByRegex({ id: "test", value: regex }, row));
+  rows.filter(row => applyFilter({ id: "test", value: regex }, row));
 
-test("filterByRegex single entry without result", () => {
+test("applyFilter single entry without result", () => {
   expect(
-    filterByRegex(
+    applyFilter(
       {
         id: "test",
         value: "10:"
@@ -70,15 +70,15 @@ test("filterByRegex single entry without result", () => {
 
 //use function getFilteredData to generate test cases with data set 'rows'
 
-test("filterByRegex greater 10", () => {
+test("applyFilter greater 10", () => {
   expect(getFilteredData("10:").length).toBe(4);
 });
 
-test("filterByRegex equals 10", () => {
+test("applyFilter equals 10", () => {
   expect(getFilteredData("10").length).toBe(2);
 });
 
-test("filterByRegex between 10.3 and 10.7", () => {
+test("applyFilter between 10.3 and 10.7", () => {
   expect(getFilteredData("10.3:10.7").length).toBe(1);
 });
 

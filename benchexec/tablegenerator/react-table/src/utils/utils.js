@@ -19,25 +19,22 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
   };
 };
 
-const filterByRegex = (filter, row, cell) => {
-  const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/;
+const applyFilter = (filter, row, cell) => {
+  const { original } = row[filter.id];
+  const filterParams = filter.value.split(":");
 
-  const regex = filter.value.match(pattern);
-  if (regex[2] === undefined) {
-    return String(row[filter.id].formatted).startsWith(filter.value);
-  } else if (!regex[3]) {
-    if (+row[filter.id].original >= Number(regex[2])) {
-      return row[filter.id];
-    }
-  } else if (!regex[2]) {
-    if (+row[filter.id].original <= Number(regex[3])) {
-      return row[filter.id];
-    }
-  } else if (
-    row[filter.id].original >= Number(regex[2]) &&
-    row[filter.id].original <= Number(regex[3])
-  ) {
-    return row[filter.id];
+  if (filterParams.length === 2) {
+    const [start, end] = filterParams;
+
+    const numOriginal = Number(original);
+    const numStart = Number(start);
+    const numEnd = end ? Number(end) : Infinity;
+
+    return numOriginal >= numStart && numOriginal <= numEnd;
+  }
+
+  if (filterParams.length === 1) {
+    return original.startsWith(filterParams[0]);
   }
   return false;
 };
@@ -83,7 +80,7 @@ const isOkStatus = status => {
 
 export {
   prepareTableData,
-  filterByRegex,
+  applyFilter,
   sortMethod,
   isOkStatus,
   pathOr,

@@ -11,7 +11,7 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
-  filterByRegex,
+  applyFilter,
   sortMethod,
   pathOr,
   pipe,
@@ -157,7 +157,7 @@ export default class Table extends React.Component {
                 />
               );
             },
-            filterMethod: filterByRegex,
+            filterMethod: applyFilter,
             Filter: ({ filter, onChange }) => {
               let value;
               const type = column.type._type._type
