@@ -1896,14 +1896,14 @@ def create_tables(
         if not options.format == ["csv"]:
             local_summary = get_summary(runSetResults) if use_local_summary else None
             stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
+
+            # prepare data for js react application (stats)
+            if options.template_name == TEMPLATE_NAME_REACT:
+                template_values.stats = Util.prepare_stats_for_js(
+                    stats, template_values.tools
+                )
         else:
             stats = stats_columns = None
-
-        # prepare data for js react application (stats)
-        if options.template_name == TEMPLATE_NAME_REACT:
-            template_values.stats = Util.prepare_stats_for_js(
-                stats, template_values.tools
-            )
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":
