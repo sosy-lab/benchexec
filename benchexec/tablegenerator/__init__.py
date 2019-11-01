@@ -1872,7 +1872,6 @@ def create_tables(
 
     # prepare data for js react application
     if options.template_name == TEMPLATE_NAME_REACT:
-        logging.info("Create react template...")
         template_values.tools = Util.prepare_run_sets_for_js(
             template_values.run_sets, template_values.columns
         )
@@ -1887,6 +1886,8 @@ def create_tables(
             Util.read_bundled_file(path + "js") for path in REACT_FILES
         ]
         # template_values.stats = <see below>
+    else:
+        logging.warning("Option --static-table will be removed in BenchExec 3.0.")
 
     futures = []
 
@@ -2061,6 +2062,16 @@ def create_argument_parser():
         help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated.",
     )
     parser.add_argument(
+        "--static-table",
+        action="store_const",
+        dest="template_name",
+        const=TEMPLATE_NAME,
+        default=TEMPLATE_NAME_REACT,
+        help="Generate HTML table with static HTML code as known until BenchExec 2.2 "
+        "instead of the new React-based table. "
+        "This option will be removed in BenchExec 3.0.",
+    )
+    parser.add_argument(
         "-c",
         "--common",
         action="store_true",
@@ -2092,7 +2103,7 @@ def create_argument_parser():
         const=LIB_URL_OFFLINE,
         default=LIB_URL,
         help="Expect JS libs in libs/javascript/ instead of retrieving them from a CDN. "
-        "Currently does not work for all libs.",
+        "Currently does not work for all libs, and only relevant for --static-table.",
     )
     parser.add_argument(
         "--show",
@@ -2108,15 +2119,6 @@ def create_argument_parser():
     )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
-    )
-    parser.add_argument(
-        "-r",
-        "--react",
-        action="store_const",
-        dest="template_name",
-        const=TEMPLATE_NAME_REACT,
-        default=TEMPLATE_NAME,
-        help="Use template_react.html instead of template.html",
     )
     return parser
 
