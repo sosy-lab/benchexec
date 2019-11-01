@@ -21,7 +21,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "test -f src/data/dependencies.json || node scripts/dependencies.js && node scripts/test.js"
   },
   "eslintConfig": {
     "extends": [
