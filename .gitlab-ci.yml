@@ -111,7 +111,7 @@ javascript-build:
     - npm install
   script:
     - npm run build
-    - git diff --exit-code
+    - git diff --stat --exit-code
   cache:
     key: "$CI_JOB_NAME"
     paths:
