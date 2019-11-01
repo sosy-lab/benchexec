@@ -67,12 +67,16 @@ class Tool(benchexec.tools.template.BaseTool):
                     return "TIMEOUT"
                 else:
                     return "ERROR ({0})".format(returncode)
-            elif line.startswith("Result:") and "FALSE" in line:
+            elif line.startswith("Result: FALSE"):
                 return result.RESULT_FALSE_REACH
-            elif line.startswith("Result:") and "TRUE" in line:
+            elif line.startswith("Result: TRUE"):
                 return result.RESULT_TRUE_PROP
-            elif line.startswith("Result") and "DONE" in line:
+            elif line.startswith("Result: DONE"):
                 return result.RESULT_DONE
+            elif line.startswith("Result: ERROR"):
+                # matches ERROR and ERROR followed by some reason in parantheses
+                # e.g., "ERROR (TRUE)" or "ERROR(TRUE)"
+                return re.search("ERROR(\s*\(.*\))?", line).group(0)
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
