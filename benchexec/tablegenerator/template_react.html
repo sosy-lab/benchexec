@@ -1,0 +1,47 @@
+{{# SPDX-License-Identifier: Apache-2.0
+
+  BenchExec is a framework for reliable benchmarking.
+  This file is part of BenchExec.
+  Copyright (C) Dirk Beyer. All rights reserved.
+}}<!DOCTYPE html>
+
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="generator" content="BenchExec table-generator {{version}}">
+
+<title>{{title}} &ndash; BenchExec results</title>
+</head>
+{{for file_content in app_css}}
+<style>
+{{file_content}}
+</style>
+{{endfor}}
+
+<body>
+
+<div id="root"></div>
+  
+<script type="text/javascript">
+
+const data = {
+  version: {{version|json}},
+  head: {{head|json}},
+  tools: {{tools|json}},
+  rows: {{rows|json}},
+  stats: {{stats|json}},
+  props: {{relevant_id_columns|json}}
+};
+
+window.data = data;
+</script>
+
+{{for file_content in app_js}}
+<script>
+{{file_content|html}}
+</script>
+{{endfor}}
+
+</body>
+</html>

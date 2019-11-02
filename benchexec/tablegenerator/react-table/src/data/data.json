@@ -1,0 +1,868 @@
+{
+  "head": {
+    "branch": null,
+    "date": {
+      "content": [["2015-03-03 16:13:02 CET", 6]],
+      "id": "date",
+      "name": "Date of execution"
+    },
+    "displayName": null,
+    "host": {
+      "content": [["tortuga", 6]],
+      "id": "host",
+      "name": "Host"
+    },
+    "limit": {
+      "content": [["timelimit: 10 s, memlimit: 3000 MB, CPU core limit: 1", 6]],
+      "id": "limits",
+      "name": "Limits"
+    },
+    "options": {
+      "content": [
+        ["-noout -setprop log.consoleLevel=WARNING -predicateAnalysis", 6]
+      ],
+      "id": "options",
+      "name": "Options"
+    },
+    "os": {
+      "content": [["Linux 3.13.0-45-generic x86_64", 6]],
+      "id": "os",
+      "name": "OS"
+    },
+    "property": null,
+    "runset": {
+      "content": [["predicateAnalysis", 6]],
+      "id": "run",
+      "name": "Run set"
+    },
+    "system": {
+      "content": [
+        [
+          "CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB",
+          6
+        ]
+      ],
+      "id": "system",
+      "name": "System"
+    },
+    "title": {
+      "content": [
+        ["status", 1],
+        ["cputime (ms)", 1],
+        ["cputime-h (h)", 1],
+        ["walltime (ns)", 1],
+        ["memUsage (MB)", 1],
+        ["memUsage-GB (GB)", 1]
+      ],
+      "id": "columnTitles",
+      "name": "benchexec/tablegenerator/test_integration/results/"
+    },
+    "tool": {
+      "content": [["CPAchecker 1.4-svn 15944M", 6]],
+      "id": "tool",
+      "name": "Tool"
+    }
+  },
+  "tools": [
+    {
+      "benchmarkname": "test",
+      "branch": "",
+      "columns": [
+        {
+          "display_title": "status",
+          "href": null,
+          "number_of_significant_digits": null,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 1,
+          "source_unit": null,
+          "title": "status",
+          "type": {
+            "_type": 5,
+            "name": "status"
+          },
+          "unit": null
+        },
+        {
+          "display_title": "cputime",
+          "href": null,
+          "number_of_significant_digits": 3,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 1000,
+          "source_unit": "s",
+          "title": "cputime",
+          "type": {
+            "_max_decimal_digits": 0,
+            "_type": {
+              "_type": 3,
+              "name": "measure"
+            }
+          },
+          "unit": "ms"
+        },
+        {
+          "display_title": "cputime-h",
+          "href": null,
+          "number_of_significant_digits": 4,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 0.0002777777777777778,
+          "source_unit": "s",
+          "title": "cputime",
+          "type": {
+            "_max_decimal_digits": 7,
+            "_type": {
+              "_type": 3,
+              "name": "measure"
+            }
+          },
+          "unit": "h"
+        },
+        {
+          "display_title": "walltime",
+          "href": null,
+          "number_of_significant_digits": 2,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 1e-7,
+          "source_unit": "s",
+          "title": "walltime",
+          "type": {
+            "_max_decimal_digits": 8,
+            "_type": {
+              "_type": 3,
+              "name": "measure"
+            }
+          },
+          "unit": "ns"
+        },
+        {
+          "display_title": "memUsage",
+          "href": null,
+          "number_of_significant_digits": 5,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 0.000001,
+          "source_unit": null,
+          "title": "memUsage",
+          "type": {
+            "_max_decimal_digits": 2,
+            "_type": {
+              "_type": 3,
+              "name": "measure"
+            }
+          },
+          "unit": "MB"
+        },
+        {
+          "display_title": "memUsage-GB",
+          "href": null,
+          "number_of_significant_digits": 5,
+          "pattern": null,
+          "relevant_for_diff": false,
+          "scale_factor": 1e-9,
+          "source_unit": null,
+          "title": "memUsage",
+          "type": {
+            "_max_decimal_digits": 5,
+            "_type": {
+              "_type": 3,
+              "name": "measure"
+            }
+          },
+          "unit": "GB"
+        }
+      ],
+      "cores": "8",
+      "cpu": "Intel Core i7-2600 CPU @ 3.40GHz",
+      "cpuCores": "1",
+      "date": "2015-03-03 16:13:02 CET",
+      "displayName": "",
+      "filename": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.results.predicateAnalysis.xml",
+      "freq": "3401 MHz",
+      "host": "tortuga",
+      "memlimit": "3000 MB",
+      "name": "predicateAnalysis",
+      "niceName": "predicateAnalysis",
+      "options": "-noout -setprop log.consoleLevel=WARNING -predicateAnalysis",
+      "os": "Linux 3.13.0-45-generic x86_64",
+      "ram": "16389384 kB",
+      "timelimit": "10 s",
+      "tool": "CPAchecker",
+      "toolmodule": "benchexec.tools.cpachecker",
+      "turbo": "",
+      "version": "1.4-svn 15944M"
+    }
+  ],
+  "rows": [
+    {
+      "expected_results": {
+        "unreach-label": [false, null]
+      },
+      "filename": "benchexec/tablegenerator/test_integration/results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+      "has_sourcefile": true,
+      "href": "results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+      "id": [
+        "benchexec/tablegenerator/test_integration/results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+        "unreach-label",
+        null
+      ],
+      "results": [
+        {
+          "category": "wrong",
+          "columns_relevant_for_diff": ["status"],
+          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.implicitunsignedconversion_false-unreach-label.i.log",
+          "log_file": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.logfiles/predicateAnalysis.implicitunsignedconversion_false-unreach-label.i.log",
+          "score": -32,
+          "values": [
+            {
+              "formatted": "true",
+              "original": "true"
+            },
+            {
+              "formatted": "2170",
+              "original": "2170"
+            },
+            {
+              "formatted": ".0006026",
+              "original": "0.0006026"
+            },
+            {
+              "formatted": ".00000022",
+              "original": "0.00000022"
+            },
+            {
+              "formatted": "128.03",
+              "original": "128.03"
+            },
+            {
+              "formatted": ".12803",
+              "original": "0.12803"
+            }
+          ]
+        }
+      ],
+      "short_filename": "test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i"
+    },
+    {
+      "expected_results": {
+        "unreach-label": [false, null]
+      },
+      "filename": "benchexec/tablegenerator/test_integration/results/test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c",
+      "has_sourcefile": true,
+      "href": "results/test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c",
+      "id": [
+        "benchexec/tablegenerator/test_integration/results/test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c",
+        "unreach-label",
+        null
+      ],
+      "results": [
+        {
+          "category": "correct",
+          "columns_relevant_for_diff": ["status"],
+          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.switch_test_default_fallthrough_false-unreach-label.c.log",
+          "log_file": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.logfiles/predicateAnalysis.switch_test_default_fallthrough_false-unreach-label.c.log",
+          "score": 1,
+          "values": [
+            {
+              "formatted": "false(reach)",
+              "original": "false(reach)"
+            },
+            {
+              "formatted": "2190",
+              "original": "2190"
+            },
+            {
+              "formatted": ".0006083",
+              "original": "0.0006083"
+            },
+            {
+              "formatted": ".00000022",
+              "original": "0.00000022"
+            },
+            {
+              "formatted": "129.12",
+              "original": "129.12"
+            },
+            {
+              "formatted": ".12912",
+              "original": "0.12912"
+            }
+          ]
+        }
+      ],
+      "short_filename": "test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c"
+    },
+    {
+      "expected_results": {
+        "unreach-label": [true, null]
+      },
+      "filename": "benchexec/tablegenerator/test_integration/results/test/programs/simple/compoundLiteral_true-unreach-label.c",
+      "has_sourcefile": true,
+      "href": "results/test/programs/simple/compoundLiteral_true-unreach-label.c",
+      "id": [
+        "benchexec/tablegenerator/test_integration/results/test/programs/simple/compoundLiteral_true-unreach-label.c",
+        "unreach-label",
+        null
+      ],
+      "results": [
+        {
+          "category": "correct",
+          "columns_relevant_for_diff": ["status"],
+          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.compoundLiteral_true-unreach-label.c.log",
+          "log_file": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.logfiles/predicateAnalysis.compoundLiteral_true-unreach-label.c.log",
+          "score": 2,
+          "values": [
+            {
+              "formatted": "true",
+              "original": "true"
+            },
+            {
+              "formatted": "2230",
+              "original": "2230"
+            },
+            {
+              "formatted": ".0006193",
+              "original": "0.0006193"
+            },
+            {
+              "formatted": ".00000022",
+              "original": "0.00000022"
+            },
+            {
+              "formatted": "132.34",
+              "original": "132.34"
+            },
+            {
+              "formatted": ".13234",
+              "original": "0.13234"
+            }
+          ]
+        }
+      ],
+      "short_filename": "test/programs/simple/compoundLiteral_true-unreach-label.c"
+    },
+    {
+      "expected_results": {},
+      "filename": "benchexec/tablegenerator/test_integration/results/doc/examples/example.c",
+      "has_sourcefile": true,
+      "href": "results/doc/examples/example.c",
+      "id": [
+        "benchexec/tablegenerator/test_integration/results/doc/examples/example.c",
+        null,
+        null
+      ],
+      "results": [
+        {
+          "category": "missing",
+          "columns_relevant_for_diff": ["status"],
+          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.example.c.log",
+          "log_file": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.logfiles/predicateAnalysis.example.c.log",
+          "score": null,
+          "values": [
+            {
+              "formatted": "true",
+              "original": "true"
+            },
+            {
+              "formatted": "2270",
+              "original": "2270"
+            },
+            {
+              "formatted": ".0006312",
+              "original": "0.0006312"
+            },
+            {
+              "formatted": ".00000023",
+              "original": "0.00000023"
+            },
+            {
+              "formatted": "129.47",
+              "original": "129.47"
+            },
+            {
+              "formatted": ".12947",
+              "original": "0.12947"
+            }
+          ]
+        }
+      ],
+      "short_filename": "doc/examples/example.c"
+    },
+    {
+      "expected_results": {
+        "unreach-label": [true, null]
+      },
+      "filename": "benchexec/tablegenerator/test_integration/results/test/programs/simple/builtin_expect_true-unreach-label.c",
+      "has_sourcefile": true,
+      "href": "results/test/programs/simple/builtin_expect_true-unreach-label.c",
+      "id": [
+        "benchexec/tablegenerator/test_integration/results/test/programs/simple/builtin_expect_true-unreach-label.c",
+        "unreach-label",
+        null
+      ],
+      "results": [
+        {
+          "category": "correct",
+          "columns_relevant_for_diff": ["status"],
+          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.builtin_expect_true-unreach-label.c.log",
+          "log_file": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.logfiles/predicateAnalysis.builtin_expect_true-unreach-label.c.log",
+          "score": 2,
+          "values": [
+            {
+              "formatted": "true",
+              "original": "true"
+            },
+            {
+              "formatted": "2060",
+              "original": "2060"
+            },
+            {
+              "formatted": ".0005718",
+              "original": "0.0005718"
+            },
+            {
+              "formatted": ".00000021",
+              "original": "0.00000021"
+            },
+            {
+              "formatted": "126.31",
+              "original": "126.31"
+            },
+            {
+              "formatted": ".12631",
+              "original": "0.12631"
+            }
+          ]
+        }
+      ],
+      "short_filename": "test/programs/simple/builtin_expect_true-unreach-label.c"
+    }
+  ],
+  "stats": [
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 5
+          },
+          {
+            "avg": "2180",
+            "max": "2270",
+            "median": "2190",
+            "min": "2060",
+            "stdev": "71.9",
+            "sum": "10900"
+          },
+          {
+            "avg": "0.0006066",
+            "max": "0.0006312",
+            "median": "0.0006083",
+            "min": "0.0005718",
+            "stdev": "0.00001996",
+            "sum": ".003033&#x2007;"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0.00",
+            "sum": ".0000011&#x2007;"
+          },
+          {
+            "avg": "129.05",
+            "max": "132.34",
+            "median": "129.12",
+            "min": "126.31",
+            "stdev": "1.9758",
+            "sum": "645.27"
+          },
+          {
+            "avg": "0.12905",
+            "max": "0.13234",
+            "median": "0.12912",
+            "min": "0.12631",
+            "stdev": "0.0019758",
+            "sum": ".64527"
+          }
+        ]
+      ],
+      "description": "in total 2 true tasks, 2 false tasks",
+      "id": null,
+      "title": "total"
+    },
+    {
+      "content": [
+        [
+          null,
+          {
+            "avg": "",
+            "max": "",
+            "median": "",
+            "min": "",
+            "stdev": "",
+            "sum": "10900"
+          },
+          {
+            "avg": "",
+            "max": "",
+            "median": "",
+            "min": "",
+            "stdev": "",
+            "sum": ".003037&#x2007;"
+          },
+          {
+            "avg": "",
+            "max": "",
+            "median": "",
+            "min": "",
+            "stdev": "",
+            "sum": ".0000012&#x2007;"
+          },
+          null,
+          null
+        ]
+      ],
+      "description": "(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
+      "id": null,
+      "title": "local summary"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 3
+          },
+          {
+            "avg": "2160",
+            "max": "2230",
+            "median": "2190",
+            "min": "2060",
+            "stdev": "73.0",
+            "sum": "6480"
+          },
+          {
+            "avg": "0.0005998",
+            "max": "0.0006193",
+            "median": "0.0006083",
+            "min": "0.0005718",
+            "stdev": "0.00002029",
+            "sum": ".001799&#x2007;"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0.00",
+            "sum": ".00000065"
+          },
+          {
+            "avg": "129.26",
+            "max": "132.34",
+            "median": "129.12",
+            "min": "126.31",
+            "stdev": "2.4617",
+            "sum": "387.77"
+          },
+          {
+            "avg": "0.12926",
+            "max": "0.13234",
+            "median": "0.12912",
+            "min": "0.12631",
+            "stdev": "0.0024617",
+            "sum": ".38777"
+          }
+        ]
+      ],
+      "description": "(property holds + result is true) OR (property does not hold + result is false)",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;correct results"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 2
+          },
+          {
+            "avg": "2140",
+            "max": "2230",
+            "median": "2140",
+            "min": "2060",
+            "stdev": "85.4",
+            "sum": "4290"
+          },
+          {
+            "avg": "0.0005956",
+            "max": "0.0006193",
+            "median": "0.0005956",
+            "min": "0.0005718",
+            "stdev": "0.00002374",
+            "sum": ".001191&#x2007;"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0.00",
+            "sum": ".00000043"
+          },
+          {
+            "avg": "129.33",
+            "max": "132.34",
+            "median": "129.33",
+            "min": "126.31",
+            "stdev": "3.0126",
+            "sum": "258.65"
+          },
+          {
+            "avg": "0.12933",
+            "max": "0.13234",
+            "median": "0.12933",
+            "min": "0.12631",
+            "stdev": "0.0030126",
+            "sum": ".25865"
+          }
+        ]
+      ],
+      "description": "property holds + result is true",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 1
+          },
+          {
+            "avg": "2190",
+            "max": "2190",
+            "median": "2190",
+            "min": "2190",
+            "stdev": "0",
+            "sum": "2190"
+          },
+          {
+            "avg": "0.0006083",
+            "max": "0.0006083",
+            "median": "0.0006083",
+            "min": "0.0006083",
+            "stdev": "0",
+            "sum": ".0006083"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0",
+            "sum": ".00000022"
+          },
+          {
+            "avg": "129.12",
+            "max": "129.12",
+            "median": "129.12",
+            "min": "129.12",
+            "stdev": "0",
+            "sum": "129.12"
+          },
+          {
+            "avg": "0.12912",
+            "max": "0.12912",
+            "median": "0.12912",
+            "min": "0.12912",
+            "stdev": "0",
+            "sum": ".12912"
+          }
+        ]
+      ],
+      "description": "property does not hold + result is false",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 1
+          },
+          {
+            "avg": "2170",
+            "max": "2170",
+            "median": "2170",
+            "min": "2170",
+            "stdev": "0",
+            "sum": "2170"
+          },
+          {
+            "avg": "0.0006026",
+            "max": "0.0006026",
+            "median": "0.0006026",
+            "min": "0.0006026",
+            "stdev": "0",
+            "sum": ".0006026"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0",
+            "sum": ".00000022"
+          },
+          {
+            "avg": "128.03",
+            "max": "128.03",
+            "median": "128.03",
+            "min": "128.03",
+            "stdev": "0",
+            "sum": "128.03"
+          },
+          {
+            "avg": "0.12803",
+            "max": "0.12803",
+            "median": "0.12803",
+            "min": "0.12803",
+            "stdev": "0",
+            "sum": ".12803"
+          }
+        ]
+      ],
+      "description": "(property holds + result is false) OR (property does not hold + result is true)",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 1
+          },
+          {
+            "avg": "2170",
+            "max": "2170",
+            "median": "2170",
+            "min": "2170",
+            "stdev": "0",
+            "sum": "2170"
+          },
+          {
+            "avg": "0.0006026",
+            "max": "0.0006026",
+            "median": "0.0006026",
+            "min": "0.0006026",
+            "stdev": "0",
+            "sum": ".0006026"
+          },
+          {
+            "avg": "0.00000020",
+            "max": "0.00000020",
+            "median": "0.00000020",
+            "min": "0.00000020",
+            "stdev": "0",
+            "sum": ".00000022"
+          },
+          {
+            "avg": "128.03",
+            "max": "128.03",
+            "median": "128.03",
+            "min": "128.03",
+            "stdev": "0",
+            "sum": "128.03"
+          },
+          {
+            "avg": "0.12803",
+            "max": "0.12803",
+            "median": "0.12803",
+            "min": "0.12803",
+            "stdev": "0",
+            "sum": ".12803"
+          }
+        ]
+      ],
+      "description": "property does not hold + result is true",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": 0
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "description": "property holds + result is false",
+      "id": null,
+      "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"
+    },
+    {
+      "content": [
+        [
+          {
+            "avg": null,
+            "max": null,
+            "median": null,
+            "min": null,
+            "stdev": null,
+            "sum": -27
+          },
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "description": "in total 2 true tasks, 2 false tasks",
+      "id": "score",
+      "title": "score (5 tasks, max score: 6)"
+    }
+  ],
+  "props": [true, true, false]
+}

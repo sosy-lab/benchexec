@@ -33,6 +33,8 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
+import copy
+from functools import reduce
 
 import benchexec.util
 
@@ -241,7 +243,122 @@ def flatten(list_):
 
 
 def to_json(obj):
-    return tempita.html(json.dumps(obj, sort_keys=True))
+    return tempita.html(json.dumps(obj, sort_keys=True, default=parse_json))
+
+
+def parse_json(obj):
+    if type(obj) is Decimal:  # for decimal numbers
+        return float(obj)
+    elif "__dict__" in dir(obj):  # e.g. for own Classes (Key-value)
+        return obj.__dict__
+    elif "__iter__" in dir(obj):  # e.g. for Set (List)
+        return list(obj)
+    else:
+        obj
+
+
+def merge_dicts(*dicts):
+    return dict(reduce(lambda acc, cur: acc + list(cur.items()), dicts, []))
+
+
+def prepare_run_sets_for_js(run_sets, columns):
+    # javascript pendant:
+    # var tools = run_sets.map((rs, i) => {
+    #   return { ...rs, columns: columns_data[i] }
+    # })
+
+    def set_column_title(columns):
+        for column in columns:
+            column.display_title = column.display_title or column.title
+        return columns
+
+    return [
+        merge_dicts(rs, {"columns": set_column_title(columns[i])})
+        for i, rs in enumerate(run_sets)
+    ]  # Tuple (index + column)
+
+
+def prepare_rows_for_js(rows, tools, base_dir, href_base):
+    row_exclude_keys = {"properties"}
+    results_exclude_keys = {"columns", "task_id", "sourcefiles_exist", "status"}
+
+    def prepare_values(column, value):
+        result = {
+            "original": column.format_value(value, False, "csv"),
+            "formatted": column.format_value(value, True, "html_cell"),
+        }
+        if column.href:
+            result["href"] = column.href
+            if not result["formatted"]:
+                result["formatted"] = column.pattern
+        return result
+
+    def clean_up_results(res, i):
+        values = [
+            prepare_values(column, res.values[i])
+            for i, column in enumerate(res.columns)
+        ]
+        toolHref = [
+            column.href
+            for column in tools[i]["columns"]
+            if column.title.endswith("status")
+        ][0]
+        href = create_link(toolHref or res.log_file, base_dir, res, href_base)
+        return merge_dicts(
+            {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys},
+            {"href": href, "values": values},
+        )
+
+    def clean_up_row(row):
+        row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys}
+        row["results"] = [
+            clean_up_results(res, i) for i, res in enumerate(row["results"])
+        ]
+        row["href"] = create_link(row["filename"], base_dir)
+        return row
+
+    return [clean_up_row(row) for row in copy.deepcopy(rows)]
+
+
+def prepare_stats_for_js(stats, tools):
+    toolColumnCounts = [
+        len(tool["columns"]) for tool in tools
+    ]  # len === .length() => [9, 4, 6]
+
+    def prepare_values(column, value, key):
+        return (
+            column.format_value(value, True, "html_cell")
+            if key is "sum"
+            else column.format_value(value, False, "tooltip")
+        )
+
+    def get_stat_content(stat, i, count):
+        start = reduce(lambda acc, cur: acc + cur, toolColumnCounts[0:i], 0)
+        return stat.content[start : start + count]  # reduce(labda acc, cur: acc + curr)
+
+    def clean_up_stat(stat):
+        content_splitted = [
+            get_stat_content(stat, i, count)
+            for (i, count) in enumerate(toolColumnCounts)
+        ]
+        return [
+            [
+                {
+                    k: prepare_values(tools[toolIndex]["columns"][colIndex], v, k)
+                    for k, v in content.__dict__.items()
+                }
+                if content is not None
+                else content
+                for colIndex, content in enumerate(toolContent)
+            ]
+            for toolIndex, toolContent in enumerate(content_splitted)
+        ]
+
+    return [
+        merge_dicts(stat, {"content": clean_up_stat(stat)})
+        for stat in copy.deepcopy(stats)
+    ]  # add original stat infos
+    # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
@@ -293,6 +410,15 @@ def prettylist(list_):
             uniqueList.append(entry)
 
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
+
+
+def read_bundled_file(name):
+    """Read a file that is packaged together with this application."""
+    try:
+        return __loader__.get_data(name).decode("UTF-8")
+    except NameError:
+        with open(name, mode="r") as f:
+            return f.read()
 
 
 class _DummyFuture(object):

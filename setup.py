@@ -70,7 +70,15 @@ setuptools.setup(
     platforms=["Linux"],
     packages=["benchexec"]
     + (["benchexec.tablegenerator", "benchexec.tools"] if not PY2 else []),
-    package_data={"benchexec.tablegenerator": ["template.*"]} if not PY2 else {},
+    package_data={
+        "benchexec.tablegenerator": [
+            "template*",
+            "react-table/build/*.min.js",
+            "react-table/build/*.min.css",
+        ]
+    }
+    if not PY2
+    else {},
     entry_points={
         "console_scripts": [
             "runexec = benchexec.runexecutor:main",

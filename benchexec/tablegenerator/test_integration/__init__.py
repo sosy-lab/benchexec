@@ -148,7 +148,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             csv_file,
             csv_diff_file,
         ) = self.generate_tables_and_check_produced_files(
-            args, table_prefix, diff_prefix
+            args + ["--static-table"], table_prefix, diff_prefix
         )
 
         generated_csv = util.read_file(csv_file)

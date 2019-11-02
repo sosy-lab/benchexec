@@ -1,0 +1,433 @@
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * BenchExec is a framework for reliable benchmarking.
+ * This file is part of BenchExec.
+ * Copyright (C) Dirk Beyer. All rights reserved.
+ */
+.App {
+  // text-align: center;
+  font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,
+    Arial, Verdana, sans-serif;
+}
+// $key-color: #009440;
+$key-color: #71bcff;
+
+//------------------common------------------
+.link {
+  text-decoration: underline;
+  color: $key-color;
+  cursor: pointer;
+}
+.btn {
+  margin: 0 10px 9px 0;
+  text-align: center;
+  padding: auto;
+  height: 35px;
+  cursor: pointer;
+
+  //background-image: linear-gradient(to left, $key-color, white);
+  box-shadow: 0 4px 12px 0 rgba($key-color, 0.2);
+  -o-transition: all 0.4s ease-in-out;
+  -webkit-transition: all 0.4s ease-in-out;
+  transition: all 0.4s ease-in-out;
+  background-size: 300% 100%;
+
+  &:hover {
+    // background-position: 100% 0;
+    // -o-transition: all .4s ease-in-out;
+    // -webkit-transition: all .4s ease-in-out;
+    // transition: all .4s ease-in-out;
+    background: $key-color;
+  }
+
+  &:disabled {
+    background: darkgrey;
+    cursor: default;
+    &:hover {
+      background: darkgrey;
+    }
+  }
+}
+.btn-apply {
+  margin-left: 100px;
+  background: $key-color;
+  //background-image: linear-gradient(to right, $key-color, white);
+  box-shadow: 0 4px 12px 0 rgba($key-color, 0.5);
+  &:hover {
+    background: white;
+  }
+}
+
+//------------------overview------------------
+.overview {
+  background: $key-color;
+  .react-tabs {
+    background: $key-color;
+  }
+  .react-tabs__tab-list {
+    display: flex;
+    width: 100vw;
+    height: 36px;
+    margin-bottom: 5px;
+    position: fixed;
+    top: 0;
+    padding: 10px 10px 0;
+    font-weight: 700;
+    z-index: 100;
+    background: $key-color;
+    align-items: flex-start;
+
+    .react-tabs__tab {
+      // width: 18vw;
+      height: 23px;
+      margin-right: 1px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      background: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      &--selected {
+        background: white;
+      }
+    }
+  }
+  .react-tabs__tab-panel {
+    padding-top: 43px;
+    background: white;
+  }
+  button {
+    cursor: pointer;
+    &:disabled {
+      display: none;
+    }
+    &.reset {
+      position: fixed;
+      width: 90px;
+      top: 0;
+      right: 10px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      border-radius: 0 0 8px 8px;
+      background: rgba(255, 255, 255, 0.5);
+      border: none;
+      font-size: 12px;
+    }
+  }
+}
+
+//------------------summary------------------
+.summary {
+  margin: auto;
+  padding-top: 30px;
+  background: white;
+  text-align: center;
+  table {
+    border-collapse: collapse;
+    margin: 40px 0;
+    width: 100%;
+    td,
+    th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    .options {
+      ul {
+        margin: 0;
+        padding: 0 0 0 17px;
+      }
+      li {
+        text-align: left;
+        font-size: 9pt;
+        list-style: none;
+        &:first-child {
+          display: none;
+        }
+      }
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #ddd;
+    }
+
+    th {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      text-align: left;
+      width: 14vw;
+    }
+  }
+  .rt-table {
+    border: 1px solid #ddd;
+    .rt-td {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      border-right: 1px solid rgba(0, 0, 0, 0.32) !important;
+    }
+    .tr {
+      font-weight: 700;
+    }
+    .rt-tr {
+      span {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      &-group {
+        border: 1px solid rgba(0, 0, 0, 0.32) !important;
+      }
+    }
+  }
+
+  .toolInfo {
+    text-align: left;
+    margin: 20px;
+  }
+  .summary_span {
+    text-align: right;
+  }
+
+  p {
+    margin-top: 40px;
+  }
+}
+
+//------------------table------------------
+.mainTable {
+  a {
+    text-decoration: none;
+  }
+  .fixed {
+    justify-content: space-around;
+    width: 33%;
+    margin: auto;
+
+    input {
+      margin-right: 40px;
+    }
+  }
+  .rt-table {
+    width: 99%;
+    margin-bottom: 40px;
+  }
+  .rt-thead {
+    &.-headerGroups > div > div {
+      border-right: 1px solid #c5c5c5;
+      background: white;
+      span {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      &:first-child {
+        width: 30vw;
+      }
+    }
+  }
+
+  .rt-tbody {
+    overflow: scroll;
+    span {
+      text-align: center;
+    }
+    .row_id {
+      font-size: 9pt;
+      border-left: 1px solid black;
+      padding-left: 5px;
+      height: 100%;
+      color: #484848;
+    }
+    .rt-td {
+      padding: 8px 4px;
+      border-right: 2px solid rgba(142, 142, 142, 0.3) !important;
+      text-align: right;
+    }
+    .row__name {
+      text-align: left;
+      display: inline-block;
+      width: auto !important;
+      color: black;
+      &--cellLink {
+        cursor: pointer;
+        color: black;
+      }
+    }
+    .rt-tr-group {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.32) !important;
+    }
+    .rt-tr-group:last-child {
+      border-bottom: 1px solid lightgrey;
+    }
+  }
+  .pagination-bottom {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    background: white;
+  }
+
+  .cellLink {
+    cursor: pointer;
+  }
+  .correct {
+    color: green;
+    cursor: pointer;
+  }
+  .error {
+    color: magenta;
+    cursor: pointer;
+  }
+  .unknown {
+    color: $key-color;
+    cursor: pointer;
+  }
+  .wrong {
+    color: red;
+    cursor: pointer;
+  }
+  input {
+    width: 100%;
+    text-align: right;
+    &::placeholder {
+      color: lightgray;
+    }
+  }
+  select {
+    height: 100%;
+  }
+}
+
+.quantilePlot {
+  position: relative;
+  margin: 20px;
+  select {
+    display: flex;
+    margin: auto;
+  }
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    float: right;
+    max-width: 50%;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: #e2e2e2;
+    }
+  }
+}
+
+.scatterPlot {
+  position: relative;
+  text-align: center;
+  &__select select {
+    margin: 10px;
+  }
+  .middle-line {
+    .rv-xy-plot__axis__line {
+      stroke: $key-color;
+    }
+  }
+  &__plot {
+    margin: auto;
+  }
+  button {
+    margin: 10px;
+  }
+}
+
+.plot {
+  &__noresults {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.info {
+  margin: 40px;
+
+  &-header {
+    margin: 40px 0;
+    display: flex;
+    justify-content: space-between;
+    h1 {
+      margin: 0;
+    }
+    span {
+      font-size: 9pt;
+      border: 1px solid $key-color;
+      padding: 5px;
+    }
+  }
+}
+
+.overlay {
+  position: fixed;
+  overflow: scroll;
+  top: 80px;
+  right: 20px;
+  left: 20px;
+  height: 80%;
+  z-index: 20;
+  background: white;
+  border: 5px solid grey;
+  padding: 10px;
+
+  h1 {
+    margin-bottom: 40px;
+  }
+  th,
+  td {
+    cursor: pointer;
+    text-align: center;
+    label {
+      cursor: pointer;
+    }
+    background: white;
+    // color: #ab0202;
+    color: #8e8d8d;
+    &.checked {
+      color: black;
+    }
+  }
+  th:first-child {
+    background: white;
+  }
+  td:first-child {
+    width: 30%;
+    text-align: left;
+  }
+  input {
+    display: none;
+  }
+
+  &__buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    .btn {
+      margin-top: 50px;
+      width: 20vw;
+    }
+  }
+
+  th {
+    border-bottom: 1px solid black;
+  }
+
+  .closing {
+    cursor: pointer;
+    position: fixed;
+    right: 35px;
+    top: 93px;
+  }
+}
+
+.rt-td {
+  text-align: left;
+}
