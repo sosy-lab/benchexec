@@ -15,7 +15,7 @@ import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
-import Utils from "../utils/utils";
+import { prepareTableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
@@ -35,7 +35,7 @@ export default class Overview extends React.Component {
       table,
       stats,
       properties
-    } = Utils.prepareTableData(window.data);
+    } = prepareTableData(window.data);
 
     this.originalTable = table;
     this.originalTools = tools;
@@ -100,13 +100,15 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Common Functions-----------------------
-  getRunSets = runset => {
-    return `${runset.tool} ${runset.date} ${runset.niceName}`;
+  getRunSets = ({ tool, date, niceName }) => {
+    return `${tool} ${date} ${niceName}`;
   };
 
   prepareTableValues = (el, tool, column, href, row) => {
-    const col = this.originalTools[tool].columns[column];
-    if (col.type.name === "main_status" || col.type.name === "status") {
+    const {
+      type: { name: columnName }
+    } = this.originalTools[tool].columns[column];
+    if (columnName === "main_status" || columnName === "status") {
       return el.formatted ? (
         <a
           href={href}

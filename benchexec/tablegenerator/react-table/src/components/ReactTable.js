@@ -10,7 +10,20 @@ import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
-import Utils from "../utils/utils";
+import {
+  applyFilter,
+  sortMethod,
+  pathOr,
+  pipe,
+  maybeTransformToLowercase
+} from "../utils/utils";
+
+const getChildrenOrNegInfinity = pathOr(-Infinity, ["props", "children"]);
+
+const prepareValuesForSorting = pipe(
+  getChildrenOrNegInfinity,
+  maybeTransformToLowercase
+);
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -75,17 +88,13 @@ export default class Table extends React.Component {
                 props.results[j]
               ),
             sortMethod: (a, b, desc) => {
-              //default hast to be overwritten because of <span>
-              a = a ? a.props.children : null;
-              b = b ? b.props.children : null;
-              a = a === null || a === undefined ? -Infinity : a;
-              b = b === null || b === undefined ? -Infinity : b;
-              a = typeof a === "string" ? a.toLowerCase() : a;
-              b = typeof b === "string" ? b.toLowerCase() : b;
-              if (a > b) {
+              //default has to be overwritten because of <span>
+              const aValue = prepareValuesForSorting(a);
+              const bValue = prepareValuesForSorting(b);
+              if (aValue > bValue) {
                 return 1;
               }
-              if (a < b) {
+              if (aValue < bValue) {
                 return -1;
               }
               return 0;
@@ -162,7 +171,7 @@ export default class Table extends React.Component {
                 ></div>
               );
             },
-            filterMethod: Utils.filterByRegex,
+            filterMethod: applyFilter,
             Filter: ({ filter, onChange }) => {
               let value;
               const type = column.type._type._type
@@ -183,7 +192,7 @@ export default class Table extends React.Component {
                 />
               );
             },
-            sortMethod: Utils.sortMethod
+            sortMethod
           };
         }
       });

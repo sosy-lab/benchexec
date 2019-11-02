@@ -4,58 +4,87 @@
  * This file is part of BenchExec.
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
-export default {
-  prepareTableData(data) {
-    return {
-      tableHeader: data.head,
-      tools: data.tools.map(tool => ({
-        ...tool,
-        isVisible: true,
-        columns: tool.columns.map(c => ({ ...c, isVisible: true }))
-      })),
-      columns: data.tools.map(t => t.columns.map(c => c.title)),
-      table: data.rows,
-      stats: data.stats,
-      properties: data.props
-    };
-  },
+const prepareTableData = ({ head, tools, rows, stats, props }) => {
+  return {
+    tableHeader: head,
+    tools: tools.map(tool => ({
+      ...tool,
+      isVisible: true,
+      columns: tool.columns.map(column => ({ ...column, isVisible: true }))
+    })),
+    columns: tools.map(tool => tool.columns.map(column => column.title)),
+    table: rows,
+    stats: stats,
+    properties: props
+  };
+};
 
-  filterByRegex(filter, row, cell) {
-    const pattern = /((-?\d*\.?\d*):(-?\d*\.?\d*))|(-?\d*\.?\d*)/;
+const applyFilter = (filter, row, cell) => {
+  const { original } = row[filter.id];
+  const filterParams = filter.value.split(":");
 
-    const regex = filter.value.match(pattern);
-    if (regex[2] === undefined) {
-      return String(row[filter.id].formatted).startsWith(filter.value);
-    } else if (!regex[3]) {
-      if (+row[filter.id].original >= Number(regex[2])) {
-        return row[filter.id];
-      }
-    } else if (!regex[2]) {
-      if (+row[filter.id].original <= Number(regex[3])) {
-        return row[filter.id];
-      }
-    } else if (
-      row[filter.id].original >= Number(regex[2]) &&
-      row[filter.id].original <= Number(regex[3])
-    ) {
-      return row[filter.id];
-    }
-    return false;
-  },
+  if (filterParams.length === 2) {
+    const [start, end] = filterParams;
 
-  sortMethod(a, b) {
-    a = +a.original;
-    b = +b.original;
-    a = a === null || a === undefined ? -Infinity : a;
-    b = b === null || b === undefined ? -Infinity : b;
-    // a = typeof a === 'string' ? a.toLowerCase() : a
-    // b = typeof b === 'string' ? b.toLowerCase() : b
-    if (a > b) {
-      return 1;
-    }
-    if (a < b) {
-      return -1;
-    }
-    return 0;
+    const numOriginal = Number(original);
+    const numStart = Number(start);
+    const numEnd = end ? Number(end) : Infinity;
+
+    return numOriginal >= numStart && numOriginal <= numEnd;
   }
+
+  if (filterParams.length === 1) {
+    return original.startsWith(filterParams[0]);
+  }
+  return false;
+};
+
+const isNil = data => data === undefined || data === null;
+
+const pathOr = (defaultValue, path) => data => {
+  if (!path || !(path instanceof Array) || !data) {
+    return defaultValue;
+  }
+  let subPathResult = data;
+  for (const node of path) {
+    subPathResult = subPathResult[node];
+    if (isNil(subPathResult)) {
+      return defaultValue;
+    }
+  }
+  return subPathResult;
+};
+
+const getOriginalOrNegInfinity = pathOr(-Infinity, ["original"]);
+
+const sortMethod = (a, b) => {
+  const aValue = getOriginalOrNegInfinity(a);
+  const bValue = getOriginalOrNegInfinity(b);
+  return bValue - aValue;
+};
+
+const pipe = (...functions) => data => {
+  let subResult = data;
+  for (const func of functions) {
+    subResult = func(subResult);
+  }
+  return subResult;
+};
+
+const maybeTransformToLowercase = data =>
+  data && typeof data === "string" ? data.toLowerCase() : data;
+
+const isOkStatus = status => {
+  return status === 0 || status === 200;
+};
+
+export {
+  prepareTableData,
+  applyFilter,
+  sortMethod,
+  isOkStatus,
+  pathOr,
+  isNil,
+  pipe,
+  maybeTransformToLowercase
 };

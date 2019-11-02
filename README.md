@@ -92,6 +92,7 @@ Contributors:
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
+- [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
