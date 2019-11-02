@@ -422,9 +422,9 @@ $key-color: #71bcff;
 
   .closing {
     cursor: pointer;
-    position: fixed;
-    right: 35px;
-    top: 93px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
   }
 }
 
