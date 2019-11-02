@@ -282,20 +282,20 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
     row_exclude_keys = {"properties"}
     results_exclude_keys = {"columns", "task_id", "sourcefiles_exist", "status"}
 
-    def prepare_values(column, value):
+    def prepare_values(column, value, run_result):
         result = {
             "original": column.format_value(value, False, "csv"),
             "formatted": column.format_value(value, True, "html_cell"),
         }
         if column.href:
-            result["href"] = column.href
+            result["href"] = create_link(column.href, base_dir, run_result, href_base)
             if not result["formatted"]:
                 result["formatted"] = column.pattern
         return result
 
     def clean_up_results(res, i):
         values = [
-            prepare_values(column, res.values[i])
+            prepare_values(column, res.values[i], res)
             for i, column in enumerate(res.columns)
         ]
         toolHref = [
