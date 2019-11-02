@@ -76,7 +76,7 @@ export default class LinkOverlay extends React.Component {
 
   escFunction = event => {
     if (event.keyCode === 27) {
-      this.props.close();
+      this.props.close(event);
     }
   };
   componentDidMount = () => {
