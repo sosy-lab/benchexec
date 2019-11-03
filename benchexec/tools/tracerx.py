@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for Tracer-X (https://www.comp.nus.edu.sg/~tracerx/).
     """
 
-    REQUIRED_PATHS = ["bin", "include", "klee_build", "libraries"]
+    REQUIRED_PATHS = ["bin", "include", "tracerx_build", "libraries"]
 
     def executable(self):
         return util.find_executable("bin/tracerx")
