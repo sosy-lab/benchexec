@@ -266,6 +266,7 @@ def prepare_run_sets_for_js(run_sets, columns):
     # var tools = run_sets.map((rs, i) => {
     #   return { ...rs, columns: columns_data[i] }
     # })
+    run_set_exclude_keys = {"filename"}
 
     def set_column_title(columns):
         for column in columns:
@@ -273,7 +274,10 @@ def prepare_run_sets_for_js(run_sets, columns):
         return columns
 
     return [
-        merge_dicts(rs, {"columns": set_column_title(columns[i])})
+        merge_dicts(
+            {k: v for k, v in rs.items() if k not in run_set_exclude_keys},
+            {"columns": set_column_title(columns[i])},
+        )
         for i, rs in enumerate(run_sets)
     ]  # Tuple (index + column)
 

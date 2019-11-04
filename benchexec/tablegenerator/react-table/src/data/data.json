@@ -183,7 +183,6 @@
       "cpuCores": "1",
       "date": "2015-03-03 16:13:02 CET",
       "displayName": "",
-      "filename": "benchexec/tablegenerator/test_integration/results/test.2015-03-03_1613.results.predicateAnalysis.xml",
       "freq": "3401 MHz",
       "host": "tortuga",
       "memlimit": "3000 MB",
