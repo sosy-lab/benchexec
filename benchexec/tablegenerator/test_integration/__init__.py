@@ -391,19 +391,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_all_columns(self):
-        self.generate_tables_and_check_produced_files(
+        self.generate_tables_and_compare_content(
             [
                 result_file(
                     "integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2"
                 ),
-                "-f",
-                "html",
                 "--all-columns",
                 "-n",
                 "integration-predicateAnalysis.2015-10-20_1355.all-columns",
             ],
             table_prefix="integration-predicateAnalysis.2015-10-20_1355.all-columns",
-            formats=["html"],
         )
 
     def test_dump_count_single_table(self):
@@ -682,10 +679,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_with_nan_and_infinity(self):
-        self.generate_tables_and_check_produced_files(
-            [result_file("nan_and_inf.xml"), "-f", "csv", "-f", "html"],
-            table_prefix="nan_and_inf",
-            formats=["csv", "html"],
+        self.generate_tables_and_compare_content(
+            [result_file("nan_and_inf.xml")], table_prefix="nan_and_inf"
         )
 
     def test_smt_results(self):
