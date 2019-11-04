@@ -100,9 +100,9 @@ export default class Summary extends React.Component {
     );
   };
   renderOptions = text => {
-    return text.split("-").map(option => (
+    return text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
-        <code>{`-${option}`}</code>
+        <code>{i === 0 ? option : `-${option}`}</code>
       </li>
     ));
   };

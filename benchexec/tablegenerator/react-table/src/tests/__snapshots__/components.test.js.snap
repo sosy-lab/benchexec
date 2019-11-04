@@ -106,17 +106,12 @@ exports[`Render Summary 1`] = `
           <ul>
             <li>
               <code>
-                -
+                -noout
               </code>
             </li>
             <li>
               <code>
-                -noout 
-              </code>
-            </li>
-            <li>
-              <code>
-                -setprop log.consoleLevel=WARNING 
+                -setprop log.consoleLevel=WARNING
               </code>
             </li>
             <li>
