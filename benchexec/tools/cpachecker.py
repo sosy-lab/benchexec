@@ -162,13 +162,10 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = "OUT OF MEMORY"
             elif "SIGSEGV" in line:
                 status = "SEGMENTATION FAULT"
-            elif (
-                returncode == 0 or returncode == 1
-            ) and "java.lang.AssertionError" in line:
+            elif "java.lang.AssertionError" in line:
                 status = "ASSERTION"
             elif (
-                (returncode == 0 or returncode == 1)
-                and ("Exception:" in line or line.startswith("Exception in thread"))
+                ("Exception:" in line or line.startswith("Exception in thread"))
                 # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
                 and not line.startswith("cbmc")
             ):
