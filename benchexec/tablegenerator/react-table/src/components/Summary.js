@@ -165,12 +165,13 @@ export default class Summary extends React.Component {
         <table>
           <tbody>
             {this.infos
-              .filter(info => this.props.tableHeader[info] !== null)
+              .map(row => this.props.tableHeader[row])
+              .filter(row => row !== null)
               .map((row, i) => (
-                <tr key={"tr-" + row}>
-                  <th key={"td-" + row}>{row}</th>
-                  {this.props.tableHeader[row].content.map((tool, j) =>
-                    this.renderEnvironmentRow(row, tool[0], tool[1], j)
+                <tr key={"tr-" + row.id} className={row.id}>
+                  <th key={"td-" + row.id}>{row.name}</th>
+                  {row.content.map((tool, j) =>
+                    this.renderEnvironmentRow(row.id, tool[0], tool[1], j)
                   )}
                 </tr>
               ))}

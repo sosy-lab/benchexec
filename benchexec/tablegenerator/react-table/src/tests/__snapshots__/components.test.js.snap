@@ -11,9 +11,25 @@ exports[`Render Summary 1`] = `
   </h2>
   <table>
     <tbody>
-      <tr>
+      <tr
+        className="benchmark"
+      >
         <th>
-          tool
+          Benchmark
+        </th>
+        <td
+          className="header__tool-row"
+          colSpan={6}
+        >
+          SimpleTest
+           
+        </td>
+      </tr>
+      <tr
+        className="tool"
+      >
+        <th>
+          Tool
         </th>
         <td
           className="header__tool-row"
@@ -23,9 +39,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="limits"
+      >
         <th>
-          limit
+          Limits
         </th>
         <td
           className="header__tool-row"
@@ -35,9 +53,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="host"
+      >
         <th>
-          host
+          Host
         </th>
         <td
           className="header__tool-row"
@@ -47,9 +67,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="os"
+      >
         <th>
-          os
+          OS
         </th>
         <td
           className="header__tool-row"
@@ -59,9 +81,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="system"
+      >
         <th>
-          system
+          System
         </th>
         <td
           className="header__tool-row"
@@ -71,9 +95,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="date"
+      >
         <th>
-          date
+          Date of execution
         </th>
         <td
           className="header__tool-row"
@@ -83,9 +109,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="run"
+      >
         <th>
-          runset
+          Run set
         </th>
         <td
           className="header__tool-row"
@@ -95,9 +123,11 @@ exports[`Render Summary 1`] = `
            
         </td>
       </tr>
-      <tr>
+      <tr
+        className="options"
+      >
         <th>
-          options
+          Options
         </th>
         <td
           className="header__tool-row options"

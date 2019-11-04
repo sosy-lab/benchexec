@@ -6,7 +6,11 @@
       "id": "date",
       "name": "Date of execution"
     },
-    "displayName": null,
+    "displayName": {
+      "content": [["SimpleTest", 6]],
+      "id": "benchmark",
+      "name": "Benchmark"
+    },
     "host": {
       "content": [["tortuga", 6]],
       "id": "host",
