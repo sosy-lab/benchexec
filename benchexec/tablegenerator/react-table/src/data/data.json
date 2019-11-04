@@ -221,28 +221,25 @@
           "score": -32,
           "values": [
             {
-              "formatted": "true",
-              "original": "true"
+              "raw": "true"
             },
             {
-              "formatted": "2170",
-              "original": "2170"
+              "raw": "2170"
             },
             {
-              "formatted": ".0006026",
-              "original": "0.0006026"
+              "html": ".0006026",
+              "raw": "0.0006026"
             },
             {
-              "formatted": ".00000022",
-              "original": "0.00000022"
+              "html": ".00000022",
+              "raw": "0.00000022"
             },
             {
-              "formatted": "128.03",
-              "original": "128.03"
+              "raw": "128.03"
             },
             {
-              "formatted": ".12803",
-              "original": "0.12803"
+              "html": ".12803",
+              "raw": "0.12803"
             }
           ]
         }
@@ -270,28 +267,25 @@
           "score": 1,
           "values": [
             {
-              "formatted": "false(reach)",
-              "original": "false(reach)"
+              "raw": "false(reach)"
             },
             {
-              "formatted": "2190",
-              "original": "2190"
+              "raw": "2190"
             },
             {
-              "formatted": ".0006083",
-              "original": "0.0006083"
+              "html": ".0006083",
+              "raw": "0.0006083"
             },
             {
-              "formatted": ".00000022",
-              "original": "0.00000022"
+              "html": ".00000022",
+              "raw": "0.00000022"
             },
             {
-              "formatted": "129.12",
-              "original": "129.12"
+              "raw": "129.12"
             },
             {
-              "formatted": ".12912",
-              "original": "0.12912"
+              "html": ".12912",
+              "raw": "0.12912"
             }
           ]
         }
@@ -319,28 +313,25 @@
           "score": 2,
           "values": [
             {
-              "formatted": "true",
-              "original": "true"
+              "raw": "true"
             },
             {
-              "formatted": "2230",
-              "original": "2230"
+              "raw": "2230"
             },
             {
-              "formatted": ".0006193",
-              "original": "0.0006193"
+              "html": ".0006193",
+              "raw": "0.0006193"
             },
             {
-              "formatted": ".00000022",
-              "original": "0.00000022"
+              "html": ".00000022",
+              "raw": "0.00000022"
             },
             {
-              "formatted": "132.34",
-              "original": "132.34"
+              "raw": "132.34"
             },
             {
-              "formatted": ".13234",
-              "original": "0.13234"
+              "html": ".13234",
+              "raw": "0.13234"
             }
           ]
         }
@@ -366,28 +357,25 @@
           "score": null,
           "values": [
             {
-              "formatted": "true",
-              "original": "true"
+              "raw": "true"
             },
             {
-              "formatted": "2270",
-              "original": "2270"
+              "raw": "2270"
             },
             {
-              "formatted": ".0006312",
-              "original": "0.0006312"
+              "html": ".0006312",
+              "raw": "0.0006312"
             },
             {
-              "formatted": ".00000023",
-              "original": "0.00000023"
+              "html": ".00000023",
+              "raw": "0.00000023"
             },
             {
-              "formatted": "129.47",
-              "original": "129.47"
+              "raw": "129.47"
             },
             {
-              "formatted": ".12947",
-              "original": "0.12947"
+              "html": ".12947",
+              "raw": "0.12947"
             }
           ]
         }
@@ -415,28 +403,25 @@
           "score": 2,
           "values": [
             {
-              "formatted": "true",
-              "original": "true"
+              "raw": "true"
             },
             {
-              "formatted": "2060",
-              "original": "2060"
+              "raw": "2060"
             },
             {
-              "formatted": ".0005718",
-              "original": "0.0005718"
+              "html": ".0005718",
+              "raw": "0.0005718"
             },
             {
-              "formatted": ".00000021",
-              "original": "0.00000021"
+              "html": ".00000021",
+              "raw": "0.00000021"
             },
             {
-              "formatted": "126.31",
-              "original": "126.31"
+              "raw": "126.31"
             },
             {
-              "formatted": ".12631",
-              "original": "0.12631"
+              "html": ".12631",
+              "raw": "0.12631"
             }
           ]
         }

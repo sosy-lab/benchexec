@@ -109,14 +109,15 @@ export default class Overview extends React.Component {
       type: { name: columnName }
     } = this.originalTools[tool].columns[column];
     if (columnName === "main_status" || columnName === "status") {
-      return el.formatted ? (
+      return el.raw ? (
         <a
           href={href}
           className={row.category}
           onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null}
           title="Click here to show output of tool"
+          dangerouslySetInnerHTML={el.html ? { __html: el.html } : undefined}
         >
-          {el.formatted}
+          {el.html ? undefined : el.raw}
         </a>
       ) : null;
     } else {

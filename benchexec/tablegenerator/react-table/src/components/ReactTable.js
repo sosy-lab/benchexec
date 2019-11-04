@@ -161,14 +161,22 @@ export default class Table extends React.Component {
                     onClick={ev =>
                       this.props.toggleLinkOverlay(ev, row.value.href)
                     }
-                    dangerouslySetInnerHTML={{ __html: row.value.formatted }}
-                  ></a>
+                    dangerouslySetInnerHTML={
+                      row.value.html ? { __html: row.value.html } : undefined
+                    }
+                  >
+                    {row.value.html ? undefined : row.value.raw}
+                  </a>
                 );
               }
               return (
                 <div
-                  dangerouslySetInnerHTML={{ __html: row.value.formatted }}
-                ></div>
+                  dangerouslySetInnerHTML={
+                    row.value.html ? { __html: row.value.html } : undefined
+                  }
+                >
+                  {row.value.html ? undefined : row.value.raw}
+                </div>
               );
             },
             filterMethod: applyFilter,
@@ -201,7 +209,7 @@ export default class Table extends React.Component {
 
   collectStati = (tool, column) => {
     const statiArray = this.data.map(
-      row => row.results[tool].values[column].formatted
+      row => row.results[tool].values[column].raw
     );
     return [...new Set(statiArray)].map(status =>
       status ? (

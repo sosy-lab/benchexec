@@ -20,21 +20,21 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
 };
 
 const applyFilter = (filter, row, cell) => {
-  const { original } = row[filter.id];
+  const { raw } = row[filter.id];
   const filterParams = filter.value.split(":");
 
   if (filterParams.length === 2) {
     const [start, end] = filterParams;
 
-    const numOriginal = Number(original);
+    const numRaw = Number(raw);
     const numStart = Number(start);
     const numEnd = end ? Number(end) : Infinity;
 
-    return numOriginal >= numStart && numOriginal <= numEnd;
+    return numRaw >= numStart && numRaw <= numEnd;
   }
 
   if (filterParams.length === 1) {
-    return original.startsWith(filterParams[0]);
+    return raw.startsWith(filterParams[0]);
   }
   return false;
 };
@@ -55,11 +55,11 @@ const pathOr = (defaultValue, path) => data => {
   return subPathResult;
 };
 
-const getOriginalOrNegInfinity = pathOr(-Infinity, ["original"]);
+const getRawOrNegInfinity = pathOr(-Infinity, ["raw"]);
 
 const sortMethod = (a, b) => {
-  const aValue = getOriginalOrNegInfinity(a);
-  const bValue = getOriginalOrNegInfinity(b);
+  const aValue = getRawOrNegInfinity(a);
+  const bValue = getRawOrNegInfinity(b);
   return bValue - aValue;
 };
 

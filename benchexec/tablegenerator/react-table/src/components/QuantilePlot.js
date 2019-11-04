@@ -111,7 +111,7 @@ export default class Overlay extends React.Component {
         : rows;
 
       arrayY = relevantRows.map(runSet => [
-        runSet.results[tool].values[index].original,
+        runSet.results[tool].values[index].raw,
         runSet.short_filename
       ]);
 

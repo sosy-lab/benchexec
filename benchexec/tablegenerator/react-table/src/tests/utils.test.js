@@ -17,32 +17,29 @@ import {
 const rows = [
   {
     test: {
-      formatted: "10.5",
-      original: "10.5"
+      raw: "10.5"
     }
   },
   {
     test: {
-      formatted: "10",
-      original: "10"
+      raw: "10"
     }
   },
   {
     test: {
-      formatted: "9.3",
-      original: "9.3"
+      html: "9.3",
+      raw: "9.30"
     }
   },
   {
     test: {
-      formatted: "11",
-      original: "11"
+      html: "11",
+      raw: "11.0"
     }
   },
   {
     test: {
-      formatted: "11.001",
-      original: "11.001"
+      raw: "11.001"
     }
   }
 ];
@@ -60,8 +57,7 @@ test("applyFilter single entry without result", () => {
       },
       {
         test: {
-          formatted: "7",
-          original: "7"
+          raw: "7"
         }
       }
     )
@@ -220,26 +216,26 @@ describe("pathOr", () => {
 
 describe("sortMethod", () => {
   test("should evaluate order of objects with different values", () => {
-    const bigger = { original: 9001 };
-    const smaller = { original: 1337 };
+    const bigger = { raw: 9001 };
+    const smaller = { raw: 1337 };
     expect(sortMethod(bigger, smaller)).toBeLessThan(0);
     expect(sortMethod(smaller, bigger)).toBeGreaterThan(0);
   });
 
   test("should evaluate order of objects with same values", () => {
-    const even1 = { original: 1 };
-    const even2 = { original: 1 };
+    const even1 = { raw: 1 };
+    const even2 = { raw: 1 };
     expect(sortMethod(even1, even2)).toBe(0);
   });
 
-  test("should order items without original prop last", () => {
-    const testObject = { original: 1 };
+  test("should order items without raw prop last", () => {
+    const testObject = { raw: 1 };
     const objectWithoutProp = { fake: 1 };
     expect(sortMethod(testObject, objectWithoutProp)).toBe(-Infinity);
   });
 
   test("should be nil safe", () => {
-    const testObject = { original: 1 };
+    const testObject = { raw: 1 };
     expect(sortMethod(testObject, null)).toBe(-Infinity);
     expect(sortMethod(testObject, undefined)).toBe(-Infinity);
   });

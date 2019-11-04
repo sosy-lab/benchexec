@@ -116,8 +116,8 @@ export default class ScatterPlot extends React.Component {
             resX.category === "correct" &&
             resY.category === "correct"))
       ) {
-        const x = resX.values[this.state.columnX].original;
-        const y = resY.values[this.state.columnY].original;
+        const x = resX.values[this.state.columnX].raw;
+        const y = resY.values[this.state.columnY].raw;
         const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
 
         if (x !== null && y !== null && !isLogAndInvalid) {
