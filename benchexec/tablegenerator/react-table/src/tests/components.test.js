@@ -52,13 +52,19 @@ test("Click on reset button stops button from rendering", () => {
 it("Render reset button", () => {
   const component = renderer.create(<Reset isFiltered={true} />).toJSON();
 
-  expect(component).toMatchSnapshot();
+  expect(component).toMatchInlineSnapshot(`
+    <button
+      className="reset"
+    >
+      Reset Filters
+    </button>
+  `);
 });
 
 it("Hide reset button", () => {
   const component = renderer.create(<Reset isFiltered={false} />).toJSON();
 
-  expect(component).toMatchSnapshot();
+  expect(component).toMatchInlineSnapshot(`null`);
 });
 
 it("Render Summary", () => {

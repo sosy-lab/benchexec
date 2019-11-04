@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Hide reset button 1`] = `null`;
-
 exports[`Render Summary 1`] = `
 <div
   id="summary"
@@ -2067,12 +2065,4 @@ exports[`Render Summary 1`] = `
     </a>
   </p>
 </div>
-`;
-
-exports[`Render reset button 1`] = `
-<button
-  className="reset"
->
-  Reset Filters
-</button>
 `;
