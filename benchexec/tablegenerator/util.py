@@ -311,8 +311,8 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
             column.href
             for column in tools[i]["columns"]
             if column.title.endswith("status")
-        ][0]
-        href = create_link(toolHref or res.log_file, base_dir, res, href_base)
+        ][0] or res.log_file
+        href = create_link(toolHref, base_dir, res, href_base) if toolHref else None
         return merge_dicts(
             {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys},
             {"href": href, "values": values},
