@@ -80,6 +80,25 @@ export default class Summary extends React.Component {
       [target.name]: target.checked
     });
   };
+
+  renderEnvironmentRow = (row, text, colSpan, j) => {
+    if (row === "options") {
+      return (
+        <td
+          colSpan={colSpan}
+          key={text + j}
+          className="header__tool-row options"
+        >
+          <ul>{this.renderOptions(text)}</ul>
+        </td>
+      );
+    }
+    return (
+      <td colSpan={colSpan} key={text + j} className="header__tool-row">
+        {text}{" "}
+      </td>
+    );
+  };
   renderOptions = text => {
     return text.split("-").map(option => (
       <li key={option}>
@@ -151,23 +170,7 @@ export default class Summary extends React.Component {
                 <tr key={"tr-" + row}>
                   <th key={"td-" + row}>{row}</th>
                   {this.props.tableHeader[row].content.map((tool, j) =>
-                    row !== "options" ? (
-                      <td
-                        colSpan={tool[1]}
-                        key={tool[0] + j}
-                        className="header__tool-row"
-                      >
-                        {tool[0]}{" "}
-                      </td>
-                    ) : (
-                      <td
-                        colSpan={tool[1]}
-                        key={tool[0] + j}
-                        className="header__tool-row options"
-                      >
-                        <ul>{this.renderOptions(tool[0])}</ul>
-                      </td>
-                    )
+                    this.renderEnvironmentRow(row, tool[0], tool[1], j)
                   )}
                 </tr>
               ))}
