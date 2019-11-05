@@ -309,14 +309,24 @@ def prepare_rows_for_js(rows, base_dir, href_base):
         result["href"] = create_link(row.filename, base_dir)
         return result
 
-    return [clean_up_row(row) for row in copy.deepcopy(rows)]
+    return [clean_up_row(row) for row in rows]
+
+
+def partition_list_according_to_other(l, template):
+    """
+    Partition a list "l" into the same shape as a given list of lists "template".
+    """
+    lengths = [len(sublist) for sublist in template]
+    assert len(l) == sum(lengths)
+
+    def get_sublist(i):
+        start = sum(lengths[0:i])
+        return l[start : start + lengths[i]]
+
+    return [get_sublist(i) for i in range(len(template))]
 
 
 def prepare_stats_for_js(stats, all_columns):
-    toolColumnCounts = [
-        len(column) for column in all_columns
-    ]  # len === .length() => [9, 4, 6]
-
     def prepare_values(column, value, key):
         return (
             column.format_value(value, True, "html_cell")
@@ -324,32 +334,20 @@ def prepare_stats_for_js(stats, all_columns):
             else column.format_value(value, False, "tooltip")
         )
 
-    def get_stat_content(stat, i, count):
-        start = reduce(lambda acc, cur: acc + cur, toolColumnCounts[0:i], 0)
-        return stat.content[start : start + count]  # reduce(labda acc, cur: acc + curr)
+    flattened_columns = flatten(all_columns)
 
-    def clean_up_stat(stat):
-        content_splitted = [
-            get_stat_content(stat, i, count)
-            for (i, count) in enumerate(toolColumnCounts)
+    def clean_up_stat(content):
+        prepared_content = [
+            {k: prepare_values(column, v, k) for k, v in col_content.__dict__.items()}
+            if col_content
+            else None
+            for column, col_content in zip(flattened_columns, content)
         ]
-        return [
-            [
-                {
-                    k: prepare_values(all_columns[toolIndex][colIndex], v, k)
-                    for k, v in content.__dict__.items()
-                }
-                if content is not None
-                else content
-                for colIndex, content in enumerate(toolContent)
-            ]
-            for toolIndex, toolContent in enumerate(content_splitted)
-        ]
+        return partition_list_according_to_other(prepared_content, all_columns)
 
     return [
-        {**stat, "content": clean_up_stat(stat)} for stat in copy.deepcopy(stats)
-    ]  # add original stat infos
-    # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
+        {**stat_row, "content": clean_up_stat(stat_row.content)} for stat_row in stats
+    ]
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
