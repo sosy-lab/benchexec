@@ -274,7 +274,7 @@ def prepare_run_sets_for_js(run_sets):
     return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
 
 
-def prepare_rows_for_js(rows, tools, base_dir, href_base):
+def prepare_rows_for_js(rows, base_dir, href_base):
     row_include_keys = ["has_sourcefile", "id", "short_filename"]
     results_include_keys = ["category"]
 
@@ -298,13 +298,13 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
             result["html"] = formatted_value
         return result
 
-    def clean_up_results(res, tool):
+    def clean_up_results(res):
         values = [
             prepare_value(column, value, res)
             for column, value in zip(res.columns, res.values)
         ]
         toolHref = [
-            column.href for column in tool["columns"] if column.title.endswith("status")
+            column.href for column in res.columns if column.title.endswith("status")
         ][0] or res.log_file
         result = {k: getattr(res, k) for k in results_include_keys}
         result["href"] = (
@@ -315,9 +315,7 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
 
     def clean_up_row(row):
         result = {k: getattr(row, k) for k in row_include_keys}
-        result["results"] = [
-            clean_up_results(res, tool) for res, tool in zip(row.results, tools)
-        ]
+        result["results"] = [clean_up_results(res) for res in row.results]
         result["href"] = create_link(row.filename, base_dir)
         return result
 

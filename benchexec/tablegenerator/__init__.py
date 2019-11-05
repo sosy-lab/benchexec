@@ -1874,7 +1874,7 @@ def create_tables(
     if options.template_name == TEMPLATE_NAME_REACT:
         template_values.tools = Util.prepare_run_sets_for_js(runSetResults)
         template_values.rows = Util.prepare_rows_for_js(
-            rows, template_values.tools, outputPath, template_values.href_base
+            rows, outputPath, template_values.href_base
         )
 
         template_values.app_css = [
