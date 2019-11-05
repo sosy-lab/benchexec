@@ -251,13 +251,15 @@ def prepare_run_sets_for_js(run_sets):
     run_set_exclude_keys = {"filename"}
 
     def prepare_column(column):
-        result = dict(column.__dict__)
+        result = {k: v for k, v in column.__dict__.items() if v is not None}
         result["display_title"] = column.display_title or column.title
         result["type"] = column.type.type.name
         return result
 
     def prepare_run_set(attributes, columns):
-        result = {k: v for k, v in attributes.items() if k not in run_set_exclude_keys}
+        result = {
+            k: v for k, v in attributes.items() if k not in run_set_exclude_keys and v
+        }
         result["columns"] = [prepare_column(col) for col in columns]
         return result
 
@@ -284,7 +286,8 @@ def prepare_rows_for_js(rows, base_dir, href_base):
             result["href"] = create_link(column.href, base_dir, run_result, href_base)
             if not raw_value and not formatted_value:
                 raw_value = column.pattern
-        result["raw"] = raw_value
+        if raw_value is not None and not raw_value == "":
+            result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
             result["html"] = formatted_value
         return result
@@ -298,9 +301,8 @@ def prepare_rows_for_js(rows, base_dir, href_base):
             column.href for column in res.columns if column.title.endswith("status")
         ][0] or res.log_file
         result = {k: getattr(res, k) for k in results_include_keys}
-        result["href"] = (
-            create_link(toolHref, base_dir, res, href_base) if toolHref else None
-        )
+        if toolHref:
+            result["href"] = create_link(toolHref, base_dir, res, href_base)
         result["values"] = values
         return result
 
@@ -339,7 +341,11 @@ def prepare_stats_for_js(stats, all_columns):
 
     def clean_up_stat(content):
         prepared_content = [
-            {k: prepare_values(column, v, k) for k, v in col_content.__dict__.items()}
+            {
+                k: prepare_values(column, v, k)
+                for k, v in col_content.__dict__.items()
+                if v is not None
+            }
             if col_content
             else None
             for column, col_content in zip(flattened_columns, content)
