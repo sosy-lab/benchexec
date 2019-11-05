@@ -67,12 +67,11 @@ export default class Summary extends React.Component {
     });
   };
 
-  renderTooltip = cell => {
-    return Object.keys(cell)
+  renderTooltip = cell =>
+    Object.keys(cell)
       .filter(key => cell[key] && key !== "sum")
       .map(key => `${key}: ${cell[key]}`)
-      .join(", ");
-  };
+      .join(", ") || undefined;
 
   //fix columns
   handleInputChange = ({ target }) => {
