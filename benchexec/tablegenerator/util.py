@@ -279,11 +279,12 @@ def prepare_rows_for_js(rows, base_dir, href_base):
         # but for text columns format_value returns the same for csv and html_cell,
         # and for number columns the HTML result is safe.
         formatted_value = column.format_value(value, True, "html_cell")
-        result = {"raw": raw_value}
+        result = {}
         if column.href:
             result["href"] = create_link(column.href, base_dir, run_result, href_base)
             if not raw_value and not formatted_value:
                 raw_value = column.pattern
+        result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
             result["html"] = formatted_value
         return result

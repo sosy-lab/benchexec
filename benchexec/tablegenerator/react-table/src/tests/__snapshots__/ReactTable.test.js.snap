@@ -45500,7 +45500,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="../benchmark.logfiles/implicitunsignedconversion_false-unreach-label.i.files/error%23witness.graphml"
-       />
+       >
+        wit
+       </a>
       </div>
       <div
        className="rt-td"
@@ -45517,7 +45519,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="https://github.com/sosy-lab/benchexec?file=implicitunsignedconversion_false-unreach-label.i#benchexec"
-       />
+       >
+        benchexec
+       </a>
       </div>
      </div>
     </div>
@@ -45606,7 +45610,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="../benchmark.logfiles/switch_test_default_fallthrough_false-unreach-label.c.files/error%23witness.graphml"
-       />
+       >
+        wit
+       </a>
       </div>
       <div
        className="rt-td"
@@ -45623,7 +45629,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="https://github.com/sosy-lab/benchexec?file=switch_test_default_fallthrough_false-unreach-label.c#benchexec"
-       />
+       >
+        benchexec
+       </a>
       </div>
      </div>
     </div>
@@ -45712,7 +45720,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="../benchmark.logfiles/compoundLiteral_true-unreach-label.c.files/error%23witness.graphml"
-       />
+       >
+        wit
+       </a>
       </div>
       <div
        className="rt-td"
@@ -45729,7 +45739,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="https://github.com/sosy-lab/benchexec?file=compoundLiteral_true-unreach-label.c#benchexec"
-       />
+       >
+        benchexec
+       </a>
       </div>
      </div>
     </div>
@@ -45813,7 +45825,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="../benchmark.logfiles/example.c.files/error%23witness.graphml"
-       />
+       >
+        wit
+       </a>
       </div>
       <div
        className="rt-td"
@@ -45830,7 +45844,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="https://github.com/sosy-lab/benchexec?file=example.c#benchexec"
-       />
+       >
+        benchexec
+       </a>
       </div>
      </div>
     </div>
@@ -45919,7 +45935,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="../benchmark.logfiles/builtin_expect_true-unreach-label.c.files/error%23witness.graphml"
-       />
+       >
+        wit
+       </a>
       </div>
       <div
        className="rt-td"
@@ -45936,7 +45954,9 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       >
        <a
         href="https://github.com/sosy-lab/benchexec?file=builtin_expect_true-unreach-label.c#benchexec"
-       />
+       >
+        benchexec
+       </a>
       </div>
      </div>
     </div>
