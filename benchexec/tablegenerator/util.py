@@ -257,10 +257,6 @@ def parse_json(obj):
         obj
 
 
-def merge_dicts(*dicts):
-    return dict(reduce(lambda acc, cur: acc + list(cur.items()), dicts, []))
-
-
 def prepare_run_sets_for_js(run_sets):
     # javascript pendant:
     # var tools = run_sets.map((rs, i) => {
@@ -285,9 +281,9 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
     row_exclude_keys = {"properties"}
     results_exclude_keys = {"columns", "task_id", "sourcefiles_exist", "status"}
 
-    def prepare_values(column, value, run_result):
+    def prepare_value(column, value, run_result):
         """
-        Return a dict that reprsents one value (table cell).
+        Return a dict that represents one value (table cell).
         We always add the raw value (as in CSV), and sometimes a version that is
         formatted for HTML (e.g., with spaces for alignment).
         """
@@ -305,26 +301,27 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
             result["html"] = formatted_value
         return result
 
-    def clean_up_results(res, i):
+    def clean_up_results(res, tool):
         values = [
-            prepare_values(column, res.values[i], res)
-            for i, column in enumerate(res.columns)
+            prepare_value(column, value, res)
+            for column, value in zip(res.columns, res.values)
         ]
         toolHref = [
-            column.href
-            for column in tools[i]["columns"]
-            if column.title.endswith("status")
+            column.href for column in tool["columns"] if column.title.endswith("status")
         ][0] or res.log_file
-        href = create_link(toolHref, base_dir, res, href_base) if toolHref else None
-        return merge_dicts(
-            {k: v for k, v in res.__dict__.items() if k not in results_exclude_keys},
-            {"href": href, "values": values},
+        result = {
+            k: v for k, v in res.__dict__.items() if k not in results_exclude_keys
+        }
+        result["href"] = (
+            create_link(toolHref, base_dir, res, href_base) if toolHref else None
         )
+        result["values"] = values
+        return result
 
     def clean_up_row(row):
         row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys}
         row["results"] = [
-            clean_up_results(res, i) for i, res in enumerate(row["results"])
+            clean_up_results(res, tool) for res, tool in zip(row["results"], tools)
         ]
         row["href"] = create_link(row["filename"], base_dir)
         return row
@@ -367,8 +364,7 @@ def prepare_stats_for_js(stats, tools):
         ]
 
     return [
-        merge_dicts(stat, {"content": clean_up_stat(stat)})
-        for stat in copy.deepcopy(stats)
+        {**stat, "content": clean_up_stat(stat)} for stat in copy.deepcopy(stats)
     ]  # add original stat infos
     # return [[[{k: prepare_values(tools[toolIndex]['columns'][colIndex], v, k) for k, v in content.__dict__.items()} for colIndex, content in enumerate(toolContent) if content is not None] for toolIndex, toolContent in enumerate(stat['content'])] for stat in stats_prepared]
 
