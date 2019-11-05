@@ -261,7 +261,7 @@ def merge_dicts(*dicts):
     return dict(reduce(lambda acc, cur: acc + list(cur.items()), dicts, []))
 
 
-def prepare_run_sets_for_js(run_sets, columns):
+def prepare_run_sets_for_js(run_sets):
     # javascript pendant:
     # var tools = run_sets.map((rs, i) => {
     #   return { ...rs, columns: columns_data[i] }
@@ -273,13 +273,12 @@ def prepare_run_sets_for_js(run_sets, columns):
             column.display_title = column.display_title or column.title
         return columns
 
-    return [
-        merge_dicts(
-            {k: v for k, v in rs.items() if k not in run_set_exclude_keys},
-            {"columns": set_column_title(columns[i])},
-        )
-        for i, rs in enumerate(run_sets)
-    ]  # Tuple (index + column)
+    def prepare_run_set(attributes, columns):
+        result = {k: v for k, v in attributes.items() if k not in run_set_exclude_keys}
+        result["columns"] = set_column_title(columns)
+        return result
+
+    return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
 
 
 def prepare_rows_for_js(rows, tools, base_dir, href_base):

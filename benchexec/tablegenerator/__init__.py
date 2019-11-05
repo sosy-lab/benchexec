@@ -1872,9 +1872,7 @@ def create_tables(
 
     # prepare data for js react application
     if options.template_name == TEMPLATE_NAME_REACT:
-        template_values.tools = Util.prepare_run_sets_for_js(
-            template_values.run_sets, template_values.columns
-        )
+        template_values.tools = Util.prepare_run_sets_for_js(runSetResults)
         template_values.rows = Util.prepare_rows_for_js(
             rows, template_values.tools, outputPath, template_values.href_base
         )
