@@ -253,9 +253,7 @@ def prepare_run_sets_for_js(run_sets):
     def prepare_column(column):
         result = dict(column.__dict__)
         result["display_title"] = column.display_title or column.title
-        result["type"] = dict(column.type.__dict__)
-        if not isinstance(column.type._type, int):
-            result["type"]["_type"] = dict(column.type._type.__dict__)
+        result["type"] = column.type.type.name
         return result
 
     def prepare_run_set(attributes, columns):

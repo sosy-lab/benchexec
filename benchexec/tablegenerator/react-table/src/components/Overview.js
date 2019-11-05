@@ -105,10 +105,7 @@ export default class Overview extends React.Component {
   };
 
   prepareTableValues = (el, tool, column, href, row) => {
-    const {
-      type: { name: columnName }
-    } = this.originalTools[tool].columns[column];
-    if (columnName === "main_status" || columnName === "status") {
+    if (this.originalTools[tool].columns[column].type === "status") {
       return el.raw ? (
         <a
           href={href}

@@ -65,7 +65,7 @@ export default class Overlay extends React.Component {
           .map(tool => this.props.getRunSets(tool))
       : this.props.tools[this.state.selection.split("-")[1]].columns
           .map(c =>
-            c.isVisible && c.type.name !== "text" && c.type.name !== "status"
+            c.isVisible && c.type !== "text" && c.type !== "status"
               ? c.display_title
               : null
           )
@@ -85,7 +85,7 @@ export default class Overlay extends React.Component {
       const index = this.state.selection.split("-")[1];
       this.props.tools[index].columns.forEach(column => {
         if (
-          !(column.type.name === "status" || column.type.name === "text") &&
+          !(column.type === "status" || column.type === "text") &&
           column.isVisible
         ) {
           this.renderData(
@@ -149,8 +149,7 @@ export default class Overlay extends React.Component {
       value => value.display_title === column
     );
 
-    return this.state.isValue &&
-      ["text", "status"].includes(currentValue.type.name)
+    return this.state.isValue && ["text", "status"].includes(currentValue.type)
       ? array.sort((a, b) => (a[0] > b[0] ? 1 : b[0] > a[0] ? -1 : 0))
       : array.sort((a, b) => +a[0] - +b[0]);
   };
@@ -221,9 +220,7 @@ export default class Overlay extends React.Component {
             this.lineCount++;
           }
 
-          return data &&
-            column.type.name !== "text" &&
-            column.type.name !== "status" ? (
+          return data && column.type !== "text" && column.type !== "status" ? (
             <LineMarkSeries
               data={data}
               key={column.display_title}
@@ -288,8 +285,7 @@ export default class Overlay extends React.Component {
     );
     const type = this.state.isValue ? this.possibleValues[index].type : null;
 
-    return this.state.isValue &&
-      ((type && type.name === "text") || (type && type.name === "status"))
+    return this.state.isValue && (type === "text" || type === "status")
       ? "ordinal"
       : this.state.linear
       ? "linear"

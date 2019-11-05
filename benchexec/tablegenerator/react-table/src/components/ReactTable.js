@@ -66,7 +66,7 @@ export default class Table extends React.Component {
     return this.props.tools.map((tool, j) => {
       return tool.columns.map((column, i) => {
         //distinguish between column type status (dropdown filter) and other types (input field)
-        if (column.type.name === "status") {
+        if (column.type === "status") {
           return {
             id: `${j}_${column.display_title}_${i}`,
             Header: () => (
@@ -182,10 +182,10 @@ export default class Table extends React.Component {
             filterMethod: applyFilter,
             Filter: ({ filter, onChange }) => {
               let value;
-              const type = column.type._type._type
-                ? column.type._type._type
-                : column.type._type;
-              const placeholder = type === 2 || type === 3 ? "Min:Max" : "text";
+              const placeholder =
+                column.type === "count" || column.type === "measure"
+                  ? "Min:Max"
+                  : "text";
               return (
                 <input
                   placeholder={placeholder}
