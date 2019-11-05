@@ -275,19 +275,8 @@ def prepare_run_sets_for_js(run_sets):
 
 
 def prepare_rows_for_js(rows, tools, base_dir, href_base):
-    row_include_keys = [
-        "expected_results",
-        "filename",
-        "has_sourcefile",
-        "id",
-        "short_filename",
-    ]
-    results_include_keys = [
-        "category",
-        "columns_relevant_for_diff",
-        "log_file",
-        "score",
-    ]
+    row_include_keys = ["has_sourcefile", "id", "short_filename"]
+    results_include_keys = ["category"]
 
     def prepare_value(column, value, run_result):
         """
