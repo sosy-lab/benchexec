@@ -243,32 +243,24 @@ def flatten(list_):
 
 
 def to_json(obj):
-    return tempita.html(json.dumps(obj, sort_keys=True, default=parse_json))
-
-
-def parse_json(obj):
-    if type(obj) is Decimal:  # for decimal numbers
-        return float(obj)
-    elif "__dict__" in dir(obj):  # e.g. for own Classes (Key-value)
-        return obj.__dict__
-    elif "__iter__" in dir(obj):  # e.g. for Set (List)
-        return list(obj)
-    else:
-        obj
+    return tempita.html(json.dumps(obj, sort_keys=True))
 
 
 def prepare_run_sets_for_js(run_sets):
     # Almost all run_set attributes are relevant, use blacklist here
     run_set_exclude_keys = {"filename"}
 
-    def set_column_title(columns):
-        for column in columns:
-            column.display_title = column.display_title or column.title
-        return columns
+    def prepare_column(column):
+        result = dict(column.__dict__)
+        result["display_title"] = column.display_title or column.title
+        result["type"] = dict(column.type.__dict__)
+        if not isinstance(column.type._type, int):
+            result["type"]["_type"] = dict(column.type._type.__dict__)
+        return result
 
     def prepare_run_set(attributes, columns):
         result = {k: v for k, v in attributes.items() if k not in run_set_exclude_keys}
-        result["columns"] = set_column_title(columns)
+        result["columns"] = [prepare_column(col) for col in columns]
         return result
 
     return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
