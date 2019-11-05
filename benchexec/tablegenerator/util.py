@@ -258,10 +258,7 @@ def parse_json(obj):
 
 
 def prepare_run_sets_for_js(run_sets):
-    # javascript pendant:
-    # var tools = run_sets.map((rs, i) => {
-    #   return { ...rs, columns: columns_data[i] }
-    # })
+    # Almost all run_set attributes are relevant, use blacklist here
     run_set_exclude_keys = {"filename"}
 
     def set_column_title(columns):
@@ -278,8 +275,19 @@ def prepare_run_sets_for_js(run_sets):
 
 
 def prepare_rows_for_js(rows, tools, base_dir, href_base):
-    row_exclude_keys = {"properties"}
-    results_exclude_keys = {"columns", "task_id", "sourcefiles_exist", "status"}
+    row_include_keys = [
+        "expected_results",
+        "filename",
+        "has_sourcefile",
+        "id",
+        "short_filename",
+    ]
+    results_include_keys = [
+        "category",
+        "columns_relevant_for_diff",
+        "log_file",
+        "score",
+    ]
 
     def prepare_value(column, value, run_result):
         """
@@ -309,9 +317,7 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
         toolHref = [
             column.href for column in tool["columns"] if column.title.endswith("status")
         ][0] or res.log_file
-        result = {
-            k: v for k, v in res.__dict__.items() if k not in results_exclude_keys
-        }
+        result = {k: getattr(res, k) for k in results_include_keys}
         result["href"] = (
             create_link(toolHref, base_dir, res, href_base) if toolHref else None
         )
@@ -319,12 +325,12 @@ def prepare_rows_for_js(rows, tools, base_dir, href_base):
         return result
 
     def clean_up_row(row):
-        row = {k: v for k, v in row.__dict__.items() if k not in row_exclude_keys}
-        row["results"] = [
-            clean_up_results(res, tool) for res, tool in zip(row["results"], tools)
+        result = {k: getattr(row, k) for k in row_include_keys}
+        result["results"] = [
+            clean_up_results(res, tool) for res, tool in zip(row.results, tools)
         ]
-        row["href"] = create_link(row["filename"], base_dir)
-        return row
+        result["href"] = create_link(row.filename, base_dir)
+        return result
 
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
 
