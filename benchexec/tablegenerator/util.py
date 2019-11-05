@@ -322,9 +322,9 @@ def prepare_rows_for_js(rows, base_dir, href_base):
     return [clean_up_row(row) for row in copy.deepcopy(rows)]
 
 
-def prepare_stats_for_js(stats, tools):
+def prepare_stats_for_js(stats, all_columns):
     toolColumnCounts = [
-        len(tool["columns"]) for tool in tools
+        len(column) for column in all_columns
     ]  # len === .length() => [9, 4, 6]
 
     def prepare_values(column, value, key):
@@ -346,7 +346,7 @@ def prepare_stats_for_js(stats, tools):
         return [
             [
                 {
-                    k: prepare_values(tools[toolIndex]["columns"][colIndex], v, k)
+                    k: prepare_values(all_columns[toolIndex][colIndex], v, k)
                     for k, v in content.__dict__.items()
                 }
                 if content is not None

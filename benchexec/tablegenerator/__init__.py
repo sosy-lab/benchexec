@@ -1898,7 +1898,7 @@ def create_tables(
             # prepare data for js react application (stats)
             if options.template_name == TEMPLATE_NAME_REACT:
                 template_values.stats = Util.prepare_stats_for_js(
-                    stats, template_values.tools
+                    stats, template_values.columns
                 )
         else:
             stats = stats_columns = None
