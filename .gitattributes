@@ -2,3 +2,5 @@
 # cf. https://github.com/github/linguist#troubleshooting
 benchexec/tablegenerator/test_integration/expected/** linguist-vendored
 benchexec/tablegenerator/test_integration/results/** linguist-vendored
+benchexec/tablegenerator/react-table/build/** linguist-generated
+*.js.snap linguist-vendored
