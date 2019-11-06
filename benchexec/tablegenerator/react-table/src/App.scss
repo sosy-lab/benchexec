@@ -115,52 +115,56 @@ $key-color: #71bcff;
 }
 
 //------------------summary------------------
-.summary {
+#summary {
   margin: auto;
   padding-top: 30px;
   background: white;
   text-align: center;
-  table {
-    border-collapse: collapse;
-    margin: 40px 0;
+  #benchmark_setup {
     width: 100%;
-    td,
-    th {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    .options {
-      ul {
-        margin: 0;
-        padding: 0 0 0 17px;
+    overflow-x: scroll;
+    margin: 40px 0;
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      td,
+      th {
+        border: 1px solid #ddd;
+        padding: 8px;
       }
-      li {
+      .options {
+        ul {
+          margin: 0;
+          padding: 0 0 0 17px;
+        }
+        li {
+          text-align: left;
+          font-size: 9pt;
+          list-style: none;
+        }
+      }
+      .benchmark,
+      th {
+        font-weight: bold;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #ddd;
+      }
+
+      th {
+        padding-top: 8px;
+        padding-bottom: 8px;
         text-align: left;
-        font-size: 9pt;
-        list-style: none;
+        width: 14vw;
       }
-    }
-    .benchmark,
-    th {
-      font-weight: bold;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #ddd;
-    }
-
-    th {
-      padding-top: 8px;
-      padding-bottom: 8px;
-      text-align: left;
-      width: 14vw;
     }
   }
-  .rt-table {
+  #statistics .rt-table {
     border: 1px solid #ddd;
     .rt-td {
       padding-top: 8px;
@@ -181,10 +185,6 @@ $key-color: #71bcff;
     }
   }
 
-  .toolInfo {
-    text-align: left;
-    margin: 20px;
-  }
   .summary_span {
     text-align: right;
   }
