@@ -348,7 +348,7 @@ def prepare_stats_for_js(stats, all_columns):
 
     flattened_columns = flatten(all_columns)
 
-    def clean_up_stat(content):
+    def clean_up_stat(stat):
         prepared_content = [
             {
                 k: prepare_values(column, v, k)
@@ -357,13 +357,16 @@ def prepare_stats_for_js(stats, all_columns):
             }
             if col_content
             else None
-            for column, col_content in zip(flattened_columns, content)
+            for column, col_content in zip(flattened_columns, stat.content)
         ]
-        return partition_list_according_to_other(prepared_content, all_columns)
 
-    return [
-        {**stat_row, "content": clean_up_stat(stat_row.content)} for stat_row in stats
-    ]
+        result = dict(stat)
+        result["content"] = partition_list_according_to_other(
+            prepared_content, all_columns
+        )
+        return result
+
+    return [clean_up_stat(stat_row) for stat_row in stats]
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
