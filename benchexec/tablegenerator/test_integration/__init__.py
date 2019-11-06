@@ -693,6 +693,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             diff_prefix="smt.diff",
         )
 
+    def test_tasks_without_file(self):
+        benchmark_name = "benchmark-example-true.2019-11-06_0932.results.no options"
+        self.generate_tables_and_compare_content(
+            [result_file(benchmark_name + ".xml.bz2")], table_prefix=benchmark_name
+        )
+
     def test_results_via_url(self):
         try:
             self.generate_tables_and_compare_content(
