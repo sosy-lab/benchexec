@@ -112,7 +112,7 @@ export default class Overlay extends React.Component {
 
       arrayY = relevantRows.map(runSet => [
         runSet.results[tool].values[index].raw,
-        runSet.short_filename
+        this.props.getRowName(runSet)
       ]);
 
       if (this.state.quantile) {

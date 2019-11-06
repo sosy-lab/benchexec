@@ -27,7 +27,6 @@ test_snapshot_of("Render Summary", overview => (
     tableHeader={overview.tableHeader}
     data={overview.originalTable}
     tools={overview.state.tools}
-    properties={overview.properties}
     selectColumn={overview.toggleSelectColumns}
     getRunSets={overview.getRunSets}
     prepareTableValues={overview.prepareTableValues}

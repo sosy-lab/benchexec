@@ -266,8 +266,7 @@ def prepare_run_sets_for_js(run_sets):
     return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
 
 
-def prepare_rows_for_js(rows, base_dir, href_base):
-    row_include_keys = ["has_sourcefile", "id", "short_filename"]
+def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     results_include_keys = ["category"]
 
     def prepare_value(column, value, run_result):
@@ -307,9 +306,19 @@ def prepare_rows_for_js(rows, base_dir, href_base):
         return result
 
     def clean_up_row(row):
-        result = {k: getattr(row, k) for k in row_include_keys}
+        result = {}
+        result["id"] = list(
+            id_part
+            for id_part, relevant in zip(row.id, relevant_id_columns)
+            if id_part and relevant
+        )
+        # Replace first part of id (task name, which is always shown) with short name
+        assert relevant_id_columns[0]
+        result["id"][0] = row.short_filename
+
         result["results"] = [clean_up_results(res) for res in row.results]
-        result["href"] = create_link(row.filename, base_dir)
+        if row.has_sourcefile:
+            result["href"] = create_link(row.filename, base_dir)
         return result
 
     return [clean_up_row(row) for row in rows]

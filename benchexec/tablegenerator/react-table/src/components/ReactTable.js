@@ -263,8 +263,13 @@ export default class Table extends React.Component {
               </div>
             ),
             fixed: this.state.fixed ? "left" : "",
-            accessor: props =>
-              props.has_sourcefile ? (
+            accessor: props => {
+              const content = props.id.map(id => (
+                <span key={id} className="row_id">
+                  {id}
+                </span>
+              ));
+              return props.href ? (
                 <a
                   key={props.href}
                   className={props.href ? "row__name--cellLink" : "row__name"}
@@ -272,31 +277,12 @@ export default class Table extends React.Component {
                   title="Click here to show source code"
                   onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}
                 >
-                  {props.short_filename}{" "}
-                  {props.id
-                    .filter(
-                      (id, i) =>
-                        id !== null && i !== 0 && this.props.properties[i]
-                    )
-                    .map(id => (
-                      <span key={id} className="row_id">
-                        {id}
-                      </span>
-                    ))}
+                  {content}
                 </a>
               ) : (
-                <span key={props.href} title="This task has no associated file">
-                  {props.short_filename}{" "}
-                  {props.id
-                    .filter(
-                      (id, i) =>
-                        id !== null && i !== 0 && this.props.properties[i]
-                    )
-                    .map(id => (
-                      <span className="row_id">{id}</span>
-                    ))}
-                </span>
-              ),
+                <span title="This task has no associated file">{content}</span>
+              );
+            },
             filterMethod: (filter, row, column) => {
               const id = filter.pivotId || filter.id;
               return row[id].props.children !== undefined

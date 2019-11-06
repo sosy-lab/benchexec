@@ -124,7 +124,7 @@ export default class ScatterPlot extends React.Component {
           array.push({
             x,
             y,
-            info: row.short_filename
+            info: this.props.getRowName(row)
           });
         }
         if (isLogAndInvalid) {

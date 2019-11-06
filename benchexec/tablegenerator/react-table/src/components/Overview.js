@@ -28,14 +28,9 @@ export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     //imported data
-    const {
-      tableHeader,
-      tools,
-      columns,
-      table,
-      stats,
-      properties
-    } = prepareTableData(window.data);
+    const { tableHeader, tools, columns, table, stats } = prepareTableData(
+      window.data
+    );
 
     this.originalTable = table;
     this.originalTools = tools;
@@ -43,7 +38,6 @@ export default class Overview extends React.Component {
     this.columns = columns;
     this.stats = stats;
     this.tableHeader = tableHeader;
-    this.properties = properties;
 
     this.filteredData = [];
 
@@ -103,6 +97,8 @@ export default class Overview extends React.Component {
   getRunSets = ({ tool, date, niceName }) => {
     return `${tool} ${date} ${niceName}`;
   };
+
+  getRowName = row => row.id.filter(s => s).join(" | ");
 
   prepareTableValues = (el, tool, column, href, row) => {
     if (this.originalTools[tool].columns[column].type === "status") {
@@ -173,7 +169,6 @@ export default class Overview extends React.Component {
                   tableHeader={this.tableHeader}
                   data={this.originalTable}
                   tools={this.state.tools}
-                  properties={this.properties}
                   selectColumn={this.toggleSelectColumns}
                   getRunSets={this.getRunSets}
                   prepareTableValues={this.prepareTableValues}
@@ -190,6 +185,7 @@ export default class Overview extends React.Component {
                   tools={this.state.tools}
                   preSelection={this.state.quantilePreSelection}
                   getRunSets={this.getRunSets}
+                  getRowName={this.getRowName}
                 />
               </TabPanel>
               <TabPanel>
@@ -198,6 +194,7 @@ export default class Overview extends React.Component {
                   columns={this.columns}
                   tools={this.state.tools}
                   getRunSets={this.getRunSets}
+                  getRowName={this.getRowName}
                 />
               </TabPanel>
               <TabPanel>

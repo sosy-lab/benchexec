@@ -232,9 +232,10 @@ $key-color: #71bcff;
     span {
       text-align: center;
     }
-    .row_id {
+    .row_id:not(:nth-child(1)) {
       font-size: 9pt;
       border-left: 1px solid black;
+      margin-left: 5px;
       padding-left: 5px;
       height: 100%;
       color: #484848;
