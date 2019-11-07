@@ -1873,12 +1873,6 @@ def create_tables(
     # prepare data for js react application
     if options.template_name == TEMPLATE_NAME_REACT:
         template_values.tools = Util.prepare_run_sets_for_js(runSetResults)
-        template_values.rows = Util.prepare_rows_for_js(
-            rows,
-            outputPath,
-            template_values.href_base,
-            template_values.relevant_id_columns,
-        )
 
         template_values.app_css = [
             Util.read_bundled_file(path + "css") for path in REACT_FILES
@@ -1893,6 +1887,14 @@ def create_tables(
     futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
+        if options.template_name == TEMPLATE_NAME_REACT:
+            template_values.rows = Util.prepare_rows_for_js(
+                rows,
+                outputPath,
+                template_values.href_base,
+                template_values.relevant_id_columns,
+            )
+
         # calculate statistics if necessary
         if not options.format == ["csv"]:
             local_summary = get_summary(runSetResults) if use_local_summary else None
