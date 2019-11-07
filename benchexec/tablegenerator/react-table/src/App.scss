@@ -206,6 +206,9 @@ $key-color: #71bcff;
   a:hover {
     background-color: lightgrey;
   }
+  a:focus {
+    outline: 1px dotted red;
+  }
   .fixed {
     justify-content: space-around;
     width: 33%;
