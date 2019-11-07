@@ -183,6 +183,9 @@ $key-color: #71bcff;
         border: 1px solid rgba(0, 0, 0, 0.32) !important;
       }
     }
+    .columns {
+      cursor: pointer
+    }
   }
 
   .summary_span {
@@ -198,6 +201,10 @@ $key-color: #71bcff;
 .mainTable {
   a {
     text-decoration: none;
+    display: block;
+  }
+  a:hover {
+    background-color: lightgrey;
   }
   .fixed {
     justify-content: space-around;
@@ -241,9 +248,12 @@ $key-color: #71bcff;
       color: #484848;
     }
     .rt-td {
-      padding: 8px 4px;
+      padding: 2px;
       border-right: 2px solid rgba(142, 142, 142, 0.3) !important;
       text-align: right;
+      > * {
+        padding: 6px 2px;
+      }
     }
     .row__name {
       text-align: left;
@@ -251,7 +261,6 @@ $key-color: #71bcff;
       width: auto !important;
       color: black;
       &--cellLink {
-        cursor: pointer;
         color: black;
       }
     }
@@ -270,24 +279,17 @@ $key-color: #71bcff;
     background: white;
   }
 
-  .cellLink {
-    cursor: pointer;
-  }
   .correct {
     color: green;
-    cursor: pointer;
   }
   .error {
     color: magenta;
-    cursor: pointer;
   }
   .unknown {
     color: $key-color;
-    cursor: pointer;
   }
   .wrong {
     color: red;
-    cursor: pointer;
   }
   input {
     width: 100%;
@@ -425,8 +427,15 @@ $key-color: #71bcff;
   .closing {
     cursor: pointer;
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: 7px;
+    top: 7px;
+    padding: 3px;
+    font-size: 120%;
+    border-radius: 4px;
+    &:hover {
+      color: white;
+      background: black;
+    }
   }
 }
 
