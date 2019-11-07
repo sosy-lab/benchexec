@@ -285,9 +285,13 @@ export default class Table extends React.Component {
             },
             filterMethod: (filter, row, column) => {
               const id = filter.pivotId || filter.id;
-              return row[id].props.children !== undefined
-                ? String(row[id].props.children).includes(filter.value)
-                : false;
+              // our children are a list of <span> with the relevant text
+              return (
+                row[id].props.children &&
+                row[id].props.children
+                  .map(o => o.props.children)
+                  .some(v => v && v.includes(filter.value))
+              );
             }
           }
         ]
