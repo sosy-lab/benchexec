@@ -13,6 +13,7 @@
     "jszip": "^3.2.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-modal": "^3.11.1",
     "react-table": "^6.10.3",
     "react-table-hoc-fixed-columns": "^2.1.1",
     "react-tabs": "^3.0.0",

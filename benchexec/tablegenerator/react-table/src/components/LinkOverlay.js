@@ -5,6 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
+import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import JSZip from "jszip";
@@ -74,21 +75,14 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  escFunction = event => {
-    if (event.keyCode === 27) {
-      this.props.close(event);
-    }
-  };
-  componentDidMount = () => {
-    document.addEventListener("keydown", this.escFunction, false);
-  };
-  componentWillUnmount = () => {
-    document.removeEventListener("keydown", this.escFunction, false);
-  };
-
   render() {
+    ReactModal.setAppElement("#root");
     return (
-      <div className="overlay">
+      <ReactModal
+        className="overlay"
+        isOpen={true}
+        onRequestClose={this.props.close}
+      >
         <FontAwesomeIcon
           icon={faTimes}
           onClick={this.props.close}
@@ -133,7 +127,7 @@ export default class LinkOverlay extends React.Component {
             </p>
           </div>
         )}
-      </div>
+      </ReactModal>
     );
   }
 }

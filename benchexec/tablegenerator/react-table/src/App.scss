@@ -370,6 +370,13 @@ $key-color: #71bcff;
   }
 }
 
+.ReactModal__Body--open {
+  // stop body from scrolling while overlay is open
+  overflow: hidden;
+}
+.ReactModal__Overlay {
+  z-index: 900;
+}
 .overlay {
   position: fixed;
   overflow: scroll;
@@ -377,9 +384,9 @@ $key-color: #71bcff;
   right: 20px;
   left: 20px;
   height: 80%;
-  z-index: 20;
   background: white;
   border: 5px solid grey;
+  border-radius: 5px;
   padding: 10px;
 
   h1 {
