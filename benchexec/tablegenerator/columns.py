@@ -260,15 +260,16 @@ class Column(object):
         """
 
         try:
-            (
-                self.type,
-                self.unit,
-                self.source_unit,
-                self.scale_factor,
-            ) = _get_column_type_heur(self, column_values)
+            result = _get_column_type_heur(self, column_values)
+            if isinstance(result, tuple):
+                (self.type, self.unit, self.source_unit, self.scale_factor) = result
+            else:
+                self.type = result
         except util.TableDefinitionError as e:
             logging.error("Column type couldn't be determined: {}".format(e.message))
             self.type = ColumnType.text
+
+        if not self.is_numeric():
             self.unit = None
             self.source_unit = None
             self.scale_factor = 1
@@ -428,10 +429,8 @@ def _is_to_cut(value, format_target, is_to_align):
 
 
 def _get_column_type_heur(column, column_values):
-    text_type_tuple = ColumnType.text, None, None, 1
-
     if column.title == "status":
-        return ColumnType.status, None, None, 1
+        return ColumnType.status
 
     column_type = column.type or None
     if column_type and column_type.type == ColumnType.measure:
@@ -459,7 +458,7 @@ def _get_column_type_heur(column, column_values):
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
-            return text_type_tuple
+            return ColumnType.text
         else:
             curr_column_unit = value_match.group(GROUP_UNIT)
 
@@ -483,7 +482,7 @@ def _get_column_type_heur(column, column_values):
                             curr_column_unit, column_source_unit, column
                         )
                     else:
-                        return text_type_tuple
+                        return ColumnType.text
                 else:
                     column_unit = curr_column_unit
 
@@ -542,7 +541,7 @@ def _get_column_type_heur(column, column_values):
     if column_type:
         return column_type, column_unit, column_source_unit, column_scale_factor
     else:
-        return text_type_tuple
+        return ColumnType.text
 
 
 # This function assumes that scale_factor is not defined.
