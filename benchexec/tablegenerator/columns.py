@@ -25,7 +25,7 @@ import logging
 
 from benchexec.tablegenerator import util
 
-__all__ = ["Column, ColumnType, ColumnMeasureType, get_column_type"]
+__all__ = ["Column, ColumnType, ColumnMeasureType"]
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -254,6 +254,25 @@ class Column(object):
                 number = int(number)
             return str(number)
 
+    def set_column_type_from(self, column_values):
+        """
+        Sets the type of this column using a heuristic reading the given column_values.
+        """
+
+        try:
+            (
+                self.type,
+                self.unit,
+                self.source_unit,
+                self.scale_factor,
+            ) = _get_column_type_heur(self, column_values)
+        except util.TableDefinitionError as e:
+            logging.error("Column type couldn't be determined: {}".format(e.message))
+            self.type = ColumnType.text
+            self.unit = None
+            self.source_unit = None
+            self.scale_factor = 1
+
     def __str__(self):
         return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
             self.__class__.__name__,
@@ -406,25 +425,6 @@ def _is_to_cut(value, format_target, is_to_align):
     )
 
     return correct_target and "." in value and 1 > float(value) >= 0
-
-
-def get_column_type(column, column_values):
-    """
-    Returns the type of the given column based on its row values on the given RunSetResult.
-    @param column: the column to return the correct ColumnType for
-    @param column_values: the column values to consider
-    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type',
-        the display unit of the column, which may be None,
-        the source unit of the column, which may be None,
-        and the scale factor to convert from the source unit to the display unit.
-        If no scaling is necessary for conversion, this value is 1.
-    """
-
-    try:
-        return _get_column_type_heur(column, column_values)
-    except util.TableDefinitionError as e:
-        logging.error("Column type couldn't be determined: {}".format(e.message))
-        return ColumnType.text, None, None, 1
 
 
 def _get_column_type_heur(column, column_values):

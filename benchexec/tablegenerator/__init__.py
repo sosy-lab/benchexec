@@ -46,7 +46,7 @@ import benchexec.model as model
 import benchexec.result as result
 import benchexec.util
 from benchexec.tablegenerator import util as Util
-from benchexec.tablegenerator.columns import Column, ColumnType, get_column_type
+from benchexec.tablegenerator.columns import Column, ColumnType
 import zipfile
 
 # Process pool for parallel work.
@@ -454,12 +454,7 @@ class RunSetResult(object):
                 run_result.values[run_result.columns.index(column)]
                 for run_result in self.results
             )
-            (
-                column.type,
-                column.unit,
-                column.source_unit,
-                column.scale_factor,
-            ) = get_column_type(column, column_values)
+            column.set_column_type_from(column_values)
 
         del self._xml_results
 
@@ -1274,23 +1269,8 @@ def get_stats(rows, local_summary, correct_only):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
-        (
-            column_type,
-            column_unit,
-            column_source_unit,
-            column_scale_factor,
-        ) = get_column_type(column, column_values)
-        new_column = Column(
-            column.title,
-            column.pattern,
-            column.number_of_significant_digits,
-            column.href,
-            column_type,
-            column_unit,
-            column_source_unit,
-            column_scale_factor,
-            column.display_title,
-        )
+        new_column = copy.copy(column)
+        new_column.set_column_type_from(column_values)
         stats_columns.append(new_column)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)
