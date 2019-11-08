@@ -7,9 +7,7 @@
 import {
   applyFilter,
   isOkStatus,
-  pipe,
   maybeTransformToLowercase,
-  pathOr,
   sortMethod
 } from "../utils/utils";
 
@@ -99,39 +97,6 @@ describe("isStatusOk", () => {
   });
 });
 
-describe("pipe", () => {
-  test("should execute function if only one is passed", () => {
-    const add = a => a + 1;
-    const testFunc = pipe(add);
-    expect(testFunc(1)).toBe(2);
-  });
-
-  test("should execute all passed functions sequentially", () => {
-    const subtract2 = a => a - 2;
-    const testFunc = pipe(
-      subtract2,
-      subtract2
-    );
-
-    expect(testFunc(8)).toBe(4);
-  });
-
-  test("should execute all passed functions in the right order", () => {
-    const appendChar = char => str => str + char;
-    const testFunc = pipe(
-      appendChar("e"),
-      appendChar("l"),
-      appendChar("l"),
-      appendChar("o")
-    );
-    expect(testFunc("h")).toBe("hello");
-  });
-
-  test("should return data if no function is passed", () => {
-    expect(pipe()("hi")).toBe("hi");
-  });
-});
-
 describe("maybeTransformToLowercase", () => {
   test("should transform to lowercase if string is passed", () => {
     expect(maybeTransformToLowercase("BIG")).toBe("big");
@@ -152,65 +117,6 @@ describe("maybeTransformToLowercase", () => {
 
   test("should not try to transform to lowercase if nil is passed", () => {
     expect(maybeTransformToLowercase(undefined)).toBe(undefined);
-  });
-});
-
-describe("pathOr", () => {
-  test("should resolve prop at path", () => {
-    const message = "the cake is a lie";
-    const tester = pathOr(null, ["hidden", "message"]);
-    const obj = {
-      hidden: {
-        message
-      }
-    };
-
-    expect(tester(obj)).toBe(message);
-  });
-
-  test("should return default if path can not be completely resolved", () => {
-    const message = "the cake is a lie";
-    const sadMessage = "But i like cake :(";
-    const tester = pathOr(sadMessage, ["hidden", "message", "is", "hidden"]);
-    const obj = {
-      hidden: {
-        message
-      }
-    };
-
-    expect(tester(obj)).toBe(sadMessage);
-  });
-
-  test("should return default if path is not passed", () => {
-    const message = "the cake is a lie";
-    const sadMessage = "But i like cake :(";
-    const tester = pathOr(sadMessage);
-    const obj = {
-      hidden: {
-        message
-      }
-    };
-
-    expect(tester(obj)).toBe(sadMessage);
-  });
-
-  test("should return passed data if path is empty", () => {
-    const message = "the cake is a lie";
-    const tester = pathOr(null, []);
-    const obj = {
-      hidden: {
-        message
-      }
-    };
-
-    expect(tester(obj)).toBe(obj);
-  });
-
-  test("should return default if data is not passed", () => {
-    const defaultMessage = "That was easy";
-    const tester = pathOr(defaultMessage, ["hidden", "message"]);
-
-    expect(tester()).toBe(defaultMessage);
   });
 });
 

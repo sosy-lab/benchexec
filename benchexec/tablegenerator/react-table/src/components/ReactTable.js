@@ -15,17 +15,8 @@ import {
   sortMethod,
   determineColumnWidth,
   formatColumnTitle,
-  pathOr,
-  pipe,
   maybeTransformToLowercase
 } from "../utils/utils";
-
-const getChildrenOrNegInfinity = pathOr(-Infinity, ["props", "children"]);
-
-const prepareValuesForSorting = pipe(
-  getChildrenOrNegInfinity,
-  maybeTransformToLowercase
-);
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -80,25 +71,30 @@ export default class Table extends React.Component {
             ),
             show: column.isVisible,
             minWidth: determineColumnWidth(column, 10),
-            accessor: props =>
-              this.props.prepareTableValues(
-                props.results[j].values[i],
-                j,
-                i,
-                props.results[j].href,
-                props.results[j]
-              ),
+            accessor: row => row.results[j].values[i],
+            Cell: cell => {
+              const runResult = cell.original.results[j];
+              const value = cell.value;
+              return value.raw ? (
+                <a
+                  href={runResult.href}
+                  className={runResult.category}
+                  onClick={ev =>
+                    this.props.toggleLinkOverlay(ev, runResult.href)
+                  }
+                  title="Click here to show output of tool"
+                  dangerouslySetInnerHTML={
+                    value.html ? { __html: value.html } : undefined
+                  }
+                >
+                  {value.html ? undefined : value.raw}
+                </a>
+              ) : null;
+            },
             sortMethod: (a, b, desc) => {
-              //default has to be overwritten because of <span>
-              const aValue = prepareValuesForSorting(a);
-              const bValue = prepareValuesForSorting(b);
-              if (aValue > bValue) {
-                return 1;
-              }
-              if (aValue < bValue) {
-                return -1;
-              }
-              return 0;
+              a = maybeTransformToLowercase(a.raw);
+              b = maybeTransformToLowercase(b.raw);
+              return a > b ? 1 : a < b ? -1 : 0;
             },
             filterMethod: (filter, row) => {
               //case category has to be differentiated to the name of the status => space in String (e.g. "ERROR ")
@@ -115,7 +111,7 @@ export default class Table extends React.Component {
                 return row[filter.id];
               } else if (
                 row[filter.id] &&
-                filter.value === row[filter.id].props.children
+                filter.value === row[filter.id].raw
               ) {
                 return row[filter.id];
               }
@@ -151,31 +147,29 @@ export default class Table extends React.Component {
             ),
             show: column.isVisible,
             minWidth: determineColumnWidth(column),
-            accessor: props =>
-              this.props.prepareTableValues(props.results[j].values[i], j, i),
-            Cell: row => {
-              if (row.value.href) {
+            accessor: row => row.results[j].values[i],
+            Cell: cell => {
+              const html = cell.value.html;
+              const raw = html ? undefined : cell.value.raw;
+              const href = cell.value.href;
+              if (href) {
                 return (
                   <a
-                    href={row.value.href}
-                    onClick={ev =>
-                      this.props.toggleLinkOverlay(ev, row.value.href)
-                    }
+                    href={href}
+                    onClick={ev => this.props.toggleLinkOverlay(ev, href)}
                     dangerouslySetInnerHTML={
-                      row.value.html ? { __html: row.value.html } : undefined
+                      html ? { __html: html } : undefined
                     }
                   >
-                    {row.value.html ? undefined : row.value.raw}
+                    {raw}
                   </a>
                 );
               }
               return (
                 <div
-                  dangerouslySetInnerHTML={
-                    row.value.html ? { __html: row.value.html } : undefined
-                  }
+                  dangerouslySetInnerHTML={html ? { __html: html } : undefined}
                 >
-                  {row.value.html ? undefined : row.value.raw}
+                  {raw}
                 </div>
               );
             },
@@ -253,7 +247,6 @@ export default class Table extends React.Component {
         columns: [
           {
             minWidth: window.innerWidth * 0.3,
-            id: "short_filename",
             Header: () => (
               <div
                 onClick={this.props.selectColumn}
@@ -263,19 +256,21 @@ export default class Table extends React.Component {
               </div>
             ),
             fixed: this.state.fixed ? "left" : "",
-            accessor: props => {
-              const content = props.id.map(id => (
+            accessor: "id",
+            Cell: cell => {
+              const content = cell.value.map(id => (
                 <span key={id} className="row_id">
                   {id}
                 </span>
               ));
-              return props.href ? (
+              const href = cell.original.href;
+              return href ? (
                 <a
-                  key={props.href}
-                  className={props.href ? "row__name--cellLink" : "row__name"}
-                  href={props.href}
+                  key={href}
+                  className="row__name--cellLink"
+                  href={href}
                   title="Click here to show source code"
-                  onClick={ev => this.props.toggleLinkOverlay(ev, props.href)}
+                  onClick={ev => this.props.toggleLinkOverlay(ev, href)}
                 >
                   {content}
                 </a>
@@ -285,13 +280,7 @@ export default class Table extends React.Component {
             },
             filterMethod: (filter, row, column) => {
               const id = filter.pivotId || filter.id;
-              // our children are a list of <span> with the relevant text
-              return (
-                row[id].props.children &&
-                row[id].props.children
-                  .map(o => o.props.children)
-                  .some(v => v && v.includes(filter.value))
-              );
+              return row[id].some(v => v && v.includes(filter.value));
             }
           }
         ]

@@ -43,34 +43,13 @@ const applyFilter = (filter, row, cell) => {
 
 const isNil = data => data === undefined || data === null;
 
-const pathOr = (defaultValue, path) => data => {
-  if (!path || !(path instanceof Array) || !data) {
-    return defaultValue;
-  }
-  let subPathResult = data;
-  for (const node of path) {
-    subPathResult = subPathResult[node];
-    if (isNil(subPathResult)) {
-      return defaultValue;
-    }
-  }
-  return subPathResult;
-};
-
-const getRawOrNegInfinity = pathOr(-Infinity, ["raw"]);
+const getRawOrNegInfinity = value =>
+  isNil(value) || isNil(value.raw) ? -Infinity : value.raw;
 
 const sortMethod = (a, b) => {
   const aValue = getRawOrNegInfinity(a);
   const bValue = getRawOrNegInfinity(b);
   return bValue - aValue;
-};
-
-const pipe = (...functions) => data => {
-  let subResult = data;
-  for (const func of functions) {
-    subResult = func(subResult);
-  }
-  return subResult;
 };
 
 const maybeTransformToLowercase = data =>
@@ -114,8 +93,6 @@ export {
   determineColumnWidth,
   formatColumnTitle,
   isOkStatus,
-  pathOr,
   isNil,
-  pipe,
   maybeTransformToLowercase
 };

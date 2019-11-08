@@ -99,24 +99,6 @@ export default class Overview extends React.Component {
 
   getRowName = row => row.id.filter(s => s).join(" | ");
 
-  prepareTableValues = (el, tool, column, href, row) => {
-    if (this.originalTools[tool].columns[column].type === "status") {
-      return el.raw ? (
-        <a
-          href={href}
-          className={row.category}
-          onClick={href ? ev => this.toggleLinkOverlay(ev, href) : null}
-          title="Click here to show output of tool"
-          dangerouslySetInnerHTML={el.html ? { __html: el.html } : undefined}
-        >
-          {el.html ? undefined : el.raw}
-        </a>
-      ) : null;
-    } else {
-      return el;
-    }
-  };
-
   changeTab = (_, column, tab) => {
     this.setState({
       tabIndex: tab,
@@ -158,7 +140,6 @@ export default class Overview extends React.Component {
                   tableHeader={this.tableHeader}
                   selectColumn={this.toggleSelectColumns}
                   stats={this.stats}
-                  prepareTableValues={this.prepareTableValues}
                   getRunSets={this.getRunSets}
                   changeTab={this.changeTab}
                 />
@@ -170,7 +151,6 @@ export default class Overview extends React.Component {
                   tools={this.state.tools}
                   selectColumn={this.toggleSelectColumns}
                   getRunSets={this.getRunSets}
-                  prepareTableValues={this.prepareTableValues}
                   setFilter={this.setFilter}
                   filterPlotData={this.filterPlotData}
                   filtered={this.state.filtered}

@@ -57,12 +57,13 @@ export default class Summary extends React.Component {
             null,
             column.type === "status" ? 6 : null
           ),
-          accessor: props =>
-            props.content[j][i] ? (
+          accessor: row => row.content[j][i],
+          Cell: cell =>
+            cell.value ? (
               <div
-                dangerouslySetInnerHTML={{ __html: props.content[j][i].sum }}
+                dangerouslySetInnerHTML={{ __html: cell.value.sum }}
                 className="summary_span"
-                title={this.renderTooltip(props.content[j][i])}
+                title={this.renderTooltip(cell.value)}
               ></div>
             ) : (
               <div className="summary_span">-</div>
@@ -140,10 +141,11 @@ export default class Summary extends React.Component {
                 <span>Click here to select columns</span>
               </div>
             ),
-            accessor: props => (
+            accessor: "",
+            Cell: cell => (
               <div
-                dangerouslySetInnerHTML={{ __html: props.title }}
-                title={props.description}
+                dangerouslySetInnerHTML={{ __html: cell.value.title }}
+                title={cell.value.description}
                 className="tr"
               />
             )
