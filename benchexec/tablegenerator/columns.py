@@ -439,6 +439,10 @@ def _get_column_type_heur(column, column_values):
     column_source_unit = column.source_unit  # May be None
     column_scale_factor = column.scale_factor  # May be None
 
+    column_max_dec_digits = 0
+    column_has_numbers = False
+    column_has_decimal_numbers = False
+
     if column_unit:
         explicit_unit_defined = True
     else:
@@ -460,6 +464,7 @@ def _get_column_type_heur(column, column_values):
         if value_match is None:
             return ColumnType.text
         else:
+            column_has_numbers = True
             curr_column_unit = value_match.group(GROUP_UNIT)
 
             # If the units in two different rows of the same column differ,
@@ -516,32 +521,29 @@ def _get_column_type_heur(column, column_values):
             curr_dec_digits = _get_decimal_digits(
                 scaled_value_match, column.number_of_significant_digits
             )
-
-            try:
-                max_dec_digits = column_type.max_decimal_digits
-            except AttributeError or TypeError:
-                max_dec_digits = 0
-
-            if curr_dec_digits > max_dec_digits:
-                max_dec_digits = curr_dec_digits
+            column_max_dec_digits = max(column_max_dec_digits, curr_dec_digits)
 
             if (
-                (column_type and column_type.type == ColumnType.measure)
-                or scaled_value_match.group(GROUP_DEC_PART) is not None
+                scaled_value_match.group(GROUP_DEC_PART) is not None
                 or value_match.group(GROUP_DEC_PART) is not None
                 or scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None
             ):
-                column_type = ColumnMeasureType(max_dec_digits)
+                column_has_decimal_numbers = True
 
-            elif int(column_scale_factor) != column_scale_factor:
-                column_type = ColumnMeasureType(0)
-            else:
-                column_type = ColumnType.count
-
-    if column_type:
-        return column_type, column_unit, column_source_unit, column_scale_factor
-    else:
+    if not column_has_numbers:
+        # only empty values
         return ColumnType.text
+
+    if (
+        column_has_decimal_numbers
+        or column_max_dec_digits
+        or int(column_scale_factor) != column_scale_factor  # non-int scaling factor
+    ):
+        column_type = ColumnMeasureType(column_max_dec_digits)
+    else:
+        column_type = ColumnType.count
+
+    return column_type, column_unit, column_source_unit, column_scale_factor
 
 
 # This function assumes that scale_factor is not defined.
