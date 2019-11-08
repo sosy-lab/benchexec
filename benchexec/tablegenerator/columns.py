@@ -173,6 +173,9 @@ class Column(object):
             )
         self.display_title = display_title
 
+        # expected maximum width (in characters)
+        self.max_width = None
+
     def is_numeric(self):
         return (
             self.type.type == ColumnType.measure or self.type.type == ColumnType.count
@@ -258,11 +261,18 @@ class Column(object):
         """
         Sets the type of this column using a heuristic reading the given column_values.
         """
-
+        column_values = list(column_values)
+        values_width = 0
         try:
             result = _get_column_type_heur(self, column_values)
             if isinstance(result, tuple):
-                (self.type, self.unit, self.source_unit, self.scale_factor) = result
+                (
+                    self.type,
+                    self.unit,
+                    self.source_unit,
+                    self.scale_factor,
+                    values_width,
+                ) = result
             else:
                 self.type = result
         except util.TableDefinitionError as e:
@@ -273,6 +283,14 @@ class Column(object):
             self.unit = None
             self.source_unit = None
             self.scale_factor = 1
+            if column_values:
+                values_width = max(
+                    len(str(value if value is not None else ""))
+                    for value in column_values
+                )
+
+        title_width = len(self.format_title())
+        self.max_width = max(title_width, values_width)
 
     def __str__(self):
         return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
@@ -439,6 +457,7 @@ def _get_column_type_heur(column, column_values):
     column_source_unit = column.source_unit  # May be None
     column_scale_factor = column.scale_factor  # May be None
 
+    column_max_int_digits = 0
     column_max_dec_digits = 0
     column_has_numbers = False
     column_has_decimal_numbers = False
@@ -523,6 +542,9 @@ def _get_column_type_heur(column, column_values):
             )
             column_max_dec_digits = max(column_max_dec_digits, curr_dec_digits)
 
+            curr_int_digits = _get_int_digits(scaled_value_match)
+            column_max_int_digits = max(column_max_int_digits, curr_int_digits)
+
             if (
                 scaled_value_match.group(GROUP_DEC_PART) is not None
                 or value_match.group(GROUP_DEC_PART) is not None
@@ -543,7 +565,17 @@ def _get_column_type_heur(column, column_values):
     else:
         column_type = ColumnType.count
 
-    return column_type, column_unit, column_source_unit, column_scale_factor
+    column_width = column_max_int_digits
+    if column_max_dec_digits:
+        column_width += column_max_dec_digits + 1
+
+    return (
+        column_type,
+        column_unit,
+        column_source_unit,
+        column_scale_factor,
+        column_width,
+    )
 
 
 # This function assumes that scale_factor is not defined.
@@ -613,6 +645,18 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         )
 
     return curr_dec_digits
+
+
+def _get_int_digits(decimal_number_match):
+    """
+    Returns the amount of integer digits of the given regex match.
+    @param number_of_significant_digits: the number of significant digits required
+    """
+    int_part = decimal_number_match.group(GROUP_INT_PART) or ""
+    if int_part == "0":
+        # we skip leading zeros of numbers < 1
+        s = ""
+    return len(int_part)
 
 
 def _check_unit_consistency(actual_unit, wanted_unit, column):

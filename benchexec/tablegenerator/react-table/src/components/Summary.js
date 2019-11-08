@@ -9,6 +9,7 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
+import { determineColumnWidth } from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
@@ -52,6 +53,11 @@ export default class Summary extends React.Component {
             </div>
           ),
           show: column.isVisible,
+          minWidth: determineColumnWidth(
+            column,
+            null,
+            column.type === "status" ? 6 : null
+          ),
           accessor: props =>
             props.content[j][i] ? (
               <div
@@ -125,11 +131,11 @@ export default class Summary extends React.Component {
           </div>
         ),
         fixed: this.state.fixed ? "left" : "",
-        width: this.headerWidth,
+        minWidth: this.headerWidth,
         columns: [
           {
             id: "summary",
-            width: this.headerWidth,
+            minWidth: this.headerWidth,
             Header: () => (
               <div onClick={this.props.selectColumn}>
                 <span>Click here to select columns</span>

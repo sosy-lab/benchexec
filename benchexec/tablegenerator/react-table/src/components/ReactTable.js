@@ -13,6 +13,7 @@ import "react-table/react-table.css";
 import {
   applyFilter,
   sortMethod,
+  determineColumnWidth,
   pathOr,
   pipe,
   maybeTransformToLowercase
@@ -49,7 +50,6 @@ export default class Table extends React.Component {
       "property"
     ];
     this.typingTimer = -1;
-    this.width = window.innerWidth * 0.3;
     this.height = window.innerHeight - 50;
   }
   //fix columns
@@ -79,6 +79,7 @@ export default class Table extends React.Component {
               </span>
             ),
             show: column.isVisible,
+            minWidth: determineColumnWidth(column, 10),
             accessor: props =>
               this.props.prepareTableValues(
                 props.results[j].values[i],
@@ -151,6 +152,7 @@ export default class Table extends React.Component {
               </div>
             ),
             show: column.isVisible,
+            minWidth: determineColumnWidth(column),
             accessor: props =>
               this.props.prepareTableValues(props.results[j].values[i], j, i),
             Cell: row => {
@@ -252,7 +254,7 @@ export default class Table extends React.Component {
         fixed: this.state.fixed ? "left" : "",
         columns: [
           {
-            width: this.width,
+            minWidth: window.innerWidth * 0.3,
             id: "short_filename",
             Header: () => (
               <div

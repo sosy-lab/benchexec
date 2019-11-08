@@ -78,10 +78,27 @@ const isOkStatus = status => {
   return status === 0 || status === 200;
 };
 
+// Best-effort attempt for calculating a meaningful column width
+const determineColumnWidth = (column, min_width, max_width) => {
+  let width = column.max_width; // number of chars in column
+  if (min_width) {
+    width = Math.max(width, min_width);
+  }
+  if (max_width) {
+    width = Math.min(width, max_width);
+  }
+  if (!width) {
+    width = 10;
+  }
+
+  return width * 9 + 10;
+};
+
 export {
   prepareTableData,
   applyFilter,
   sortMethod,
+  determineColumnWidth,
   isOkStatus,
   pathOr,
   isNil,

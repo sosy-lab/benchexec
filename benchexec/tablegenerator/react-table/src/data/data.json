@@ -73,6 +73,7 @@
       "columns": [
         {
           "display_title": "status",
+          "max_width": 12,
           "relevant_for_diff": false,
           "scale_factor": 1,
           "title": "status",
@@ -80,6 +81,7 @@
         },
         {
           "display_title": "cputime",
+          "max_width": 12,
           "number_of_significant_digits": 3,
           "relevant_for_diff": false,
           "scale_factor": 1000,
@@ -90,6 +92,7 @@
         },
         {
           "display_title": "cputime-h",
+          "max_width": 13,
           "number_of_significant_digits": 4,
           "relevant_for_diff": false,
           "scale_factor": 0.0002777777777777778,
@@ -100,6 +103,7 @@
         },
         {
           "display_title": "walltime",
+          "max_width": 13,
           "number_of_significant_digits": 2,
           "relevant_for_diff": false,
           "scale_factor": 1e-7,
@@ -110,6 +114,7 @@
         },
         {
           "display_title": "memUsage",
+          "max_width": 13,
           "number_of_significant_digits": 5,
           "relevant_for_diff": false,
           "scale_factor": 0.000001,
@@ -119,6 +124,7 @@
         },
         {
           "display_title": "memUsage-GB",
+          "max_width": 16,
           "number_of_significant_digits": 5,
           "relevant_for_diff": false,
           "scale_factor": 1e-9,
