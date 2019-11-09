@@ -1073,3 +1073,32 @@ class _StopRunThread(threading.Thread):
     def run(self):
         time.sleep(self.delay)
         self.runexecutor.stop()
+
+
+class TestRunExecutorUnits(unittest.TestCase):
+    """unit tests for parts of RunExecutor"""
+
+    def test_get_debug_output_with_error_report_and_invalid_utf8(self):
+        invalid_utf8 = b"\xFF"
+        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
+            with tempfile.NamedTemporaryFile(mode="w+b") as output:
+                output_content = """Dummy output
+# An error report file with more information is saved as:
+# {}
+More output
+"""
+                output_content = output_content.format(report_file.name).encode()
+                report_content = b"Report output\nMore lines"
+                output_content += invalid_utf8
+                report_content += invalid_utf8
+
+                output.write(output_content)
+                output.flush()
+                output.seek(0)
+                report_file.write(report_content)
+                report_file.flush()
+
+                runexecutor._get_debug_output_after_crash(output.name, "")
+
+                self.assertFalse(os.path.exists(report_file.name))
+                self.assertEqual(output.read(), output_content + report_content)

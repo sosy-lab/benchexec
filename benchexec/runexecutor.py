@@ -1180,13 +1180,13 @@ def _get_debug_output_after_crash(output_filename, base_path):
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     try:
-        with open(output_filename, "r+") as outputFile:
+        with open(output_filename, "r+b") as outputFile:
             for line in outputFile:
                 if foundDumpFile:
-                    dumpFileName = base_path + line.strip(" #\n")
+                    dumpFileName = base_path.encode() + line.strip(b" #\n")
                     outputFile.seek(0, os.SEEK_END)  # jump to end of log file
                     try:
-                        with open(dumpFileName, "r") as dumpFile:
+                        with open(dumpFileName, "rb") as dumpFile:
                             util.copy_all_lines_from_to(dumpFile, outputFile)
                         os.remove(dumpFileName)
                     except IOError as e:
@@ -1198,8 +1198,8 @@ def _get_debug_output_after_crash(output_filename, base_path):
                         )
                     break
                 try:
-                    if util.decode_to_string(line).startswith(
-                        "# An error report file with more information is saved as:"
+                    if line.startswith(
+                        b"# An error report file with more information is saved as:"
                     ):
                         logging.debug("Going to append error report file")
                         foundDumpFile = True
