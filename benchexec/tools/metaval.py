@@ -26,8 +26,8 @@ import os
 
 class Tool(benchexec.tools.template.BaseTool):
 
-    REQUIRED_PATHS = ["CPAchecker", "esbmc"]
-    TOOL_TO_PATH_MAP = {"cpachecker": ["CPAchecker"], "esbmc": ["esbmc"]}
+    TOOL_TO_PATH_MAP = {"cpachecker": "CPAchecker", "esbmc": "esbmc"}
+    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
 
     def executable(self):
         return util.find_executable("metaval.sh")
@@ -59,27 +59,30 @@ class Tool(benchexec.tools.template.BaseTool):
             self.wrappedTool = esbmc.Tool()
 
         if hasattr(self, "wrappedTool"):
-            os.environ["PATH"] += os.pathsep + os.path.join(
-                os.curdir, *self.TOOL_TO_PATH_MAP[self.verifierName]
+            oldcwd = os.getcwd()
+            os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName]))
+            wrappedOptions = self.wrappedTool.cmdline(
+                self.wrappedTool.executable(),
+                options,
+                [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
+                os.path.relpath(os.path.join(oldcwd, propertyfile)),
+                rlimits,
             )
-            return (
-                [executable]
-                + ["--witness"]
-                + [self.witnessName]
-                + tasks
-                + ["--"]
-                + self.wrappedTool.cmdline(
-                    self.wrappedTool.executable(),
-                    options,
-                    ["output/ARG.c",],
-                    propertyfile,
-                    rlimits,
-                )
-            )
+            os.chdir(oldcwd)
+            return [
+                executable,
+                "--verifier",
+                self.TOOL_TO_PATH_MAP[self.verifierName],
+                "--witness",
+                self.witnessName,
+                *tasks,
+                "--",
+                *wrappedOptions,
+            ]
         else:
             sys.exit("ERROR: Could not find wrapped tool")
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
-        metavalVersion = next((l.strip() for l in stdout.splitlines())).split()[2]
+        metavalVersion = stdout.splitlines()[0].strip()
         return metavalVersion
