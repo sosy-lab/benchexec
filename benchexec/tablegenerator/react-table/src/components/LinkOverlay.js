@@ -56,22 +56,21 @@ export default class LinkOverlay extends React.Component {
       `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`
     ); // <folder>/<logfile>
 
-    const response = await fetch(zipUrl);
-    const { status, statusText } = response;
-    if (isOkStatus(status)) {
-      try {
+    try {
+      const response = await fetch(zipUrl);
+      const { status, statusText } = response;
+      if (isOkStatus(status)) {
         const data = await response.blob();
         const zip = await JSZip.loadAsync(data);
 
         const fileContent = await zip.file(logfile).async("string");
 
         this.setState({ content: fileContent });
-      } catch (error) {
-        console.log("ERROR receiving ZIP", error);
-        this.setState({ error: `${error}` });
+      } else {
+        this.setState({ error: `${statusText}` });
       }
-    } else {
-      throw new Error(statusText);
+    } catch (error) {
+      this.setState({ error: `${error}` });
     }
   };
 
