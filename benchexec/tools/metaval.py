@@ -66,16 +66,18 @@ class Tool(benchexec.tools.template.BaseTool):
 
         if hasattr(self, "wrappedTool"):
             with self.lock:
-                oldcwd = os.getcwd()
-                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
-                wrappedOptions = self.wrappedTool.cmdline(
-                    self.wrappedTool.executable(),
-                    options,
-                    [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                    os.path.relpath(os.path.join(oldcwd, propertyfile)),
-                    rlimits,
-                )
-                os.chdir(oldcwd)
+                try:
+                    oldcwd = os.getcwd()
+                    os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
+                    wrappedOptions = self.wrappedTool.cmdline(
+                        self.wrappedTool.executable(),
+                        options,
+                        [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
+                        os.path.relpath(os.path.join(oldcwd, propertyfile)),
+                        rlimits,
+                    )
+                finally:
+                    os.chdir(oldcwd)
             return [
                 executable,
                 "--verifier",
