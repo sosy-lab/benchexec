@@ -23,12 +23,16 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 import os
+import threading
 
 
 class Tool(benchexec.tools.template.BaseTool):
 
     TOOL_TO_PATH_MAP = {"cpachecker": "CPAchecker", "esbmc": "esbmc"}
     REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
+
+    def __init__(self):
+        self.lock = threading.Lock()
 
     def executable(self):
         return util.find_executable("metaval.sh")
@@ -59,6 +63,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 exit("metaval is called with mixed wrapped tools")
 
         if hasattr(self, "wrappedTool"):
+            self.lock.acquire()
             oldcwd = os.getcwd()
             os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
             wrappedOptions = self.wrappedTool.cmdline(
@@ -69,6 +74,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 rlimits,
             )
             os.chdir(oldcwd)
+            self.lock.release()
             return [
                 executable,
                 "--verifier",
