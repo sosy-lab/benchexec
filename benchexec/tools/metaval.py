@@ -44,9 +44,9 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        parser = argparse.ArgumentParser(add_help=False)
-        parser.add_argument("--witness")
-        parser.add_argument("--metaval")
+        parser = argparse.ArgumentParser(add_help = False, usage = argparse.SUPPRESS)
+        parser.add_argument("--witness", required = True)
+        parser.add_argument("--metaval", required = True)
         (knownargs, options) = parser.parse_known_args(options)
         self.verifierName = knownargs.metaval.lower()
         self.witnessName = knownargs.witness
