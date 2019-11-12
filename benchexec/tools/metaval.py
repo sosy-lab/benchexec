@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import argparse
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -43,20 +44,13 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        verifierOption = options.index("--metaval")
-        self.verifierName = options[verifierOption + 1].lower()
-        del options[verifierOption : verifierOption + 2]
-        witnessOption = options.index("--witness")
-        self.witnessName = options[witnessOption + 1]
-        del options[witnessOption : witnessOption + 2]
-        if self.verifierName == "cpachecker":
-            import benchexec.tools.cpachecker as cpachecker
-
-            self.wrappedTool = cpachecker.Tool()
-        elif self.verifierName == "esbmc":
-            import benchexec.tools.esbmc as esbmc
-
-            self.wrappedTool = esbmc.Tool()
+        parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument("--witness")
+        parser.add_argument("--metaval")
+        (knownargs, options) = parser.parse_known_args(options)
+        self.verifierName = knownargs.metaval.lower()
+        self.witnessName = knownargs.witness
+        self.wrappedTool = __import__("benchexec.tools." + self.verifierName, fromlist=["Tool"]).Tool()
 
         if hasattr(self, "wrappedTool"):
             oldcwd = os.getcwd()
