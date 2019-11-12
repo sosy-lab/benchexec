@@ -78,16 +78,18 @@ class Tool(benchexec.tools.template.BaseTool):
                     )
                 finally:
                     os.chdir(oldcwd)
-            return [
-                executable,
-                "--verifier",
-                self.TOOL_TO_PATH_MAP[verifierName],
-                "--witness",
-                witnessName,
-                *tasks,
-                "--",
-                *wrappedOptions,
-            ]
+            return (
+                [
+                    executable,
+                    "--verifier",
+                    self.TOOL_TO_PATH_MAP[verifierName],
+                    "--witness",
+                    witnessName,
+                ]
+                + tasks
+                + ["--"]
+                + wrappedOptions
+            )
         else:
             sys.exit("ERROR: Could not find wrapped tool")
 
