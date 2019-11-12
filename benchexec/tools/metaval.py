@@ -44,17 +44,23 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        parser = argparse.ArgumentParser(add_help = False, usage = argparse.SUPPRESS)
-        parser.add_argument("--witness", required = True)
-        parser.add_argument("--metaval", required = True)
+        parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
+        parser.add_argument("--witness", required=True)
+        parser.add_argument("--metaval", required=True)
         (knownargs, options) = parser.parse_known_args(options)
-        self.verifierName = knownargs.metaval.lower()
-        self.witnessName = knownargs.witness
-        self.wrappedTool = __import__("benchexec.tools." + self.verifierName, fromlist=["Tool"]).Tool()
+        verifierName = knownargs.metaval.lower()
+        witnessName = knownargs.witness
+        if not hasattr(self, "wrappedTool"):
+            self.wrappedTool = __import__(
+                "benchexec.tools." + verifierName, fromlist=["Tool"]
+            ).Tool()
+        else:
+            if not verifierName == self.wrappedTool.name().tolower():
+                exit("metaval is called with mixed wrapped tools")
 
         if hasattr(self, "wrappedTool"):
             oldcwd = os.getcwd()
-            os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName]))
+            os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
             wrappedOptions = self.wrappedTool.cmdline(
                 self.wrappedTool.executable(),
                 options,
@@ -66,9 +72,9 @@ class Tool(benchexec.tools.template.BaseTool):
             return [
                 executable,
                 "--verifier",
-                self.TOOL_TO_PATH_MAP[self.verifierName],
+                self.TOOL_TO_PATH_MAP[verifierName],
                 "--witness",
-                self.witnessName,
+                witnessName,
                 *tasks,
                 "--",
                 *wrappedOptions,
