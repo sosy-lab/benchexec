@@ -100,29 +100,41 @@ export default class Overlay extends React.Component {
   };
 
   renderData = (rows, column, tool, field) => {
+    const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
     const index = this.props.tools[tool].columns.findIndex(
       value => value.display_title === column
     );
 
     if (!this.state.isValue || index >= 0) {
-      const relevantRows = this.state.correct
-        ? rows.filter(rs => rs.results[tool].category === "correct")
-        : rows;
-
-      arrayY = relevantRows.map(runSet => [
-        runSet.results[tool].values[index].raw,
-        this.props.getRowName(runSet)
-      ]);
+      arrayY = rows.map(runSet => {
+        // Get y value if it should be shown and normalize it.
+        // For correct x values, arrayY needs to have same length as rows.
+        const runResult = runSet.results[tool];
+        let value = null;
+        if (!this.state.correct || runResult.category === "correct") {
+          value = runResult.values[index].raw;
+          if (value === undefined) {
+            value = null;
+          }
+          if (!isOrdinal && value !== null) {
+            value = +value;
+            if (!isFinite(value)) {
+              value = null;
+            }
+          }
+        }
+        return [value, this.props.getRowName(runSet)];
+      });
 
       if (this.state.quantile) {
+        arrayY = arrayY.filter(element => element[0] !== null);
         arrayY = this.sortArray(arrayY, column);
       }
     }
 
     this.hasInvalidLog = false;
     const newArray = [];
-    const isOrdinal = this.handleType() === "ordinal";
 
     arrayY.forEach((el, i) => {
       const value = el[0];
@@ -131,7 +143,7 @@ export default class Overlay extends React.Component {
       if (value !== null && !isLogAndInvalid) {
         newArray.push({
           x: i + 1,
-          y: isOrdinal ? value : +value,
+          y: value,
           info: el[1]
         });
       }
