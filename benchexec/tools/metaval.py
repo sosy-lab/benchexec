@@ -54,6 +54,7 @@ class Tool(benchexec.tools.template.BaseTool):
         (knownargs, options) = parser.parse_known_args(options)
         verifierName = knownargs.metaval.lower()
         witnessName = knownargs.witness
+        self.lock.acquire()
         if not hasattr(self, "wrappedTool"):
             self.wrappedTool = __import__(
                 "benchexec.tools." + verifierName, fromlist=["Tool"]
@@ -61,6 +62,7 @@ class Tool(benchexec.tools.template.BaseTool):
         else:
             if not verifierName == self.wrappedTool.name().tolower():
                 exit("metaval is called with mixed wrapped tools")
+        self.lock.release()
 
         if hasattr(self, "wrappedTool"):
             self.lock.acquire()
