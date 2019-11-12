@@ -54,29 +54,27 @@ class Tool(benchexec.tools.template.BaseTool):
         (knownargs, options) = parser.parse_known_args(options)
         verifierName = knownargs.metaval.lower()
         witnessName = knownargs.witness
-        self.lock.acquire()
-        if not hasattr(self, "wrappedTool"):
-            self.wrappedTool = __import__(
-                "benchexec.tools." + verifierName, fromlist=["Tool"]
-            ).Tool()
-        else:
-            if not verifierName == self.wrappedTool.name().tolower():
-                exit("metaval is called with mixed wrapped tools")
-        self.lock.release()
+        with self.lock:
+            if not hasattr(self, "wrappedTool"):
+                self.wrappedTool = __import__(
+                    "benchexec.tools." + verifierName, fromlist=["Tool"]
+                ).Tool()
+            else:
+                if not verifierName == self.wrappedTool.name().tolower():
+                    exit("metaval is called with mixed wrapped tools")
 
         if hasattr(self, "wrappedTool"):
-            self.lock.acquire()
-            oldcwd = os.getcwd()
-            os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
-            wrappedOptions = self.wrappedTool.cmdline(
-                self.wrappedTool.executable(),
-                options,
-                [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                os.path.relpath(os.path.join(oldcwd, propertyfile)),
-                rlimits,
-            )
-            os.chdir(oldcwd)
-            self.lock.release()
+            with self.lock:
+                oldcwd = os.getcwd()
+                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
+                wrappedOptions = self.wrappedTool.cmdline(
+                    self.wrappedTool.executable(),
+                    options,
+                    [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
+                    os.path.relpath(os.path.join(oldcwd, propertyfile)),
+                    rlimits,
+                )
+                os.chdir(oldcwd)
             return [
                 executable,
                 "--verifier",
