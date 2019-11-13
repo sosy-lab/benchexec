@@ -241,7 +241,7 @@ module.exports = function(webpackEnv) {
           vendors: {
             chunks: "all",
             name: "vendors",
-            test: /(node_modules|src\/data\/dependencies\.json)/
+            test: /(node_modules|src\/data\/dependencies\.json|src\/vendor)/
           }
         }
       }

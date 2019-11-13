@@ -10,7 +10,6 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.7",
-    "jszip": "^3.2.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-modal": "^3.11.1",
@@ -58,6 +57,7 @@
     ],
     "testEnvironment": "jest-environment-jsdom-fourteen",
     "transform": {
+      "^.*/src/vendor/.*$": "<rootDir>/config/jest/fileTransform.js",
       "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
       "^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
@@ -122,6 +122,7 @@
     "file-loader": "^4.2.0",
     "fs-extra": "^8.1.0",
     "html-webpack-plugin": "^4.0.0-beta.8",
+    "imports-loader": "^0.8.0",
     "is-wsl": "^2.1.1",
     "jest": "^24.9.0",
     "jest-environment-jsdom-fourteen": "^0.1.0",
