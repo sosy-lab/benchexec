@@ -781,6 +781,38 @@ class TestRunExecutor(unittest.TestCase):
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
+    def test_nested_runexec(self):
+        if not os.path.exists("/bin/echo"):
+            self.skipTest("missing /bin/echo")
+        self.setUp(
+            dir_modes={
+                # Do not mark /home hidden, would fail with python from virtualenv
+                "/": containerexecutor.DIR_READ_ONLY,
+                "/tmp": containerexecutor.DIR_FULL_ACCESS,  # for inner_output_file
+                "/sys": containerexecutor.DIR_HIDDEN,
+                "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
+            }
+        )
+        inner_args = ["--hidden-dir", "/sys", "--", "/bin/echo", "TEST_TOKEN"]
+
+        with tempfile.NamedTemporaryFile(
+            mode="r", prefix="inner_output_", suffix=".log"
+        ) as inner_output_file:
+            inner_cmdline = self.get_runexec_cmdline(
+                *inner_args, output_filename=inner_output_file.name
+            )
+            outer_result, outer_output = self.execute_run(*inner_cmdline)
+            inner_output = inner_output_file.read().strip().splitlines()
+
+        logging.info("Outer output:\n" + "\n".join(outer_output))
+        logging.info("Inner output:\n" + "\n".join(inner_output))
+        self.check_result_keys(outer_result, "returnvalue")
+        self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
+        self.check_command_in_output(inner_output, "/bin/echo TEST_TOKEN")
+        self.assertEqual(
+            inner_output[-1], "TEST_TOKEN", "run output misses command output"
+        )
+
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
