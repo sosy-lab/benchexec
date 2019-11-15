@@ -9,7 +9,11 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
-import { determineColumnWidth, formatColumnTitle } from "../utils/utils";
+import {
+  determineColumnWidth,
+  formatColumnTitle,
+  isNumericColumn
+} from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
@@ -51,7 +55,9 @@ export default class Summary extends React.Component {
               {formatColumnTitle(column)}
             </div>
           ),
-          show: column.isVisible,
+          show:
+            column.isVisible &&
+            (isNumericColumn(column) || column.type === "status"),
           minWidth: determineColumnWidth(
             column,
             null,
