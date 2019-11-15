@@ -11,11 +11,12 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
+  isNumericColumn,
   applyFilter,
-  sortMethod,
+  numericSortMethod,
+  textSortMethod,
   determineColumnWidth,
-  formatColumnTitle,
-  maybeTransformToLowercase
+  formatColumnTitle
 } from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
@@ -91,11 +92,7 @@ export default class Table extends React.Component {
                 </a>
               ) : null;
             },
-            sortMethod: (a, b, desc) => {
-              a = maybeTransformToLowercase(a.raw);
-              b = maybeTransformToLowercase(b.raw);
-              return a > b ? 1 : a < b ? -1 : 0;
-            },
+            sortMethod: textSortMethod,
             filterMethod: (filter, row) => {
               //case category has to be differentiated to the name of the status => space in String (e.g. "ERROR ")
               const cleanFilterValue = filter.value.trim().toLowerCase();
@@ -176,10 +173,7 @@ export default class Table extends React.Component {
             filterMethod: applyFilter,
             Filter: ({ filter, onChange }) => {
               let value;
-              const placeholder =
-                column.type === "count" || column.type === "measure"
-                  ? "Min:Max"
-                  : "text";
+              const placeholder = isNumericColumn(column) ? "Min:Max" : "text";
               return (
                 <input
                   placeholder={placeholder}
@@ -194,7 +188,9 @@ export default class Table extends React.Component {
                 />
               );
             },
-            sortMethod
+            sortMethod: isNumericColumn(column)
+              ? numericSortMethod
+              : textSortMethod
           };
         }
       });

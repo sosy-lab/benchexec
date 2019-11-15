@@ -7,8 +7,8 @@
 import {
   applyFilter,
   isOkStatus,
-  maybeTransformToLowercase,
-  sortMethod
+  numericSortMethod,
+  textSortMethod
 } from "../utils/utils";
 
 //Example data set to test the filtering by regex
@@ -97,52 +97,82 @@ describe("isStatusOk", () => {
   });
 });
 
-describe("maybeTransformToLowercase", () => {
-  test("should transform to lowercase if string is passed", () => {
-    expect(maybeTransformToLowercase("BIG")).toBe("big");
-  });
-
-  test("should not try to transform to lowercase if number is passed", () => {
-    expect(maybeTransformToLowercase(1)).toBe(1);
-  });
-
-  test("should not try to transform to lowercase if object is passed", () => {
-    const obj = { a: "b" };
-    expect(maybeTransformToLowercase(obj)).toBe(obj);
-  });
-
-  test("should not try to transform to lowercase if array is passed", () => {
-    expect(maybeTransformToLowercase([1])).toEqual([1]);
-  });
-
-  test("should not try to transform to lowercase if nil is passed", () => {
-    expect(maybeTransformToLowercase(undefined)).toBe(undefined);
-  });
-});
-
-describe("sortMethod", () => {
+describe("numericSortMethod", () => {
   test("should evaluate order of objects with different values", () => {
     const bigger = { raw: 9001 };
     const smaller = { raw: 1337 };
-    expect(sortMethod(bigger, smaller)).toBeLessThan(0);
-    expect(sortMethod(smaller, bigger)).toBeGreaterThan(0);
+    expect(numericSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(numericSortMethod(smaller, bigger)).toBeLessThan(0);
   });
 
   test("should evaluate order of objects with same values", () => {
     const even1 = { raw: 1 };
     const even2 = { raw: 1 };
-    expect(sortMethod(even1, even2)).toBe(0);
+    expect(numericSortMethod(even1, even2)).toBe(0);
   });
 
   test("should order items without raw prop last", () => {
     const testObject = { raw: 1 };
     const objectWithoutProp = { fake: 1 };
-    expect(sortMethod(testObject, objectWithoutProp)).toBe(-Infinity);
+    expect(numericSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
+    expect(numericSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
   });
 
   test("should be nil safe", () => {
     const testObject = { raw: 1 };
-    expect(sortMethod(testObject, null)).toBe(-Infinity);
-    expect(sortMethod(testObject, undefined)).toBe(-Infinity);
+    expect(numericSortMethod(null, testObject)).toBeGreaterThan(0);
+    expect(numericSortMethod(undefined, testObject)).toBeGreaterThan(0);
+    expect(numericSortMethod(testObject, null)).toBeLessThan(0);
+    expect(numericSortMethod(testObject, undefined)).toBeLessThan(0);
+  });
+});
+
+describe("textSortMethod", () => {
+  test("should evaluate order of objects with different values", () => {
+    const smaller = { raw: "a" };
+    const bigger = { raw: "b" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
+
+  test("should sort strings with different values without case sensitivy", () => {
+    const smaller = { raw: "a" };
+    const bigger = { raw: "B" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
+
+  test("should evaluate order of objects with same values", () => {
+    const even1 = { raw: "a" };
+    const even2 = { raw: "a" };
+    expect(textSortMethod(even1, even2)).toBe(0);
+  });
+
+  test("should sort strings with same values without case sensitivity", () => {
+    const even1 = { raw: "a" };
+    const even2 = { raw: "A" };
+    expect(textSortMethod(even1, even2)).toBe(0);
+  });
+
+  test("should sort empty value last", () => {
+    const bigger = { raw: "" };
+    const smaller = { raw: "a" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
+
+  test("should order items without raw prop last", () => {
+    const testObject = { raw: "a" };
+    const objectWithoutProp = { fake: "a" };
+    expect(textSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
+    expect(textSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
+  });
+
+  test("should be nil safe", () => {
+    const testObject = { raw: "a" };
+    expect(textSortMethod(null, testObject)).toBeGreaterThan(0);
+    expect(textSortMethod(undefined, testObject)).toBeGreaterThan(0);
+    expect(textSortMethod(testObject, null)).toBeLessThan(0);
+    expect(textSortMethod(testObject, undefined)).toBeLessThan(0);
   });
 });

@@ -21,6 +21,9 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
   };
 };
 
+const isNumericColumn = column =>
+  column.type === "count" || column.type === "measure";
+
 const applyFilter = (filter, row, cell) => {
   const { raw } = row[filter.id];
   const filterParams = filter.value.split(":");
@@ -43,17 +46,26 @@ const applyFilter = (filter, row, cell) => {
 
 const isNil = data => data === undefined || data === null;
 
-const getRawOrNegInfinity = value =>
-  isNil(value) || isNil(value.raw) ? -Infinity : value.raw;
+const getRawOrDefault = (value, def) =>
+  isNil(value) || isNil(value.raw) ? def : value.raw;
 
-const sortMethod = (a, b) => {
-  const aValue = getRawOrNegInfinity(a);
-  const bValue = getRawOrNegInfinity(b);
-  return bValue - aValue;
+const numericSortMethod = (a, b) => {
+  const aValue = getRawOrDefault(a, +Infinity);
+  const bValue = getRawOrDefault(b, +Infinity);
+  return aValue - bValue;
 };
 
-const maybeTransformToLowercase = data =>
-  data && typeof data === "string" ? data.toLowerCase() : data;
+const textSortMethod = (a, b) => {
+  const aValue = getRawOrDefault(a, "").toLowerCase();
+  const bValue = getRawOrDefault(b, "").toLowerCase();
+  if (aValue === "") {
+    return 1;
+  }
+  if (bValue === "") {
+    return -1;
+  }
+  return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+};
 
 const isOkStatus = status => {
   return status === 0 || status === 200;
@@ -88,11 +100,12 @@ const formatColumnTitle = column =>
 
 export {
   prepareTableData,
+  isNumericColumn,
   applyFilter,
-  sortMethod,
+  numericSortMethod,
+  textSortMethod,
   determineColumnWidth,
   formatColumnTitle,
   isOkStatus,
-  isNil,
-  maybeTransformToLowercase
+  isNil
 };
