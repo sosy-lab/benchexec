@@ -16,6 +16,7 @@ import {
   DiscreteColorLegend,
   Hint
 } from "react-vis";
+import { EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
 
 export default class Overlay extends React.Component {
   constructor(props) {
@@ -195,6 +196,10 @@ export default class Overlay extends React.Component {
 
   renderLines = () => {
     this.lineCount = 0;
+    const color = () =>
+      EXTENDED_DISCRETE_COLOR_RANGE[
+        (this.lineCount - 1) % EXTENDED_DISCRETE_COLOR_RANGE.length
+      ];
 
     if (this.state.isValue) {
       return this.props.tools
@@ -210,6 +215,7 @@ export default class Overlay extends React.Component {
             <LineMarkSeries
               data={data}
               key={tool.benchmarkname + tool.date}
+              color={color()}
               opacity={this.handleLineState(this.props.getRunSets(tool))}
               onValueMouseOver={(datapoint, event) =>
                 this.setState({ value: datapoint })
@@ -236,6 +242,7 @@ export default class Overlay extends React.Component {
             <LineMarkSeries
               data={data}
               key={column.display_title}
+              color={color()}
               opacity={this.handleLineState(column.display_title)}
               onValueMouseOver={(datapoint, event) =>
                 this.setState({ value: datapoint })
@@ -339,6 +346,7 @@ export default class Overlay extends React.Component {
           <YAxis tickFormat={value => value} />
           {this.state.value ? <Hint value={this.state.value} /> : null}
           <DiscreteColorLegend
+            colors={EXTENDED_DISCRETE_COLOR_RANGE}
             items={this.renderLegend()}
             onItemClick={(Object, item) => {
               let line = "";
