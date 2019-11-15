@@ -288,7 +288,8 @@ $key-color: #71bcff;
   .error {
     color: magenta;
   }
-  .unknown {
+  .unknown,
+  .correct-unconfirmed {
     color: $key-color;
   }
   .wrong {
