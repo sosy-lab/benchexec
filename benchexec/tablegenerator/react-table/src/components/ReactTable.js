@@ -12,12 +12,43 @@ import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
   isNumericColumn,
-  applyFilter,
+  applyNumericFilter,
+  applyTextFilter,
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
   formatColumnTitle
 } from "../utils/utils";
+
+class FilterInputField extends React.Component {
+  constructor(props) {
+    super(props);
+    this.elementId = props.column.id + "_filter";
+    this.filter = props.filter ? props.filter.value : props.filter;
+  }
+
+  numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
+
+  onChange = event => {
+    this.value = event.target.value;
+    clearTimeout(this.typingTimer);
+    this.typingTimer = setTimeout(() => {
+      this.props.onChange(this.value);
+      document.getElementById(this.elementId).focus();
+    }, 500);
+  };
+
+  render = () => (
+    <input
+      id={this.elementId}
+      placeholder={this.props.numeric ? "Min:Max" : "text"}
+      defaultValue={this.value ? this.value : this.filter}
+      onChange={this.onChange}
+      type="search"
+      pattern={this.props.numeric ? this.numericPattern : undefined}
+    />
+  );
+}
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -118,7 +149,7 @@ export default class Table extends React.Component {
                 <select
                   onChange={event => onChange(event.target.value)}
                   style={{ width: "100%" }}
-                  value={filter ? filter.value : "all"}
+                  value={filter ? filter.value : "all "}
                 >
                   <option value="all ">Show all</option>
                   <optgroup label="Category">
@@ -170,24 +201,12 @@ export default class Table extends React.Component {
                 </div>
               );
             },
-            filterMethod: applyFilter,
-            Filter: ({ filter, onChange }) => {
-              let value;
-              const placeholder = isNumericColumn(column) ? "Min:Max" : "text";
-              return (
-                <input
-                  placeholder={placeholder}
-                  defaultValue={value ? value : filter ? filter.value : filter}
-                  onChange={event => {
-                    value = event.target.value;
-                    clearTimeout(this.typingTimer);
-                    this.typingTimer = setTimeout(() => {
-                      onChange(value);
-                    }, 500);
-                  }}
-                />
-              );
-            },
+            filterMethod: isNumericColumn(column)
+              ? applyNumericFilter
+              : applyTextFilter,
+            Filter: filter => (
+              <FilterInputField numeric={isNumericColumn(column)} {...filter} />
+            ),
             sortMethod: isNumericColumn(column)
               ? numericSortMethod
               : textSortMethod
@@ -277,7 +296,8 @@ export default class Table extends React.Component {
             filterMethod: (filter, row, column) => {
               const id = filter.pivotId || filter.id;
               return row[id].some(v => v && v.includes(filter.value));
-            }
+            },
+            Filter: FilterInputField
           }
         ]
       },

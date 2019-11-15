@@ -5,7 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import {
-  applyFilter,
+  applyNumericFilter,
   isOkStatus,
   numericSortMethod,
   textSortMethod
@@ -13,6 +13,10 @@ import {
 
 //Example data set to test the filtering by regex
 const rows = [
+  {},
+  {
+    test: {}
+  },
   {
     test: {
       raw: "10.5"
@@ -44,11 +48,11 @@ const rows = [
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
 const getFilteredData = regex =>
-  rows.filter(row => applyFilter({ id: "test", value: regex }, row));
+  rows.filter(row => applyNumericFilter({ id: "test", value: regex }, row));
 
-test("applyFilter single entry without result", () => {
+test("applyNumericFilter single entry without result", () => {
   expect(
-    applyFilter(
+    applyNumericFilter(
       {
         id: "test",
         value: "10:"
@@ -64,16 +68,20 @@ test("applyFilter single entry without result", () => {
 
 //use function getFilteredData to generate test cases with data set 'rows'
 
-test("applyFilter greater 10", () => {
+test("applyNumericFilter greater 10", () => {
   expect(getFilteredData("10:").length).toBe(4);
 });
 
-test("applyFilter equals 10", () => {
+test("applyNumericFilter equals 10", () => {
   expect(getFilteredData("10").length).toBe(2);
 });
 
-test("applyFilter between 10.3 and 10.7", () => {
+test("applyNumericFilter between 10.3 and 10.7", () => {
   expect(getFilteredData("10.3:10.7").length).toBe(1);
+});
+
+test("applyNumericFilter with string", () => {
+  expect(getFilteredData("a").length).toBe(0);
 });
 
 describe("isStatusOk", () => {

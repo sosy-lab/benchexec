@@ -24,8 +24,12 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
 const isNumericColumn = column =>
   column.type === "count" || column.type === "measure";
 
-const applyFilter = (filter, row, cell) => {
-  const { raw } = row[filter.id];
+const applyNumericFilter = (filter, row, cell) => {
+  const raw = getRawOrDefault(row[filter.id]);
+  if (raw === undefined) {
+    // empty cells never match
+    return;
+  }
   const filterParams = filter.value.split(":");
 
   if (filterParams.length === 2) {
@@ -42,6 +46,15 @@ const applyFilter = (filter, row, cell) => {
     return raw.startsWith(filterParams[0]);
   }
   return false;
+};
+
+const applyTextFilter = (filter, row, cell) => {
+  const raw = getRawOrDefault(row[filter.id]);
+  if (raw === undefined) {
+    // empty cells never match
+    return;
+  }
+  return raw.includes(filter.value);
 };
 
 const isNil = data => data === undefined || data === null;
@@ -101,7 +114,8 @@ const formatColumnTitle = column =>
 export {
   prepareTableData,
   isNumericColumn,
-  applyFilter,
+  applyNumericFilter,
+  applyTextFilter,
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
