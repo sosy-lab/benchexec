@@ -121,7 +121,7 @@ export default props => (
         also be omitted for half-open ranges. For text columns (like the task
         name) any row matches that contains the entered filter value. Several
         filters can be combined and will be applied together. All filters can be
-        deleted at once with the <em>Rest Filters</em> button in the top right
+        deleted at once with the <em>Reset Filters</em> button in the top right
         corner.
       </li>
       <li>

@@ -6,11 +6,20 @@
  */
 import React from "react";
 export default class Reset extends React.Component {
-  render() {
-    return this.props.isFiltered ? (
-      <button className="reset" onClick={this.props.resetFilters}>
-        Reset Filters
-      </button>
-    ) : null;
-  }
+  render = () => (
+    <button
+      className="reset"
+      onClick={this.props.resetFilters}
+      disabled={!this.props.isFiltered}
+    >
+      <span className="hide">
+        Showing <span className="highlight">{this.props.filteredCount}</span> of{" "}
+      </span>
+      {this.props.totalCount} tasks
+      <span className="hide">
+        {" "}
+        (<span className="highlight">Reset Filters</span>)
+      </span>
+    </button>
+  );
 }

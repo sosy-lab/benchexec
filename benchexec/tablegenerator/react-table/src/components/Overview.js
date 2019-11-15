@@ -123,7 +123,7 @@ export default class Overview extends React.Component {
             >
               <TabList>
                 <Tab>Summary</Tab>
-                <Tab>Table ({this.state.table.length})</Tab>
+                <Tab>Table</Tab>
                 <Tab>Quantile Plot</Tab>
                 <Tab>Scatter Plot</Tab>
                 <Tab>
@@ -132,6 +132,8 @@ export default class Overview extends React.Component {
                 <Reset
                   isFiltered={!!this.state.filtered.length}
                   resetFilters={this.resetFilters}
+                  filteredCount={this.state.table.length}
+                  totalCount={this.originalTable.length}
                 />
               </TabList>
               <TabPanel>

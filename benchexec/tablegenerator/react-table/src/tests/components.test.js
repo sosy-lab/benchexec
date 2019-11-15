@@ -21,10 +21,15 @@ test("Click on reset button stops button from rendering", () => {
   let isFiltered = true;
 
   const resetBtn = shallow(
-    <Reset isFiltered={isFiltered} resetFilters={() => (isFiltered = false)} />
+    <Reset
+      isFiltered={isFiltered}
+      filteredCount="23"
+      totalCount="42"
+      resetFilters={() => (isFiltered = false)}
+    />
   );
 
-  expect(resetBtn.text()).toEqual("Reset Filters");
+  expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks (Reset Filters)");
 
   resetBtn.simulate("click");
 
@@ -32,13 +37,41 @@ test("Click on reset button stops button from rendering", () => {
 });
 
 it("Render reset button", () => {
-  const component = renderer.create(<Reset isFiltered={true} />).toJSON();
+  const component = renderer
+    .create(<Reset filteredCount="23" totalCount="42" isFiltered={true} />)
+    .toJSON();
 
   expect(component).toMatchInlineSnapshot(`
     <button
       className="reset"
+      disabled={false}
     >
-      Reset Filters
+      <span
+        className="hide"
+      >
+        Showing 
+        <span
+          className="highlight"
+        >
+          23
+        </span>
+         of
+         
+      </span>
+      42
+       tasks
+      <span
+        className="hide"
+      >
+         
+        (
+        <span
+          className="highlight"
+        >
+          Reset Filters
+        </span>
+        )
+      </span>
     </button>
   `);
 });
@@ -46,5 +79,34 @@ it("Render reset button", () => {
 it("Hide reset button", () => {
   const component = renderer.create(<Reset isFiltered={false} />).toJSON();
 
-  expect(component).toMatchInlineSnapshot(`null`);
+  expect(component).toMatchInlineSnapshot(`
+    <button
+      className="reset"
+      disabled={true}
+    >
+      <span
+        className="hide"
+      >
+        Showing 
+        <span
+          className="highlight"
+        />
+         of
+         
+      </span>
+       tasks
+      <span
+        className="hide"
+      >
+         
+        (
+        <span
+          className="highlight"
+        >
+          Reset Filters
+        </span>
+        )
+      </span>
+    </button>
+  `);
 });
