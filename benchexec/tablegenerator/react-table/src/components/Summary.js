@@ -9,7 +9,7 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
-import { determineColumnWidth } from "../utils/utils";
+import { determineColumnWidth, formatColumnTitle } from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
@@ -48,8 +48,7 @@ export default class Summary extends React.Component {
               title="Show Quantile Plot of this column"
               onClick={e => this.props.changeTab(e, column, 2)}
             >
-              {column.display_title}
-              {column.unit ? ` (${column.unit})` : ""}
+              {formatColumnTitle(column)}
             </div>
           ),
           show: column.isVisible,

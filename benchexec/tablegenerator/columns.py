@@ -289,7 +289,7 @@ class Column(object):
                     for value in column_values
                 )
 
-        title_width = len(self.format_title())
+        title_width = len(self.display_title or self.title)
         self.max_width = max(title_width, values_width)
 
     def __str__(self):

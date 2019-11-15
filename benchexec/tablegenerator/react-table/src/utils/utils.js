@@ -4,6 +4,8 @@
  * This file is part of BenchExec.
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
+import React from "react";
+
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
@@ -91,14 +93,26 @@ const determineColumnWidth = (column, min_width, max_width) => {
     width = 10;
   }
 
-  return width * 9 + 10;
+  return width * 8 + 20;
 };
+
+const formatColumnTitle = column =>
+  column.unit ? (
+    <>
+      {column.display_title}
+      <br />
+      {`(${column.unit})`}
+    </>
+  ) : (
+    column.display_title
+  );
 
 export {
   prepareTableData,
   applyFilter,
   sortMethod,
   determineColumnWidth,
+  formatColumnTitle,
   isOkStatus,
   pathOr,
   isNil,

@@ -14,6 +14,7 @@ import {
   applyFilter,
   sortMethod,
   determineColumnWidth,
+  formatColumnTitle,
   pathOr,
   pipe,
   maybeTransformToLowercase
@@ -74,8 +75,7 @@ export default class Table extends React.Component {
                 title="Click here to sort. Hold shift to multi-sort"
                 className="btn"
               >
-                {column.display_title}
-                {column.unit ? ` (${column.unit})` : ""}
+                {formatColumnTitle(column)}
               </span>
             ),
             show: column.isVisible,
@@ -146,9 +146,7 @@ export default class Table extends React.Component {
             id: `${j}_${column.display_title}_${i}`,
             Header: () => (
               <div title="Click here to sort. Hold shift to multi-sort">
-                {" "}
-                {column.display_title}
-                {column.unit ? ` (${column.unit})` : ""}{" "}
+                {formatColumnTitle(column)}
               </div>
             ),
             show: column.isVisible,
