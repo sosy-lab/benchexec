@@ -174,6 +174,9 @@ module.exports = function(webpackEnv) {
           (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"))
     },
     optimization: {
+      // occurrenceOrder sorts vendor.min.js according to how often its components are used.
+      // We disable it to reduce how often vendor.min.js changes.
+      occurrenceOrder: false,
       minimize: isEnvProduction,
       minimizer: [
         // This is only used in production mode
