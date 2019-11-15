@@ -112,6 +112,10 @@ javascript-build:
   script:
     - npm run build
     - git diff --stat --exit-code
+  artifacts:
+    paths:
+      - benchexec/tablegenerator/react-table/build
+    when: on_failure
   cache:
     key: "$CI_JOB_NAME"
     paths:
