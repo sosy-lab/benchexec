@@ -263,7 +263,7 @@ $key-color: #71bcff;
       padding: 2px;
       border-right: 2px solid rgba(142, 142, 142, 0.3) !important;
       text-align: right;
-      * {
+      > * {
         padding: 6px 2px;
       }
     }
