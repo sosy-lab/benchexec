@@ -80,13 +80,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         if SOFTTIMELIMIT in rlimits:
-            if "--timelimit" in options:
-                logging.warning(
-                    "Time limit already specified in command-line options,"
-                    " not adding time limit from benchmark definition"
-                    " to the command line."
-                )
-            else:
+            if not "--timelimit" in options:
                 options = options + ["--timelimit", str(rlimits[SOFTTIMELIMIT])]
         if propertyfile:
             if "testcomp" in self.version(executable):

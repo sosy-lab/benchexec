@@ -1054,7 +1054,7 @@
     <column title="Boolean" value="0"/>
     <column title="Composite types" value="1"/>
     <column title="Config" value="configselection-restart-valueAnalysis-fallbacks.properties"/>
-    <column title="Floats" value="0"/>
+    <column title="Floats" value="0.00000001"/>
     <column title="Loops" value="Inf"/>
     <column title="cputime" value="16.07363273s"/>
     <column title="host" value="apollon104"/>
@@ -1085,7 +1085,7 @@
     <column title="Boolean" value="-inf"/>
     <column title="Composite types" value="1"/>
     <column title="Config" value="configselection-restart-valueAnalysis-fallbacks.properties"/>
-    <column title="Floats" value="2"/>
+    <column title="Floats" value="2000"/>
     <column title="Loops" value="1"/>
     <column title="cputime" value="16.07363273s"/>
     <column title="host" value="apollon104"/>

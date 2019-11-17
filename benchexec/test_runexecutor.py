@@ -781,6 +781,38 @@ class TestRunExecutor(unittest.TestCase):
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
+    def test_nested_runexec(self):
+        if not os.path.exists("/bin/echo"):
+            self.skipTest("missing /bin/echo")
+        self.setUp(
+            dir_modes={
+                # Do not mark /home hidden, would fail with python from virtualenv
+                "/": containerexecutor.DIR_READ_ONLY,
+                "/tmp": containerexecutor.DIR_FULL_ACCESS,  # for inner_output_file
+                "/sys": containerexecutor.DIR_HIDDEN,
+                "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
+            }
+        )
+        inner_args = ["--hidden-dir", "/sys", "--", "/bin/echo", "TEST_TOKEN"]
+
+        with tempfile.NamedTemporaryFile(
+            mode="r", prefix="inner_output_", suffix=".log"
+        ) as inner_output_file:
+            inner_cmdline = self.get_runexec_cmdline(
+                *inner_args, output_filename=inner_output_file.name
+            )
+            outer_result, outer_output = self.execute_run(*inner_cmdline)
+            inner_output = inner_output_file.read().strip().splitlines()
+
+        logging.info("Outer output:\n" + "\n".join(outer_output))
+        logging.info("Inner output:\n" + "\n".join(inner_output))
+        self.check_result_keys(outer_result, "returnvalue")
+        self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
+        self.check_command_in_output(inner_output, "/bin/echo TEST_TOKEN")
+        self.assertEqual(
+            inner_output[-1], "TEST_TOKEN", "run output misses command output"
+        )
+
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
@@ -1073,3 +1105,32 @@ class _StopRunThread(threading.Thread):
     def run(self):
         time.sleep(self.delay)
         self.runexecutor.stop()
+
+
+class TestRunExecutorUnits(unittest.TestCase):
+    """unit tests for parts of RunExecutor"""
+
+    def test_get_debug_output_with_error_report_and_invalid_utf8(self):
+        invalid_utf8 = b"\xFF"
+        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
+            with tempfile.NamedTemporaryFile(mode="w+b") as output:
+                output_content = """Dummy output
+# An error report file with more information is saved as:
+# {}
+More output
+"""
+                output_content = output_content.format(report_file.name).encode()
+                report_content = b"Report output\nMore lines"
+                output_content += invalid_utf8
+                report_content += invalid_utf8
+
+                output.write(output_content)
+                output.flush()
+                output.seek(0)
+                report_file.write(report_content)
+                report_file.flush()
+
+                runexecutor._get_debug_output_after_crash(output.name, "")
+
+                self.assertFalse(os.path.exists(report_file.name))
+                self.assertEqual(output.read(), output_content + report_content)

@@ -161,15 +161,8 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup):
+def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
     tasksFile = os.path.join(cgroup, "tasks")
-    freezer_file = os.path.join(cgroup, "freezer.state")
-
-    def try_write_to_freezer(content):
-        try:
-            util.write_file(content, freezer_file)
-        except IOError:
-            pass  # expected if freezer not enabled, we try killing without it
 
     i = 0
     while True:
@@ -178,7 +171,6 @@ def kill_all_tasks_in_cgroup(cgroup):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            try_write_to_freezer("FROZEN")
             with open(tasksFile, "rt") as tasks:
                 task = None
                 for task in tasks:
@@ -194,9 +186,8 @@ def kill_all_tasks_in_cgroup(cgroup):
                         )
                     util.kill_process(int(task), sig)
 
-                if task is None:
+                if task is None or not ensure_empty:
                     return  # No process was hanging, exit
-            try_write_to_freezer("THAWED")
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
 
@@ -354,35 +345,40 @@ class Cgroup(object):
 
     def kill_all_tasks(self):
         """
-        Kill all tasks in this cgroup forcefully.
-        """
-        # Use freezer cgroup first if available because it helps against fork bombs
-        if FREEZER in self.per_subsystem:
-            kill_all_tasks_in_cgroup(self.per_subsystem[FREEZER])
-
-        # Make sure cgroups for all subsystems are empty,
-        # even if mounted in separate hierarchies (checking freezer again does not hurt)
-        for cgroup in self.paths:
-            kill_all_tasks_in_cgroup(cgroup)
-
-    def kill_all_tasks_recursively(self):
-        """
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
         """
 
-        def kill_all_tasks_in_cgroup_recursively(cgroup):
-            files = [os.path.join(cgroup, f) for f in os.listdir(cgroup)]
-            subdirs = filter(os.path.isdir, files)
+        def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
+            for dirpath, dirs, files in os.walk(cgroup, topdown=False):
+                for subCgroup in dirs:
+                    subCgroup = os.path.join(dirpath, subCgroup)
+                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
 
-            for subCgroup in subdirs:
-                kill_all_tasks_in_cgroup_recursively(subCgroup)
-                remove_cgroup(subCgroup)
+                    if delete:
+                        remove_cgroup(subCgroup)
 
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
 
+        # First, we go through all cgroups recursively while they are frozen and kill
+        # all processes. This helps against fork bombs and prevents processes from
+        # creating new subgroups while we are trying to kill everything.
+        # But this is only possible if we have freezer, and all processes will stay
+        # until they are thawed (so we cannot check for cgroup emptiness and we cannot
+        # delete subgroups).
+        if FREEZER in self.per_subsystem:
+            cgroup = self.per_subsystem[FREEZER]
+            freezer_file = os.path.join(cgroup, "freezer.state")
+
+            util.write_file("FROZEN", freezer_file)
+            kill_all_tasks_in_cgroup_recursively(cgroup, delete=False)
+            util.write_file("THAWED", freezer_file)
+
+        # Second, we go through all cgroups again, kill what is left,
+        # check for emptiness, and remove subgroups.
+        # Furthermore, we do this for all hierarchies, not only the one with freezer.
         for cgroup in self.paths:
-            kill_all_tasks_in_cgroup_recursively(cgroup)
+            kill_all_tasks_in_cgroup_recursively(cgroup, delete=True)
 
     def has_value(self, subsystem, option):
         """

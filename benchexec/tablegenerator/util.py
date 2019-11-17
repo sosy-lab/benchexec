@@ -33,6 +33,8 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
+import copy
+from functools import reduce
 
 import benchexec.util
 
@@ -244,6 +246,129 @@ def to_json(obj):
     return tempita.html(json.dumps(obj, sort_keys=True))
 
 
+def prepare_run_sets_for_js(run_sets):
+    # Almost all run_set attributes are relevant, use blacklist here
+    run_set_exclude_keys = {"filename"}
+
+    def prepare_column(column):
+        result = {k: v for k, v in column.__dict__.items() if v is not None}
+        result["display_title"] = column.display_title or column.title
+        result["type"] = column.type.type.name
+        return result
+
+    def prepare_run_set(attributes, columns):
+        result = {
+            k: v for k, v in attributes.items() if k not in run_set_exclude_keys and v
+        }
+        result["columns"] = [prepare_column(col) for col in columns]
+        return result
+
+    return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
+
+
+def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
+    results_include_keys = ["category"]
+
+    def prepare_value(column, value, run_result):
+        """
+        Return a dict that represents one value (table cell).
+        We always add the raw value (as in CSV), and sometimes a version that is
+        formatted for HTML (e.g., with spaces for alignment).
+        """
+        raw_value = column.format_value(value, False, "csv")
+        # We need to make sure that formatted_value is safe (no unescaped tool output),
+        # but for text columns format_value returns the same for csv and html_cell,
+        # and for number columns the HTML result is safe.
+        formatted_value = column.format_value(value, True, "html_cell")
+        result = {}
+        if column.href:
+            result["href"] = create_link(column.href, base_dir, run_result, href_base)
+            if not raw_value and not formatted_value:
+                raw_value = column.pattern
+        if raw_value is not None and not raw_value == "":
+            result["raw"] = raw_value
+        if formatted_value and formatted_value != raw_value:
+            result["html"] = formatted_value
+        return result
+
+    def clean_up_results(res):
+        values = [
+            prepare_value(column, value, res)
+            for column, value in zip(res.columns, res.values)
+        ]
+        toolHref = [
+            column.href for column in res.columns if column.title.endswith("status")
+        ][0] or res.log_file
+        result = {k: getattr(res, k) for k in results_include_keys}
+        if toolHref:
+            result["href"] = create_link(toolHref, base_dir, res, href_base)
+        result["values"] = values
+        return result
+
+    def clean_up_row(row):
+        result = {}
+        result["id"] = list(
+            id_part
+            for id_part, relevant in zip(row.id, relevant_id_columns)
+            if id_part and relevant
+        )
+        # Replace first part of id (task name, which is always shown) with short name
+        assert relevant_id_columns[0]
+        result["id"][0] = row.short_filename
+
+        result["results"] = [clean_up_results(res) for res in row.results]
+        if row.has_sourcefile:
+            result["href"] = create_link(row.filename, base_dir)
+        return result
+
+    return [clean_up_row(row) for row in rows]
+
+
+def partition_list_according_to_other(l, template):
+    """
+    Partition a list "l" into the same shape as a given list of lists "template".
+    """
+    lengths = [len(sublist) for sublist in template]
+    assert len(l) == sum(lengths)
+
+    def get_sublist(i):
+        start = sum(lengths[0:i])
+        return l[start : start + lengths[i]]
+
+    return [get_sublist(i) for i in range(len(template))]
+
+
+def prepare_stats_for_js(stats, all_columns):
+    def prepare_values(column, value, key):
+        return (
+            column.format_value(value, True, "html_cell")
+            if key is "sum"
+            else column.format_value(value, False, "tooltip")
+        )
+
+    flattened_columns = flatten(all_columns)
+
+    def clean_up_stat(stat):
+        prepared_content = [
+            {
+                k: prepare_values(column, v, k)
+                for k, v in col_content.__dict__.items()
+                if v is not None
+            }
+            if col_content
+            else None
+            for column, col_content in zip(flattened_columns, stat.content)
+        ]
+
+        result = dict(stat)
+        result["content"] = partition_list_according_to_other(
+            prepared_content, all_columns
+        )
+        return result
+
+    return [clean_up_stat(stat_row) for stat_row in stats]
+
+
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     """
     Returns a list where sequences of post-fixed entries are shortened to their common prefix.
@@ -293,6 +418,15 @@ def prettylist(list_):
             uniqueList.append(entry)
 
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
+
+
+def read_bundled_file(name):
+    """Read a file that is packaged together with this application."""
+    try:
+        return __loader__.get_data(name).decode("UTF-8")
+    except NameError:
+        with open(name, mode="r") as f:
+            return f.read()
 
 
 class _DummyFuture(object):

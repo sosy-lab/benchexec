@@ -25,12 +25,12 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = [
-	"svcomp/target", 
-	"dartagnan/target",
-	"cat",
-	"lib",
-	"smack",
-	"output"
+        "svcomp/target",
+        "dartagnan/target",
+        "cat",
+        "lib",
+        "smack",
+        "output",
     ]
 
     def executable(self):

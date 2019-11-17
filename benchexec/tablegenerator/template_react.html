@@ -1,0 +1,45 @@
+{{# SPDX-License-Identifier: Apache-2.0
+
+  BenchExec is a framework for reliable benchmarking.
+  This file is part of BenchExec.
+  Copyright (C) Dirk Beyer. All rights reserved.
+}}<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="generator" content="BenchExec table-generator {{version}}">
+<title>{{title}} &ndash; BenchExec results</title>
+
+{{for file_content in app_css}}
+<style>
+{{file_content|html}}
+</style>
+{{endfor}}
+</head>
+<body>
+
+<div id="root"></div>
+<noscript>
+  This is an interactive table for viewing results produced by
+  <a href="https://github.com/sosy-lab/benchexec" target="_blank" rel="noopener noreferrer">BenchExec</a>.
+  Please enable JavaScript to use it.
+</noscript>
+
+<script>
+const data = {
+  "version": {{version|json}},
+  "head": {{head|json}},
+  "tools": {{tools|json}},
+  "rows": {{rows|json}},
+  "stats": {{stats|json}}
+};
+window.data = data;
+</script>
+
+{{for file_content in app_js}}
+<script>
+{{file_content|html}}
+</script>
+{{endfor}}
+</body>
+</html>

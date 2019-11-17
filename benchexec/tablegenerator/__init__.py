@@ -46,7 +46,7 @@ import benchexec.model as model
 import benchexec.result as result
 import benchexec.util
 from benchexec.tablegenerator import util as Util
-from benchexec.tablegenerator.columns import Column, ColumnType, get_column_type
+from benchexec.tablegenerator.columns import Column, ColumnType
 import zipfile
 
 # Process pool for parallel work.
@@ -75,9 +75,17 @@ DEFAULT_OUTPUT_PATH = "results/"
 LIB_URL = "https://cdn.jsdelivr.net"
 LIB_URL_OFFLINE = "lib/javascript"
 
-TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "template.{format}")
+
+REACT_FILES = [
+    os.path.join(os.path.dirname(__file__), "react-table", "build", path)
+    for path in ["vendors.min.", "bundle.min."]
+]
+
+TEMPLATE_NAME = "template"
+TEMPLATE_NAME_REACT = "template_react"
+TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format}")
+
 TEMPLATE_FORMATS = ["html", "csv"]
-TEMPLATE_ENCODING = "UTF-8"
 TEMPLATE_NAMESPACE = {
     "flatten": Util.flatten,
     "json": Util.to_json,
@@ -446,12 +454,7 @@ class RunSetResult(object):
                 run_result.values[run_result.columns.index(column)]
                 for run_result in self.results
             )
-            (
-                column.type,
-                column.unit,
-                column.source_unit,
-                column.scale_factor,
-            ) = get_column_type(column, column_values)
+            column.set_column_type_from(column_values)
 
         del self._xml_results
 
@@ -1266,23 +1269,8 @@ def get_stats(rows, local_summary, correct_only):
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
-        (
-            column_type,
-            column_unit,
-            column_source_unit,
-            column_scale_factor,
-        ) = get_column_type(column, column_values)
-        new_column = Column(
-            column.title,
-            column.pattern,
-            column.number_of_significant_digits,
-            column.href,
-            column_type,
-            column_unit,
-            column_source_unit,
-            column_scale_factor,
-            column.display_title,
-        )
+        new_column = copy.copy(column)
+        new_column.set_column_type_from(column_values)
         stats_columns.append(new_column)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)
@@ -1862,13 +1850,41 @@ def create_tables(
     )
     template_values.version = __version__
 
+    # prepare data for js react application
+    if options.template_name == TEMPLATE_NAME_REACT:
+        template_values.tools = Util.prepare_run_sets_for_js(runSetResults)
+
+        template_values.app_css = [
+            Util.read_bundled_file(path + "css") for path in REACT_FILES
+        ]
+        template_values.app_js = [
+            Util.read_bundled_file(path + "js") for path in REACT_FILES
+        ]
+        # template_values.stats = <see below>
+    else:
+        logging.warning("Option --static-table will be removed in BenchExec 3.0.")
+
     futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
+        if options.template_name == TEMPLATE_NAME_REACT:
+            template_values.rows = Util.prepare_rows_for_js(
+                rows,
+                outputPath,
+                template_values.href_base,
+                template_values.relevant_id_columns,
+            )
+
         # calculate statistics if necessary
         if not options.format == ["csv"]:
             local_summary = get_summary(runSetResults) if use_local_summary else None
             stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
+
+            # prepare data for js react application (stats)
+            if options.template_name == TEMPLATE_NAME_REACT:
+                template_values.stats = Util.prepare_stats_for_js(
+                    stats, template_values.columns
+                )
         else:
             stats = stats_columns = None
 
@@ -1901,6 +1917,9 @@ def create_tables(
                     outfile,
                     this_template_values,
                     options.show_table and template_format == "html",
+                    options.template_name
+                    if template_format == "html"
+                    else TEMPLATE_NAME,
                 )
             )
 
@@ -1919,15 +1938,15 @@ def create_tables(
     return futures
 
 
-def write_table_in_format(template_format, outfile, template_values, show_table):
+def write_table_in_format(
+    template_format, outfile, template_values, show_table, template_name
+):
     # read template
     Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
-    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
-    try:
-        template_content = __loader__.get_data(template_file).decode(TEMPLATE_ENCODING)
-    except NameError:
-        with open(template_file, mode="r") as f:
-            template_content = f.read()
+    template_file = TEMPLATE_FILE_NAME.format(
+        template=template_name, format=template_format
+    )
+    template_content = Util.read_bundled_file(template_file)
     template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
 
     result = template.substitute(**template_values)
@@ -2026,6 +2045,16 @@ def create_argument_parser():
         help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated.",
     )
     parser.add_argument(
+        "--static-table",
+        action="store_const",
+        dest="template_name",
+        const=TEMPLATE_NAME,
+        default=TEMPLATE_NAME_REACT,
+        help="Generate HTML table with static HTML code as known until BenchExec 2.2 "
+        "instead of the new React-based table. "
+        "This option will be removed in BenchExec 3.0.",
+    )
+    parser.add_argument(
         "-c",
         "--common",
         action="store_true",
@@ -2057,7 +2086,7 @@ def create_argument_parser():
         const=LIB_URL_OFFLINE,
         default=LIB_URL,
         help="Expect JS libs in libs/javascript/ instead of retrieving them from a CDN. "
-        "Currently does not work for all libs.",
+        "Currently does not work for all libs, and only relevant for --static-table.",
     )
     parser.add_argument(
         "--show",

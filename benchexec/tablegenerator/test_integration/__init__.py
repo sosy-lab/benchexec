@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import os
 import shutil
 import subprocess
@@ -186,8 +187,10 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         content = util.read_file(file)
         # only keep table
         content = content[
-            content.index('<table id="dataTable">') : content.index("</table>") + 8
+            content.index("const data = {") + 13 : content.index("\n};") + 2
         ]
+        # Pretty-print JSON for better diffs
+        content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
         return content
 
     def test_no_files_given(self):
@@ -391,19 +394,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_all_columns(self):
-        self.generate_tables_and_check_produced_files(
+        self.generate_tables_and_compare_content(
             [
                 result_file(
                     "integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2"
                 ),
-                "-f",
-                "html",
                 "--all-columns",
                 "-n",
                 "integration-predicateAnalysis.2015-10-20_1355.all-columns",
             ],
             table_prefix="integration-predicateAnalysis.2015-10-20_1355.all-columns",
-            formats=["html"],
         )
 
     def test_dump_count_single_table(self):
@@ -682,10 +682,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_with_nan_and_infinity(self):
-        self.generate_tables_and_check_produced_files(
-            [result_file("nan_and_inf.xml"), "-f", "csv", "-f", "html"],
-            table_prefix="nan_and_inf",
-            formats=["csv", "html"],
+        self.generate_tables_and_compare_content(
+            [result_file("nan_and_inf.xml")], table_prefix="nan_and_inf"
         )
 
     def test_smt_results(self):
@@ -693,6 +691,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ["-x", os.path.join(here, "smt.xml")],
             table_prefix="smt.table",
             diff_prefix="smt.diff",
+        )
+
+    def test_tasks_without_file(self):
+        benchmark_name = "benchmark-example-true.2019-11-06_0932.results.no options"
+        self.generate_tables_and_compare_content(
+            [result_file(benchmark_name + ".xml.bz2")], table_prefix=benchmark_name
         )
 
     def test_results_via_url(self):
