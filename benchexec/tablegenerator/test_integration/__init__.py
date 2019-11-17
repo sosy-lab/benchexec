@@ -141,7 +141,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 (result_diff_prefix or diff_prefix) + "." + ending,
             ]
 
-        output, html_file, html_diff_file, csv_file, csv_diff_file = self.generate_tables_and_check_produced_files(
+        (
+            output,
+            html_file,
+            html_diff_file,
+            csv_file,
+            csv_diff_file,
+        ) = self.generate_tables_and_check_produced_files(
             args, table_prefix, diff_prefix
         )
 

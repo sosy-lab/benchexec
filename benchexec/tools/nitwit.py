@@ -31,9 +31,9 @@ import benchexec.util as util
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-	Tool info for the NITWIT Validator, an interpreter-based violation witness validator.
-	URL: https://github.com/moves-rwth/nitwit-validator
-	"""
+    Tool info for the NITWIT Validator, an interpreter-based violation witness validator.
+    URL: https://github.com/moves-rwth/nitwit-validator
+    """
 
     REQUIRED_PATHS = []
     BIN_DIR = "bin"
@@ -71,13 +71,13 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
-		See README.md at https://github.com/moves-rwth/nitwit-validator for information
-		about result codes.
-		@param returncode: code returned
-		@param returnsignal: signal, which terminated validator
-		@param output: the std output
-		@return: status of validator after executing a run
-		"""
+        See README.md at https://github.com/moves-rwth/nitwit-validator for information
+        about result codes.
+        @param returncode: code returned
+        @param returnsignal: signal, which terminated validator
+        @param output: the std output
+        @return: status of validator after executing a run
+        """
         if returnsignal == 0 and (returncode == 0 or returncode == 245):
             status = result.RESULT_FALSE_REACH
         elif returncode is None or returncode in [-9, 9]:
