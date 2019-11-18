@@ -58,8 +58,7 @@ export default class Table extends React.Component {
 
     this.data = this.props.data;
     this.state = {
-      fixed: true,
-      height: window.innerHeight - 50
+      fixed: true
     };
 
     // Collect all status and category values for filter drop-down
