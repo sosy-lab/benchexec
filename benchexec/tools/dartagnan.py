@@ -50,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool):
         if output:
             result_str = output[-1].strip()
             if "FAIL" in result_str:
-                status = result.RESULT_FALSE_PROP
+                status = result.RESULT_FALSE_REACH
             elif "PASS" in result_str:
                 status = result.RESULT_TRUE_PROP
             elif "UNKNOWN" in result_str:
