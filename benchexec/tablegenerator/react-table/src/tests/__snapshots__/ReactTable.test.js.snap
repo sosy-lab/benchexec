@@ -320,24 +320,9 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
         label="Category"
        >
         <option
-         value="correct "
+         value="missing "
         >
-         correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
+         missing
         </option>
        </optgroup>
        <optgroup
@@ -4418,28 +4403,18 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
+         value="TIMEOUT"
         >
-         true
+         TIMEOUT
         </option>
         <option
          value="false(reach)"
@@ -4447,9 +4422,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          false(reach)
         </option>
         <option
-         value="TIMEOUT"
+         value="true"
         >
-         TIMEOUT
+         true
         </option>
        </optgroup>
       </select>
@@ -4657,19 +4632,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
@@ -4681,14 +4646,14 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          TIMEOUT
         </option>
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -4792,19 +4757,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
@@ -16723,19 +16678,9 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
@@ -22451,16 +22396,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -22570,16 +22505,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -22706,16 +22631,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -22825,16 +22740,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -24664,33 +24569,28 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -24794,14 +24694,9 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -24818,14 +24713,14 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -24929,33 +24824,28 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -25059,14 +24949,9 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -25083,14 +24968,14 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -27942,16 +27827,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -28142,16 +28017,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -28359,16 +28224,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -28559,16 +28414,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -31635,33 +31480,28 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -31846,14 +31686,9 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -31870,14 +31705,14 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -32062,33 +31897,28 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -32273,14 +32103,9 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -32297,14 +32122,14 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -36497,33 +36322,28 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -36708,14 +36528,9 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -36732,14 +36547,14 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -36924,33 +36739,28 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -37135,14 +36945,9 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -37159,14 +36964,14 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -40814,33 +40619,28 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -41025,14 +40825,9 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -41049,14 +40844,14 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -41241,33 +41036,28 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -41452,14 +41242,9 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -41476,14 +41261,14 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -45284,16 +45069,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -45409,16 +45184,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -45528,16 +45293,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -45658,16 +45413,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -47497,33 +47242,28 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -47627,33 +47367,28 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -47757,14 +47492,9 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -47781,14 +47511,14 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -47892,14 +47622,9 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -47916,14 +47641,14 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -50190,21 +49915,6 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         >
          correct
         </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -51713,33 +51423,28 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -51843,33 +51548,28 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -53381,33 +53081,28 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -53511,33 +53206,28 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -54969,33 +54659,28 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -56218,33 +55903,28 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -57289,33 +56969,28 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -58398,33 +58073,28 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -59884,19 +59554,14 @@ exports[`Render Summary for smt.diff.html 1`] = `
         label="Category"
        >
         <option
-         value="correct "
-        >
-         correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
+        </option>
+        <option
+         value="missing "
+        >
+         missing
         </option>
         <option
          value="unknown "
@@ -59908,9 +59573,9 @@ exports[`Render Summary for smt.diff.html 1`] = `
         label="Status"
        >
         <option
-         value="unsat"
+         value="ERROR"
         >
-         unsat
+         ERROR
         </option>
         <option
          value="unknown"
@@ -59918,9 +59583,9 @@ exports[`Render Summary for smt.diff.html 1`] = `
          unknown
         </option>
         <option
-         value="ERROR"
+         value="unsat"
         >
-         ERROR
+         unsat
         </option>
        </optgroup>
       </select>
@@ -60064,33 +59729,28 @@ exports[`Render Summary for smt.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
         </option>
         <option
-         value="unknown "
+         value="missing "
         >
-         unknown
+         missing
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="sat"
-        >
-         sat
-        </option>
-        <option
          value="ERROR"
         >
          ERROR
+        </option>
+        <option
+         value="sat"
+        >
+         sat
         </option>
         <option
          value="unsat"
@@ -61563,14 +61223,14 @@ exports[`Render Summary for smt.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
+        </option>
+        <option
+         value="missing "
+        >
+         missing
         </option>
         <option
          value="unknown "
@@ -61582,9 +61242,9 @@ exports[`Render Summary for smt.table.html 1`] = `
         label="Status"
        >
         <option
-         value="unsat"
+         value="ERROR"
         >
-         unsat
+         ERROR
         </option>
         <option
          value="sat"
@@ -61597,9 +61257,9 @@ exports[`Render Summary for smt.table.html 1`] = `
          unknown
         </option>
         <option
-         value="ERROR"
+         value="unsat"
         >
-         ERROR
+         unsat
         </option>
        </optgroup>
       </select>
@@ -61743,33 +61403,28 @@ exports[`Render Summary for smt.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
          value="error "
         >
          error
         </option>
         <option
-         value="unknown "
+         value="missing "
         >
-         unknown
+         missing
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="sat"
-        >
-         sat
-        </option>
-        <option
          value="ERROR"
         >
          ERROR
+        </option>
+        <option
+         value="sat"
+        >
+         sat
         </option>
         <option
          value="unsat"
@@ -63390,16 +63045,6 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -63509,16 +63154,6 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -64601,33 +64236,28 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -65867,33 +65497,28 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -66939,29 +66564,19 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -67832,33 +67447,28 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -68887,14 +68497,9 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -68911,14 +68516,14 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -69837,14 +69442,9 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -69861,14 +69461,14 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -70915,33 +70515,28 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -71045,14 +70640,9 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -71069,14 +70659,14 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -72579,16 +72169,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -72698,16 +72278,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -73700,33 +73270,28 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -73830,14 +73395,9 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -73854,14 +73414,14 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -75196,16 +74756,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -75315,16 +74865,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -76473,33 +76013,28 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -76603,14 +76138,9 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -76627,14 +76157,14 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -78109,16 +77639,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
          value="unknown "
         >
          unknown
@@ -78242,16 +77762,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
@@ -79402,14 +78912,9 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -79426,14 +78931,14 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -79537,33 +79042,28 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -81066,16 +80566,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -81185,16 +80675,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -82355,33 +81835,28 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -82485,14 +81960,9 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -82509,14 +81979,14 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -84019,16 +83489,6 @@ exports[`Render Summary for union-table.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -84138,16 +83598,6 @@ exports[`Render Summary for union-table.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -85308,33 +84758,28 @@ exports[`Render Summary for union-table.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -85438,14 +84883,9 @@ exports[`Render Summary for union-table.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -85462,14 +84902,14 @@ exports[`Render Summary for union-table.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -86972,16 +86412,6 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -87091,16 +86521,6 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -88261,33 +87681,28 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -88391,14 +87806,9 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -88415,14 +87825,14 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -90053,16 +89463,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -90172,16 +89572,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -90307,16 +89697,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
@@ -91808,33 +91188,28 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -91938,14 +91313,9 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -91962,14 +91332,14 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -92073,33 +91443,28 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -93957,16 +93322,6 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
         >
          wrong
         </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
-        </option>
        </optgroup>
        <optgroup
         label="Status"
@@ -94076,16 +93431,6 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
          value="correct "
         >
          correct
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
         </option>
         <option
          value="unknown "
@@ -95806,33 +95151,28 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -95936,14 +95276,9 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -95960,14 +95295,14 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>
@@ -98275,33 +97610,28 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
          correct
         </option>
         <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
          value="wrong "
         >
          wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
-        </option>
-        <option
-         value="unknown "
-        >
-         unknown
         </option>
        </optgroup>
        <optgroup
         label="Status"
        >
         <option
-         value="true"
-        >
-         true
-        </option>
-        <option
          value="false(reach)"
         >
          false(reach)
+        </option>
+        <option
+         value="true"
+        >
+         true
         </option>
        </optgroup>
       </select>
@@ -99330,14 +98660,9 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
          correct
         </option>
         <option
-         value="wrong "
+         value="missing "
         >
-         wrong
-        </option>
-        <option
-         value="error "
-        >
-         error
+         missing
         </option>
         <option
          value="unknown "
@@ -99354,14 +98679,14 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
          false(reach)
         </option>
         <option
-         value="unknown"
-        >
-         unknown
-        </option>
-        <option
          value="true"
         >
          true
+        </option>
+        <option
+         value="unknown"
+        >
+         unknown
         </option>
        </optgroup>
       </select>

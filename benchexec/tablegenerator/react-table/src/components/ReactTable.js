@@ -11,6 +11,7 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
+  getRawOrDefault,
   isNumericColumn,
   applyNumericFilter,
   applyTextFilter,
@@ -59,6 +60,17 @@ export default class Table extends React.Component {
     this.state = {
       fixed: true
     };
+
+    // Collect all status and category values for filter drop-down
+    this.statusValues = this.findAllValuesOfColumn(
+      (tool, column) => column.type === "status",
+      (runResult, value) => getRawOrDefault(value)
+    );
+    this.categoryValues = this.findAllValuesOfColumn(
+      (tool, column) => column.type === "status",
+      (runResult, value) =>
+        getRawOrDefault(value) ? runResult.category : undefined
+    );
 
     this.infos = [
       "displayName",
@@ -125,23 +137,17 @@ export default class Table extends React.Component {
             },
             sortMethod: textSortMethod,
             filterMethod: (filter, row) => {
-              //case category has to be differentiated to the name of the status => space in String (e.g. "ERROR ")
-              const cleanFilterValue = filter.value.trim().toLowerCase();
-
-              if (cleanFilterValue === "all") {
+              const cellValue = getRawOrDefault(row[filter.id]);
+              if (!filter.value || filter.value === "all ") {
                 return true;
-              } else if (
-                ["correct", "wrong", "error", "unknown"].includes(
-                  cleanFilterValue
-                ) &&
-                row._original.results[j].category === cleanFilterValue
-              ) {
-                return row[filter.id];
-              } else if (
-                row[filter.id] &&
-                filter.value === row[filter.id].raw
-              ) {
-                return row[filter.id];
+              } else if (cellValue === undefined) {
+                return false; // empty cells never match
+              } else if (filter.value.endsWith(" ")) {
+                // category filters are marked with space at end
+                const category = row._original.results[j].category;
+                return category === filter.value.trim();
+              } else {
+                return filter.value === cellValue;
               }
             },
             Filter: ({ filter, onChange }) => {
@@ -153,12 +159,20 @@ export default class Table extends React.Component {
                 >
                   <option value="all ">Show all</option>
                   <optgroup label="Category">
-                    <option value="correct ">correct</option>
-                    <option value="wrong ">wrong</option>
-                    <option value="error ">error</option>
-                    <option value="unknown ">unknown</option>
+                    {this.categoryValues[j][i].map(category => (
+                      // category filters are marked with space at end
+                      <option value={category + " "} key={category}>
+                        {category}
+                      </option>
+                    ))}
                   </optgroup>
-                  <optgroup label="Status">{this.collectStati(j, i)}</optgroup>
+                  <optgroup label="Status">
+                    {this.statusValues[j][i].map(status => (
+                      <option value={status} key={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               );
             }
@@ -216,18 +230,19 @@ export default class Table extends React.Component {
     });
   };
 
-  collectStati = (tool, column) => {
-    const statiArray = this.data.map(
-      row => row.results[tool].values[column].raw
+  findAllValuesOfColumn = (columnFilter, valueAccessor) =>
+    this.props.tools.map((tool, j) =>
+      tool.columns.map((column, i) => {
+        if (!columnFilter(tool, column)) {
+          return undefined;
+        }
+        const values = this.data
+          .map(row => valueAccessor(row.results[j], row.results[j].values[i]))
+          .filter(Boolean);
+        return [...new Set(values)].sort();
+      })
     );
-    return [...new Set(statiArray)].map(status =>
-      status ? (
-        <option value={status} key={status}>
-          {status}
-        </option>
-      ) : null
-    );
-  };
+
   renderToolInfo = i => {
     const header = this.props.tableHeader;
 

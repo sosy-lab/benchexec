@@ -140,6 +140,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 
 export {
   prepareTableData,
+  getRawOrDefault,
   isNumericColumn,
   applyNumericFilter,
   applyTextFilter,
