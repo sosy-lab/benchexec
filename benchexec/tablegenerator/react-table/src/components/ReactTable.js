@@ -58,7 +58,8 @@ export default class Table extends React.Component {
 
     this.data = this.props.data;
     this.state = {
-      fixed: true
+      fixed: true,
+      height: window.innerHeight - 50
     };
 
     // Collect all status and category values for filter drop-down
@@ -86,7 +87,6 @@ export default class Table extends React.Component {
       "property"
     ];
     this.typingTimer = -1;
-    this.height = window.innerHeight - 50;
   }
   //fix columns
   handleInputChange = ({ target }) => {
@@ -341,7 +341,7 @@ export default class Table extends React.Component {
           onFilteredChange={filtered => {
             this.props.filterPlotData(filtered);
           }}
-          style={{ maxHeight: this.height }}
+          style={{ maxHeight: "calc(100% - 50px)" }}
         >
           {(state, makeTable, instance) => {
             this.props.setFilter(state.sortedData);
