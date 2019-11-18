@@ -217,7 +217,12 @@ def handle_union_tag(
     if not result._xml_results:
         return None
 
-    name = tag.get("title", tag.get("name"))
+    name = tag.get("name")
+    if name:
+        logging.warning(
+            "Attribute 'name' for <union> tags is deprecated, use 'title' instead."
+        )
+    name = tag.get("title", name)
     if name:
         result.attributes["name"] = [name]
     result.collect_data(options.correct_only)
