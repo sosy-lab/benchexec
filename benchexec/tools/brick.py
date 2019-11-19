@@ -49,6 +49,9 @@ class Tool(benchexec.tools.template.BaseTool):
             executable, paths, parent_dir=True
         )
 
+    def environment(self, executable):
+        return {"additionalEnv": {"LD_LIBRARY_PATH": "./lib"}}
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         status = result.RESULT_ERROR
 
