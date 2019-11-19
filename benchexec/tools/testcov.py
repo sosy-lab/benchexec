@@ -76,7 +76,7 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith("Result: ERROR"):
                 # matches ERROR and ERROR followed by some reason in parantheses
                 # e.g., "ERROR (TRUE)" or "ERROR(TRUE)"
-                return re.search("ERROR(\s*\(.*\))?", line).group(0)
+                return re.search(r"ERROR(\s*\(.*\))?", line).group(0)
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):

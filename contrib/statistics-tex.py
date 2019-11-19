@@ -88,7 +88,7 @@ class StatAccumulator(object):
         name = r"}{".join(map(format_command_part, name_parts))
         return "\n".join(
             itertools.chain.from_iterable(
-                [["\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
+                [[r"\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
                 + [
                     [
                         r"\StoreBenchExecResult{%s}{%s}{}{%s}%%"

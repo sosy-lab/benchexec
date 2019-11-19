@@ -25,7 +25,7 @@ import setuptools
 import sys
 import warnings
 
-warnings.filterwarnings("default", module="^benchexec\..*")
+warnings.filterwarnings("default", module=r"^benchexec\..*")
 
 # Links for documentation on how to build and use Python packages:
 # http://python-packaging-user-guide.readthedocs.org/en/latest/
