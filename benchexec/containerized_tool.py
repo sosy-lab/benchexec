@@ -58,11 +58,17 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
                 [tool_module, temp_dir],
                 container_options,
             )
+        except BaseException as e:
+            self._pool.terminate()
+            raise e
         finally:
             # Outside the container, the temp_dir is just an empty directory, because
             # the tmpfs mount is only visible inside. We can remove it immediately.
             with contextlib.suppress(OSError):
                 os.rmdir(temp_dir)
+
+    def close(self):
+        self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
         """Call given method indirectly on the tool instance in the container."""
@@ -82,7 +88,7 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
 
 
 for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunction):
-    if member_name[0] == "_":
+    if member_name[0] == "_" or member_name == "close":
         continue
     ContainerizedTool._add_proxy_function(member_name, member)
 

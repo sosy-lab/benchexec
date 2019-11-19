@@ -353,6 +353,7 @@ class BenchExec(object):
         try:
             result = self.executor.execute_benchmark(benchmark, output_handler)
         finally:
+            benchmark.tool.close()
             output_handler.close()
             # remove useless log folder if it is empty
             try:

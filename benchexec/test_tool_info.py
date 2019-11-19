@@ -126,10 +126,7 @@ def log_if_unsupported(msg):
         )
 
 
-def print_tool_info(name, config):
-    print_value("Name of tool module", name)
-    tool_module, tool = model.load_tool_info(name, config)
-    print_value("Full name of tool module", tool_module)
+def print_tool_info(tool):
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
     print_value("Name of tool", tool.name())
@@ -284,14 +281,21 @@ def main(argv=None):
         format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
     )
 
+    print_value("Name of tool module", options.tool)
     try:
-        tool = print_tool_info(options.tool, options)
+        tool_module, tool = model.load_tool_info(options.tool, options)
+        try:
+            print_value("Full name of tool module", tool_module)
+            print_tool_info(tool)
+
+            if options.tool_output:
+                for file in options.tool_output:
+                    analyze_tool_output(tool, file)
+        finally:
+            tool.close()
+
     except benchexec.BenchExecException as e:
         sys.exit(str(e))
-
-    if options.tool_output:
-        for file in options.tool_output:
-            analyze_tool_output(tool, file)
 
 
 if __name__ == "__main__":

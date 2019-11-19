@@ -129,6 +129,8 @@ def load_tool_info(tool_name, config):
             tool = containerized_tool.ContainerizedTool(tool_module, config)
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            # Provide dummy close method
+            tool.close = lambda: None
     except ImportError as ie:
         logging.debug(
             "Did not find module '%s'. "
