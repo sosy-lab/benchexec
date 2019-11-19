@@ -342,7 +342,7 @@ def prepare_stats_for_js(stats, all_columns):
     def prepare_values(column, value, key):
         return (
             column.format_value(value, True, "html_cell")
-            if key is "sum"
+            if key == "sum"
             else column.format_value(value, False, "tooltip")
         )
 

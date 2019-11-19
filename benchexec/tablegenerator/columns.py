@@ -230,12 +230,12 @@ class Column(object):
         max_dec_digits = 0
         if (
             number_of_significant_digits is None
-            and format_target is "tooltip_stochastic"
+            and format_target == "tooltip_stochastic"
         ):
             return str(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         elif self.type.type == ColumnType.measure:
-            if number_of_significant_digits is None and format_target is not "csv":
+            if number_of_significant_digits is None and format_target != "csv":
                 number_of_significant_digits = DEFAULT_TIME_PRECISION
             max_dec_digits = self.type.max_decimal_digits
 
