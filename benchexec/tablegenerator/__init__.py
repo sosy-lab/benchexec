@@ -49,6 +49,14 @@ from benchexec.tablegenerator import util as Util
 from benchexec.tablegenerator.columns import Column, ColumnType
 import zipfile
 
+# Workaround for making Tempita work on Python 3.8+ Remove as part of #480
+import cgi
+
+if not hasattr(cgi, "escape"):
+    import html
+
+    cgi.escape = html.escape
+
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.

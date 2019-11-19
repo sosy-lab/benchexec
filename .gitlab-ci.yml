@@ -65,6 +65,11 @@ unit-tests:python-3.7:
   variables:
     PYTHON_VERSION: '3.7'
 
+unit-tests:python-3.8:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.8'
+
 deploy-coverage:
   stage: deploy
   variables:
@@ -193,3 +198,9 @@ build-docker:test:python-3.7:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.7
     IMAGE: test:python-3.7
+
+build-docker:test:python-3.8:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.8
+    IMAGE: test:python-3.8
