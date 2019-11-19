@@ -799,7 +799,11 @@ def setup_seccomp_filter():
         logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
-_ALL_SIGNALS = range(1, signal.NSIG)
+try:
+    _ALL_SIGNALS = signal.valid_signals()
+except AttributeError:
+    # Only exists on Python 3.8+
+    _ALL_SIGNALS = range(1, signal.NSIG)
 _FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
     [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
 )
