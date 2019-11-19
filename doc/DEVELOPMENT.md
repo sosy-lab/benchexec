@@ -6,6 +6,9 @@ and maintainers of BenchExec.
 For writing a tool-info module, please refer to the documentation on
 [Tool Integration](tool-integration.md).
 
+Development documentation of our React-based project for interactive HTML tables
+is in the respective [README](../benchexec/tablegenerator/react-table/README.md).
+
 
 ## Installation for Development
 

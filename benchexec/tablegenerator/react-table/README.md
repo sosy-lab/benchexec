@@ -6,7 +6,7 @@ In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.<br>
+Runs the app in the development mode with some test data.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
@@ -17,63 +17,34 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-## Test Datasets
-
-There are 4 different Data sets to test the App in the folder data.
-Change the data:
-
-- Go to Overview.js line 2, there the data is imported
-- Change the filter to the one you want from the data folder (e.g. new_middle.json)
-- Save the file
-
-### next section is not important for the normal testing
-
 ### `npm run build`
 
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+This needs to be done before committing changes to the JavaScript and style files.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Suggested Development Environment
 
-### `npm run eject`
+The easiest way to get a suitable development environment
+for running the above scripts is to use Docker with the following command:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+docker run --network=host -v $(pwd)/..:$(pwd)/..:rw -w $(pwd) -it node bash
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Code Style and Linting
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/)
+for checking code style and best practices:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- `npx eslint src`<br>
+  (use `--fix` to automatically apply fixes)
+- `npx prettier $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.js" -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check`<br>
+  (use `--write` to automatically reformat code)
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- [React documentation](https://reactjs.org/)
+- [react-table documentation](https://github.com/tannerlinsley/react-table/tree/v6)
+- [react-vis documentation](https://uber.github.io/react-vis/documentation)
