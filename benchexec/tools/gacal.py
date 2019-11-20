@@ -31,6 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
         "parser",
         "run-gacal.py",
         "src",
+        "scripts",
     ]
 
     def executable(self):
