@@ -67,3 +67,6 @@ class Tool(benchexec.tools.template.BaseTool):
                 break
 
         return status
+
+    def environment(self, executable):
+        return {"additionalEnv": {"LD_LIBRARY_PATH": "./lib"}}
