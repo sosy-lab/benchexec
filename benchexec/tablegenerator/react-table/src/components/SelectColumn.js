@@ -8,6 +8,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { getRunSetName } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
@@ -26,7 +27,7 @@ export default class SelectColumn extends React.Component {
         this.state.list[i].columns.findIndex(
           value => value.isVisible === true
         ) > -1;
-      let toolName = this.props.getRunSets(tool);
+      let toolName = getRunSetName(tool);
       return (
         <tr id={toolName} key={"tr" + toolName}>
           <td

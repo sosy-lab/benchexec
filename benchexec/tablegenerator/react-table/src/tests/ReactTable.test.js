@@ -28,7 +28,6 @@ test_snapshot_of("Render Summary", overview => (
     data={overview.originalTable}
     tools={overview.state.tools}
     selectColumn={overview.toggleSelectColumns}
-    getRunSets={overview.getRunSets}
     prepareTableValues={overview.prepareTableValues}
     setFilter={overview.setFilter}
     filterPlotData={overview.filterPlotData}

@@ -20,7 +20,6 @@ test_snapshot_of("Render Summary", overview => (
     selectColumn={overview.toggleSelectColumns}
     stats={overview.stats}
     prepareTableValues={overview.prepareTableValues}
-    getRunSets={overview.getRunSets}
     changeTab={overview.changeTab}
   />
 ));

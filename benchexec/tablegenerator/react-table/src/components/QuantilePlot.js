@@ -16,7 +16,7 @@ import {
   DiscreteColorLegend,
   Hint
 } from "react-vis";
-import { EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
+import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
 
 export default class Overlay extends React.Component {
   constructor(props) {
@@ -61,9 +61,7 @@ export default class Overlay extends React.Component {
   // --------------------rendering-----------------------------
   renderLegend = () => {
     return this.state.isValue
-      ? this.props.tools
-          .filter(t => t.isVisible)
-          .map(tool => this.props.getRunSets(tool))
+      ? this.props.tools.filter(t => t.isVisible).map(getRunSetName)
       : this.props.tools[this.state.selection.split("-")[1]].columns
           .map(c =>
             c.isVisible && c.type !== "text" && c.type !== "status"
@@ -216,7 +214,7 @@ export default class Overlay extends React.Component {
               data={data}
               key={tool.benchmarkname + tool.date}
               color={color()}
-              opacity={this.handleLineState(this.props.getRunSets(tool))}
+              opacity={this.handleLineState(getRunSetName(tool))}
               onValueMouseOver={(datapoint, event) =>
                 this.setState({ value: datapoint })
               }
@@ -327,7 +325,7 @@ export default class Overlay extends React.Component {
                   value={"runset-" + i}
                   name={"runset-" + i}
                 >
-                  {this.props.getRunSets(runset, i)}
+                  {getRunSetName(runset)}
                 </option>
               ) : null;
             })}

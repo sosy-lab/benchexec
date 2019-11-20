@@ -16,13 +16,13 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
+import { getRunSetName } from "../utils/utils";
+
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
     const defaultName =
-      this.props.getRunSets(this.props.tools[0]) +
-      " " +
-      this.props.columns[0][1];
+      getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
     this.state = {
       dataX: "0-1",
@@ -83,7 +83,7 @@ export default class ScatterPlot extends React.Component {
   // --------------------rendering-----------------------------
   renderColumns = () => {
     return this.props.tools.map((runset, i) => (
-      <optgroup key={"runset" + i} label={this.props.getRunSets(runset, i)}>
+      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
         {runset.columns.map((column, j) => {
           return column.isVisible ? (
             <option
@@ -189,7 +189,7 @@ export default class ScatterPlot extends React.Component {
       [`tool${axis}`]: splitted[0],
       [`column${axis}`]: splitted[1],
       [`name${axis}`]:
-        this.props.getRunSets(this.props.tools[splitted[0]]) +
+        getRunSetName(this.props.tools[splitted[0]]) +
         " " +
         this.props.columns[splitted[0]][splitted[1]]
     });

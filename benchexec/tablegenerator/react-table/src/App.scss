@@ -58,6 +58,14 @@ $key-color: #71bcff;
   }
 }
 
+.selectColumns {
+  cursor: pointer;
+  font-weight: 700;
+}
+.header__tool-infos {
+  font-weight: 700;
+}
+
 //------------------overview------------------
 .overview {
   background: $key-color;
@@ -179,15 +187,15 @@ $key-color: #71bcff;
       padding-top: 8px;
       padding-bottom: 8px;
       border-right: 1px solid rgba(0, 0, 0, 0.32) !important;
+      .cell {
+         text-align: right;
+      }
+
     }
-    .tr {
+    .row-title {
       font-weight: 700;
     }
     .rt-tr {
-      span {
-        cursor: pointer;
-        font-weight: 700;
-      }
       &-group {
         border: 1px solid rgba(0, 0, 0, 0.32) !important;
       }
@@ -195,10 +203,6 @@ $key-color: #71bcff;
     .columns {
       cursor: pointer;
     }
-  }
-
-  .summary_span {
-    text-align: right;
   }
 
   p {
@@ -235,11 +239,6 @@ $key-color: #71bcff;
     &.-headerGroups > div > div {
       border-right: 1px solid #c5c5c5;
       background: white;
-      span {
-        margin: 0;
-        cursor: pointer;
-        font-weight: 700;
-      }
       &:first-child {
         width: 30vw;
       }

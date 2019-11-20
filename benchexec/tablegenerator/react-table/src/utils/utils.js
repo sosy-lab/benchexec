@@ -111,6 +111,10 @@ const formatColumnTitle = column =>
     column.display_title
   );
 
+const getRunSetName = ({ tool, date, niceName }) => {
+  return `${tool} ${date} ${niceName}`;
+};
+
 // Extended color list copied from
 // https://github.com/uber/react-vis/blob/712ea622cf12f17bcc38bd6143fe6d22d530cbce/src/theme.js#L29-L51
 // as advised in https://github.com/uber/react-vis/issues/872#issuecomment-404915958
@@ -148,6 +152,7 @@ export {
   textSortMethod,
   determineColumnWidth,
   formatColumnTitle,
+  getRunSetName,
   isOkStatus,
   isNil,
   EXTENDED_DISCRETE_COLOR_RANGE

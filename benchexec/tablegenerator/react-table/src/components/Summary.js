@@ -10,10 +10,11 @@ import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import {
-  determineColumnWidth,
-  formatColumnTitle,
-  isNumericColumn
-} from "../utils/utils";
+  RunSetHeader,
+  StandardColumnHeader,
+  SelectColumnsButton
+} from "./TableComponents.js";
+import { determineColumnWidth, isNumericColumn } from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
@@ -46,14 +47,13 @@ export default class Summary extends React.Component {
       return tool.columns.map((column, i) => {
         return {
           id: `${j}_${column.display_title}_${i}`,
-          Header: () => (
-            <div
+          Header: (
+            <StandardColumnHeader
+              column={column}
               className="columns"
               title="Show Quantile Plot of this column"
               onClick={e => this.props.changeTab(e, column, 2)}
-            >
-              {formatColumnTitle(column)}
-            </div>
+            />
           ),
           show:
             column.isVisible &&
@@ -68,11 +68,11 @@ export default class Summary extends React.Component {
             cell.value ? (
               <div
                 dangerouslySetInnerHTML={{ __html: cell.value.sum }}
-                className="summary_span"
+                className="cell"
                 title={this.renderTooltip(cell.value)}
               ></div>
             ) : (
-              <div className="summary_span">-</div>
+              <div className="cell">-</div>
             )
         };
       });
@@ -142,17 +142,13 @@ export default class Summary extends React.Component {
           {
             id: "summary",
             minWidth: this.headerWidth,
-            Header: () => (
-              <div onClick={this.props.selectColumn}>
-                <span>Click here to select columns</span>
-              </div>
-            ),
+            Header: <SelectColumnsButton handler={this.props.selectColumn} />,
             accessor: "",
             Cell: cell => (
               <div
                 dangerouslySetInnerHTML={{ __html: cell.value.title }}
                 title={cell.value.description}
-                className="tr"
+                className="row-title"
               />
             )
           }
@@ -161,11 +157,7 @@ export default class Summary extends React.Component {
       ...toolColumns.map((toolColumn, i) => {
         return {
           id: "results",
-          Header: () => (
-            <div className="header__tool-infos">
-              {this.props.getRunSets(this.props.tools[i], i)}
-            </div>
-          ),
+          Header: <RunSetHeader runSet={this.props.tools[i]} />,
           columns: toolColumn
         };
       })

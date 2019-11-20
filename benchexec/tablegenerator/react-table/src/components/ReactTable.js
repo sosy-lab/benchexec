@@ -11,14 +11,18 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
+  RunSetHeader,
+  StandardColumnHeader,
+  SelectColumnsButton
+} from "./TableComponents.js";
+import {
   getRawOrDefault,
   isNumericColumn,
   applyNumericFilter,
   applyTextFilter,
   numericSortMethod,
   textSortMethod,
-  determineColumnWidth,
-  formatColumnTitle
+  determineColumnWidth
 } from "../utils/utils";
 
 class FilterInputField extends React.Component {
@@ -105,14 +109,7 @@ export default class Table extends React.Component {
         if (column.type === "status") {
           return {
             id: `${j}_${column.display_title}_${i}`,
-            Header: () => (
-              <span
-                title="Click here to sort. Hold shift to multi-sort"
-                className="btn"
-              >
-                {formatColumnTitle(column)}
-              </span>
-            ),
+            Header: <StandardColumnHeader column={column} />,
             show: column.isVisible,
             minWidth: determineColumnWidth(column, 10),
             accessor: row => row.results[j].values[i],
@@ -182,11 +179,7 @@ export default class Table extends React.Component {
         else {
           return {
             id: `${j}_${column.display_title}_${i}`,
-            Header: () => (
-              <div title="Click here to sort. Hold shift to multi-sort">
-                {formatColumnTitle(column)}
-              </div>
-            ),
+            Header: <StandardColumnHeader column={column} />,
             show: column.isVisible,
             minWidth: determineColumnWidth(column),
             accessor: row => row.results[j].values[i],
@@ -277,14 +270,7 @@ export default class Table extends React.Component {
         columns: [
           {
             minWidth: window.innerWidth * 0.3,
-            Header: () => (
-              <div
-                onClick={this.props.selectColumn}
-                className={"selectColumns"}
-              >
-                <span>Click here to select columns</span>
-              </div>
-            ),
+            Header: <SelectColumnsButton handler={this.props.selectColumn} />,
             fixed: this.state.fixed ? "left" : "",
             accessor: "id",
             Cell: cell => {
@@ -318,11 +304,7 @@ export default class Table extends React.Component {
       },
       ...toolColumns.map((toolColumn, i) => ({
         id: "results",
-        Header: () => (
-          <span className="header__tool-infos">
-            {this.props.getRunSets(this.props.tools[i])}
-          </span>
-        ),
+        Header: <RunSetHeader runSet={this.props.tools[i]} />,
         columns: toolColumn
       }))
     ];

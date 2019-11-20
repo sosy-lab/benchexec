@@ -93,10 +93,6 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Common Functions-----------------------
-  getRunSets = ({ tool, date, niceName }) => {
-    return `${tool} ${date} ${niceName}`;
-  };
-
   getRowName = row => row.id.filter(s => s).join(" | ");
 
   changeTab = (_, column, tab) => {
@@ -142,7 +138,6 @@ export default class Overview extends React.Component {
                   tableHeader={this.tableHeader}
                   selectColumn={this.toggleSelectColumns}
                   stats={this.stats}
-                  getRunSets={this.getRunSets}
                   changeTab={this.changeTab}
                 />
               </TabPanel>
@@ -152,7 +147,6 @@ export default class Overview extends React.Component {
                   data={this.originalTable}
                   tools={this.state.tools}
                   selectColumn={this.toggleSelectColumns}
-                  getRunSets={this.getRunSets}
                   setFilter={this.setFilter}
                   filterPlotData={this.filterPlotData}
                   filtered={this.state.filtered}
@@ -165,7 +159,6 @@ export default class Overview extends React.Component {
                   table={this.state.table}
                   tools={this.state.tools}
                   preSelection={this.state.quantilePreSelection}
-                  getRunSets={this.getRunSets}
                   getRowName={this.getRowName}
                 />
               </TabPanel>
@@ -174,7 +167,6 @@ export default class Overview extends React.Component {
                   table={this.state.table}
                   columns={this.columns}
                   tools={this.state.tools}
-                  getRunSets={this.getRunSets}
                   getRowName={this.getRowName}
                 />
               </TabPanel>
@@ -189,7 +181,6 @@ export default class Overview extends React.Component {
                 close={this.toggleSelectColumns}
                 currColumns={this.columns}
                 tableHeader={this.tableHeader}
-                getRunSets={this.getRunSets}
                 tools={this.state.tools}
               />
             )}
