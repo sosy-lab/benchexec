@@ -11,6 +11,7 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
+  StandardCell,
   RunSetHeader,
   StandardColumnHeader,
   SelectColumnsButton
@@ -113,25 +114,15 @@ export default class Table extends React.Component {
             show: column.isVisible,
             minWidth: determineColumnWidth(column, 10),
             accessor: row => row.results[j].values[i],
-            Cell: cell => {
-              const runResult = cell.original.results[j];
-              const value = cell.value;
-              return value.raw ? (
-                <a
-                  href={runResult.href}
-                  className={runResult.category}
-                  onClick={ev =>
-                    this.props.toggleLinkOverlay(ev, runResult.href)
-                  }
-                  title="Click here to show output of tool"
-                  dangerouslySetInnerHTML={
-                    value.html ? { __html: value.html } : undefined
-                  }
-                >
-                  {value.html ? undefined : value.raw}
-                </a>
-              ) : null;
-            },
+            Cell: cell => (
+              <StandardCell
+                cell={cell}
+                href={cell.original.results[j].href}
+                className={cell.original.results[j].category}
+                toggleLinkOverlay={this.props.toggleLinkOverlay}
+                title="Click here to show output of tool"
+              />
+            ),
             sortMethod: textSortMethod,
             filterMethod: (filter, row) => {
               const cellValue = getRawOrDefault(row[filter.id]);
@@ -183,31 +174,12 @@ export default class Table extends React.Component {
             show: column.isVisible,
             minWidth: determineColumnWidth(column),
             accessor: row => row.results[j].values[i],
-            Cell: cell => {
-              const html = cell.value.html;
-              const raw = html ? undefined : cell.value.raw;
-              const href = cell.value.href;
-              if (href) {
-                return (
-                  <a
-                    href={href}
-                    onClick={ev => this.props.toggleLinkOverlay(ev, href)}
-                    dangerouslySetInnerHTML={
-                      html ? { __html: html } : undefined
-                    }
-                  >
-                    {raw}
-                  </a>
-                );
-              }
-              return (
-                <div
-                  dangerouslySetInnerHTML={html ? { __html: html } : undefined}
-                >
-                  {raw}
-                </div>
-              );
-            },
+            Cell: cell => (
+              <StandardCell
+                cell={cell}
+                toggleLinkOverlay={this.props.toggleLinkOverlay}
+              />
+            ),
             filterMethod: isNumericColumn(column)
               ? applyNumericFilter
               : applyTextFilter,

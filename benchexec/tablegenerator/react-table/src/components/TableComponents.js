@@ -28,3 +28,36 @@ export const RunSetHeader = ({ runSet, ...other }) => (
     {getRunSetName(runSet)}
   </span>
 );
+
+export const StandardCell = ({
+  cell,
+  href = cell.value.href,
+  toggleLinkOverlay,
+  ...other
+}) => {
+  const html = cell.value.html;
+  const raw = html ? undefined : cell.value.raw;
+  if (!(raw || html)) {
+    return null;
+  }
+  if (href) {
+    return (
+      <a
+        href={href}
+        onClick={ev => toggleLinkOverlay(ev, href)}
+        dangerouslySetInnerHTML={html ? { __html: html } : undefined}
+        {...other}
+      >
+        {raw}
+      </a>
+    );
+  }
+  return (
+    <div
+      dangerouslySetInnerHTML={html ? { __html: html } : undefined}
+      {...other}
+    >
+      {raw}
+    </div>
+  );
+};
