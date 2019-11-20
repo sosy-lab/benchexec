@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return "GACAL"
 
     def version(self, executable):
-        return self._version_from_tool(executable, use_stderr=True)
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return [executable] + options + tasks
@@ -51,6 +51,6 @@ class Tool(benchexec.tools.template.BaseTool):
                 return result.RESULT_TRUE_PROP
             elif "VERIFICATION_FAILED" in line:
                 return result.RESULT_FALSE_REACH
-            elif "NOT SUPPORTED" in line or "UNKNOWN" in line:
+            elif "COULD NOT PROVE ALL ASSERTIONS" in line or "UNKNOWN" in line:
                 return result.RESULT_UNKNOWN
         return result.RESULT_UNKNOWN
