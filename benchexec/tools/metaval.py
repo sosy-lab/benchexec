@@ -28,7 +28,14 @@ import threading
 
 class Tool(benchexec.tools.template.BaseTool):
 
-    TOOL_TO_PATH_MAP = {"cpachecker": "CPAchecker", "esbmc": "esbmc"}
+    TOOL_TO_PATH_MAP = {
+        "cpachecker-metaval": "CPAchecker",
+        "cpachecker": "CPAchecker-1.7-svn 29852-unix",
+        "esbmc": "esbmc",
+        "symbiotic": "symbiotic",
+        "yogar-cbmc": "yogar-cbmc",
+        "ultimateautomizer": "UAutomizer-linux",
+    }
     REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
 
     def __init__(self):
@@ -41,19 +48,39 @@ class Tool(benchexec.tools.template.BaseTool):
         return "metaval"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if not hasattr(self, "wrappedTool"):
-            return "METAVAL ERROR"
-        return self.wrappedTool.determine_result(
-            returncode, returnsignal, output, isTimeout
-        )
+        if hasattr(self, "wrappedTool"):
+            with self.lock:
+                try:
+                    oldcwd = os.getcwd()
+                    os.chdir(
+                        os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName])
+                    )
+                    return self.wrappedTool.determine_result(
+                        returncode, returnsignal, output, isTimeout
+                    )
+                finally:
+                    os.chdir(oldcwd)
+        return "METAVAL ERROR"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
-        parser.add_argument("--witness", required=True)
+        parser.add_argument("--metavalWitness", required=True)
         parser.add_argument("--metaval", required=True)
+        parser.add_argument("--metavalAdditionalPATH")
+        parser.add_argument("--metavalWitnessType")
         (knownargs, options) = parser.parse_known_args(options)
         verifierName = knownargs.metaval.lower()
-        witnessName = knownargs.witness
+        witnessName = knownargs.metavalWitness
+        additionalPathArgument = (
+            ["--additionalPATH", knownargs.metavalAdditionalPATH]
+            if knownargs.metavalAdditionalPATH
+            else []
+        )
+        witnessTypeArgument = (
+            ["--witnessType", knownargs.metavalWitnessType]
+            if knownargs.metavalWitnessType
+            else []
+        )
         with self.lock:
             if not hasattr(self, "wrappedTool"):
                 self.verifierName = verifierName
@@ -86,6 +113,8 @@ class Tool(benchexec.tools.template.BaseTool):
                     "--witness",
                     witnessName,
                 ]
+                + additionalPathArgument
+                + witnessTypeArgument
                 + tasks
                 + ["--"]
                 + wrappedOptions
