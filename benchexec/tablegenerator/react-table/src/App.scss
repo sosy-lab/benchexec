@@ -11,6 +11,8 @@
 }
 // $key-color: #009440;
 $key-color: #71bcff;
+$border-color: rgb(173, 173, 173);
+$table-border: 1px solid $border-color;
 
 //------------------common------------------
 .link {
@@ -186,7 +188,7 @@ $key-color: #71bcff;
     .rt-td {
       padding-top: 8px;
       padding-bottom: 8px;
-      border-right: 1px solid rgba(0, 0, 0, 0.32) !important;
+      border-right: $table-border !important;
       .cell {
         text-align: right;
       }
@@ -196,7 +198,7 @@ $key-color: #71bcff;
     }
     .rt-tr {
       &-group {
-        border: 1px solid rgba(0, 0, 0, 0.32) !important;
+        border-bottom: $table-border !important;
       }
     }
     .columns {
@@ -236,8 +238,6 @@ $key-color: #71bcff;
   }
   .rt-thead {
     &.-headerGroups > div > div {
-      border-right: 1px solid #c5c5c5;
-      background: white;
       &:first-child {
         width: 30vw;
       }
@@ -259,7 +259,7 @@ $key-color: #71bcff;
     }
     .rt-td {
       padding: 2px;
-      border-right: 2px solid rgba(142, 142, 142, 0.3) !important;
+      border-right: $table-border !important;
       text-align: right;
       > * {
         padding: 6px 2px;
@@ -275,7 +275,7 @@ $key-color: #71bcff;
       }
     }
     .rt-tr-group {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.32) !important;
+      border-bottom: $table-border !important;
     }
     .rt-tr-group:last-child {
       border-bottom: 1px solid lightgrey;
