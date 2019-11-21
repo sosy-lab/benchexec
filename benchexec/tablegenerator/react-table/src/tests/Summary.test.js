@@ -17,6 +17,7 @@ test_snapshot_of("Render Summary", overview => (
   <Summary
     tools={overview.originalTools}
     tableHeader={overview.tableHeader}
+    version={overview.props.data.version}
     selectColumn={overview.toggleSelectColumns}
     stats={overview.stats}
     prepareTableValues={overview.prepareTableValues}

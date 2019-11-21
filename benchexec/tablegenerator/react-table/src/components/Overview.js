@@ -19,17 +19,12 @@ import { prepareTableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
-//example data for development
-if (process.env.NODE_ENV !== "production") {
-  window.data = require("../data/data.json");
-}
-
 export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     //imported data
     const { tableHeader, tools, columns, table, stats } = prepareTableData(
-      window.data
+      props.data
     );
 
     this.originalTable = table;
@@ -136,6 +131,7 @@ export default class Overview extends React.Component {
                 <Summary
                   tools={this.state.tools}
                   tableHeader={this.tableHeader}
+                  version={this.props.data.version}
                   selectColumn={this.toggleSelectColumns}
                   stats={this.stats}
                   changeTab={this.changeTab}
@@ -171,7 +167,10 @@ export default class Overview extends React.Component {
                 />
               </TabPanel>
               <TabPanel>
-                <Info selectColumn={this.toggleSelectColumns}></Info>
+                <Info
+                  version={this.props.data.version}
+                  selectColumn={this.toggleSelectColumns}
+                />
               </TabPanel>
             </Tabs>
           </div>

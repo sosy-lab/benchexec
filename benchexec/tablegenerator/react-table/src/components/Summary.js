@@ -192,7 +192,7 @@ export default class Summary extends React.Component {
             rel="noopener noreferrer"
           >
             {" "}
-            BenchExec {window.data.version}
+            BenchExec {this.props.version}
           </a>
         </p>
       </div>

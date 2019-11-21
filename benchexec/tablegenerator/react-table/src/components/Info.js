@@ -167,7 +167,7 @@ export default props => (
         target="_blank"
         rel="noopener noreferrer"
       >
-        BenchExec {window.data.version}
+        BenchExec {props.version}
       </a>
       . For feedback, questions, and bug reports please use our{" "}
       <a

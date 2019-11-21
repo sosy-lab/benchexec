@@ -75,9 +75,11 @@ const test_snapshot_of = (name, component_func) => {
     .forEach(file => {
       it(name + " for " + file, () => {
         const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-        window.data = JSON.parse(content);
+        const data = JSON.parse(content);
 
-        const overview = renderer.create(<Overview />).getInstance();
+        const overview = renderer
+          .create(<Overview data={data} />)
+          .getInstance();
         const component = renderer.create(component_func(overview));
 
         expect(component).toMatchSnapshot();
