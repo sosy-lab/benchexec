@@ -21,6 +21,7 @@ process.on("unhandledRejection", err => {
 require("../config/env");
 
 const fs = require("fs");
+const path = require("path");
 const chalk = require("react-dev-utils/chalk");
 const webpack = require("webpack");
 const WebpackDevServer = require("webpack-dev-server");
@@ -39,6 +40,18 @@ const createDevServerConfig = require("../config/webpackDevServer.config");
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
+
+const dataParam = process.argv[2];
+
+if (dataParam) {
+  const content = fs.readFileSync(path.resolve(__dirname, "../", dataParam));
+  fs.writeFileSync(path.resolve("./src/data/custom-data.json"), content);
+}
+
+const DATA =
+  (dataParam && "./src/data/custom-data.json") || "./src/data/data.json";
+
+process.env.DATA = DATA;
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
