@@ -22,6 +22,7 @@ import argparse
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
+import contextlib
 import os
 import threading
 
@@ -47,20 +48,28 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "metaval"
 
+    @contextlib.contextmanager
+    def _in_tool_directory(self):
+        """
+        Context manager that sets the current working directory to the tool's directory
+        and resets its afterward. The returned value is the previous working directory.
+        """
+        with self.lock:
+            try:
+                oldcwd = os.getcwd()
+                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName]))
+                yield oldcwd
+            finally:
+                os.chdir(oldcwd)
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if hasattr(self, "wrappedTool"):
-            with self.lock:
-                try:
-                    oldcwd = os.getcwd()
-                    os.chdir(
-                        os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName])
-                    )
-                    return self.wrappedTool.determine_result(
-                        returncode, returnsignal, output, isTimeout
-                    )
-                finally:
-                    os.chdir(oldcwd)
-        return "METAVAL ERROR"
+        if not hasattr(self, "wrappedTool"):
+            return "METAVAL ERROR"
+
+        with self._in_tool_directory():
+            return self.wrappedTool.determine_result(
+                returncode, returnsignal, output, isTimeout
+            )
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
@@ -92,19 +101,14 @@ class Tool(benchexec.tools.template.BaseTool):
                     exit("metaval is called with mixed wrapped tools")
 
         if hasattr(self, "wrappedTool"):
-            with self.lock:
-                try:
-                    oldcwd = os.getcwd()
-                    os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
-                    wrappedOptions = self.wrappedTool.cmdline(
-                        self.wrappedTool.executable(),
-                        options,
-                        [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                        os.path.relpath(os.path.join(oldcwd, propertyfile)),
-                        rlimits,
-                    )
-                finally:
-                    os.chdir(oldcwd)
+            with self._in_tool_directory() as oldcwd:
+                wrappedOptions = self.wrappedTool.cmdline(
+                    self.wrappedTool.executable(),
+                    options,
+                    [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
+                    os.path.relpath(os.path.join(oldcwd, propertyfile)),
+                    rlimits,
+                )
             return (
                 [
                     executable,
