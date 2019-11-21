@@ -11,8 +11,8 @@ import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import "react-table/react-table.css";
 import {
+  createRunSetColumns,
   StandardCell,
-  RunSetHeader,
   StandardColumnHeader,
   SelectColumnsButton
 } from "./TableComponents.js";
@@ -103,98 +103,6 @@ export default class Table extends React.Component {
     });
   };
 
-  renderColumns = () => {
-    return this.props.tools.map((tool, j) => {
-      return tool.columns.map((column, i) => {
-        //distinguish between column type status (dropdown filter) and other types (input field)
-        if (column.type === "status") {
-          return {
-            id: `${j}_${column.display_title}_${i}`,
-            Header: <StandardColumnHeader column={column} />,
-            show: column.isVisible,
-            minWidth: determineColumnWidth(column, 10),
-            accessor: row => row.results[j].values[i],
-            Cell: cell => (
-              <StandardCell
-                cell={cell}
-                href={cell.original.results[j].href}
-                className={cell.original.results[j].category}
-                toggleLinkOverlay={this.props.toggleLinkOverlay}
-                title="Click here to show output of tool"
-              />
-            ),
-            sortMethod: textSortMethod,
-            filterMethod: (filter, row) => {
-              const cellValue = getRawOrDefault(row[filter.id]);
-              if (!filter.value || filter.value === "all ") {
-                return true;
-              } else if (cellValue === undefined) {
-                return false; // empty cells never match
-              } else if (filter.value.endsWith(" ")) {
-                // category filters are marked with space at end
-                const category = row._original.results[j].category;
-                return category === filter.value.trim();
-              } else {
-                return filter.value === cellValue;
-              }
-            },
-            Filter: ({ filter, onChange }) => {
-              return (
-                <select
-                  onChange={event => onChange(event.target.value)}
-                  style={{ width: "100%" }}
-                  value={filter ? filter.value : "all "}
-                >
-                  <option value="all ">Show all</option>
-                  <optgroup label="Category">
-                    {this.categoryValues[j][i].map(category => (
-                      // category filters are marked with space at end
-                      <option value={category + " "} key={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Status">
-                    {this.statusValues[j][i].map(status => (
-                      <option value={status} key={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-              );
-            }
-          };
-        }
-        //other column types with input field filtering
-        else {
-          return {
-            id: `${j}_${column.display_title}_${i}`,
-            Header: <StandardColumnHeader column={column} />,
-            show: column.isVisible,
-            minWidth: determineColumnWidth(column),
-            accessor: row => row.results[j].values[i],
-            Cell: cell => (
-              <StandardCell
-                cell={cell}
-                toggleLinkOverlay={this.props.toggleLinkOverlay}
-              />
-            ),
-            filterMethod: isNumericColumn(column)
-              ? applyNumericFilter
-              : applyTextFilter,
-            Filter: filter => (
-              <FilterInputField numeric={isNumericColumn(column)} {...filter} />
-            ),
-            sortMethod: isNumericColumn(column)
-              ? numericSortMethod
-              : textSortMethod
-          };
-        }
-      });
-    });
-  };
-
   findAllValuesOfColumn = (columnFilter, valueAccessor) =>
     this.props.tools.map((tool, j) =>
       tool.columns.map((column, i) => {
@@ -208,78 +116,146 @@ export default class Table extends React.Component {
       })
     );
 
-  renderToolInfo = i => {
-    const header = this.props.tableHeader;
+  createTaskIdColumn = () => ({
+    Header: () => (
+      <div className="fixed">
+        <form>
+          <label title="Fix the first column">Fixed task:</label>
+          <input
+            name="fixed"
+            type="checkbox"
+            checked={this.state.fixed}
+            onChange={this.handleInputChange}
+          />
+        </form>
+      </div>
+    ),
+    fixed: this.state.fixed ? "left" : "",
+    columns: [
+      {
+        minWidth: window.innerWidth * 0.3,
+        Header: <SelectColumnsButton handler={this.props.selectColumn} />,
+        fixed: this.state.fixed ? "left" : "",
+        accessor: "id",
+        Cell: cell => {
+          const content = cell.value.map(id => (
+            <span key={id} className="row_id">
+              {id}
+            </span>
+          ));
+          const href = cell.original.href;
+          return href ? (
+            <a
+              key={href}
+              className="row__name--cellLink"
+              href={href}
+              title="Click here to show source code"
+              onClick={ev => this.props.toggleLinkOverlay(ev, href)}
+            >
+              {content}
+            </a>
+          ) : (
+            <span title="This task has no associated file">{content}</span>
+          );
+        },
+        filterMethod: (filter, row, column) => {
+          const id = filter.pivotId || filter.id;
+          return row[id].some(v => v && v.includes(filter.value));
+        },
+        Filter: FilterInputField
+      }
+    ]
+  });
 
-    return this.infos.map(row =>
-      header[row] ? (
-        <p key={row} className="header__tool-row">
-          {header[row].content[i][0]}{" "}
-        </p>
-      ) : null
-    );
+  createStatusColumn = (runSetIdx, column, columnIdx) => ({
+    id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+    Header: <StandardColumnHeader column={column} />,
+    show: column.isVisible,
+    minWidth: determineColumnWidth(column, 10),
+    accessor: row => row.results[runSetIdx].values[columnIdx],
+    Cell: cell => (
+      <StandardCell
+        cell={cell}
+        href={cell.original.results[runSetIdx].href}
+        className={cell.original.results[runSetIdx].category}
+        toggleLinkOverlay={this.props.toggleLinkOverlay}
+        title="Click here to show output of tool"
+      />
+    ),
+    sortMethod: textSortMethod,
+    filterMethod: (filter, row) => {
+      const cellValue = getRawOrDefault(row[filter.id]);
+      if (!filter.value || filter.value === "all ") {
+        return true;
+      } else if (cellValue === undefined) {
+        return false; // empty cells never match
+      } else if (filter.value.endsWith(" ")) {
+        // category filters are marked with space at end
+        const category = row._original.results[runSetIdx].category;
+        return category === filter.value.trim();
+      } else {
+        return filter.value === cellValue;
+      }
+    },
+    Filter: ({ filter, onChange }) => {
+      return (
+        <select
+          onChange={event => onChange(event.target.value)}
+          style={{ width: "100%" }}
+          value={filter ? filter.value : "all "}
+        >
+          <option value="all ">Show all</option>
+          <optgroup label="Category">
+            {this.categoryValues[runSetIdx][columnIdx].map(category => (
+              // category filters are marked with space at end
+              <option value={category + " "} key={category}>
+                {category}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Status">
+            {this.statusValues[runSetIdx][columnIdx].map(status => (
+              <option value={status} key={status}>
+                {status}
+              </option>
+            ))}
+          </optgroup>
+        </select>
+      );
+    }
+  });
+
+  createColumn = (runSetIdx, column, columnIdx) => {
+    if (column.type === "status") {
+      return this.createStatusColumn(runSetIdx, column, columnIdx);
+    }
+
+    return {
+      id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+      Header: <StandardColumnHeader column={column} />,
+      show: column.isVisible,
+      minWidth: determineColumnWidth(column),
+      accessor: row => row.results[runSetIdx].values[columnIdx],
+      Cell: cell => (
+        <StandardCell
+          cell={cell}
+          toggleLinkOverlay={this.props.toggleLinkOverlay}
+        />
+      ),
+      filterMethod: isNumericColumn(column)
+        ? applyNumericFilter
+        : applyTextFilter,
+      Filter: filter => (
+        <FilterInputField numeric={isNumericColumn(column)} {...filter} />
+      ),
+      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod
+    };
   };
 
   render() {
-    this.data = this.props.data;
-    const toolColumns = this.renderColumns();
-    const columns = [
-      {
-        Header: () => (
-          <div className="fixed">
-            <form>
-              <label title="Fix the first column">Fixed task:</label>
-              <input
-                name="fixed"
-                type="checkbox"
-                checked={this.state.fixed}
-                onChange={this.handleInputChange}
-              />
-            </form>
-          </div>
-        ),
-        fixed: this.state.fixed ? "left" : "",
-        columns: [
-          {
-            minWidth: window.innerWidth * 0.3,
-            Header: <SelectColumnsButton handler={this.props.selectColumn} />,
-            fixed: this.state.fixed ? "left" : "",
-            accessor: "id",
-            Cell: cell => {
-              const content = cell.value.map(id => (
-                <span key={id} className="row_id">
-                  {id}
-                </span>
-              ));
-              const href = cell.original.href;
-              return href ? (
-                <a
-                  key={href}
-                  className="row__name--cellLink"
-                  href={href}
-                  title="Click here to show source code"
-                  onClick={ev => this.props.toggleLinkOverlay(ev, href)}
-                >
-                  {content}
-                </a>
-              ) : (
-                <span title="This task has no associated file">{content}</span>
-              );
-            },
-            filterMethod: (filter, row, column) => {
-              const id = filter.pivotId || filter.id;
-              return row[id].some(v => v && v.includes(filter.value));
-            },
-            Filter: FilterInputField
-          }
-        ]
-      },
-      ...toolColumns.map((toolColumn, i) => ({
-        id: "results",
-        Header: <RunSetHeader runSet={this.props.tools[i]} />,
-        columns: toolColumn
-      }))
-    ];
+    const resultColumns = this.props.tools.map((runSet, runSetIdx) =>
+      createRunSetColumns(runSet, runSetIdx, this.createColumn)
+    );
 
     return (
       <div className="mainTable">
@@ -287,7 +263,7 @@ export default class Table extends React.Component {
           data={this.data}
           filterable={true}
           filtered={this.props.filtered}
-          columns={columns}
+          columns={[this.createTaskIdColumn()].concat(resultColumns)}
           defaultPageSize={250}
           pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
           className="-highlight"

@@ -61,3 +61,10 @@ export const StandardCell = ({
     </div>
   );
 };
+
+export const createRunSetColumns = (runSet, runSetIdx, createColumn) => ({
+  Header: <RunSetHeader runSet={runSet} />,
+  columns: runSet.columns.map((column, columnIdx) =>
+    createColumn(runSetIdx, column, columnIdx)
+  )
+});

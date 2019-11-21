@@ -10,7 +10,7 @@ import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import {
-  RunSetHeader,
+  createRunSetColumns,
   StandardColumnHeader,
   SelectColumnsButton
 } from "./TableComponents.js";
@@ -41,43 +41,6 @@ export default class Summary extends React.Component {
     this.headerWidth = window.innerWidth * 0.15;
     this.width = window.innerWidth;
   }
-
-  renderResultTable = () => {
-    return this.props.tools.map((tool, j) => {
-      return tool.columns.map((column, i) => {
-        return {
-          id: `${j}_${column.display_title}_${i}`,
-          Header: (
-            <StandardColumnHeader
-              column={column}
-              className="columns"
-              title="Show Quantile Plot of this column"
-              onClick={e => this.props.changeTab(e, column, 2)}
-            />
-          ),
-          show:
-            column.isVisible &&
-            (isNumericColumn(column) || column.type === "status"),
-          minWidth: determineColumnWidth(
-            column,
-            null,
-            column.type === "status" ? 6 : null
-          ),
-          accessor: row => row.content[j][i],
-          Cell: cell =>
-            cell.value ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: cell.value.sum }}
-                className="cell"
-                title={this.renderTooltip(cell.value)}
-              ></div>
-            ) : (
-              <div className="cell">-</div>
-            )
-        };
-      });
-    });
-  };
 
   renderTooltip = cell =>
     Object.keys(cell)
@@ -118,50 +81,73 @@ export default class Summary extends React.Component {
     ));
   };
 
-  render() {
-    const toolColumns = this.renderResultTable();
-    //preperation of columns for a ReactTable
-    const column = [
+  createRowTitleColumn = () => ({
+    Header: () => (
+      <div className="toolsHeader">
+        <form>
+          <label>Fixed row title:</label>
+          <input
+            name="fixed"
+            type="checkbox"
+            checked={this.state.fixed}
+            onChange={this.handleInputChange}
+          />
+        </form>
+      </div>
+    ),
+    fixed: this.state.fixed ? "left" : "",
+    minWidth: this.headerWidth,
+    columns: [
       {
-        Header: () => (
-          <div className="toolsHeader">
-            <form>
-              <label>Fixed row title:</label>
-              <input
-                name="fixed"
-                type="checkbox"
-                checked={this.state.fixed}
-                onChange={this.handleInputChange}
-              />
-            </form>
-          </div>
-        ),
-        fixed: this.state.fixed ? "left" : "",
+        id: "summary",
         minWidth: this.headerWidth,
-        columns: [
-          {
-            id: "summary",
-            minWidth: this.headerWidth,
-            Header: <SelectColumnsButton handler={this.props.selectColumn} />,
-            accessor: "",
-            Cell: cell => (
-              <div
-                dangerouslySetInnerHTML={{ __html: cell.value.title }}
-                title={cell.value.description}
-                className="row-title"
-              />
-            )
-          }
-        ]
-      },
-      ...toolColumns.map((toolColumn, i) => {
-        return {
-          id: "results",
-          Header: <RunSetHeader runSet={this.props.tools[i]} />,
-          columns: toolColumn
-        };
-      })
-    ];
+        Header: <SelectColumnsButton handler={this.props.selectColumn} />,
+        accessor: "",
+        Cell: cell => (
+          <div
+            dangerouslySetInnerHTML={{ __html: cell.value.title }}
+            title={cell.value.description}
+            className="row-title"
+          />
+        )
+      }
+    ]
+  });
+
+  createColumn = (runSetIdx, column, columnIdx) => ({
+    id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+    Header: (
+      <StandardColumnHeader
+        column={column}
+        className="columns"
+        title="Show Quantile Plot of this column"
+        onClick={e => this.props.changeTab(e, column, 2)}
+      />
+    ),
+    show:
+      column.isVisible && (isNumericColumn(column) || column.type === "status"),
+    minWidth: determineColumnWidth(
+      column,
+      null,
+      column.type === "status" ? 6 : null
+    ),
+    accessor: row => row.content[runSetIdx][columnIdx],
+    Cell: cell =>
+      cell.value ? (
+        <div
+          dangerouslySetInnerHTML={{ __html: cell.value.sum }}
+          className="cell"
+          title={this.renderTooltip(cell.value)}
+        ></div>
+      ) : (
+        <div className="cell">-</div>
+      )
+  });
+
+  render() {
+    const statColumns = this.props.tools.map((runSet, runSetIdx) =>
+      createRunSetColumns(runSet, runSetIdx, this.createColumn)
+    );
 
     return (
       <div id="summary">
@@ -187,7 +173,7 @@ export default class Summary extends React.Component {
           <h2>Statistics</h2>
           <ReactTableFixedColumns
             data={this.props.stats}
-            columns={column}
+            columns={[this.createRowTitleColumn()].concat(statColumns)}
             showPagination={false}
             className="-highlight"
             minRows={0}
