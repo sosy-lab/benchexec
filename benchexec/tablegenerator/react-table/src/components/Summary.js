@@ -145,9 +145,11 @@ export default class Summary extends React.Component {
   });
 
   render() {
-    const statColumns = this.props.tools.map((runSet, runSetIdx) =>
-      createRunSetColumns(runSet, runSetIdx, this.createColumn)
-    );
+    const statColumns = this.props.tools
+      .map((runSet, runSetIdx) =>
+        createRunSetColumns(runSet, runSetIdx, this.createColumn)
+      )
+      .flat();
 
     return (
       <div id="summary">

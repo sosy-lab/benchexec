@@ -68,6 +68,12 @@ $table-border: 1px solid $border-color;
   font-weight: 700;
 }
 
+.separator {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: $border-color !important;
+}
+
 //------------------overview------------------
 .overview {
   background: $key-color;
@@ -188,7 +194,6 @@ $table-border: 1px solid $border-color;
     .rt-td {
       padding-top: 8px;
       padding-bottom: 8px;
-      border-right: $table-border !important;
       .cell {
         text-align: right;
       }
@@ -259,7 +264,6 @@ $table-border: 1px solid $border-color;
     }
     .rt-td {
       padding: 2px;
-      border-right: $table-border !important;
       text-align: right;
       > * {
         padding: 6px 2px;

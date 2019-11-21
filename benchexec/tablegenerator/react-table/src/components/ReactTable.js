@@ -253,9 +253,11 @@ export default class Table extends React.Component {
   };
 
   render() {
-    const resultColumns = this.props.tools.map((runSet, runSetIdx) =>
-      createRunSetColumns(runSet, runSetIdx, this.createColumn)
-    );
+    const resultColumns = this.props.tools
+      .map((runSet, runSetIdx) =>
+        createRunSetColumns(runSet, runSetIdx, this.createColumn)
+      )
+      .flat();
 
     return (
       <div className="mainTable">
