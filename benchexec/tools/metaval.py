@@ -24,10 +24,21 @@ import benchexec.tools.template
 import benchexec.result as result
 import contextlib
 import os
+import sys
 import threading
 
 
 class Tool(benchexec.tools.template.BaseTool):
+    """
+    This is the tool info module for MetaVal.
+
+    The official repository is:
+    https://gitlab.com/sosy-lab/software/metaval
+
+    Please report any issues to our issue tracker at:
+    https://gitlab.com/sosy-lab/software/metaval/issues
+
+    """
 
     TOOL_TO_PATH_MAP = {
         "cpachecker-metaval": "CPAchecker",
@@ -98,7 +109,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 ).Tool()
             else:
                 if not verifierName == self.verifierName:
-                    exit("metaval is called with mixed wrapped tools")
+                    sys.exit("metaval is called with mixed wrapped tools")
 
         if hasattr(self, "wrappedTool"):
             with self._in_tool_directory() as oldcwd:
