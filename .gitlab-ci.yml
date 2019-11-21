@@ -110,7 +110,7 @@ flake8:
 # For HTML tables, test that bundled files are uptodate
 javascript-build:
   stage: test
-  image: node
+  image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
     - npm install
@@ -128,7 +128,7 @@ javascript-build:
 
 javascript-tests:
   stage: test
-  image: node
+  image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
     - npm install
@@ -141,7 +141,7 @@ javascript-tests:
 
 javascript-eslint:
   stage: test
-  image: node
+  image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
     - npm install
