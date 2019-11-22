@@ -29,6 +29,7 @@ import unittest
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+import benchexec
 from benchexec import util
 
 here = os.path.relpath(os.path.dirname(__file__))
@@ -191,6 +192,10 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         ]
         # Pretty-print JSON for better diffs
         content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
+        content = content.replace(
+            '\n "version": "{}"\n'.format(benchexec.__version__),
+            '\n "version": "(test)"\n',
+        )
         return content
 
     def test_no_files_given(self):
