@@ -114,6 +114,7 @@ javascript-build:
   before_script:
     - cd benchexec/tablegenerator/react-table
     - npm install
+    - npm rebuild node-sass
   script:
     - npm run build
     - git diff --stat --exit-code
