@@ -56,6 +56,11 @@ class FilterInputField extends React.Component {
   );
 }
 
+// Special markers we use as category for empty run results
+const RUN_ABORTED = "aborted"; // result tag was present but empty (failure)
+const RUN_EMPTY = "empty"; // result tag was not present in results XML
+const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
+
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
   constructor(props) {
@@ -73,8 +78,7 @@ export default class Table extends React.Component {
     );
     this.categoryValues = this.findAllValuesOfColumn(
       (tool, column) => column.type === "status",
-      (runResult, value) =>
-        getRawOrDefault(value) ? runResult.category : undefined
+      (runResult, value) => runResult.category
     );
 
     this.infos = [
@@ -173,22 +177,34 @@ export default class Table extends React.Component {
     show: column.isVisible,
     minWidth: determineColumnWidth(column, 10),
     accessor: row => row.results[runSetIdx].values[columnIdx],
-    Cell: cell => (
-      <StandardCell
-        cell={cell}
-        href={cell.original.results[runSetIdx].href}
-        className={cell.original.results[runSetIdx].category}
-        toggleLinkOverlay={this.props.toggleLinkOverlay}
-        title="Click here to show output of tool"
-      />
-    ),
+    Cell: cell => {
+      const category = cell.original.results[runSetIdx].category;
+      let href = cell.original.results[runSetIdx].href;
+      let tooltip;
+      if (category === "aborted") {
+        href = undefined;
+        tooltip = "Result missing because run was aborted or not executed";
+      } else if (category === "empty") {
+        tooltip = "Result missing because task was not part of benchmark set";
+      } else if (href) {
+        tooltip = "Click here to show output of tool";
+      }
+      return (
+        <StandardCell
+          cell={cell}
+          href={href}
+          className={category}
+          toggleLinkOverlay={this.props.toggleLinkOverlay}
+          title={tooltip}
+          force={true}
+        />
+      );
+    },
     sortMethod: textSortMethod,
     filterMethod: (filter, row) => {
       const cellValue = getRawOrDefault(row[filter.id]);
       if (!filter.value || filter.value === "all ") {
         return true;
-      } else if (cellValue === undefined) {
-        return false; // empty cells never match
       } else if (filter.value.endsWith(" ")) {
         // category filters are marked with space at end
         const category = row._original.results[runSetIdx].category;
@@ -198,6 +214,7 @@ export default class Table extends React.Component {
       }
     },
     Filter: ({ filter, onChange }) => {
+      const categoryValues = this.categoryValues[runSetIdx][columnIdx];
       return (
         <select
           onChange={event => onChange(event.target.value)}
@@ -205,13 +222,23 @@ export default class Table extends React.Component {
           value={filter ? filter.value : "all "}
         >
           <option value="all ">Show all</option>
-          <optgroup label="Category">
-            {this.categoryValues[runSetIdx][columnIdx].map(category => (
+          {categoryValues
+            .filter(category => category in SPECIAL_CATEGORIES)
+            .map(category => (
               // category filters are marked with space at end
               <option value={category + " "} key={category}>
-                {category}
+                {SPECIAL_CATEGORIES[category]}
               </option>
             ))}
+          <optgroup label="Category">
+            {categoryValues
+              .filter(category => !(category in SPECIAL_CATEGORIES))
+              .map(category => (
+                // category filters are marked with space at end
+                <option value={category + " "} key={category}>
+                  {category}
+                </option>
+              ))}
           </optgroup>
           <optgroup label="Status">
             {this.statusValues[runSetIdx][columnIdx].map(status => (

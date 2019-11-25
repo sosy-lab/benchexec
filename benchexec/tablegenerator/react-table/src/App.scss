@@ -267,6 +267,7 @@ $table-border: 1px solid $border-color;
       text-align: right;
       > * {
         padding: 6px 2px;
+        height: 100%;
       }
     }
     .row__name {
@@ -305,6 +306,12 @@ $table-border: 1px solid $border-color;
   }
   .wrong {
     color: red;
+  }
+  .aborted {
+    text-align: center;
+  }
+  .aborted:after {
+    content: "—";
   }
   input {
     width: 100%;

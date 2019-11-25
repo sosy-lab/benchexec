@@ -33,11 +33,12 @@ export const StandardCell = ({
   cell,
   href = cell.value.href,
   toggleLinkOverlay,
+  force = false,
   ...other
 }) => {
   const html = cell.value.html;
   const raw = html ? undefined : cell.value.raw;
-  if (!(raw || html)) {
+  if (!force && !(raw || html)) {
     return null;
   }
   if (href) {

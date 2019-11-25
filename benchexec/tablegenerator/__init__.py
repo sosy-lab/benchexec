@@ -764,7 +764,7 @@ def merge_task_lists(runset_results, tasks):
                 run_result = RunResult(
                     task,
                     None,
-                    result.CATEGORY_MISSING,
+                    "empty",  # special category for tables
                     None,
                     None,
                     runset.columns,
@@ -886,9 +886,13 @@ class RunResult(object):
                     return []
 
         status = Util.get_column_value(sourcefileTag, "status", "")
-        category = Util.get_column_value(
-            sourcefileTag, "category", result.CATEGORY_MISSING
-        )
+        category = Util.get_column_value(sourcefileTag, "category")
+        if not category:
+            if status:  # only category missing
+                category = result.CATEGORY_MISSING
+            else:  # probably everything is missing, special category for tables
+                category = "aborted"
+
         score = result.score_for_task(
             sourcefileTag.get("properties", "").split(), category, status
         )
