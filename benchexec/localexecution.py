@@ -27,6 +27,7 @@ import sys
 import threading
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
+from benchexec import __version__
 from benchexec import BenchExecException
 from benchexec import cgroups
 from benchexec import containerexecutor

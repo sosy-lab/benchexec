@@ -738,19 +738,17 @@ def chroot(target):
     Chroot into a target directory. This also affects the working directory, make sure
     to call os.chdir() afterwards.
     """
-    # We need to use pivot_root and not only chroot, and for this we need a place below
-    # target where to move the old root directory.
-    # Explanation: https://unix.stackexchange.com/a/456777/15398
-    old_root = b"/proc"  # Does not matter, just needs to exist.
-    # These three steps together are the recommended sequence for calling pivot_root
-    # (http://man7.org/linux/man-pages/man8/pivot_root.8.html)
+    # We need to use pivot_root and not only chroot
+    # (cf. https://unix.stackexchange.com/a/456777/15398).
+    # These three steps together are the easiest way for calling pivot_root as chroot
+    # replacement (cf. the 'pivot_root(".", ".")' section of
+    # http://man7.org/linux/man-pages/man2/pivot_root.2.html):
     os.chdir(target)
-    libc.pivot_root(target, target + old_root)
-    os.chroot(".")
-    # Now the container file system is at /,
-    # and the outer file system is visible at old_root in the container.
-    # We can just unmount old_root and finally make it inaccessible from container.
-    libc.umount2(old_root, libc.MNT_DETACH)
+    # Make "." (the target) our new root and put the old root at ".":
+    libc.pivot_root(b".", b".")
+    # Now both the host file system (old root) and the target are at "/" (stacked).
+    # We umount one of them, which will be the host file system, making it inaccessible:
+    libc.umount2(b"/", libc.MNT_DETACH)
 
 
 def get_my_pid_from_procfs():
@@ -801,7 +799,11 @@ def setup_seccomp_filter():
         logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
-_ALL_SIGNALS = range(1, signal.NSIG)
+try:
+    _ALL_SIGNALS = signal.valid_signals()
+except AttributeError:
+    # Only exists on Python 3.8+
+    _ALL_SIGNALS = range(1, signal.NSIG)
 _FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
     [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
 )

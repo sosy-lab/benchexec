@@ -1,9 +1,9 @@
 <table>
-  <union name="predicateAnalysis">
+  <union title="predicateAnalysis">
     <result id="2015-03-03_1613" filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
     <result id="2015-03-03_1815" filename="results/test.2015-03-03_1815.results.predicateAnalysis.xml"/>
   </union>
-  <union name="valueAnalysis">
+  <union title="valueAnalysis">
     <result id="2015-03-03_1613" filename="results/test.2015-03-03_1613.results.valueAnalysis.xml"/>
     <result id="2015-03-03_1815" filename="results/test.2015-03-03_1815.results.valueAnalysis.xml"/>
   </union>

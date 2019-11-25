@@ -1,0 +1,19 @@
+/* SPDX-License-Identifier: Apache-2.0
+ *
+ * BenchExec is a framework for reliable benchmarking.
+ * This file is part of BenchExec.
+ * Copyright (C) Dirk Beyer. All rights reserved.
+ */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}

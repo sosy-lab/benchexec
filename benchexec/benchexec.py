@@ -320,6 +320,7 @@ class BenchExec(object):
         May be overridden for replacing the executor,
         for example with an implementation that delegates to some cloud service.
         """
+        logging.debug("This is benchexec %s.", __version__)
         from . import localexecution as executor
 
         return executor
@@ -342,14 +343,17 @@ class BenchExec(object):
         )
 
         logging.debug(
-            "I'm benchmarking %r consisting of %s run sets.",
+            "I'm benchmarking %r consisting of %s run sets using %s %s.",
             benchmark_file,
             len(benchmark.run_sets),
+            benchmark.tool_name,
+            benchmark.tool_version or "(unknown version)",
         )
 
         try:
             result = self.executor.execute_benchmark(benchmark, output_handler)
         finally:
+            benchmark.tool.close()
             output_handler.close()
             # remove useless log folder if it is empty
             try:

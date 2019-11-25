@@ -129,7 +129,15 @@ def load_tool_info(tool_name, config):
             tool = containerized_tool.ContainerizedTool(tool_module, config)
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            # Provide dummy close method
+            tool.close = lambda: None
     except ImportError as ie:
+        logging.debug(
+            "Did not find module '%s'. "
+            "Python probably looked for it in one of the following paths:\n  %s",
+            tool_module,
+            "\n  ".join(path or "." for path in sys.path),
+        )
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
         )
@@ -215,8 +223,6 @@ class Benchmark(object):
         self.tool_version = None
         self.executable = None
         self.display_name = rootTag.get("displayName")
-
-        logging.debug("The tool to be benchmarked is %s.", self.tool_name)
 
         def parse_memory_limit(value):
             # In a future BenchExec version, we could treat unit-less limits as bytes

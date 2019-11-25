@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import os
 import shutil
 import subprocess
@@ -28,6 +29,7 @@ import unittest
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+import benchexec
 from benchexec import util
 
 here = os.path.relpath(os.path.dirname(__file__))
@@ -141,7 +143,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 (result_diff_prefix or diff_prefix) + "." + ending,
             ]
 
-        output, html_file, html_diff_file, csv_file, csv_diff_file = self.generate_tables_and_check_produced_files(
+        (
+            output,
+            html_file,
+            html_diff_file,
+            csv_file,
+            csv_diff_file,
+        ) = self.generate_tables_and_check_produced_files(
             args, table_prefix, diff_prefix
         )
 
@@ -180,8 +188,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         content = util.read_file(file)
         # only keep table
         content = content[
-            content.index('<table id="dataTable">') : content.index("</table>") + 8
+            content.index("const data = {") + 13 : content.index("\n};") + 2
         ]
+        # Pretty-print JSON for better diffs
+        content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
+        content = content.replace(
+            '\n "version": "{}"\n'.format(benchexec.__version__),
+            '\n "version": "(test)"\n',
+        )
         return content
 
     def test_no_files_given(self):
@@ -385,19 +399,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_all_columns(self):
-        self.generate_tables_and_check_produced_files(
+        self.generate_tables_and_compare_content(
             [
                 result_file(
                     "integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2"
                 ),
-                "-f",
-                "html",
                 "--all-columns",
                 "-n",
                 "integration-predicateAnalysis.2015-10-20_1355.all-columns",
             ],
             table_prefix="integration-predicateAnalysis.2015-10-20_1355.all-columns",
-            formats=["html"],
         )
 
     def test_dump_count_single_table(self):
@@ -676,10 +687,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_with_nan_and_infinity(self):
-        self.generate_tables_and_check_produced_files(
-            [result_file("nan_and_inf.xml"), "-f", "csv", "-f", "html"],
-            table_prefix="nan_and_inf",
-            formats=["csv", "html"],
+        self.generate_tables_and_compare_content(
+            [result_file("nan_and_inf.xml")], table_prefix="nan_and_inf"
         )
 
     def test_smt_results(self):
@@ -687,6 +696,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ["-x", os.path.join(here, "smt.xml")],
             table_prefix="smt.table",
             diff_prefix="smt.diff",
+        )
+
+    def test_tasks_without_file(self):
+        benchmark_name = "benchmark-example-true.2019-11-06_0932.results.no options"
+        self.generate_tables_and_compare_content(
+            [result_file(benchmark_name + ".xml.bz2")], table_prefix=benchmark_name
         )
 
     def test_results_via_url(self):

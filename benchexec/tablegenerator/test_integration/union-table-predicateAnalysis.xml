@@ -1,5 +1,5 @@
 <table>
-  <union name="predicateAnalysis">
+  <union title="predicateAnalysis">
     <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.0.xml"/>
     <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.1.xml"/>
     <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.2.xml"/>

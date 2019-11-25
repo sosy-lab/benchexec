@@ -3,7 +3,7 @@ BenchExec is a framework for reliable benchmarking.
 This file is part of BenchExec.
 
 Copyright (C) 2007-2015  Dirk Beyer
-Copyright (C) 2016-2018  Marek Chalupa
+Copyright (C) 2016-2019  Marek Chalupa
 
 All rights reserved.
 
@@ -36,6 +36,8 @@ class Tool(OldSymbiotic):
 
     REQUIRED_PATHS_6_0_0 = ["bin", "include", "properties", "lib", "llvm-4.0.1"]
 
+    REQUIRED_PATHS_7_0_0 = ["bin", "include", "properties", "lib", "llvm-8.0.1"]
+
     def executable(self):
         """
         Find the path to the executable file that will get executed.
@@ -51,7 +53,9 @@ class Tool(OldSymbiotic):
             return OldSymbiotic.executable(self)
 
     def program_files(self, executable):
-        if self._version_newer_than("6.0.0"):
+        if self._version_newer_than("7.0.0"):
+            paths = self.REQUIRED_PATHS_7_0_0
+        elif self._version_newer_than("6.0.0"):
             paths = self.REQUIRED_PATHS_6_0_0
         elif self._version_newer_than("5.0.0"):
             paths = self.REQUIRED_PATHS_5_0_0
