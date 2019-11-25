@@ -26,7 +26,7 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for LibKluzzer (http://unihb.eu/kluzzer).
     """
 
-    REQUIRED_PATHS = ["bin", "lib"]
+    REQUIRED_PATHS = ["bin", "lib", "kluzzer"]
 
     def program_files(self, executable):
         return self._program_files_from_executable(
