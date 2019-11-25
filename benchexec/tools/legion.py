@@ -32,7 +32,10 @@ class Tool(benchexec.tools.template.BaseTool):
         "legion-sv",
         "Legion.py",
         "__VERIFIER.c",
+        "__VERIFIER_assume.c",
+        "__VERIFIER_assume.instr.s",
         "__trace_jump.s",
+        "__trace_buffered.c",
         "tracejump.py",
         "lib",
     ]
