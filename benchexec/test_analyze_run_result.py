@@ -46,7 +46,7 @@ class TestResult(unittest.TestCase):
         runSet.result_files_folder = "."
         runSet.options = []
         runSet.real_name = None
-        runSet.propertyfile = None
+        runSet.propertytag = None
         runSet.benchmark = lambda: None
         runSet.benchmark.base_dir = "."
         runSet.benchmark.benchmark_file = "Test.xml"

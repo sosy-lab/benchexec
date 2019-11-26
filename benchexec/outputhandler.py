@@ -277,7 +277,9 @@ class OutputHandler(object):
                 "options",
                 " ".join(map(util.escape_string_shell, self.benchmark.options)),
             )
-            + format_line("property file", self.benchmark.propertyfile)
+            + format_line(
+                "property file", util.text_or_none(self.benchmark.propertytag)
+            )
         )
         if self.benchmark.num_of_threads > 1:
             header += format_line("parallel runs", self.benchmark.num_of_threads)
@@ -438,7 +440,7 @@ class OutputHandler(object):
             runSet.index,
             len(self.benchmark.run_sets),
             " ".join(runSet.options),
-            runSet.propertyfile,
+            util.text_or_none(runSet.propertytag),
         )
 
         titleLine = self.create_output_line(

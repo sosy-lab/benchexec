@@ -40,8 +40,6 @@ SOFTTIMELIMIT = "softtimelimit"
 HARDTIMELIMIT = "hardtimelimit"
 WALLTIMELIMIT = "walltimelimit"
 
-PROPERTY_TAG = "propertyfile"
-
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 _ERROR_RESULTS_FOR_TERMINATION_REASON = {
@@ -171,6 +169,11 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     return args
 
 
+def get_propertytag(parent):
+    tag = util.get_single_child_from_xml(parent, "propertyfile")
+    return tag
+
+
 class Benchmark(object):
     """
     The class Benchmark manages the import of source files, options, columns and
@@ -296,9 +299,7 @@ class Benchmark(object):
 
         # get global options and property file
         self.options = util.get_list_from_xml(rootTag)
-        self.propertyfile = util.text_or_none(
-            util.get_single_child_from_xml(rootTag, PROPERTY_TAG)
-        )
+        self.propertytag = get_propertytag(rootTag)
 
         # get columns
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
@@ -446,12 +447,9 @@ class RunSet(object):
 
         # get all run-set-specific options from rundefinitionTag
         self.options = benchmark.options + util.get_list_from_xml(rundefinitionTag)
-        self.propertyfile = (
-            util.text_or_none(
-                util.get_single_child_from_xml(rundefinitionTag, PROPERTY_TAG)
-            )
-            or benchmark.propertyfile
-        )
+        self.propertytag = get_propertytag(rundefinitionTag)
+        if self.propertytag is None:
+            self.propertytag = benchmark.propertytag
 
         # get run-set specific required files
         required_files_pattern = {
@@ -530,9 +528,7 @@ class RunSet(object):
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
-            propertyfile = util.text_or_none(
-                util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG)
-            )
+            local_propertytag = get_propertytag(sourcefilesTag)
 
             # some runs need more than one sourcefile,
             # the first sourcefile is a normal 'include'-file, we use its name as identifier
@@ -547,13 +543,16 @@ class RunSet(object):
                             "Cannot combine <append> and task-definition files in the same <tasks> tag."
                         )
                     run = self.create_run_from_task_definition(
-                        identifier, fileOptions, propertyfile, required_files_pattern
+                        identifier,
+                        fileOptions,
+                        local_propertytag,
+                        required_files_pattern,
                     )
                 else:
                     run = self.create_run_for_input_file(
                         identifier,
                         fileOptions,
-                        propertyfile,
+                        local_propertytag,
                         required_files_pattern,
                         appendFileTags,
                     )
@@ -568,7 +567,7 @@ class RunSet(object):
                         [],
                         fileOptions,
                         self,
-                        propertyfile,
+                        local_propertytag,
                         required_files_pattern,
                     )
                 )
@@ -661,7 +660,7 @@ class RunSet(object):
         self,
         input_file,
         options,
-        property_file,
+        local_propertytag,
         required_files_pattern,
         append_file_tags,
     ):
@@ -680,7 +679,7 @@ class RunSet(object):
             util.get_files(input_files),  # expand directories to get their sub-files
             options,
             self,
-            property_file,
+            local_propertytag,
             required_files_pattern,
         )
 
@@ -697,7 +696,7 @@ class RunSet(object):
         return run
 
     def create_run_from_task_definition(
-        self, task_def_file, options, propertyfile, required_files_pattern
+        self, task_def_file, options, local_propertytag, required_files_pattern
     ):
         """Create a Run from a task definition in yaml format"""
         task_def = load_task_definition_file(task_def_file)
@@ -738,7 +737,7 @@ class RunSet(object):
             input_files,
             options,
             self,
-            propertyfile,
+            local_propertytag,
             required_files_pattern,
             required_files,
         )
@@ -857,7 +856,7 @@ class Run(object):
         sourcefiles,
         fileOptions,
         runSet,
-        propertyfile=None,
+        local_propertytag=None,
         required_files_patterns=[],
         required_files=[],
         expected_results={},
@@ -895,7 +894,10 @@ class Run(object):
         if substitutedOptions != self.options:
             self.options = substitutedOptions  # for less memory again
 
-        self.propertyfile = propertyfile or runSet.propertyfile
+        self.propertytag = (
+            local_propertytag if local_propertytag is not None else runSet.propertytag
+        )
+        self.propertyfile = util.text_or_none(self.propertytag)
         self.properties = []  # filled externally
 
         def log_property_file_once(msg):
