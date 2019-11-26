@@ -45,6 +45,7 @@ DummyConfig = collections.namedtuple(
 ALL_TEST_TASKS = {
     "false_other_sub_task.yml": "other_subproperty",
     "false_sub_task.yml": "sub",
+    "false_sub2_task.yml": "sub2",
     "false_task.yml": "expected_verdict: false",
     "true_task.yml": "expected_verdict: true",
     "unknown_task.yml": "",
@@ -58,7 +59,7 @@ def mock_expand_filename_pattern(pattern, base_dir):
 
 
 def mock_load_task_def_file(f):
-    if f in ["false_other_sub_task.yml", "false_sub_task.yml"]:
+    if f in ["false_other_sub_task.yml", "false_sub_task.yml", "false_sub2_task.yml"]:
         content = """
             input_files: {}.c
             properties:
@@ -174,3 +175,21 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_expected_verdict_unknown_filter(self):
         self.check_task_filter('expectedverdict="unknown"', ["unknown_task.yml"])
+
+    def test_expected_verdict_false_subproperties_filter(self):
+        benchmark_definition = """
+            <benchmark tool="dummy">
+              <tasks>
+                <propertyfile expectedverdict="false(sub)">test.prp</propertyfile>
+                <include>*.yml</include>
+              </tasks>
+              <tasks>
+                <propertyfile expectedverdict="false(sub2)">test.prp</propertyfile>
+                <include>*.yml</include>
+              </tasks>
+              <rundefinition/>
+            </benchmark>
+            """
+        benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["false_sub_task.yml", "false_sub2_task.yml"])
