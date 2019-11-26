@@ -50,6 +50,9 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
     "files-size": "FILES-SIZE LIMIT",
 }
 
+_EXPECTED_RESULT_FILTER_VALUES = {True: "true", False: "false", None: "unknown"}
+_WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = False
+
 
 def substitute_vars(oldList, runSet=None, task_file=None):
     """
@@ -171,6 +174,19 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
 
 def get_propertytag(parent):
     tag = util.get_single_child_from_xml(parent, "propertyfile")
+    if tag is None:
+        return None
+    expected_verdict = tag.get("expectedverdict")
+    if (
+        expected_verdict is not None
+        and expected_verdict not in _EXPECTED_RESULT_FILTER_VALUES.values()
+    ):
+        raise BenchExecException(
+            "Invalid value '{}' for expectedverdict of <propertyfile> in tag <{}>: "
+            "Only 'true', 'false', and 'unknown' are allowed!".format(
+                expected_verdict, parent.tag
+            )
+        )
     return tag
 
 
@@ -693,6 +709,18 @@ class RunSet(object):
             run.expected_results[prop.filename] = expected_results[prop.name]
         # We do not check here if there is an expected result for the given propertyfile
         # like we do in create_run_from_task_definition, to keep backwards compatibility.
+
+        if run.propertytag.get("expectedverdict"):
+            global _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER
+            if not _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER:
+                _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = True
+                logging.warning(
+                    "Ignoring filter based on expected verdict "
+                    "for tasks without task-definition file. "
+                    "Expected verdicts for such tasks will be removed in BenchExec 3.0 "
+                    "(cf. https://github.com/sosy-lab/benchexec/issues/439)."
+                )
+
         return run
 
     def create_run_from_task_definition(
@@ -799,8 +827,24 @@ class RunSet(object):
                     prop.filename, task_def_file
                 )
             )
-        else:
-            return run
+        assert len(run.expected_results) == 1
+
+        expected_result_filter = run.propertytag.get("expectedverdict")
+        # Valid value of expected_result_filter has been confirmed before.
+        if expected_result_filter is not None:
+            expected_result = next(iter(run.expected_results.values())).result
+            expected_result = _EXPECTED_RESULT_FILTER_VALUES[expected_result]
+            if expected_result != expected_result_filter:
+                logging.debug(
+                    "Ignoring run '%s' because "
+                    "it does not have the expected verdict '%s' for %s.",
+                    run.identifier,
+                    expected_result_filter,
+                    prop,
+                )
+                return None
+
+        return run
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
         """

@@ -28,8 +28,9 @@
          This can be used for example to define multiple tasks for the same input file but with different entry points. -->
     <withoutfile>*identifier of task*</withoutfile>
 
-    <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
-    <!-- <propertyfile>*file.prp*</propertyfile> -->
+    <!-- <propertyfile> defines a property file with the specification to check (for software verification).
+         The optional attribute can be used to filter tasks. -->
+    <!-- <propertyfile expectedverdict="true, false, or unknown">*file.prp*</propertyfile> -->
 
     <!-- <option> may be used here, too. -->
   </tasks>

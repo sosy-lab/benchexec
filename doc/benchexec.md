@@ -125,6 +125,10 @@ If none is found, the task defined by this task definition is ignored.
 Otherwise a task is created using the set of input files from the task definition
 and the given property, also using an expected verdict if given for that property.
 All other properties defined in the task definition are ignored.
+If the `<propertyfile>` tag has an attribute `expectedverdict`
+with one of the values `true`, `false`, or `unknown`,
+`benchexec` will ignore tasks where the expected verdict
+that is declared in the task-definition file does not match.
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:

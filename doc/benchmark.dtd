@@ -36,5 +36,6 @@
 <!ATTLIST require memory   CDATA "1">
 
 <!ATTLIST option name CDATA #REQUIRED>
+<!ATTLIST propertyfile expectedverdict CDATA #IMPLIED>
 <!ATTLIST column title CDATA #IMPLIED
                  numberOfDigits CDATA #IMPLIED>
