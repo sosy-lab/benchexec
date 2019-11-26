@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 import logging
 import os
+import re
 import time
 import sys
 import yaml
@@ -180,12 +181,12 @@ def get_propertytag(parent):
     if (
         expected_verdict is not None
         and expected_verdict not in _EXPECTED_RESULT_FILTER_VALUES.values()
+        and not re.match("false(.*)", expected_verdict)
     ):
         raise BenchExecException(
             "Invalid value '{}' for expectedverdict of <propertyfile> in tag <{}>: "
-            "Only 'true', 'false', and 'unknown' are allowed!".format(
-                expected_verdict, parent.tag
-            )
+            "Only 'true', 'false', 'false(<subproperty>)' and 'unknown' "
+            "are allowed!".format(expected_verdict, parent.tag)
         )
     return tag
 
@@ -832,9 +833,15 @@ class RunSet(object):
         expected_result_filter = run.propertytag.get("expectedverdict")
         # Valid value of expected_result_filter has been confirmed before.
         if expected_result_filter is not None:
-            expected_result = next(iter(run.expected_results.values())).result
-            expected_result = _EXPECTED_RESULT_FILTER_VALUES[expected_result]
-            if expected_result != expected_result_filter:
+            expected_result = next(iter(run.expected_results.values()))
+            expected_result_str = _EXPECTED_RESULT_FILTER_VALUES[expected_result.result]
+            if (
+                expected_result.result == False
+                and expected_result.subproperty
+                and "(" in expected_result_filter
+            ):
+                expected_result_str += "(" + expected_result.subproperty + ")"
+            if expected_result_str != expected_result_filter:
                 logging.debug(
                     "Ignoring run '%s' because "
                     "it does not have the expected verdict '%s' for %s.",

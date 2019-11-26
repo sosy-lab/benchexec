@@ -43,6 +43,8 @@ DummyConfig = collections.namedtuple(
 )(None, "test", False, None, None, None, None, None, None, None)
 
 ALL_TEST_TASKS = {
+    "false_other_sub_task.yml": "other_subproperty",
+    "false_sub_task.yml": "sub",
     "false_task.yml": "expected_verdict: false",
     "true_task.yml": "expected_verdict: true",
     "unknown_task.yml": "",
@@ -56,7 +58,19 @@ def mock_expand_filename_pattern(pattern, base_dir):
 
 
 def mock_load_task_def_file(f):
-    if f in ALL_TEST_TASKS:
+    if f in ["false_other_sub_task.yml", "false_sub_task.yml"]:
+        content = """
+            input_files: {}.c
+            properties:
+                - property_file: test.prp
+                  expected_verdict: false
+                  subproperty: {}
+                - property_file: other.prp
+                  expected_verdict: false
+            """.format(
+            f, ALL_TEST_TASKS[f]
+        )
+    elif f in ALL_TEST_TASKS:
         content = """
             input_files: {}.c
             properties:
@@ -152,7 +166,11 @@ class TestBenchmarkDefinition(unittest.TestCase):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
     def test_expected_verdict_false_filter(self):
-        self.check_task_filter('expectedverdict="false"', ["false_task.yml"])
+        false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
+        self.check_task_filter('expectedverdict="false"', false_tasks)
+
+    def test_expected_verdict_false_subproperty_filter(self):
+        self.check_task_filter('expectedverdict="false(sub)"', ["false_sub_task.yml"])
 
     def test_expected_verdict_unknown_filter(self):
         self.check_task_filter('expectedverdict="unknown"', ["unknown_task.yml"])
