@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bz2
 import collections
+import datetime
 import errno
 import fnmatch
 import glob
@@ -638,6 +639,12 @@ def add_files_to_git_repository(base_dir, files, description):
 
 def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)
+
+
+def read_local_time():
+    """Get "aware" datetime.datetime instance with local time (including time zone)."""
+    # On Python 3.6+ can be simplified (cf. test case in test_util.py)
+    return datetime.datetime.now(datetime.timezone.utc).astimezone()
 
 
 def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):

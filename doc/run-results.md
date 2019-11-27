@@ -37,6 +37,7 @@ The meanings of the current possible result values are as follows:
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
+- **starttime**: The time the run was started (not available on Python 2).
 - **memory** / **memUsage** (before BenchExec 2.0):
     Peak memory consumption of run in bytes, as integer with suffix "B" ([more information](resources.md#memory)).
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
@@ -52,10 +53,14 @@ The meanings of the current possible result values are as follows:
 In the result dictionary of a call to `RunExecutor.execute_run()`,
 integer values are stored as `int`,
 decimal numbers as an instance of some arithmetic Python type,
+the start time as an ["aware" `datetime.datetime`](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects) instance in local time,
 and other values as strings.
 More complex values are represented as a `dict`.
 Instead of `returnvalue` and `exitsignal`,
 an instance of `benchexec.util.ProcessExitCode` is returned in a field named `exitcode`.
+
+In the XML produced by `benchexec`,
+the start time is stored as local time with time zone in ISO 8601 format.
 
 
 ### Additional Results of benchexec

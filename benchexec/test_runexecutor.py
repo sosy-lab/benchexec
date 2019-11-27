@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import datetime
 import glob
 import logging
 import os
@@ -171,6 +172,7 @@ class TestRunExecutor(unittest.TestCase):
             "cpuenergy",
             "blkio-read",
             "blkio-write",
+            "starttime",
         }
         expected_keys.update(additional_keys)
         for key in result.keys():
@@ -812,6 +814,20 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(
             inner_output[-1], "TEST_TOKEN", "run output misses command output"
         )
+
+    def test_starttime(self):
+        if not os.path.exists("/bin/echo"):
+            self.skipTest("missing /bin/echo")
+        if sys.version_info[0] == 2:
+            self.skipTest("starttime not supported on Python 2")
+        before = util.read_local_time()
+        (result, _) = self.execute_run("/bin/echo")
+        after = util.read_local_time()
+        self.check_result_keys(result)
+        run_starttime = result["starttime"]
+        self.assertIsNotNone(run_starttime.tzinfo, "start time is not a local time")
+        self.assertLessEqual(before, run_starttime)
+        self.assertLessEqual(run_starttime, after)
 
 
 class TestRunExecutorWithContainer(TestRunExecutor):

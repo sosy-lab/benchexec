@@ -297,11 +297,12 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = result.pop("exitcode", None)
 
-    def print_optional_result(key, unit=""):
+    def print_optional_result(key, unit="", format_fn=str):
         if key in result:
-            print(key + "=" + str(result[key]) + unit)
+            print(key + "=" + format_fn(result[key]) + unit)
 
     # output results
+    print_optional_result("starttime", unit="", format_fn=lambda dt: dt.isoformat())
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
@@ -856,13 +857,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # start measurements
             if self._energy_measurement is not None and packages:
                 self._energy_measurement.start()
+            try:
+                starttime = util.read_local_time()
+            except AttributeError:
+                starttime = None  # for Python 2
             walltime_before = util.read_monotonic_time()
-            return walltime_before
+            return starttime, walltime_before
 
         def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before = preParent_result
+            starttime, walltime_before = preParent_result
             walltime = util.read_monotonic_time() - walltime_before
             energy = (
                 self._energy_measurement.stop() if self._energy_measurement else None
@@ -890,7 +895,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
 
-            return (walltime, energy)
+            return starttime, walltime, energy
 
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
@@ -951,7 +956,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
             # wait until process has terminated
-            returnvalue, ru_child, (walltime, energy) = result_fn()
+            returnvalue, ru_child, (starttime, walltime, energy) = result_fn()
+            if starttime:
+                result["starttime"] = starttime
             result["walltime"] = walltime
         finally:
             # cleanup steps that need to get executed even in case of failure

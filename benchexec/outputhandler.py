@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import bz2
 import collections
+import datetime
 import io
 import os
 import threading
@@ -712,6 +713,8 @@ class OutputHandler(object):
 
         if hasattr(value, "__getitem__") and not isinstance(value, (str, bytes)):
             value = ",".join(map(str, value))
+        elif isinstance(value, datetime.datetime):
+            value = value.isoformat()
 
         if prefix:
             title = prefix + "_" + title
