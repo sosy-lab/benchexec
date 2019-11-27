@@ -99,11 +99,11 @@ class Tool(benchexec.tools.template.BaseTool):
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
-        parser.add_argument("--metaval", required=True)
+        parser.add_argument("--metavalVerifierBackend", required=True)
         parser.add_argument("--metavalAdditionalPATH")
         parser.add_argument("--metavalWitnessType")
         (knownargs, options) = parser.parse_known_args(options)
-        verifierName = knownargs.metaval.lower()
+        verifierName = knownargs.metavalVerifierBackend.lower()
         witnessName = knownargs.metavalWitness
         additionalPathArgument = (
             ["--additionalPATH", knownargs.metavalAdditionalPATH]
