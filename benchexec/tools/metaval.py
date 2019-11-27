@@ -24,6 +24,7 @@ import benchexec.tools.template
 import benchexec.result as result
 import contextlib
 import os
+import re
 import sys
 import threading
 
@@ -48,10 +49,12 @@ class Tool(benchexec.tools.template.BaseTool):
         "yogar-cbmc": "yogar-cbmc",
         "ultimateautomizer": "UAutomizer-linux",
     }
+    PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
     REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
 
     def __init__(self):
         self.lock = threading.Lock()
+        self.wrappedTools = dict()
 
     def executable(self):
         return util.find_executable("metaval.sh")
@@ -60,7 +63,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return "metaval"
 
     @contextlib.contextmanager
-    def _in_tool_directory(self):
+    def _in_tool_directory(self, verifierName):
         """
         Context manager that sets the current working directory to the tool's directory
         and resets its afterward. The returned value is the previous working directory.
@@ -68,28 +71,39 @@ class Tool(benchexec.tools.template.BaseTool):
         with self.lock:
             try:
                 oldcwd = os.getcwd()
-                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[self.verifierName]))
+                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
                 yield oldcwd
             finally:
                 os.chdir(oldcwd)
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if not hasattr(self, "wrappedTool"):
+        verifierDir = None
+        regex = re.compile("verifier used in MetaVal is (.*)")
+        for i in range(20):
+            match = regex.match(output[i])
+            if match != None:
+                verifierDir = match.group(1)
+                break
+        if (
+            not verifierDir
+            or not verifierDir in self.PATH_TO_TOOL_MAP
+            or not self.PATH_TO_TOOL_MAP[verifierDir] in self.wrappedTools
+        ):
             return "METAVAL ERROR"
-
-        with self._in_tool_directory():
-            return self.wrappedTool.determine_result(
+        verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
+        with self._in_tool_directory(verifierName):
+            return self.wrappedTools[verifierName].determine_result(
                 returncode, returnsignal, output, isTimeout
             )
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
-        parser.add_argument("--metaval", required=True)
+        parser.add_argument("--metavalVerifierBackend", required=True)
         parser.add_argument("--metavalAdditionalPATH")
         parser.add_argument("--metavalWitnessType")
         (knownargs, options) = parser.parse_known_args(options)
-        verifierName = knownargs.metaval.lower()
+        verifierName = knownargs.metavalVerifierBackend.lower()
         witnessName = knownargs.metavalWitness
         additionalPathArgument = (
             ["--additionalPATH", knownargs.metavalAdditionalPATH]
@@ -102,19 +116,15 @@ class Tool(benchexec.tools.template.BaseTool):
             else []
         )
         with self.lock:
-            if not hasattr(self, "wrappedTool"):
-                self.verifierName = verifierName
-                self.wrappedTool = __import__(
+            if verifierName not in self.wrappedTools:
+                self.wrappedTools[verifierName] = __import__(
                     "benchexec.tools." + verifierName, fromlist=["Tool"]
                 ).Tool()
-            else:
-                if not verifierName == self.verifierName:
-                    sys.exit("metaval is called with mixed wrapped tools")
 
-        if hasattr(self, "wrappedTool"):
-            with self._in_tool_directory() as oldcwd:
-                wrappedOptions = self.wrappedTool.cmdline(
-                    self.wrappedTool.executable(),
+        if verifierName in self.wrappedTools:
+            with self._in_tool_directory(verifierName) as oldcwd:
+                wrappedOptions = self.wrappedTools[verifierName].cmdline(
+                    self.wrappedTools[verifierName].executable(),
                     options,
                     [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
                     os.path.relpath(os.path.join(oldcwd, propertyfile)),
