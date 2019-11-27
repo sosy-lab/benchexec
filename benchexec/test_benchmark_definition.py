@@ -39,8 +39,9 @@ DummyConfig = collections.namedtuple(
         "num_of_threads",
         "selected_run_definitions",
         "selected_sourcefile_sets",
+        "description_file",
     ],
-)(None, "test", False, None, None, None, None, None, None, None)
+)(None, "test", False, None, None, None, None, None, None, None, None)
 
 ALL_TEST_TASKS = {
     "false_other_sub_task.yml": "other_subproperty",

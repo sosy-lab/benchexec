@@ -160,6 +160,12 @@ class BenchExec(object):
         )
 
         parser.add_argument(
+            "--description-file",
+            help="Path to a text file whose contents will be included in the results "
+            "as their description",
+        )
+
+        parser.add_argument(
             "-T",
             "--timelimit",
             dest="timelimit",

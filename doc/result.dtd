@@ -1,4 +1,4 @@
-<!ELEMENT result (columns, systeminfo+, run*, column*)>
+<!ELEMENT result (description?, columns, systeminfo+, run*, column*)>
 <!ATTLIST result name CDATA #IMPLIED
                benchmarkname CDATA #REQUIRED
                displayName CDATA #IMPLIED
@@ -13,6 +13,8 @@
                cpuCores CDATA #IMPLIED
                generator CDATA #REQUIRED
                error CDATA #IMPLIED>
+
+<!ELEMENT description (#PCDATA)>
 
 <!ELEMENT systeminfo (os, cpu, ram, environment)>
 <!ATTLIST systeminfo hostname CDATA #IMPLIED>

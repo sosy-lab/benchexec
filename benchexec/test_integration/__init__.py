@@ -20,6 +20,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import bz2
+import glob
 import os
 import shutil
 import subprocess
@@ -339,7 +340,12 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
     def test_validate_result_xml(self):
-        self.run_cmd(self.benchmark_test_file, "--no-compress-results")
+        self.run_cmd(
+            self.benchmark_test_file,
+            "--no-compress-results",
+            "--description-file",
+            self.benchmark_test_file,
+        )
         basename = "benchmark-example-rand.2015-01-01_0000."
         xml_files = ["results.xml"] + [
             "results." + files + ".xml" for files in benchmark_test_tasks
@@ -381,3 +387,29 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
         self.assertSameRunResults(actual_xml, expected_xml)
+
+    def test_description(self):
+        test_description = """
+            äöüß     This tests non-ASCII characters, line breaks, whitespace, and
+              <>&"'  XML special characters.
+            """
+        with tempfile.NamedTemporaryFile(
+            prefix="description", suffix=".txt", dir=self.tmp, mode="w+"
+        ) as desc:
+            desc.write(test_description)
+            desc.flush()
+
+            self.run_cmd(
+                self.benchmark_test_file,
+                "--no-compress-results",
+                "--description-file",
+                desc.name,
+            )
+
+        generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
+        assert generated_files, "error in test, no results generated"
+
+        for f in generated_files:
+            result_xml = ElementTree.ElementTree().parse(f)
+            actual_description = result_xml.find("description").text
+            self.assertEqual(actual_description, test_description.strip())

@@ -214,6 +214,17 @@ class Benchmark(object):
         if config.name:
             self.name += "." + config.name
 
+        self.description = None
+        if config.description_file is not None:
+            try:
+                self.description = util.read_file(config.description_file)
+            except (IOError, UnicodeDecodeError) as e:
+                raise BenchExecException(
+                    "File '{}' given for description could not be read: {}".format(
+                        config.description_file, e
+                    )
+                )
+
         self.start_time = start_time
         self.instance = time.strftime("%Y-%m-%d_%H%M", self.start_time)
 

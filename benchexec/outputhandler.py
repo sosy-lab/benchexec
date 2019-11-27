@@ -215,6 +215,11 @@ class OutputHandler(object):
         if corelimit is not None:
             self.xml_header.set(CORELIMIT, corelimit)
 
+        if self.benchmark.description:
+            description_tag = ET.Element("description")
+            description_tag.text = self.benchmark.description
+            self.xml_header.append(description_tag)
+
         # store columnTitles in XML, this are the default columns, that are shown in a default html-table from table-generator
         columntitlesElem = ET.Element("columns")
         columntitlesElem.append(ET.Element("column", {"title": "status"}))
