@@ -1,9 +1,12 @@
 # BenchExec Changelog
 
-## BenchExec 2.4
+## BenchExec 2.5
 
 This release contains only a small improvement of one tool-info module.
 
+## BenchExec 2.4
+
+(not released)
 
 ## BenchExec 2.3
 
