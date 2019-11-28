@@ -1,5 +1,34 @@
 # BenchExec Changelog
 
+## BenchExec 2.3
+
+- A complete rewrite of the HTML tables produced by `table-generator`.
+  The tables are now based on [React](https://reactjs.org/), load much faster,
+  and provide features like pagination, sorting, and more intuitive filters.
+  More information can be found in [PR #477](https://github.com/sosy-lab/benchexec/pull/477).
+  Thanks @bschor for this!
+  Note that the tables are not usable without JavaScript anymore.
+  The old kind of HTML tables can still be produced with the command-line flag
+  `--static-table`, but this is deprecated and will be removed in BenchExec 3.0
+  in January 2020 (cf. [#479](https://github.com/sosy-lab/benchexec/issues/479)).
+- Recursively clean up cgroups after a run.
+  This enables nesting `runexec` in itself,
+  but only if `--full-access-dir /sys/fs/cgroup` is passed to the outer `runexec`,
+  which means that the processes in the outer container have full access
+  to the cgroup hierarchy and could use this to circumvent resource limits.
+- `benchexec` filters the tasks to execute depending on the expected verdict,
+  if `<propertyfile expectedverdict="...">` in used the benchmark definition.
+- BenchExec now stores a timestamp for the start time of each run,
+  and timestamps for start and end of reach run set.
+- `benchexec` will store arbitrary user-defined text as benchmark description
+  together with the results if specified with `benchexec --description-file ...`.
+- Support for execution on Python 3.8.
+- Fix crash in `runexec` if the tool's stdout/stderr contain invalid UTF-8.
+- Fix hanging `benchexec` in container mode if tool cannot be executed
+  (e.g., if executable is missing).
+- New tool-info modules and updates for SV-COMP'20 and Test-Comp'20.
+
+
 ## BenchExec 2.2
 
 This release fixes two security issues, all users are encouraged to update:

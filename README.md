@@ -10,6 +10,7 @@
 
 
 **News**:
+- BenchExec 2.3 produces improved HTML tables that load much faster and provide more features.
 - BenchExec 2.0 isolates runs by default using [containers](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md).
 - BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
