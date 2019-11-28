@@ -197,9 +197,7 @@ class OutputHandler(object):
             "result",
             {
                 "benchmarkname": self.benchmark.name,
-                "date": time.strftime(
-                    "%Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time
-                ),
+                "date": self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
                 "tool": self.benchmark.tool_name,
                 "version": version,
                 "toolmodule": self.benchmark.tool_module,
@@ -272,8 +270,7 @@ class OutputHandler(object):
             + format_line("name", self.benchmark.name)
             + format_line("run sets", ", ".join(run_set.name for run_set in run_sets))
             + format_line(
-                "date",
-                time.strftime("%a, %Y-%m-%d %H:%M:%S %Z", self.benchmark.start_time),
+                "date", self.benchmark.start_time.strftime("%a, %Y-%m-%d %H:%M:%S %Z")
             )
             + format_line(
                 "tool", self.benchmark.tool_name + " " + self.benchmark.tool_version

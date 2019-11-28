@@ -18,13 +18,13 @@
 
 import collections
 import tempfile
-import time
 import unittest
 from unittest.mock import patch
 import yaml
 
 from benchexec.model import Benchmark
 import benchexec.result
+import benchexec.util as util
 
 DummyConfig = collections.namedtuple(
     "DummyConfig",
@@ -123,7 +123,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
             # Because we mocked everything that accesses the file system,
             # we can parse the benchmark definition although task files do not exist.
-            return Benchmark(temp.name, DummyConfig, time.localtime())
+            return Benchmark(temp.name, DummyConfig, util.read_local_time())
 
     def check_task_filter(self, filter_attr, expected):
         # The following three benchmark definitions are equivalent, we check each.

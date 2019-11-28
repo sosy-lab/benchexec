@@ -25,11 +25,11 @@ and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
+import datetime
 import logging
 import os
 import signal
 import sys
-import time
 
 from benchexec import __version__
 from benchexec import BenchExecException
@@ -339,7 +339,9 @@ class BenchExec(object):
         @return: a result value from the executor module
         """
         benchmark = Benchmark(
-            benchmark_file, self.config, self.config.start_time or time.localtime()
+            benchmark_file,
+            self.config,
+            self.config.start_time or util.read_local_time(),
         )
         self.check_existing_results(benchmark)
 
@@ -446,7 +448,7 @@ def parse_time_arg(s):
     Parse a time stamp in the "year-month-day hour-minute" format.
     """
     try:
-        return time.strptime(s, "%Y-%m-%d %H:%M")
+        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M")
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
 
