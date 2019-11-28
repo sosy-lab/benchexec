@@ -3,6 +3,8 @@
                benchmarkname CDATA #REQUIRED
                displayName CDATA #IMPLIED
                block CDATA #IMPLIED
+               starttime CDATA #REQUIRED
+               endtime CDATA #IMPLIED
                date CDATA #REQUIRED
                tool CDATA #REQUIRED
                toolmodule CDATA #REQUIRED

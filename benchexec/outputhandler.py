@@ -198,6 +198,7 @@ class OutputHandler(object):
             {
                 "benchmarkname": self.benchmark.name,
                 "date": self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+                "starttime": self.benchmark.start_time.isoformat(),
                 "tool": self.benchmark.tool_name,
                 "version": version,
                 "toolmodule": self.benchmark.tool_module,
@@ -329,7 +330,7 @@ class OutputHandler(object):
         self.txt_file = filewriter.FileWriter(txt_file_name, self.description)
         self.all_created_files.add(txt_file_name)
 
-    def output_before_run_set(self, runSet):
+    def output_before_run_set(self, runSet, start_time=None):
         """
         The method output_before_run_set() calculates the length of the
         first column for the output in terminal and stores information
@@ -399,6 +400,10 @@ class OutputHandler(object):
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
+        if start_time:
+            runSet.xml.set("starttime", start_time.isoformat())
+        elif not self.benchmark.config.start_time:
+            runSet.xml.set("starttime", util.read_local_time().isoformat())
 
         # write (empty) results to txt_file and XML
         self.txt_file.append(self.run_set_to_text(runSet), False)
@@ -587,7 +592,7 @@ class OutputHandler(object):
             self.all_created_files.add(run.result_files_folder)
 
     def output_after_run_set(
-        self, runSet, cputime=None, walltime=None, energy={}, cache={}
+        self, runSet, cputime=None, walltime=None, energy={}, cache={}, end_time=None
     ):
         """
         The method output_after_run_set() stores the times of a run set in XML.
@@ -596,15 +601,22 @@ class OutputHandler(object):
 
         self.add_values_to_run_set_xml(runSet, cputime, walltime, energy, cache)
 
+        if end_time:
+            runSet.xml.set("endtime", end_time.isoformat())
+        elif not self.benchmark.config.start_time:
+            runSet.xml.set("endtime", util.read_local_time().isoformat())
+
         # write results to files
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
             for block in runSet.blocks:
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
-                self._write_pretty_result_xml_to_file(
-                    self.runs_to_xml(runSet, block.runs, block.name), blockFileName
-                )
+                block_xml = self.runs_to_xml(runSet, block.runs, block.name)
+                block_xml.set("starttime", runSet.xml.get("starttime"))
+                if runSet.xml.get("endtime"):
+                    block_xml.set("endtime", runSet.xml.get("endtime"))
+                self._write_pretty_result_xml_to_file(block_xml, blockFileName)
 
         self.txt_file.append(
             self.run_set_to_text(runSet, True, cputime, walltime, energy)

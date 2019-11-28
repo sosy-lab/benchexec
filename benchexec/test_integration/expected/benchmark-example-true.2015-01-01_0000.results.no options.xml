@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE result
-  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
-  'https://www.sosy-lab.org/benchexec/result-1.9.dtd'>
-<result benchmarkname="benchmark-example-true" date="2015-01-01 00:00:00 " generator="BenchExec 1.17-dev" name="no options" options="true" tool="DummyTool" toolmodule="benchexec.tools.dummy" version="">
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.18.dtd'>
+<result benchmarkname="benchmark-example-true" date="2015-01-01 00:00:00 " generator="BenchExec 2.3-dev" name="no options" options="true" starttime="2015-01-01T00:00:00" tool="DummyTool" toolmodule="benchexec.tools.dummy" version="">
   <columns>
     <column title="status"/>
     <column title="cputime"/>
