@@ -1,5 +1,10 @@
 # BenchExec Changelog
 
+## BenchExec 2.4
+
+This release contains only a small improvement of one tool-info module.
+
+
 ## BenchExec 2.3
 
 - A complete rewrite of the HTML tables produced by `table-generator`.
