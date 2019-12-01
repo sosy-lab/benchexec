@@ -61,6 +61,8 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_FALSE_MEMTRACK
         elif self.allInText(["FALSE_OVERFLOW"], output):
             status = result.RESULT_FALSE_OVERFLOW
+        elif self.allInText(["FALSE_TERMINATION"], output):
+            status = result.RESULT_FALSE_TERMINATION
         elif self.allInText(["FALSE"], output):
             status = result.RESULT_FALSE_REACH
         elif "TRUE" in output:
