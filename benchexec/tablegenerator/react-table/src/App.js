@@ -10,7 +10,7 @@ import Overview from "./components/Overview";
 
 if (process.env.NODE_ENV !== "production") {
   // load example data for development
-  window.data = require("./data/data.json");
+  window.data = require("@data");
   window.data.version = "(development build)";
 }
 

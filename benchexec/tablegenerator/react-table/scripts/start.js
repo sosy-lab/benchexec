@@ -48,10 +48,8 @@ if (dataParam) {
   fs.writeFileSync(path.resolve("./src/data/custom-data.json"), content);
 }
 
-const DATA =
-  (dataParam && "./src/data/custom-data.json") || "./src/data/data.json";
-
-process.env.DATA = DATA;
+// the path in this variable will be bound to @data
+const DATA = dataParam ? "./src/data/custom-data.json" : "./src/data/data.json";
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
@@ -93,7 +91,7 @@ checkBrowsers(paths.appPath, isInteractive)
       // We have not found a port.
       return;
     }
-    const config = configFactory("development");
+    const config = configFactory("development", DATA);
     const protocol = process.env.HTTPS === "true" ? "https" : "http";
     const appName = require(paths.appPackageJson).name;
     const useTypeScript = fs.existsSync(paths.appTsConfig);
