@@ -44,8 +44,10 @@ const isInteractive = process.stdout.isTTY;
 const dataParam = process.argv[2];
 
 if (dataParam) {
-  const content = fs.readFileSync(path.resolve(__dirname, "../", dataParam));
-  fs.writeFileSync(path.resolve("./src/data/custom-data.json"), content);
+  fs.copyFileSync(
+    path.resolve(__dirname, "../", dataParam),
+    path.resolve("./src/data/custom-data.json")
+  );
 }
 
 // the path in this variable will be bound to @data
