@@ -101,7 +101,7 @@ and tools for displaying such results may choose to hide such columns by default
 `benchexec` also reports the CPU time and wall time that was used for executing all runs
 (as measured by the operating system, not as aggregation of the individual values).
 These values are reported in the same way as for single runs,
-but with `<column>` tags directly inside the `<rundefinition>` root tag.
+but with `<column>` tags directly inside the `<result>` root tag.
 Note that this CPU-time value is not measured with cgroups currently and may be incomplete.
 The wall-time value can be used for example to calculate the speedup of executing runs in parallel
 (this value is simply the time difference between the end and the start of executing all runs).
