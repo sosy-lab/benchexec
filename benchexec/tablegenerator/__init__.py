@@ -1039,10 +1039,11 @@ def filter_rows_with_differences(rows):
         return []
 
     def get_index_of_column(name, cols):
+        assert cols, "Cannot look for column '{}' in empy column list".format(name)
         for i in range(0, len(cols)):
             if cols[i].title == name:
                 return i
-        return -1
+        assert False, "Column '{}' not found in columns '{}'".format(name, cols)
 
     def all_equal_result(listOfResults):
         relevant_columns = set()
@@ -1060,6 +1061,7 @@ def filter_rows_with_differences(rows):
                 {
                     res.values[get_index_of_column(col, res.columns)]
                     for res in listOfResults
+                    if res.values
                 }
             )
 

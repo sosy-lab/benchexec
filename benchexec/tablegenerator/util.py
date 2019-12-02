@@ -296,9 +296,10 @@ def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             prepare_value(column, value, res)
             for column, value in zip(res.columns, res.values)
         ]
-        toolHref = [
+        hrefs = (
             column.href for column in res.columns if column.title.endswith("status")
-        ][0] or res.log_file
+        )
+        toolHref = next(hrefs, None) or res.log_file
         result = {k: getattr(res, k) for k in results_include_keys}
         if toolHref:
             result["href"] = create_link(toolHref, base_dir, res, href_base)
