@@ -19,9 +19,9 @@
     "react-vis": "^1.11.7"
   },
   "scripts": {
-    "start": "(test -f src/data/dependencies.json ||node scripts/dependencies.js) && node scripts/start.js",
+    "start": "test -f src/data/dependencies.json ||node scripts/dependencies.js && node scripts/start.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
-    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js"
+    "test": "test -f src/data/dependencies.json || node scripts/dependencies.js && node scripts/test.js"
   },
   "eslintConfig": {
     "extends": [
@@ -70,7 +70,6 @@
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
-      "imports-loader?.*": "<rootDir>/src/tests/mocks/importsLoader.js",
       "@data": "<rootDir>/src/data/data.json"
     },
     "moduleFileExtensions": [

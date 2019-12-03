@@ -15,10 +15,4 @@
 require("imports-loader?this=>window!./zip.js");
 require("imports-loader?this=>window!./zip-ext.js");
 require("imports-loader?this=>window!./inflate.js");
-
-if (typeof zip !== "undefined") {
-  zip.useWebWorkers = false;
-  module.exports = zip;
-} else {
-  module.exports = {};
-}
+zip.useWebWorkers = false;
