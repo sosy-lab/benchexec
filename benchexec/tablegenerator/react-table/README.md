@@ -4,13 +4,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm start [<relative path to test data file>]`
 
 Runs the app in the development mode with some test data.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
+
+You are also able to pass an optional `relative path to test data file` to be used instead of the
+default file under `./src/data/data.json`.
+
+A selection of test files can be found under `<project-root>/tablegenerator/test_integration/expected` in form
+of HTML files filled with plain JSON.
 
 ### `npm test`
 

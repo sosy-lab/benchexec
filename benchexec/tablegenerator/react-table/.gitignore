@@ -2,6 +2,7 @@
 
 # generated files
 /src/data/dependencies.json
+/src/data/custom-data.json
 
 # dependencies
 /node_modules
