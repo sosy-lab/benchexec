@@ -531,7 +531,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 memory_nodes=memory_nodes,
                 result_files_patterns=result_files_patterns,
                 *args,
-                **kwargs
+                **kwargs,
             )
 
     # --- container implementation with namespaces ---

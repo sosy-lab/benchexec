@@ -1,4 +1,4 @@
 [tool.black]
 include = 'bin|\.py$'
 exclude = 'node_modules|\.eggs'
-target-version = ['py34']
+target-version = ['py35']

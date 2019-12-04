@@ -105,7 +105,7 @@ class TestRunExecutor(unittest.TestCase):
             runexec_output = subprocess.check_output(
                 args=self.get_runexec_cmdline(*args, output_filename=output_filename),
                 stderr=subprocess.DEVNULL,
-                **kwargs
+                **kwargs,
             ).decode()
             output = os.read(output_fd, 4096).decode()
         except subprocess.CalledProcessError as e:

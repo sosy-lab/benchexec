@@ -38,7 +38,7 @@ class TestCheckCgroups(unittest.TestCase):
             return subprocess.check_output(
                 args=["python3", "-m", "benchexec.check_cgroups"] + list(args),
                 stderr=subprocess.STDOUT,
-                **kwargs
+                **kwargs,
             ).decode()
         except subprocess.CalledProcessError as e:
             if e.returncode != 1:  # 1 is expected if cgroups are not available

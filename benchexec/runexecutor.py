@@ -238,7 +238,7 @@ def main(argv=None):
         cleanup_temp_dir=options.cleanup,
         additional_cgroup_subsystems=list(cgroup_subsystems),
         use_namespaces=options.container,
-        **container_options
+        **container_options,
     )
 
     # Ensure that process gets killed on interrupt/kill signal,
@@ -278,7 +278,7 @@ def main(argv=None):
             maxLogfileSize=options.maxOutputSize,
             files_count_limit=options.filesCountLimit,
             files_size_limit=options.filesSizeLimit,
-            **container_output_options
+            **container_output_options,
         )
     finally:
         if stdin:
@@ -780,7 +780,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 maxLogfileSize,
                 files_count_limit,
                 files_size_limit,
-                **kwargs
+                **kwargs,
             )
 
         except BenchExecException as e:
@@ -931,7 +931,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 parent_setup_fn=preParent,
                 child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent,
-                **kwargs
+                **kwargs,
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:

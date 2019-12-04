@@ -57,7 +57,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             coreLimit,
             num_of_threads,
             self.use_ht,
-            *self.machine()
+            *self.machine(),
         )
 
     def machine(self):
