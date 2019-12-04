@@ -50,8 +50,6 @@ from benchexec.container import (
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
-
 
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument(
@@ -750,15 +748,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # (because we are PID 1, there is a special signal handling otherwise).
                 # cf. dumb-init project: https://github.com/Yelp/dumb-init
                 # Also wait for grandchild and return its result.
-                if _HAS_SIGWAIT:
-                    grandchild_result = container.wait_for_child_and_forward_signals(
-                        grandchild_proc.pid, args[0]
-                    )
-                else:
-                    container.forward_all_signals_async(grandchild_proc.pid, args[0])
-                    grandchild_result = self._wait_for_process(
-                        grandchild_proc.pid, args[0]
-                    )
+                grandchild_result = container.wait_for_child_and_forward_signals(
+                    grandchild_proc.pid, args[0]
+                )
 
                 logging.debug(
                     "Child: process %s terminated with exit code %d.",

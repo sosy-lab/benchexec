@@ -47,7 +47,6 @@ __all__ = [
     "make_bind_mount",
     "get_my_pid_from_procfs",
     "drop_capabilities",
-    "forward_all_signals_async",
     "wait_for_child_and_forward_signals",
     "setup_container_system_config",
     "CONTAINER_UID",
@@ -822,16 +821,11 @@ try:
 except AttributeError:
     # Only exists on Python 3.8+
     _ALL_SIGNALS = range(1, signal.NSIG)
-_FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
-    [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
-)
-_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
 
 
 def block_all_signals():
     """Block asynchronous delivery of all signals to this process."""
-    if _HAS_SIGWAIT:
-        signal.pthread_sigmask(signal.SIG_BLOCK, _ALL_SIGNALS)
+    signal.pthread_sigmask(signal.SIG_BLOCK, _ALL_SIGNALS)
 
 
 def _forward_signal(signum, target_pid, process_name):
@@ -844,32 +838,11 @@ def _forward_signal(signum, target_pid, process_name):
         )
 
 
-def forward_all_signals_async(target_pid, process_name):
-    """Install all signal handler that forwards all signals to the given process."""
-
-    def forwarding_signal_handler(signum):
-        _forward_signal(signum, forwarding_signal_handler.target_pid, process_name)
-
-    # Somehow we get a Python SystemError sometimes
-    # if we access target_pid directly from inside function.
-    forwarding_signal_handler.target_pid = target_pid
-
-    for signum in _FORWARDABLE_SIGNALS:
-        # Need to directly access libc function,
-        # the state of the signal module is incorrect due to the clone()
-        # (it may think we are in a different thread than the main thread).
-        libc.signal(signum, forwarding_signal_handler)
-
-    # Reactivate delivery of signals such that our handler gets called.
-    reset_signal_handling()
-
-
 def wait_for_child_and_forward_signals(child_pid, process_name):
     """Wait for a child to terminate and in the meantime forward all signals
     that the current process receives to this child.
     @return a tuple of exit code and resource usage of the child as given by os.waitpid
     """
-    assert _HAS_SIGWAIT
     block_all_signals()
 
     while True:
@@ -889,8 +862,7 @@ def wait_for_child_and_forward_signals(child_pid, process_name):
 
 
 def reset_signal_handling():
-    if _HAS_SIGWAIT:
-        signal.pthread_sigmask(signal.SIG_SETMASK, {})
+    signal.pthread_sigmask(signal.SIG_SETMASK, {})
 
 
 def close_open_fds(keep_files=[]):

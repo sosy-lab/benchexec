@@ -177,17 +177,6 @@ pivot_root.argtypes = [c_char_p, c_char_p]
 pivot_root.errcheck = _check_errno
 
 
-_sighandler_t = _ctypes.CFUNCTYPE(None, c_int)
-_libc.signal.argtypes = [c_int, _sighandler_t]
-_libc.signal.restype = c_void_p
-_libc.signal.errcheck = _check_errno
-
-
-def signal(signal, handler):
-    """Set a signal handler similar to signal.signal(), but directly via libc."""
-    _libc.signal(signal, _sighandler_t(handler))
-
-
 class CapHeader(_ctypes.Structure):
     """Structure for first parameter of capset()."""
 
