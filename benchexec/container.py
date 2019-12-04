@@ -455,8 +455,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     )
             else:
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
-        if not os.path.exists(temp_path):
-            os.makedirs(temp_path)
+        os.makedirs(temp_path, exist_ok=True)
 
     for unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
@@ -491,10 +490,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
         work_path = work_base + mountpoint
 
         if mode == DIR_OVERLAY:
-            if not os.path.exists(temp_path):
-                os.makedirs(temp_path)
-            if not os.path.exists(work_path):
-                os.makedirs(work_path)
+            os.makedirs(temp_path, exist_ok=True)
+            os.makedirs(work_path, exist_ok=True)
             try:
                 # Previous mount in this place not needed if replaced with overlay dir.
                 libc.umount(mount_path)
@@ -513,8 +510,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 )
 
         elif mode == DIR_HIDDEN:
-            if not os.path.exists(temp_path):
-                os.makedirs(temp_path)
+            os.makedirs(temp_path, exist_ok=True)
             try:
                 # Previous mount in this place not needed if replaced with hidden dir.
                 libc.umount(mount_path)

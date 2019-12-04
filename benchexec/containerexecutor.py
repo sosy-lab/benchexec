@@ -990,7 +990,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 return  # explicitly configured by user
             mount_tmpfs = mount_base + path
             temp_tmpfs = temp_base + path
-            util.makedirs(temp_tmpfs, exist_ok=True)
+            os.makedirs(temp_tmpfs, exist_ok=True)
             if os.path.isdir(mount_tmpfs):
                 # If we already have a tmpfs, we can just bind mount it,
                 # otherwise we need one
@@ -1024,7 +1024,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # below, and luckily temp_dir fulfills all requirements (because we have
             # just created it as fresh drectory ourselves).
             # So we mount temp_base outside of the container to temp_dir inside.
-            util.makedirs(mount_base + temp_dir, exist_ok=True)
+            os.makedirs(mount_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base, mount_base + temp_dir, read_only=True)
             # And the following if branch will automatically hide the bind
             # mount below an empty directory.
@@ -1033,7 +1033,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # hide the directory where we store our files from processes in the container
         # by mounting an empty directory over it.
         if os.path.exists(mount_base + temp_dir):
-            util.makedirs(temp_base + temp_dir, exist_ok=True)
+            os.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
         # Now we make mount_base the new root directory.
@@ -1052,10 +1052,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # Create an empty proc folder into the root dir. The grandchild still needs a
         # view of the old /proc, therefore we do not mount a fresh /proc here.
         proc_base = os.path.join(root_dir, b"proc")
-        util.makedirs(proc_base, exist_ok=True)
+        os.makedirs(proc_base, exist_ok=True)
 
         dev_base = os.path.join(root_dir, b"dev")
-        util.makedirs(dev_base, exist_ok=True)
+        os.makedirs(dev_base, exist_ok=True)
 
         # Create a copy of the host's dev- and proc-mountpoints.
         # They are marked as private in order to not being changed
@@ -1097,10 +1097,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             ):
                 target = output_dir + file
                 logging.debug("Transferring output file %s to %s", abs_file, target)
-                try:
-                    os.makedirs(os.path.dirname(target))
-                except EnvironmentError:
-                    pass  # exist_ok=True not supported on Python 2
+                os.makedirs(os.path.dirname(target), exist_ok=True)
                 try:
                     # move is more efficient than copy in case both abs_file and target
                     # are on the same filesystem, and it avoids matching the file again

@@ -547,7 +547,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         try:
             parent_dir = os.path.dirname(output_filename)
             if parent_dir:
-                util.makedirs(parent_dir, exist_ok=True)
+                os.makedirs(parent_dir, exist_ok=True)
             output_file = open(output_filename, "w")  # override existing file
         except IOError as e:
             sys.exit(e)

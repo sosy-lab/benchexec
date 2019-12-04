@@ -227,7 +227,7 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
         mount_tmpfs = mount_base + path
         if os.path.isdir(mount_tmpfs):
             temp_tmpfs = temp_base + path
-            util.makedirs(temp_tmpfs, exist_ok=True)
+            os.makedirs(temp_tmpfs, exist_ok=True)
             container.make_bind_mount(temp_tmpfs, mount_tmpfs)
 
     make_tmpfs_dir(b"/dev/shm")

@@ -362,21 +362,6 @@ def log_rmtree_error(func, arg, exc_info):
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])
 
 
-def makedirs(name, exist_ok=False):
-    """create a leaf directory and all intermediate ones Works like os.mkdirs, except
-    that no OSError is raised in case the target directory already exists and exist_ok
-    is set to True.
-    """
-    try:
-        os.makedirs(name)
-    except OSError:
-        # Cannot rely on checking for EEXIST on windows machines, since the operating
-        # system could give priority to other errors like EACCES or EROFS.
-        # See https://bugs.python.org/issue25583 for more information.
-        if not exist_ok or not os.path.isdir(name):
-            raise
-
-
 def rmtree(path, ignore_errors=False, onerror=None):
     """Same as shutil.rmtree, but supports directories without write or execute permissions."""
     if ignore_errors:
