@@ -18,6 +18,7 @@
 
 import argparse
 import errno
+import glob
 import logging
 import os
 import collections
@@ -1113,11 +1114,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             else:
                 pattern = tool_output_dir + os.path.join(working_dir, pattern)
             # normalize pattern for preventing directory traversal attacks:
-            for abs_file in util.maybe_recursive_iglob(
-                os.path.normpath(pattern), recursive=True
-            ):
-                # Recursive matching is only supported starting with Python 3.5, so we
-                # allow the user to match directories and transfer them recursively.
+            for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
+                # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
                     for root, unused_dirs, files in os.walk(abs_file):
                         for file in files:

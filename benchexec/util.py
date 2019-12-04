@@ -42,19 +42,6 @@ except ImportError:
     from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
-try:
-    glob.iglob("/", recursive=True)
-except TypeError:
-
-    def maybe_recursive_iglob(pathname, recursive=False):
-        """Workaround for glob.iglob not accepting parameter recursive on Python <= 3.4"""
-        return glob.iglob(pathname)
-
-
-else:
-    maybe_recursive_iglob = glob.iglob
-
-
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 

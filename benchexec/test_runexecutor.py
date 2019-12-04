@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob
 import logging
 import os
 import re
@@ -981,8 +980,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
     def test_result_file_recursive_pattern(self):
-        if not util.maybe_recursive_iglob == glob.iglob:
-            self.skipTest("missing recursive glob.iglob")
         self.check_result_files(
             "mkdir -p TEST_DIR/TEST_DIR; "
             "echo TEST_TOKEN > TEST_FILE.txt; "
