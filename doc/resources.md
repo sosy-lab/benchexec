@@ -41,9 +41,6 @@ if the kernel allows this.
 
 ## Wall Time
 
-Wall-time measurements may be inaccurate when using Python 2,
-if the system time changes during the benchmarking (e.g., due to daylight-savings time).
-
 BenchExec always limits the wall time, too, if the CPU time is limited.
 This is done to prevent infinitely-long hanging runs if no CPU time is used,
 e.g., due to a deadlock of the tool.

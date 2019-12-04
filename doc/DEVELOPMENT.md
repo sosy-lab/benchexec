@@ -79,15 +79,7 @@ please raise an issue.
 
         python3 setup.py sdist bdist_egg bdist_wheel
 
- * In a clean checkout and in a virtual environment with Python **2**,
-   create the release archive with only runexec for Python 2:
-
-        python2 setup.py bdist_egg
-
- * Copy the `dist/*.egg` file created with Python 2 into the `dist` directory
-   of the Python 3 build.
-
- * Sign the files and upload them to PyPi inside the Python 3 build directory:
+ * Sign the files and upload them to PyPi inside the build directory:
 
         twine upload -s dist/*
 

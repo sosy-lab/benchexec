@@ -3,10 +3,6 @@
 ## Download and Installation
 
 BenchExec requires at least Python 3.4.
-(The [runexec](runexec.md) tool and module also works with Python 2.7,
-though this will be [removed in 2020](https://github.com/sosy-lab/benchexec/issues/438).)
-Thus, make sure to use Python 3 for installation as described below,
-otherwise only `runexec` will get installed.
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.

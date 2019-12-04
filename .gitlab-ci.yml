@@ -40,11 +40,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-2.7:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '2.7'
-
 unit-tests:python-3.4:
   <<: *unit-tests
   variables:
@@ -167,12 +162,6 @@ javascript-eslint:
   only:
     - schedules
     - web
-
-build-docker:test:python-2.7:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-2.7
-    IMAGE: test:python-2.7
 
 build-docker:test:python-3.4:
   extends: .build-docker

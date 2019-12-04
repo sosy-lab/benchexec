@@ -37,7 +37,7 @@ The meanings of the current possible result values are as follows:
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
-- **starttime**: The time the run was started (not available on Python 2).
+- **starttime**: The time the run was started.
 - **memory** / **memUsage** (before BenchExec 2.0):
     Peak memory consumption of run in bytes, as integer with suffix "B" ([more information](resources.md#memory)).
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).

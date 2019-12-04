@@ -44,7 +44,6 @@ readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
 with open(readme, "rb") as f:
     long_description = f.read().decode("utf-8")
 
-PY2 = sys.version_info[0] == 2
 # lxml 4.4.0 does not support Python 3.4
 LXML = "lxml<4.4.0" if sys.version_info < (3, 5) else "lxml"
 # pyyaml 5.3 does not support Python 3.4
@@ -70,33 +69,24 @@ setuptools.setup(
         "Topic :: System :: Benchmark",
     ],
     platforms=["Linux"],
-    packages=["benchexec"]
-    + (["benchexec.tablegenerator", "benchexec.tools"] if not PY2 else []),
+    packages=["benchexec", "benchexec.tablegenerator", "benchexec.tools"],
     package_data={
         "benchexec.tablegenerator": [
             "template*",
             "react-table/build/*.min.js",
             "react-table/build/*.min.css",
         ]
-    }
-    if not PY2
-    else {},
+    },
     entry_points={
         "console_scripts": [
             "runexec = benchexec.runexecutor:main",
             "containerexec = benchexec.containerexecutor:main",
+            "benchexec = benchexec.benchexec:main",
+            "table-generator = benchexec.tablegenerator:main",
         ]
-        + (
-            [
-                "benchexec = benchexec.benchexec:main",
-                "table-generator = benchexec.tablegenerator:main",
-            ]
-            if not PY2
-            else []
-        )
     },
-    install_requires=["tempita==0.5.2", PYYAML] if not PY2 else [],
-    setup_requires=["nose>=1.0"] + [LXML, PYYAML] if not PY2 else [],
-    test_suite="nose.collector" if not PY2 else "benchexec.test_python2.Python2Tests",
+    install_requires=["tempita==0.5.2", PYYAML],
+    setup_requires=["nose>=1.0", LXML, PYYAML],
+    test_suite="nose.collector",
     zip_safe=True,
 )
