@@ -40,11 +40,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.4:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.4'
-
 unit-tests:python-3.5:
   <<: *unit-tests
   variables:
@@ -162,12 +157,6 @@ javascript-eslint:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.4:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.4
-    IMAGE: test:python-3.4
 
 build-docker:test:python-3.5:
   extends: .build-docker

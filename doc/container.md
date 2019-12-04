@@ -150,7 +150,7 @@ to select only a subset of created files to be copied:
   will start at the root of the filesystem.
 - Relative patterns that traverse upwards out of the working directory (e.g., `..`) are not allowed.
 - The shell wildcards `?` and `*` are supported,
-  and if you use Python 3.5 or newer also the recursive wildcard `**`.
+  and also the recursive wildcard `**`.
 - If a directory is matched by the pattern, all files in the directory will be copied recursively.
 - Only regular files are copied; symlinks, empty directories, etc. are ignored.
 

@@ -2,7 +2,7 @@
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.4.
+BenchExec requires at least Python 3.5.
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.

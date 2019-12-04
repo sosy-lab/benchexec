@@ -22,7 +22,6 @@ limitations under the License.
 import os
 import re
 import setuptools
-import sys
 import warnings
 
 warnings.filterwarnings("default", module=r"^benchexec\..*")
@@ -43,11 +42,6 @@ with open("benchexec/__init__.py") as f:
 readme = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
 with open(readme, "rb") as f:
     long_description = f.read().decode("utf-8")
-
-# lxml 4.4.0 does not support Python 3.4
-LXML = "lxml<4.4.0" if sys.version_info < (3, 5) else "lxml"
-# pyyaml 5.3 does not support Python 3.4
-PYYAML = "PyYAML<5.3" if sys.version_info < (3, 5) else "PyYAML>=3.12"
 
 setuptools.setup(
     name="BenchExec",
@@ -85,8 +79,8 @@ setuptools.setup(
             "table-generator = benchexec.tablegenerator:main",
         ]
     },
-    install_requires=["tempita==0.5.2", PYYAML],
-    setup_requires=["nose>=1.0", LXML, PYYAML],
+    install_requires=["tempita==0.5.2", "PyYAML>=3.12"],
+    setup_requires=["nose>=1.0", "lxml", "PyYAML>=3.12"],
     test_suite="nose.collector",
     zip_safe=True,
 )

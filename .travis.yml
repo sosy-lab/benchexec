@@ -2,13 +2,10 @@ language: python
 sudo: required
 dist: xenial
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
 install:
-  # Workaround: use pyyaml 5.2 because later versions do not support Python 3.4
-  - pip install pyyaml==5.2
   - pip install .
   # Install code formatter black, but only on versions where it is available
   - pip install black || true
