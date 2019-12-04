@@ -29,6 +29,7 @@ import resource  # noqa: F401 @UnusedImport necessary to eagerly import this mod
 import signal
 import socket
 import struct
+import sys
 
 from benchexec import libc
 from benchexec import seccomp
@@ -133,8 +134,9 @@ if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
 _CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
 """Type for callback of execute_in_namespace, nested in our primary callback."""
 
-# TODO Use named fields on Python 3
-NATIVE_CLONE_CALLBACK_SUPPORTED = os.uname()[0] == "Linux" and os.uname()[4] == "x86_64"
+NATIVE_CLONE_CALLBACK_SUPPORTED = (
+    os.uname().sysname == "Linux" and os.uname().machine == "x86_64"
+)
 """Whether we use generated native code for clone or an unsafe Python fallback"""
 
 
@@ -257,10 +259,9 @@ def _generate_native_clone_child_callback():
     mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
-    # On Python 3 we could use to_bytes() instead of struct.pack
-    afterfork_address = struct.pack(
-        "Q", ctypes.cast(ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p).value
-    )
+    afterfork_address = ctypes.cast(
+        ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
+    ).value.to_bytes(8, sys.byteorder)
 
     # Generate machine code that does the same as _python_clone_child_callback
     # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
