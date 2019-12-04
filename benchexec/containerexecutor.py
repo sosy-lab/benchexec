@@ -28,6 +28,7 @@ try:
 except ImportError:
     import pickle
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -676,7 +677,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if self._container_system_config:
                         # A standard hostname increases reproducibility.
-                        libc.sethostname(container.CONTAINER_HOSTNAME)
+                        socket.sethostname(container.CONTAINER_HOSTNAME)
 
                     if not self._allow_network:
                         container.activate_network_interface("lo")

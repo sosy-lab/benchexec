@@ -25,6 +25,7 @@ import logging
 import multiprocessing
 import os
 import signal
+import socket
 import tempfile
 
 from benchexec import BenchExecException, container, containerexecutor, libc, util
@@ -177,7 +178,7 @@ def _init_container(
     container.setup_user_mapping(os.getpid(), uid, gid)
     _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
     if container_system_config:
-        libc.sethostname(container.CONTAINER_HOSTNAME)
+        socket.sethostname(container.CONTAINER_HOSTNAME)
     if not network_access:
         container.activate_network_interface("lo")
 

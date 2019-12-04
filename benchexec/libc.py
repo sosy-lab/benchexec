@@ -212,13 +212,3 @@ PR_GET_SECCOMP = 21
 PR_SET_SECCOMP = 22
 SUID_DUMP_DISABLE = 0
 SUID_DUMP_USER = 1
-
-_libc.sethostname.errcheck = _check_errno
-_libc.sethostname.argtypes = [c_char_p, c_size_t]
-
-
-def sethostname(name):
-    """Set the host name of the machine."""
-    # TODO: replace with socket.sethostname (not available on Python 2)
-    name = name.encode()
-    _libc.sethostname(name, len(name))
