@@ -19,6 +19,7 @@
 import logging
 import os
 import threading
+import time
 
 from benchexec import container
 from benchexec import util
@@ -77,7 +78,7 @@ class FileHierarchyLimitThread(threading.Thread):
 
             files_count = 0
             files_size = 0
-            start_time = util.read_monotonic_time()
+            start_time = time.monotonic()
             for current_dir, dirs, files in os.walk(self._path):
                 for file in files:
                     abs_file = os.path.join(current_dir, file)
@@ -98,7 +99,7 @@ class FileHierarchyLimitThread(threading.Thread):
             if self._check_limit(files_count, files_size):
                 return
 
-            duration = util.read_monotonic_time() - start_time
+            duration = time.monotonic() - start_time
 
             logging.debug(
                 "FileHierarchyLimitThread for process %d: "

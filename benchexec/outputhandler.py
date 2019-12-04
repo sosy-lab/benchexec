@@ -407,7 +407,7 @@ class OutputHandler(object):
         self.txt_file.append(self.run_set_to_text(runSet), False)
         runSet.xml_file_name = xml_file_name
         self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
-        runSet.xml_file_last_modified_time = util.read_monotonic_time()
+        runSet.xml_file_last_modified_time = time.monotonic()
         self.all_created_files.add(runSet.xml_file_name)
         self.xml_file_names.append(runSet.xml_file_name)
 
@@ -566,12 +566,12 @@ class OutputHandler(object):
 
             # we don't want to write this file to often, it can slow down the whole script,
             # so we wait at least 10 seconds between two write-actions
-            currentTime = util.read_monotonic_time()
+            currentTime = time.monotonic()
             if currentTime - run.runSet.xml_file_last_modified_time > 60:
                 self._write_rough_result_xml_to_file(
                     run.runSet.xml, run.runSet.xml_file_name
                 )
-                run.runSet.xml_file_last_modified_time = util.read_monotonic_time()
+                run.runSet.xml_file_last_modified_time = time.monotonic()
 
         finally:
             OutputHandler.print_lock.release()

@@ -32,7 +32,6 @@ import signal
 import stat
 import subprocess
 import sys
-import time
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
@@ -41,13 +40,6 @@ try:
     from shlex import quote as escape_string_shell
 except ImportError:
     from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
-
-
-try:
-    read_monotonic_time = time.monotonic  # does not exist on Python 2
-except AttributeError:
-    # TODO Should probably warn about wall time affected by changing system clock
-    read_monotonic_time = time.time
 
 
 try:

@@ -855,18 +855,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # start measurements
             if self._energy_measurement is not None and packages:
                 self._energy_measurement.start()
-            try:
-                starttime = util.read_local_time()
-            except AttributeError:
-                starttime = None  # for Python 2
-            walltime_before = util.read_monotonic_time()
+            starttime = util.read_local_time()
+            walltime_before = time.monotonic()
             return starttime, walltime_before
 
         def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
             starttime, walltime_before = preParent_result
-            walltime = util.read_monotonic_time() - walltime_before
+            walltime = time.monotonic() - walltime_before
             energy = (
                 self._energy_measurement.stop() if self._energy_measurement else None
             )
@@ -1263,7 +1260,7 @@ class _TimelimitThread(threading.Thread):
         # set timelimits to large dummy value if no limit is given
         self.timelimit = hardtimelimit or (60 * 60 * 24 * 365 * 100)
         self.softtimelimit = softtimelimit or (60 * 60 * 24 * 365 * 100)
-        self.latestKillTime = util.read_monotonic_time() + walltimelimit
+        self.latestKillTime = time.monotonic() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
         self.finished = threading.Event()
@@ -1281,7 +1278,7 @@ class _TimelimitThread(threading.Thread):
             usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
-            remainingWallTime = self.latestKillTime - util.read_monotonic_time()
+            remainingWallTime = self.latestKillTime - time.monotonic()
             logging.debug(
                 "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
                 "remaining soft CPU time: %s, remaining wall time: %s.",

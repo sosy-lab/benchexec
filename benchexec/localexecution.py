@@ -22,6 +22,7 @@ import queue
 import resource
 import sys
 import threading
+import time
 
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import BenchExecException
@@ -150,7 +151,7 @@ def execute_benchmark(benchmark, output_handler):
             # get times before runSet
             energy_measurement = EnergyMeasurement.create_if_supported()
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
-            walltime_before = util.read_monotonic_time()
+            walltime_before = time.monotonic()
             if energy_measurement:
                 energy_measurement.start()
 
@@ -193,7 +194,7 @@ def execute_benchmark(benchmark, output_handler):
             assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
 
             # get times after runSet
-            walltime_after = util.read_monotonic_time()
+            walltime_after = time.monotonic()
             energy = energy_measurement.stop() if energy_measurement else None
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
