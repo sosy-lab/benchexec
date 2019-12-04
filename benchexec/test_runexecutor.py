@@ -42,22 +42,12 @@ try:
 except ImportError:
     DEVNULL = open(os.devnull, "wb")
 
-try:
-    unichr(0)
-except NameError:
-    unichr = chr
-
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
 runexec = os.path.join(bin_dir, "runexec")
 
-if sys.version_info[0] == 2:
-    python = "python2"
-    trivial_run_grace_time = 0.4
-else:
-    python = "python3"
-    trivial_run_grace_time = 0.2
+trivial_run_grace_time = 0.2
 
 
 class TestRunExecutor(unittest.TestCase):
@@ -82,9 +72,7 @@ class TestRunExecutor(unittest.TestCase):
             else:
                 raise e
 
-    def execute_run(self, *args, **kwargs):
-        # Make keyword-only argument after support for Python 2 is dropped
-        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
+    def execute_run(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
@@ -110,16 +98,14 @@ class TestRunExecutor(unittest.TestCase):
 
     def get_runexec_cmdline(self, *args, **kwargs):
         return [
-            python,
+            "python3",
             runexec,
             "--no-container",
             "--output",
             kwargs["output_filename"],
         ] + list(args)
 
-    def execute_run_extern(self, *args, **kwargs):
-        # Make keyword-only argument after support for Python 2 is dropped
-        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
+    def execute_run_extern(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             runexec_output = subprocess.check_output(
@@ -814,8 +800,6 @@ class TestRunExecutor(unittest.TestCase):
     def test_starttime(self):
         if not os.path.exists("/bin/echo"):
             self.skipTest("missing /bin/echo")
-        if sys.version_info[0] == 2:
-            self.skipTest("starttime not supported on Python 2")
         before = util.read_local_time()
         (result, _) = self.execute_run("/bin/echo")
         after = util.read_local_time()
@@ -848,7 +832,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def get_runexec_cmdline(self, *args, **kwargs):
         return [
-            python,
+            "python3",
             runexec,
             "--container",
             "--read-only-dir",

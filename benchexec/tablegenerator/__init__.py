@@ -1422,8 +1422,6 @@ def get_stats_of_run_set(runResults, correct_only):
 
     # convert:
     # [['TRUE', 0,1], ['FALSE', 0,2]] -->  [['TRUE', 'FALSE'], [0,1, 0,2]]
-    # in python2 this is a list, in python3 this is the iterator of the list
-    # this works, because we iterate over the list some lines below
     listsOfValues = zip(*[runResult.values for runResult in runResults])
 
     columns = runResults[0].columns

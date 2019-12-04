@@ -31,8 +31,6 @@ try:
 except ImportError:
     DEVNULL = open(os.devnull, "wb")
 
-python = "python2" if sys.version_info[0] == 2 else "python3"
-
 
 class TestCheckCgroups(unittest.TestCase):
     @classmethod
@@ -44,7 +42,7 @@ class TestCheckCgroups(unittest.TestCase):
     def execute_run_extern(self, *args, **kwargs):
         try:
             return subprocess.check_output(
-                args=[python, "-m", "benchexec.check_cgroups"] + list(args),
+                args=["python3", "-m", "benchexec.check_cgroups"] + list(args),
                 stderr=subprocess.STDOUT,
                 **kwargs
             ).decode()
