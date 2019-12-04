@@ -47,11 +47,6 @@ _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
 
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "rb")
-
 
 def main(argv=None):
     """
@@ -678,7 +673,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if stdin == subprocess.PIPE:
             sys.exit("Illegal value subprocess.PIPE for stdin")
         elif stdin is None:
-            stdin = DEVNULL
+            stdin = subprocess.DEVNULL
 
         if hardtimelimit is not None:
             if hardtimelimit <= 0:

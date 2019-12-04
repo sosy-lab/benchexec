@@ -17,7 +17,6 @@
 # limitations under the License.
 
 import logging
-import os
 import subprocess
 import sys
 import unittest
@@ -25,11 +24,6 @@ import unittest
 from benchexec import check_cgroups
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "wb")
 
 
 class TestCheckCgroups(unittest.TestCase):

@@ -37,11 +37,6 @@ from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "wb")
-
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
@@ -110,7 +105,7 @@ class TestRunExecutor(unittest.TestCase):
         try:
             runexec_output = subprocess.check_output(
                 args=self.get_runexec_cmdline(*args, output_filename=output_filename),
-                stderr=DEVNULL,
+                stderr=subprocess.DEVNULL,
                 **kwargs
             ).decode()
             output = os.read(output_fd, 4096).decode()
@@ -500,7 +495,10 @@ class TestRunExecutor(unittest.TestCase):
         )
         try:
             process = subprocess.Popen(
-                args=cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=DEVNULL
+                args=cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
             )
             try:
                 runexec_output, unused_err = process.communicate(b"TEST_TOKEN")

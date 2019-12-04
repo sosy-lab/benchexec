@@ -1994,10 +1994,11 @@ def write_table_in_format(
 
         if show_table:
             try:
-                with open(os.devnull, "w") as devnull:
-                    subprocess.Popen(
-                        ["xdg-open", outfile], stdout=devnull, stderr=devnull
-                    )
+                subprocess.Popen(
+                    ["xdg-open", outfile],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
             except OSError:
                 pass
 
