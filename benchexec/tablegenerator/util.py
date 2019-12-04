@@ -20,9 +20,6 @@
 This module contains some useful functions for Strings, Files and Lists.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from decimal import Decimal
 import glob
 import io

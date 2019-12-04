@@ -20,11 +20,6 @@
 (based on ctypes) and constants relevant for these functions.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
-
 import ctypes as _ctypes
 from ctypes import c_int, c_uint32, c_long, c_ulong, c_size_t, c_char_p, c_void_p
 import os as _os

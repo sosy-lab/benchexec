@@ -20,9 +20,6 @@
 This module contains functions for computing assignments of resources to runs.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import collections
 import itertools
 import logging

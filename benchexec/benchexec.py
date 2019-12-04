@@ -21,9 +21,6 @@ To use it, instantiate the "benchexec.benchexec.BenchExec"
 and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse
 import datetime
 import logging

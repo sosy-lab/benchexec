@@ -18,11 +18,6 @@
 
 """Utility functions adding a seccomp filter."""
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
-
 import ctypes
 from ctypes import c_int, c_uint, c_uint32, c_char_p, c_void_p
 import errno
