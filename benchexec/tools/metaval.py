@@ -79,8 +79,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")
-        for i in range(20):
-            match = regex.match(output[i])
+        for line in output[:20]:
+            match = regex.match(line)
             if match != None:
                 verifierDir = match.group(1)
                 break
