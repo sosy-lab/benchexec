@@ -162,6 +162,8 @@ def main(argv=None):
                     )
                     result.append(scoreColumn)
                 else:
+                    if statusWit and statusWit.startswith("witness invalid"):
+                        continue
                     # For verification
                     statusWitNew, categoryWitNew = getWitnessResult(witness, result)
                     if (
