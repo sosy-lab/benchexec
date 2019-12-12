@@ -1117,7 +1117,7 @@ class Run(object):
                 elif exitcode.signal:
                     tool_status = "KILLED BY SIGNAL " + str(exitcode.signal)
 
-                elif exitcode.value:
+                elif exitcode.value and tool_status != result.RESULT_UNKNOWN:
                     tool_status = "{} ({})".format(result.RESULT_ERROR, exitcode.value)
 
         # Tools sometimes produce a result even after violating a resource limit.

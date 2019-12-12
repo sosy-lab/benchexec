@@ -205,14 +205,11 @@ class TestResult(unittest.TestCase):
             return ProcessExitCode(raw=value << 8, value=value, signal=None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            "TIMEOUT (ERROR (1))", run._analyze_result(returnvalue(1), "", True, None)
-        )
+        self.assertEqual("TIMEOUT", run._analyze_result(returnvalue(1), "", True, None))
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         self.assertEqual(
-            "OUT OF MEMORY (ERROR (1))",
-            run._analyze_result(returnvalue(1), "", False, "memory"),
+            "OUT OF MEMORY", run._analyze_result(returnvalue(1), "", False, "memory"),
         )
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
@@ -232,5 +229,5 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         self.assertEqual(
-            "ERROR (1)", run._analyze_result(returnvalue(1), "", False, None)
+            RESULT_UNKNOWN, run._analyze_result(returnvalue(1), "", False, None)
         )
