@@ -1,5 +1,10 @@
 # BenchExec Changelog
 
+## BenchExec 2.5.1
+
+This release does not contain any changes to BenchExec itself,
+just for a script in the `contrib` directory.
+
 ## BenchExec 2.5
 
 This release contains only a small improvement of one tool-info module.

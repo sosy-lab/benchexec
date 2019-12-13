@@ -69,12 +69,6 @@ def getWitnessResult(witness, verification_result):
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
         return status_from_verification, category_from_verification
-    # An invalid witness counts as error of the verifier.
-    if status_from_validation == "ERROR (invalid witness file)":
-        return (
-            "witness invalid (" + status_from_verification + ")",
-            Result.CATEGORY_ERROR,
-        )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == Result.CATEGORY_CORRECT:
         return status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED
@@ -168,7 +162,6 @@ def main(argv=None):
                         categoryWit is None
                         or not categoryWit.startswith(Result.CATEGORY_CORRECT)
                         or categoryWitNew == Result.CATEGORY_CORRECT
-                        or statusWitNew.startswith("witness invalid")
                     ):
                         statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
