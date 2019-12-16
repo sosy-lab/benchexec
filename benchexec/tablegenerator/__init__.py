@@ -337,6 +337,11 @@ def get_task_id(task, base_path_or_url):
     return tuple(task_id)
 
 
+def format_task_id(task_id):
+    """Create a human-readable representation of the task_id for log messages etc."""
+    return "'" + ", ".join(s for s in task_id if s) + "'"
+
+
 loaded_tools = {}
 
 
@@ -470,6 +475,9 @@ class RunSetResult(object):
             column.set_column_type_from(column_values)
 
         del self._xml_results
+
+    def __str__(self):
+        return Util.prettylist(self.attributes["filename"])
 
     @staticmethod
     def create_from_xml(
@@ -727,7 +735,11 @@ def merge_tasks(runset_results):
         currentresult_taskset = set()
         for task in runset.get_tasks():
             if task in currentresult_taskset:
-                logging.warning("Task '%s' is present twice, skipping it.", task[0])
+                logging.warning(
+                    "Task %s is present twice in '%s', skipping it.",
+                    format_task_id(task),
+                    runset,
+                )
             else:
                 currentresult_taskset.add(task)
                 if task not in task_set:
@@ -756,9 +768,7 @@ def merge_task_lists(runset_results, tasks):
             run_result = dic.get(task)
             if run_result is None:
                 logging.info(
-                    "    No result for task '%s' in '%s'.",
-                    task[0],
-                    Util.prettylist(runset.attributes["filename"]),
+                    "    No result for task %s in '%s'.", format_task_id(task), runset
                 )
                 # create an empty dummy element
                 run_result = RunResult(
