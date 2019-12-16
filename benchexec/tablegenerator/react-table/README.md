@@ -49,6 +49,12 @@ for checking code style and best practices:
 - `npx prettier $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.js" -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check`<br>
   (use `--write` to automatically reformat code)
 
+
+## Utilities
+
+- For upgrading dependencies: [npm-check-updates](https://www.npmjs.com/package/npm-check-updates)<br>
+  Alternative: [npm-check](https://www.npmjs.com/package/npm-check)
+
 ## Learn More
 
 - [React documentation](https://reactjs.org/)
