@@ -209,6 +209,7 @@ def handle_union_tag(
         or default_columns
     )
     result = RunSetResult([], collections.defaultdict(list), columns)
+    all_result_files = set()
 
     for resultTag in tag.findall("result"):
         if extract_columns_from_table_definition_file(resultTag, table_definition_file):
@@ -220,6 +221,9 @@ def handle_union_tag(
         for resultsFile in get_file_list_from_result_tag(
             resultTag, table_definition_file
         ):
+            if resultsFile in all_result_files:
+                handle_error("File '%s' included twice in <union> tag", resultsFile)
+            all_result_files.add(resultsFile)
             result_xml = parse_results_file(resultsFile, run_set_id)
             if result_xml is not None:
                 result.append(resultsFile, result_xml, options.all_columns)
