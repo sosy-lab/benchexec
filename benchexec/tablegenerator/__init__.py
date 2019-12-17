@@ -120,6 +120,12 @@ nan = float("nan")
 inf = float("inf")
 
 
+def handle_error(message, *args):
+    """Log error message and terminate program."""
+    logging.error(message, *args)
+    exit(1)
+
+
 def parse_table_definition_file(file):
     """
     Read an parse the XML of a table-definition file.
@@ -127,22 +133,18 @@ def parse_table_definition_file(file):
     """
     logging.info("Reading table definition from '%s'...", file)
     if not os.path.isfile(file):
-        logging.error("File '%s' does not exist.", file)
-        exit(1)
+        handle_error("File '%s' does not exist.", file)
 
     try:
         tableGenFile = ElementTree.ElementTree().parse(file)
     except IOError as e:
-        logging.error("Could not read result file %s: %s", file, e)
-        exit(1)
+        handle_error("Could not read result file %s: %s", file, e)
     except ElementTree.ParseError as e:
-        logging.error("Table file %s is invalid: %s", file, e)
-        exit(1)
+        handle_error("Table file %s is invalid: %s", file, e)
     if "table" != tableGenFile.tag:
-        logging.error(
+        handle_error(
             "Table file %s is invalid: It's root element is not named 'table'.", file
         )
-        exit(1)
     return tableGenFile
 
 
@@ -664,20 +666,17 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
                 f.seek(0)
                 resultElem = parse(f)
     except IOError as e:
-        logging.error("Could not read result file %s: %s", resultFile, e)
-        exit(1)
+        handle_error("Could not read result file %s: %s", resultFile, e)
     except ElementTree.ParseError as e:
-        logging.error("Result file %s is invalid: %s", resultFile, e)
-        exit(1)
+        handle_error("Result file %s is invalid: %s", resultFile, e)
 
     if resultElem.tag not in ["result", "test"]:
-        logging.error(
+        handle_error(
             "XML file with benchmark results seems to be invalid.\n"
             "The root element of the file is not named 'result' or 'test'.\n"
             "If you want to run a table-definition file,\n"
             "you should use the option '-x' or '--xml'."
         )
-        exit(1)
 
     if ignore_errors and "error" in resultElem.attrib:
         logging.warning(
@@ -2202,8 +2201,7 @@ def main(args=None):
                 )
 
         except Util.TableDefinitionError as e:
-            logging.error("Fault in {}: {}".format(options.xmltablefile, e.message))
-            exit(1)
+            handle_error("Fault in %s: %s", options.xmltablefile, e.message)
 
         if not name:
             name = basename_without_ending(options.xmltablefile)
@@ -2247,8 +2245,7 @@ def main(args=None):
 
     runSetResults = [r for r in runSetResults if r is not None]
     if not runSetResults:
-        logging.error("No benchmark results found.")
-        exit(1)
+        handle_error("No benchmark results found.")
 
     logging.info("Merging results...")
     if options.common:
@@ -2259,8 +2256,7 @@ def main(args=None):
 
     rows = get_rows(runSetResults)
     if not rows:
-        logging.warning("No results found, no tables produced.")
-        exit()
+        handle_errorng("No results found, no tables produced.")
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info("Generating table...")
