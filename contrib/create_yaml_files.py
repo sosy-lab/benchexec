@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+# BenchExec is a framework for reliable benchmarking.
+# This file is part of BenchExec.
+#
+# Copyright (C) Dirk Beyer
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import glob
 import os
 import re
