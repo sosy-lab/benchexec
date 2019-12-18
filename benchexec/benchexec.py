@@ -416,6 +416,7 @@ class BenchExec(object):
 
 
 def add_container_args(parser):
+    container_args = parser.add_argument_group("optional arguments for run container")
     try:
         from benchexec import containerexecutor
     except Exception:
@@ -423,10 +424,15 @@ def add_container_args(parser):
         # We want to keep BenchExec usable for cases where the
         # localexecutor is replaced by something else.
         logging.debug("Could not import container feature:", exc_info=1)
-    else:
-        container_args = parser.add_argument_group(
-            "optional arguments for run container"
+        container_args.add_argument(
+            "--no-container",
+            action="store_false",
+            dest="container",
+            required=True,
+            help="disable use of containers for isolation of runs "
+            "(REQUIRED because this system does not support container mode)",
         )
+    else:
         container_on_args = container_args.add_mutually_exclusive_group()
         container_on_args.add_argument(
             "--container",
