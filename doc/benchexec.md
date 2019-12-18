@@ -113,6 +113,9 @@ such as tasks with several input files
 or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
 and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
+For creating task-definition files for existing tasks
+that use the legacy way of encoding expected verdicts in the file name
+we provide a [helper script](../contrib/create_yaml_files.py).
 
 If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,

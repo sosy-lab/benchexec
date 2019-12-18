@@ -31,6 +31,8 @@ There exists a historical mode of operation for `benchexec`
 without task-definition files.
 [Starting with BenchExec 3.0](https://github.com/sosy-lab/benchexec/issues/439)
 `benchexec` will no longer check for expected results in this mode.
+For converting existing tasks to task-definition files
+we provide a [helper script](../../contrib/create_yaml_files.py).
 Until then, expected results can be encoded in the name of the input file of each task
 and only the specific property files in this directory are valid
 if no task-definition files are used:
