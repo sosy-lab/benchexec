@@ -935,9 +935,9 @@ class Row(object):
 
 
 def get_property_of_task(task_name, property_string):
-    property_names = property_string.split() if property_string else []
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
+        property_names = set((property_string or "").split())
         try:
             task_template = model.load_task_definition_file(task_name)
             for prop_dict in task_template.get("properties", []):
@@ -947,7 +947,7 @@ def get_property_of_task(task_name, property_string):
                     )
                     if len(expanded) == 1:
                         prop = result.Property.create(expanded[0], allow_unknown=True)
-                        if set(prop.names) == set(property_names):
+                        if set(prop.names) == property_names:
                             expected_result = prop_dict.get("expected_verdict")
                             if isinstance(expected_result, bool):
                                 expected_result = result.ExpectedResult(
@@ -959,10 +959,8 @@ def get_property_of_task(task_name, property_string):
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
 
-    if property_names:
-        prop = result.Property.create_from_names(property_names)
-        expected_result = result.expected_results_of_file(task_name).get(prop.name)
-        return (prop, expected_result)
+    if property_string:
+        return (result.Property(None, False, False, property_string, None), None)
 
     return (None, None)
 

@@ -32330,8 +32330,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32550,8 +32549,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32760,8 +32758,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32980,8 +32977,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -33197,11 +33193,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33341,11 +33333,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33485,11 +33473,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33629,11 +33613,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33812,11 +33792,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33956,11 +33932,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34100,11 +34072,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34244,11 +34212,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34427,11 +34391,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34692,11 +34652,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -36274,8 +36230,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36504,8 +36459,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36724,8 +36678,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36954,8 +36907,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -37171,11 +37123,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37315,11 +37263,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37459,11 +37403,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37603,11 +37543,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37786,11 +37722,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37930,11 +37862,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38074,11 +38002,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38218,11 +38142,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38401,11 +38321,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38545,11 +38461,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38689,11 +38601,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38833,11 +38741,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -39610,11 +39514,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -39875,11 +39775,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -41397,8 +41293,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -41617,8 +41512,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -41827,8 +41721,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -42027,8 +41920,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -42224,11 +42116,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42368,11 +42256,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42512,11 +42396,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42643,11 +42523,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42813,11 +42689,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42957,11 +42829,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43101,11 +42969,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43232,11 +43096,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43402,11 +43262,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43667,11 +43523,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -45173,8 +45025,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45403,8 +45254,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45623,8 +45473,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45833,8 +45682,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -46030,11 +45878,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46174,11 +46018,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46318,11 +46158,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46449,11 +46285,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46619,11 +46451,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46763,11 +46591,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46907,11 +46731,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47038,11 +46858,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47208,11 +47024,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47352,11 +47164,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47496,11 +47304,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47627,11 +47431,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -48365,11 +48165,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -48630,11 +48426,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -50186,8 +49978,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50411,8 +50202,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50631,8 +50421,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50856,8 +50645,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -51073,11 +50861,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51217,11 +51001,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51361,11 +51141,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51505,11 +51281,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51688,11 +51460,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51832,11 +51600,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51976,11 +51740,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52120,11 +51880,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52303,11 +52059,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52447,11 +52199,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52591,11 +52339,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52735,11 +52479,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -54790,8 +54530,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55020,8 +54759,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55240,8 +54978,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55470,8 +55207,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55687,11 +55423,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -55831,11 +55563,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -55975,11 +55703,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56119,11 +55843,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56302,11 +56022,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56446,11 +56162,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56590,11 +56302,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56734,11 +56442,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56917,11 +56621,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57061,11 +56761,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57205,11 +56901,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57349,11 +57041,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -58126,11 +57814,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -58391,11 +58075,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70355,8 +70035,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -70531,11 +70210,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70684,11 +70359,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70837,11 +70508,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -71134,11 +70801,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
