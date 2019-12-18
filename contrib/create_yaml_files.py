@@ -6,10 +6,6 @@ import re
 import argparse
 from typing import Tuple
 
-CHANGE_FILE_NAME = True
-"""Whether to shorten file names by removing the verdicts, if possible without collisions."""
-AVOID_COLLISIONS_ACROSS_DIRECTORIES = True
-"""Whether to avoid same file names in different directories."""
 
 NAME_TO_PROP_AND_SUBPROP = {
     "unreach-call": ("unreach-call.prp", None),
@@ -35,7 +31,7 @@ def _get_prop(property_file, property_dir, task_dir):
     return os.path.relpath(os.path.join(property_dir, property_file), task_dir)
 
 
-def handle_c(task_file) -> Tuple[str, dict]:
+def handle_c(task_file, args) -> Tuple[str, dict]:
     """ Create yml task definition for the given file.
     Return a tuple of a recommended new task name and the yml info as dictionary.
 
@@ -72,7 +68,7 @@ def handle_c(task_file) -> Tuple[str, dict]:
 
     yml_info = (task_file, properties)
 
-    if CHANGE_FILE_NAME:
+    if args.change_filename:
         new_task_file = ".".join(new_name_pcs_dot)
         if new_task_file[-4:] == ".c.i":
             new_task_file = new_task_file[:-4] + ".i"
@@ -98,6 +94,20 @@ def parse_args():
         metavar="file",
         nargs="+",
         help=".set files that contain task lists or C files to create yml for",
+    )
+    parser.add_argument(
+        "--no-change-filename",
+        dest="change_filename",
+        action="store_false",
+        default=True,
+        help="do not shorten file names by removing the verdicts and avoiding collissions, but keep name as-is",
+    )
+    parser.add_argument(
+        "--no-collisions-across-directories",
+        dest="collisions_across_dirs",
+        action="store_true",
+        default=True,
+        help="do not avoid same file names across different directories, but only within same directories",
     )
     return parser.parse_args()
 
@@ -137,7 +147,7 @@ if __name__ == "__main__":
         ):
             print("Redundant file: ", task_file)
             continue
-        new_task_file, yml_info = handle_c(task_file)
+        new_task_file, yml_info = handle_c(task_file, args)
         tasks_to_new_names_and_yml[task_file] = [new_task_file, yml_info]
     # sort tasks by their new names to be deterministic
     sorted_tasks_to_new_names = list(
@@ -150,7 +160,7 @@ if __name__ == "__main__":
 
         def _compute_collisions(curr_task, tasks_to_new_names_and_yml):
             task_basename = os.path.basename(curr_task)
-            if AVOID_COLLISIONS_ACROSS_DIRECTORIES:
+            if args.collisions_across_dirs:
                 collisions = [
                     k
                     for k, v in tasks_to_new_names_and_yml.items()
@@ -182,7 +192,7 @@ if __name__ == "__main__":
         task_basename = os.path.basename(curr_task)
         yml_content = "format_version: '1.0'\n"
         yml_content += "\n"
-        if CHANGE_FILE_NAME:
+        if args.change_filename:
             yml_content += "# old file name: " + os.path.basename(old_name) + "\n"
         yml_content += "input_files: '" + task_basename + "'\n"
         yml_content += "\n"
@@ -217,20 +227,13 @@ if __name__ == "__main__":
                 # *.c.i -> *.c
                 elif os.path.exists(old_name[:-2]):
                     old_c = old_name[:-2]
-                # ldv-memsafety/memleaks*.i -> ldv-memsafety/memleaks-notpreprocessed/memleaks*.c
-                elif old_name.startswith("ldv-memsafety/memleaks"):
-                    old_c = (
-                        "ldv-memsafety/memleaks-notpreprocessed/"
-                        + old_name.split("/")[-1][:-1]
-                        + "c"
-                    )
                 else:
                     old_c = None
                 if old_c:
                     assert old_c not in all_tasks
-                    curr_task_name = curr_task.split("/")[-1]
-                    new_c_name = (
-                        os.path.dirname(old_c) + "/" + curr_task_name[:-1] + "c"
+                    curr_task_name = os.path.basename(curr_task)
+                    new_c_name = os.path.join(
+                        os.path.dirname(old_c), curr_task_name[:-1] + "c"
                     )
 
                     os.rename(old_c, new_c_name)
