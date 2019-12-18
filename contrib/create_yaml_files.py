@@ -261,14 +261,8 @@ if __name__ == "__main__":
 
             globbed_tasks = glob.glob(prefix + glob_suffix)
             globbed_tasks = [t for t in globbed_tasks if t.endswith(".yml")]
-            if not task_set.endswith("testable.set") and (
-                not USE_SUFFIX_WILDCARDS or len(globbed_tasks) > 3 or prefix[-1] == "/"
-            ):
-                new_content.append(prefix + "*.yml")
-                remaining -= set(globbed_tasks)
-            else:
-                new_content.append(task)
-                remaining.remove(task)
+            new_content.append(prefix + "*.yml")
+            remaining -= set(globbed_tasks)
         if task_set != DUMMY_SET:
             with open(task_set, "w+") as outp:
                 outp.writelines(l + "\n" for l in new_content)
