@@ -375,22 +375,6 @@ def expected_results_of_file(filename):
     return results
 
 
-def _expected_result(filename, checked_properties):
-    results = []
-    for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
-        if filename_part in filename and for_properties.intersection(
-            checked_properties
-        ):
-            results.append(expected_result)
-    if not results:
-        # No expected result for any of the properties
-        return None
-    if len(results) > 1:
-        # Multiple checked properties per file not supported
-        return None
-    return results[0]
-
-
 def _svcomp_max_score(expected_result):
     """
     Return the maximum possible score for a task according to the SV-COMP scoring scheme.
