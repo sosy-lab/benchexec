@@ -1,0 +1,10 @@
+format_version: "1.0"
+
+input_files: false_other_sub_task.yml
+
+properties:
+  - property_file: test.prp
+    expected_verdict: false
+    subproperty: other_subproperty
+  - property_file: other.prp
+    expected_verdict: false

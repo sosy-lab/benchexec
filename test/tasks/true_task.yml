@@ -1,0 +1,9 @@
+format_version: "1.0"
+
+input_files: true_task.yml
+
+properties:
+  - property_file: test.prp
+    expected_verdict: true
+  - property_file: other.prp
+    expected_verdict: false

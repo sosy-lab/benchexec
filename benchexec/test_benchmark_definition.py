@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import collections
+import os
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -25,6 +26,10 @@ import yaml
 from benchexec.model import Benchmark
 import benchexec.result
 import benchexec.util as util
+
+here = os.path.dirname(__file__)
+base_dir = os.path.join(here, "..")
+test_dir = os.path.join(base_dir, "test", "tasks")
 
 DummyConfig = collections.namedtuple(
     "DummyConfig",
@@ -60,37 +65,7 @@ def mock_expand_filename_pattern(pattern, base_dir):
 
 
 def mock_load_task_def_file(f):
-    if f in ["false_other_sub_task.yml", "false_sub_task.yml", "false_sub2_task.yml"]:
-        content = """
-            input_files: {}.c
-            properties:
-                - property_file: test.prp
-                  expected_verdict: false
-                  subproperty: {}
-                - property_file: other.prp
-                  expected_verdict: false
-            """.format(
-            f, ALL_TEST_TASKS[f]
-        )
-    elif f in ALL_TEST_TASKS:
-        content = """
-            input_files: {}.c
-            properties:
-                - property_file: test.prp
-                  {}
-                - property_file: other.prp
-                  expected_verdict: false
-            """.format(
-            f, ALL_TEST_TASKS[f]
-        )
-    elif f == "other_task.yml":
-        content = """
-            input_files: d.yml.c
-            properties:
-                - property_file: other.prp
-                  expected_verdict: false
-            """
-
+    content = util.read_file(os.path.join(test_dir, f))
     return yaml.safe_load(content)
 
 

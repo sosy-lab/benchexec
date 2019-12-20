@@ -1,0 +1,7 @@
+format_version: "1.0"
+
+input_files: other_task.yml
+
+properties:
+  - property_file: other.prp
+    expected_verdict: false
