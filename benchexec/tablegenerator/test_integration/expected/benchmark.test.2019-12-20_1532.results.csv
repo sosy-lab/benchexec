@@ -1,0 +1,9 @@
+tool	DummyTool 	DummyTool 	DummyTool 	DummyTool 	DummyTool 
+run set	0	0	0	0	0
+test/tasks/	status	cputime (s)	walltime (s)	memory (MB)	cpuenergy (J)
+false_other_sub_task.yml	true	0.001669043	0.005449632000818383	0.3072	0
+false_sub2_task.yml	true	0.001611825	0.0034175380005763145	0.380928	
+false_sub_task.yml	true	0.00246884	0.004439062999153975	0.303104	0.013672
+false_task.yml	true	0.001508431	0.00472584400085907	0.380928	0
+true_task.yml	true	0.001604837	0.003340429999298067	0.40959999999999996	
+unknown_task.yml	true	0.001470596	0.0033931460002349922	0.380928	0

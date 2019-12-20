@@ -295,6 +295,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             "simple-table-with-scaling.table",
         )
 
+    def test_simple_table_with_taskdef_files(self):
+        self.generate_tables_and_compare_content(
+            [result_file("benchmark.test.2019-12-20_1532.results.xml.bz2")],
+            "benchmark.test.2019-12-20_1532.results",
+        )
+
     def test_multi_table(self):
         self.generate_tables_and_compare_content(
             [
