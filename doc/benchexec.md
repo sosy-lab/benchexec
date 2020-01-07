@@ -47,13 +47,6 @@ the attribute `tool` of the tag `<benchmark>`.
 It's value is the name of a so-called *tool-info module*
 described in more detail under [Tool Integration](tool-integration.md).
 
-BenchExec allows to check whether the output of the tool matches the expected result
-for a given task, and to categorize the results accordingly.
-To do so, it needs to be given a [property file](properties/INDEX.md)
-with the tag `<propertyfile>`
-and the name of the input file needs to encode the expected result
-for the given property.
-
 Inside the `<option>` tag and other tags some variables can be used
 that will be expanded by BenchExec. The following variables are supported:
 

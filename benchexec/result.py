@@ -134,38 +134,6 @@ _PROPERTY_NAMES = {
     "LTL(G ! deadlock)": _PROP_DEADLOCK,
 }
 
-# This maps a possible result substring of a file name
-# to the expected result string of the tool and the set of properties
-# for which this result is relevant.
-_FILE_RESULTS = {
-    "_true-unreach-label": (RESULT_TRUE_PROP, {_PROP_LABEL}),
-    "_true-unreach-call": (RESULT_TRUE_PROP, {_PROP_CALL}),
-    "_true_assert": (RESULT_TRUE_PROP, {_PROP_ASSERT}),
-    "_true-termination": (RESULT_TRUE_PROP, {_PROP_TERMINATION}),
-    "_true-valid-deref": (RESULT_TRUE_PROP, {_PROP_DEREF}),
-    "_true-valid-free": (RESULT_TRUE_PROP, {_PROP_FREE}),
-    "_true-valid-memtrack": (RESULT_TRUE_PROP, {_PROP_MEMTRACK}),
-    "_true-valid-memcleanup": (RESULT_TRUE_PROP, {_PROP_MEMCLEANUP}),
-    "_true-valid-memsafety": (
-        RESULT_TRUE_PROP,
-        {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK},
-    ),
-    "_true-no-overflow": (RESULT_TRUE_PROP, {_PROP_OVERFLOW}),
-    "_true-no-deadlock": (RESULT_TRUE_PROP, {_PROP_DEADLOCK}),
-    "_false-unreach-label": (RESULT_FALSE_REACH, {_PROP_LABEL}),
-    "_false-unreach-call": (RESULT_FALSE_REACH, {_PROP_CALL}),
-    "_false_assert": (RESULT_FALSE_REACH, {_PROP_ASSERT}),
-    "_false-termination": (RESULT_FALSE_TERMINATION, {_PROP_TERMINATION}),
-    "_false-valid-deref": (RESULT_FALSE_DEREF, {_PROP_DEREF}),
-    "_false-valid-free": (RESULT_FALSE_FREE, {_PROP_FREE}),
-    "_false-valid-memtrack": (RESULT_FALSE_MEMTRACK, {_PROP_MEMTRACK}),
-    "_false-valid-memcleanup": (RESULT_FALSE_MEMCLEANUP, {_PROP_MEMCLEANUP}),
-    "_false-no-overflow": (RESULT_FALSE_OVERFLOW, {_PROP_OVERFLOW}),
-    "_false-no-deadlock": (RESULT_FALSE_DEADLOCK, {_PROP_DEADLOCK}),
-    "_sat": (RESULT_SAT, {_PROP_SAT}),
-    "_unsat": (RESULT_UNSAT, {_PROP_SAT}),
-}
-
 _MEMSAFETY_SUBPROPERTIES = {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}
 
 # Map a property to all possible results for it.
@@ -324,32 +292,6 @@ class Property(
             name = os.path.splitext(os.path.basename(propertyfile))[0]
 
         return cls(propertyfile, is_well_known, is_svcomp, name, subproperties)
-
-
-def expected_results_of_file(filename):
-    """Create a dict of property->ExpectedResult from information encoded in a filename."""
-    results = {}
-    for (filename_part, (expected_result, for_properties)) in _FILE_RESULTS.items():
-        if filename_part in filename:
-            expected_result_class = get_result_classification(expected_result)
-            assert expected_result_class in {RESULT_CLASS_TRUE, RESULT_CLASS_FALSE}
-            expected_result = expected_result_class == RESULT_CLASS_TRUE
-            subproperty = None
-            if len(for_properties) > 1:
-                assert for_properties == _MEMSAFETY_SUBPROPERTIES
-                assert expected_result
-                prop = _PROP_MEMSAFETY
-            else:
-                prop = next(iter(for_properties))
-                if prop in _MEMSAFETY_SUBPROPERTIES and not expected_result:
-                    subproperty = prop
-                    prop = _PROP_MEMSAFETY
-            if prop in results:
-                raise BenchExecException(
-                    "Duplicate property {} in filename {}".format(prop, filename)
-                )
-            results[prop] = ExpectedResult(expected_result, subproperty)
-    return results
 
 
 def _svcomp_max_score(expected_result):

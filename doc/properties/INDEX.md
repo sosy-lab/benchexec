@@ -36,15 +36,14 @@ If the used property matches the format of the property files of [SV-COMP](http:
 
 ## Usage without Task-Definition Files
 
-There exists a historical mode of operation for `benchexec`
-without task-definition files.
-[Starting with BenchExec 3.0](https://github.com/sosy-lab/benchexec/issues/439)
-`benchexec` will no longer check for expected results in this mode.
-For converting existing tasks to task-definition files
-we provide a [helper script](../../contrib/create_yaml_files.py).
-Until then, expected results can be encoded in the name of the input file of each task
-and only the specific property files in this directory are valid
-if no task-definition files are used:
+If task-definition files are not used and instead the input files
+are given directly in the benchmark definition,
+property files can still be specified in the `<propertyfile>` tag,
+but `benchexec` will pass them only as parameter to the tool.
+It will not check the tool result whether it is as expected
+and it will not compute scores.
+
+In this mode, only the specific property files in this directory are valid:
 
 - [unreach-call](unreach-call.prp): Reachability of an error function in a program (defined by [SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
 - [unreach-label](unreach-label.prp): Reachability of an error label in a program (defined by [previous SV-Comp](http://sv-comp.sosy-lab.org/2014/rules.php))
@@ -65,7 +64,6 @@ This information can be changed without affecting BenchExec,
 but otherwise the property files cannot be changed in this mode
 (use task-definition files if you need arbitrary properties).
 
-The expected result is encoded in the file name of the input file
-in the format `_(true|false)-prop` with `prop` as listed above.
-An exception is checking for satisfiability, where `_sat` and `_unsat`
-are used as markers in file names.
+For creating task-definition files for tasks where the expected result
+is encoded in the file name (as it was previously supported by `benchexec`)
+we provide a [helper script](../../contrib/create_yaml_files.py).

@@ -14,7 +14,6 @@ import unittest
 from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
     _PROP_CALL,
-    _PROP_LABEL,
     _PROP_AUTOMATON,
     _PROP_DEREF,
     _PROP_FREE,
@@ -330,127 +329,6 @@ class TestResult(unittest.TestCase):
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification("KILLED"))
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification("TIMEOUT"))
         self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(""))
-
-    def test_expected_results_of_file_SVCOMP(self):
-        self.assertEqual(
-            {_PROP_CALL: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-unreach-call.c"),
-        )
-        self.assertEqual(
-            {_PROP_CALL: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-unreach-call.c"),
-        )
-        self.assertEqual(
-            {_PROP_LABEL: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-unreach-label.c"),
-        )
-        self.assertEqual(
-            {_PROP_LABEL: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-unreach-label.c"),
-        )
-        self.assertEqual(
-            {_PROP_DEADLOCK: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-no-deadlock.c"),
-        )
-        self.assertEqual(
-            {_PROP_DEADLOCK: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-no-deadlock.c"),
-        )
-        self.assertEqual(
-            {_PROP_OVERFLOW: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-no-overflow.c"),
-        )
-        self.assertEqual(
-            {_PROP_OVERFLOW: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-no-overflow.c"),
-        )
-        self.assertEqual(
-            {_PROP_TERMINATION: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-termination.c"),
-        )
-        self.assertEqual(
-            {_PROP_TERMINATION: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-termination.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMCLEANUP: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-valid-memcleanup.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMCLEANUP: ExpectedResult(False, None)},
-            expected_results_of_file("test_false-valid-memcleanup.c"),
-        )
-
-    def test_expected_results_of_file_SVCOMP_memsafety(self):
-        self.assertEqual(
-            {_PROP_MEMSAFETY: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-valid-memsafety.c"),
-        )
-        self.assertEqual(
-            {_PROP_DEREF: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-valid-deref.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMSAFETY: ExpectedResult(False, _PROP_DEREF)},
-            expected_results_of_file("test_false-valid-deref.c"),
-        )
-        self.assertEqual(
-            {_PROP_FREE: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-valid-free.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMSAFETY: ExpectedResult(False, _PROP_FREE)},
-            expected_results_of_file("test_false-valid-free.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMTRACK: ExpectedResult(True, None)},
-            expected_results_of_file("test_true-valid-memtrack.c"),
-        )
-        self.assertEqual(
-            {_PROP_MEMSAFETY: ExpectedResult(False, _PROP_MEMTRACK)},
-            expected_results_of_file("test_false-valid-memtrack.c"),
-        )
-
-    def test_expected_results_of_file_no_SVCOMP(self):
-        self.assertEqual(
-            {_PROP_SAT: ExpectedResult(True, None)},
-            expected_results_of_file("test_sat.c"),
-        )
-        self.assertEqual(
-            {_PROP_SAT: ExpectedResult(False, None)},
-            expected_results_of_file("test_unsat.c"),
-        )
-
-    def test_expected_results_of_file_several_properties(self):
-        self.assertEqual(
-            {
-                _PROP_CALL: ExpectedResult(True, None),
-                _PROP_TERMINATION: ExpectedResult(False, None),
-                _PROP_OVERFLOW: ExpectedResult(True, None),
-            },
-            expected_results_of_file(
-                "test_true-no-overflow_true-unreach-call_false-termination.c"
-            ),
-        )
-        self.assertEqual(
-            {
-                _PROP_MEMSAFETY: ExpectedResult(True, None),
-                _PROP_MEMCLEANUP: ExpectedResult(False, None),
-            },
-            expected_results_of_file(
-                "test_true-valid-memsafety_false-valid-memcleanup.c"
-            ),
-        )
-        self.assertEqual(
-            {
-                _PROP_MEMSAFETY: ExpectedResult(False, "valid-memtrack"),
-                _PROP_MEMCLEANUP: ExpectedResult(False, None),
-                _PROP_CALL: ExpectedResult(True, None),
-            },
-            expected_results_of_file(
-                "test_true-unreach-call_false-valid-memtrack_false-valid-memcleanup.c"
-            ),
-        )
 
     def test_result_category_true(self):
         self.assertEqual(

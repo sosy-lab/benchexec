@@ -701,11 +701,6 @@ class RunSet(object):
 
         prop = result.Property.create(run.propertyfile, allow_unknown=False)
         run.properties = [prop]
-        expected_results = result.expected_results_of_file(input_file)
-        if prop.name in expected_results:
-            run.expected_results[prop.filename] = expected_results[prop.name]
-        # We do not check here if there is an expected result for the given propertyfile
-        # like we do in create_run_from_task_definition, to keep backwards compatibility.
 
         if run.propertytag.get("expectedverdict"):
             global _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER
