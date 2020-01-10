@@ -87,7 +87,6 @@ TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "template.{format}"
 
 TEMPLATE_FORMATS = ["html", "csv"]
 TEMPLATE_NAMESPACE = {
-    "flatten": util.flatten,
     "json": util.to_json,
 }
 
@@ -1952,7 +1951,47 @@ def create_tables(
     return futures
 
 
+def write_csv_table(out, head, rows, relevant_id_columns, sep="\t"):
+    num_id_columns = relevant_id_columns[1:].count(True)
+    for line in ["tool", "runset", "title"]:
+        if line in head and head[line]:
+            out.write(head[line].name.lower())
+            for i in range(num_id_columns):
+                out.write(sep)
+            for value, count in head[line].content:
+                for i in range(count):
+                    out.write(sep)
+                    out.write(value)
+            out.write("\n")
+
+    for row in rows:
+        out.write(row.short_filename)
+        for row_id, is_relevant in zip(row.id[1:], relevant_id_columns[1:]):
+            if is_relevant:
+                out.write(sep)
+                if row_id is not None:
+                    out.write(row_id)
+        for run_result in row.results:
+            for value, column in zip(run_result.values, run_result.columns):
+                out.write(sep)
+                out.write(column.format_value(value or "", False, "csv"))
+        out.write("\n")
+
+
 def write_table_in_format(template_format, outfile, template_values, show_table):
+    if template_format == "csv":
+        args = [
+            template_values["head"],
+            template_values["body"],
+            template_values["relevant_id_columns"],
+        ]
+        if outfile:
+            with open(outfile, "w") as out:
+                write_csv_table(out, *args)
+        else:
+            write_csv_table(sys.stdout, *args)
+        return
+
     # read template
     Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
     template_file = TEMPLATE_FILE_NAME.format(format=template_format)
