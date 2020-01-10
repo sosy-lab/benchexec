@@ -23,12 +23,10 @@ This module contains some useful functions for Strings, Files and Lists.
 from decimal import Decimal
 import glob
 import io
-import json
 import logging
 import os
 from urllib.parse import quote as url_quote
 import urllib.request
-import tempita
 import benchexec.util
 
 
@@ -211,10 +209,6 @@ def get_column_value(sourcefileTag, columnTitle, default=None):
 
 def flatten(list_):
     return [value for sublist in list_ for value in sublist]
-
-
-def to_json(obj):
-    return tempita.html(json.dumps(obj, sort_keys=True))
 
 
 def prepare_run_sets_for_js(run_sets):

@@ -43,17 +43,10 @@ from benchexec import __version__, BenchExecException
 import benchexec.model as model
 import benchexec.result as result
 import benchexec.util
-from benchexec.tablegenerator import util
+from benchexec.tablegenerator import htmltable, util
 from benchexec.tablegenerator.columns import Column, ColumnType
 import zipfile
 
-# Workaround for making Tempita work on Python 3.8+ Remove as part of #480
-import cgi
-
-if not hasattr(cgi, "escape"):
-    import html
-
-    cgi.escape = html.escape
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -83,12 +76,7 @@ REACT_FILES = [
     for path in ["vendors.min.", "bundle.min."]
 ]
 
-TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "template.{format}")
-
 TEMPLATE_FORMATS = ["html", "csv"]
-TEMPLATE_NAMESPACE = {
-    "json": util.to_json,
-}
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
 
@@ -1990,35 +1978,26 @@ def write_table_in_format(template_format, outfile, template_values, show_table)
                 write_csv_table(out, *args)
         else:
             write_csv_table(sys.stdout, *args)
-        return
 
-    # read template
-    Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
-    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
-    template_content = util.read_bundled_file(template_file)
-    template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
-
-    result = template.substitute(**template_values)
-
-    # write file
-    if not outfile:
-        print(result, end="")
     else:
-        # Force HTML file to be UTF-8 regardless of system encoding because it actually
-        # declares itself to be UTF-8 in a meta tag.
-        encoding = "utf-8" if template_format == "html" else None
-        with open(outfile, "w", encoding=encoding) as file:
-            file.write(result)
+        assert template_format == "html"
+        if outfile:
+            # Force HTML file to be UTF-8 regardless of system encoding because it actually
+            # declares itself to be UTF-8 in a meta tag.
+            with open(outfile, "w", encoding="utf-8") as out:
+                htmltable.write_html_table(out, template_values)
 
-        if show_table:
-            try:
-                subprocess.Popen(
-                    ["xdg-open", outfile],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-            except OSError:
-                pass
+            if show_table:
+                try:
+                    subprocess.Popen(
+                        ["xdg-open", outfile],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                except OSError:
+                    pass
+        else:
+            htmltable.write_html_table(sys.stdout, template_values)
 
 
 def basename_without_ending(file):
