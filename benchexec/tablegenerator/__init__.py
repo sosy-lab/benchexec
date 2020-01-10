@@ -37,8 +37,6 @@ import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
 
-import tempita
-
 from benchexec import __version__, BenchExecException
 import benchexec.model as model
 import benchexec.result as result
@@ -1165,7 +1163,7 @@ def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
             else list(zip(values, runSetWidths))
         )
 
-        return tempita.bunch(
+        return dict(  # noqa: C408
             id=rowName.lower().split(" ")[0], name=rowName, content=valuesAndWidths
         )
 
@@ -1175,7 +1173,7 @@ def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
         for column in runSetResult.columns
     ]
     runSetWidths1 = [1] * sum(runSetWidths)
-    titleRow = tempita.bunch(
+    titleRow = dict(  # noqa: C408
         id="columnTitles",
         name=commonFileNamePrefix,
         content=list(zip(titles, runSetWidths1)),
@@ -1185,7 +1183,7 @@ def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
     if not relevant_id_columns[1]:  # property is the same for all tasks
         common_property = runSetResults[0].results[0].task_id[1]
         if common_property:
-            property_row = tempita.bunch(
+            property_row = dict(  # noqa: C408
                 id="property",
                 name="Properties",
                 content=[[common_property, sum(runSetWidths)]],
@@ -1294,7 +1292,7 @@ def get_stats(rows, local_summary, correct_only):
     )
 
     if max_score:
-        score_row = tempita.bunch(
+        score_row = dict(  # noqa: C408
             id="score",
             title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
             description=task_counts,
@@ -1302,7 +1300,7 @@ def get_stats(rows, local_summary, correct_only):
         )
 
     if local_summary:
-        summary_row = tempita.bunch(
+        summary_row = dict(  # noqa: C408
             id=None,
             title="local summary",
             description="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
@@ -1313,19 +1311,19 @@ def get_stats(rows, local_summary, correct_only):
         return "&nbsp;" * (n * 4)
 
     stats_info_correct = [
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(1) + "correct results",
             description="(property holds + result is true) OR (property does not hold + result is false)",
             content=rowsForStats[1],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct true",
             description="property holds + result is true",
             content=rowsForStats[2],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct false",
             description="property does not hold + result is false",
@@ -1333,19 +1331,19 @@ def get_stats(rows, local_summary, correct_only):
         ),
     ]
     stats_info_correct_unconfirmed = [
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(1) + "correct-unconfimed results",
             description="(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
             content=rowsForStats[4],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct-unconfirmed true",
             description="property holds + result is true, but unconfirmed",
             content=rowsForStats[5],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct-unconfirmed false",
             description="property does not hold + result is false, but unconfirmed",
@@ -1353,19 +1351,19 @@ def get_stats(rows, local_summary, correct_only):
         ),
     ]
     stats_info_wrong = [
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(1) + "incorrect results",
             description="(property holds + result is false) OR (property does not hold + result is true)",
             content=rowsForStats[7],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "incorrect true",
             description="property does not hold + result is true",
             content=rowsForStats[8],
         ),
-        tempita.bunch(
+        dict(  # noqa: C408
             id=None,
             title=indent(2) + "incorrect false",
             description="property holds + result is false",
@@ -1382,7 +1380,7 @@ def get_stats(rows, local_summary, correct_only):
         stats_info = []
     return (
         [
-            tempita.bunch(
+            dict(  # noqa: C408
                 id=None, title="total", description=task_counts, content=rowsForStats[0]
             )
         ]
@@ -1943,10 +1941,10 @@ def write_csv_table(out, head, rows, relevant_id_columns, sep="\t"):
     num_id_columns = relevant_id_columns[1:].count(True)
     for line in ["tool", "runset", "title"]:
         if line in head and head[line]:
-            out.write(head[line].name.lower())
+            out.write(head[line]["name"].lower())
             for i in range(num_id_columns):
                 out.write(sep)
-            for value, count in head[line].content:
+            for value, count in head[line]["content"]:
                 for i in range(count):
                     out.write(sep)
                     out.write(value)

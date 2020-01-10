@@ -15,8 +15,6 @@ is in the respective [README](../benchexec/tablegenerator/react-table/README.md)
 After cloning the [GitHub repository](https://github.com/sosy-lab/benchexec),
 BenchExec can be used directly from within the working directory.
 Scripts for starting the three programs are available in the `bin` directory.
-For `table-generator`, the [Python package Tempita](https://pypi.python.org/pypi/Tempita)
-needs to be installed on the system.
 
 The alternative (recommended) way is to create a virtual Python environment
 and to install BenchExec in development mode within this environment:

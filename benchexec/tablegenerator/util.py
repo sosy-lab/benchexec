@@ -323,7 +323,7 @@ def prepare_stats_for_js(stats, all_columns):
             }
             if col_content
             else None
-            for column, col_content in zip(flattened_columns, stat.content)
+            for column, col_content in zip(flattened_columns, stat["content"])
         ]
 
         result = dict(stat)

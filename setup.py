@@ -79,7 +79,7 @@ setuptools.setup(
             "table-generator = benchexec.tablegenerator:main",
         ]
     },
-    install_requires=["tempita==0.5.2", "PyYAML>=3.12"],
+    install_requires=["PyYAML>=3.12"],
     setup_requires=["nose>=1.0", "lxml", "PyYAML>=3.12"],
     test_suite="nose.collector",
     zip_safe=True,

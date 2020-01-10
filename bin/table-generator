@@ -25,11 +25,6 @@ import sys
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-try:
-    import tempita
-except ImportError:
-    sys.exit("Python package tempita needs to be installed.")
-
 import benchexec.tablegenerator
 
 if __name__ == "__main__":
