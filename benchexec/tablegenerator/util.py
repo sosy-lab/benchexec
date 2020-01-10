@@ -26,7 +26,6 @@ import io
 import json
 import logging
 import os
-import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
@@ -171,28 +170,6 @@ def create_link(href, base_dir, runResult=None, href_base=None):
     if source_file:
         href = benchexec.util.substitute_vars(href, get_replacements(source_file))
     return url_quote(os.path.relpath(href, base_dir))
-
-
-def format_options(options):
-    """Helper function for formatting the content of the options line"""
-    # split on one of the following tokens: ' -' or '[[' or ']]'
-    lines = [""]
-    for token in re.split(r"( -|\[\[|\]\])", options):
-        if token in ["[[", "]]"]:
-            lines.append(token)
-            lines.append("")
-        elif token == " -":
-            lines.append(token)
-        else:
-            lines[-1] += token
-    # join all non-empty lines and wrap them into 'span'-tags
-    return (
-        '<span style="display:block">'
-        + '</span><span style="display:block">'.join(
-            line for line in lines if line.strip()
-        )
-        + "</span>"
-    )
 
 
 def to_decimal(s):

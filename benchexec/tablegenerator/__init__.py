@@ -78,25 +78,17 @@ NAME_START = "results"  # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results/"
 
-LIB_URL = "https://cdn.jsdelivr.net"
-LIB_URL_OFFLINE = "lib/javascript"
-
-
 REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
     for path in ["vendors.min.", "bundle.min."]
 ]
 
-TEMPLATE_NAME = "template"
-TEMPLATE_NAME_REACT = "template_react"
-TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format}")
+TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "template.{format}")
 
 TEMPLATE_FORMATS = ["html", "csv"]
 TEMPLATE_NAMESPACE = {
     "flatten": util.flatten,
     "json": util.to_json,
-    "create_link": util.create_link,
-    "format_options": util.format_options,
 }
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
@@ -1874,7 +1866,6 @@ def create_tables(
 
     template_values.count_id_columns = template_values.relevant_id_columns.count(True)
 
-    template_values.lib_url = options.lib_url
     template_values.base_dir = outputPath
     template_values.href_base = (
         os.path.dirname(options.xmltablefile) if options.xmltablefile else None
@@ -1882,29 +1873,25 @@ def create_tables(
     template_values.version = __version__
 
     # prepare data for js react application
-    if options.template_name == TEMPLATE_NAME_REACT:
-        template_values.tools = util.prepare_run_sets_for_js(runSetResults)
+    template_values.tools = util.prepare_run_sets_for_js(runSetResults)
 
-        template_values.app_css = [
-            util.read_bundled_file(path + "css") for path in REACT_FILES
-        ]
-        template_values.app_js = [
-            util.read_bundled_file(path + "js") for path in REACT_FILES
-        ]
-        # template_values.stats = <see below>
-    else:
-        logging.warning("Option --static-table will be removed in BenchExec 3.0.")
+    template_values.app_css = [
+        util.read_bundled_file(path + "css") for path in REACT_FILES
+    ]
+    template_values.app_js = [
+        util.read_bundled_file(path + "js") for path in REACT_FILES
+    ]
+    # template_values.stats = <see below>
 
     futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
-        if options.template_name == TEMPLATE_NAME_REACT:
-            template_values.rows = util.prepare_rows_for_js(
-                rows,
-                outputPath,
-                template_values.href_base,
-                template_values.relevant_id_columns,
-            )
+        template_values.rows = util.prepare_rows_for_js(
+            rows,
+            outputPath,
+            template_values.href_base,
+            template_values.relevant_id_columns,
+        )
 
         # calculate statistics if necessary
         if not options.format == ["csv"]:
@@ -1912,10 +1899,9 @@ def create_tables(
             stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
 
             # prepare data for js react application (stats)
-            if options.template_name == TEMPLATE_NAME_REACT:
-                template_values.stats = util.prepare_stats_for_js(
-                    stats, template_values.columns
-                )
+            template_values.stats = util.prepare_stats_for_js(
+                stats, template_values.columns
+            )
         else:
             stats = stats_columns = None
 
@@ -1948,9 +1934,6 @@ def create_tables(
                     outfile,
                     this_template_values,
                     options.show_table and template_format == "html",
-                    options.template_name
-                    if template_format == "html"
-                    else TEMPLATE_NAME,
                 )
             )
 
@@ -1969,14 +1952,10 @@ def create_tables(
     return futures
 
 
-def write_table_in_format(
-    template_format, outfile, template_values, show_table, template_name
-):
+def write_table_in_format(template_format, outfile, template_values, show_table):
     # read template
     Template = tempita.HTMLTemplate if template_format == "html" else tempita.Template
-    template_file = TEMPLATE_FILE_NAME.format(
-        template=template_name, format=template_format
-    )
+    template_file = TEMPLATE_FILE_NAME.format(format=template_format)
     template_content = util.read_bundled_file(template_file)
     template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
 
@@ -2080,16 +2059,6 @@ def create_argument_parser():
         help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated.",
     )
     parser.add_argument(
-        "--static-table",
-        action="store_const",
-        dest="template_name",
-        const=TEMPLATE_NAME,
-        default=TEMPLATE_NAME_REACT,
-        help="Generate HTML table with static HTML code as known until BenchExec 2.2 "
-        "instead of the new React-based table. "
-        "This option will be removed in BenchExec 3.0.",
-    )
-    parser.add_argument(
         "-c",
         "--common",
         action="store_true",
@@ -2113,15 +2082,6 @@ def create_argument_parser():
         action="store_true",
         dest="all_columns",
         help="Show all columns in tables, including those that are normally hidden.",
-    )
-    parser.add_argument(
-        "--offline",
-        action="store_const",
-        dest="lib_url",
-        const=LIB_URL_OFFLINE,
-        default=LIB_URL,
-        help="Expect JS libs in libs/javascript/ instead of retrieving them from a CDN. "
-        "Currently does not work for all libs, and only relevant for --static-table.",
     )
     parser.add_argument(
         "--show",
