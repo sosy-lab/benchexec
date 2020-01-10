@@ -1273,17 +1273,6 @@ def get_stats(rows, local_summary, correct_only):
     )
     rowsForStats = list(map(util.flatten, zip(*stats)))  # row-wise
 
-    # find out column types for statistics columns
-    if local_summary:
-        rowsForStats.append(local_summary)
-    columns = util.flatten(run_result.columns for run_result in rows[0].results)
-    stats_columns = []
-    for i, column in enumerate(columns):
-        column_values = [row[i] for row in rowsForStats]
-        new_column = copy.copy(column)
-        new_column.set_column_type_from(column_values)
-        stats_columns.append(new_column)
-
     max_score, count_true, count_false = get_stats_of_rows(rows)
     task_counts = (
         "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
@@ -1386,8 +1375,7 @@ def get_stats(rows, local_summary, correct_only):
         ]
         + ([summary_row] if local_summary else [])
         + stats_info
-        + ([score_row] if max_score else []),
-        stats_columns,
+        + ([score_row] if max_score else [])
     )
 
 
@@ -1841,21 +1829,9 @@ def create_tables(
     template_values.head = get_table_head(
         runSetResults, common_prefix, template_values.relevant_id_columns
     )
-    template_values.run_sets = [
-        runSetResult.attributes for runSetResult in runSetResults
-    ]
-    template_values.columns = [runSet.columns for runSet in runSetResults]
-    template_values.columnTitles = [
-        [column.format_title() for column in runSet.columns] for runSet in runSetResults
-    ]
+    columns = [runSet.columns for runSet in runSetResults]
 
-    template_values.count_id_columns = template_values.relevant_id_columns.count(True)
-
-    template_values.base_dir = outputPath
-    template_values.href_base = (
-        os.path.dirname(options.xmltablefile) if options.xmltablefile else None
-    )
-    template_values.version = __version__
+    href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
 
     # prepare data for js react application
     template_values.tools = util.prepare_run_sets_for_js(runSetResults)
@@ -1872,23 +1848,16 @@ def create_tables(
 
     def write_table(table_type, title, rows, use_local_summary):
         template_values.rows = util.prepare_rows_for_js(
-            rows,
-            outputPath,
-            template_values.href_base,
-            template_values.relevant_id_columns,
+            rows, outputPath, href_base, template_values.relevant_id_columns,
         )
 
         # calculate statistics if necessary
         if not options.format == ["csv"]:
             local_summary = get_summary(runSetResults) if use_local_summary else None
-            stats, stats_columns = get_stats(rows, local_summary, options.correct_only)
+            stats = get_stats(rows, local_summary, options.correct_only)
 
             # prepare data for js react application (stats)
-            template_values.stats = util.prepare_stats_for_js(
-                stats, template_values.columns
-            )
-        else:
-            stats = stats_columns = None
+            template_values.stats = util.prepare_stats_for_js(stats, columns)
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":
@@ -1907,9 +1876,7 @@ def create_tables(
                     "Writing %s into %s ...", template_format.upper().ljust(4), outfile
                 )
 
-            this_template_values = dict(  # noqa: C408
-                title=title, body=rows, foot=stats, foot_columns=stats_columns
-            )
+            this_template_values = dict(title=title, body=rows)  # noqa: C408
             this_template_values.update(template_values.__dict__)
 
             futures.append(
