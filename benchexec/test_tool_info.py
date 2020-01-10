@@ -231,7 +231,7 @@ def print_tool_info(tool):
 def analyze_tool_output(tool, file):
     try:
         output = file.readlines()
-    except (IOError, UnicodeDecodeError) as e:
+    except (OSError, UnicodeDecodeError) as e:
         logging.warning("Cannot read tool output from “%s”: %s", file.name, e)
         return
 

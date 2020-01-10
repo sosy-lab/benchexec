@@ -212,7 +212,7 @@ def main(argv=None):
             parser.error("Input and output files cannot be the same.")
         try:
             stdin = open(options.input, "rt")
-        except IOError as e:
+        except OSError as e:
             parser.error(e)
     else:
         stdin = None
@@ -432,7 +432,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         for ((subsystem, option), value) in cgroup_values.items():
             try:
                 cgroups.set_value(subsystem, option, value)
-            except EnvironmentError as e:
+            except OSError as e:
                 cgroups.remove()
                 sys.exit(
                     '{} for setting cgroup option {}.{} to "{}" (error code {}).'.format(
@@ -477,7 +477,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 try:
                     cgroups.set_value(MEMORY, swap_limit, memlimit)
-                except IOError as e:
+                except OSError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
                         sys.exit(
@@ -495,7 +495,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 # (unlike setting the global swappiness to 0).
                 # Our process might get killed because of this.
                 cgroups.set_value(MEMORY, "swappiness", "0")
-            except IOError as e:
+            except OSError as e:
                 logging.warning(
                     "Could not disable swapping for benchmarked process: %s", e
                 )
@@ -544,7 +544,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
             output_file = open(output_filename, "w")  # override existing file
-        except IOError as e:
+        except OSError as e:
             sys.exit(e)
 
         if write_header:
@@ -1096,7 +1096,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 try:
                     result["memory"] = int(cgroups.get_value(MEMORY, memUsageFile))
-                except IOError as e:
+                except OSError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
                         logging.critical(
@@ -1186,7 +1186,7 @@ def _get_debug_output_after_crash(output_filename, base_path):
                         with open(dumpFileName, "rb") as dumpFile:
                             util.copy_all_lines_from_to(dumpFile, outputFile)
                         os.remove(dumpFileName)
-                    except IOError as e:
+                    except OSError as e:
                         logging.warning(
                             "Could not append additional segmentation fault information "
                             "from %s (%s)",
@@ -1203,7 +1203,7 @@ def _get_debug_output_after_crash(output_filename, base_path):
                 except UnicodeDecodeError:
                     pass
                     # ignore invalid chars from logfile
-    except IOError as e:
+    except OSError as e:
         logging.warning(
             "Could not analyze tool output for crash information (%s)", e.strerror
         )

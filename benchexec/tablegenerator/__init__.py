@@ -135,7 +135,7 @@ def parse_table_definition_file(file):
 
     try:
         tableGenFile = ElementTree.ElementTree().parse(file)
-    except IOError as e:
+    except OSError as e:
         handle_error("Could not read result file %s: %s", file, e)
     except ElementTree.ParseError as e:
         handle_error("Table file %s is invalid: %s", file, e)
@@ -661,13 +661,13 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
             try:
                 try:
                     resultElem = parse(gzip.GzipFile(fileobj=f))
-                except IOError:
+                except OSError:
                     f.seek(0)
                     resultElem = parse(bz2.BZ2File(f))
-            except IOError:
+            except OSError:
                 f.seek(0)
                 resultElem = parse(f)
-    except IOError as e:
+    except OSError as e:
         handle_error("Could not read result file %s: %s", resultFile, e)
     except ElementTree.ParseError as e:
         handle_error("Result file %s is invalid: %s", resultFile, e)
@@ -869,7 +869,7 @@ class RunResult(object):
             try:
                 with util.open_url_seekable(log_file_url, "rt") as logfile:
                     return logfile.readlines()
-            except IOError:
+            except OSError:
                 try:
                     if log_zip_url not in log_zip_cache:
                         log_zip_cache[log_zip_url] = zipfile.ZipFile(
@@ -888,7 +888,7 @@ class RunResult(object):
                         )
                         return []
 
-                except IOError:
+                except OSError:
                     logging.warning(
                         "Could not find logfile '%s' nor log archive '%s'.",
                         log_file,

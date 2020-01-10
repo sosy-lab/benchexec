@@ -356,12 +356,12 @@ def setup_user_mapping(
         # map uid internally to our uid externally
         uid_map = "{0} {1} 1".format(uid, parent_uid)
         util.write_file(uid_map, proc_child, "uid_map")
-    except IOError as e:
+    except OSError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
 
     try:
         util.write_file("deny", proc_child, "setgroups")
-    except IOError as e:
+    except OSError as e:
         # Not all systems have this file (depends on the kernel version),
         # but if it does not exist, we do not need to write to it.
         if e.errno != errno.ENOENT:
@@ -371,7 +371,7 @@ def setup_user_mapping(
         # map gid internally to our gid externally
         gid_map = "{0} {1} 1".format(gid, parent_gid)
         util.write_file(gid_map, proc_child, "gid_map")
-    except IOError as e:
+    except OSError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
 
 

@@ -706,13 +706,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     # http://man7.org/linux/man-pages/man5/proc.5.html
                     # It needs to be done after MARKER_USER_MAPPING_COMPLETED.
                     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
 
                 try:
                     os.chdir(cwd)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.critical(
                         "Cannot change into working directory inside container: %s", e
                     )
@@ -730,7 +730,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         close_fds=False,
                         preexec_fn=grandchild,
                     )
-                except (EnvironmentError, RuntimeError) as e:
+                except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
 
@@ -778,7 +778,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.close(from_parent)
 
                 return 0
-            except EnvironmentError:
+            except OSError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
             except:  # noqa: E722
@@ -1104,7 +1104,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     # are on the same filesystem, and it avoids matching the file again
                     # with the next pattern.
                     shutil.move(abs_file, target)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.warning("Could not retrieve output file '%s': %s", file, e)
 
         for pattern in patterns:

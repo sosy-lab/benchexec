@@ -121,7 +121,7 @@ def _find_cgroup_mounts():
                     for option in options.split(","):
                         if option in ALL_KNOWN_SUBSYSTEMS:
                             yield (option, mountpoint)
-    except IOError:
+    except OSError:
         logging.exception("Cannot read /proc/mounts")
 
 
@@ -135,7 +135,7 @@ def _find_own_cgroups():
         with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
             for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
                 yield cgroup
-    except IOError:
+    except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
 
 
@@ -311,7 +311,7 @@ class Cgroup(object):
             try:
                 copy_parent_to_child("cpuset.cpus")
                 copy_parent_to_child("cpuset.mems")
-            except IOError:
+            except OSError:
                 # expected to fail if cpuset subsystem is not enabled in this hierarchy
                 pass
 

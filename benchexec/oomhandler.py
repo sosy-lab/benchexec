@@ -87,7 +87,7 @@ class KillProcessOnOomThread(threading.Thread):
                         e.errno,
                         e.strerror,
                     )
-            except EnvironmentError as e:
+            except OSError as e:
                 os.close(self._efd)
                 raise e
         finally:
@@ -144,7 +144,7 @@ class KillProcessOnOomThread(threading.Thread):
                         * _BYTE_FACTOR
                     ),
                 )
-            except IOError as e:
+            except OSError as e:
                 logging.warning(
                     "Failed to increase %s after OOM: error %s (%s).",
                     limitFile,

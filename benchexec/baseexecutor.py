@@ -184,6 +184,6 @@ class BaseExecutor(object):
                 logging.warning("Killing process %s forcefully.", pid)
                 try:
                     util.kill_process(pid)
-                except EnvironmentError as e:
+                except OSError as e:
                     # May fail due to race conditions
                     logging.debug(e)

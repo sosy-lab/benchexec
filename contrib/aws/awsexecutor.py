@@ -469,7 +469,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
                     values = parseAWSRunResultFile(dataFile)
                     if not benchmark.config.debug:
                         os.remove(dataFile)
-                except IOError as e:
+                except OSError as e:
                     logging.warning(
                         "Cannot extract measured values from output for file %s: %s",
                         run.identifier,

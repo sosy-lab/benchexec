@@ -111,7 +111,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     """Initialize container for the current process and load given tool-info module."""
     try:
         _init_container(*args, **kwargs)
-    except EnvironmentError as e:
+    except OSError as e:
         raise BenchExecException("Failed to configure container: " + str(e))
     return _load_tool(tool_module)
 

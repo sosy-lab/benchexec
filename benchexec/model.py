@@ -214,7 +214,7 @@ class Benchmark(object):
         if config.description_file is not None:
             try:
                 self.description = util.read_file(config.description_file)
-            except (IOError, UnicodeDecodeError) as e:
+            except (OSError, UnicodeDecodeError) as e:
                 raise BenchExecException(
                     "File '{}' given for description could not be read: {}".format(
                         config.description_file, e
@@ -1076,7 +1076,7 @@ class Run(object):
                 output = outputFile.readlines()
                 # first 6 lines are for logging, rest is output of subprocess, see runexecutor.py for details
                 output = output[6:]
-        except IOError as e:
+        except OSError as e:
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
 

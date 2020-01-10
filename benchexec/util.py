@@ -371,7 +371,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
             try:
                 abs_directory = os.path.join(root, directory)
                 os.chmod(abs_directory, stat.S_IRWXU)
-            except EnvironmentError as e:
+            except OSError as e:
                 onerror(os.chmod, abs_directory, e)
     shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
 
