@@ -547,14 +547,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 "-x",
                 os.path.join(here, "table-only-columns.xml"),
                 "--name",
-                "multi-table-with-columns",
+                "multi-table-only-columns",
                 result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
                 result_file("test.2015-03-03_1613.results.valueAnalysis.xml"),
                 result_file("test.2015-03-03_1815.results.predicateAnalysis.xml"),
                 result_file("test.2015-03-03_1815.results.valueAnalysis.xml"),
             ],
-            table_prefix="multi-table-with-columns.table",
-            diff_prefix="multi-table-with-columns.diff",
+            table_prefix="multi-table-only-columns.table",
+            diff_prefix="multi-table-only-columns.diff",
         )
 
     def test_union_table(self):
