@@ -47,6 +47,8 @@ with open(readme, "rb") as f:
 PY2 = sys.version_info[0] == 2
 # lxml 4.4.0 does not support Python 3.4
 LXML = "lxml<4.4.0" if sys.version_info < (3, 5) else "lxml"
+# pyyaml 5.3 does not support Python 3.4
+PYYAML = "PyYAML<5.3" if sys.version_info < (3, 5) else "PyYAML>=3.12"
 
 setuptools.setup(
     name="BenchExec",
@@ -93,8 +95,8 @@ setuptools.setup(
             else []
         )
     },
-    install_requires=["tempita==0.5.2", "PyYAML>=3.12"] if not PY2 else [],
-    setup_requires=["nose>=1.0"] + [LXML, "PyYAML>=3.12"] if not PY2 else [],
+    install_requires=["tempita==0.5.2", PYYAML] if not PY2 else [],
+    setup_requires=["nose>=1.0"] + [LXML, PYYAML] if not PY2 else [],
     test_suite="nose.collector" if not PY2 else "benchexec.test_python2.Python2Tests",
     zip_safe=True,
 )
