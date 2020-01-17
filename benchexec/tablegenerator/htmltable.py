@@ -17,11 +17,39 @@
 # limitations under the License.
 
 import json
+import os
 
 from benchexec import __version__
+from benchexec.tablegenerator import util
+
+_REACT_FILES = [
+    os.path.join(os.path.dirname(__file__), "react-table", "build", path)
+    for path in ["vendors.min.", "bundle.min."]
+]
 
 
-def write_html_table(out, template_values):
+def write_html_table(
+    out,
+    options,
+    title,
+    head,
+    run_sets,
+    rows,
+    stats,
+    relevant_id_columns,
+    output_path,
+    **kwargs,
+):
+    app_css = [util.read_bundled_file(path + "css") for path in _REACT_FILES]
+    app_js = [util.read_bundled_file(path + "js") for path in _REACT_FILES]
+    columns = [run_set.columns for run_set in run_sets]
+    stats = util.prepare_stats_for_js(stats, columns)
+    tools = util.prepare_run_sets_for_js(run_sets)
+    href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
+    rows_js = util.prepare_rows_for_js(
+        rows, output_path, href_base, relevant_id_columns
+    )
+
     def write_tags(tag_name, contents):
         for content in contents:
             out.write("<")
@@ -36,7 +64,7 @@ def write_html_table(out, template_values):
         out.write('  "')
         out.write(name)
         out.write('": ')
-        out.write(json.dumps(value or template_values[name], sort_keys=True))
+        out.write(json.dumps(value, sort_keys=True))
         if not last:
             out.write(",")
         out.write("\n")
@@ -50,10 +78,10 @@ def write_html_table(out, template_values):
 <title>{title} &ndash; BenchExec results</title>
 
 """.format(
-            title=template_values["title"], version=__version__
+            title=title, version=__version__
         )
     )
-    write_tags("style", template_values["app_css"])
+    write_tags("style", app_css)
     out.write(
         """</head>
 <body>
@@ -70,10 +98,10 @@ const data = {
 """
     )
     write_json_part("version", __version__)
-    write_json_part("head")
-    write_json_part("tools")
-    write_json_part("rows")
-    write_json_part("stats", last=True)
+    write_json_part("head", head)
+    write_json_part("tools", tools)
+    write_json_part("rows", rows_js)
+    write_json_part("stats", stats, last=True)
     out.write(
         """};
 window.data = data;
@@ -81,5 +109,5 @@ window.data = data;
 
 """
     )
-    write_tags("script", template_values["app_js"])
+    write_tags("script", app_js)
     out.write("</body>\n</html>\n")

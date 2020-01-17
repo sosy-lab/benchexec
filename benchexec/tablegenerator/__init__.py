@@ -69,11 +69,6 @@ NAME_START = "results"  # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results/"
 
-REACT_FILES = [
-    os.path.join(os.path.dirname(__file__), "react-table", "build", path)
-    for path in ["vendors.min.", "bundle.min."]
-]
-
 TEMPLATE_FORMATS = ["html", "csv"]
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
@@ -1824,40 +1819,24 @@ def create_tables(
                 + util.prettylist(r.attributes["name"])
             ]
 
-    template_values = types.SimpleNamespace()
-    template_values.relevant_id_columns = select_relevant_id_columns(rows)
-    template_values.head = get_table_head(
-        runSetResults, common_prefix, template_values.relevant_id_columns
+    relevant_id_columns = select_relevant_id_columns(rows)
+    data = types.SimpleNamespace(
+        run_sets=runSetResults,
+        head=get_table_head(runSetResults, common_prefix, relevant_id_columns),
+        relevant_id_columns=relevant_id_columns,
+        output_path=outputPath,
+        options=options,
     )
-    columns = [runSet.columns for runSet in runSetResults]
-
-    href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
-
-    # prepare data for js react application
-    template_values.tools = util.prepare_run_sets_for_js(runSetResults)
-
-    template_values.app_css = [
-        util.read_bundled_file(path + "css") for path in REACT_FILES
-    ]
-    template_values.app_js = [
-        util.read_bundled_file(path + "js") for path in REACT_FILES
-    ]
-    # template_values.stats = <see below>
 
     futures = []
 
     def write_table(table_type, title, rows, use_local_summary):
-        template_values.rows = util.prepare_rows_for_js(
-            rows, outputPath, href_base, template_values.relevant_id_columns,
-        )
+        local_data = types.SimpleNamespace(title=title, rows=rows)
 
         # calculate statistics if necessary
         if not options.format == ["csv"]:
             local_summary = get_summary(runSetResults) if use_local_summary else None
-            stats = get_stats(rows, local_summary, options.correct_only)
-
-            # prepare data for js react application (stats)
-            template_values.stats = util.prepare_stats_for_js(stats, columns)
+            local_data.stats = get_stats(rows, local_summary, options.correct_only)
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":
@@ -1876,16 +1855,13 @@ def create_tables(
                     "Writing %s into %s ...", template_format.upper().ljust(4), outfile
                 )
 
-            this_template_values = dict(title=title, body=rows)  # noqa: C408
-            this_template_values.update(template_values.__dict__)
-
             futures.append(
                 parallel.submit(
                     write_table_in_format,
                     template_format,
                     outfile,
-                    this_template_values,
-                    options.show_table and template_format == "html",
+                    **data.__dict__,
+                    **local_data.__dict__,
                 )
             )
 
@@ -1904,7 +1880,7 @@ def create_tables(
     return futures
 
 
-def write_csv_table(out, head, rows, relevant_id_columns, sep="\t"):
+def write_csv_table(out, head, rows, relevant_id_columns, sep="\t", **kwargs):
     num_id_columns = relevant_id_columns[1:].count(True)
     for line in ["tool", "runset", "title"]:
         if line in head and head[line]:
@@ -1931,38 +1907,30 @@ def write_csv_table(out, head, rows, relevant_id_columns, sep="\t"):
         out.write("\n")
 
 
-def write_table_in_format(template_format, outfile, template_values, show_table):
-    if template_format == "csv":
-        args = [
-            template_values["head"],
-            template_values["body"],
-            template_values["relevant_id_columns"],
-        ]
-        if outfile:
-            with open(outfile, "w") as out:
-                write_csv_table(out, *args)
-        else:
-            write_csv_table(sys.stdout, *args)
+def write_table_in_format(template_format, outfile, options, **kwargs):
+    callback = {"csv": write_csv_table, "html": htmltable.write_html_table}[
+        template_format
+    ]
+
+    if outfile:
+        # Force HTML file to be UTF-8 regardless of system encoding because it actually
+        # declares itself to be UTF-8 in a meta tag.
+        encoding = "utf-8" if template_format == "html" else None
+        with open(outfile, "w", encoding=encoding) as out:
+            callback(out, options=options, **kwargs)
+
+        if options.show_table and template_format == "html":
+            try:
+                subprocess.Popen(
+                    ["xdg-open", outfile],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except OSError:
+                pass
 
     else:
-        assert template_format == "html"
-        if outfile:
-            # Force HTML file to be UTF-8 regardless of system encoding because it actually
-            # declares itself to be UTF-8 in a meta tag.
-            with open(outfile, "w", encoding="utf-8") as out:
-                htmltable.write_html_table(out, template_values)
-
-            if show_table:
-                try:
-                    subprocess.Popen(
-                        ["xdg-open", outfile],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                except OSError:
-                    pass
-        else:
-            htmltable.write_html_table(sys.stdout, template_values)
+        callback(sys.stdout, options=options, **kwargs)
 
 
 def basename_without_ending(file):
