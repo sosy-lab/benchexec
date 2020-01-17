@@ -46,6 +46,10 @@ export default class QuantilePlot extends React.Component {
   static relevantColumn = column =>
     column.isVisible && column.type !== "text" && column.type !== "status";
 
+  relevantRunSet = tool =>
+    tool.isVisible &&
+    tool.columns.find(c => c.display_title === this.state.selection);
+
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
@@ -65,7 +69,7 @@ export default class QuantilePlot extends React.Component {
   // --------------------rendering-----------------------------
   renderLegend = () => {
     if (this.state.isValue) {
-      return this.props.tools.filter(t => t.isVisible).map(getRunSetName);
+      return this.props.tools.filter(this.relevantRunSet).map(getRunSetName);
     } else {
       return this.props.tools[this.state.selection.split("-")[1]].columns
         .filter(QuantilePlot.relevantColumn)
@@ -194,15 +198,16 @@ export default class QuantilePlot extends React.Component {
     if (this.state.isValue) {
       return this.props.tools
         .map((tool, i) => {
+          // Cannot use filter() because we need original value of i
+          if (!this.relevantRunSet(tool)) {
+            return null;
+          }
           const task = this.state.selection;
           const data = this[task + i];
-
-          if (data && data.length > 0) {
-            this.lineCount++;
-          }
-
           const id = getRunSetName(tool);
-          return tool.isVisible ? (
+          this.lineCount++;
+
+          return (
             <LineMarkSeries
               data={data}
               key={id}
@@ -215,21 +220,19 @@ export default class QuantilePlot extends React.Component {
                 this.setState({ value: null })
               }
             />
-          ) : null;
+          );
         })
         .filter(el => !!el);
     } else {
       const index = this.state.selection.split("-")[1];
 
       return this.props.tools[index].columns
-        .map((column, i) => {
-          const data = column.isVisible ? this[column.display_title] : null;
+        .filter(QuantilePlot.relevantColumn)
+        .map(column => {
+          const data = this[column.display_title];
+          this.lineCount++;
 
-          if (data && data.length > 0) {
-            this.lineCount++;
-          }
-
-          return data && QuantilePlot.relevantColumn(column) ? (
+          return (
             <LineMarkSeries
               data={data}
               key={column.display_title}
@@ -242,9 +245,8 @@ export default class QuantilePlot extends React.Component {
                 this.setState({ value: null })
               }
             />
-          ) : null;
-        })
-        .filter(el => !!el);
+          );
+        });
     }
   };
 
