@@ -18,7 +18,7 @@ import {
 } from "react-vis";
 import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
 
-export default class Overlay extends React.Component {
+export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
 
@@ -43,6 +43,9 @@ export default class Overlay extends React.Component {
     this.lineCount = 1;
   }
 
+  static relevantColumn = column =>
+    column.isVisible && column.type !== "text" && column.type !== "status";
+
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
@@ -58,17 +61,16 @@ export default class Overlay extends React.Component {
       height: window.innerHeight
     });
   };
+
   // --------------------rendering-----------------------------
   renderLegend = () => {
-    return this.state.isValue
-      ? this.props.tools.filter(t => t.isVisible).map(getRunSetName)
-      : this.props.tools[this.state.selection.split("-")[1]].columns
-          .map(c =>
-            c.isVisible && c.type !== "text" && c.type !== "status"
-              ? c.display_title
-              : null
-          )
-          .filter(Boolean);
+    if (this.state.isValue) {
+      return this.props.tools.filter(t => t.isVisible).map(getRunSetName);
+    } else {
+      return this.props.tools[this.state.selection.split("-")[1]].columns
+        .filter(QuantilePlot.relevantColumn)
+        .map(c => c.display_title);
+    }
   };
 
   renderAll = () => {
@@ -76,29 +78,19 @@ export default class Overlay extends React.Component {
 
     if (this.state.isValue) {
       //var 1: compare different RunSets on one value
-      this.props.tools.forEach((tool, i) => {
-        this.renderData(this.props.table, task, i, task + i);
-      });
+      this.props.tools.forEach((tool, i) => this.renderData(task, i, task + i));
     } else {
       //var 2: compare different values of one RunSet
       const index = this.state.selection.split("-")[1];
-      this.props.tools[index].columns.forEach(column => {
-        if (
-          !(column.type === "status" || column.type === "text") &&
-          column.isVisible
-        ) {
-          this.renderData(
-            this.props.table,
-            column.display_title,
-            index,
-            column.display_title
-          );
-        }
-      });
+      this.props.tools[index].columns
+        .filter(QuantilePlot.relevantColumn)
+        .forEach(column =>
+          this.renderData(column.display_title, index, column.display_title)
+        );
     }
   };
 
-  renderData = (rows, column, tool, field) => {
+  renderData = (column, tool, field) => {
     const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
     const index = this.props.tools[tool].columns.findIndex(
@@ -106,9 +98,9 @@ export default class Overlay extends React.Component {
     );
 
     if (!this.state.isValue || index >= 0) {
-      arrayY = rows.map(runSet => {
+      arrayY = this.props.table.map(runSet => {
         // Get y value if it should be shown and normalize it.
-        // For correct x values, arrayY needs to have same length as rows.
+        // For correct x values, arrayY needs to have same length as table.
         const runResult = runSet.results[tool];
         let value = null;
         if (!this.state.correct || runResult.category === "correct") {
@@ -237,7 +229,7 @@ export default class Overlay extends React.Component {
             this.lineCount++;
           }
 
-          return data && column.type !== "text" && column.type !== "status" ? (
+          return data && QuantilePlot.relevantColumn(column) ? (
             <LineMarkSeries
               data={data}
               key={column.display_title}
