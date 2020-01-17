@@ -209,12 +209,13 @@ export default class Overlay extends React.Component {
             this.lineCount++;
           }
 
+          const id = getRunSetName(tool);
           return tool.isVisible ? (
             <LineMarkSeries
               data={data}
-              key={tool.benchmarkname + tool.date}
+              key={id}
               color={color()}
-              opacity={this.handleLineState(getRunSetName(tool))}
+              opacity={this.handleLineState(id)}
               onValueMouseOver={(datapoint, event) =>
                 this.setState({ value: datapoint })
               }
