@@ -475,7 +475,7 @@ def try_read_file(*path):
     try:
         return read_file(*path).strip()
     except OSError:
-        return NOne
+        return None
 
 
 def read_key_value_pairs_from_file(*path):

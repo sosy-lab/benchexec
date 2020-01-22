@@ -1133,7 +1133,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "memlimit" or key == "ram":
 
                 def round_to_MB(value):
-                    number, unit = util.split_number_and_unit(value)
+                    number, unit = Util.split_number_and_unit(value)
                     if unit and unit != "B":
                         return value
                     try:
@@ -1148,7 +1148,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             elif key == "freq":
 
                 def round_to_MHz(value):
-                    number, unit = util.split_number_and_unit(value)
+                    number, unit = Util.split_number_and_unit(value)
                     if unit and unit != "Hz":
                         return value
                     try:
@@ -2260,7 +2260,7 @@ def main(args=None):
 
     rows = get_rows(runSetResults)
     if not rows:
-        handle_errorng("No results found, no tables produced.")
+        handle_error("No results found, no tables produced.")
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info("Generating table...")

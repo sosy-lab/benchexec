@@ -25,7 +25,7 @@ import logging
 
 from benchexec.tablegenerator import util
 
-__all__ = ["Column, ColumnType, ColumnMeasureType"]
+__all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
