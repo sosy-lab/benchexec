@@ -86,7 +86,7 @@ mock_pqos_wrapper_error = {
     "message": "error in pqos_wrapper function",
     "returncode": 1,
     "error": True,
-    "function_output": dict(),
+    "function_output": {},
 }
 
 

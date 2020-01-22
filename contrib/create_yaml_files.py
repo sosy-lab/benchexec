@@ -43,12 +43,12 @@ def handle_c(task_file, args) -> Tuple[str, dict]:
     Return a tuple of a recommended new task name and the yml info as dictionary.
 
     """
-    properties = list()
+    properties = []
     name_pcs_dot = task_file.split(".")
-    new_name_pcs_dot = list()
+    new_name_pcs_dot = []
     for pd in name_pcs_dot:
         name_pcs = pd.split("_")
-        new_name_pcs = list()
+        new_name_pcs = []
         for p in name_pcs:
             offset = 0
             for name, prop in NAME_TO_PROP_AND_SUBPROP.items():
@@ -119,7 +119,7 @@ def parse_args():
     return parser.parse_args()
 
 
-sets_to_tasks = dict()
+sets_to_tasks = {}
 all_tasks = set()
 
 if __name__ == "__main__":
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     other_files = [f for f in args.files if f not in verification_set_files]
 
     for verification_set in verification_set_files:
-        sets_to_tasks[verification_set] = list()
+        sets_to_tasks[verification_set] = []
         with open(verification_set, "r") as inp:
             for line in (l.strip() for l in inp.readlines()):
                 if not line:
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     sets_to_tasks[DUMMY_SET] = other_files
     all_tasks = all_tasks.union(set(other_files))
 
-    tasks_to_new_names_and_yml = dict()
+    tasks_to_new_names_and_yml = {}
     for task_file in all_tasks:
         # check whether preprocessed .i file exists for current .c file
         if task_file[-1] == "c" and (
@@ -252,7 +252,7 @@ if __name__ == "__main__":
                 pass
 
     for task_set, content in sets_to_tasks.items():
-        new_content = list()
+        new_content = []
         remaining = set(content)
         glob_suffix = "*"
         for task in content:

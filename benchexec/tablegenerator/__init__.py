@@ -286,7 +286,7 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
-    columns = list()
+    columns = []
     for c in xmltag.findall("column"):
         scale_factor = c.get("scaleFactor")
         display_unit = c.get("displayUnit")

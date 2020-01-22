@@ -305,11 +305,11 @@ def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
 
     def clean_up_row(row):
         result = {}
-        result["id"] = list(
+        result["id"] = [
             id_part
             for id_part, relevant in zip(row.id, relevant_id_columns)
             if id_part and relevant
-        )
+        ]
         # Replace first part of id (task name, which is always shown) with short name
         assert relevant_id_columns[0]
         result["id"][0] = row.short_filename

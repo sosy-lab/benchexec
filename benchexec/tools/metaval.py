@@ -53,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def __init__(self):
         self.lock = threading.Lock()
-        self.wrappedTools = dict()
+        self.wrappedTools = {}
 
     def executable(self):
         return util.find_executable("metaval.sh")

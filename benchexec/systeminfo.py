@@ -55,7 +55,7 @@ class SystemInfo(object):
         self.os = platform.platform(aliased=True)
 
         # get info about CPU
-        cpuInfo = dict()
+        cpuInfo = {}
         self.cpu_max_frequency = "unknown"
         cpuInfoFilename = "/proc/cpuinfo"
         self.cpu_number_of_cores = "unknown"
@@ -97,7 +97,7 @@ class SystemInfo(object):
         self.cpu_turboboost = is_turbo_boost_enabled()
 
         # get info about memory
-        memInfo = dict()
+        memInfo = {}
         memInfoFilename = "/proc/meminfo"
         if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
             memInfoFile = open(memInfoFilename, "rt")
