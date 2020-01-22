@@ -377,9 +377,9 @@ def _svcomp_max_score(expected_result):
     Return the maximum possible score for a task according to the SV-COMP scoring scheme.
     @param expected_result: whether the property is fulfilled for the task or not
     """
-    if expected_result == True:
+    if expected_result is True:
         return _SCORE_CORRECT_TRUE
-    elif expected_result == False:
+    elif expected_result is False:
         return _SCORE_CORRECT_FALSE
     return 0
 

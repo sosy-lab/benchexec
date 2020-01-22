@@ -226,7 +226,7 @@ class Pqos(object):
             This method logs a detailed error on a failed pqos_error command.
         """
         cap = get_capability(self.executable_path)
-        if cap["error"] == False:
+        if cap["error"] is False:
             if self.CAP_SYS_RAWIO in cap["capabilities"]:
                 if not all(x in cap["set"] for x in ["e", "p"]):
                     logging.warning(

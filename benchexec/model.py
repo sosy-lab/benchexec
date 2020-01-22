@@ -846,7 +846,7 @@ class RunSet(object):
             expected_result = next(iter(run.expected_results.values()))
             expected_result_str = _EXPECTED_RESULT_FILTER_VALUES[expected_result.result]
             if (
-                expected_result.result == False
+                expected_result.result is False
                 and expected_result.subproperty
                 and "(" in expected_result_filter
             ):

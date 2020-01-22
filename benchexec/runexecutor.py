@@ -1021,7 +1021,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         result["exitcode"] = util.ProcessExitCode.from_raw(returnvalue)
         if energy:
-            if packages == True:
+            if packages is True:
                 result["cpuenergy"] = energy
             else:
                 result["cpuenergy"] = {

@@ -706,7 +706,7 @@ def get_capability(filename):
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
-    if cap_object != None:
+    if cap_object is not None:
         cap_string = cap_object.decode("utf-8")
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
         res["set"] = [char for char in (cap_string.split("+")[1])]
