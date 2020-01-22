@@ -52,7 +52,6 @@ def getWitnessResult(witness, verification_result):
         # If there is no witness, then this is an error of the verifier.
         return "witness missing", Result.CATEGORY_ERROR
 
-    # print(witness.get('name'))
     status_from_validation = witness.find('column[@title="status"]').get("value")
     try:
         status_from_verification = verification_result.find(
@@ -175,7 +174,6 @@ def main(argv=None):
             and statusWit is not None
             and categoryWit is not None
         ):
-            # print(run, statusWit, categoryWit)
             try:
                 result.find('column[@title="status"]').set("value", statusWit)
                 result.find('column[@title="category"]').set("value", categoryWit)

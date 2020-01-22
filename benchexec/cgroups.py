@@ -222,7 +222,6 @@ def _register_process_with_cgrulesengd(pid):
         failure = libcgroup.cgroup_init()
         if failure:
             pass
-            # print('Could not initialize libcgroup, error {}'.format(success))
         else:
             CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
             failure = libcgroup.cgroup_register_unchanged_process(
@@ -234,7 +233,6 @@ def _register_process_with_cgrulesengd(pid):
                 #      'Probably the daemon will mess up our cgroups.'.format(success))
     except OSError:
         pass
-        # print('libcgroup is not available: {}'.format(e.strerror))
 
 
 class Cgroup(object):

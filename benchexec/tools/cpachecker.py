@@ -108,11 +108,6 @@ class Tool(benchexec.tools.template.BaseTool):
                     str(rlimits[SOFTTIMELIMIT]) + "s",
                 ]  # benchmark-xml uses seconds as unit
 
-        # if data.MEMLIMIT in rlimits:
-        #     if "-heap" not in existing_options:
-        #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
-        #         options = options + ["-heap", str(int(heapsize))]
-
         if "-stats" not in existing_options:
             options = options + ["-stats"]
 
@@ -221,8 +216,7 @@ class Tool(benchexec.tools.template.BaseTool):
             and isTimeout
             and returncode in [15, 143]
         ):
-            # The JVM sets such an returncode if it receives signal 15
-            # (143 is 15+128)
+            # The JVM sets such an returncode if it receives signal 15 (143 is 15+128)
             status = "TIMEOUT"
 
         if not status:

@@ -38,9 +38,6 @@ CATEGORY_CORRECT_UNCONFIRMED = "correct-unconfirmed"
 CATEGORY_WRONG = "wrong"
 """run result given by tool is wrong (we use 'wrong' instead of 'wrong-unconfirmed')"""
 
-# CATEGORY_WRONG_CONFIRMED   = 'wrong-confirmed'
-"""run result given by tool is wrong but confirmed by result validation"""
-
 CATEGORY_UNKNOWN = "unknown"
 """run result given by tool is "unknown" (i.e., no answer)"""
 
