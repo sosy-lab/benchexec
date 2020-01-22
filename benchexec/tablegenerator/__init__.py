@@ -871,7 +871,7 @@ class RunResult(object):
             try:
                 with Util.open_url_seekable(log_file_url, "rt") as logfile:
                     return logfile.readlines()
-            except IOError as unused_e1:
+            except IOError:
                 try:
                     if log_zip_url not in log_zip_cache:
                         log_zip_cache[log_zip_url] = zipfile.ZipFile(
@@ -890,7 +890,7 @@ class RunResult(object):
                         )
                         return []
 
-                except IOError as unused_e2:
+                except IOError:
                     logging.warning(
                         "Could not find logfile '%s' nor log archive '%s'.",
                         log_file,

@@ -478,7 +478,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                     stderr=subprocess.STDOUT,
                 )
                 (stdout, stderr) = process.communicate()
-            except OSError as e:
+            except OSError:
                 continue
 
             stdout = util.decode_to_string(stdout).strip()
