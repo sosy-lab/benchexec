@@ -685,14 +685,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit("Invalid time limit {0}.".format(hardtimelimit))
-            if not CPUACCT in self.cgroups:
+            if CPUACCT not in self.cgroups:
                 sys.exit("Time limit cannot be specified without cpuacct cgroup.")
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
-            if not CPUACCT in self.cgroups:
+            if CPUACCT not in self.cgroups:
                 sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
 
         if walltimelimit is None:
@@ -719,7 +719,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
-            if not MEMORY in self.cgroups:
+            if MEMORY not in self.cgroups:
                 sys.exit(
                     "Memory limit specified, but cannot be implemented without cgroup support."
                 )
@@ -747,7 +747,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
 
         for ((subsystem, option), _) in cgroupValues.items():
-            if not subsystem in self._cgroup_subsystems:
+            if subsystem not in self._cgroup_subsystems:
                 sys.exit(
                     'Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
                     'Please specify "--require-cgroup-subsystem {subsystem}".'.format(

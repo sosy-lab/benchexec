@@ -63,7 +63,7 @@ class Tool(benchexec.tools.template.BaseTool):
         Compose the command line to execute from the name of the executable
         """
 
-        if not propertyfile is None:
+        if propertyfile is not None:
             options = options + ["--prp={0}".format(propertyfile)]
 
         return [executable] + options + tasks

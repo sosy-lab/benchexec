@@ -102,7 +102,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def _get_additional_options(self, existing_options, propertyfile, rlimits):
         options = []
         if SOFTTIMELIMIT in rlimits:
-            if not "-timelimit" in existing_options:
+            if "-timelimit" not in existing_options:
                 options = options + [
                     "-timelimit",
                     str(rlimits[SOFTTIMELIMIT]) + "s",

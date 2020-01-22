@@ -80,7 +80,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         if SOFTTIMELIMIT in rlimits:
-            if not "--timelimit" in options:
+            if "--timelimit" not in options:
                 options = options + ["--timelimit", str(rlimits[SOFTTIMELIMIT])]
         if propertyfile:
             if "testcomp" in self.version(executable):

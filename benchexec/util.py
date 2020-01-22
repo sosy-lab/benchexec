@@ -102,7 +102,7 @@ def remove_all(list_, elemToRemove):
 
 
 def flatten(iterable, exclude=[]):
-    return [value for sublist in iterable for value in sublist if not value in exclude]
+    return [value for sublist in iterable for value in sublist if value not in exclude]
 
 
 def get_list_from_xml(elem, tag="option", attributes=["name"]):

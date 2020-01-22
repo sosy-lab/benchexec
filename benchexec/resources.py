@@ -306,7 +306,7 @@ def _get_cpu_cores_per_run0(
             for core in cores_of_unit[unit]:
                 if core not in cores:
                     cores.extend(
-                        c for c in siblings_of_core[core] if not c in used_cores
+                        c for c in siblings_of_core[core] if c not in used_cores
                     )
                 if len(cores) >= coreLimit:
                     break

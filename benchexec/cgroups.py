@@ -261,7 +261,7 @@ class Cgroup(object):
         this instance such that further checks with "in" will return "False".
         @return A boolean value.
         """
-        if not subsystem in self:
+        if subsystem not in self:
             log_method(
                 "Cgroup subsystem %s is not enabled. "
                 'Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".',

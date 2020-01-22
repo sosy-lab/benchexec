@@ -244,7 +244,7 @@ def handle_union_tag(
 
 
 def get_file_list_from_result_tag(result_tag, table_definition_file):
-    if not "filename" in result_tag.attrib:
+    if "filename" not in result_tag.attrib:
         logging.warning(
             "Result tag without filename attribute in file '%s'.", table_definition_file
         )
@@ -1170,7 +1170,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
 
     def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
         def format_cell(attributes):
-            if onlyIf and not onlyIf in attributes:
+            if onlyIf and onlyIf not in attributes:
                 formatStr = default
             else:
                 formatStr = format_string
@@ -2237,7 +2237,7 @@ def main(args=None):
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
-            if not "://" in path and all(
+            if "://" not in path and all(
                 path == os.path.dirname(file) for file in inputFiles
             ):
                 outputPath = path

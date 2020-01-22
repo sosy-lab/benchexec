@@ -411,7 +411,7 @@ def prettylist(list_):
     uniqueList = []
 
     for entry in list_:
-        if not entry in values:
+        if entry not in values:
             values.add(entry)
             uniqueList.append(entry)
 

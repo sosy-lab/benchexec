@@ -962,7 +962,7 @@ class Run(object):
         self.properties = []  # filled externally
 
         def log_property_file_once(msg):
-            if not self.propertyfile in _logged_missing_property_files:
+            if self.propertyfile not in _logged_missing_property_files:
                 _logged_missing_property_files.add(self.propertyfile)
                 logging.warning(msg)
 

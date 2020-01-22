@@ -80,13 +80,13 @@ class Tool(benchexec.tools.template.BaseTool):
         regex = re.compile("verifier used in MetaVal is (.*)")
         for line in output[:20]:
             match = regex.match(line)
-            if match != None:
+            if match is not None:
                 verifierDir = match.group(1)
                 break
         if (
             not verifierDir
-            or not verifierDir in self.PATH_TO_TOOL_MAP
-            or not self.PATH_TO_TOOL_MAP[verifierDir] in self.wrappedTools
+            or verifierDir not in self.PATH_TO_TOOL_MAP
+            or self.PATH_TO_TOOL_MAP[verifierDir] not in self.wrappedTools
         ):
             return "METAVAL ERROR"
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]

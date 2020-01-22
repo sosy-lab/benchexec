@@ -192,7 +192,7 @@ def print_tool_info(tool):
     ):
         cmdline = model.cmdline_for_run(tool, executable, [], ["INPUT.FILE"], None, {})
         print_list("Minimal command line", cmdline)
-        if not "INPUT.FILE" in " ".join(cmdline):
+        if "INPUT.FILE" not in " ".join(cmdline):
             logging.warning("Tool module ignores input file.")
 
     with log_if_unsupported("tasks with command-line options"):
@@ -200,7 +200,7 @@ def print_tool_info(tool):
             tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, {}
         )
         print_list("Command line with parameter", cmdline)
-        if not "-SOME_OPTION" in cmdline:
+        if "-SOME_OPTION" not in cmdline:
             logging.warning("Tool module ignores command-line options.")
 
     with log_if_unsupported("tasks with property file"):
@@ -208,7 +208,7 @@ def print_tool_info(tool):
             tool, executable, [], ["INPUT.FILE"], "PROPERTY.PRP", {}
         )
         print_list("Command line with property file", cmdline)
-        if not "PROPERTY.PRP" in " ".join(cmdline):
+        if "PROPERTY.PRP" not in " ".join(cmdline):
             logging.warning("Tool module ignores property file.")
 
     with log_if_unsupported("tasks with multiple input files"):
@@ -216,7 +216,7 @@ def print_tool_info(tool):
             tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, {}
         )
         print_list("Command line with multiple input files", cmdline)
-        if "INPUT1.FILE" in " ".join(cmdline) and not "INPUT2.FILE" in " ".join(
+        if "INPUT1.FILE" in " ".join(cmdline) and "INPUT2.FILE" not in " ".join(
             cmdline
         ):
             logging.warning("Tool module ignores all but first input file.")
