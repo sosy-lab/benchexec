@@ -24,7 +24,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import errno
 import logging
 import os
-import signal
 import subprocess
 import sys
 import threading

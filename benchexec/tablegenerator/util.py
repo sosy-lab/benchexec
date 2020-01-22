@@ -33,9 +33,6 @@ import re
 from urllib.parse import quote as url_quote
 import urllib.request
 import tempita
-import copy
-from functools import reduce
-
 import benchexec.util
 
 

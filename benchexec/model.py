@@ -23,7 +23,6 @@ import collections
 import logging
 import os
 import re
-import time
 import sys
 import yaml
 from xml.etree import ElementTree

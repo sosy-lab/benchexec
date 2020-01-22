@@ -16,7 +16,6 @@ import io
 import xml.etree.ElementTree as ET
 import bz2
 
-from benchexec import util
 import benchexec.result as Result
 import benchexec.tablegenerator as TableGenerator
 

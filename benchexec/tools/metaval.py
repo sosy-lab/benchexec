@@ -21,7 +21,6 @@ limitations under the License.
 import argparse
 import benchexec.util as util
 import benchexec.tools.template
-import benchexec.result as result
 import contextlib
 import os
 import re

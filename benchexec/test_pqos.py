@@ -24,7 +24,7 @@ import copy
 import logging
 import unittest
 from subprocess import CalledProcessError
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 from benchexec.pqos import Pqos
 
 

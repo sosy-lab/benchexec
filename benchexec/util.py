@@ -25,7 +25,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 # THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
-import bz2
 import collections
 import datetime
 import errno
