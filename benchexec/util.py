@@ -721,13 +721,13 @@ def check_msr():
     res = {"loaded": False, "write": False, "read": False}
     loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
 
-    if any(["msr" in module for module in loaded_modules]):
+    if any("msr" in module for module in loaded_modules):
         res["loaded"] = True
     if res["loaded"]:
         cpu_dirs = os.listdir("/dev/cpu")
         cpu_dirs.remove("microcode")
-        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs]):
+        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs):
             res["read"] = True
-        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs]):
+        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
