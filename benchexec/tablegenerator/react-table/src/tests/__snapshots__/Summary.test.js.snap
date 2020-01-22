@@ -67108,7 +67108,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-thead -headerGroups"
      style={
       Object {
-       "minWidth": "651.6px",
+       "minWidth": "643.6px",
       }
      }
     >
@@ -67164,11 +67164,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="columnheader"
        style={
         Object {
-         "flex": "496 0 auto",
+         "flex": "488 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "496px",
+         "width": "488px",
         }
        }
        tabIndex="-1"
@@ -67185,7 +67185,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-thead -header"
      style={
       Object {
-       "minWidth": "651.6px",
+       "minWidth": "643.6px",
       }
      }
     >
@@ -67331,11 +67331,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="columnheader"
        style={
         Object {
-         "flex": "100 0 auto",
+         "flex": "92 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "100px",
+         "width": "92px",
         }
        }
        tabIndex="-1"
@@ -67422,7 +67422,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-tbody"
      style={
       Object {
-       "minWidth": "651.6px",
+       "minWidth": "643.6px",
       }
      }
     >
@@ -67527,11 +67527,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -67681,11 +67681,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -67835,11 +67835,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -67990,11 +67990,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -68145,11 +68145,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -68300,11 +68300,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -68455,11 +68455,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -68610,11 +68610,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >
@@ -68765,11 +68765,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "100 0 auto",
+          "flex": "92 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "100px",
+          "width": "92px",
          }
         }
        >

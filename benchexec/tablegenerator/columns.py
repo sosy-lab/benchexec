@@ -655,7 +655,7 @@ def _get_int_digits(decimal_number_match):
     int_part = decimal_number_match.group(GROUP_INT_PART) or ""
     if int_part == "0":
         # we skip leading zeros of numbers < 1
-        s = ""
+        int_part = ""
     return len(int_part)
 
 
