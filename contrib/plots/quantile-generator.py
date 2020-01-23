@@ -110,7 +110,7 @@ def main(args=None):
     # select appropriate results
     if options.score_based:
         start_index = 0
-        index_increment = lambda run_result: run_result.score
+        index_increment = lambda run_result: run_result.score  # noqa: E731
         results = []
         for run_result in run_set_result.results:
             if run_result.score is None:
@@ -139,7 +139,7 @@ def main(args=None):
                 }
     else:
         start_index = 0
-        index_increment = lambda run_result: 1
+        index_increment = lambda run_result: 1  # noqa: E731
         if options.correct_only:
             results = [
                 run_result

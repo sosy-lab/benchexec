@@ -33,6 +33,7 @@ import signal
 import subprocess
 import sys
 import time
+import types
 import math
 import urllib.parse
 import urllib.request
@@ -1859,8 +1860,7 @@ def create_tables(
                 + Util.prettylist(r.attributes["name"])
             ]
 
-    # dummy object as dict replacement for simpler syntax
-    template_values = lambda: None
+    template_values = types.SimpleNamespace()
     template_values.head = get_table_head(runSetResults, common_prefix)
     template_values.run_sets = [
         runSetResult.attributes for runSetResult in runSetResults

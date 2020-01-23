@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import sys
 import unittest
+import types
 
 from benchexec.util import ProcessExitCode
 from benchexec.model import Run
@@ -40,8 +41,7 @@ class TestResult(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
     def create_run(self, info_result=RESULT_UNKNOWN):
-        # lambdas are simple dummy objects
-        runSet = lambda: None
+        runSet = types.SimpleNamespace()
         runSet.log_folder = "."
         runSet.result_files_folder = "."
         runSet.options = []
