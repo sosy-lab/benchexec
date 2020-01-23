@@ -329,6 +329,7 @@ class _Worker(threading.Thread):
 
         run.set_result(run_result)
         self.output_handler.output_after_run(run)
+        return None
 
     def stop(self):
         # asynchronous call to runexecutor,

@@ -112,7 +112,7 @@ def mock_check_output_capability_error(args_list, **kwargs):
     """
     if "-c" in args_list:
         return mock_check_output(args_list, **kwargs)
-    mock_check_output_error(args_list, **kwargs)
+    mock_check_output_error(args_list, **kwargs)  # noqa: R503 always raises
 
 
 class MockPopen:

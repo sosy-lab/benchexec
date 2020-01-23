@@ -44,6 +44,7 @@ class Tool(benchexec.tools.template.BaseTool):
             return Util.find_executable("map2check-wrapper.sh")
         elif self._get_version() > 6:
             return Util.find_executable("map2check-wrapper.py")
+        assert False, "Unexpected version " + self._get_version()
 
     def program_files(self, executable):
         """
@@ -84,6 +85,7 @@ class Tool(benchexec.tools.template.BaseTool):
             return [executable] + options + ["-c", propertyfile, sourcefile]
         elif self._get_version() > 6:
             return [executable] + options + ["-p", propertyfile, sourcefile]
+        assert False, "Unexpected version " + self._get_version()
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         if not output:

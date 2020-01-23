@@ -91,7 +91,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return "./Ultimate.py"
             break
 
-        sys.exit(
+        sys.exit(  # noqa: R503 always raises
             "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
                 str(exe), str(current)
             )

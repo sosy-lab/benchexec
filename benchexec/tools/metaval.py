@@ -144,7 +144,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 + wrappedOptions
             )
         else:
-            sys.exit("ERROR: Could not find wrapped tool")
+            sys.exit("ERROR: Could not find wrapped tool")  # noqa: R503 always raises
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")

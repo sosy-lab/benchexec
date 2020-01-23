@@ -70,7 +70,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
 
         if len(output) <= 0:
-            return
+            return result.RESULT_ERROR
 
         output = output[-1].strip()
         status = ""
