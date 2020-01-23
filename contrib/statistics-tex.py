@@ -28,9 +28,9 @@ import sys
 import multiprocessing
 from functools import partial
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import benchexec.tablegenerator as tablegenerator
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 Util = tablegenerator.Util
 

@@ -27,9 +27,9 @@ import tempfile
 import os
 import stat
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestParse(unittest.TestCase):

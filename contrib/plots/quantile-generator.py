@@ -26,10 +26,10 @@ import argparse
 import itertools
 import sys
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import benchexec.result as result
 import benchexec.tablegenerator as tablegenerator
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 Util = tablegenerator.Util
 

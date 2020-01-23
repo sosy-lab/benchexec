@@ -26,12 +26,12 @@ import inspect
 import os
 import sys
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import benchexec
 import benchexec.benchexec
 from benchexec import model
 import benchexec.tools.template
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 COLOR_RED = "\033[31;1m"
 COLOR_GREEN = "\033[32;1m"

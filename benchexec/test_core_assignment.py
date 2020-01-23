@@ -25,9 +25,9 @@ import sys
 import unittest
 import math
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec.resources import _get_cpu_cores_per_run0
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def lrange(start, end):

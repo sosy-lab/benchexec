@@ -25,9 +25,9 @@ import subprocess
 import sys
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import check_cgroups
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 try:
     from subprocess import DEVNULL

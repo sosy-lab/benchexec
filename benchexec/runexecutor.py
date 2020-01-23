@@ -34,8 +34,6 @@ import threading
 import time
 import tempfile
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
@@ -47,6 +45,8 @@ from benchexec import oomhandler
 from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte

@@ -28,10 +28,10 @@ import subprocess
 import sys
 import threading
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import __version__
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def add_basic_executor_options(argument_parser):

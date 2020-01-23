@@ -27,10 +27,10 @@ import sys
 import tempfile
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import benchexec
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")

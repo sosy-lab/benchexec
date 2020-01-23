@@ -23,9 +23,9 @@ from decimal import Decimal
 import sys
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec.tablegenerator import StatValue
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestStatValue(unittest.TestCase):

@@ -9,8 +9,6 @@
 
 import sys
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import os
 import io
 import xml.etree.ElementTree as ET
@@ -18,6 +16,8 @@ import bz2
 
 import benchexec.result as Result
 import benchexec.tablegenerator as TableGenerator
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):

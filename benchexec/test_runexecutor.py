@@ -31,14 +31,14 @@ import time
 import unittest
 import shutil
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import container
 from benchexec import containerexecutor
 from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 try:
     from subprocess import DEVNULL

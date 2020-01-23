@@ -23,12 +23,12 @@ import logging
 import sys
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec.util import ProcessExitCode
 from benchexec.model import Run
 from benchexec.result import *  # @UnusedWildImport
 from benchexec.tools.template import BaseTool
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 

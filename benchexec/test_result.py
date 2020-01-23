@@ -25,8 +25,6 @@ import sys
 import tempfile
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec.result import *  # @UnusedWildImport
 from benchexec.result import (
     _PROP_CALL,
@@ -48,6 +46,8 @@ from benchexec.result import (
     _MEMSAFETY_SUBPROPERTIES,
     _VALID_RESULTS_PER_PROPERTY,
 )
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestResult(unittest.TestCase):
