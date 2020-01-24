@@ -18,7 +18,7 @@
 
 import collections
 from decimal import Decimal, InvalidOperation
-import logging
+import itertools
 import math
 
 from benchexec import result
@@ -28,6 +28,34 @@ from benchexec.tablegenerator.columns import ColumnType
 
 nan = float("nan")
 inf = float("inf")
+
+
+class ColumnStatistics(object):
+    _fields = frozenset(
+        (
+            "total",
+            "correct",
+            "correct_true",
+            "correct_false",
+            "correct_unconfirmed",
+            "correct_unconfirmed_true",
+            "correct_unconfirmed_false",
+            "wrong",
+            "wrong_true",
+            "wrong_false",
+            "score",
+        )
+    )
+
+    def __getattr__(self, name):
+        if name in ColumnStatistics._fields:
+            return None
+        return super().__getattr__(name)
+
+    def __setattr__(self, name, value):
+        if name in ColumnStatistics._fields:
+            return super().__setattr__(name, value)
+        raise AttributeError("can't set attribute")
 
 
 class StatValue(object):
@@ -46,6 +74,8 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
+        if not values:
+            return None
         if any(math.isnan(v) for v in values if v is not None):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
@@ -100,255 +130,135 @@ def get_stats_of_run_set(runResults, correct_only):
     This function returns the numbers of the statistics.
     @param runResults: All the results of the execution of one run set (as list of RunResult objects)
     """
-
-    # convert:
-    # [['TRUE', 0,1], ['FALSE', 0,2]] -->  [['TRUE', 'FALSE'], [0,1, 0,2]]
-    listsOfValues = zip(*[runResult.values for runResult in runResults])
-
     columns = runResults[0].columns
     status_list = [(runResult.category, runResult.status) for runResult in runResults]
 
     # collect some statistics
-    totalRow = []
-    correctRow = []
-    correctTrueRow = []
-    correctFalseRow = []
-    correctUnconfirmedRow = []
-    correctUnconfirmedTrueRow = []
-    correctUnconfirmedFalseRow = []
-    incorrectRow = []
-    wrongTrueRow = []
-    wrongFalseRow = []
-    scoreRow = []
-
-    status_col_index = 0  # index of 'status' column
-    for index, (column, values) in enumerate(zip(columns, listsOfValues)):
+    stats = []
+    for index, column in enumerate(columns):
         col_type = column.type.type
         if col_type != ColumnType.text:
             if col_type == ColumnType.status:
-                status_col_index = index
-                score = StatValue(
-                    sum(run_result.score or 0 for run_result in runResults)
-                )
-
-                total = StatValue(
-                    len(
-                        [
-                            runResult.values[index]
-                            for runResult in runResults
-                            if runResult.status
-                        ]
-                    )
-                )
-
-                curr_status_list = [
-                    (runResult.category, runResult.values[index])
-                    for runResult in runResults
-                ]
-
-                counts = collections.Counter(
-                    (category, result.get_result_classification(status))
-                    for category, status in curr_status_list
-                )
-                countCorrectTrue = counts[
-                    result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE
-                ]
-                countCorrectFalse = counts[
-                    result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE
-                ]
-                countCorrectUnconfirmedTrue = counts[
-                    result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE
-                ]
-                countCorrectUnconfirmedFalse = counts[
-                    result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE
-                ]
-                countWrongTrue = counts[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-                countWrongFalse = counts[
-                    result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE
-                ]
-
-                correct = StatValue(countCorrectTrue + countCorrectFalse)
-                correctTrue = StatValue(countCorrectTrue)
-                correctFalse = StatValue(countCorrectFalse)
-                correctUnconfirmed = StatValue(
-                    countCorrectUnconfirmedTrue + countCorrectUnconfirmedFalse
-                )
-                correctUnconfirmedTrue = StatValue(countCorrectUnconfirmedTrue)
-                correctUnconfirmedFalse = StatValue(countCorrectUnconfirmedFalse)
-                incorrect = StatValue(countWrongTrue + countWrongFalse)
-                wrongTrue = StatValue(countWrongTrue)
-                wrongFalse = StatValue(countWrongFalse)
+                column_stats = _get_stats_of_status_column(runResults, index,)
 
             else:
                 assert column.is_numeric()
-                (
-                    total,
-                    correct,
-                    correctTrue,
-                    correctFalse,
-                    correctUnconfirmed,
-                    correctUnconfirmedTrue,
-                    correctUnconfirmedFalse,
-                    incorrect,
-                    wrongTrue,
-                    wrongFalse,
-                ) = get_stats_of_number_column(
-                    values, status_list, column.title, correct_only
+                values = (run_result.values[index] for run_result in runResults)
+                column_stats = _get_stats_of_number_column(
+                    values, status_list, correct_only
                 )
 
-                score = None
-
         else:
-            (
-                total,
-                correct,
-                correctTrue,
-                correctFalse,
-                correctUnconfirmed,
-                correctUnconfirmedTrue,
-                correctUnconfirmedFalse,
-                incorrect,
-                wrongTrue,
-                wrongFalse,
-            ) = (
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            )
-            score = None
+            column_stats = None
 
-        totalRow.append(total)
-        correctRow.append(correct)
-        correctTrueRow.append(correctTrue)
-        correctFalseRow.append(correctFalse)
-        correctUnconfirmedRow.append(correctUnconfirmed)
-        correctUnconfirmedTrueRow.append(correctUnconfirmedTrue)
-        correctUnconfirmedFalseRow.append(correctUnconfirmedFalse)
-        incorrectRow.append(incorrect)
-        wrongTrueRow.append(wrongTrue)
-        wrongFalseRow.append(wrongFalse)
-        scoreRow.append(score)
+        stats.append(column_stats)
 
-    def replace_irrelevant(row):
-        if not row:
-            return
-        count = row[status_col_index]
-        if not count or not count.sum:
-            for i in range(1, len(row)):
-                row[i] = None
-
-    replace_irrelevant(totalRow)
-    replace_irrelevant(correctRow)
-    replace_irrelevant(correctTrueRow)
-    replace_irrelevant(correctFalseRow)
-    replace_irrelevant(correctUnconfirmedRow)
-    replace_irrelevant(correctUnconfirmedTrueRow)
-    replace_irrelevant(correctUnconfirmedFalseRow)
-    replace_irrelevant(incorrectRow)
-    replace_irrelevant(wrongTrueRow)
-    replace_irrelevant(wrongFalseRow)
-    replace_irrelevant(scoreRow)
-
-    stats = (
-        totalRow,
-        correctRow,
-        correctTrueRow,
-        correctFalseRow,
-        correctUnconfirmedRow,
-        correctUnconfirmedTrueRow,
-        correctUnconfirmedFalseRow,
-        incorrectRow,
-        wrongTrueRow,
-        wrongFalseRow,
-        scoreRow,
-    )
     return stats
 
 
-def get_stats_of_number_column(values, categoryList, columnTitle, correct_only):
-    assert len(values) == len(categoryList)
-    try:
-        valueList = [util.to_decimal(v) for v in values]
-    except InvalidOperation as e:
-        if columnTitle != "host" and not columnTitle.endswith("status"):
-            # We ignore values of columns 'host' and 'status'.
-            logging.warning("%s. Statistics may be wrong.", e)
-        return (
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-            StatValue(0),
-        )
+def _get_stats_of_number_column(values, categoryList, correct_only):
+    valueList = [util.to_decimal(v) for v in values]
+    assert len(valueList) == len(categoryList)
 
     valuesPerCategory = collections.defaultdict(list)
-    for value, catStat in zip(valueList, categoryList):
-        category, status = catStat
+    for value, (category, status) in zip(valueList, categoryList):
         if status is None:
             continue
         valuesPerCategory[category, result.get_result_classification(status)].append(
             value
         )
 
-    return (
-        StatValue.from_list(valueList),
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
-            + valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[
-                result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE
-            ]
-            + valuesPerCategory[
-                result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE
-            ]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[
-                result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE
-            ]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[
-                result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE
-            ]
-        ),
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-            + valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
+    stats = ColumnStatistics()
+    stats.total = StatValue.from_list(valueList)
+
+    def create_stat_value_for(*keys):
+        all_values_for_keys = list(
+            itertools.chain.from_iterable(valuesPerCategory[key] for key in keys)
         )
-        if not correct_only
-        else None,
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE]
-        )
-        if not correct_only
-        else None,
-        StatValue.from_list(
-            valuesPerCategory[result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE]
-        )
-        if not correct_only
-        else None,
+        return StatValue.from_list(all_values_for_keys)
+
+    stats.correct = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE),
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE),
     )
+    stats.correct_true = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)
+    )
+    stats.correct_false = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE)
+    )
+    stats.correct_unconfirmed = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE),
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE),
+    )
+    stats.correct_unconfirmed_true = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE)
+    )
+    stats.correct_unconfirmed_false = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE)
+    )
+    if not correct_only:
+        stats.wrong = create_stat_value_for(
+            (result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE),
+            (result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE),
+        )
+        stats.wrong_true = create_stat_value_for(
+            (result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE)
+        )
+        stats.wrong_false = create_stat_value_for(
+            (result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE)
+        )
+    return stats
+
+
+def _get_stats_of_status_column(run_results, col):
+    stats = ColumnStatistics()
+    stats.score = StatValue(sum(run_result.score or 0 for run_result in run_results))
+
+    stats.total = StatValue(
+        sum(1 for run_result in run_results if run_result.values[col])
+    )
+
+    counts = collections.Counter(
+        (run_result.category, result.get_result_classification(run_result.values[col]))
+        for run_result in run_results
+    )
+
+    def create_stat_value_for(*keys):
+        return StatValue(sum(counts[key] for key in keys))
+
+    stats.correct = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE),
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE),
+    )
+    stats.correct_true = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_TRUE)
+    )
+    stats.correct_false = create_stat_value_for(
+        (result.CATEGORY_CORRECT, result.RESULT_CLASS_FALSE)
+    )
+    stats.correct_unconfirmed = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE),
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE),
+    )
+    stats.correct_unconfirmed_true = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_TRUE)
+    )
+    stats.correct_unconfirmed_false = create_stat_value_for(
+        (result.CATEGORY_CORRECT_UNCONFIRMED, result.RESULT_CLASS_FALSE)
+    )
+    stats.wrong = create_stat_value_for(
+        (result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE),
+        (result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE),
+    )
+    stats.wrong_true = create_stat_value_for(
+        (result.CATEGORY_WRONG, result.RESULT_CLASS_TRUE)
+    )
+    stats.wrong_false = create_stat_value_for(
+        (result.CATEGORY_WRONG, result.RESULT_CLASS_FALSE)
+    )
+
+    return stats
 
 
 def get_summary(runSetResults):

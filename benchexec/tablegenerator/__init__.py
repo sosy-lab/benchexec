@@ -41,6 +41,7 @@ import benchexec.result as result
 import benchexec.util
 from benchexec.tablegenerator import htmltable, statistics, util
 from benchexec.tablegenerator.columns import Column
+from benchexec.tablegenerator.statistics import ColumnStatistics
 import zipfile
 
 
@@ -1246,9 +1247,7 @@ def get_stats_of_rows(rows):
 
 
 def _contains_unconfirmed_results(rows_for_stats):
-    for unconfirmed_stat in rows_for_stats[
-        4
-    ]:  # 5th position in rows_for_stats is 'unconfirmed_results'
+    for unconfirmed_stat in rows_for_stats.correct_unconfirmed:
         if unconfirmed_stat and unconfirmed_stat.sum > 0:
             return True
     return False
@@ -1256,14 +1255,21 @@ def _contains_unconfirmed_results(rows_for_stats):
 
 def get_stats(rows, local_summary, correct_only):
     result_cols = list(rows_to_columns(rows))  # column-wise
-    stats = list(
+    all_column_stats = util.flatten(
         parallel.map(
             statistics.get_stats_of_run_set,
             result_cols,
             [correct_only] * len(result_cols),
         )
     )
-    rowsForStats = list(map(util.flatten, zip(*stats)))  # row-wise
+
+    # transpose list of ColumnStatistics objects to ColumnStatistics object with lists
+    all_stats = ColumnStatistics()
+    for field in ColumnStatistics._fields:
+        all_values = [
+            getattr(column_stats, field, None) for column_stats in all_column_stats
+        ]
+        setattr(all_stats, field, all_values)
 
     max_score, count_true, count_false = get_stats_of_rows(rows)
     task_counts = (
@@ -1277,7 +1283,7 @@ def get_stats(rows, local_summary, correct_only):
             id="score",
             title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
             description=task_counts,
-            content=rowsForStats[10],
+            content=all_stats.score,
         )
 
     if local_summary:
@@ -1296,19 +1302,19 @@ def get_stats(rows, local_summary, correct_only):
             id=None,
             title=indent(1) + "correct results",
             description="(property holds + result is true) OR (property does not hold + result is false)",
-            content=rowsForStats[1],
+            content=all_stats.correct,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct true",
             description="property holds + result is true",
-            content=rowsForStats[2],
+            content=all_stats.correct_true,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct false",
             description="property does not hold + result is false",
-            content=rowsForStats[3],
+            content=all_stats.correct_false,
         ),
     ]
     stats_info_correct_unconfirmed = [
@@ -1316,19 +1322,19 @@ def get_stats(rows, local_summary, correct_only):
             id=None,
             title=indent(1) + "correct-unconfimed results",
             description="(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
-            content=rowsForStats[4],
+            content=all_stats.correct_unconfirmed,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct-unconfirmed true",
             description="property holds + result is true, but unconfirmed",
-            content=rowsForStats[5],
+            content=all_stats.correct_unconfirmed_true,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "correct-unconfirmed false",
             description="property does not hold + result is false, but unconfirmed",
-            content=rowsForStats[6],
+            content=all_stats.correct_unconfirmed_false,
         ),
     ]
     stats_info_wrong = [
@@ -1336,22 +1342,22 @@ def get_stats(rows, local_summary, correct_only):
             id=None,
             title=indent(1) + "incorrect results",
             description="(property holds + result is false) OR (property does not hold + result is true)",
-            content=rowsForStats[7],
+            content=all_stats.wrong,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "incorrect true",
             description="property does not hold + result is true",
-            content=rowsForStats[8],
+            content=all_stats.wrong_true,
         ),
         dict(  # noqa: C408
             id=None,
             title=indent(2) + "incorrect false",
             description="property holds + result is false",
-            content=rowsForStats[9],
+            content=all_stats.wrong_false,
         ),
     ]
-    if _contains_unconfirmed_results(rowsForStats):
+    if _contains_unconfirmed_results(all_stats):
         stats_info = (
             stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
         )
@@ -1362,7 +1368,10 @@ def get_stats(rows, local_summary, correct_only):
     return (
         [
             dict(  # noqa: C408
-                id=None, title="total", description=task_counts, content=rowsForStats[0]
+                id=None,
+                title="total",
+                description=task_counts,
+                content=all_stats.total,
             )
         ]
         + ([summary_row] if local_summary else [])

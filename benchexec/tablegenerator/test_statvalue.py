@@ -32,13 +32,7 @@ class TestStatValue(unittest.TestCase):
         cls.maxDiff = None
 
     def test_empty(self):
-        s = StatValue.from_list([])
-        self.assertEqual(s.sum, 0)
-        self.assertEqual(s.avg, None)
-        self.assertEqual(s.max, None)
-        self.assertEqual(s.min, None)
-        self.assertEqual(s.median, None)
-        self.assertEqual(s.stdev, None)
+        self.assertIsNone(StatValue.from_list([]))
 
     def test_single_value(self):
         v = Decimal(1.23)
