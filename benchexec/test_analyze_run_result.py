@@ -26,7 +26,12 @@ import types
 
 from benchexec.util import ProcessExitCode
 from benchexec.model import Run
-from benchexec.result import *  # @UnusedWildImport
+from benchexec.result import (
+    RESULT_FALSE_REACH,
+    RESULT_ERROR,
+    RESULT_UNKNOWN,
+    RESULT_TRUE_PROP,
+)
 from benchexec.tools.template import BaseTool
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files

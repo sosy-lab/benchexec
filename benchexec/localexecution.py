@@ -30,7 +30,7 @@ from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLT
 from benchexec import BenchExecException
 from benchexec import cgroups
 from benchexec import containerexecutor
-from benchexec.resources import *
+from benchexec import resources
 from benchexec.runexecutor import RunExecutor
 from benchexec.pqos import Pqos
 from benchexec import systeminfo
@@ -85,7 +85,7 @@ def execute_benchmark(benchmark, output_handler):
             sys.exit(
                 "Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes."
             )
-        coreAssignment = get_cpu_cores_per_run(
+        coreAssignment = resources.get_cpu_cores_per_run(
             benchmark.rlimits[CORELIMIT],
             benchmark.num_of_threads,
             benchmark.config.use_hyperthreading,
@@ -93,9 +93,11 @@ def execute_benchmark(benchmark, output_handler):
             benchmark.config.coreset,
         )
         pqos.allocate_l3ca(coreAssignment)
-        memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
+        memoryAssignment = resources.get_memory_banks_per_run(
+            coreAssignment, my_cgroups
+        )
         cpu_packages = {
-            get_cpu_package_for_core(core)
+            resources.get_cpu_package_for_core(core)
             for cores_of_run in coreAssignment
             for core in cores_of_run
         }
@@ -106,7 +108,7 @@ def execute_benchmark(benchmark, output_handler):
 
     if MEMLIMIT in benchmark.rlimits:
         # check whether we have enough memory in the used memory banks for all runs
-        check_memory_size(
+        resources.check_memory_size(
             benchmark.rlimits[MEMLIMIT],
             benchmark.num_of_threads,
             memoryAssignment,

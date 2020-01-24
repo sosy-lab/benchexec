@@ -25,7 +25,7 @@ import sys
 import tempfile
 import unittest
 
-from benchexec.result import *  # @UnusedWildImport
+from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
     _PROP_CALL,
     _PROP_LABEL,

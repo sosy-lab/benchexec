@@ -38,7 +38,7 @@ from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
-from benchexec.cgroups import *
+from benchexec.cgroups import BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
