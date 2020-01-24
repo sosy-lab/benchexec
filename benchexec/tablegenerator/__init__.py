@@ -1865,9 +1865,7 @@ def create_tables(
     template_values.run_sets = [
         runSetResult.attributes for runSetResult in runSetResults
     ]
-    template_values.columns = [
-        [column for column in runSet.columns] for runSet in runSetResults
-    ]
+    template_values.columns = [runSet.columns for runSet in runSetResults]
     template_values.columnTitles = [
         [column.format_title() for column in runSet.columns] for runSet in runSetResults
     ]

@@ -157,8 +157,8 @@ if __name__ == "__main__":
         new_task_file, yml_info = handle_c(task_file, args)
         tasks_to_new_names_and_yml[task_file] = [new_task_file, yml_info]
     # sort tasks by their new names to be deterministic
-    sorted_tasks_to_new_names = list(
-        sorted(tasks_to_new_names_and_yml.items(), key=lambda e: e[1][0])
+    sorted_tasks_to_new_names = sorted(
+        tasks_to_new_names_and_yml.items(), key=lambda e: e[1][0]
     )
     for old_name, new_info in sorted_tasks_to_new_names:
         assert len(new_info) == 2

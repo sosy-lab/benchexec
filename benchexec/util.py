@@ -711,7 +711,7 @@ def get_capability(filename):
     if cap_object is not None:
         cap_string = cap_object.decode("utf-8")
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
-        res["set"] = [char for char in (cap_string.split("+")[1])]
+        res["set"] = list(cap_string.split("+")[1])
     return res
 
 

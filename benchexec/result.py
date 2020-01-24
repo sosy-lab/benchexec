@@ -50,9 +50,9 @@ because no property was defined, and no other categories apply."""
 
 
 # internal property names used in this module (should not contain spaces)
-# previously used by SV-COMP (http://sv-comp.sosy-lab.org/2014/rules.php):
+# previously used by SV-COMP (http://sv-comp.sosy-lab.org/2014/rules.php)
 _PROP_LABEL = "unreach-label"
-# currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php):
+# currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php)
 _PROP_CALL = "unreach-call"
 _PROP_TERMINATION = "termination"
 _PROP_OVERFLOW = "no-overflow"

@@ -269,7 +269,7 @@ def _generate_native_clone_child_callback():
     )
 
     # Generate machine code that does the same as _python_clone_child_callback
-    # We use this C code as template (with dummy address for PyOS_AfterFork_Child):
+    # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
     """
     int clone_child_callback(int (*func_p)()) {
       void (*PyOS_AfterFork_Child)() = (void*)0xffeeddccbbaa9988;
@@ -283,7 +283,7 @@ def _generate_native_clone_child_callback():
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
     """
-    # This gives the following code (machine code left, assembler right):
+    # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:
     # Store address in rdx:
@@ -295,7 +295,7 @@ def _generate_native_clone_child_callback():
     #     31 c0                   xorl   %eax,%eax
     # Copy rdi (value of parameter func_p) to stack:
     #     48 89 7c 24 08          movq   %rdi,0x8(%rsp)
-    # Call rdx (where address is stored):
+    # Call rdx (where address is stored) regularly:
     #     ff d2                   callq  *%rdx
     # Copy stack value func_p back to rdi:
     #     48 8b 7c 24 08          movq   0x8(%rsp),%rdi
@@ -306,7 +306,7 @@ def _generate_native_clone_child_callback():
     # Call function pointer in rdi (func_p) as tail call:
     #     ff e7                   jmpq   *%rdi
     #
-    # The following creates exactly the same machine code, just with the real address:
+    # The following creates exactly the same machine code, just with the real address
     movabsq_address_rdx = b"\x48\xba" + afterfork_address
     subq_0x18_rsp = b"\x48\x83\xec\x18"
     xorl_eax_eax = b"\x32\xc0"
@@ -742,7 +742,7 @@ def chroot(target):
     # (cf. https://unix.stackexchange.com/a/456777/15398).
     # These three steps together are the easiest way for calling pivot_root as chroot
     # replacement (cf. the 'pivot_root(".", ".")' section of
-    # http://man7.org/linux/man-pages/man2/pivot_root.2.html):
+    # http://man7.org/linux/man-pages/man2/pivot_root.2.html).
     os.chdir(target)
     # Make "." (the target) our new root and put the old root at ".":
     libc.pivot_root(b".", b".")
@@ -946,6 +946,6 @@ def is_container_system_config_file(file):
     """
     if not file.startswith("/etc/"):
         return False
-    return file in [
+    return file in (
         os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE
-    ]
+    )
