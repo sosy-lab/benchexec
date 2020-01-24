@@ -791,8 +791,8 @@ def find_common_tasks(runset_results):
     tasks_in_first_runset = runset_results[0].get_tasks()
 
     task_set = set(tasks_in_first_runset)
-    for result in runset_results:
-        task_set = task_set & set(result.get_tasks())
+    for runset_result in runset_results:
+        task_set = task_set & set(runset_result.get_tasks())
 
     task_list = []
     if not task_set:
@@ -2152,7 +2152,7 @@ def main(args=None):
     options = arg_parser.parse_args((args or sys.argv)[1:])
 
     benchexec.util.setup_logging(
-        format="%(levelname)s: %(message)s",
+        fmt="%(levelname)s: %(message)s",
         level=logging.WARNING if options.quiet else logging.INFO,
     )
 

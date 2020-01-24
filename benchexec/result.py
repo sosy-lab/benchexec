@@ -358,17 +358,17 @@ def expected_results_of_file(filename):
             subproperty = None
             if len(for_properties) > 1:
                 assert for_properties == _MEMSAFETY_SUBPROPERTIES and expected_result
-                property = _PROP_MEMSAFETY
+                prop = _PROP_MEMSAFETY
             else:
-                property = next(iter(for_properties))
-                if property in _MEMSAFETY_SUBPROPERTIES and not expected_result:
-                    subproperty = property
-                    property = _PROP_MEMSAFETY
-            if property in results:
+                prop = next(iter(for_properties))
+                if prop in _MEMSAFETY_SUBPROPERTIES and not expected_result:
+                    subproperty = prop
+                    prop = _PROP_MEMSAFETY
+            if prop in results:
                 raise BenchExecException(
-                    "Duplicate property {} in filename {}".format(property, filename)
+                    "Duplicate property {} in filename {}".format(prop, filename)
                 )
-            results[property] = ExpectedResult(expected_result, subproperty)
+            results[prop] = ExpectedResult(expected_result, subproperty)
     return results
 
 

@@ -648,14 +648,14 @@ def read_local_time():
     return datetime.datetime.now(datetime.timezone.utc).astimezone()
 
 
-def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
+def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
     """Setup the logging framework with a basic configuration"""
     try:
         import coloredlogs
 
-        coloredlogs.install(fmt=format, level=level)
+        coloredlogs.install(fmt=fmt, level=level)
     except ImportError:
-        logging.basicConfig(format=format, level=level)
+        logging.basicConfig(format=fmt, level=level)
 
 
 def _debug_current_process(sig, current_frame):

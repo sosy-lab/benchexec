@@ -39,9 +39,9 @@ def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
 
 def getWitnesses(witnessXML):
     witnesses = {}
-    for result in witnessXML.findall("run"):
-        run = result.get("name")
-        witnesses[run] = result
+    for result_tag in witnessXML.findall("run"):
+        run = result_tag.get("name")
+        witnesses[run] = result_tag
     return witnesses
 
 
@@ -105,15 +105,15 @@ def main(argv=None):
         witnessXML = TableGenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
 
-    for result in resultXML.findall("run"):
-        run = result.get("name")
+    for result_tag in resultXML.findall("run"):
+        run = result_tag.get("name")
         try:
-            status_from_verification = result.find('column[@title="status"]').get(
+            status_from_verification = result_tag.find('column[@title="status"]').get(
                 "value"
             )
-            category_from_verification = result.find('column[@title="category"]').get(
-                "value"
-            )
+            category_from_verification = result_tag.find(
+                'column[@title="category"]'
+            ).get("value")
         except:
             status_from_verification = "not found"
             category_from_verification = "not found"
@@ -122,7 +122,7 @@ def main(argv=None):
             witness = witnessSet.get(run, None)
             # copy data from witness
             if witness is not None and len(witness) > 0:
-                if result.get("properties") == "coverage-error-call":
+                if result_tag.get("properties") == "coverage-error-call":
                     status_from_validation = witness.find(
                         'column[@title="status"]'
                     ).get("value")
@@ -132,8 +132,8 @@ def main(argv=None):
                         scoreColumn = ET.Element(
                             "column", {"title": "score", "value": "1"}
                         )
-                        result.append(scoreColumn)
-                elif result.get("properties") == "coverage-branches":
+                        result_tag.append(scoreColumn)
+                elif result_tag.get("properties") == "coverage-branches":
                     try:
                         coverage_value = (
                             witness.find('column[@title="branches_covered"]')
@@ -152,10 +152,10 @@ def main(argv=None):
                         "column",
                         {"title": "score", "value": str(coverage_float / 100)},
                     )
-                    result.append(scoreColumn)
+                    result_tag.append(scoreColumn)
                 else:
                     # For verification
-                    statusWitNew, categoryWitNew = getWitnessResult(witness, result)
+                    statusWitNew, categoryWitNew = getWitnessResult(witness, result_tag)
                     if (
                         categoryWit is None
                         or not categoryWit.startswith(Result.CATEGORY_CORRECT)
@@ -174,12 +174,12 @@ def main(argv=None):
             and categoryWit is not None
         ):
             try:
-                result.find('column[@title="status"]').set("value", statusWit)
-                result.find('column[@title="category"]').set("value", categoryWit)
+                result_tag.find('column[@title="status"]').set("value", statusWit)
+                result_tag.find('column[@title="category"]').set("value", categoryWit)
             except:
                 pass
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
-        del result.attrib["logfile"]
+        del result_tag.attrib["logfile"]
 
     filename = resultFile + ".merged.xml.bz2"
     print("    " + filename)
