@@ -1,14 +1,23 @@
 [flake8]
 max-line-length = 88
 ignore =
+    # temporarily disabled for historic reasons: line length, naming
+    E501,N801,N802,N803,N806,N815,
+    # the risk of class attributes shadowing builtins is quite small
+    # https://github.com/gforcada/flake8-builtins/issues/22#issuecomment-378755804
+    A003,
     # do not match Black output
     E203,W503,
+    # followup warning from another one (F403 for star imports)
+    F405,
     # we have no isort config
     I002,
     # "... if .. else ..." is fine
     IF100,
     # using a result variable instead of early return allows later addition of logic
     R504,
+    # several scripts use print() for their output, so allow it
+    T001,
     # only relevant if pytest is used
     T003
 per-file-ignores =
@@ -19,3 +28,5 @@ exclude =
     build,
     # Created locally by IDE plugins
     .ropeproject,
+    # scripts from JS modules
+    node_modules,

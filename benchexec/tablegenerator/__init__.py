@@ -1594,7 +1594,7 @@ def get_stats_of_run_set(runResults, correct_only):
 
 class StatValue(object):
     def __init__(
-        self, sum, min=None, max=None, avg=None, median=None, stdev=None
+        self, sum, min=None, max=None, avg=None, median=None, stdev=None  # noqa: A002
     ):  # @ReservedAssignment
         self.sum = sum
         self.min = min
@@ -1937,7 +1937,7 @@ def create_tables(
                     "Writing %s into %s ...", template_format.upper().ljust(4), outfile
                 )
 
-            this_template_values = dict(
+            this_template_values = dict(  # noqa: C408
                 title=title, body=rows, foot=stats, foot_columns=stats_columns
             )
             this_template_values.update(template_values.__dict__)
