@@ -19,7 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
-import benchexec.util as Util
+import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -41,9 +41,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         # Relative path to map2check wrapper
         if self._get_version() == 6:
-            return Util.find_executable("map2check-wrapper.sh")
+            return util.find_executable("map2check-wrapper.sh")
         elif self._get_version() > 6:
-            return Util.find_executable("map2check-wrapper.py")
+            return util.find_executable("map2check-wrapper.py")
         assert False, "Unexpected version " + self._get_version()
 
     def program_files(self, executable):
@@ -61,7 +61,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         Determine the version based on map2check-wrapper.sh file
         """
-        exe_v6 = Util.find_executable("map2check-wrapper.sh", exitOnError=False)
+        exe_v6 = util.find_executable("map2check-wrapper.sh", exitOnError=False)
         if exe_v6:
             return 6
         else:

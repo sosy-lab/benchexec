@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 
 import benchexec.util as util
 import benchexec.tools.template
@@ -57,7 +57,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             try:
-                tree = ET.fromstringlist(map(sanitizeXML, output))
+                tree = ElementTree.fromstringlist(map(sanitizeXML, output))
                 status = tree.findtext("cprover-status")
 
                 if status is None:

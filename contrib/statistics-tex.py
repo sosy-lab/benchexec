@@ -28,11 +28,11 @@ import sys
 import multiprocessing
 from functools import partial
 
-import benchexec.tablegenerator as tablegenerator
+from benchexec import tablegenerator
+from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-Util = tablegenerator.Util
 
 HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
@@ -51,7 +51,7 @@ def extract_time(column_title, time_name, run_result):
         sys.exit(
             "{0} time missing for task {1}.".format(time_name, run_result.task_id[0])
         )
-    return Util.to_decimal(run_result.values[pos])
+    return util.to_decimal(run_result.values[pos])
 
 
 def extract_cputime(run_result):
@@ -143,8 +143,8 @@ def load_results(result_file, status_print):
     assert len(run_set_result.results) == total_stats.count
 
     basenames = [
-        Util.prettylist(run_set_result.attributes.get("benchmarkname")),
-        Util.prettylist(run_set_result.attributes.get("name")),
+        util.prettylist(run_set_result.attributes.get("benchmarkname")),
+        util.prettylist(run_set_result.attributes.get("name")),
     ]
 
     # status_stats must be transformed to a dictionary to get rid of the lambda-factory used above (can't be pickled)

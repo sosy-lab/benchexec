@@ -11,11 +11,11 @@ import sys
 
 import os
 import io
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree
 import bz2
 
-import benchexec.result as Result
-import benchexec.tablegenerator as TableGenerator
+from benchexec import result
+from benchexec import tablegenerator
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -27,7 +27,7 @@ def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
     """
     from xml.dom import minidom
 
-    rough_string = ET.tostring(elem, "utf-8")
+    rough_string = ElementTree.tostring(elem, "utf-8")
     reparsed = minidom.parseString(rough_string)
     if qualified_name:
         doctype = minidom.DOMImplementation().createDocumentType(
@@ -49,7 +49,7 @@ def getWitnessResult(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
-        return "witness missing", Result.CATEGORY_ERROR
+        return "witness missing", result.CATEGORY_ERROR
 
     status_from_validation = witness.find('column[@title="status"]').get("value")
     try:
@@ -68,10 +68,10 @@ def getWitnessResult(witness, verification_result):
     if status_from_validation == status_from_verification:
         return status_from_verification, category_from_verification
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
-    if category_from_verification == Result.CATEGORY_CORRECT:
-        return status_from_verification, Result.CATEGORY_CORRECT_UNCONFIRMED
+    if category_from_verification == result.CATEGORY_CORRECT:
+        return status_from_verification, result.CATEGORY_CORRECT_UNCONFIRMED
 
-    return "result invalid (" + status_from_verification + ")", Result.CATEGORY_ERROR
+    return "result invalid (" + status_from_verification + ")", result.CATEGORY_ERROR
 
 
 def main(argv=None):
@@ -97,12 +97,12 @@ def main(argv=None):
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit("File {0} does not exist.".format(repr(resultFile)))
-    resultXML = TableGenerator.parse_results_file(resultFile)
+    resultXML = tablegenerator.parse_results_file(resultFile)
     witnessSets = []
     for witnessFile in witnessFiles:
         if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
             sys.exit("File {0} does not exist.".format(repr(witnessFile)))
-        witnessXML = TableGenerator.parse_results_file(witnessFile)
+        witnessXML = tablegenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
 
     for result_tag in resultXML.findall("run"):
@@ -129,7 +129,7 @@ def main(argv=None):
                     if status_from_validation == "true":
                         statusWit, categoryWit = (status_from_verification, "correct")
                         category_from_verification = "correct"
-                        scoreColumn = ET.Element(
+                        scoreColumn = ElementTree.Element(
                             "column", {"title": "score", "value": "1"}
                         )
                         result_tag.append(scoreColumn)
@@ -148,7 +148,7 @@ def main(argv=None):
                         coverage_float = float(coverage_value)
                     except ValueError:
                         continue
-                    scoreColumn = ET.Element(
+                    scoreColumn = ElementTree.Element(
                         "column",
                         {"title": "score", "value": str(coverage_float / 100)},
                     )
@@ -158,16 +158,16 @@ def main(argv=None):
                     statusWitNew, categoryWitNew = getWitnessResult(witness, result_tag)
                     if (
                         categoryWit is None
-                        or not categoryWit.startswith(Result.CATEGORY_CORRECT)
-                        or categoryWitNew == Result.CATEGORY_CORRECT
+                        or not categoryWit.startswith(result.CATEGORY_CORRECT)
+                        or categoryWitNew == result.CATEGORY_CORRECT
                     ):
                         statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
         if (
             (
                 isOverwrite
-                or Result.RESULT_CLASS_FALSE
-                == Result.get_result_classification(status_from_verification)
+                or result.RESULT_CLASS_FALSE
+                == result.get_result_classification(status_from_verification)
             )
             and "correct" == category_from_verification
             and statusWit is not None

@@ -18,7 +18,7 @@ limitations under the License.
 
 import subprocess
 import os
-import benchexec.util as Util
+import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 import re
@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def executable(self):
 
-        return Util.find_executable("depthk-wrapper.sh")
+        return util.find_executable("depthk-wrapper.sh")
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)

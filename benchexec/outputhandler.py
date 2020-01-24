@@ -28,7 +28,7 @@ import threading
 import time
 import sys
 from xml.dom import minidom
-from xml.etree import ElementTree as ET
+from xml.etree import ElementTree
 import zipfile
 
 import benchexec
@@ -149,8 +149,8 @@ class OutputHandler(object):
             if systemInfo.attrib["hostname"] == hostname:
                 return
 
-        osElem = ET.Element("os", {"name": opSystem})
-        cpuElem = ET.Element(
+        osElem = ElementTree.Element("os", {"name": opSystem})
+        cpuElem = ElementTree.Element(
             "cpu",
             {
                 "model": cpu_model,
@@ -160,14 +160,14 @@ class OutputHandler(object):
         )
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ET.Element("ram", {"size": str(memory) + "B"})
-        systemInfo = ET.Element("systeminfo", {"hostname": hostname})
+        ramElem = ElementTree.Element("ram", {"size": str(memory) + "B"})
+        systemInfo = ElementTree.Element("systeminfo", {"hostname": hostname})
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
-        env = ET.SubElement(systemInfo, "environment")
+        env = ElementTree.SubElement(systemInfo, "environment")
         for var, value in sorted(environment.items()):
-            ET.SubElement(env, "var", name=var).text = value
+            ElementTree.SubElement(env, "var", name=var).text = value
 
         self.xml_header.append(systemInfo)
         if runSet:
@@ -193,7 +193,7 @@ class OutputHandler(object):
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
 
         # store benchmarkInfo in XML
-        self.xml_header = ET.Element(
+        self.xml_header = ElementTree.Element(
             "result",
             {
                 "benchmarkname": self.benchmark.name,
@@ -216,17 +216,17 @@ class OutputHandler(object):
             self.xml_header.set(CORELIMIT, corelimit)
 
         if self.benchmark.description:
-            description_tag = ET.Element("description")
+            description_tag = ElementTree.Element("description")
             description_tag.text = self.benchmark.description
             self.xml_header.append(description_tag)
 
         # store columnTitles in XML, this are the default columns, that are shown in a default html-table from table-generator
-        columntitlesElem = ET.Element("columns")
-        columntitlesElem.append(ET.Element("column", {"title": "status"}))
-        columntitlesElem.append(ET.Element("column", {"title": "cputime"}))
-        columntitlesElem.append(ET.Element("column", {"title": "walltime"}))
+        columntitlesElem = ElementTree.Element("columns")
+        columntitlesElem.append(ElementTree.Element("column", {"title": "status"}))
+        columntitlesElem.append(ElementTree.Element("column", {"title": "cputime"}))
+        columntitlesElem.append(ElementTree.Element("column", {"title": "walltime"}))
         for column in self.benchmark.columns:
-            columnElem = ET.Element("column", {"title": column.title})
+            columnElem = ElementTree.Element("column", {"title": column.title})
             columntitlesElem.append(columnElem)
         self.xml_header.append(columntitlesElem)
 
@@ -389,7 +389,7 @@ class OutputHandler(object):
                     util.relative_path(s, xml_file_name) for s in run.sourcefiles
                 ]
                 run_attributes["files"] = "[" + ", ".join(adjusted_sourcefiles) + "]"
-            run.xml = ET.Element("run", run_attributes)
+            run.xml = ElementTree.Element("run", run_attributes)
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
@@ -752,7 +752,7 @@ class OutputHandler(object):
             attributes = {"title": title, "value": value, "hidden": "true"}
         else:
             attributes = {"title": title, "value": value}
-        xml.append(ET.Element("column", attributes))
+        xml.append(ElementTree.Element("column", attributes))
 
     def create_output_line(
         self,
@@ -879,7 +879,9 @@ class OutputHandler(object):
         xml.set("error", "incomplete")  # Mark result file as incomplete
         temp_filename = filename + ".tmp"
         with open(temp_filename, "wb") as file:
-            ET.ElementTree(xml).write(file, encoding="utf-8", xml_declaration=True)
+            ElementTree.ElementTree(xml).write(
+                file, encoding="utf-8", xml_declaration=True
+            )
         os.rename(temp_filename, filename)
         if error is not None:
             xml.set("error", error)
@@ -900,7 +902,7 @@ class OutputHandler(object):
         with io.TextIOWrapper(
             open_func(actual_filename, "wb"), encoding="utf-8"
         ) as file:
-            rough_string = ET.tostring(xml, encoding="unicode")
+            rough_string = ElementTree.tostring(xml, encoding="unicode")
             reparsed = minidom.parseString(rough_string)
             doctype = minidom.DOMImplementation().createDocumentType(
                 "result", RESULT_XML_PUBLIC_ID, RESULT_XML_SYSTEM_ID

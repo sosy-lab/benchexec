@@ -46,7 +46,7 @@ from benchexec import __version__, BenchExecException
 import benchexec.model as model
 import benchexec.result as result
 import benchexec.util
-from benchexec.tablegenerator import util as Util
+from benchexec.tablegenerator import util
 from benchexec.tablegenerator.columns import Column, ColumnType
 import zipfile
 
@@ -62,7 +62,7 @@ if not hasattr(cgi, "escape"):
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
 # processes, not threads.
 # Fully initialized only in main() because we cannot do so in the worker processes.
-parallel = Util.DummyExecutor()
+parallel = util.DummyExecutor()
 
 # Most important columns that should be shown first in tables (in the given order)
 MAIN_COLUMNS = [
@@ -96,10 +96,10 @@ TEMPLATE_FILE_NAME = os.path.join(os.path.dirname(__file__), "{template}.{format
 
 TEMPLATE_FORMATS = ["html", "csv"]
 TEMPLATE_NAMESPACE = {
-    "flatten": Util.flatten,
-    "json": Util.to_json,
-    "create_link": Util.create_link,
-    "format_options": Util.format_options,
+    "flatten": util.flatten,
+    "json": util.to_json,
+    "create_link": util.create_link,
+    "format_options": util.format_options,
 }
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
@@ -251,7 +251,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
         )
         return []
     # expand wildcards
-    return Util.get_file_list(
+    return util.get_file_list(
         os.path.join(os.path.dirname(table_definition_file), result_tag.get("filename"))
     )
 
@@ -334,7 +334,7 @@ def get_task_id(task, base_path_or_url):
     """
     name = task.get("name")
     if base_path_or_url:
-        if Util.is_url(base_path_or_url):
+        if util.is_url(base_path_or_url):
             name = urllib.parse.urljoin(base_path_or_url, name)
         else:
             name = os.path.normpath(
@@ -362,7 +362,7 @@ def load_tool(result):
             logging.warning(
                 "Cannot extract values from log files for benchmark results %s "
                 '(missing attribute "toolmodule" on tag "result").',
-                Util.prettylist(result.attributes["name"]),
+                util.prettylist(result.attributes["name"]),
             )
             return None
         try:
@@ -484,7 +484,7 @@ class RunSetResult(object):
         del self._xml_results
 
     def __str__(self):
-        return Util.prettylist(self.attributes["filename"])
+        return util.prettylist(self.attributes["filename"])
 
     @staticmethod
     def create_from_xml(
@@ -656,11 +656,11 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
     @param run_set_id: An optional identifier of this set of results.
     """
     logging.info("    %s", resultFile)
-    url = Util.make_url(resultFile)
+    url = util.make_url(resultFile)
 
     parse = ElementTree.ElementTree().parse
     try:
-        with Util.open_url_seekable(url, mode="rb") as f:
+        with util.open_url_seekable(url, mode="rb") as f:
             try:
                 try:
                     resultElem = parse(gzip.GzipFile(fileobj=f))
@@ -848,7 +848,7 @@ class RunResult(object):
         def read_logfile_lines(log_file):
             if not log_file:
                 return []
-            log_file_url = Util.make_url(log_file)
+            log_file_url = util.make_url(log_file)
             url_parts = urllib.parse.urlparse(log_file_url, allow_fragments=False)
             log_zip_path = os.path.dirname(url_parts.path) + ".zip"
             log_zip_url = urllib.parse.urlunparse(
@@ -870,13 +870,13 @@ class RunResult(object):
                 log_zip_url = "file:" + log_zip_url[8:]
 
             try:
-                with Util.open_url_seekable(log_file_url, "rt") as logfile:
+                with util.open_url_seekable(log_file_url, "rt") as logfile:
                     return logfile.readlines()
             except IOError:
                 try:
                     if log_zip_url not in log_zip_cache:
                         log_zip_cache[log_zip_url] = zipfile.ZipFile(
-                            Util.open_url_seekable(log_zip_url, "rb")
+                            util.open_url_seekable(log_zip_url, "rb")
                         )
                     log_zip = log_zip_cache[log_zip_url]
 
@@ -899,8 +899,8 @@ class RunResult(object):
                     )
                     return []
 
-        status = Util.get_column_value(sourcefileTag, "status", "")
-        category = Util.get_column_value(sourcefileTag, "category")
+        status = util.get_column_value(sourcefileTag, "status", "")
+        category = util.get_column_value(sourcefileTag, "category")
         if not category:
             if status:  # only category missing
                 category = result.CATEGORY_MISSING
@@ -922,7 +922,7 @@ class RunResult(object):
             elif not correct_only or category == result.CATEGORY_CORRECT:
                 if not column.pattern or column.href:
                     # collect values from XML
-                    value = Util.get_column_value(sourcefileTag, column.title)
+                    value = util.get_column_value(sourcefileTag, column.title)
 
                 else:  # collect values from logfile
                     if logfileLines is None:  # cache content
@@ -1127,14 +1127,14 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                         return value[:-1] + " s"
                     return value
 
-                runSetResult.attributes[key] = Util.prettylist(
+                runSetResult.attributes[key] = util.prettylist(
                     map(fix_unit_display, values)
                 )
 
             elif key == "memlimit" or key == "ram":
 
                 def round_to_MB(value):
-                    number, unit = Util.split_number_and_unit(value)
+                    number, unit = util.split_number_and_unit(value)
                     if unit and unit != "B":
                         return value
                     try:
@@ -1144,12 +1144,12 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     except ValueError:
                         return value
 
-                runSetResult.attributes[key] = Util.prettylist(map(round_to_MB, values))
+                runSetResult.attributes[key] = util.prettylist(map(round_to_MB, values))
 
             elif key == "freq":
 
                 def round_to_MHz(value):
-                    number, unit = Util.split_number_and_unit(value)
+                    number, unit = util.split_number_and_unit(value)
                     if unit and unit != "Hz":
                         return value
                     try:
@@ -1157,17 +1157,17 @@ def get_table_head(runSetResults, commonFileNamePrefix):
                     except ValueError:
                         return value
 
-                runSetResult.attributes[key] = Util.prettylist(
+                runSetResult.attributes[key] = util.prettylist(
                     map(round_to_MHz, values)
                 )
 
             elif key == "host":
-                runSetResult.attributes[key] = Util.prettylist(
-                    Util.merge_entries_with_common_prefixes(values)
+                runSetResult.attributes[key] = util.prettylist(
+                    util.merge_entries_with_common_prefixes(values)
                 )
 
             else:
-                runSetResult.attributes[key] = Util.prettylist(values)
+                runSetResult.attributes[key] = util.prettylist(values)
 
     def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
         def format_cell(attributes):
@@ -1184,7 +1184,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
             return None  # skip row without values completely
 
         valuesAndWidths = (
-            list(Util.collapse_equal_values(values, runSetWidths))
+            list(util.collapse_equal_values(values, runSetWidths))
             if collapse
             else list(zip(values, runSetWidths))
         )
@@ -1293,12 +1293,12 @@ def get_stats(rows, local_summary, correct_only):
             get_stats_of_run_set, result_cols, [correct_only] * len(result_cols)
         )
     )
-    rowsForStats = list(map(Util.flatten, zip(*stats)))  # row-wise
+    rowsForStats = list(map(util.flatten, zip(*stats)))  # row-wise
 
     # find out column types for statistics columns
     if local_summary:
         rowsForStats.append(local_summary)
-    columns = Util.flatten(run_result.columns for run_result in rows[0].results)
+    columns = util.flatten(run_result.columns for run_result in rows[0].results)
     stats_columns = []
     for i, column in enumerate(columns):
         column_values = [row[i] for row in rowsForStats]
@@ -1660,7 +1660,7 @@ class StatValue(object):
 def get_stats_of_number_column(values, categoryList, columnTitle, correct_only):
     assert len(values) == len(categoryList)
     try:
-        valueList = [Util.to_decimal(v) for v in values]
+        valueList = [util.to_decimal(v) for v in values]
     except InvalidOperation as e:
         if columnTitle != "host" and not columnTitle.endswith("status"):
             # We ignore values of columns 'host' and 'status'.
@@ -1816,7 +1816,7 @@ def get_summary(runSetResults):
                 available = True
                 try:
                     value = StatValue(
-                        Util.to_decimal(runSetResult.summary[column.title])
+                        util.to_decimal(runSetResult.summary[column.title])
                     )
                 except InvalidOperation:
                     value = None
@@ -1843,9 +1843,9 @@ def create_tables(
         Row.set_relative_path(row, common_prefix, outputPath)
 
     # compute nice name of each run set for displaying
-    firstBenchmarkName = Util.prettylist(runSetResults[0].attributes["benchmarkname"])
+    firstBenchmarkName = util.prettylist(runSetResults[0].attributes["benchmarkname"])
     allBenchmarkNamesEqual = all(
-        Util.prettylist(r.attributes["benchmarkname"]) == firstBenchmarkName
+        util.prettylist(r.attributes["benchmarkname"]) == firstBenchmarkName
         for r in runSetResults
     )
     for r in runSetResults:
@@ -1855,9 +1855,9 @@ def create_tables(
             r.attributes["niceName"] = r.attributes["name"]
         else:
             r.attributes["niceName"] = [
-                Util.prettylist(r.attributes["benchmarkname"])
+                util.prettylist(r.attributes["benchmarkname"])
                 + "."
-                + Util.prettylist(r.attributes["name"])
+                + util.prettylist(r.attributes["name"])
             ]
 
     template_values = types.SimpleNamespace()
@@ -1884,13 +1884,13 @@ def create_tables(
 
     # prepare data for js react application
     if options.template_name == TEMPLATE_NAME_REACT:
-        template_values.tools = Util.prepare_run_sets_for_js(runSetResults)
+        template_values.tools = util.prepare_run_sets_for_js(runSetResults)
 
         template_values.app_css = [
-            Util.read_bundled_file(path + "css") for path in REACT_FILES
+            util.read_bundled_file(path + "css") for path in REACT_FILES
         ]
         template_values.app_js = [
-            Util.read_bundled_file(path + "js") for path in REACT_FILES
+            util.read_bundled_file(path + "js") for path in REACT_FILES
         ]
         # template_values.stats = <see below>
     else:
@@ -1900,7 +1900,7 @@ def create_tables(
 
     def write_table(table_type, title, rows, use_local_summary):
         if options.template_name == TEMPLATE_NAME_REACT:
-            template_values.rows = Util.prepare_rows_for_js(
+            template_values.rows = util.prepare_rows_for_js(
                 rows,
                 outputPath,
                 template_values.href_base,
@@ -1914,7 +1914,7 @@ def create_tables(
 
             # prepare data for js react application (stats)
             if options.template_name == TEMPLATE_NAME_REACT:
-                template_values.stats = Util.prepare_stats_for_js(
+                template_values.stats = util.prepare_stats_for_js(
                     stats, template_values.columns
                 )
         else:
@@ -1978,7 +1978,7 @@ def write_table_in_format(
     template_file = TEMPLATE_FILE_NAME.format(
         template=template_name, format=template_format
     )
-    template_content = Util.read_bundled_file(template_file)
+    template_content = util.read_bundled_file(template_file)
     template = Template(template_content, namespace=TEMPLATE_NAMESPACE)
 
     result = template.substitute(**template_values)
@@ -2199,12 +2199,12 @@ def main(args=None):
                         "or with <result> tags in the table-definiton file."
                     )
 
-                result_files = Util.extend_file_list(options.tables)  # expand wildcards
+                result_files = util.extend_file_list(options.tables)  # expand wildcards
                 runSetResults = load_results_with_table_definition(
                     result_files, table_definition, options.xmltablefile, options
                 )
 
-        except Util.TableDefinitionError as e:
+        except util.TableDefinitionError as e:
             handle_error("Fault in %s: %s", options.xmltablefile, e.message)
 
         if not name:
@@ -2221,7 +2221,7 @@ def main(args=None):
             logging.info("Searching result files in '%s'...", searchDir)
             inputFiles = [os.path.join(searchDir, "*.results*.xml")]
 
-        inputFiles = Util.extend_file_list(inputFiles)  # expand wildcards
+        inputFiles = util.extend_file_list(inputFiles)  # expand wildcards
         runSetResults = load_results(inputFiles, options)
 
         if len(inputFiles) == 1:
