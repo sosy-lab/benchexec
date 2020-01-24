@@ -59,7 +59,7 @@ def getWitnessResult(witness, verification_result):
         category_from_verification = verification_result.find(
             'column[@title="category"]'
         ).get("value")
-    except:
+    except AttributeError:
         status_from_verification = "not found"
         category_from_verification = "not found"
 
@@ -114,7 +114,7 @@ def main(argv=None):
             category_from_verification = result_tag.find(
                 'column[@title="category"]'
             ).get("value")
-        except:
+        except AttributeError:
             status_from_verification = "not found"
             category_from_verification = "not found"
         statusWit, categoryWit = (None, None)
@@ -140,7 +140,7 @@ def main(argv=None):
                             .get("value")
                             .replace("%", "")
                         )
-                    except:
+                    except AttributeError:
                         coverage_value = "0.00"
                     statusWit, categoryWit = (status_from_verification, "correct")
                     category_from_verification = "correct"
@@ -176,7 +176,7 @@ def main(argv=None):
             try:
                 result_tag.find('column[@title="status"]').set("value", statusWit)
                 result_tag.find('column[@title="category"]').set("value", categoryWit)
-            except:
+            except AttributeError:
                 pass
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del result_tag.attrib["logfile"]

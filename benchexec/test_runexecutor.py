@@ -521,7 +521,7 @@ class TestRunExecutor(unittest.TestCase):
             )
             try:
                 runexec_output, unused_err = process.communicate(b"TEST_TOKEN")
-            except:
+            except:  # noqa: E722
                 process.kill()
                 process.wait()
                 raise

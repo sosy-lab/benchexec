@@ -143,7 +143,7 @@ def print_tool_info(tool):
 
     try:
         print_value("Version", tool.version(executable))
-    except:
+    except:  # noqa: E722
         logging.warning("Determining version failed:", exc_info=1)
 
     working_directory = tool.working_directory(executable)
@@ -246,7 +246,7 @@ def analyze_tool_output(tool, file):
             result,
             extra_line=True,
         )
-    except:
+    except:  # noqa: E722
         logging.warning(
             "Tool module failed to analyze result in “%s”:", file.name, exc_info=1
         )

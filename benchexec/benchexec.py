@@ -366,7 +366,7 @@ class BenchExec(object):
             # remove useless log folder if it is empty
             try:
                 os.rmdir(benchmark.log_folder)
-            except:
+            except OSError:
                 pass
 
         if self.config.commit and not self.stopped_by_interrupt:
