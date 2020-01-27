@@ -1348,6 +1348,7 @@ def create_tables(
         head=get_table_head(runSetResults, common_prefix, relevant_id_columns),
         relevant_id_columns=relevant_id_columns,
         output_path=outputPath,
+        common_prefix=common_prefix,
         options=options,
     )
 
@@ -1404,18 +1405,37 @@ def create_tables(
     return futures
 
 
-def write_csv_table(out, head, rows, relevant_id_columns, sep="\t", **kwargs):
+def write_csv_table(
+    out, run_sets, rows, common_prefix, relevant_id_columns, sep="\t", **kwargs
+):
     num_id_columns = relevant_id_columns[1:].count(True)
-    for line in ["tool", "runset", "title"]:
-        if line in head and head[line]:
-            out.write(head[line]["name"].lower())
+
+    def write_head_line(name, values, value_repetitions=itertools.repeat(1)):
+        if any(values):
+            out.write(name)
             for i in range(num_id_columns):
                 out.write(sep)
-            for value, count in head[line]["content"]:
+            for value, count in zip(values, value_repetitions):
                 for i in range(count):
                     out.write(sep)
-                    out.write(value)
+                    if value:
+                        out.write(value)
             out.write("\n")
+
+    write_head_line(
+        "tool",
+        ["{tool} {version}".format_map(run_set.attributes) for run_set in run_sets],
+        [len(run_set.columns) for run_set in run_sets],
+    )
+    write_head_line(
+        "run set",
+        [run_set.attributes.get("niceName") for run_set in run_sets],
+        [len(run_set.columns) for run_set in run_sets],
+    )
+    write_head_line(
+        common_prefix,
+        [column.format_title() for run_set in run_sets for column in run_set.columns],
+    )
 
     for row in rows:
         out.write(row.short_filename)
