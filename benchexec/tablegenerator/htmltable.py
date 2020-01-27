@@ -19,9 +19,11 @@
 import json
 import logging
 import os
+from urllib.parse import quote as url_quote
 
 from benchexec import __version__
 from benchexec.tablegenerator import util
+import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
@@ -33,23 +35,24 @@ def write_html_table(
     out,
     options,
     title,
-    head,
     run_sets,
     rows,
     stats,
     relevant_id_columns,
     output_path,
+    common_prefix,
     **kwargs,
 ):
     app_css = [util.read_bundled_file(path + "css") for path in _REACT_FILES]
     app_js = [util.read_bundled_file(path + "js") for path in _REACT_FILES]
+    benchmark_setup = _prepare_benchmark_setup_data(
+        run_sets, common_prefix, relevant_id_columns
+    )
     columns = [run_set.columns for run_set in run_sets]
     stats = _prepare_stats(stats, rows, columns)
-    tools = util.prepare_run_sets_for_js(run_sets)
+    tools = _prepare_run_sets_for_js(run_sets)
     href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
-    rows_js = util.prepare_rows_for_js(
-        rows, output_path, href_base, relevant_id_columns
-    )
+    rows_js = _prepare_rows_for_js(rows, output_path, href_base, relevant_id_columns)
 
     def write_tags(tag_name, contents):
         for content in contents:
@@ -99,7 +102,7 @@ const data = {
 """
     )
     write_json_part("version", __version__)
-    write_json_part("head", head)
+    write_json_part("head", benchmark_setup)
     write_json_part("tools", tools)
     write_json_part("rows", rows_js)
     write_json_part("stats", stats, last=True)
@@ -112,6 +115,85 @@ window.data = data;
     )
     write_tags("script", app_js)
     out.write("</body>\n</html>\n")
+
+
+def _prepare_benchmark_setup_data(
+    runSetResults, commonFileNamePrefix, relevant_id_columns
+):
+    # This list contains the number of columns each run set has
+    # (the width of a run set in the final table)
+    # It is used for calculating the column spans of the header cells.
+    runSetWidths = [len(runSetResult.columns) for runSetResult in runSetResults]
+
+    def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
+        def format_cell(attributes):
+            if onlyIf and onlyIf not in attributes:
+                formatStr = default
+            else:
+                formatStr = format_string
+            return formatStr.format(**attributes)
+
+        values = [
+            format_cell(runSetResult.attributes) for runSetResult in runSetResults
+        ]
+        if not any(values):
+            return None  # skip row without values completely
+
+        valuesAndWidths = (
+            list(util.collapse_equal_values(values, runSetWidths))
+            if collapse
+            else list(zip(values, runSetWidths))
+        )
+
+        return dict(  # noqa: C408
+            id=rowName.lower().split(" ")[0], name=rowName, content=valuesAndWidths
+        )
+
+    titles = [
+        column.format_title()
+        for runSetResult in runSetResults
+        for column in runSetResult.columns
+    ]
+    runSetWidths1 = [1] * sum(runSetWidths)
+    titleRow = dict(  # noqa: C408
+        id="columnTitles",
+        name=commonFileNamePrefix,
+        content=list(zip(titles, runSetWidths1)),
+    )
+
+    property_row = None
+    if not relevant_id_columns[1]:  # property is the same for all tasks
+        common_property = runSetResults[0].results[0].task_id[1]
+        if common_property:
+            property_row = dict(  # noqa: C408
+                id="property",
+                name="Properties",
+                content=[[common_property, sum(runSetWidths)]],
+            )
+
+    return {
+        "tool": get_row("Tool", "{tool} {version}", collapse=True),
+        "displayName": get_row("Benchmark", "{displayName}", collapse=True),
+        "limit": get_row(
+            "Limits",
+            "timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}",
+            collapse=True,
+        ),
+        "host": get_row("Host", "{host}", collapse=True, onlyIf="host"),
+        "os": get_row("OS", "{os}", collapse=True, onlyIf="os"),
+        "system": get_row(
+            "System",
+            "CPU: {cpu}, cores: {cores}, frequency: {freq}{turbo}; RAM: {ram}",
+            collapse=True,
+            onlyIf="cpu",
+        ),
+        "date": get_row("Date of execution", "{date}", collapse=True),
+        "runset": get_row("Run set", "{niceName}"),
+        "branch": get_row("Branch", "{branch}"),
+        "options": get_row("Options", "{options}"),
+        "property": property_row,
+        "title": titleRow,
+    }
 
 
 def _get_task_counts(rows):
@@ -295,3 +377,125 @@ def _prepare_stats(all_column_stats, rows, columns):
         )
 
     return stat_rows
+
+
+def _prepare_run_sets_for_js(run_sets):
+    # Almost all run_set attributes are relevant, use blacklist here
+    run_set_exclude_keys = {"filename"}
+
+    def prepare_column(column):
+        result = {k: v for k, v in column.__dict__.items() if v is not None}
+        result["display_title"] = column.display_title or column.title
+        result["type"] = column.type.type.name
+        return result
+
+    def prepare_run_set(attributes, columns):
+        result = {
+            k: v for k, v in attributes.items() if k not in run_set_exclude_keys and v
+        }
+        result["columns"] = [prepare_column(col) for col in columns]
+        return result
+
+    return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
+
+
+def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
+    results_include_keys = ["category"]
+
+    def prepare_value(column, value, run_result):
+        """
+        Return a dict that represents one value (table cell).
+        We always add the raw value (as in CSV), and sometimes a version that is
+        formatted for HTML (e.g., with spaces for alignment).
+        """
+        raw_value = column.format_value(value, False, "csv")
+        # We need to make sure that formatted_value is safe (no unescaped tool output),
+        # but for text columns format_value returns the same for csv and html_cell,
+        # and for number columns the HTML result is safe.
+        formatted_value = column.format_value(value, True, "html_cell")
+        result = {}
+        if column.href:
+            result["href"] = _create_link(column.href, base_dir, run_result, href_base)
+            if not raw_value and not formatted_value:
+                raw_value = column.pattern
+        if raw_value is not None and not raw_value == "":
+            result["raw"] = raw_value
+        if formatted_value and formatted_value != raw_value:
+            result["html"] = formatted_value
+        return result
+
+    def clean_up_results(res):
+        values = [
+            prepare_value(column, value, res)
+            for column, value in zip(res.columns, res.values)
+        ]
+        hrefs = (
+            column.href for column in res.columns if column.title.endswith("status")
+        )
+        toolHref = next(hrefs, None) or res.log_file
+        result = {k: getattr(res, k) for k in results_include_keys}
+        if toolHref:
+            result["href"] = _create_link(toolHref, base_dir, res, href_base)
+        result["values"] = values
+        return result
+
+    def clean_up_row(row):
+        result = {}
+        result["id"] = [
+            id_part
+            for id_part, relevant in zip(row.id, relevant_id_columns)
+            if id_part and relevant
+        ]
+        # Replace first part of id (task name, which is always shown) with short name
+        assert relevant_id_columns[0]
+        result["id"][0] = row.short_filename
+
+        result["results"] = [clean_up_results(res) for res in row.results]
+        if row.has_sourcefile:
+            result["href"] = _create_link(row.filename, base_dir)
+        return result
+
+    return [clean_up_row(row) for row in rows]
+
+
+def _create_link(href, base_dir, runResult=None, href_base=None):
+    def get_replacements(task_file):
+        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
+        return [
+            (var_prefix + "name", os.path.basename(task_file)),
+            (var_prefix + "path", os.path.dirname(task_file) or "."),
+            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
+        ] + (
+            [
+                ("logfile_name", os.path.basename(runResult.log_file)),
+                (
+                    "logfile_path",
+                    os.path.dirname(
+                        os.path.relpath(runResult.log_file, href_base or ".")
+                    )
+                    or ".",
+                ),
+                (
+                    "logfile_path_abs",
+                    os.path.dirname(os.path.abspath(runResult.log_file)),
+                ),
+            ]
+            if runResult.log_file
+            else []
+        )
+
+    source_file = (
+        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
+    )
+
+    if util.is_url(href):
+        # quote special characters only in inserted variable values, not full URL
+        if source_file:
+            source_file = url_quote(source_file)
+            href = benchexec.util.substitute_vars(href, get_replacements(source_file))
+        return href
+
+    # quote special characters everywhere (but not twice in source_file!)
+    if source_file:
+        href = benchexec.util.substitute_vars(href, get_replacements(source_file))
+    return url_quote(os.path.relpath(href, base_dir))

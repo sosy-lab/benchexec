@@ -1146,83 +1146,6 @@ def format_run_set_attributes_nicely(runSetResults):
         runSetResult.attributes["niceName"] = niceName
 
 
-def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
-    # This list contains the number of columns each run set has
-    # (the width of a run set in the final table)
-    # It is used for calculating the column spans of the header cells.
-    runSetWidths = [len(runSetResult.columns) for runSetResult in runSetResults]
-
-    def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
-        def format_cell(attributes):
-            if onlyIf and onlyIf not in attributes:
-                formatStr = default
-            else:
-                formatStr = format_string
-            return formatStr.format(**attributes)
-
-        values = [
-            format_cell(runSetResult.attributes) for runSetResult in runSetResults
-        ]
-        if not any(values):
-            return None  # skip row without values completely
-
-        valuesAndWidths = (
-            list(util.collapse_equal_values(values, runSetWidths))
-            if collapse
-            else list(zip(values, runSetWidths))
-        )
-
-        return dict(  # noqa: C408
-            id=rowName.lower().split(" ")[0], name=rowName, content=valuesAndWidths
-        )
-
-    titles = [
-        column.format_title()
-        for runSetResult in runSetResults
-        for column in runSetResult.columns
-    ]
-    runSetWidths1 = [1] * sum(runSetWidths)
-    titleRow = dict(  # noqa: C408
-        id="columnTitles",
-        name=commonFileNamePrefix,
-        content=list(zip(titles, runSetWidths1)),
-    )
-
-    property_row = None
-    if not relevant_id_columns[1]:  # property is the same for all tasks
-        common_property = runSetResults[0].results[0].task_id[1]
-        if common_property:
-            property_row = dict(  # noqa: C408
-                id="property",
-                name="Properties",
-                content=[[common_property, sum(runSetWidths)]],
-            )
-
-    return {
-        "tool": get_row("Tool", "{tool} {version}", collapse=True),
-        "displayName": get_row("Benchmark", "{displayName}", collapse=True),
-        "limit": get_row(
-            "Limits",
-            "timelimit: {timelimit}, memlimit: {memlimit}, CPU core limit: {cpuCores}",
-            collapse=True,
-        ),
-        "host": get_row("Host", "{host}", collapse=True, onlyIf="host"),
-        "os": get_row("OS", "{os}", collapse=True, onlyIf="os"),
-        "system": get_row(
-            "System",
-            "CPU: {cpu}, cores: {cores}, frequency: {freq}{turbo}; RAM: {ram}",
-            collapse=True,
-            onlyIf="cpu",
-        ),
-        "date": get_row("Date of execution", "{date}", collapse=True),
-        "runset": get_row("Run set", "{niceName}"),
-        "branch": get_row("Branch", "{branch}"),
-        "options": get_row("Options", "{options}"),
-        "property": property_row,
-        "title": titleRow,
-    }
-
-
 def select_relevant_id_columns(rows):
     """
     Find out which of the entries in Row.id are equal for all given rows.
@@ -1342,11 +1265,9 @@ def create_tables(
     # but we don't need them anymore and this is the easiest way
     format_run_set_attributes_nicely(runSetResults)
 
-    relevant_id_columns = select_relevant_id_columns(rows)
     data = types.SimpleNamespace(
         run_sets=runSetResults,
-        head=get_table_head(runSetResults, common_prefix, relevant_id_columns),
-        relevant_id_columns=relevant_id_columns,
+        relevant_id_columns=select_relevant_id_columns(rows),
         output_path=outputPath,
         common_prefix=common_prefix,
         options=options,

@@ -25,9 +25,7 @@ import glob
 import io
 import logging
 import os
-from urllib.parse import quote as url_quote
 import urllib.request
-import benchexec.util
 
 
 def get_file_list(shortFile):
@@ -127,49 +125,6 @@ def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
 
-def create_link(href, base_dir, runResult=None, href_base=None):
-    def get_replacements(task_file):
-        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
-        return [
-            (var_prefix + "name", os.path.basename(task_file)),
-            (var_prefix + "path", os.path.dirname(task_file) or "."),
-            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
-        ] + (
-            [
-                ("logfile_name", os.path.basename(runResult.log_file)),
-                (
-                    "logfile_path",
-                    os.path.dirname(
-                        os.path.relpath(runResult.log_file, href_base or ".")
-                    )
-                    or ".",
-                ),
-                (
-                    "logfile_path_abs",
-                    os.path.dirname(os.path.abspath(runResult.log_file)),
-                ),
-            ]
-            if runResult.log_file
-            else []
-        )
-
-    source_file = (
-        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
-    )
-
-    if is_url(href):
-        # quote special characters only in inserted variable values, not full URL
-        if source_file:
-            source_file = url_quote(source_file)
-            href = benchexec.util.substitute_vars(href, get_replacements(source_file))
-        return href
-
-    # quote special characters everywhere (but not twice in source_file!)
-    if source_file:
-        href = benchexec.util.substitute_vars(href, get_replacements(source_file))
-    return url_quote(os.path.relpath(href, base_dir))
-
-
 def to_decimal(s):
     if s:
         if s.lower() in ["nan", "inf", "-inf"]:
@@ -209,85 +164,6 @@ def get_column_value(sourcefileTag, columnTitle, default=None):
 
 def flatten(list_):
     return [value for sublist in list_ for value in sublist]
-
-
-def prepare_run_sets_for_js(run_sets):
-    # Almost all run_set attributes are relevant, use blacklist here
-    run_set_exclude_keys = {"filename"}
-
-    def prepare_column(column):
-        result = {k: v for k, v in column.__dict__.items() if v is not None}
-        result["display_title"] = column.display_title or column.title
-        result["type"] = column.type.type.name
-        return result
-
-    def prepare_run_set(attributes, columns):
-        result = {
-            k: v for k, v in attributes.items() if k not in run_set_exclude_keys and v
-        }
-        result["columns"] = [prepare_column(col) for col in columns]
-        return result
-
-    return [prepare_run_set(rs.attributes, rs.columns) for rs in run_sets]
-
-
-def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
-    results_include_keys = ["category"]
-
-    def prepare_value(column, value, run_result):
-        """
-        Return a dict that represents one value (table cell).
-        We always add the raw value (as in CSV), and sometimes a version that is
-        formatted for HTML (e.g., with spaces for alignment).
-        """
-        raw_value = column.format_value(value, False, "csv")
-        # We need to make sure that formatted_value is safe (no unescaped tool output),
-        # but for text columns format_value returns the same for csv and html_cell,
-        # and for number columns the HTML result is safe.
-        formatted_value = column.format_value(value, True, "html_cell")
-        result = {}
-        if column.href:
-            result["href"] = create_link(column.href, base_dir, run_result, href_base)
-            if not raw_value and not formatted_value:
-                raw_value = column.pattern
-        if raw_value is not None and not raw_value == "":
-            result["raw"] = raw_value
-        if formatted_value and formatted_value != raw_value:
-            result["html"] = formatted_value
-        return result
-
-    def clean_up_results(res):
-        values = [
-            prepare_value(column, value, res)
-            for column, value in zip(res.columns, res.values)
-        ]
-        hrefs = (
-            column.href for column in res.columns if column.title.endswith("status")
-        )
-        toolHref = next(hrefs, None) or res.log_file
-        result = {k: getattr(res, k) for k in results_include_keys}
-        if toolHref:
-            result["href"] = create_link(toolHref, base_dir, res, href_base)
-        result["values"] = values
-        return result
-
-    def clean_up_row(row):
-        result = {}
-        result["id"] = [
-            id_part
-            for id_part, relevant in zip(row.id, relevant_id_columns)
-            if id_part and relevant
-        ]
-        # Replace first part of id (task name, which is always shown) with short name
-        assert relevant_id_columns[0]
-        result["id"][0] = row.short_filename
-
-        result["results"] = [clean_up_results(res) for res in row.results]
-        if row.has_sourcefile:
-            result["href"] = create_link(row.filename, base_dir)
-        return result
-
-    return [clean_up_row(row) for row in rows]
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
