@@ -290,51 +290,6 @@ def prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     return [clean_up_row(row) for row in rows]
 
 
-def partition_list_according_to_other(l, template):
-    """
-    Partition a list "l" into the same shape as a given list of lists "template".
-    """
-    lengths = [len(sublist) for sublist in template]
-    assert len(l) == sum(lengths)
-
-    def get_sublist(i):
-        start = sum(lengths[0:i])
-        return l[start : start + lengths[i]]
-
-    return [get_sublist(i) for i in range(len(template))]
-
-
-def prepare_stats_for_js(stats, all_columns):
-    def prepare_values(column, value, key):
-        return (
-            column.format_value(value, True, "html_cell")
-            if key == "sum"
-            else column.format_value(value, False, "tooltip")
-        )
-
-    flattened_columns = flatten(all_columns)
-
-    def clean_up_stat(stat):
-        prepared_content = [
-            {
-                k: prepare_values(column, v, k)
-                for k, v in col_content.__dict__.items()
-                if v is not None
-            }
-            if col_content
-            else None
-            for column, col_content in zip(flattened_columns, stat["content"])
-        ]
-
-        result = dict(stat)
-        result["content"] = partition_list_according_to_other(
-            prepared_content, all_columns
-        )
-        return result
-
-    return [clean_up_stat(stat_row) for stat_row in stats]
-
-
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
     """
     Returns a list where sequences of post-fixed entries are shortened to their common prefix.

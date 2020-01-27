@@ -41,7 +41,6 @@ import benchexec.result as result
 import benchexec.util
 from benchexec.tablegenerator import htmltable, statistics, util
 from benchexec.tablegenerator.columns import Column
-from benchexec.tablegenerator.statistics import ColumnStatistics
 import zipfile
 
 
@@ -1222,40 +1221,9 @@ def select_relevant_id_columns(rows):
     return relevant_id_columns
 
 
-def get_stats_of_rows(rows):
-    """Calculcate number of true/false tasks and maximum achievable score."""
-    count_true = count_false = max_score = 0
-    for row in rows:
-        if not row.properties:
-            logging.info("Missing property for %s.", row.filename)
-            continue
-        if len(row.properties) > 1:
-            # multiple properties not yet supported
-            count_true = count_false = max_score = 0
-            break
-        expected_result = row.expected_results.get(row.properties[0].name)
-        if not expected_result:
-            continue
-        if expected_result.result is True:
-            count_true += 1
-        elif expected_result.result is False:
-            count_false += 1
-        for prop in row.properties:
-            max_score += prop.max_score(expected_result)
-
-    return max_score, count_true, count_false
-
-
-def _contains_unconfirmed_results(rows_for_stats):
-    for unconfirmed_stat in rows_for_stats.correct_unconfirmed:
-        if unconfirmed_stat and unconfirmed_stat.sum > 0:
-            return True
-    return False
-
-
-def get_stats(rows, local_summary, correct_only):
+def compute_stats(rows, run_set_results, use_local_summary, correct_only):
     result_cols = list(rows_to_columns(rows))  # column-wise
-    all_column_stats = util.flatten(
+    all_column_stats = list(
         parallel.map(
             statistics.get_stats_of_run_set,
             result_cols,
@@ -1263,121 +1231,11 @@ def get_stats(rows, local_summary, correct_only):
         )
     )
 
-    # transpose list of ColumnStatistics objects to ColumnStatistics object with lists
-    all_stats = ColumnStatistics()
-    for field in ColumnStatistics._fields:
-        all_values = [
-            getattr(column_stats, field, None) for column_stats in all_column_stats
-        ]
-        setattr(all_stats, field, all_values)
+    if use_local_summary:
+        for run_set_result, run_set_stats in zip(run_set_results, all_column_stats):
+            statistics.add_local_summary_statistics(run_set_result, run_set_stats)
 
-    max_score, count_true, count_false = get_stats_of_rows(rows)
-    task_counts = (
-        "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
-        if count_true or count_false
-        else ""
-    )
-
-    if max_score:
-        score_row = dict(  # noqa: C408
-            id="score",
-            title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
-            description=task_counts,
-            content=all_stats.score,
-        )
-
-    if local_summary:
-        summary_row = dict(  # noqa: C408
-            id=None,
-            title="local summary",
-            description="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
-            content=local_summary,
-        )
-
-    def indent(n):
-        return "&nbsp;" * (n * 4)
-
-    stats_info_correct = [
-        dict(  # noqa: C408
-            id=None,
-            title=indent(1) + "correct results",
-            description="(property holds + result is true) OR (property does not hold + result is false)",
-            content=all_stats.correct,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "correct true",
-            description="property holds + result is true",
-            content=all_stats.correct_true,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "correct false",
-            description="property does not hold + result is false",
-            content=all_stats.correct_false,
-        ),
-    ]
-    stats_info_correct_unconfirmed = [
-        dict(  # noqa: C408
-            id=None,
-            title=indent(1) + "correct-unconfimed results",
-            description="(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
-            content=all_stats.correct_unconfirmed,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "correct-unconfirmed true",
-            description="property holds + result is true, but unconfirmed",
-            content=all_stats.correct_unconfirmed_true,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "correct-unconfirmed false",
-            description="property does not hold + result is false, but unconfirmed",
-            content=all_stats.correct_unconfirmed_false,
-        ),
-    ]
-    stats_info_wrong = [
-        dict(  # noqa: C408
-            id=None,
-            title=indent(1) + "incorrect results",
-            description="(property holds + result is false) OR (property does not hold + result is true)",
-            content=all_stats.wrong,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "incorrect true",
-            description="property does not hold + result is true",
-            content=all_stats.wrong_true,
-        ),
-        dict(  # noqa: C408
-            id=None,
-            title=indent(2) + "incorrect false",
-            description="property holds + result is false",
-            content=all_stats.wrong_false,
-        ),
-    ]
-    if _contains_unconfirmed_results(all_stats):
-        stats_info = (
-            stats_info_correct + stats_info_correct_unconfirmed + stats_info_wrong
-        )
-    elif count_true or count_false:
-        stats_info = stats_info_correct + stats_info_wrong
-    else:
-        stats_info = []
-    return (
-        [
-            dict(  # noqa: C408
-                id=None,
-                title="total",
-                description=task_counts,
-                content=all_stats.total,
-            )
-        ]
-        + ([summary_row] if local_summary else [])
-        + stats_info
-        + ([score_row] if max_score else [])
-    )
+    return all_column_stats
 
 
 def get_regression_count(rows, ignoreFlappingTimeouts):  # for options.dump_counts
@@ -1495,10 +1353,9 @@ def create_tables(
 
         # calculate statistics if necessary
         if not options.format == ["csv"]:
-            local_summary = (
-                statistics.get_summary(runSetResults) if use_local_summary else None
+            local_data.stats = compute_stats(
+                rows, runSetResults, use_local_summary, options.correct_only
             )
-            local_data.stats = get_stats(rows, local_summary, options.correct_only)
 
         for template_format in options.format or TEMPLATE_FORMATS:
             if outputFilePattern == "-":
