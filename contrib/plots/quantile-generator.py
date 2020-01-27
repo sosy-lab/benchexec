@@ -26,12 +26,10 @@ import argparse
 import itertools
 import sys
 
-import benchexec.result as result
-import benchexec.tablegenerator as tablegenerator
+from benchexec import result, tablegenerator
+from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-Util = tablegenerator.Util
 
 
 def get_extract_value_function(column_identifier):
@@ -47,7 +45,7 @@ def get_extract_value_function(column_identifier):
                 break
         if pos is None:
             sys.exit("CPU time missing for task {0}.".format(run_result.task_id[0]))
-        return Util.to_decimal(run_result.values[pos])
+        return util.to_decimal(run_result.values[pos])
 
     return extract_value
 
@@ -164,7 +162,7 @@ def main(args=None):
         columns = itertools.chain(
             [index],
             (id for id, show in zip(run_result.id, relevant_id_columns) if show),
-            map(Util.remove_unit, (value or "" for value in run_result.values)),
+            map(util.remove_unit, (value or "" for value in run_result.values)),
         )
         print(*columns, sep="\t")
 
