@@ -1058,16 +1058,9 @@ def filter_rows_with_differences(rows):
     return rowsDiff
 
 
-def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
-
-    # This list contains the number of columns each run set has
-    # (the width of a run set in the final table)
-    # It is used for calculating the column spans of the header cells.
-    runSetWidths = [len(runSetResult.columns) for runSetResult in runSetResults]
-
+def format_run_set_attributes_nicely(runSetResults):
+    """Replace the attributes of each RunSetResult with nicely formatted strings."""
     for runSetResult in runSetResults:
-        # Ugly because this overwrites the entries in the map,
-        # but we don't need them anymore and this is the easiest way
         for key in runSetResult.attributes:
             values = runSetResult.attributes[key]
             if key == "turbo":
@@ -1132,6 +1125,32 @@ def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
 
             else:
                 runSetResult.attributes[key] = util.prettylist(values)
+
+    # compute nice name of each run set for displaying
+    firstBenchmarkName = runSetResults[0].attributes["benchmarkname"]
+    allBenchmarkNamesEqual = all(
+        r.attributes["benchmarkname"] == firstBenchmarkName for r in runSetResults
+    )
+
+    for runSetResult in runSetResults:
+        benchmarkName = runSetResult.attributes["benchmarkname"]
+        name = runSetResult.attributes["name"]
+
+        if not name:
+            niceName = benchmarkName
+        elif allBenchmarkNamesEqual:
+            niceName = name
+        else:
+            niceName = benchmarkName + "." + name
+
+        runSetResult.attributes["niceName"] = niceName
+
+
+def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
+    # This list contains the number of columns each run set has
+    # (the width of a run set in the final table)
+    # It is used for calculating the column spans of the header cells.
+    runSetWidths = [len(runSetResult.columns) for runSetResult in runSetResults]
 
     def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
         def format_cell(attributes):
@@ -1319,23 +1338,9 @@ def create_tables(
     for row in rows:
         Row.set_relative_path(row, common_prefix, outputPath)
 
-    # compute nice name of each run set for displaying
-    firstBenchmarkName = util.prettylist(runSetResults[0].attributes["benchmarkname"])
-    allBenchmarkNamesEqual = all(
-        util.prettylist(r.attributes["benchmarkname"]) == firstBenchmarkName
-        for r in runSetResults
-    )
-    for r in runSetResults:
-        if not r.attributes["name"]:
-            r.attributes["niceName"] = r.attributes["benchmarkname"]
-        elif allBenchmarkNamesEqual:
-            r.attributes["niceName"] = r.attributes["name"]
-        else:
-            r.attributes["niceName"] = [
-                util.prettylist(r.attributes["benchmarkname"])
-                + "."
-                + util.prettylist(r.attributes["name"])
-            ]
+    # Ugly because this overwrites the entries in the attributes of RunSetResult,
+    # but we don't need them anymore and this is the easiest way
+    format_run_set_attributes_nicely(runSetResults)
 
     relevant_id_columns = select_relevant_id_columns(rows)
     data = types.SimpleNamespace(
