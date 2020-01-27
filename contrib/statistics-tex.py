@@ -29,6 +29,7 @@ import multiprocessing
 from functools import partial
 
 from benchexec import tablegenerator
+from benchexec.tablegenerator.statistics import StatValue
 from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -81,8 +82,8 @@ class StatAccumulator(object):
         self.walltime_values.append(extract_walltime(result))
 
     def to_latex(self, name_parts):
-        cputime_stats = tablegenerator.StatValue.from_list(self.cputime_values)
-        walltime_stats = tablegenerator.StatValue.from_list(self.walltime_values)
+        cputime_stats = StatValue.from_list(self.cputime_values)
+        walltime_stats = StatValue.from_list(self.walltime_values)
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))

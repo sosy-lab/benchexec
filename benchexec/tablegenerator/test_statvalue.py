@@ -20,7 +20,7 @@ from decimal import Decimal
 import sys
 import unittest
 
-from benchexec.tablegenerator import StatValue
+from benchexec.tablegenerator.statistics import StatValue
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
