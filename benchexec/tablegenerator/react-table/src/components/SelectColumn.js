@@ -51,11 +51,85 @@ export default class SelectColumn extends React.Component {
     });
   };
 
+  orderData = () => {
+    let arrayColumns = [];
+    let columns = [];
+    for (let i = 0; i < this.state.list.length; i++) {
+      for (let j = 0; j < this.state.list[i].columns.length; j++) {
+        switch (this.state.list[i].columns[j].display_title) {
+          case "status":
+            columns[0] = {
+              display_title: "status",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "category":
+            columns[1] = {
+              display_title: "category",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "score":
+            columns[2] = {
+              display_title: "score",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "cputime":
+            columns[3] = {
+              display_title: "cputime",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "setup":
+            columns[4] = {
+              display_title: "setup",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "non-existent":
+            columns[5] = {
+              display_title: "non-existent",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "SMT time":
+            columns[6] = {
+              display_title: "SMT time",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "variable count":
+            columns[7] = {
+              display_title: "variable count",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          case "analysis":
+            columns[8] = {
+              display_title: "analysis",
+              isVisible: this.state.list[i].columns[j].isVisible
+            };
+            break;
+          default:
+        }
+      }
+      for (let y = 0; y < columns.length; y++) {
+        if (columns[y] == null) {
+          columns[y] = { display_title: "", isVisible: true };
+        }
+      }
+      arrayColumns.push({ columns });
+      columns = [];
+    }
+    return arrayColumns;
+  };
+
   renderColumns = index => {
-    return this.state.list[index].columns.map(column => (
+    return this.orderData()[index].columns.map(column => (
       <td
         id={"td" + index + column.display_title}
-        key={"key" + index + column.display_title}
+        key={"key" + index + Math.random() + column.display_title}
         className={column.isVisible ? "checked" : ""}
       >
         <label>
