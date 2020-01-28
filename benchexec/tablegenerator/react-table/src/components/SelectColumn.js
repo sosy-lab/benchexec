@@ -62,7 +62,8 @@ export default class SelectColumn extends React.Component {
           if (headerRow.display_title === column.display_title) {
             idxColumn.push({
               display_title: column.display_title,
-              isVisible: column.isVisible
+              isVisible: column.isVisible,
+              key: idx * i.max_width
             });
           } else if (
             idx === length - 1 &&
@@ -72,7 +73,8 @@ export default class SelectColumn extends React.Component {
           ) {
             idxColumn.push({
               display_title: "",
-              isVisible: false
+              isVisible: false,
+              key: idx * headerRow.max_width
             });
           }
         });
@@ -83,7 +85,7 @@ export default class SelectColumn extends React.Component {
     return this.listTable[index].columns.map(column => (
       <td
         id={"td" + index + column.display_title}
-        key={"key" + index + Math.random() + column.display_title}
+        key={"key" + column.key + column.display_title}
         className={column.isVisible ? "checked" : ""}
       >
         <label>
