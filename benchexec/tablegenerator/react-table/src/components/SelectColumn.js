@@ -53,30 +53,33 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-
-    this.listTable=[];
-    let column2 = [];
+    this.listTable = [];
+    let idxColumn = [];
     this.state.list.forEach(tool => {
-      this.selectable.forEach(column1 => {
+      this.selectable.forEach(headerRow => {
         let length = tool.columns.length;
-        tool.columns.forEach(function (column, idx, i) {
-          if (
-            column1.display_title === column.display_title
+        tool.columns.forEach(function(column, idx, i) {
+          if (headerRow.display_title === column.display_title) {
+            idxColumn.push({
+              display_title: column.display_title,
+              isVisible: column.isVisible
+            });
+          } else if (
+            idx === length - 1 &&
+            idxColumn
+              .map(elem => elem.display_title.includes(headerRow.display_title))
+              .includes(true) === false
           ) {
-            column2.push({ display_title: column.display_title, isVisible: column.isVisible });
-          } else if (idx === length - 1) {
-           if(column2.map((elem) => (elem.display_title.includes(column1.display_title))).includes(true)){
-
-           }else{
-            column2.push({ display_title: "", isVisible: true })
-           }
+            idxColumn.push({
+              display_title: "",
+              isVisible: false
+            });
           }
         });
       });
-      this.listTable.push({columns: column2});
-      column2 = [];
+      this.listTable.push({ columns: idxColumn });
+      idxColumn = [];
     });
-
     return this.listTable[index].columns.map(column => (
       <td
         id={"td" + index + column.display_title}
