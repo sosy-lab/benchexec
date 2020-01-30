@@ -52,38 +52,34 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    let listTable = [];
-    let idxColumn = [];
-    this.state.list.forEach(tool => {
-      this.selectable.forEach(headerRow => {
-        let length = tool.columns.length;
-        tool.columns.forEach(function(column, idx, i) {
-          if (headerRow.display_title === column.display_title) {
-            idxColumn.push({
-              display_title: column.display_title,
-              isVisible: column.isVisible,
-              key: idx * i.max_width
-            });
-          } else if (
-            idx === length - 1 &&
-            idxColumn
-              .map(elem => elem.display_title.includes(headerRow.display_title))
-              .includes(true) === false
-          ) {
-            idxColumn.push({
-              display_title: "",
-              isVisible: false,
-              key: idx * headerRow.max_width
-            });
-          }
-        });
+    const self = this;
+    const idxColumn = [];
+    const length = this.state.list[index].columns.length;
+    this.selectable.forEach(function(headerRow, idxHeader) {
+      self.state.list[index].columns.forEach(function(column, idx) {
+        if (headerRow.display_title === column.display_title) {
+          idxColumn.push({
+            display_title: column.display_title,
+            isVisible: column.isVisible,
+            key: idxHeader
+          });
+        } else if (
+          idx === length - 1 &&
+          idxColumn
+            .map(elem => elem.display_title.includes(headerRow.display_title))
+            .includes(true) === false
+        ) {
+          idxColumn.push({
+            display_title: "",
+            isVisible: false,
+            key: idxHeader
+          });
+        }
       });
-      listTable.push({ columns: idxColumn });
-      idxColumn = [];
     });
-    return listTable[index].columns.map(column => (
+    return idxColumn.map(column => (
       <td
-        id={"td" + index + column.display_title}
+        id={"td" + column.key + column.display_title}
         key={"key" + column.key + column.display_title}
         className={column.isVisible ? "checked" : ""}
       >
