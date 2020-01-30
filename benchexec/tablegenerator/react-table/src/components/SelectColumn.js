@@ -79,7 +79,7 @@ export default class SelectColumn extends React.Component {
     });
     return idxColumn.map(column => (
       <td
-        id={"td" + column.key + column.display_title}
+        id={"td" + index + column.display_title}
         key={"key" + column.key + column.display_title}
         className={column.isVisible ? "checked" : ""}
       >
