@@ -18,7 +18,6 @@ export default class SelectColumn extends React.Component {
       list: [...this.props.tools]
     };
     this.selectable = [];
-    this.listTable = [];
   }
 
   // -------------------------Rendering-------------------------
@@ -53,7 +52,7 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    this.listTable = [];
+    let listTable = [];
     let idxColumn = [];
     this.state.list.forEach(tool => {
       this.selectable.forEach(headerRow => {
@@ -79,10 +78,10 @@ export default class SelectColumn extends React.Component {
           }
         });
       });
-      this.listTable.push({ columns: idxColumn });
+      listTable.push({ columns: idxColumn });
       idxColumn = [];
     });
-    return this.listTable[index].columns.map(column => (
+    return listTable[index].columns.map(column => (
       <td
         id={"td" + index + column.display_title}
         key={"key" + column.key + column.display_title}
