@@ -53,43 +53,36 @@ export default class SelectColumn extends React.Component {
 
   renderColumns = index => {
     const idxRow = [];
+    const self = this;
     const columns = this.state.list[index].columns;
     this.selectable.forEach(function(headerRow, idxHeader) {
-      const found = columns.find(
+      const column = columns.find(
         el => el.display_title === headerRow.display_title
       );
-      if (found !== undefined) {
-        idxRow.push({
-          display_title: headerRow.display_title,
-          isVisible: found.isVisible,
-          key: idxHeader
-        });
+      if (column !== undefined) {
+        idxRow.push(
+          <td
+            id={"td" + index + column.display_title}
+            key={"key" + idxHeader + column.display_title}
+            className={column.isVisible ? "checked" : ""}
+          >
+            <label>
+              {column.display_title}
+              <input
+                id={index + "--" + column.display_title}
+                name={index + "--" + column.display_title}
+                type="checkbox"
+                checked={column.isVisible}
+                onChange={self.handleSelecion}
+              ></input>
+            </label>
+          </td>
+        );
       } else {
-        idxRow.push({
-          display_title: "",
-          isVisible: false,
-          key: idxHeader
-        });
+        idxRow.push(<td key={idxHeader}></td>);
       }
     });
-    return idxRow.map(column => (
-      <td
-        id={"td" + index + column.display_title}
-        key={"key" + column.key + column.display_title}
-        className={column.isVisible ? "checked" : ""}
-      >
-        <label>
-          {column.display_title}
-          <input
-            id={index + "--" + column.display_title}
-            name={index + "--" + column.display_title}
-            type="checkbox"
-            checked={column.isVisible}
-            onChange={this.handleSelecion}
-          ></input>
-        </label>
-      </td>
-    ));
+    return idxRow;
   };
 
   renderSelectColumns = () => {
