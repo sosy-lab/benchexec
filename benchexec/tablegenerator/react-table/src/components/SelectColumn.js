@@ -23,10 +23,7 @@ export default class SelectColumn extends React.Component {
   // -------------------------Rendering-------------------------
   renderRunSets = () => {
     return this.state.list.map((tool, i) => {
-      let isVisible =
-        this.state.list[i].columns.findIndex(
-          value => value.isVisible === true
-        ) > -1;
+      const isVisible = tool.columns.some(value => value.isVisible === true);
       let toolName = getRunSetName(tool);
       return (
         <tr id={toolName} key={"tr" + toolName}>
@@ -76,15 +73,15 @@ export default class SelectColumn extends React.Component {
     this.state.list.forEach(tool => {
       tool.columns.forEach(column => {
         if (
-          this.selectable.findIndex(
+          !this.selectable.some(
             value => value.display_title === column.display_title
-          ) < 0
+          )
         ) {
           this.selectable.push(column);
         }
       });
     });
-    return this.selectable.map((column, i) => {
+    return this.selectable.map(column => {
       const isVisible = this.state.list.some(tool =>
         tool.columns.some(
           col =>
@@ -115,12 +112,11 @@ export default class SelectColumn extends React.Component {
   handleSelecion = ({ target }) => {
     const [tool, column] = target.name.split("--");
     const value = target.type === "checkbox" ? target.checked : target.value;
-    const index = this.state.list[tool].columns.findIndex(
-      el => el.display_title === column
-    );
     const list = [...this.state.list];
 
-    list[tool].columns[index].isVisible = value;
+    list[tool].columns.find(
+      el => el.display_title === column
+    ).isVisible = value;
 
     this.checkTools(list);
   };
@@ -130,11 +126,9 @@ export default class SelectColumn extends React.Component {
     const list = [...this.state.list];
 
     list.forEach(tool => {
-      const index = tool.columns.findIndex(
-        el => el.display_title === target.name
-      );
-      if (tool.columns[index]) {
-        tool.columns[index].isVisible = value;
+      const column = tool.columns.find(el => el.display_title === target.name);
+      if (column) {
+        column.isVisible = value;
       }
     });
 
@@ -168,7 +162,7 @@ export default class SelectColumn extends React.Component {
 
   checkTools = list => {
     list.forEach(tool => {
-      tool.isVisible = tool.columns.findIndex(column => column.isVisible) >= 0;
+      tool.isVisible = tool.columns.some(column => column.isVisible);
     });
 
     this.setState({ list });
