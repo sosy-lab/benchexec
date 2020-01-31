@@ -85,20 +85,24 @@ export default class SelectColumn extends React.Component {
       });
     });
     return this.selectable.map((column, i) => {
-      //column.isVisible === all columns true
-      //in all tools => in Tool: column with column.title? => isVisible?
+      const isVisible = this.state.list.some(tool =>
+        tool.columns.some(
+          col =>
+            col.isVisible === true && col.display_title === column.display_title
+        )
+      );
       return (
         <th
           id={"td-all-" + column.display_title}
           key={"key" + column.display_title}
-          className={column.isVisible ? "checked" : ""}
+          className={isVisible ? "checked" : ""}
         >
           <label>
             {column.display_title}
             <input
               name={column.display_title}
               type="checkbox"
-              checked={column.isVisible}
+              checked={isVisible}
               onChange={this.handleSelectColumns}
             ></input>
           </label>
