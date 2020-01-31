@@ -52,15 +52,14 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    const idxRow = [];
     const self = this;
     const columns = this.state.list[index].columns;
-    this.selectable.forEach(function(headerRow, idxHeader) {
+    return this.selectable.map(function(headerRow, idxHeader) {
       const column = columns.find(
         el => el.display_title === headerRow.display_title
       );
       if (column !== undefined) {
-        idxRow.push(
+        return (
           <td
             id={"td" + index + column.display_title}
             key={"key" + idxHeader + column.display_title}
@@ -79,10 +78,9 @@ export default class SelectColumn extends React.Component {
           </td>
         );
       } else {
-        idxRow.push(<td key={idxHeader}></td>);
+        return <td key={idxHeader}></td>;
       }
     });
-    return idxRow;
   };
 
   renderSelectColumns = () => {
