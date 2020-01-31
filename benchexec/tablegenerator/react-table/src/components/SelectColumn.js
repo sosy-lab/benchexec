@@ -52,30 +52,30 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    const idxColumn = [];
+    const idxRow = [];
     const length = this.state.list[index].columns.length;
-    const column = this.state.list[index].columns;
+    const columns = this.state.list[index].columns;
     this.selectable.forEach(function(headerRow, idxHeader) {
       const idxList = idxHeader < length ? idxHeader : length - 1;
       if (
-        column
+        columns
           .map(elem => elem.display_title.includes(headerRow.display_title))
           .includes(true)
       ) {
-        idxColumn.push({
+        idxRow.push({
           display_title: headerRow.display_title,
-          isVisible: column[idxList].isVisible,
+          isVisible: columns[idxList].isVisible,
           key: idxHeader
         });
       } else {
-        idxColumn.push({
+        idxRow.push({
           display_title: "",
           isVisible: false,
           key: idxHeader
         });
       }
     });
-    return idxColumn.map(column => (
+    return idxRow.map(column => (
       <td
         id={"td" + index + column.display_title}
         key={"key" + column.key + column.display_title}
