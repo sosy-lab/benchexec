@@ -52,9 +52,8 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    const self = this;
     const columns = this.state.list[index].columns;
-    return this.selectable.map(function(headerRow, idxHeader) {
+    return this.selectable.map((headerRow, idxHeader) => {
       const column = columns.find(
         el => el.display_title === headerRow.display_title
       );
@@ -72,7 +71,7 @@ export default class SelectColumn extends React.Component {
                 name={index + "--" + column.display_title}
                 type="checkbox"
                 checked={column.isVisible}
-                onChange={self.handleSelecion}
+                onChange={this.handleSelecion}
               ></input>
             </label>
           </td>
