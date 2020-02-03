@@ -27,7 +27,7 @@ export default class QuantilePlot extends React.Component {
       : this.props.tools
           .map(tool => tool.columns)
           .flat()
-          .find(col => col.isVisible);
+          .some(col => col.isVisible);
 
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
@@ -48,7 +48,7 @@ export default class QuantilePlot extends React.Component {
 
   relevantRunSet = tool =>
     tool.isVisible &&
-    tool.columns.find(c => c.display_title === this.state.selection);
+    tool.columns.some(c => c.display_title === this.state.selection);
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
@@ -166,9 +166,9 @@ export default class QuantilePlot extends React.Component {
       tool.columns.forEach(column => {
         if (
           column.isVisible &&
-          this.possibleValues.findIndex(
+          !this.possibleValues.some(
             value => value.display_title === column.display_title
-          ) < 0
+          )
         ) {
           this.possibleValues.push(column);
         }
@@ -258,15 +258,9 @@ export default class QuantilePlot extends React.Component {
   handleColumn = ev => {
     this.setState({
       selection: ev.target.value,
-      isValue:
-        this.props.tools
-          .map(
-            tool =>
-              tool.columns.findIndex(
-                value => value.display_title === ev.target.value
-              ) >= 0
-          )
-          .findIndex(value => value === true) >= 0
+      isValue: this.props.tools.some(tool =>
+        tool.columns.some(value => value.display_title === ev.target.value)
+      )
     });
   };
   toggleQuantile = () => {
