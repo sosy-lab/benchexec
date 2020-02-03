@@ -49,24 +49,34 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    return this.state.list[index].columns.map(column => (
-      <td
-        id={"td" + index + column.display_title}
-        key={"key" + index + column.display_title}
-        className={column.isVisible ? "checked" : ""}
-      >
-        <label>
-          {column.display_title}
-          <input
-            id={index + "--" + column.display_title}
-            name={index + "--" + column.display_title}
-            type="checkbox"
-            checked={column.isVisible}
-            onChange={this.handleSelecion}
-          ></input>
-        </label>
-      </td>
-    ));
+    const columns = this.state.list[index].columns;
+    return this.selectable.map((headerRow, idxHeader) => {
+      const column = columns.find(
+        el => el.display_title === headerRow.display_title
+      );
+      if (column !== undefined) {
+        return (
+          <td
+            id={"td" + index + column.display_title}
+            key={"key" + idxHeader + column.display_title}
+            className={column.isVisible ? "checked" : ""}
+          >
+            <label>
+              {column.display_title}
+              <input
+                id={index + "--" + column.display_title}
+                name={index + "--" + column.display_title}
+                type="checkbox"
+                checked={column.isVisible}
+                onChange={this.handleSelecion}
+              ></input>
+            </label>
+          </td>
+        );
+      } else {
+        return <td key={idxHeader}></td>;
+      }
+    });
   };
 
   renderSelectColumns = () => {
