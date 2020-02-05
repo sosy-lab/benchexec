@@ -11,7 +11,8 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import "react-tabs/style/react-tabs.css";
+// TODO completely replace css
+//import "react-tabs/style/react-tabs.css";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
