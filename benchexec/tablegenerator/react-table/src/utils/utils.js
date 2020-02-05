@@ -142,8 +142,12 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#B3AD9E"
 ];
 
-const getHashSearch = () => {
-  const urlParts = document.location.href.split("?");
+/**
+ * 
+ * @param {String} [str] 
+ */
+const getHashSearch = (str) => {
+  const urlParts = (str || document.location.href).split("?");
   const search = urlParts.length > 1 ? urlParts[1] : undefined;
   if(search === undefined || search.length === 0) {
     return {};
@@ -157,11 +161,22 @@ const getHashSearch = () => {
   return out;
 }
 
-const setHashSearch = (params = {}) => {
-  const url = document.location.href.split("?")[0];
+/**
+ * 
+ * @param {Object} params Object containing the params to be encoded as query params
+ * @param {Boolean} [returnString] if true, only returns the url without setting it
+ */
+const setHashSearch = (params = {}, options = {returnString: false, baseUrl: null}) => {
+  const optionTemplate = {returnString: false, baseUrl: null};
+  const {returnString, baseUrl} = {...optionTemplate, ...options};
+  const url = (baseUrl || document.location.href).split("?")[0];
   const pairs = Object.keys(params).map(key => `${key}=${params[key]}`);
   const searchString = `?${pairs.join("&")}`;
-  document.location.href = `${url}${searchString}`;
+  const hrefString = `${url}${searchString}`
+  if(returnString) {
+    return hrefString;
+  }
+  document.location.href = hrefString;
 }
 
 
