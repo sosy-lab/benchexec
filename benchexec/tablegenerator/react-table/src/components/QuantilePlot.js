@@ -27,6 +27,10 @@ const getQuery = () => {
   return params;
 }
 
+const setParam = (param) => {
+  setHashSearch({...getHashSearch(), ...param});
+}
+
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
@@ -35,7 +39,7 @@ export default class QuantilePlot extends React.Component {
 
     console.log(queryProps);
 
-    const metric = queryProps.metric;
+    const {metric, quantile, linear, correct} = queryProps;
 
     console.log(this.props.tools.map(tool => tool.columns).flat());
 
@@ -54,9 +58,9 @@ export default class QuantilePlot extends React.Component {
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
       selection: visibleColumn && visibleColumn.display_title,
-      quantile: true,
-      linear: false,
-      correct: true,
+      quantile: quantile || true,
+      linear: linear || false,
+      correct: correct || true,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: []
     };
@@ -278,7 +282,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = ev => {
-    setHashSearch({...getHashSearch(), metric: ev.target.value});
+   setParam({metric: ev.target.value});
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>
@@ -287,16 +291,19 @@ export default class QuantilePlot extends React.Component {
     });
   };
   toggleQuantile = () => {
+    setParam({quantile: !this.state.quantile});
     this.setState(prevState => ({
       quantile: !prevState.quantile
     }));
   };
   toggleCorrect = () => {
+    setParam({correct: !this.state.correct});
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
+    setParam({linear: !this.state.linear});
     this.setState(prevState => ({
       linear: !prevState.linear
     }));
