@@ -101,6 +101,7 @@ $table-border: 1px solid $border-color;
       border-radius: 8px 8px 0 0;
       background: rgba(255, 255, 255, 0.5);
       font-size: 14px;
+      text-decoration: none;
       &--selected {
         background: white;
       }
@@ -109,6 +110,7 @@ $table-border: 1px solid $border-color;
   .react-tabs__tab-panel {
     padding-top: 43px;
     background: white;
+    display: block;
   }
   button {
     cursor: pointer;
