@@ -18,12 +18,30 @@ import {
 } from "react-vis";
 import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
 
+
+const getQuery = () => {
+  let searchRaw = window.location.hash.split("?");
+  const search = searchRaw.length > 1 ? searchRaw[1] : "";
+  let params = new URLSearchParams(search);
+  console.log(`search: ${search}, params: ${params}`)
+  return params;
+}
+
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
 
-    const visibleColumn = this.props.preSelection.isVisible
-      ? this.props.preSelection
+    const metric = getQuery().get("metric");
+
+    console.log(this.props.tools.map(tool => tool.columns).flat());
+
+    const parameterSelection = metric ? this.props.tools.map(tool => tool.columns).flat()
+      .find(col =>  col.display_title === metric) : this.props.preSelection;
+
+    console.log(parameterSelection);
+
+    const visibleColumn = parameterSelection.isVisible
+      ? parameterSelection
       : this.props.tools
           .map(tool => tool.columns)
           .flat()
