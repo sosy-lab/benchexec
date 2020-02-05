@@ -16,7 +16,7 @@ import {
   DiscreteColorLegend,
   Hint
 } from "react-vis";
-import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
+import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE, setHashSearch, getHashSearch } from "../utils/utils";
 
 
 const getQuery = () => {
@@ -31,7 +31,11 @@ export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
 
-    const metric = getQuery().get("metric");
+    const queryProps = getHashSearch();
+
+    console.log(queryProps);
+
+    const metric = queryProps.metric;
 
     console.log(this.props.tools.map(tool => tool.columns).flat());
 
@@ -274,6 +278,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = ev => {
+    setHashSearch({...getHashSearch(), metric: ev.target.value});
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>

@@ -142,6 +142,29 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#B3AD9E"
 ];
 
+const getHashSearch = () => {
+  const urlParts = document.location.href.split("?");
+  const search = urlParts.length > 1 ? urlParts[1] : undefined;
+  if(search === undefined || search.length === 0) {
+    return {};
+  }
+  const keyValuePairs = search.split("&").map(i => i.split("="));
+
+  const out = {};
+  for(const [key, value] of keyValuePairs) {
+    out[key] = value;
+  }
+  return out;
+}
+
+const setHashSearch = (params = {}) => {
+  const url = document.location.href.split("?")[0];
+  const pairs = Object.keys(params).map(key => `${key}=${params[key]}`);
+  const searchString = `?${pairs.join("&")}`;
+  document.location.href = `${url}${searchString}`;
+}
+
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -155,5 +178,7 @@ export {
   getRunSetName,
   isOkStatus,
   isNil,
-  EXTENDED_DISCRETE_COLOR_RANGE
+  EXTENDED_DISCRETE_COLOR_RANGE,
+  getHashSearch,
+  setHashSearch
 };
