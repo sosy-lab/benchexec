@@ -18,9 +18,9 @@ import {
 } from "react-vis";
 import { getRunSetName, setHashSearch, getHashSearch } from "../utils/utils";
 
-const setParam = (param) => {
-  setHashSearch({...getHashSearch(), ...param});
-}
+const setParam = param => {
+  setHashSearch({ ...getHashSearch(), ...param });
+};
 
 export default class ScatterPlot extends React.Component {
   constructor(props) {
@@ -29,9 +29,12 @@ export default class ScatterPlot extends React.Component {
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
     const {
-      correct: rawCorrect, 
-      linear: rawLinear, 
-      dataX, dataY, line} = getHashSearch();
+      correct: rawCorrect,
+      linear: rawLinear,
+      dataX,
+      dataY,
+      line
+    } = getHashSearch();
 
     const correct = Boolean(rawCorrect);
     const linear = Boolean(rawLinear);
@@ -53,11 +56,11 @@ export default class ScatterPlot extends React.Component {
       height: window.innerHeight
     };
 
-    if(dataX) {
-      this.state = {...this.state, ...this.extractAxisInfo(dataX, "X")}
+    if (dataX) {
+      this.state = { ...this.state, ...this.extractAxisInfo(dataX, "X") };
     }
-    if(dataY) {
-      this.state = {...this.state, ...this.extractAxisInfo(dataY, "Y")}
+    if (dataY) {
+      this.state = { ...this.state, ...this.extractAxisInfo(dataY, "Y") };
     }
 
     this.lineValues = [
@@ -190,13 +193,13 @@ export default class ScatterPlot extends React.Component {
     }
   };
   toggleCorrectResults = () => {
-    setParam({correct: !this.state.correct})
+    setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
-    setParam({linear: !this.state.linear})
+    setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
       linear: !prevState.linear
     }));
@@ -212,16 +215,16 @@ export default class ScatterPlot extends React.Component {
         getRunSetName(this.props.tools[split[0]]) +
         " " +
         this.props.columns[split[0]][split[1]]
-    }
-  }
+    };
+  };
 
   handleAxis = (ev, axis) => {
     this.array = [];
-    setParam({[`data${axis}`]: ev.target.value})
+    setParam({ [`data${axis}`]: ev.target.value });
     this.setState(this.extractAxisInfo(ev.target.value, axis));
   };
   handleLine = ({ target }) => {
-    setParam({line: target.value})
+    setParam({ line: target.value });
     this.setState({
       line: target.value
     });

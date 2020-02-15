@@ -5,12 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
-import {
-  HashRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -23,14 +18,18 @@ import { prepareTableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
-
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
   { key: "table", title: "Table", path: "/table" },
   { key: "quantile", title: "Quantile Plot", path: "/quantile" },
   { key: "scatter", title: "Scatter Plot", path: "/scatter" },
-  { key: "info", title: "Info", path: "/info", icon: <FontAwesomeIcon icon={faQuestionCircle} /> },
-]
+  {
+    key: "info",
+    title: "Info",
+    path: "/info",
+    icon: <FontAwesomeIcon icon={faQuestionCircle} />
+  }
+];
 
 export default class Overview extends React.Component {
   constructor(props) {
@@ -113,7 +112,6 @@ export default class Overview extends React.Component {
   };
 
   render() {
-
     return (
       <div className="App">
         <main>
@@ -121,16 +119,17 @@ export default class Overview extends React.Component {
             <div className="overview">
               <div className="overview-container">
                 <div className="menu">
-                  {
-                    menuItems.map(({ key, title, path, icon }) =>
-                      <Link
-                        className={`menu-item ${this.state.active === key ? 'selected' : ''}`}
-                        to={path}
-                        onClick={() => this.setState(() => ({ active: key }))}>
-                        {title} {icon || ''}
-                      </Link>
-                    )
-                  }
+                  {menuItems.map(({ key, title, path, icon }) => (
+                    <Link
+                      className={`menu-item ${
+                        this.state.active === key ? "selected" : ""
+                      }`}
+                      to={path}
+                      onClick={() => this.setState(() => ({ active: key }))}
+                    >
+                      {title} {icon || ""}
+                    </Link>
+                  ))}
                   <Reset
                     isFiltered={!!this.state.filtered.length}
                     resetFilters={this.resetFilters}

@@ -16,12 +16,16 @@ import {
   DiscreteColorLegend,
   Hint
 } from "react-vis";
-import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE, setHashSearch, getHashSearch } from "../utils/utils";
+import {
+  getRunSetName,
+  EXTENDED_DISCRETE_COLOR_RANGE,
+  setHashSearch,
+  getHashSearch
+} from "../utils/utils";
 
-
-const setParam = (param) => {
-  setHashSearch({...getHashSearch(), ...param});
-}
+const setParam = param => {
+  setHashSearch({ ...getHashSearch(), ...param });
+};
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
@@ -29,16 +33,14 @@ export default class QuantilePlot extends React.Component {
 
     const queryProps = getHashSearch();
 
-    console.log(queryProps);
+    const { metric, quantile, linear, correct } = queryProps;
 
-    const {metric, quantile, linear, correct} = queryProps;
-
-    console.log(this.props.tools.map(tool => tool.columns).flat());
-
-    const parameterSelection = metric ? this.props.tools.map(tool => tool.columns).flat()
-      .find(col =>  col.display_title === metric) : this.props.preSelection;
-
-    console.log(parameterSelection);
+    const parameterSelection = metric
+      ? this.props.tools
+          .map(tool => tool.columns)
+          .flat()
+          .find(col => col.display_title === metric)
+      : this.props.preSelection;
 
     const visibleColumn = parameterSelection.isVisible
       ? parameterSelection
@@ -274,7 +276,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = ev => {
-   setParam({metric: ev.target.value});
+    setParam({ metric: ev.target.value });
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>
@@ -283,19 +285,19 @@ export default class QuantilePlot extends React.Component {
     });
   };
   toggleQuantile = () => {
-    setParam({quantile: !this.state.quantile});
+    setParam({ quantile: !this.state.quantile });
     this.setState(prevState => ({
       quantile: !prevState.quantile
     }));
   };
   toggleCorrect = () => {
-    setParam({correct: !this.state.correct});
+    setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
-    setParam({linear: !this.state.linear});
+    setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
       linear: !prevState.linear
     }));
