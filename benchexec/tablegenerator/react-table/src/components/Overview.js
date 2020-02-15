@@ -31,6 +31,8 @@ const menuItems = [
   }
 ];
 
+const getCurrentPath = () => document.location.hash.substr(1);
+
 export default class Overview extends React.Component {
   constructor(props) {
     super(props);
@@ -59,7 +61,7 @@ export default class Overview extends React.Component {
       filtered: [],
       tabIndex: 0,
 
-      active: "summary",
+      active: menuItems.find(i => i.path === getCurrentPath()).key,
 
       quantilePreSelection: tools[0].columns[1]
     };
