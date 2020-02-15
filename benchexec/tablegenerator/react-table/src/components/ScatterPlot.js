@@ -16,7 +16,11 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
-import { getRunSetName } from "../utils/utils";
+import { getRunSetName, setHashSearch, getHashSearch } from "../utils/utils";
+
+const setParam = (param) => {
+  setHashSearch({...getHashSearch(), ...param});
+}
 
 export default class ScatterPlot extends React.Component {
   constructor(props) {
@@ -24,14 +28,22 @@ export default class ScatterPlot extends React.Component {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
+    const {
+      correct: rawCorrect, 
+      linear: rawLinear, 
+      dataX, dataY, line} = getHashSearch();
+
+    const correct = Boolean(rawCorrect);
+    const linear = Boolean(rawLinear);
+
     this.state = {
       dataX: "0-1",
       dataY: "0-1",
-      correct: true,
-      linear: false,
+      correct: typeof correct === "boolean" ? correct : true,
+      linear: linear || false,
       toolX: 0,
       toolY: 0,
-      line: 10,
+      line: line || 10,
       columnX: 1,
       columnY: 1,
       nameX: defaultName,
@@ -40,6 +52,13 @@ export default class ScatterPlot extends React.Component {
       width: window.innerWidth,
       height: window.innerHeight
     };
+
+    if(dataX) {
+      this.state = {...this.state, ...this.extractAxisInfo(dataX, "X")}
+    }
+    if(dataY) {
+      this.state = {...this.state, ...this.extractAxisInfo(dataY, "Y")}
+    }
 
     this.lineValues = [
       2,
@@ -171,30 +190,38 @@ export default class ScatterPlot extends React.Component {
     }
   };
   toggleCorrectResults = () => {
+    setParam({correct: !this.state.correct})
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
+    setParam({linear: !this.state.linear})
     this.setState(prevState => ({
       linear: !prevState.linear
     }));
   };
 
+  extractAxisInfo = (val, axis) => {
+    const split = val.split("-");
+    return {
+      [`data${axis}`]: val,
+      [`tool${axis}`]: split[0],
+      [`column${axis}`]: split[1],
+      [`name${axis}`]:
+        getRunSetName(this.props.tools[split[0]]) +
+        " " +
+        this.props.columns[split[0]][split[1]]
+    }
+  }
+
   handleAxis = (ev, axis) => {
     this.array = [];
-    const splitted = ev.target.value.split("-", 2);
-    this.setState({
-      [`data${axis}`]: ev.target.value,
-      [`tool${axis}`]: splitted[0],
-      [`column${axis}`]: splitted[1],
-      [`name${axis}`]:
-        getRunSetName(this.props.tools[splitted[0]]) +
-        " " +
-        this.props.columns[splitted[0]][splitted[1]]
-    });
+    setParam({[`data${axis}`]: ev.target.value})
+    this.setState(this.extractAxisInfo(ev.target.value, axis));
   };
   handleLine = ({ target }) => {
+    setParam({line: target.value})
     this.setState({
       line: target.value
     });

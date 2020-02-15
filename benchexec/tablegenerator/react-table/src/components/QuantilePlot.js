@@ -19,14 +19,6 @@ import {
 import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE, setHashSearch, getHashSearch } from "../utils/utils";
 
 
-const getQuery = () => {
-  let searchRaw = window.location.hash.split("?");
-  const search = searchRaw.length > 1 ? searchRaw[1] : "";
-  let params = new URLSearchParams(search);
-  console.log(`search: ${search}, params: ${params}`)
-  return params;
-}
-
 const setParam = (param) => {
   setHashSearch({...getHashSearch(), ...param});
 }
@@ -58,9 +50,9 @@ export default class QuantilePlot extends React.Component {
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
       selection: visibleColumn && visibleColumn.display_title,
-      quantile: quantile || true,
-      linear: linear || false,
-      correct: correct || true,
+      quantile: Boolean(quantile) || true,
+      linear: Boolean(linear) || false,
+      correct: Boolean(correct) || true,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: []
     };
