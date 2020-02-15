@@ -11,8 +11,6 @@ import {
   Route,
   Link
 } from "react-router-dom";
-// TODO completely replace css
-//import "react-tabs/style/react-tabs.css";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -24,6 +22,15 @@ import Reset from "./Reset.js";
 import { prepareTableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+
+
+const menuItems = [
+  { key: "summary", title: "Summary", path: "/" },
+  { key: "table", title: "Table", path: "/table" },
+  { key: "quantile", title: "Quantile Plot", path: "/quantile" },
+  { key: "scatter", title: "Scatter Plot", path: "/scatter" },
+  { key: "info", title: "Info", path: "/info", icon: <FontAwesomeIcon icon={faQuestionCircle} /> },
+]
 
 export default class Overview extends React.Component {
   constructor(props) {
@@ -52,6 +59,8 @@ export default class Overview extends React.Component {
       showLinkOverlay: false,
       filtered: [],
       tabIndex: 0,
+
+      active: "summary",
 
       quantilePreSelection: tools[0].columns[1]
     };
@@ -104,18 +113,24 @@ export default class Overview extends React.Component {
   };
 
   render() {
+
     return (
       <div className="App">
         <main>
           <Router>
             <div className="overview">
-              <div className="react-tabs">
-                <div className="react-tabs__tab-list">
-                  <Link className="react-tabs__tab" to="/">Summary</Link>
-                  <Link className="react-tabs__tab" to="/table">Table</Link>
-                  <Link className="react-tabs__tab" to="/quantile">Quantile Plot</Link>
-                  <Link className="react-tabs__tab" to="/scatter">Scatter Plot</Link>
-                  <Link className="react-tabs__tab" to="/info">Info <FontAwesomeIcon icon={faQuestionCircle} /></Link>
+              <div className="overview-container">
+                <div className="menu">
+                  {
+                    menuItems.map(({ key, title, path, icon }) =>
+                      <Link
+                        className={`menu-item ${this.state.active === key ? 'selected' : ''}`}
+                        to={path}
+                        onClick={() => this.setState(() => ({ active: key }))}>
+                        {title} {icon || ''}
+                      </Link>
+                    )
+                  }
                   <Reset
                     isFiltered={!!this.state.filtered.length}
                     resetFilters={this.resetFilters}
@@ -123,7 +138,7 @@ export default class Overview extends React.Component {
                     totalCount={this.originalTable.length}
                   />
                 </div>
-                <div className="react-tabs__tab-panel">
+                <div className="route-container">
                   <Switch>
                     <Route exact path="/">
                       <Summary
@@ -173,16 +188,6 @@ export default class Overview extends React.Component {
                   </Switch>
                 </div>
               </div>
-              {/* <Tabs
-              selectedIndex={this.state.tabIndex}
-              onSelect={tabIndex =>
-                this.setState({
-                  tabIndex,
-                  showSelectColumns: false,
-                  showLinkOverlay: false
-                })
-              }
-            >*/}
               <div>
                 {this.state.showSelectColumns && (
                   <SelectColumn

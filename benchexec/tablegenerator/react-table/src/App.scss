@@ -77,10 +77,20 @@ $table-border: 1px solid $border-color;
 //------------------overview------------------
 .overview {
   background: $key-color;
-  .react-tabs {
+  .overview-container {
     background: $key-color;
   }
-  .react-tabs__tab-list {
+  .menu-item {
+    display: inline-block;
+    border: 1px solid transparent;
+    border-bottom: none;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+  .menu {
     display: flex;
     width: 100vw;
     height: 36px;
@@ -93,7 +103,7 @@ $table-border: 1px solid $border-color;
     background: $key-color;
     align-items: flex-start;
 
-    .react-tabs__tab {
+    .menu-item {
       // width: 18vw;
       height: 23px;
       margin-right: 1px;
@@ -102,12 +112,13 @@ $table-border: 1px solid $border-color;
       background: rgba(255, 255, 255, 0.5);
       font-size: 14px;
       text-decoration: none;
-      &--selected {
+      color: black;
+      &.selected {
         background: white;
       }
     }
   }
-  .react-tabs__tab-panel {
+  .route-container {
     padding-top: 43px;
     background: white;
     display: block;
