@@ -163,7 +163,7 @@ export default class LinkOverlay extends React.Component {
         />
         {!this.state.error ? (
           <>
-            <pre>{this.state.content}</pre>
+            <pre className="log-content">{this.state.content}</pre>
             <input />
           </>
         ) : (

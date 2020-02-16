@@ -401,7 +401,7 @@ $table-border: 1px solid $border-color;
 }
 .overlay {
   position: fixed;
-  overflow: scroll;
+  overflow: hidden;
   top: 80px;
   right: 20px;
   left: 20px;
@@ -451,6 +451,11 @@ $table-border: 1px solid $border-color;
 
   th {
     border-bottom: 1px solid black;
+  }
+
+  .log-content {
+    overflow: scroll;
+    height: calc(100% - 3px);
   }
 
   .closing {
