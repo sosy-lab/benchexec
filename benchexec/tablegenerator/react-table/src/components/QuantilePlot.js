@@ -19,13 +19,9 @@ import {
 import {
   getRunSetName,
   EXTENDED_DISCRETE_COLOR_RANGE,
-  setHashSearch,
+  setParam,
   getHashSearch
 } from "../utils/utils";
-
-const setParam = param => {
-  setHashSearch({ ...getHashSearch(), ...param });
-};
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
@@ -33,7 +29,11 @@ export default class QuantilePlot extends React.Component {
 
     const queryProps = getHashSearch();
 
-    const { metric, quantile, linear, correct } = queryProps;
+    const { metric, quantileRaw, linearRaw, correctRaw } = queryProps;
+
+    const quantile = Boolean(quantileRaw);
+    const linear = Boolean(linearRaw);
+    const correct = Boolean(correctRaw);
 
     const parameterSelection = metric
       ? this.props.tools
@@ -52,9 +52,9 @@ export default class QuantilePlot extends React.Component {
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
       selection: visibleColumn && visibleColumn.display_title,
-      quantile: Boolean(quantile) || true,
-      linear: Boolean(linear) || false,
-      correct: Boolean(correct) || true,
+      quantile: typeof quantile === "boolean" ? quantile : true,
+      linear: typeof linear === "boolean" ? linear : false,
+      correct: typeof correct === "boolean" ? correct : true,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: []
     };

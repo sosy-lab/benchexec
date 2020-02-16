@@ -182,6 +182,15 @@ const setHashSearch = (
   document.location.href = hrefString;
 };
 
+/**
+ * Adds or update given key-value pairs to the query params
+ *
+ * @param {Object} param The Key-Value pair to be added to the current query param list
+ */
+const setParam = param => {
+  setHashSearch({ ...getHashSearch(), ...param });
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -197,5 +206,6 @@ export {
   isNil,
   EXTENDED_DISCRETE_COLOR_RANGE,
   getHashSearch,
-  setHashSearch
+  setHashSearch,
+  setParam
 };

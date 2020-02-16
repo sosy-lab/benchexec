@@ -16,11 +16,7 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
-import { getRunSetName, setHashSearch, getHashSearch } from "../utils/utils";
-
-const setParam = param => {
-  setHashSearch({ ...getHashSearch(), ...param });
-};
+import { getRunSetName, setParam, getHashSearch } from "../utils/utils";
 
 export default class ScatterPlot extends React.Component {
   constructor(props) {
