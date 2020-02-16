@@ -24,7 +24,20 @@
   "scripts": {
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
-    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js"
+    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
+    "lint:fix": "prettier-eslint --write $(pwd)'/**/*.js'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier-eslint --write",
+      "eslint --format node_modules/eslint-friendly-formatter",
+      "git add"
+    ]
   },
   "eslintConfig": {
     "extends": [
@@ -126,6 +139,7 @@
     "file-loader": "^4.2.0",
     "fs-extra": "^8.1.0",
     "html-webpack-plugin": "^4.0.0-beta.8",
+    "husky": "^4.2.3",
     "imports-loader": "^0.8.0",
     "is-wsl": "^2.1.1",
     "jest": "^24.9.0",
@@ -142,6 +156,8 @@
     "postcss-preset-env": "^6.7.0",
     "postcss-safe-parser": "^4.0.1",
     "prettier": "1.18.2",
+    "prettier-eslint": "^9.0.1",
+    "prettier-eslint-cli": "^5.0.0",
     "react-dev-utils": "^9.1.0",
     "react-test-renderer": "^16.11.0",
     "resolve": "^1.12.0",

@@ -1,0 +1,61 @@
+{
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "extends": ["airbnb-base", "prettier", "plugin:node/recommended"],
+  "env": {
+    "es6": true,
+    "mocha": true,
+    "node": true
+  },
+  "rules": {
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline",
+        "functions": "never"
+      }
+    ],
+    "func-names": ["off", "never"],
+    "global-require": ["off"],
+    "max-len": ["error", { "code": 160, "ignoreComments": true }],
+    "no-mixed-operators": ["error", { "allowSamePrecedence": true }],
+    "no-prototype-builtins": ["off"],
+    "no-trailing-spaces": ["error", { "skipBlankLines": true }],
+    "no-underscore-dangle": [
+      "error",
+      { "allowAfterThis": true, "allowAfterSuper": true }
+    ],
+    "no-use-before-define": [
+      "error",
+      { "variables": false, "classes": false, "functions": false }
+    ],
+    "object-property-newline": [
+      "off",
+      { "allowMultiplePropertiesPerLine": true }
+    ],
+    "prefer-destructuring": ["warn", { "array": false, "object": true }],
+    "prefer-rest-params": ["off"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "space-before-function-paren": [
+      "error",
+      { "anonymous": "never", "named": "never", "asyncArrow": "always" }
+    ],
+    "strict": ["off"],
+    "class-methods-use-this": ["off"],
+    "no-return-assign": ["off"],
+    "no-continue": ["off"],
+    "default-case": ["off"],
+    "object-curly-spacing": ["error", "never"],
+    "node/process-exit-as-throw": ["off"],
+    "prefer-object-spread": ["off"],
+    "no-unused-vars": [
+      "error",
+      { "vars": "all", "args": "none", "ignoreRestSiblings": true }
+    ]
+  }
+}
