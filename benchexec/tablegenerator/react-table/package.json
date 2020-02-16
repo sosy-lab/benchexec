@@ -26,7 +26,10 @@
     "dependencies": "node scripts/dependencies.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
-    "lint:fix": "prettier-eslint --write $(pwd)'/**/*.js'"
+    "lint:fix:js": "prettier-eslint --write $(pwd)'/**/*.js'",
+    "lint:fix:css": "prettier --write $(pwd)'/**/*.css'",
+    "lint:fix:scss": "prettier --write $(pwd)'/**/*.scss'",
+    "lint:fix": "npm run lint:fix:js && npm run lint:fix:css && npm run lint:fix:scss"
   },
   "husky": {
     "hooks": {
@@ -38,6 +41,12 @@
       "prettier-eslint --write",
       "eslint --format node_modules/eslint-friendly-formatter",
       "git add"
+    ],
+    "*.css": [
+      "prettier --write"
+    ],
+    "*.scss": [
+      "prettier --write"
     ]
   },
   "eslintConfig": {
