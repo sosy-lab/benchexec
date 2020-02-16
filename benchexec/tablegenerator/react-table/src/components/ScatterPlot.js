@@ -6,23 +6,13 @@
  */
 import React from "react";
 import "../../node_modules/react-vis/dist/style.css";
-import {
-  XYPlot,
-  MarkSeries,
-  VerticalGridLines,
-  HorizontalGridLines,
-  XAxis,
-  YAxis,
-  Hint,
-  DecorativeAxis
-} from "react-vis";
-import { getRunSetName } from "../utils/utils";
+import {XYPlot, MarkSeries, VerticalGridLines, HorizontalGridLines, XAxis, YAxis, Hint, DecorativeAxis} from "react-vis";
+import {getRunSetName} from "../utils/utils";
 
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
-    const defaultName =
-      getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
+    const defaultName = `${getRunSetName(this.props.tools[0])} ${this.props.columns[0][1]}`;
 
     this.state = {
       dataX: "0-1",
@@ -38,27 +28,10 @@ export default class ScatterPlot extends React.Component {
       nameY: defaultName,
       value: false,
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     };
 
-    this.lineValues = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      100,
-      1000,
-      10000,
-      100000,
-      1000000,
-      10000000,
-      100000000
-    ];
+    this.lineValues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
     this.maxX = "";
     this.minX = "";
     this.lineCount = 1;
@@ -76,21 +49,17 @@ export default class ScatterPlot extends React.Component {
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
   };
 
   // --------------------rendering-----------------------------
   renderColumns = () => {
     return this.props.tools.map((runset, i) => (
-      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
+      <optgroup key={`runset${i}`} label={getRunSetName(runset)}>
         {runset.columns.map((column, j) => {
           return column.isVisible ? (
-            <option
-              key={i + column.display_title}
-              value={i + "-" + j}
-              name={column.display_title}
-            >
+            <option key={i + column.display_title} value={`${i}-${j}`} name={column.display_title}>
               {column.display_title}
             </option>
           ) : null;
@@ -100,22 +69,15 @@ export default class ScatterPlot extends React.Component {
   };
 
   renderData = () => {
-    let array = [];
+    const array = [];
     this.hasInvalidLog = false;
 
     this.props.table.forEach(row => {
       const resX = row.results[this.state.toolX];
       const resY = row.results[this.state.toolY];
-      const hasValues =
-        resX.values[this.state.columnX] && resY.values[this.state.columnY];
+      const hasValues = resX.values[this.state.columnX] && resY.values[this.state.columnY];
 
-      if (
-        hasValues &&
-        (!this.state.correct ||
-          (this.state.correct &&
-            resX.category === "correct" &&
-            resY.category === "correct"))
-      ) {
+      if (hasValues && (!this.state.correct || (this.state.correct && resX.category === "correct" && resY.category === "correct"))) {
         const x = resX.values[this.state.columnX].raw;
         const y = resY.values[this.state.columnY].raw;
         const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
@@ -124,7 +86,7 @@ export default class ScatterPlot extends React.Component {
           array.push({
             x,
             y,
-            info: this.props.getRowName(row)
+            info: this.props.getRowName(row),
           });
         }
         if (isLogAndInvalid) {
@@ -161,23 +123,21 @@ export default class ScatterPlot extends React.Component {
 
   // ------------------------handeling----------------------------
   handleType = (tool, column) => {
-    if (
-      this.props.tools[tool].columns[column].type === "text" ||
-      this.props.tools[tool].columns[column].type === "status"
-    ) {
+    if (this.props.tools[tool].columns[column].type === "text" || this.props.tools[tool].columns[column].type === "status") {
       return "ordinal";
-    } else {
-      return this.state.linear ? "linear" : "log";
     }
+    return this.state.linear ? "linear" : "log";
   };
+
   toggleCorrectResults = () => {
     this.setState(prevState => ({
-      correct: !prevState.correct
+      correct: !prevState.correct,
     }));
   };
+
   toggleLinear = () => {
     this.setState(prevState => ({
-      linear: !prevState.linear
+      linear: !prevState.linear,
     }));
   };
 
@@ -188,15 +148,13 @@ export default class ScatterPlot extends React.Component {
       [`data${axis}`]: ev.target.value,
       [`tool${axis}`]: splitted[0],
       [`column${axis}`]: splitted[1],
-      [`name${axis}`]:
-        getRunSetName(this.props.tools[splitted[0]]) +
-        " " +
-        this.props.columns[splitted[0]][splitted[1]]
+      [`name${axis}`]: `${getRunSetName(this.props.tools[splitted[0]])} ${this.props.columns[splitted[0]][splitted[1]]}`,
     });
   };
-  handleLine = ({ target }) => {
+
+  handleLine = ({target}) => {
     this.setState({
-      line: target.value
+      line: target.value,
     });
   };
 
@@ -206,27 +164,15 @@ export default class ScatterPlot extends React.Component {
       <div className="scatterPlot">
         <div className="scatterPlot__select">
           <span> X: </span>
-          <select
-            name="Value XAxis"
-            value={this.state.dataX}
-            onChange={ev => this.handleAxis(ev, "X")}
-          >
+          <select name="Value XAxis" value={this.state.dataX} onChange={ev => this.handleAxis(ev, "X")}>
             {this.renderColumns()}
           </select>
           <span> Y: </span>
-          <select
-            name="Value YAxis"
-            value={this.state.dataY}
-            onChange={ev => this.handleAxis(ev, "Y")}
-          >
+          <select name="Value YAxis" value={this.state.dataY} onChange={ev => this.handleAxis(ev, "Y")}>
             {this.renderColumns()}
           </select>
           <span>Line:</span>
-          <select
-            name="Line"
-            value={this.state.line}
-            onChange={this.handleLine}
-          >
+          <select name="Line" value={this.state.line} onChange={this.handleLine}>
             {this.lineValues.map(value => {
               return (
                 <option key={value} name={value} value={value}>
@@ -240,82 +186,68 @@ export default class ScatterPlot extends React.Component {
           className="scatterPlot__plot"
           height={this.state.height - 200}
           width={this.state.width - 100}
-          margin={{ left: 90 }}
+          margin={{left: 90}}
           yType={this.handleType(this.state.toolY, this.state.columnY)}
           xType={this.handleType(this.state.toolX, this.state.columnX)}
-          xDomain={
-            this.handleType(this.state.toolX, this.state.columnX) !== "ordinal"
-              ? [this.minX, this.maxX]
-              : null
-          }
-          yDomain={
-            this.handleType(this.state.toolY, this.state.columnY) !== "ordinal"
-              ? [this.minY, this.maxY]
-              : null
-          }
+          xDomain={this.handleType(this.state.toolX, this.state.columnX) !== "ordinal" ? [this.minX, this.maxX] : null}
+          yDomain={this.handleType(this.state.toolY, this.state.columnY) !== "ordinal" ? [this.minY, this.maxY] : null}
         >
-          <VerticalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
-          <HorizontalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
+          <VerticalGridLines yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)} />
+          <HorizontalGridLines yType={this.handleType(this.state.toolY, this.state.columnY)} xType={this.handleType(this.state.toolX, this.state.columnX)} />
 
           <DecorativeAxis
             className="middle-line"
             axisStart={{
               x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : 1
+              y: this.state.linear ? 0 : 1,
             }}
             axisEnd={{
               x: this.maxX > this.maxY ? this.maxX : this.maxY,
-              y: this.maxX > this.maxY ? this.maxX : this.maxY
+              y: this.maxX > this.maxY ? this.maxX : this.maxY,
             }}
             axisDomain={[0, 10000000000]}
             style={{
-              ticks: { stroke: "#009440", opacity: 0 },
+              ticks: {stroke: "#009440", opacity: 0},
               text: {
                 stroke: "none",
                 fill: "#009440",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <DecorativeAxis
             axisStart={{
               x: this.state.linear ? 0 : this.state.line,
-              y: this.state.linear ? 0 : 1
+              y: this.state.linear ? 0 : 1,
             }}
-            axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
+            axisEnd={{x: this.maxX, y: this.maxX / this.state.line}}
             axisDomain={[0, 10000000000]}
             style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
+              ticks: {stroke: "#ADDDE1", opacity: 0},
               text: {
                 stroke: "none",
                 fill: "#6b6b76",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <DecorativeAxis
             axisStart={{
               x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : this.state.line
+              y: this.state.linear ? 0 : this.state.line,
             }}
-            axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
+            axisEnd={{x: this.maxX, y: this.maxX * this.state.line}}
             axisDomain={[0, 10000000000]}
             style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
+              ticks: {stroke: "#ADDDE1", opacity: 0},
               text: {
                 stroke: "none",
                 fill: "#6b6b76",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <XAxis
@@ -332,31 +264,17 @@ export default class ScatterPlot extends React.Component {
           />
           <MarkSeries
             data={this.dataArray}
-            onValueMouseOver={(datapoint, event) =>
-              this.setState({ value: datapoint })
-            }
-            onValueMouseOut={(datapoint, event) =>
-              this.setState({ value: null })
-            }
+            onValueMouseOver={(datapoint, event) => this.setState({value: datapoint})}
+            onValueMouseOut={(datapoint, event) => this.setState({value: null})}
           />
           {this.state.value ? <Hint value={this.state.value} /> : null}
         </XYPlot>
-        {this.lineCount === 0 && (
-          <div className="plot__noresults">
-            {this.hasInvalidLog
-              ? "All results have undefined values"
-              : "No correct results"}
-          </div>
-        )}
+        {this.lineCount === 0 && <div className="plot__noresults">{this.hasInvalidLog ? "All results have undefined values" : "No correct results"}</div>}
         <button className="btn" onClick={this.toggleLinear}>
-          {this.state.linear
-            ? "Switch to Logarithmic Scale"
-            : "Switch to Linear Scale"}
+          {this.state.linear ? "Switch to Logarithmic Scale" : "Switch to Linear Scale"}
         </button>
         <button className="btn" onClick={this.toggleCorrectResults}>
-          {this.state.correct
-            ? "Switch to All Results"
-            : "Switch to Correct Results Only"}
+          {this.state.correct ? "Switch to All Results" : "Switch to Correct Results Only"}
         </button>
       </div>
     );

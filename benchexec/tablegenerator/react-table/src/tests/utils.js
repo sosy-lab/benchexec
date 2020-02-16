@@ -1,3 +1,5 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable no-param-reassign */
 /* SPDX-License-Identifier: Apache-2.0
  *
  * BenchExec is a framework for reliable benchmarking.
@@ -8,6 +10,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import renderer from "react-test-renderer";
 import Overview from "../components/Overview";
+
 const fs = require("fs");
 
 // We use jest snapshots for integration tests, and they become quite large.
@@ -30,7 +33,7 @@ expect.addSnapshotSerializer({
         return " ".repeat((s.length - trimmed.length) / 2) + trimmed;
       })
       .join("\n"),
-  test: val => val && val.hasOwnProperty("toJSON")
+  test: val => val && val.hasOwnProperty("toJSON"),
 });
 
 // Serializer that simplifies HTML elements with several children,
@@ -40,11 +43,7 @@ expect.addSnapshotSerializer({
     val.children = [val.children.filter(s => !s.match(/^ *$/)).join("")];
     return serialize(val);
   },
-  test: val =>
-    val &&
-    Array.isArray(val.children) &&
-    val.children.length > 1 &&
-    val.children.every(o => typeof o === "string")
+  test: val => val && Array.isArray(val.children) && val.children.length > 1 && val.children.every(o => typeof o === "string"),
 });
 
 // Serializer that simplifies HTML elements with one empty child
@@ -54,17 +53,13 @@ expect.addSnapshotSerializer({
     delete val.children;
     return serialize(val);
   },
-  test: val =>
-    val &&
-    Array.isArray(val.children) &&
-    val.children.length === 1 &&
-    !val.children[0]
+  test: val => val && Array.isArray(val.children) && val.children.length === 1 && !val.children[0],
 });
 
 // Serializer that simplies the dangerouslySetInnerHTML attribute
 expect.addSnapshotSerializer({
   print: (val, serialize) => serialize(val.__html),
-  test: val => val && val.hasOwnProperty("__html")
+  test: val => val && val.hasOwnProperty("__html"),
 });
 
 const testDir = "../test_integration/expected/";
@@ -74,23 +69,21 @@ ReactDOM.createPortal = dom => {
   return dom;
 };
 
-const test_snapshot_of = (name, component_func) => {
+const testSnapshotOf = (name, componentFunc) => {
   fs.readdirSync(testDir)
     .filter(file => file.endsWith(".html"))
     .filter(file => fs.statSync(testDir + file).size < 100000)
     .forEach(file => {
-      it(name + " for " + file, () => {
-        const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
+      it(`${name} for ${file}`, () => {
+        const content = fs.readFileSync(testDir + file, {encoding: "UTF-8"});
         const data = JSON.parse(content);
 
-        const overview = renderer
-          .create(<Overview data={data} />)
-          .getInstance();
-        const component = renderer.create(component_func(overview));
+        const overview = renderer.create(<Overview data={data} />).getInstance();
+        const component = renderer.create(componentFunc(overview));
 
         expect(component).toMatchSnapshot();
       });
     });
 };
 
-export { test_snapshot_of };
+export default testSnapshotOf;

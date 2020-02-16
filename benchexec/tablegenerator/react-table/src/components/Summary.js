@@ -9,12 +9,8 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
-import {
-  createRunSetColumns,
-  StandardColumnHeader,
-  SelectColumnsButton
-} from "./TableComponents.js";
-import { determineColumnWidth, isNumericColumn } from "../utils/utils";
+import {createRunSetColumns, StandardColumnHeader, SelectColumnsButton} from "./TableComponents";
+import {determineColumnWidth, isNumericColumn} from "../utils/utils";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
@@ -23,21 +19,9 @@ export default class Summary extends React.Component {
     super(props);
 
     this.state = {
-      fixed: true
+      fixed: true,
     };
-    this.infos = [
-      "displayName",
-      "tool",
-      "limit",
-      "host",
-      "os",
-      "system",
-      "date",
-      "runset",
-      "branch",
-      "options",
-      "property"
-    ];
+    this.infos = ["displayName", "tool", "limit", "host", "os", "system", "date", "runset", "branch", "options", "property"];
     this.headerWidth = window.innerWidth * 0.15;
     this.width = window.innerWidth;
   }
@@ -48,21 +32,17 @@ export default class Summary extends React.Component {
       .map(key => `${key}: ${cell[key]}`)
       .join(", ") || undefined;
 
-  //fix columns
-  handleInputChange = ({ target }) => {
+  // fix columns
+  handleInputChange = ({target}) => {
     this.setState({
-      [target.name]: target.checked
+      [target.name]: target.checked,
     });
   };
 
   renderEnvironmentRow = (row, text, colSpan, j) => {
     if (row === "options") {
       return (
-        <td
-          colSpan={colSpan}
-          key={text + j}
-          className="header__tool-row options"
-        >
+        <td colSpan={colSpan} key={text + j} className="header__tool-row options">
           <ul>{this.renderOptions(text)}</ul>
         </td>
       );
@@ -73,6 +53,7 @@ export default class Summary extends React.Component {
       </td>
     );
   };
+
   renderOptions = text => {
     return text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
@@ -86,12 +67,7 @@ export default class Summary extends React.Component {
       <div className="toolsHeader">
         <form>
           <label>Fixed row title:</label>
-          <input
-            name="fixed"
-            type="checkbox"
-            checked={this.state.fixed}
-            onChange={this.handleInputChange}
-          />
+          <input name="fixed" type="checkbox" checked={this.state.fixed} onChange={this.handleInputChange} />
         </form>
       </div>
     ),
@@ -103,53 +79,29 @@ export default class Summary extends React.Component {
         minWidth: this.headerWidth,
         Header: <SelectColumnsButton handler={this.props.selectColumn} />,
         accessor: "",
-        Cell: cell => (
-          <div
-            dangerouslySetInnerHTML={{ __html: cell.value.title }}
-            title={cell.value.description}
-            className="row-title"
-          />
-        )
-      }
-    ]
+        Cell: cell => <div dangerouslySetInnerHTML={{__html: cell.value.title}} title={cell.value.description} className="row-title" />,
+      },
+    ],
   });
 
   createColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: (
-      <StandardColumnHeader
-        column={column}
-        className="columns"
-        title="Show Quantile Plot of this column"
-        onClick={e => this.props.changeTab(e, column, 2)}
-      />
+      <StandardColumnHeader column={column} className="columns" title="Show Quantile Plot of this column" onClick={e => this.props.changeTab(e, column, 2)} />
     ),
-    show:
-      column.isVisible && (isNumericColumn(column) || column.type === "status"),
-    minWidth: determineColumnWidth(
-      column,
-      null,
-      column.type === "status" ? 6 : null
-    ),
+    show: column.isVisible && (isNumericColumn(column) || column.type === "status"),
+    minWidth: determineColumnWidth(column, null, column.type === "status" ? 6 : null),
     accessor: row => row.content[runSetIdx][columnIdx],
     Cell: cell =>
       cell.value ? (
-        <div
-          dangerouslySetInnerHTML={{ __html: cell.value.sum }}
-          className="cell"
-          title={this.renderTooltip(cell.value)}
-        ></div>
+        <div dangerouslySetInnerHTML={{__html: cell.value.sum}} className="cell" title={this.renderTooltip(cell.value)}></div>
       ) : (
         <div className="cell">-</div>
-      )
+      ),
   });
 
   render() {
-    const statColumns = this.props.tools
-      .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, this.createColumn)
-      )
-      .flat();
+    const statColumns = this.props.tools.map((runSet, runSetIdx) => createRunSetColumns(runSet, runSetIdx, this.createColumn)).flat();
 
     return (
       <div id="summary">
@@ -161,11 +113,9 @@ export default class Summary extends React.Component {
                 .map(row => this.props.tableHeader[row])
                 .filter(row => row !== null)
                 .map((row, i) => (
-                  <tr key={"tr-" + row.id} className={row.id}>
-                    <th key={"td-" + row.id}>{row.name}</th>
-                    {row.content.map((tool, j) =>
-                      this.renderEnvironmentRow(row.id, tool[0], tool[1], j)
-                    )}
+                  <tr key={`tr-${row.id}`} className={row.id}>
+                    <th key={`td-${row.id}`}>{row.name}</th>
+                    {row.content.map((tool, j) => this.renderEnvironmentRow(row.id, tool[0], tool[1], j))}
                   </tr>
                 ))}
             </tbody>
@@ -185,12 +135,7 @@ export default class Summary extends React.Component {
         </div>
         <p>
           Generated by{" "}
-          <a
-            className="link"
-            href="https://github.com/sosy-lab/benchexec"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a className="link" href="https://github.com/sosy-lab/benchexec" target="_blank" rel="noopener noreferrer">
             {" "}
             BenchExec {this.props.version}
           </a>

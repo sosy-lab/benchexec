@@ -9,13 +9,13 @@ import React from "react";
 import renderer from "react-test-renderer";
 
 // enzyme
-import { shallow, configure } from "enzyme";
+import {shallow, configure} from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 
 // components
-import Reset from "../components/Reset.js";
+import Reset from "../components/Reset";
 
-configure({ adapter: new Adapter() });
+configure({adapter: new Adapter()});
 
 test("Click on reset button stops button from rendering", () => {
   let isFiltered = true;
@@ -25,8 +25,10 @@ test("Click on reset button stops button from rendering", () => {
       isFiltered={isFiltered}
       filteredCount="23"
       totalCount="42"
-      resetFilters={() => (isFiltered = false)}
-    />
+      resetFilters={() => {
+        isFiltered = false;
+      }}
+    />,
   );
 
   expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks (Reset Filters)");
@@ -37,9 +39,7 @@ test("Click on reset button stops button from rendering", () => {
 });
 
 it("Render reset button", () => {
-  const component = renderer
-    .create(<Reset filteredCount="23" totalCount="42" isFiltered={true} />)
-    .toJSON();
+  const component = renderer.create(<Reset filteredCount="23" totalCount="42" isFiltered={true} />).toJSON();
 
   expect(component).toMatchInlineSnapshot(`
     <button

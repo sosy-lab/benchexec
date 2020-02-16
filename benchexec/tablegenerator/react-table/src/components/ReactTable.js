@@ -9,57 +9,15 @@ import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
-import "react-table/react-table.css";
-import {
-  createRunSetColumns,
-  StandardCell,
-  StandardColumnHeader,
-  SelectColumnsButton
-} from "./TableComponents.js";
-import {
-  getRawOrDefault,
-  isNumericColumn,
-  applyNumericFilter,
-  applyTextFilter,
-  numericSortMethod,
-  textSortMethod,
-  determineColumnWidth
-} from "../utils/utils";
 
-class FilterInputField extends React.Component {
-  constructor(props) {
-    super(props);
-    this.elementId = props.column.id + "_filter";
-    this.filter = props.filter ? props.filter.value : props.filter;
-  }
-
-  numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
-
-  onChange = event => {
-    this.value = event.target.value;
-    clearTimeout(this.typingTimer);
-    this.typingTimer = setTimeout(() => {
-      this.props.onChange(this.value);
-      document.getElementById(this.elementId).focus();
-    }, 500);
-  };
-
-  render = () => (
-    <input
-      id={this.elementId}
-      placeholder={this.props.numeric ? "Min:Max" : "text"}
-      defaultValue={this.value ? this.value : this.filter}
-      onChange={this.onChange}
-      type="search"
-      pattern={this.props.numeric ? this.numericPattern : undefined}
-    />
-  );
-}
+import {createRunSetColumns, StandardCell, StandardColumnHeader, SelectColumnsButton} from "./TableComponents";
+import {getRawOrDefault, isNumericColumn, applyNumericFilter, applyTextFilter, numericSortMethod, textSortMethod, determineColumnWidth} from "../utils/utils";
+import FilterInputField from "./FilterInputField";
 
 // Special markers we use as category for empty run results
 const RUN_ABORTED = "aborted"; // result tag was present but empty (failure)
 const RUN_EMPTY = "empty"; // result tag was not present in results XML
-const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
+const SPECIAL_CATEGORIES = {[RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—"};
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
@@ -68,42 +26,25 @@ export default class Table extends React.Component {
 
     this.data = this.props.data;
     this.state = {
-      fixed: true
+      fixed: true,
     };
 
     // Collect all status and category values for filter drop-down
-    this.statusValues = this.findAllValuesOfColumn(
-      (tool, column) => column.type === "status",
-      (runResult, value) => getRawOrDefault(value)
-    );
-    this.categoryValues = this.findAllValuesOfColumn(
-      (tool, column) => column.type === "status",
-      (runResult, value) => runResult.category
-    );
+    this.statusValues = this.findAllValuesOfColumn((tool, column) => column.type === "status", (runResult, value) => getRawOrDefault(value));
+    this.categoryValues = this.findAllValuesOfColumn((tool, column) => column.type === "status", (runResult, value) => runResult.category);
 
-    this.infos = [
-      "displayName",
-      "tool",
-      "limit",
-      "host",
-      "os",
-      "system",
-      "date",
-      "runset",
-      "branch",
-      "options",
-      "property"
-    ];
+    this.infos = ["displayName", "tool", "limit", "host", "os", "system", "date", "runset", "branch", "options", "property"];
     this.typingTimer = -1;
     this.height = window.innerHeight - 50;
   }
-  //fix columns
-  handleInputChange = ({ target }) => {
+
+  // fix columns
+  handleInputChange = ({target}) => {
     const value = target.checked;
-    const name = target.name;
+    const {name} = target;
 
     this.setState({
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -113,11 +54,9 @@ export default class Table extends React.Component {
         if (!columnFilter(tool, column)) {
           return undefined;
         }
-        const values = this.data
-          .map(row => valueAccessor(row.results[j], row.results[j].values[i]))
-          .filter(Boolean);
+        const values = this.data.map(row => valueAccessor(row.results[j], row.results[j].values[i])).filter(Boolean);
         return [...new Set(values)].sort();
-      })
+      }),
     );
 
   createTaskIdColumn = () => ({
@@ -125,12 +64,7 @@ export default class Table extends React.Component {
       <div className="fixed">
         <form>
           <label title="Fix the first column">Fixed task:</label>
-          <input
-            name="fixed"
-            type="checkbox"
-            checked={this.state.fixed}
-            onChange={this.handleInputChange}
-          />
+          <input name="fixed" type="checkbox" checked={this.state.fixed} onChange={this.handleInputChange} />
         </form>
       </div>
     ),
@@ -147,7 +81,7 @@ export default class Table extends React.Component {
               {id}
             </span>
           ));
-          const href = cell.original.href;
+          const {href} = cell.original;
           return href ? (
             <a
               key={href}
@@ -166,9 +100,9 @@ export default class Table extends React.Component {
           const id = filter.pivotId || filter.id;
           return row[id].some(v => v && v.includes(filter.value));
         },
-        Filter: FilterInputField
-      }
-    ]
+        Filter: FilterInputField,
+      },
+    ],
   });
 
   createStatusColumn = (runSetIdx, column, columnIdx) => ({
@@ -178,8 +112,8 @@ export default class Table extends React.Component {
     minWidth: determineColumnWidth(column, 10),
     accessor: row => row.results[runSetIdx].values[columnIdx],
     Cell: cell => {
-      const category = cell.original.results[runSetIdx].category;
-      let href = cell.original.results[runSetIdx].href;
+      const {category} = cell.original.results[runSetIdx];
+      let {href} = cell.original.results[runSetIdx];
       let tooltip;
       if (category === "aborted") {
         href = undefined;
@@ -189,44 +123,31 @@ export default class Table extends React.Component {
       } else if (href) {
         tooltip = "Click here to show output of tool";
       }
-      return (
-        <StandardCell
-          cell={cell}
-          href={href}
-          className={category}
-          toggleLinkOverlay={this.props.toggleLinkOverlay}
-          title={tooltip}
-          force={true}
-        />
-      );
+      return <StandardCell cell={cell} href={href} className={category} toggleLinkOverlay={this.props.toggleLinkOverlay} title={tooltip} force={true} />;
     },
     sortMethod: textSortMethod,
     filterMethod: (filter, row) => {
       const cellValue = getRawOrDefault(row[filter.id]);
       if (!filter.value || filter.value === "all ") {
         return true;
-      } else if (filter.value.endsWith(" ")) {
-        // category filters are marked with space at end
-        const category = row._original.results[runSetIdx].category;
-        return category === filter.value.trim();
-      } else {
-        return filter.value === cellValue;
       }
+      if (filter.value.endsWith(" ")) {
+        // category filters are marked with space at end
+        const {category} = row._original.results[runSetIdx];
+        return category === filter.value.trim();
+      }
+      return filter.value === cellValue;
     },
-    Filter: ({ filter, onChange }) => {
+    Filter: ({filter, onChange}) => {
       const categoryValues = this.categoryValues[runSetIdx][columnIdx];
       return (
-        <select
-          onChange={event => onChange(event.target.value)}
-          style={{ width: "100%" }}
-          value={filter ? filter.value : "all "}
-        >
+        <select onChange={event => onChange(event.target.value)} style={{width: "100%"}} value={filter ? filter.value : "all "}>
           <option value="all ">Show all</option>
           {categoryValues
             .filter(category => category in SPECIAL_CATEGORIES)
             .map(category => (
               // category filters are marked with space at end
-              <option value={category + " "} key={category}>
+              <option value={`${category} `} key={category}>
                 {SPECIAL_CATEGORIES[category]}
               </option>
             ))}
@@ -235,7 +156,7 @@ export default class Table extends React.Component {
               .filter(category => !(category in SPECIAL_CATEGORIES))
               .map(category => (
                 // category filters are marked with space at end
-                <option value={category + " "} key={category}>
+                <option value={`${category} `} key={category}>
                   {category}
                 </option>
               ))}
@@ -249,7 +170,7 @@ export default class Table extends React.Component {
           </optgroup>
         </select>
       );
-    }
+    },
   });
 
   createColumn = (runSetIdx, column, columnIdx) => {
@@ -263,28 +184,15 @@ export default class Table extends React.Component {
       show: column.isVisible,
       minWidth: determineColumnWidth(column),
       accessor: row => row.results[runSetIdx].values[columnIdx],
-      Cell: cell => (
-        <StandardCell
-          cell={cell}
-          toggleLinkOverlay={this.props.toggleLinkOverlay}
-        />
-      ),
-      filterMethod: isNumericColumn(column)
-        ? applyNumericFilter
-        : applyTextFilter,
-      Filter: filter => (
-        <FilterInputField numeric={isNumericColumn(column)} {...filter} />
-      ),
-      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod
+      Cell: cell => <StandardCell cell={cell} toggleLinkOverlay={this.props.toggleLinkOverlay} />,
+      filterMethod: isNumericColumn(column) ? applyNumericFilter : applyTextFilter,
+      Filter: filter => <FilterInputField numeric={isNumericColumn(column)} {...filter} />,
+      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod,
     };
   };
 
   render() {
-    const resultColumns = this.props.tools
-      .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, this.createColumn)
-      )
-      .flat();
+    const resultColumns = this.props.tools.map((runSet, runSetIdx) => createRunSetColumns(runSet, runSetIdx, this.createColumn)).flat();
 
     return (
       <div className="mainTable">
@@ -300,7 +208,7 @@ export default class Table extends React.Component {
           onFilteredChange={filtered => {
             this.props.filterPlotData(filtered);
           }}
-          style={{ maxHeight: this.height }}
+          style={{maxHeight: this.height}}
         >
           {(state, makeTable, instance) => {
             this.props.setFilter(state.sortedData);

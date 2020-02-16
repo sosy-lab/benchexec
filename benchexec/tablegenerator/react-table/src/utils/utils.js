@@ -6,29 +6,28 @@
  */
 import React from "react";
 
-const prepareTableData = ({ head, tools, rows, stats, props }) => {
+const prepareTableData = ({head, tools, rows, stats, props}) => {
   return {
     tableHeader: head,
     tools: tools.map(tool => ({
       ...tool,
       isVisible: true,
-      columns: tool.columns.map(column => ({ ...column, isVisible: true }))
+      columns: tool.columns.map(column => ({...column, isVisible: true})),
     })),
     columns: tools.map(tool => tool.columns.map(column => column.title)),
     table: rows,
-    stats: stats,
-    properties: props
+    stats,
+    properties: props,
   };
 };
 
-const isNumericColumn = column =>
-  column.type === "count" || column.type === "measure";
+const isNumericColumn = column => column.type === "count" || column.type === "measure";
 
 const applyNumericFilter = (filter, row, cell) => {
   const raw = getRawOrDefault(row[filter.id]);
   if (raw === undefined) {
     // empty cells never match
-    return;
+    return false;
   }
   const filterParams = filter.value.split(":");
 
@@ -52,15 +51,14 @@ const applyTextFilter = (filter, row, cell) => {
   const raw = getRawOrDefault(row[filter.id]);
   if (raw === undefined) {
     // empty cells never match
-    return;
+    return false;
   }
   return raw.includes(filter.value);
 };
 
 const isNil = data => data === undefined || data === null;
 
-const getRawOrDefault = (value, def) =>
-  isNil(value) || isNil(value.raw) ? def : value.raw;
+const getRawOrDefault = (value, def) => (isNil(value) || isNil(value.raw) ? def : value.raw);
 
 const numericSortMethod = (a, b) => {
   const aValue = getRawOrDefault(a, +Infinity);
@@ -77,7 +75,13 @@ const textSortMethod = (a, b) => {
   if (bValue === "") {
     return -1;
   }
-  return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+  if (aValue > bValue) {
+    return 1;
+  }
+  if (aValue < bValue) {
+    return -1;
+  }
+  return 0;
 };
 
 const isOkStatus = status => {
@@ -85,13 +89,13 @@ const isOkStatus = status => {
 };
 
 // Best-effort attempt for calculating a meaningful column width
-const determineColumnWidth = (column, min_width, max_width) => {
+const determineColumnWidth = (column, minWidth, maxWidth) => {
   let width = column.max_width; // number of chars in column
-  if (min_width) {
-    width = Math.max(width, min_width);
+  if (minWidth) {
+    width = Math.max(width, minWidth);
   }
-  if (max_width) {
-    width = Math.min(width, max_width);
+  if (maxWidth) {
+    width = Math.min(width, maxWidth);
   }
   if (!width) {
     width = 10;
@@ -111,7 +115,7 @@ const formatColumnTitle = column =>
     column.display_title
   );
 
-const getRunSetName = ({ tool, date, niceName }) => {
+const getRunSetName = ({tool, date, niceName}) => {
   return `${tool} ${date} ${niceName}`;
 };
 
@@ -139,7 +143,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#E79FD5",
   "#1E96BE",
   "#89DAC1",
-  "#B3AD9E"
+  "#B3AD9E",
 ];
 
 export {
@@ -155,5 +159,5 @@ export {
   getRunSetName,
   isOkStatus,
   isNil,
-  EXTENDED_DISCRETE_COLOR_RANGE
+  EXTENDED_DISCRETE_COLOR_RANGE,
 };
