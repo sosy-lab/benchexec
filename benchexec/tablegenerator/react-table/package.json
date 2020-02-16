@@ -29,7 +29,8 @@
     "lint:fix:js": "prettier-eslint --write $(pwd)'/**/*.js'",
     "lint:fix:css": "prettier --write $(pwd)'/**/*.css'",
     "lint:fix:scss": "prettier --write $(pwd)'/**/*.scss'",
-    "lint:fix": "npm run lint:fix:js && npm run lint:fix:css && npm run lint:fix:scss"
+    "lint:fix:json": "prettier --write $(pwd)'/**/*.json'",
+    "lint:fix": "npm run lint:fix:js && npm run lint:fix:css && npm run lint:fix:scss && npm run lint:fix:json"
   },
   "husky": {
     "hooks": {
@@ -46,6 +47,9 @@
       "prettier --write"
     ],
     "*.scss": [
+      "prettier --write"
+    ],
+    "*.json": [
       "prettier --write"
     ]
   },

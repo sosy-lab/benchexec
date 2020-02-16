@@ -22,9 +22,7 @@
       "name": "Limits"
     },
     "options": {
-      "content": [
-        ["-noout -setprop log.consoleLevel=WARNING -predicateAnalysis", 6]
-      ],
+      "content": [["-noout -setprop log.consoleLevel=WARNING -predicateAnalysis", 6]],
       "id": "options",
       "name": "Options"
     },
@@ -40,24 +38,12 @@
       "name": "Run set"
     },
     "system": {
-      "content": [
-        [
-          "CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB",
-          6
-        ]
-      ],
+      "content": [["CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB", 6]],
       "id": "system",
       "name": "System"
     },
     "title": {
-      "content": [
-        ["status", 1],
-        ["cputime (ms)", 1],
-        ["cputime-h (h)", 1],
-        ["walltime (ns)", 1],
-        ["memUsage (MB)", 1],
-        ["memUsage-GB (GB)", 1]
-      ],
+      "content": [["status", 1], ["cputime (ms)", 1], ["cputime-h (h)", 1], ["walltime (ns)", 1], ["memUsage (MB)", 1], ["memUsage-GB (GB)", 1]],
       "id": "columnTitles",
       "name": "benchexec/tablegenerator/test_integration/results/"
     },
@@ -154,10 +140,7 @@
   "rows": [
     {
       "href": "results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
-      "id": [
-        "test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
-        "unreach-label"
-      ],
+      "id": ["test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i", "unreach-label"],
       "results": [
         {
           "category": "wrong",
@@ -190,10 +173,7 @@
     },
     {
       "href": "results/test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c",
-      "id": [
-        "test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c",
-        "unreach-label"
-      ],
+      "id": ["test/programs/simple/switch_test_default_fallthrough_false-unreach-label.c", "unreach-label"],
       "results": [
         {
           "category": "correct",
@@ -226,10 +206,7 @@
     },
     {
       "href": "results/test/programs/simple/compoundLiteral_true-unreach-label.c",
-      "id": [
-        "test/programs/simple/compoundLiteral_true-unreach-label.c",
-        "unreach-label"
-      ],
+      "id": ["test/programs/simple/compoundLiteral_true-unreach-label.c", "unreach-label"],
       "results": [
         {
           "category": "correct",
@@ -295,10 +272,7 @@
     },
     {
       "href": "results/test/programs/simple/builtin_expect_true-unreach-label.c",
-      "id": [
-        "test/programs/simple/builtin_expect_true-unreach-label.c",
-        "unreach-label"
-      ],
+      "id": ["test/programs/simple/builtin_expect_true-unreach-label.c", "unreach-label"],
       "results": [
         {
           "category": "correct",
