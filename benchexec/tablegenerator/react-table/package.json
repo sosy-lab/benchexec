@@ -23,6 +23,7 @@
   },
   "scripts": {
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
+    "dependencies": "node scripts/dependencies.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
     "lint:fix": "prettier-eslint --write $(pwd)'/**/*.js'"
