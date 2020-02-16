@@ -146,6 +146,7 @@
     "jest-environment-jsdom-fourteen": "^0.1.0",
     "jest-watch-typeahead": "^0.4.0",
     "license-checker": "^25.0.1",
+    "lint-staged": "^10.0.7",
     "mini-css-extract-plugin": "^0.8.0",
     "node-sass": "^4.13.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
