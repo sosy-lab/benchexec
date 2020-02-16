@@ -146,7 +146,8 @@ javascript-eslint:
     - npm run dependencies
   script:
     - npx eslint src --max-warnings 0
-    - 'npx prettier-eslint $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.js" -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check'
+    - npx prettier-eslint $('pwd')'/**/*.js'
+    - 'npx prettier $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check'
   cache:
     key: "$CI_JOB_NAME"
     paths:
