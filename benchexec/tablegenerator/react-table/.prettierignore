@@ -1,5 +1,7 @@
 build
 dist
 vendor
+config
+scripts
 out
 node_modules
