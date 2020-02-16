@@ -5,3 +5,4 @@ config
 scripts
 out
 node_modules
+data
