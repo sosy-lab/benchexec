@@ -409,7 +409,6 @@ $table-border: 1px solid $border-color;
   background: white;
   border: 5px solid grey;
   border-radius: 5px;
-  padding: 10px;
 
   h1 {
     margin-bottom: 40px;
@@ -455,7 +454,9 @@ $table-border: 1px solid $border-color;
 
   .log-content {
     overflow: scroll;
-    height: calc(100% - 3px);
+    height: calc(100% - 20px);
+    padding: 10px;
+    margin: 0px;
   }
 
   .closing {
