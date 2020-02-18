@@ -1206,7 +1206,7 @@ def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
     )
 
     property_row = None
-    if not relevant_id_columns[1]: # property is the same for all tasks
+    if not relevant_id_columns[1]:  # property is the same for all tasks
         common_property = runSetResults[0].results[0].task_id[1]
         if common_property:
             property_row = tempita.bunch(
