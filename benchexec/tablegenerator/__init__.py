@@ -1985,7 +1985,10 @@ def write_table_in_format(
     if not outfile:
         print(result, end="")
     else:
-        with open(outfile, "w") as file:
+        # Force HTML file to be UTF-8 regardless of system encoding because it actually
+        # declares itself to be UTF-8 in a meta tag.
+        encoding = "utf-8" if template_format == "html" else None
+        with open(outfile, "w", encoding=encoding) as file:
             file.write(result)
 
         if show_table:
