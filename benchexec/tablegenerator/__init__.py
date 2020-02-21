@@ -1094,7 +1094,7 @@ def filter_rows_with_differences(rows):
     return rowsDiff
 
 
-def get_table_head(runSetResults, commonFileNamePrefix):
+def get_table_head(runSetResults, commonFileNamePrefix, relevant_id_columns):
 
     # This list contains the number of columns each run set has
     # (the width of a run set in the final table)
@@ -1205,6 +1205,16 @@ def get_table_head(runSetResults, commonFileNamePrefix):
         content=list(zip(titles, runSetWidths1)),
     )
 
+    property_row = None
+    if not relevant_id_columns[1]:  # property is the same for all tasks
+        common_property = runSetResults[0].results[0].task_id[1]
+        if common_property:
+            property_row = tempita.bunch(
+                id="property",
+                name="Properties",
+                content=[[common_property, sum(runSetWidths)]],
+            )
+
     return {
         "tool": get_row("Tool", "{tool} {version}", collapse=True),
         "displayName": get_row("Benchmark", "{displayName}", collapse=True),
@@ -1225,13 +1235,7 @@ def get_table_head(runSetResults, commonFileNamePrefix):
         "runset": get_row("Run set", "{niceName}"),
         "branch": get_row("Branch", "{branch}"),
         "options": get_row("Options", "{options}"),
-        "property": get_row(
-            "Propertyfile",
-            "{propertyfiles}",
-            collapse=True,
-            onlyIf="propertyfiles",
-            default="",
-        ),
+        "property": property_row,
         "title": titleRow,
     }
 
@@ -1861,7 +1865,10 @@ def create_tables(
             ]
 
     template_values = types.SimpleNamespace()
-    template_values.head = get_table_head(runSetResults, common_prefix)
+    template_values.relevant_id_columns = select_relevant_id_columns(rows)
+    template_values.head = get_table_head(
+        runSetResults, common_prefix, template_values.relevant_id_columns
+    )
     template_values.run_sets = [
         runSetResult.attributes for runSetResult in runSetResults
     ]
@@ -1870,7 +1877,6 @@ def create_tables(
         [column.format_title() for column in runSet.columns] for runSet in runSetResults
     ]
 
-    template_values.relevant_id_columns = select_relevant_id_columns(rows)
     template_values.count_id_columns = template_values.relevant_id_columns.count(True)
 
     template_values.lib_url = options.lib_url
@@ -1985,7 +1991,10 @@ def write_table_in_format(
     if not outfile:
         print(result, end="")
     else:
-        with open(outfile, "w") as file:
+        # Force HTML file to be UTF-8 regardless of system encoding because it actually
+        # declares itself to be UTF-8 in a meta tag.
+        encoding = "utf-8" if template_format == "html" else None
+        with open(outfile, "w", encoding=encoding) as file:
             file.write(result)
 
         if show_table:
