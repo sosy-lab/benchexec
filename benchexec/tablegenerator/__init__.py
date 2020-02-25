@@ -24,6 +24,7 @@ import bz2
 import collections
 import copy
 from decimal import Decimal, InvalidOperation
+import functools
 import gzip
 import io
 import itertools
@@ -40,7 +41,6 @@ import urllib.request
 from xml.etree import ElementTree
 
 import tempita
-from functools import reduce
 
 from benchexec import __version__, BenchExecException
 import benchexec.model as model
@@ -1079,7 +1079,7 @@ def filter_rows_with_differences(rows):
                 }
             )
 
-        return reduce(lambda x, y: x and (len(y) <= 1), status, True)
+        return functools.reduce(lambda x, y: x and (len(y) <= 1), status, True)
 
     rowsDiff = [row for row in rows if not all_equal_result(row.results)]
 
