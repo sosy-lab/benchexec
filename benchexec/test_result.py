@@ -30,7 +30,6 @@ from benchexec.result import (
     _PROP_DEADLOCK,
     _PROP_MEMSAFETY,
     _MEMSAFETY_SUBPROPERTIES,
-    _VALID_RESULTS_PER_PROPERTY,
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -88,34 +87,6 @@ class TestResult(unittest.TestCase):
     prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
     prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
     prop_sat = Property("dummy.prp", True, False, _PROP_SAT, [])
-
-    def test_Property_from_names(self):
-        for prop in _VALID_RESULTS_PER_PROPERTY.keys():
-            self.assertEqual(
-                Property(None, True, (prop != _PROP_SAT), prop, None),
-                Property.create_from_names([prop]),
-            )
-
-        self.assertEqual(
-            Property(None, True, True, _PROP_MEMSAFETY, list(_MEMSAFETY_SUBPROPERTIES)),
-            Property.create_from_names(_MEMSAFETY_SUBPROPERTIES),
-        )
-
-        self.assertEqual(
-            Property(None, False, False, "test prop", None),
-            Property.create_from_names(["test prop"]),
-        )
-
-        property_test_sets = [
-            ["test prop 1", "test prop 2"],
-            [_PROP_CALL, _PROP_TERMINATION],
-            [_PROP_DEREF, _PROP_FREE],
-        ]
-        for test_props in property_test_sets:
-            self.assertEqual(
-                Property(None, False, False, "unknown property", list(test_props)),
-                Property.create_from_names(test_props),
-            )
 
     def test_Property_from_standard_file(self):
         property_files = glob.glob(

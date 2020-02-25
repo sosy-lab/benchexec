@@ -325,30 +325,6 @@ class Property(
 
         return cls(propertyfile, is_well_known, is_svcomp, name, subproperties)
 
-    @classmethod
-    def create_from_names(cls, property_names):
-        """
-        Create a Property instance from a list of well-known property names
-        @param property_names: a non-empty list of property names
-        """
-        assert property_names
-
-        if len(property_names) == 1:
-            name = property_names[0]
-            subproperties = None
-        else:
-            name = (
-                _PROP_MEMSAFETY
-                if set(property_names) == _MEMSAFETY_SUBPROPERTIES
-                else "unknown property"
-            )
-            subproperties = list(property_names)
-
-        is_well_known = name in _VALID_RESULTS_PER_PROPERTY.keys()
-        is_svcomp = is_well_known and (_PROP_SAT not in property_names)
-
-        return cls(None, is_well_known, is_svcomp, name, subproperties)
-
 
 def expected_results_of_file(filename):
     """Create a dict of property->ExpectedResult from information encoded in a filename."""
