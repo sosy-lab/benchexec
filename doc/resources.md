@@ -59,10 +59,10 @@ For energy measurements to work,
 the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) needs to be installed.
 It will measure up to four values for each of the CPUs:
 
-- `cpuenergy-pkg<i>` is the energy consumption of the CPU `<i>` (whole "package").
+- `cpuenergy-pkg<i>-package` is the energy consumption of the CPU `<i>` (whole "package").
 - `cpuenergy-pkg<i>-core` is only the consumption of the CPU cores.
 - `cpuenergy-pkg<i>-uncore` is the consumption of the so-called "uncore" parts of the CPU (this may include an integrated graphics card).
-- `cpuenergy-pkg<i>-dram` is the consumption of the memory attached to CPU `<i>`.
+- `cpuenergy-pkg<i>-dram` is the consumption related to memory attached to CPU `<i>` (unclear what exactly this covers and might vary across systems).
 
 The "core" and "uncore" values are included in the "package" value,
 whereas for the "dram" value this is unclear.
@@ -74,7 +74,7 @@ For further information about the meaning of these values,
 please consult the [Intel Software Developers Manual Volume 3B Chapter 14.9](https://software.intel.com/sites/default/files/managed/7c/f1/253669-sdm-vol-3b.pdf).
 
 BenchExec will additionally compute a value named `cpuenergy`,
-which is the sum of the `cpuenergy-pkg<i>` values for all CPUs
+which is the sum of the `cpuenergy-pkg<i>-package` values for all CPUs
 that are used by a run.
 However, note that BenchExec can only measure the energy consumption of each CPU as a whole.
 Thus energy will be measured only if each run uses all cores of one or more CPUs,

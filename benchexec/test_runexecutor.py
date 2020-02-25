@@ -161,7 +161,7 @@ class TestRunExecutor(unittest.TestCase):
             elif key.startswith("cpuenergy-"):
                 self.assertRegex(
                     key,
-                    "^cpuenergy-pkg[0-9]+(-(core|uncore|dram|psys))?$",
+                    "^cpuenergy-pkg[0-9]+-(package|core|uncore|dram|psys)$",
                     "unexpected result entry '{}={}'".format(key, result[key]),
                 )
             else:
