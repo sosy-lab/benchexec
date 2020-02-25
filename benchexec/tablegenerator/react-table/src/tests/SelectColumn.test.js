@@ -14,10 +14,8 @@ import { test_snapshot_of } from "./utils.js";
 jest.mock("uniqid", () => i => i + "uniqid");
 
 test_snapshot_of("Render SelectColumn", overview => (
-    <SelectColumn
-        close={overview.toggleSelectColumns}
-        currColumns={overview.columns}
-        tableHeader={overview.tableHeader}
-        tools={overview.state.tools}
-    />
+  <SelectColumn
+    tableHeader={overview.tableHeader}
+    tools={overview.state.tools}
+  />
 ));
