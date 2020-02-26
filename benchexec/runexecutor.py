@@ -550,6 +550,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
         try:
+            parent_dir = os.path.dirname(output_filename)
+            if parent_dir:
+                util.makedirs(parent_dir, exist_ok=True)
             output_file = open(output_filename, "w")  # override existing file
         except IOError as e:
             sys.exit(e)
