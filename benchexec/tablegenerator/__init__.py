@@ -945,46 +945,52 @@ class Row(object):
         ), "not all results are for same task"
         self.filename = self.id[0]
 
-        property_names = self.id[1].split() if self.id[1] else []
         self.properties = []
         self.expected_results = {}
-
-        if self.filename.endswith(".yml"):
-            # try to find property file of task and create Property object
-            try:
-                task_template = model.load_task_definition_file(self.filename)
-                for prop_dict in task_template.get("properties", []):
-                    if "property_file" in prop_dict:
-                        expanded = benchexec.util.expand_filename_pattern(
-                            prop_dict["property_file"], os.path.dirname(self.filename)
-                        )
-                        if len(expanded) == 1:
-                            prop = result.Property.create(
-                                expanded[0], allow_unknown=True
-                            )
-                            if set(prop.names) == set(property_names):
-                                self.properties.append(prop)
-                                expected_result = prop_dict.get("expected_verdict")
-                                if isinstance(expected_result, bool):
-                                    self.expected_results[
-                                        prop.name
-                                    ] = result.ExpectedResult(
-                                        expected_result, prop_dict.get("subproperty")
-                                    )
-                                break
-            except BenchExecException as e:
-                logging.debug(
-                    "Could not load task-template file {}: {}".format(self.filename, e)
-                )
-        elif property_names:
-            self.properties = [result.Property.create_from_names(property_names)]
-            self.expected_results = result.expected_results_of_file(self.filename)
+        prop, expected_result = get_property_of_task(self.id)
+        if prop:
+            self.properties.append(prop)
+            if expected_result:
+                self.expected_results[prop.name] = expected_result
 
     def set_relative_path(self, common_prefix, base_dir):
         """
         generate output representation of rows
         """
         self.short_filename = self.filename.replace(common_prefix, "", 1)
+
+
+def get_property_of_task(task_id):
+    task_name = task_id[0]
+    property_names = task_id[1].split() if task_id[1] else []
+    if task_name.endswith(".yml"):
+        # try to find property file of task and create Property object
+        try:
+            task_template = model.load_task_definition_file(task_name)
+            for prop_dict in task_template.get("properties", []):
+                if "property_file" in prop_dict:
+                    expanded = benchexec.util.expand_filename_pattern(
+                        prop_dict["property_file"], os.path.dirname(task_name)
+                    )
+                    if len(expanded) == 1:
+                        prop = result.Property.create(expanded[0], allow_unknown=True)
+                        if set(prop.names) == set(property_names):
+                            expected_result = prop_dict.get("expected_verdict")
+                            if isinstance(expected_result, bool):
+                                expected_result = result.ExpectedResult(
+                                    expected_result, prop_dict.get("subproperty")
+                                )
+                            else:
+                                expected_result = None
+                            return (prop, expected_result)
+        except BenchExecException as e:
+            logging.debug("Could not load task-template file %s: %s", task_name, e)
+    elif property_names:
+        prop = result.Property.create_from_names(property_names)
+        expected_result = result.expected_results_of_file(task_name).get(prop.name)
+        return (prop, expected_result)
+
+    return (None, None)
 
 
 def rows_to_columns(rows):
