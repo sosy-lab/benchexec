@@ -179,8 +179,8 @@ export default class SelectColumn extends React.Component {
   };
 
   render() {
-    ReactModal.setAppElement("#root");
     return (
+      <div id="root">
       <ReactModal
         className="overlay"
         isOpen={true}
@@ -215,6 +215,7 @@ export default class SelectColumn extends React.Component {
           <input />
         </div>
       </ReactModal>
+      </div>
     );
   }
 }
