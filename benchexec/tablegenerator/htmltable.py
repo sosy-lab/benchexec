@@ -190,7 +190,7 @@ def _get_task_counts(rows):
     count_true = count_false = max_score = 0
     for row in rows:
         if not row.property:
-            logging.info("Missing property for %s.", row.filename)
+            logging.info("Missing property for task %s.", row.id)
             continue
         expected_result = row.expected_result
         if not expected_result:
@@ -469,7 +469,7 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
         )
 
     source_file = (
-        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
+        os.path.relpath(runResult.task_id.name, href_base or ".") if runResult else None
     )
 
     if util.is_url(href):

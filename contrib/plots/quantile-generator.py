@@ -29,7 +29,7 @@ def get_extract_value_function(column_identifier):
                 pos = i
                 break
         if pos is None:
-            sys.exit("CPU time missing for task {0}.".format(run_result.task_id[0]))
+            sys.exit("CPU time missing for task {0}.".format(run_result.task_id))
         return util.to_decimal(run_result.values[pos])
 
     return extract_value
@@ -100,7 +100,7 @@ def main(args=None):
                 sys.exit(
                     "No score available for task {0}, "
                     "cannot produce score-based quantile data.".format(
-                        run_result.task_id[0]
+                        run_result.task_id
                     )
                 )
 
@@ -110,7 +110,7 @@ def main(args=None):
                 sys.exit(
                     "Property missing for task {0}, "
                     "cannot produce score-based quantile data.".format(
-                        run_result.task_id[0]
+                        run_result.task_id
                     )
                 )
             elif run_result.category == result.CATEGORY_CORRECT:

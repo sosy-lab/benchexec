@@ -37,9 +37,7 @@ def extract_time(column_title, time_name, run_result):
             pos = i
             break
     if pos is None:
-        sys.exit(
-            "{0} time missing for task {1}.".format(time_name, run_result.task_id[0])
-        )
+        sys.exit("{0} time missing for task {1}.".format(time_name, run_result.task_id))
     return util.to_decimal(run_result.values[pos])
 
 

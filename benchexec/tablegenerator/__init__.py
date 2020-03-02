@@ -279,11 +279,20 @@ def _get_columns_relevant_for_diff(columns_to_show):
         return cols
 
 
+class TaskId(collections.namedtuple("TaskId", "name property runset")):
+    """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    __slots__ = ()  # reduce per-instance memory consumption
+
+    def __str__(self):
+        return "'" + ", ".join(s for s in self if s) + "'"
+
+
 def get_task_id(task, base_path_or_url):
     """
     Return a unique identifier for a given task.
     @param task: the XML element that represents a task
-    @return a tuple with filename of task as first element
+    @return a TaskId instance
     """
     name = task.get("name")
     if base_path_or_url:
@@ -293,13 +302,7 @@ def get_task_id(task, base_path_or_url):
             name = os.path.normpath(
                 os.path.join(os.path.dirname(base_path_or_url), name)
             )
-    task_id = [name, task.get("properties"), task.get("runset")]
-    return tuple(task_id)
-
-
-def format_task_id(task_id):
-    """Create a human-readable representation of the task_id for log messages etc."""
-    return "'" + ", ".join(s for s in task_id if s) + "'"
+    return TaskId(name, task.get("properties"), task.get("runset"))
 
 
 loaded_tools = {}
@@ -693,9 +696,7 @@ def merge_tasks(runset_results):
         for task in runset.get_tasks():
             if task in currentresult_taskset:
                 logging.warning(
-                    "Task %s is present twice in '%s', skipping it.",
-                    format_task_id(task),
-                    runset,
+                    "Task %s is present twice in '%s', skipping it.", task, runset
                 )
             else:
                 currentresult_taskset.add(task)
@@ -724,9 +725,7 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                logging.info(
-                    "    No result for task %s in '%s'.", format_task_id(task), runset
-                )
+                logging.info("    No result for task %s in '%s'.", task, runset)
                 # create an empty dummy element
                 run_result = RunResult(
                     task,
@@ -932,7 +931,7 @@ class Row(object):
         assert (
             len({r.task_id for r in results}) == 1
         ), "not all results are for same task"
-        self.filename = self.id[0]
+        self.filename = self.id.name
 
         self.property = None
         self.expected_result = None
@@ -946,8 +945,8 @@ class Row(object):
 
 
 def get_property_of_task(task_id):
-    task_name = task_id[0]
-    property_names = task_id[1].split() if task_id[1] else []
+    task_name = task_id.name
+    property_names = task_id.property.split() if task_id.property else []
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
         try:
