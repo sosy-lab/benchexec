@@ -179,43 +179,44 @@ export default class SelectColumn extends React.Component {
   };
 
   render() {
+    if (process.env.NODE_ENV !== "test") {
+      ReactModal.setAppElement("#root");
+    }
     return (
-      <div id="root">
-        <ReactModal
-          className="overlay"
-          isOpen={true}
-          onRequestClose={this.props.close}
-        >
-          <FontAwesomeIcon
-            icon={faTimes}
+      <ReactModal
+        className="overlay"
+        isOpen={true}
+        onRequestClose={this.props.close}
+      >
+        <FontAwesomeIcon
+          icon={faTimes}
+          onClick={this.props.close}
+          className="closing"
+        />
+        <h1>Select the columns to display</h1>
+        <table className="selectRows">
+          <tbody>
+            <tr className="selectColumn_all">
+              <th></th>
+              {this.renderSelectColumns()}
+            </tr>
+            {this.renderRunSets()}
+          </tbody>
+        </table>
+        <div className="overlay__buttons">
+          <button className="btn" onClick={this.deselectAll}>
+            {this.state.deselect ? "Deselect all" : "Select all"}
+          </button>
+          <button
+            className="btn btn-apply"
             onClick={this.props.close}
-            className="closing"
-          />
-          <h1>Select the columns to display</h1>
-          <table className="selectRows">
-            <tbody>
-              <tr className="selectColumn_all">
-                <th></th>
-                {this.renderSelectColumns()}
-              </tr>
-              {this.renderRunSets()}
-            </tbody>
-          </table>
-          <div className="overlay__buttons">
-            <button className="btn" onClick={this.deselectAll}>
-              {this.state.deselect ? "Deselect all" : "Select all"}
-            </button>
-            <button
-              className="btn btn-apply"
-              onClick={this.props.close}
-              disabled={!this.state.list.filter(tool => tool.isVisible).length}
-            >
-              Apply and close
-            </button>
-            <input />
-          </div>
-        </ReactModal>
-      </div>
+            disabled={!this.state.list.filter(tool => tool.isVisible).length}
+          >
+            Apply and close
+          </button>
+          <input />
+        </div>
+      </ReactModal>
     );
   }
 }
