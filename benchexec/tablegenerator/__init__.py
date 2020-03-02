@@ -945,13 +945,9 @@ class Row(object):
         ), "not all results are for same task"
         self.filename = self.id[0]
 
-        self.properties = []
-        self.expected_results = {}
-        prop, expected_result = get_property_of_task(self.id)
-        if prop:
-            self.properties.append(prop)
-            if expected_result:
-                self.expected_results[prop.name] = expected_result
+        self.property = None
+        self.expected_result = None
+        self.property, self.expected_result = get_property_of_task(self.id)
 
     def set_relative_path(self, common_prefix, base_dir):
         """

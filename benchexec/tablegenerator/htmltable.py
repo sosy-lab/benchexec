@@ -200,22 +200,17 @@ def _get_task_counts(rows):
     """Calculcate number of true/false tasks and maximum achievable score."""
     count_true = count_false = max_score = 0
     for row in rows:
-        if not row.properties:
+        if not row.property:
             logging.info("Missing property for %s.", row.filename)
             continue
-        if len(row.properties) > 1:
-            # multiple properties not yet supported
-            count_true = count_false = max_score = 0
-            break
-        expected_result = row.expected_results.get(row.properties[0].name)
+        expected_result = row.expected_result
         if not expected_result:
             continue
         if expected_result.result is True:
             count_true += 1
         elif expected_result.result is False:
             count_false += 1
-        for prop in row.properties:
-            max_score += prop.max_score(expected_result)
+        max_score += row.property.max_score(expected_result)
 
     return max_score, count_true, count_false
 
