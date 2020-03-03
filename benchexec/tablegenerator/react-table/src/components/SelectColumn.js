@@ -179,9 +179,7 @@ export default class SelectColumn extends React.Component {
   };
 
   render() {
-    if (process.env.NODE_ENV !== "test") {
-      ReactModal.setAppElement("#root");
-    }
+    ReactModal.setAppElement("#root");
     return (
       <ReactModal
         className="overlay"
