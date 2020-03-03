@@ -42,13 +42,6 @@ class TestResult(unittest.TestCase):
         cls.longMessage = True
         logging.disable(logging.CRITICAL)
 
-    def setUp(self):
-        # Compare Property objects by field
-        self.addTypeEqualityFunc(
-            Property,
-            lambda a, b, msg=None: self.assertEqual(a.__dict__, b.__dict__, msg),
-        )
-
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 

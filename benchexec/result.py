@@ -200,19 +200,26 @@ _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
 
 
-ExpectedResult = collections.namedtuple("ExpectedResult", "result subproperty")
-"""Stores the expected result and respective information for a task"""
+class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
+    """Stores the expected result and respective information for a task"""
+
+    __slots__ = ()  # reduce per-instance memory consumption
+
+    def __str__(self):
+        result = {True: "true", False: "false"}.get(self.result, "")
+        if result and self.subproperty:
+            return "{}({})".format(result, self.subproperty)
+        return result
 
 
-class Property(object):
+class Property(
+    collections.namedtuple(
+        "Property", "filename is_well_known is_svcomp name subproperties"
+    )
+):
     """Stores information about a property"""
 
-    def __init__(self, filename, is_well_known, is_svcomp, name, subproperties):
-        self.filename = filename
-        self.is_well_known = is_well_known
-        self.is_svcomp = is_svcomp
-        self.name = name
-        self.subproperties = subproperties
+    __slots__ = ()  # reduce per-instance memory consumption
 
     @property
     def names(self):
@@ -233,17 +240,17 @@ class Property(object):
             return 0
         return _svcomp_max_score(expected_result.result)
 
-    def __repr__(self):
-        return "{}({self.filename!r}, {self.is_well_known!r}, {self.is_svcomp!r}, {self.name!r}, {self.subproperties!r})".format(
-            self.__class__.__name__, self=self
-        )
-
-    def __str__(self):
+    @property
+    def nice_name(self):
+        use_short_name = self.is_well_known or not self.filename
         return (
             ("SV-COMP-" if self.is_svcomp else "")
             + "Property "
-            + (self.name if self.is_well_known else "from " + self.filename)
+            + (self.name if use_short_name else "from " + self.filename)
         )
+
+    def __str__(self):
+        return self.name
 
     @classmethod
     @functools.lru_cache()  # cache because it reads files
