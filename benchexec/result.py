@@ -231,7 +231,7 @@ class Property(object):
 
     def compute_score(self, category, result):
         if not self.is_svcomp:
-            return 0
+            return None
         return _svcomp_score(category, result)
 
     def max_score(self, expected_result):

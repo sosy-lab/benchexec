@@ -211,8 +211,8 @@ class TestResult(unittest.TestCase):
         )
 
     def test_Property_compute_score_smt(self):
-        self.assertEqual(0, self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_SAT))
-        self.assertEqual(0, self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_SAT))
+        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_SAT))
+        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_SAT))
 
     def test_Property_compute_score_svcomp(self):
         self.assertEqual(
