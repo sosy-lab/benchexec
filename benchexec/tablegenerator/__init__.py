@@ -279,13 +279,13 @@ def _get_columns_relevant_for_diff(columns_to_show):
         return cols
 
 
-class TaskId(collections.namedtuple("TaskId", "name property runset")):
+class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
     """Uniquely identifies a task (name of input file, property, etc.)."""
 
     __slots__ = ()  # reduce per-instance memory consumption
 
     def __str__(self):
-        return "'" + ", ".join(s for s in self if s) + "'"
+        return "'" + ", ".join(str(s) for s in self if s) + "'"
 
 
 def normalize_path(path, base_path_or_url):
@@ -855,10 +855,10 @@ class RunResult(object):
             # task_name is a path
             task_name = normalize_path(task_name, result_file_or_url)
 
-        task_id = TaskId(
-            task_name, sourcefileTag.get("properties"), sourcefileTag.get("runset")
+        prop, expected_result = get_property_of_task(
+            task_name, sourcefileTag.get("properties")
         )
-        prop, _ = get_property_of_task(task_id)
+        task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
@@ -926,22 +926,16 @@ class Row(object):
         assert (
             len({r.task_id for r in results}) == 1
         ), "not all results are for same task"
-        self.filename = self.id.name
-
-        self.property = None
-        self.expected_result = None
-        self.property, self.expected_result = get_property_of_task(self.id)
 
     def set_relative_path(self, common_prefix, base_dir):
         """
         generate output representation of rows
         """
-        self.short_filename = self.filename.replace(common_prefix, "", 1)
+        self.short_filename = self.id.name.replace(common_prefix, "", 1)
 
 
-def get_property_of_task(task_id):
-    task_name = task_id.name
-    property_names = task_id.property.split() if task_id.property else []
+def get_property_of_task(task_name, property_string):
+    property_names = property_string.split() if property_string else []
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
         try:
@@ -964,7 +958,8 @@ def get_property_of_task(task_id):
                             return (prop, expected_result)
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
-    elif property_names:
+
+    if property_names:
         prop = result.Property.create_from_names(property_names)
         expected_result = result.expected_results_of_file(task_name).get(prop.name)
         return (prop, expected_result)
@@ -1140,6 +1135,10 @@ def select_relevant_id_columns(rows):
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
+            if column == 2:
+                # hide expected verdict for now
+                relevant_id_columns.append(False)
+                continue
 
             def id_equal_to_prototype(row):
                 return row.id[column] == prototype_id[column]
@@ -1241,7 +1240,7 @@ def create_tables(
 
     # get common folder of sourcefiles
     # os.path.commonprefix can return a partial path component (does not truncate on /)
-    common_prefix = os.path.commonprefix([r.filename for r in rows])
+    common_prefix = os.path.commonprefix([r.id.name for r in rows])
     common_prefix = common_prefix[: common_prefix.rfind("/") + 1]
     for row in rows:
         Row.set_relative_path(row, common_prefix, outputPath)
@@ -1349,7 +1348,7 @@ def write_csv_table(
             if is_relevant:
                 out.write(sep)
                 if row_id is not None:
-                    out.write(row_id)
+                    out.write(str(row_id))
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
