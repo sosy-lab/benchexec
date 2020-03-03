@@ -509,6 +509,11 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
         >
          false_other_sub_task.yml
         </span>
+        <span
+         className="row_id"
+        >
+         false(other_subproperty)
+        </span>
        </a>
       </div>
       <div
@@ -644,6 +649,11 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
         >
          false_sub2_task.yml
         </span>
+        <span
+         className="row_id"
+        >
+         false(sub2)
+        </span>
        </a>
       </div>
       <div
@@ -774,6 +784,11 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
          className="row_id"
         >
          false_sub_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         false(sub)
         </span>
        </a>
       </div>
@@ -910,6 +925,11 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
         >
          false_task.yml
         </span>
+        <span
+         className="row_id"
+        >
+         false
+        </span>
        </a>
       </div>
       <div
@@ -1044,6 +1064,11 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
          className="row_id"
         >
          true_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         true
         </span>
        </a>
       </div>

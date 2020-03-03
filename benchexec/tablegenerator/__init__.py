@@ -1133,10 +1133,6 @@ def select_relevant_id_columns(rows):
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-            if column == 2:
-                # hide expected verdict for now
-                relevant_id_columns.append(False)
-                continue
 
             def id_equal_to_prototype(row):
                 return row.id[column] == prototype_id[column]
