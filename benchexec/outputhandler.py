@@ -136,19 +136,17 @@ class OutputHandler(object):
             if systemInfo.attrib["hostname"] == hostname:
                 return
 
-        osElem = ElementTree.Element("os", {"name": opSystem})
+        osElem = ElementTree.Element("os", name=opSystem)
         cpuElem = ElementTree.Element(
             "cpu",
-            {
-                "model": cpu_model,
-                "cores": cpu_number_of_cores,
-                "frequency": str(cpu_max_frequency) + "Hz",
-            },
+            model=cpu_model,
+            cores=cpu_number_of_cores,
+            frequency=str(cpu_max_frequency) + "Hz",
         )
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ElementTree.Element("ram", {"size": str(memory) + "B"})
-        systemInfo = ElementTree.Element("systeminfo", {"hostname": hostname})
+        ramElem = ElementTree.Element("ram", size=str(memory) + "B")
+        systemInfo = ElementTree.Element("systeminfo", hostname=hostname)
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
@@ -182,15 +180,13 @@ class OutputHandler(object):
         # store benchmarkInfo in XML
         self.xml_header = ElementTree.Element(
             "result",
-            {
-                "benchmarkname": self.benchmark.name,
-                "date": self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
-                "starttime": self.benchmark.start_time.isoformat(),
-                "tool": self.benchmark.tool_name,
-                "version": version,
-                "toolmodule": self.benchmark.tool_module,
-                "generator": "BenchExec " + benchexec.__version__,
-            },
+            benchmarkname=self.benchmark.name,
+            date=self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+            starttime=self.benchmark.start_time.isoformat(),
+            tool=self.benchmark.tool_name,
+            version=version,
+            toolmodule=self.benchmark.tool_module,
+            generator="BenchExec " + benchexec.__version__,
         )
         if self.benchmark.display_name:
             self.xml_header.set("displayName", self.benchmark.display_name)
@@ -209,11 +205,11 @@ class OutputHandler(object):
 
         # store columnTitles in XML, this are the default columns, that are shown in a default html-table from table-generator
         columntitlesElem = ElementTree.Element("columns")
-        columntitlesElem.append(ElementTree.Element("column", {"title": "status"}))
-        columntitlesElem.append(ElementTree.Element("column", {"title": "cputime"}))
-        columntitlesElem.append(ElementTree.Element("column", {"title": "walltime"}))
+        columntitlesElem.append(ElementTree.Element("column", title="status"))
+        columntitlesElem.append(ElementTree.Element("column", title="cputime"))
+        columntitlesElem.append(ElementTree.Element("column", title="walltime"))
         for column in self.benchmark.columns:
-            columnElem = ElementTree.Element("column", {"title": column.title})
+            columnElem = ElementTree.Element("column", title=column.title)
             columntitlesElem.append(columnElem)
         self.xml_header.append(columntitlesElem)
 
@@ -370,19 +366,18 @@ class OutputHandler(object):
                 adjusted_identifier = run.identifier
 
             # prepare XML structure for each run and runSet
-            run_attributes = {"name": adjusted_identifier}
+            run.xml = ElementTree.Element("run", name=adjusted_identifier)
             if run.sourcefiles:
-                adjusted_sourcefiles = [
+                adjusted_sourcefiles = (
                     util.relative_path(s, xml_file_name) for s in run.sourcefiles
-                ]
-                run_attributes["files"] = "[" + ", ".join(adjusted_sourcefiles) + "]"
-            run.xml = ElementTree.Element("run", run_attributes)
+                )
+                run.xml.set("files", "[" + ", ".join(adjusted_sourcefiles) + "]")
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                all_properties = [
+                all_properties = (
                     prop_name for prop in run.properties for prop_name in prop.names
-                ]
+                )
                 run.xml.set("properties", " ".join(sorted(all_properties)))
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
@@ -735,11 +730,10 @@ class OutputHandler(object):
 
         value = "{}{}".format(value, value_suffix)
 
+        element = ElementTree.Element("column", title=title, value=value)
         if hidden:
-            attributes = {"title": title, "value": value, "hidden": "true"}
-        else:
-            attributes = {"title": title, "value": value}
-        xml.append(ElementTree.Element("column", attributes))
+            element.set("hidden", "true")
+        xml.append(element)
 
     def create_output_line(
         self,
