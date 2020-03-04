@@ -1,1700 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
-<div
- id="summary"
->
- <div
-  id="benchmark_setup"
- >
-  <h2>
-   Benchmark Setup
-  </h2>
-  <table>
-   <tbody>
-    <tr
-     className="tool"
-    >
-     <th>
-      Tool
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      DummyTool 
-     </td>
-    </tr>
-    <tr
-     className="limits"
-    >
-     <th>
-      Limits
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      timelimit: -, memlimit: -, CPU core limit: -
-     </td>
-    </tr>
-    <tr
-     className="host"
-    >
-     <th>
-      Host
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      t460p
-     </td>
-    </tr>
-    <tr
-     className="os"
-    >
-     <th>
-      OS
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      Linux-5.0.0-37-generic-x86_64-with-Ubuntu-18.04-bionic
-     </td>
-    </tr>
-    <tr
-     className="system"
-    >
-     <th>
-      System
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      CPU: Intel Core i5-6440HQ CPU @ 2.60GHz, cores: 4, frequency: 3500 MHz, Turbo Boost: enabled; RAM: 33587 MB
-     </td>
-    </tr>
-    <tr
-     className="date"
-    >
-     <th>
-      Date of execution
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      2019-12-20 15:32:33 CET
-     </td>
-    </tr>
-    <tr
-     className="run"
-    >
-     <th>
-      Run set
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      0
-     </td>
-    </tr>
-    <tr
-     className="options"
-    >
-     <th>
-      Options
-     </th>
-     <td
-      className="header__tool-row options"
-      colSpan={5}
-     >
-      <ul>
-       <li>
-        <code>
-         true
-        </code>
-       </li>
-      </ul>
-     </td>
-    </tr>
-    <tr
-     className="property"
-    >
-     <th>
-      Properties
-     </th>
-     <td
-      className="header__tool-row"
-      colSpan={5}
-     >
-      test
-     </td>
-    </tr>
-   </tbody>
-  </table>
- </div>
- <div
-  id="statistics"
- >
-  <h2>
-   Statistics
-  </h2>
-  <div
-   className="ReactTable -highlight rthfc-uniqid rthfc -sp"
-  >
-   <div
-    className="rt-table"
-    role="grid"
-   >
-    <div
-     className="rt-thead -headerGroups"
-     style={
-      Object {
-       "minWidth": "543.6px",
-      }
-     }
-    >
-     <div
-      className="rt-tr"
-      role="row"
-     >
-      <div
-       className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "153.6 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "153.6px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="toolsHeader"
-       >
-        <form>
-         <label
-          title="Fix the first column"
-         >
-          Fixed row title:
-          <input
-           checked={true}
-           id="fixed-row-title"
-           name="fixed"
-           type="checkbox"
-          />
-         </label>
-        </form>
-       </div>
-      </div>
-      <div
-       className="rt-th separator"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "0 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-       tabIndex="-1"
-      />
-      <div
-       className="rt-th"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "388 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "388px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <span
-        className="header__tool-infos"
-        title="DummyTool 2019-12-20 15:32:33 CET 0"
-       >
-        DummyTool 2019-12-20 15:32:33 CET 0
-       </span>
-      </div>
-     </div>
-    </div>
-    <div
-     className="rt-thead -header"
-     style={
-      Object {
-       "minWidth": "543.6px",
-      }
-     }
-    >
-     <div
-      className="rt-tr"
-      role="row"
-     >
-      <div
-       className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "153.6 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "153.6px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <span
-         className="selectColumns"
-         title=""
-        >
-         Click here to select columns
-        </span>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-      <div
-       className="rt-th separator"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className=""
-       />
-      </div>
-      <div
-       className="rt-th rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <div
-         className="columns"
-         title="Show Quantile Plot of this column"
-        >
-         status
-        </div>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-      <div
-       className="rt-th rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <div
-         className="columns"
-         title="Show Quantile Plot of this column"
-        >
-         cputime
-         <br />
-         (s)
-        </div>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-      <div
-       className="rt-th rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <div
-         className="columns"
-         title="Show Quantile Plot of this column"
-        >
-         walltime
-         <br />
-         (s)
-        </div>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-      <div
-       className="rt-th rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <div
-         className="columns"
-         title="Show Quantile Plot of this column"
-        >
-         memory
-         <br />
-         (MB)
-        </div>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-      <div
-       className="rt-th rt-resizable-header"
-       role="columnheader"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-       tabIndex="-1"
-      >
-       <div
-        className="rt-resizable-header-content"
-       >
-        <div
-         className="columns"
-         title="Show Quantile Plot of this column"
-        >
-         cpuenergy
-         <br />
-         (J)
-        </div>
-       </div>
-       <div
-        className="rt-resizer"
-       />
-      </div>
-     </div>
-    </div>
-    <div
-     className="rt-tbody"
-     style={
-      Object {
-       "minWidth": "543.6px",
-      }
-     }
-    >
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -odd"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"total"}
-         title="in total 1 true tasks, 4 false tasks"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={6}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0103&#x2007;"}
-         title="avg: 0.00172, max: 0.00247, median: 0.00161, min: 0.00147, stdev: 0.000340"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0248&#x2007;"}
-         title="avg: 0.00413, max: 0.00545, median: 0.00393, min: 0.00334, stdev: 0.000803"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"2.16&#x2007;"}
-         title="avg: 0.360, max: 0.410, median: 0.381, min: 0.303, stdev: 0.0404"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0137"}
-         title="avg: 0.00342, max: 0.0137, median: 0, min: 0, stdev: 0.00592"
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -even"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"local summary"}
-         title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".301&#x2007;&#x2007;"}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"1.17&#x2007;&#x2007;&#x2007;"}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"3.76&#x2007;&#x2007;"}
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -odd"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;correct results"}
-         title="(property holds + result is true) OR (property does not hold + result is false)"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={1}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00160"}
-         title="avg: 0.00160, max: 0.00160, median: 0.00160, min: 0.00160, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00334"}
-         title="avg: 0.00334, max: 0.00334, median: 0.00334, min: 0.00334, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".410"}
-         title="avg: 0.410, max: 0.410, median: 0.410, min: 0.410, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -even"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"}
-         title="property holds + result is true"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={1}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00160"}
-         title="avg: 0.00160, max: 0.00160, median: 0.00160, min: 0.00160, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00334"}
-         title="avg: 0.00334, max: 0.00334, median: 0.00334, min: 0.00334, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".410"}
-         title="avg: 0.410, max: 0.410, median: 0.410, min: 0.410, stdev: 0"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -odd"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"}
-         title="property does not hold + result is false"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={0}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -even"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"}
-         title="(property holds + result is false) OR (property does not hold + result is true)"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={4}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00726"}
-         title="avg: 0.00181, max: 0.00247, median: 0.00164, min: 0.00151, stdev: 0.000382"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0180&#x2007;"}
-         title="avg: 0.00451, max: 0.00545, median: 0.00458, min: 0.00342, stdev: 0.000729"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"1.37&#x2007;"}
-         title="avg: 0.343, max: 0.381, median: 0.344, min: 0.303, stdev: 0.0379"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0137"}
-         title="avg: 0.00456, max: 0.0137, median: 0, min: 0, stdev: 0.00645"
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -odd"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"}
-         title="property does not hold + result is true"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={4}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".00726"}
-         title="avg: 0.00181, max: 0.00247, median: 0.00164, min: 0.00151, stdev: 0.000382"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0180&#x2007;"}
-         title="avg: 0.00451, max: 0.00545, median: 0.00458, min: 0.00342, stdev: 0.000729"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={"1.37&#x2007;"}
-         title="avg: 0.343, max: 0.381, median: 0.344, min: 0.303, stdev: 0.0379"
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={".0137"}
-         title="avg: 0.00456, max: 0.0137, median: 0, min: 0, stdev: 0.00645"
-        />
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -even"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"}
-         title="property holds + result is false"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={0}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-      </div>
-     </div>
-     <div
-      className="rt-tr-group"
-      role="rowgroup"
-     >
-      <div
-       className="rt-tr -odd"
-       role="row"
-      >
-       <div
-        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "153.6 0 auto",
-          "left": 0,
-          "maxWidth": null,
-          "right": false,
-          "width": "153.6px",
-         }
-        }
-       >
-        <div
-         className="row-title"
-         dangerouslySetInnerHTML={"score (6 tasks, max score: 6)"}
-         title="in total 1 true tasks, 4 false tasks"
-        />
-       </div>
-       <div
-        className="rt-td separator"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "2 0 auto",
-          "left": false,
-          "maxWidth": "2px",
-          "right": false,
-          "width": "2px",
-         }
-        }
-       />
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-         dangerouslySetInnerHTML={-126}
-        />
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "76 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "76px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "84 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "84px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "68 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "68px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-       <div
-        className="rt-td"
-        role="gridcell"
-        style={
-         Object {
-          "flex": "92 0 auto",
-          "left": false,
-          "maxWidth": null,
-          "right": false,
-          "width": "92px",
-         }
-        }
-       >
-        <div
-         className="cell"
-        >
-         -
-        </div>
-       </div>
-      </div>
-     </div>
-    </div>
-   </div>
-   <div
-    className="-loading"
-   >
-    <div
-     className="-loading-inner"
-    >
-     Loading...
-    </div>
-   </div>
-  </div>
- </div>
- <p>
-  Generated by
-  <a
-   className="link"
-   href="https://github.com/sosy-lab/benchexec"
-   rel="noopener noreferrer"
-   target="_blank"
-  >
-   BenchExec (test)
-  </a>
- </p>
-</div>
-`;
-
 exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no options.html 1`] = `
 <div
  id="summary"
@@ -28355,6 +26660,2899 @@ exports[`Render Summary for smt.table.html 1`] = `
           "maxWidth": null,
           "right": false,
           "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div
+    className="-loading"
+   >
+    <div
+     className="-loading-inner"
+    >
+     Loading...
+    </div>
+   </div>
+  </div>
+ </div>
+ <p>
+  Generated by
+  <a
+   className="link"
+   href="https://github.com/sosy-lab/benchexec"
+   rel="noopener noreferrer"
+   target="_blank"
+  >
+   BenchExec (test)
+  </a>
+ </p>
+</div>
+`;
+
+exports[`Render Summary for task-def-files.table.html 1`] = `
+<div
+ id="summary"
+>
+ <div
+  id="benchmark_setup"
+ >
+  <h2>
+   Benchmark Setup
+  </h2>
+  <table>
+   <tbody>
+    <tr
+     className="tool"
+    >
+     <th>
+      Tool
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={10}
+     >
+      DummyTool 
+     </td>
+    </tr>
+    <tr
+     className="limits"
+    >
+     <th>
+      Limits
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={10}
+     >
+      timelimit: -, memlimit: -, CPU core limit: -
+     </td>
+    </tr>
+    <tr
+     className="host"
+    >
+     <th>
+      Host
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={10}
+     >
+      t460p
+     </td>
+    </tr>
+    <tr
+     className="os"
+    >
+     <th>
+      OS
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      Linux-5.0.0-37-generic-x86_64-with-Ubuntu-18.04-bionic
+     </td>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      Linux-5.3.0-53-generic-x86_64-with-Ubuntu-18.04-bionic
+     </td>
+    </tr>
+    <tr
+     className="system"
+    >
+     <th>
+      System
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      CPU: Intel Core i5-6440HQ CPU @ 2.60GHz, cores: 4, frequency: 3500 MHz, Turbo Boost: enabled; RAM: 33587 MB
+     </td>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      CPU: Intel Core i5-6440HQ CPU @ 2.60GHz, cores: 4, frequency: 3500 MHz, Turbo Boost: enabled; RAM: 33537 MB
+     </td>
+    </tr>
+    <tr
+     className="date"
+    >
+     <th>
+      Date of execution
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      2019-12-20 15:32:33 CET
+     </td>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      2020-06-10 09:17:06 CEST
+     </td>
+    </tr>
+    <tr
+     className="run"
+    >
+     <th>
+      Run set
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      0
+     </td>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      0
+     </td>
+    </tr>
+    <tr
+     className="options"
+    >
+     <th>
+      Options
+     </th>
+     <td
+      className="header__tool-row options"
+      colSpan={5}
+     >
+      <ul>
+       <li>
+        <code>
+         true
+        </code>
+       </li>
+      </ul>
+     </td>
+     <td
+      className="header__tool-row options"
+      colSpan={5}
+     >
+      <ul>
+       <li>
+        <code>
+         true
+        </code>
+       </li>
+      </ul>
+     </td>
+    </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={10}
+     >
+      test
+     </td>
+    </tr>
+   </tbody>
+  </table>
+ </div>
+ <div
+  id="statistics"
+ >
+  <h2>
+   Statistics
+  </h2>
+  <div
+   className="ReactTable -highlight rthfc-uniqid rthfc -sp"
+  >
+   <div
+    className="rt-table"
+    role="grid"
+   >
+    <div
+     className="rt-thead -headerGroups"
+     style={
+      Object {
+       "minWidth": "933.6px",
+      }
+     }
+    >
+     <div
+      className="rt-tr"
+      role="row"
+     >
+      <div
+       className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "153.6 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "153.6px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="toolsHeader"
+       >
+        <form>
+         <label
+          title="Fix the first column"
+         >
+          Fixed row title:
+          <input
+           checked={true}
+           id="fixed-row-title"
+           name="fixed"
+           type="checkbox"
+          />
+         </label>
+        </form>
+       </div>
+      </div>
+      <div
+       className="rt-th separator"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "0 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+       tabIndex="-1"
+      />
+      <div
+       className="rt-th"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "388 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "388px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <span
+        className="header__tool-infos"
+        title="DummyTool 2019-12-20 15:32:33 CET 0"
+       >
+        DummyTool 2019-12-20 15:32:33 CET 0
+       </span>
+      </div>
+      <div
+       className="rt-th separator"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "0 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+       tabIndex="-1"
+      />
+      <div
+       className="rt-th"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "388 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "388px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <span
+        className="header__tool-infos"
+        title="DummyTool 2020-06-10 09:17:06 CEST 0"
+       >
+        DummyTool 2020-06-10 09:17:06 CEST 0
+       </span>
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-thead -header"
+     style={
+      Object {
+       "minWidth": "933.6px",
+      }
+     }
+    >
+     <div
+      className="rt-tr"
+      role="row"
+     >
+      <div
+       className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "153.6 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "153.6px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <span
+         className="selectColumns"
+         title=""
+        >
+         Click here to select columns
+        </span>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th separator"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className=""
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         status
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         cputime
+         <br />
+         (s)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         walltime
+         <br />
+         (s)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         memory
+         <br />
+         (MB)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         cpuenergy
+         <br />
+         (J)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th separator"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className=""
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         status
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         cputime
+         <br />
+         (s)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         walltime
+         <br />
+         (s)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         memory
+         <br />
+         (MB)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         cpuenergy
+         <br />
+         (J)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tbody"
+     style={
+      Object {
+       "minWidth": "933.6px",
+      }
+     }
+    >
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -odd"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"total"}
+         title="in total 1 true tasks, 4 false tasks"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={6}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0103&#x2007;"}
+         title="avg: 0.00172, max: 0.00247, median: 0.00161, min: 0.00147, stdev: 0.000340"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0248&#x2007;"}
+         title="avg: 0.00413, max: 0.00545, median: 0.00393, min: 0.00334, stdev: 0.000803"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"2.16&#x2007;"}
+         title="avg: 0.360, max: 0.410, median: 0.381, min: 0.303, stdev: 0.0404"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0137"}
+         title="avg: 0.00342, max: 0.0137, median: 0, min: 0, stdev: 0.00592"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={6}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0100&#x2007;"}
+         title="avg: 0.00167, max: 0.00208, median: 0.00160, min: 0.00132, stdev: 0.000256"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0208&#x2007;"}
+         title="avg: 0.00347, max: 0.00808, median: 0.00265, min: 0.00161, stdev: 0.00220"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.77&#x2007;"}
+         title="avg: 0.294, max: 0.381, median: 0.252, min: 0.250, stdev: 0.0613"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0170"}
+         title="avg: 0.00284, max: 0.0170, median: 0, min: 0, stdev: 0.00635"
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -even"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"local summary"}
+         title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".301&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.17&#x2007;&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"3.76&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".283&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.16&#x2007;&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"4.59&#x2007;&#x2007;"}
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -odd"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;correct results"}
+         title="(property holds + result is true) OR (property does not hold + result is false)"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={1}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00160"}
+         title="avg: 0.00160, max: 0.00160, median: 0.00160, min: 0.00160, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00334"}
+         title="avg: 0.00334, max: 0.00334, median: 0.00334, min: 0.00334, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".410"}
+         title="avg: 0.410, max: 0.410, median: 0.410, min: 0.410, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={1}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00150"}
+         title="avg: 0.00150, max: 0.00150, median: 0.00150, min: 0.00150, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00393"}
+         title="avg: 0.00393, max: 0.00393, median: 0.00393, min: 0.00393, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".381"}
+         title="avg: 0.381, max: 0.381, median: 0.381, min: 0.381, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -even"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"}
+         title="property holds + result is true"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={1}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00160"}
+         title="avg: 0.00160, max: 0.00160, median: 0.00160, min: 0.00160, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00334"}
+         title="avg: 0.00334, max: 0.00334, median: 0.00334, min: 0.00334, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".410"}
+         title="avg: 0.410, max: 0.410, median: 0.410, min: 0.410, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={1}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00150"}
+         title="avg: 0.00150, max: 0.00150, median: 0.00150, min: 0.00150, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00393"}
+         title="avg: 0.00393, max: 0.00393, median: 0.00393, min: 0.00393, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".381"}
+         title="avg: 0.381, max: 0.381, median: 0.381, min: 0.381, stdev: 0"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -odd"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"}
+         title="property does not hold + result is false"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={0}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={0}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -even"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"}
+         title="(property holds + result is false) OR (property does not hold + result is true)"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={4}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00726"}
+         title="avg: 0.00181, max: 0.00247, median: 0.00164, min: 0.00151, stdev: 0.000382"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0180&#x2007;"}
+         title="avg: 0.00451, max: 0.00545, median: 0.00458, min: 0.00342, stdev: 0.000729"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.37&#x2007;"}
+         title="avg: 0.343, max: 0.381, median: 0.344, min: 0.303, stdev: 0.0379"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0137"}
+         title="avg: 0.00456, max: 0.0137, median: 0, min: 0, stdev: 0.00645"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={4}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00694"}
+         title="avg: 0.00174, max: 0.00208, median: 0.00177, min: 0.00132, stdev: 0.000291"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0140&#x2007;"}
+         title="avg: 0.00349, max: 0.00808, median: 0.00213, min: 0.00161, stdev: 0.00267"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.00&#x2007;"}
+         title="avg: 0.251, max: 0.254, median: 0.250, min: 0.250, stdev: 0.00177"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -odd"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"}
+         title="property does not hold + result is true"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={4}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00726"}
+         title="avg: 0.00181, max: 0.00247, median: 0.00164, min: 0.00151, stdev: 0.000382"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0180&#x2007;"}
+         title="avg: 0.00451, max: 0.00545, median: 0.00458, min: 0.00342, stdev: 0.000729"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.37&#x2007;"}
+         title="avg: 0.343, max: 0.381, median: 0.344, min: 0.303, stdev: 0.0379"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0137"}
+         title="avg: 0.00456, max: 0.0137, median: 0, min: 0, stdev: 0.00645"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={4}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".00694"}
+         title="avg: 0.00174, max: 0.00208, median: 0.00177, min: 0.00132, stdev: 0.000291"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".0140&#x2007;"}
+         title="avg: 0.00349, max: 0.00808, median: 0.00213, min: 0.00161, stdev: 0.00267"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"1.00&#x2007;"}
+         title="avg: 0.251, max: 0.254, median: 0.250, min: 0.250, stdev: 0.00177"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
+        />
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -even"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"}
+         title="property holds + result is false"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={0}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={0}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+      </div>
+     </div>
+     <div
+      className="rt-tr-group"
+      role="rowgroup"
+     >
+      <div
+       className="rt-tr -odd"
+       role="row"
+      >
+       <div
+        className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "153.6 0 auto",
+          "left": 0,
+          "maxWidth": null,
+          "right": false,
+          "width": "153.6px",
+         }
+        }
+       >
+        <div
+         className="row-title"
+         dangerouslySetInnerHTML={"score (6 tasks, max score: 6)"}
+         title="in total 1 true tasks, 4 false tasks"
+        />
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={-126}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td separator"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "2 0 auto",
+          "left": false,
+          "maxWidth": "2px",
+          "right": false,
+          "width": "2px",
+         }
+        }
+       />
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={-126}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "76 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "76px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "84 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "84px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "68 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "68px",
+         }
+        }
+       >
+        <div
+         className="cell"
+        >
+         -
+        </div>
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "92 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "92px",
          }
         }
        >

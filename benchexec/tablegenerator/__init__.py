@@ -856,7 +856,11 @@ class RunResult(object):
             task_name = normalize_path(task_name, result_file_or_url)
 
         prop, expected_result = get_property_of_task(
-            task_name, sourcefileTag.get("properties")
+            task_name,
+            result_file_or_url,
+            sourcefileTag.get("properties"),
+            sourcefileTag.get("propertyFile"),
+            sourcefileTag.get("expectedVerdict"),
         )
         task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
 
@@ -934,9 +938,24 @@ class Row(object):
         self.short_filename = self.id.name.replace(common_prefix, "", 1)
 
 
-def get_property_of_task(task_name, property_string):
+def get_property_of_task(
+    task_name, base_path, property_string, property_file, expected_result
+):
     if property_string is None:
         return (None, None)
+
+    if property_file:
+        property_file = normalize_path(property_file, base_path)
+        try:
+            prop = result.Property.create(property_file, allow_unknown=True)
+        except OSError as e:
+            logging.debug("Cannot read property file %s: %s", property_file, e)
+            prop = result.Property(property_file, False, False, property_string, None)
+
+        if expected_result is not None:
+            expected_result = result.ExpectedResult.from_str(expected_result)
+
+        return (prop, expected_result)
 
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object

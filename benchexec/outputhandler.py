@@ -379,6 +379,14 @@ class OutputHandler(object):
                     prop_name for prop in run.properties for prop_name in prop.names
                 )
                 run.xml.set("properties", " ".join(sorted(all_properties)))
+            if len(run.properties) == 1:
+                prop = run.properties[0]
+                run.xml.set(
+                    "propertyFile", util.relative_path(prop.filename, xml_file_name)
+                )
+                expected_result = str(run.expected_results[prop.filename])
+                if expected_result:
+                    run.xml.set("expectedVerdict", expected_result)
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
