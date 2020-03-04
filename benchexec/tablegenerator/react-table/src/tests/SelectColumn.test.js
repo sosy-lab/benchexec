@@ -5,17 +5,20 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
-import SelectColumn from "../App.js";
-import { test_snapshot_of } from "./utils.js";
-import Enzyme, { shallow } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
+import ReactModal from "react-modal";
+import SelectColumn from "../components/SelectColumn.js";
 
-Enzyme.configure({ adapter: new Adapter() });
+import { test_snapshot_of } from "./utils.js";
 
 // mock uniqid to have consistent names
 // https://stackoverflow.com/a/44538270/396730
 jest.mock("uniqid", () => i => i + "uniqid");
 
-const wrapper = shallow(<SelectColumn />);
-const rootElement = wrapper.find("#root");
-test_snapshot_of("Render App", overview => rootElement);
+ReactModal.setAppElement(document.createElement("div"));
+
+test_snapshot_of("Render SelectColumn", overview => (
+  <SelectColumn
+    close={overview.toggleSelectColumns}
+    tools={overview.state.tools}
+  />
+));
