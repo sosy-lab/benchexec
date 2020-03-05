@@ -29,7 +29,6 @@ import collections
 import http.client
 import json
 import logging
-import mimetypes
 import os
 import shutil
 import sys
@@ -37,10 +36,11 @@ import time
 import urllib.request
 import zipfile
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
+import benchexec.util
 
 from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
-import benchexec.util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 AWS_URL = "v7ozqsjfod.execute-api.eu-central-1.amazonaws.com"
 
@@ -68,55 +68,75 @@ def init(config, benchmark):
 def get_system_info():
     return None
 
+
 def execute_benchmark(benchmark, output_handler):
     (awsInput, numberOfRuns) = getAWSInput(benchmark)
     awsToken = benchmark.config.token
 
     start_time = benchexec.util.read_local_time()
 
-
     try:
         conn = http.client.HTTPSConnection(AWS_URL)
-        payload = ''
+        payload = ""
         headers = {}
 
         # Create
-        conn.request(HTTP_GET,
-                     "/dev/" + awsToken + "/execution/create?benchmark=https://cloud-mgr.s3.eu-central-1.amazonaws.com/test.zip&parallelization=best",
-                     payload, headers)
+        conn.request(
+            HTTP_GET,
+            "/dev/"
+            + awsToken
+            + "/execution/create?benchmark=https://cloud-mgr.s3.eu-central-1.amazonaws.com/test.zip&parallelization=best",
+            payload,
+            headers,
+        )
         data = conn.getresponse().read()
         servermsg = json.loads(data.decode("utf-8").replace("'", '"'))
-        if servermsg.get("message") is not None and servermsg.get("message") == "Token not authorized.":
+        if (
+            servermsg.get("message") is not None
+            and servermsg.get("message") == "Token not authorized."
+        ):
             sys.exit("Invalid token submitted: " + awsToken)
 
         requestId = servermsg.get("requestId")
         logging.debug(data.decode("utf-8"))
 
-
         # Progress
-        logging.info("Waiting for the AWS EC2-instance to set everything up. This will take several minutes.")
+        logging.info(
+            "Waiting for the AWS EC2-instance to set everything up. This will take several minutes."
+        )
         initialized = False
         # Take a break to give the ec2-instance some time for instantiation
         while not initialized:
-            conn.request(HTTP_GET,
-                         "/dev/" + awsToken + "/execution/" + requestId + "/progress",
-                         payload, headers)
+            conn.request(
+                HTTP_GET,
+                "/dev/" + awsToken + "/execution/" + requestId + "/progress",
+                payload,
+                headers,
+            )
             data = conn.getresponse().read()
             logging.info("waiting...")
             servermsg = json.loads(data.decode("utf-8").replace("'", '"'))
-            if servermsg.get("message") is not None and servermsg.get("message") == "Internal server error":
+            if (
+                servermsg.get("message") is not None
+                and servermsg.get("message") == "Internal server error"
+            ):
                 time.sleep(10)
-                continue;
-            elif servermsg.get("instancesNotTerminatedTotal") is not None and servermsg.get("instancesNotTerminatedTotal") > 0:
+                continue
+            elif (
+                servermsg.get("instancesNotTerminatedTotal") is not None
+                and servermsg.get("instancesNotTerminatedTotal") > 0
+            ):
                 time.sleep(10)
-                continue;
+                continue
             initialized = True
 
-
         # Results
-        conn.request(HTTP_GET,
-                     "/dev/" + awsToken + "/execution/" + requestId + "/results",
-                     payload, headers)
+        conn.request(
+            HTTP_GET,
+            "/dev/" + awsToken + "/execution/" + requestId + "/results",
+            payload,
+            headers,
+        )
         res = conn.getresponse()
         data = res.read()
         urls = json.loads(data.decode("utf-8").replace("'", '"')).get("urls")
@@ -130,20 +150,17 @@ def execute_benchmark(benchmark, output_handler):
                 zip_file.extractall(benchmark.log_folder)
 
     except KeyboardInterrupt:
-      stop()
-
+        stop()
 
     if STOPPED_BY_INTERRUPT:
-       output_handler.set_error("interrupted")
+        output_handler.set_error("interrupted")
 
     end_time = benchexec.util.read_local_time()
 
     handleCloudResults(benchmark, output_handler, start_time, end_time)
 
     # Clean
-    conn.request(HTTP_GET,
-                 "/dev/" + awsToken + "/clean",
-                 payload, headers)
+    conn.request(HTTP_GET, "/dev/" + awsToken + "/clean", payload, headers)
 
 
 def stop():
@@ -182,13 +199,9 @@ def getAWSInput(benchmark):
             sys.exit("Multiple result-files patterns not supported in cloud mode.")
         awsInput.append(benchmark.result_files_patterns[0])
 
-    awsInput.extend(
-        [toTabList(limitsAndNumRuns)]
-    )
+    awsInput.extend([toTabList(limitsAndNumRuns)])
     awsInput.extend(runDefinitions)
     return ("\n".join(awsInput), numberOfRuns)
-
-
 
 
 def getBenchmarkDataForCloud(benchmark):
@@ -228,7 +241,7 @@ def getBenchmarkDataForCloud(benchmark):
             # we assume, that VCloud-client only splits its input at tabs,
             # so we can use all other chars for the info, that is needed to run the tool.
             argString = json.dumps(cmdline)
-            assert not "\t" in argString  # cannot call toTabList(), if there is a tab
+            assert "\t" not in argString  # cannot call toTabList(), if there is a tab
 
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
             if os.path.exists(run.identifier):
@@ -288,14 +301,18 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             filename = os.path.split(run.log_file)[1]
             resultFilesDir = os.path.splitext(filename)[0]
             prop, filedirTrimmed = resultFilesDir.split(".", 1)
-            logFile = os.path.join(benchmark.log_folder, filedirTrimmed, filename.split(".", 1)[1])
+            logFile = os.path.join(
+                benchmark.log_folder, filedirTrimmed, filename.split(".", 1)[1]
+            )
             shutil.move(logFile, run.log_file)
 
             dataFile = run.log_file + ".data"
             shutil.move(logFile + ".data", dataFile)
 
-            shutil.move(os.path.join(benchmark.log_folder, filedirTrimmed),
-                        os.path.join(benchmark.log_folder, resultFilesDir))
+            shutil.move(
+                os.path.join(benchmark.log_folder, filedirTrimmed),
+                os.path.join(benchmark.log_folder, resultFilesDir),
+            )
 
             zipfile = os.path.join(benchmark.log_folder, filedirTrimmed + ".zip")
             if os.path.isfile(zipfile):

@@ -30,20 +30,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import glob
 import logging
 import os
-import platform
 import subprocess
 import sys
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-cpachecker_dir = os.path.join(os.path.dirname(__file__), os.pardir)
-for egg in glob.glob(os.path.join(cpachecker_dir, "lib", "python-benchmark", "*.whl")):
-    sys.path.insert(0, egg)
 
 from benchexec import __version__
 import benchexec.benchexec
 import benchexec.model
 import benchexec.tools
 import benchexec.util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+cpachecker_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+for egg in glob.glob(os.path.join(cpachecker_dir, "lib", "python-benchmark", "*.whl")):
+    sys.path.insert(0, egg)
 
 # Add ./benchmark/tools to __path__ of benchexec.tools package
 # such that additional tool-wrapper modules can be placed in this directory.
@@ -85,9 +84,9 @@ class Benchmark(benchexec.benchexec.BenchExec):
             if not self.config.token:
                 sys.exit("Cannot run aws without a user-specific token")
             import benchmark.aws as executor
+
             logging.debug(
-                "Running benchexec %s using Amazon AWS.",
-                __version__,
+                "Running benchexec %s using Amazon AWS.", __version__,
             )
         else:
             executor = super(Benchmark, self).load_executor()
@@ -103,16 +102,11 @@ class Benchmark(benchexec.benchexec.BenchExec):
                 base_dir = os.path.join(os.path.dirname(script), os.path.pardir)
                 build_file = os.path.join(base_dir, "build.xml")
                 if os.path.exists(build_file) and subprocess.call(
-                    ["ant", "-q", "jar"],
-                    cwd=base_dir,
-                    shell=False,
+                    ["ant", "-q", "jar"], cwd=base_dir, shell=False,
                 ):
-                    sys.exit(
-                        "Failed to build CPAchecker, please fix the build first."
-                    )
+                    sys.exit("Failed to build CPAchecker, please fix the build first.")
 
-                return original_load_function(tool_name, *args, **kwargs)
-
+            return original_load_function(tool_name, *args, **kwargs)
 
         # Monkey-patch BenchExec to build CPAchecker before loading the tool-info
         # module (https://gitlab.com/sosy-lab/software/cpachecker/issues/549)
