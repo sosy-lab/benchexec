@@ -179,7 +179,7 @@ export default class SelectColumn extends React.Component {
   };
 
   render() {
-    ReactModal.setAppElement(document.getElementById("#root"));
+    ReactModal.setAppElement(document.getElementById("root"));
     return (
       <ReactModal
         ariaHideApp={false}
