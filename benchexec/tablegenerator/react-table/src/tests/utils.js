@@ -69,6 +69,7 @@ expect.addSnapshotSerializer({
 
 const testDir = "../test_integration/expected/";
 
+// Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
 ReactDOM.createPortal = dom => {
   return dom;
 };
@@ -85,7 +86,6 @@ const test_snapshot_of = (name, component_func) => {
         const overview = renderer
           .create(<Overview data={data} />)
           .getInstance();
-
         const component = renderer.create(component_func(overview));
 
         expect(component).toMatchSnapshot();
