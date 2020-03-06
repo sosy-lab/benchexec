@@ -111,6 +111,7 @@ It is integrated into the cluster-based logic-solving service
 The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
+- [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
 - [SMACK](https://github.com/smackers/smack)
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

@@ -5,6 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
+import ReactDOM from "react-dom";
 import renderer from "react-test-renderer";
 import Overview from "../components/Overview";
 const fs = require("fs");
@@ -67,6 +68,11 @@ expect.addSnapshotSerializer({
 });
 
 const testDir = "../test_integration/expected/";
+
+// Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
+ReactDOM.createPortal = dom => {
+  return dom;
+};
 
 const test_snapshot_of = (name, component_func) => {
   fs.readdirSync(testDir)

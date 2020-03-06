@@ -122,6 +122,19 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
       </ul>
      </td>
     </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      test
+     </td>
+    </tr>
    </tbody>
   </table>
  </div>
@@ -6473,6 +6486,19 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
       colSpan={4}
      >
       cbmc
+     </td>
+    </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={4}
+     >
+      unreach-call
      </td>
     </tr>
    </tbody>
@@ -55354,6 +55380,19 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       </ul>
      </td>
     </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={12}
+     >
+      unreach-call
+     </td>
+    </tr>
    </tbody>
   </table>
  </div>
@@ -68967,6 +69006,19 @@ exports[`Render Summary for smt.diff.html 1`] = `
       smtinterpol
      </td>
     </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={12}
+     >
+      sat
+     </td>
+    </tr>
    </tbody>
   </table>
  </div>
@@ -70993,6 +71045,19 @@ exports[`Render Summary for smt.table.html 1`] = `
       colSpan={6}
      >
       smtinterpol
+     </td>
+    </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={12}
+     >
+      sat
      </td>
     </tr>
    </tbody>
@@ -78574,6 +78639,19 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
         </code>
        </li>
       </ul>
+     </td>
+    </tr>
+    <tr
+     className="property"
+    >
+     <th>
+      Properties
+     </th>
+     <td
+      className="header__tool-row"
+      colSpan={5}
+     >
+      unreach-label
      </td>
     </tr>
    </tbody>

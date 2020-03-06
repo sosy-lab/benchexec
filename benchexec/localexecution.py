@@ -46,6 +46,15 @@ def init(config, benchmark):
     config.containerargs = {}
     if config.container:
         config.containerargs = containerexecutor.handle_basic_container_args(config)
+        if config.containerargs["container_tmpfs"] and (
+            config.filesCountLimit or config.filesSizeLimit
+        ):
+            sys.exit(
+                "Files-count limit and files-size limit are not supported "
+                "if tmpfs is used in container. "
+                "Use --no-tmpfs to make these limits work or disable them "
+                "(typically they are unnecessary if a tmpfs is used)."
+            )
     config.containerargs["use_namespaces"] = config.container
 
     benchmark.executable = benchmark.tool.executable()

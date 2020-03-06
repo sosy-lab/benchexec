@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Dependencies
+
+This project requires Node.js 12 or newer.
+
 ## Available Scripts
 
 In the project directory, you can run:
