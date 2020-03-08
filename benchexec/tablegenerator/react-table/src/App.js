@@ -5,14 +5,14 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import "./App.scss";
-import React, {Component} from "react";
+import React, { Component } from "react";
 import Overview from "./components/Overview";
 
 if (process.env.NODE_ENV !== "production") {
   // load example data for development
   // eslint-disable-next-line global-require, import/no-unresolved
-  window.data = require("@data")
-  window.data.version = "(development build)"
+  window.data = require("@data");
+  window.data.version = "(development build)";
 }
 
 class App extends Component {

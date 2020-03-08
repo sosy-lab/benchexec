@@ -5,10 +5,10 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
-import {Tab, Tabs, TabList, TabPanel} from "react-tabs";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faQuestionCircle} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import Table from "./ReactTable";
 import Summary from "./Summary";
 import Info from "./Info";
@@ -17,13 +17,15 @@ import ScatterPlot from "./ScatterPlot";
 import QuantilePlot from "./QuantilePlot";
 import LinkOverlay from "./LinkOverlay";
 import Reset from "./Reset";
-import {prepareTableData} from "../utils/utils";
+import { prepareTableData } from "../utils/utils";
 
 export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     // imported data
-    const {tableHeader, tools, columns, table, stats} = prepareTableData(props.data);
+    const { tableHeader, tools, columns, table, stats } = prepareTableData(
+      props.data
+    );
 
     this.originalTable = table;
     this.originalTools = tools;
@@ -45,14 +47,14 @@ export default class Overview extends React.Component {
       filtered: [],
       tabIndex: 0,
 
-      quantilePreSelection: tools[0].columns[1],
+      quantilePreSelection: tools[0].columns[1]
     };
   }
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = ev => {
     this.setState(prevState => ({
-      showSelectColumns: !prevState.showSelectColumns,
+      showSelectColumns: !prevState.showSelectColumns
     }));
   };
 
@@ -62,7 +64,7 @@ export default class Overview extends React.Component {
 
     this.setState(prevState => ({
       showLinkOverlay: !prevState.showLinkOverlay,
-      link: hrefRow,
+      link: hrefRow
     }));
   };
 
@@ -76,14 +78,14 @@ export default class Overview extends React.Component {
   filterPlotData = filter => {
     this.setState({
       table: this.filteredData,
-      filtered: filter,
+      filtered: filter
     });
   };
 
   resetFilters = () => {
     this.setState({
       table: this.originalTable,
-      filtered: [],
+      filtered: []
     });
   };
 
@@ -93,7 +95,7 @@ export default class Overview extends React.Component {
   changeTab = (_, column, tab) => {
     this.setState({
       tabIndex: tab,
-      quantilePreSelection: column,
+      quantilePreSelection: column
     });
   };
 
@@ -108,7 +110,7 @@ export default class Overview extends React.Component {
                 this.setState({
                   tabIndex,
                   showSelectColumns: false,
-                  showLinkOverlay: false,
+                  showLinkOverlay: false
                 })
               }
             >
@@ -151,21 +153,45 @@ export default class Overview extends React.Component {
                 />
               </TabPanel>
               <TabPanel>
-                <QuantilePlot table={this.state.table} tools={this.state.tools} preSelection={this.state.quantilePreSelection} getRowName={this.getRowName} />
+                <QuantilePlot
+                  table={this.state.table}
+                  tools={this.state.tools}
+                  preSelection={this.state.quantilePreSelection}
+                  getRowName={this.getRowName}
+                />
               </TabPanel>
               <TabPanel>
-                <ScatterPlot table={this.state.table} columns={this.columns} tools={this.state.tools} getRowName={this.getRowName} />
+                <ScatterPlot
+                  table={this.state.table}
+                  columns={this.columns}
+                  tools={this.state.tools}
+                  getRowName={this.getRowName}
+                />
               </TabPanel>
               <TabPanel>
-                <Info version={this.props.data.version} selectColumn={this.toggleSelectColumns} />
+                <Info
+                  version={this.props.data.version}
+                  selectColumn={this.toggleSelectColumns}
+                />
               </TabPanel>
             </Tabs>
           </div>
           <div>
             {this.state.showSelectColumns && (
-              <SelectColumn close={this.toggleSelectColumns} currColumns={this.columns} tableHeader={this.tableHeader} tools={this.state.tools} />
+              <SelectColumn
+                close={this.toggleSelectColumns}
+                currColumns={this.columns}
+                tableHeader={this.tableHeader}
+                tools={this.state.tools}
+              />
             )}
-            {this.state.showLinkOverlay && <LinkOverlay close={this.toggleLinkOverlay} link={this.state.link} toggleLinkOverlay={this.toggleLinkOverlay} />}
+            {this.state.showLinkOverlay && (
+              <LinkOverlay
+                close={this.toggleLinkOverlay}
+                link={this.state.link}
+                toggleLinkOverlay={this.toggleLinkOverlay}
+              />
+            )}
           </div>
         </main>
       </div>

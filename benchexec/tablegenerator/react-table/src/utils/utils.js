@@ -6,22 +6,23 @@
  */
 import React from "react";
 
-const prepareTableData = ({head, tools, rows, stats, props}) => {
+const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
     tools: tools.map(tool => ({
       ...tool,
       isVisible: true,
-      columns: tool.columns.map(column => ({...column, isVisible: true})),
+      columns: tool.columns.map(column => ({ ...column, isVisible: true }))
     })),
     columns: tools.map(tool => tool.columns.map(column => column.title)),
     table: rows,
     stats,
-    properties: props,
+    properties: props
   };
 };
 
-const isNumericColumn = column => column.type === "count" || column.type === "measure";
+const isNumericColumn = column =>
+  column.type === "count" || column.type === "measure";
 
 const applyNumericFilter = (filter, row, cell) => {
   const raw = getRawOrDefault(row[filter.id]);
@@ -58,7 +59,8 @@ const applyTextFilter = (filter, row, cell) => {
 
 const isNil = data => data === undefined || data === null;
 
-const getRawOrDefault = (value, def) => (isNil(value) || isNil(value.raw) ? def : value.raw);
+const getRawOrDefault = (value, def) =>
+  isNil(value) || isNil(value.raw) ? def : value.raw;
 
 const numericSortMethod = (a, b) => {
   const aValue = getRawOrDefault(a, +Infinity);
@@ -115,7 +117,7 @@ const formatColumnTitle = column =>
     column.display_title
   );
 
-const getRunSetName = ({tool, date, niceName}) => {
+const getRunSetName = ({ tool, date, niceName }) => {
   return `${tool} ${date} ${niceName}`;
 };
 
@@ -143,7 +145,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#E79FD5",
   "#1E96BE",
   "#89DAC1",
-  "#B3AD9E",
+  "#B3AD9E"
 ];
 
 export {
@@ -159,5 +161,5 @@ export {
   getRunSetName,
   isOkStatus,
   isNil,
-  EXTENDED_DISCRETE_COLOR_RANGE,
+  EXTENDED_DISCRETE_COLOR_RANGE
 };

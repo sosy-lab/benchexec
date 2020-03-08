@@ -8,7 +8,11 @@ import React from "react";
 
 export default class Reset extends React.Component {
   render = () => (
-    <button className="reset" onClick={this.props.resetFilters} disabled={!this.props.isFiltered}>
+    <button
+      className="reset"
+      onClick={this.props.resetFilters}
+      disabled={!this.props.isFiltered}
+    >
       <span className="hide">
         Showing <span className="highlight">{this.props.filteredCount}</span> of{" "}
       </span>

@@ -6,16 +6,16 @@
  */
 import React from "react";
 import ReactModal from "react-modal";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faTimes} from "@fortawesome/free-solid-svg-icons";
-import {getRunSetName} from "../utils/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { getRunSetName } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       deselect: true,
-      list: [...this.props.tools],
+      list: [...this.props.tools]
     };
     this.selectable = [];
   }
@@ -27,10 +27,19 @@ export default class SelectColumn extends React.Component {
       const toolName = getRunSetName(tool);
       return (
         <tr id={toolName} key={`tr${toolName}`}>
-          <td id={toolName} key={`key${toolName}`} className={isVisible ? "checked" : ""}>
+          <td
+            id={toolName}
+            key={`key${toolName}`}
+            className={isVisible ? "checked" : ""}
+          >
             <label>
               {toolName}
-              <input name={toolName} type="checkbox" checked={isVisible} onChange={e => this.deselectTool(i, e)}></input>
+              <input
+                name={toolName}
+                type="checkbox"
+                checked={isVisible}
+                onChange={e => this.deselectTool(i, e)}
+              ></input>
             </label>
           </td>
           {this.renderColumns(i)}
@@ -40,12 +49,18 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumns = index => {
-    const {columns} = this.state.list[index];
+    const { columns } = this.state.list[index];
     return this.selectable.map((headerRow, idxHeader) => {
-      const column = columns.find(el => el.display_title === headerRow.display_title);
+      const column = columns.find(
+        el => el.display_title === headerRow.display_title
+      );
       if (column !== undefined) {
         return (
-          <td id={`td${index}${column.display_title}`} key={`key${idxHeader}${column.display_title}`} className={column.isVisible ? "checked" : ""}>
+          <td
+            id={`td${index}${column.display_title}`}
+            key={`key${idxHeader}${column.display_title}`}
+            className={column.isVisible ? "checked" : ""}
+          >
             <label>
               {column.display_title}
               <input
@@ -66,18 +81,36 @@ export default class SelectColumn extends React.Component {
   renderSelectColumns = () => {
     this.state.list.forEach(tool => {
       tool.columns.forEach(column => {
-        if (!this.selectable.some(value => value.display_title === column.display_title)) {
+        if (
+          !this.selectable.some(
+            value => value.display_title === column.display_title
+          )
+        ) {
           this.selectable.push(column);
         }
       });
     });
     return this.selectable.map(column => {
-      const isVisible = this.state.list.some(tool => tool.columns.some(col => col.isVisible === true && col.display_title === column.display_title));
+      const isVisible = this.state.list.some(tool =>
+        tool.columns.some(
+          col =>
+            col.isVisible === true && col.display_title === column.display_title
+        )
+      );
       return (
-        <th id={`td-all-${column.display_title}`} key={`key${column.display_title}`} className={isVisible ? "checked" : ""}>
+        <th
+          id={`td-all-${column.display_title}`}
+          key={`key${column.display_title}`}
+          className={isVisible ? "checked" : ""}
+        >
           <label>
             {column.display_title}
-            <input name={column.display_title} type="checkbox" checked={isVisible} onChange={this.handleSelectColumns}></input>
+            <input
+              name={column.display_title}
+              type="checkbox"
+              checked={isVisible}
+              onChange={this.handleSelectColumns}
+            ></input>
           </label>
         </th>
       );
@@ -85,17 +118,19 @@ export default class SelectColumn extends React.Component {
   };
 
   // -------------------------Handling-------------------------
-  handleSelecion = ({target}) => {
+  handleSelecion = ({ target }) => {
     const [tool, column] = target.name.split("--");
     const value = target.type === "checkbox" ? target.checked : target.value;
     const list = [...this.state.list];
 
-    list[tool].columns.find(el => el.display_title === column).isVisible = value;
+    list[tool].columns.find(
+      el => el.display_title === column
+    ).isVisible = value;
 
     this.checkTools(list);
   };
 
-  handleSelectColumns = ({target}) => {
+  handleSelectColumns = ({ target }) => {
     const value = target.type === "checkbox" ? target.checked : target.value;
     const list = [...this.state.list];
 
@@ -109,7 +144,7 @@ export default class SelectColumn extends React.Component {
     this.checkTools(list);
   };
 
-  deselectTool = (i, {target}) => {
+  deselectTool = (i, { target }) => {
     const value = target.type === "checkbox" ? target.checked : target.value;
     const list = [...this.state.list];
 
@@ -128,12 +163,12 @@ export default class SelectColumn extends React.Component {
       tool.columns.forEach(column => {
         // eslint-disable-next-line no-param-reassign
         column.isVisible = !this.state.deselect;
-      }),
+      })
     );
 
     this.checkTools(list);
     this.setState(prevState => ({
-      deselect: !prevState.deselect,
+      deselect: !prevState.deselect
     }));
   };
 
@@ -143,14 +178,23 @@ export default class SelectColumn extends React.Component {
       tool.isVisible = tool.columns.some(column => column.isVisible);
     });
 
-    this.setState({list});
+    this.setState({ list });
   };
 
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
-      <ReactModal ariaHideApp={false} className="overlay" isOpen={true} onRequestClose={this.props.close}>
-        <FontAwesomeIcon icon={faTimes} onClick={this.props.close} className="closing" />
+      <ReactModal
+        ariaHideApp={false}
+        className="overlay"
+        isOpen={true}
+        onRequestClose={this.props.close}
+      >
+        <FontAwesomeIcon
+          icon={faTimes}
+          onClick={this.props.close}
+          className="closing"
+        />
         <h1>Select the columns to display</h1>
         <table className="selectRows">
           <tbody>
@@ -165,7 +209,11 @@ export default class SelectColumn extends React.Component {
           <button className="btn" onClick={this.deselectAll}>
             {this.state.deselect ? "Deselect all" : "Select all"}
           </button>
-          <button className="btn btn-apply" onClick={this.props.close} disabled={!this.state.list.filter(tool => tool.isVisible).length}>
+          <button
+            className="btn btn-apply"
+            onClick={this.props.close}
+            disabled={!this.state.list.filter(tool => tool.isVisible).length}
+          >
             Apply and close
           </button>
           <input />
