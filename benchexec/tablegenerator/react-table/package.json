@@ -26,16 +26,8 @@
     "dependencies": "node scripts/dependencies.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
-    "lint:fix:js": "prettier-eslint --write $(pwd)'/**/*.js'",
-    "lint:fix:css": "prettier --write $(pwd)'/**/*.css'",
-    "lint:fix:scss": "prettier --write $(pwd)'/**/*.scss'",
-    "lint:fix:json": "prettier --write $(pwd)'/**/*.json'",
-    "lint:fix": "npm run lint:fix:js && npm run lint:fix:css && npm run lint:fix:scss && npm run lint:fix:json",
-    "lint:js": "prettier --check $(pwd)'/**/*.js'",
-    "lint:css": "prettier --check $(pwd)'/**/*.css'",
-    "lint:scss": "prettier --check $(pwd)'/**/*.scss'",
-    "lint:json": "prettier --check $(pwd)'/**/*.json'",
-    "lint": "npm run lint:js && npm run lint:css && npm run lint:scss && npm run lint:json"
+    "lint:fix": "prettier-eslint --write $(pwd)'/**/*.js' && prettier --write $(pwd)'/**/*.+(js|css|scss|json)'",
+    "lint": "eslint --format node_modules/eslint-friendly-formatter . && prettier --check $(pwd)'/**/*.+(css|scss|json)'"
   },
   "husky": {
     "hooks": {
@@ -43,19 +35,9 @@
     }
   },
   "lint-staged": {
-    "*.js": [
-      "prettier-eslint --write",
-      "eslint --format node_modules/eslint-friendly-formatter",
+    "*+.(css|scss|json|js)": [
+      "npm run lint:fix",
       "git add"
-    ],
-    "*.css": [
-      "prettier --write"
-    ],
-    "*.scss": [
-      "prettier --write"
-    ],
-    "*.json": [
-      "prettier --write"
     ]
   },
   "eslintConfig": {
@@ -64,8 +46,35 @@
       "plugin:prettier/recommended",
       "prettier/react"
     ],
+    "ignorePatterns": [
+      "build",
+      "dist",
+      "config",
+      "scripts",
+      "out",
+      "vendor",
+      "node_modules"
+    ],
     "rules": {
-      "prettier/prettier": "warn"
+      "prettier/prettier": "warn",
+      "no-console": "off",
+      "no-underscore-dangle": "off",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": [
+            "**/tests/**/*.js"
+          ]
+        }
+      ]
+    },
+    "env": {
+      "es6": true,
+      "mocha": true,
+      "browser": true
+    },
+    "parserOptions": {
+      "sourceType": "module"
     }
   },
   "browserslist": {
