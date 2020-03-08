@@ -46,15 +46,6 @@
       "plugin:prettier/recommended",
       "prettier/react"
     ],
-    "ignorePatterns": [
-      "build",
-      "dist",
-      "config",
-      "scripts",
-      "out",
-      "vendor",
-      "node_modules"
-    ],
     "rules": {
       "prettier/prettier": "warn",
       "no-console": "off",
@@ -178,7 +169,7 @@
     "license-checker": "^25.0.1",
     "lint-staged": "^10.0.7",
     "mini-css-extract-plugin": "^0.8.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "pnp-webpack-plugin": "^1.5.0",
     "postcss-flexbugs-fixes": "^4.1.0",
