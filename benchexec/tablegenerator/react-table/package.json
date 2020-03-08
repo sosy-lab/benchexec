@@ -27,7 +27,8 @@
     "build": "node scripts/dependencies.js && node scripts/build.js",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
     "lint:fix": "prettier-eslint --write $(pwd)'/**/*.js' && prettier --write $(pwd)'/**/*.+(js|css|scss|json)'",
-    "lint": "eslint --format node_modules/eslint-friendly-formatter . && prettier --check $(pwd)'/**/*.+(css|scss|json)'"
+    "lint": "eslint --format node_modules/eslint-friendly-formatter . && prettier --check $(pwd)'/**/*.+(css|scss|json)'",
+    "lint:ci": "npm run dependencies && npm run lint"
   },
   "husky": {
     "hooks": {
