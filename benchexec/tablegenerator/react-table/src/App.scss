@@ -401,7 +401,7 @@ $table-border: 1px solid $border-color;
 }
 .overlay {
   position: fixed;
-  overflow: hidden;
+  overflow: scroll;
   top: 80px;
   right: 20px;
   left: 20px;
@@ -461,7 +461,7 @@ $table-border: 1px solid $border-color;
 
   .closing {
     cursor: pointer;
-    position: absolute;
+    position: fixed;
     right: 7px;
     top: 7px;
     padding: 3px;
