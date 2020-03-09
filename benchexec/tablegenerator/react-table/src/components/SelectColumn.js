@@ -15,9 +15,16 @@ export default class SelectColumn extends React.Component {
     super(props);
     this.state = {
       deselect: true,
-      list: [...this.props.tools]
+      list: [...this.props.tools],
+      scrollBarWidth: 0
     };
     this.selectable = [];
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.getScrollBarWidth();
+    }, 100);
   }
 
   // -------------------------Rendering-------------------------
@@ -178,6 +185,13 @@ export default class SelectColumn extends React.Component {
     this.setState({ list });
   };
 
+  getScrollBarWidth() {
+    const modalBox =
+      window.document.body.lastElementChild.lastElementChild.lastElementChild;
+    const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
+    this.setState({ scrollBarWidth: scrollBarWidth });
+  }
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -191,6 +205,7 @@ export default class SelectColumn extends React.Component {
           icon={faTimes}
           onClick={this.props.close}
           className="closing"
+          style={{ right: 28 + this.state.scrollBarWidth }}
         />
         <h1>Select the columns to display</h1>
         <table className="selectRows">
