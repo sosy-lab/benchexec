@@ -16,28 +16,48 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
-import { getRunSetName, setParam, getHashSearch } from "../utils/utils";
+import { getRunSetName, setParam, getHashSearch, isNil } from "../utils/utils";
 
+const defaultValues = {
+  correct: true,
+  linear: false,
+  line: 10
+};
+
+const getFirstVisible = tool =>
+  tool.columns.find(column => column.isVisible && column.type !== "status");
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    const {
-      correct: rawCorrect,
-      linear: rawLinear,
-      dataX,
-      dataY,
-      line
-    } = getHashSearch();
+    let { correct, linear, toolX, toolY, columnX, columnY, line } = {
+      ...defaultValues,
+      ...getHashSearch()
+    };
 
-    const correct = Boolean(rawCorrect);
-    const linear = Boolean(rawLinear);
+    correct = Boolean(correct);
+    linear = Boolean(linear);
+
+    let dataX;
+    let dataY;
+
+    if (isNil(toolX) || isNil(columnX)) {
+      dataX = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+    } else {
+      dataX = `${toolX}-${columnX}`;
+    }
+
+    if (isNil(toolY) || isNil(columnY)) {
+      dataY = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+    } else {
+      dataY = `${toolY}-${columnY}`;
+    }
 
     this.state = {
-      dataX: "0-1",
-      dataY: "0-1",
+      dataX,
+      dataY,
       correct: typeof correct === "boolean" ? correct : true,
       linear: linear || false,
       toolX: 0,
@@ -53,10 +73,10 @@ export default class ScatterPlot extends React.Component {
     };
 
     if (dataX) {
-      this.state = { ...this.state, ...this.extractAxisInfo(dataX, "X") };
+      this.state = { ...this.state, ...this.extractAxisInfoByName(dataX, "X") };
     }
     if (dataY) {
-      this.state = { ...this.state, ...this.extractAxisInfo(dataY, "Y") };
+      this.state = { ...this.state, ...this.extractAxisInfoByName(dataY, "Y") };
     }
 
     this.lineValues = [
@@ -106,7 +126,7 @@ export default class ScatterPlot extends React.Component {
           return column.isVisible ? (
             <option
               key={i + column.display_title}
-              value={i + "-" + j}
+              value={i + "-" + column.display_title.replace("-", "___")}
               name={column.display_title}
             >
               {column.display_title}
@@ -201,23 +221,24 @@ export default class ScatterPlot extends React.Component {
     }));
   };
 
-  extractAxisInfo = (val, axis) => {
-    const split = val.split("-");
+  extractAxisInfoByName = (val, axis) => {
+    let [toolIndex, columnName] = val.split("-");
+    columnName = columnName.replace("___", "-");
     return {
       [`data${axis}`]: val,
-      [`tool${axis}`]: split[0],
-      [`column${axis}`]: split[1],
-      [`name${axis}`]:
-        getRunSetName(this.props.tools[split[0]]) +
-        " " +
-        this.props.columns[split[0]][split[1]]
+      [`tool${axis}`]: toolIndex,
+      [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
+        item => item.display_title === columnName
+      ),
+      [`name${axis}`]: columnName
     };
   };
-
   handleAxis = (ev, axis) => {
     this.array = [];
-    setParam({ [`data${axis}`]: ev.target.value });
-    this.setState(this.extractAxisInfo(ev.target.value, axis));
+    let [tool, column] = ev.target.value.split("-");
+    column = column.replace("___", "-");
+    setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
+    this.setState(this.extractAxisInfoByName(ev.target.value, axis));
   };
   handleLine = ({ target }) => {
     setParam({ line: target.value });

@@ -23,17 +23,26 @@ import {
   getHashSearch
 } from "../utils/utils";
 
+const defaultValues = {
+  quantile: true,
+  linear: false,
+  correct: true
+};
+
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
 
     const queryProps = getHashSearch();
 
-    const { column, quantileRaw, linearRaw, correctRaw } = queryProps;
+    let { column, quantile, linear, correct } = {
+      ...defaultValues,
+      ...queryProps
+    };
 
-    const quantile = Boolean(quantileRaw);
-    const linear = Boolean(linearRaw);
-    const correct = Boolean(correctRaw);
+    quantile = Boolean(quantile);
+    linear = Boolean(linear);
+    correct = Boolean(correct);
 
     const parameterSelection = column
       ? this.props.tools
@@ -52,9 +61,9 @@ export default class QuantilePlot extends React.Component {
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
       selection: visibleColumn && visibleColumn.display_title,
-      quantile: typeof quantile === "boolean" ? quantile : true,
-      linear: typeof linear === "boolean" ? linear : false,
-      correct: typeof correct === "boolean" ? correct : true,
+      quantile: quantile,
+      linear: linear,
+      correct: correct,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: []
     };
