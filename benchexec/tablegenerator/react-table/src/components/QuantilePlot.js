@@ -29,17 +29,17 @@ export default class QuantilePlot extends React.Component {
 
     const queryProps = getHashSearch();
 
-    const { metric, quantileRaw, linearRaw, correctRaw } = queryProps;
+    const { column, quantileRaw, linearRaw, correctRaw } = queryProps;
 
     const quantile = Boolean(quantileRaw);
     const linear = Boolean(linearRaw);
     const correct = Boolean(correctRaw);
 
-    const parameterSelection = metric
+    const parameterSelection = column
       ? this.props.tools
           .map(tool => tool.columns)
           .flat()
-          .find(col => col.display_title === metric)
+          .find(col => col.display_title === column)
       : this.props.preSelection;
 
     const visibleColumn = parameterSelection.isVisible
@@ -276,7 +276,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = ev => {
-    setParam({ metric: ev.target.value });
+    setParam({ column: ev.target.value });
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>
