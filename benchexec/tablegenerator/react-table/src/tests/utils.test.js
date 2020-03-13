@@ -10,42 +10,42 @@ import {
   numericSortMethod,
   textSortMethod,
   getHashSearch,
-  setHashSearch
+  setHashSearch,
 } from "../utils/utils";
 
 //Example data set to test the filtering by regex
 const rows = [
   {},
   {
-    test: {}
+    test: {},
   },
   {
     test: {
-      raw: "10.5"
-    }
+      raw: "10.5",
+    },
   },
   {
     test: {
-      raw: "10"
-    }
+      raw: "10",
+    },
   },
   {
     test: {
       html: "9.3",
-      raw: "9.30"
-    }
+      raw: "9.30",
+    },
   },
   {
     test: {
       html: "11",
-      raw: "11.0"
-    }
+      raw: "11.0",
+    },
   },
   {
     test: {
-      raw: "11.001"
-    }
-  }
+      raw: "11.001",
+    },
+  },
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
@@ -57,14 +57,14 @@ test("applyNumericFilter single entry without result", () => {
     applyNumericFilter(
       {
         id: "test",
-        value: "10:"
+        value: "10:",
       },
       {
         test: {
-          raw: "7"
-        }
-      }
-    )
+          raw: "7",
+        },
+      },
+    ),
   ).toBe(false);
 });
 
@@ -160,7 +160,7 @@ describe.only("hashRouting helpers", () => {
       const params = { id: "1", name: "benchexec" };
       const res = setHashSearch(params, {
         returnString: true,
-        baseUrl: "localhost#table"
+        baseUrl: "localhost#table",
       });
       expect(res).toEqual("localhost#table?id=1&name=benchexec");
     });

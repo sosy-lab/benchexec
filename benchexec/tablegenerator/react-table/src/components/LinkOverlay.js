@@ -18,7 +18,7 @@ export default class LinkOverlay extends React.Component {
     super(props);
     this.state = {
       content: `loading file: ${this.props.link}`,
-      scrollBarWidth: 0
+      scrollBarWidth: 0,
     };
 
     this.loadContent(this.props.link);
@@ -67,7 +67,7 @@ export default class LinkOverlay extends React.Component {
     for (let entry of entries) {
       if (entry.filename.indexOf(logfile) >= 0) {
         entry.getData(new zip.TextWriter(), content =>
-          this.setState({ content })
+          this.setState({ content }),
         );
         return;
       }
@@ -93,10 +93,10 @@ export default class LinkOverlay extends React.Component {
           zip.createReader(
             new zip.ArrayBufferReader(xhr.response),
             reader => this.loadFileFromZip(reader, logfile, zipUrl),
-            this.setError
+            this.setError,
           );
         },
-        false
+        false,
       );
       xhr.addEventListener("error", this.setError, false);
       xhr.open("GET", zipUrl);
@@ -112,14 +112,14 @@ export default class LinkOverlay extends React.Component {
     const zipUrl = url.substring(0, splitPos) + ".zip";
     const urlArray = url.split("/");
     const logfile = decodeURIComponent(
-      `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`
+      `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`,
     ); // <folder>/<logfile>
 
     if (zipUrl in cachedZipFileEntries) {
       this.loadFileFromZipEntries(
         cachedZipFileEntries[zipUrl],
         logfile,
-        zipUrl
+        zipUrl,
       );
     } else {
       try {
@@ -132,7 +132,7 @@ export default class LinkOverlay extends React.Component {
               this.setState({
                 content:
                   `Loading file "${logfile}" ` +
-                  `from ZIP archive "${zipUrl}" without using HTTP Range header.`
+                  `from ZIP archive "${zipUrl}" without using HTTP Range header.`,
               });
               // Try with HttpReader, but this fails in Chrome for local files,
               // so fall back to a manual XMLHttpRequest.
@@ -142,12 +142,12 @@ export default class LinkOverlay extends React.Component {
                 error => {
                   console.log("Loading ZIP with HttpReader failed", error);
                   this.attemptLoadingZIPManually(logfile, zipUrl);
-                }
+                },
               );
             } else {
               this.setError(error);
             }
-          }
+          },
         );
       } catch (error) {
         this.setError(error);
@@ -157,7 +157,7 @@ export default class LinkOverlay extends React.Component {
 
   getScrollBarWidth() {
     const modalBox = document.getElementsByClassName(
-      "ReactModal__Content ReactModal__Content--after-open overlay"
+      "ReactModal__Content ReactModal__Content--after-open overlay",
     )[0];
     const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
     this.setState({ scrollBarWidth: scrollBarWidth });

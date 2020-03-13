@@ -14,7 +14,7 @@ import {
   createRunSetColumns,
   StandardCell,
   StandardColumnHeader,
-  SelectColumnsButton
+  SelectColumnsButton,
 } from "./TableComponents.js";
 import {
   getRawOrDefault,
@@ -23,7 +23,7 @@ import {
   applyTextFilter,
   numericSortMethod,
   textSortMethod,
-  determineColumnWidth
+  determineColumnWidth,
 } from "../utils/utils";
 
 class FilterInputField extends React.Component {
@@ -68,17 +68,17 @@ export default class Table extends React.Component {
 
     this.data = this.props.data;
     this.state = {
-      fixed: true
+      fixed: true,
     };
 
     // Collect all status and category values for filter drop-down
     this.statusValues = this.findAllValuesOfColumn(
       (tool, column) => column.type === "status",
-      (runResult, value) => getRawOrDefault(value)
+      (runResult, value) => getRawOrDefault(value),
     );
     this.categoryValues = this.findAllValuesOfColumn(
       (tool, column) => column.type === "status",
-      (runResult, value) => runResult.category
+      (runResult, value) => runResult.category,
     );
 
     this.infos = [
@@ -92,7 +92,7 @@ export default class Table extends React.Component {
       "runset",
       "branch",
       "options",
-      "property"
+      "property",
     ];
     this.typingTimer = -1;
     this.height = window.innerHeight - 50;
@@ -103,7 +103,7 @@ export default class Table extends React.Component {
     const name = target.name;
 
     this.setState({
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -117,7 +117,7 @@ export default class Table extends React.Component {
           .map(row => valueAccessor(row.results[j], row.results[j].values[i]))
           .filter(Boolean);
         return [...new Set(values)].sort();
-      })
+      }),
     );
 
   createTaskIdColumn = () => ({
@@ -166,9 +166,9 @@ export default class Table extends React.Component {
           const id = filter.pivotId || filter.id;
           return row[id].some(v => v && v.includes(filter.value));
         },
-        Filter: FilterInputField
-      }
-    ]
+        Filter: FilterInputField,
+      },
+    ],
   });
 
   createStatusColumn = (runSetIdx, column, columnIdx) => ({
@@ -249,7 +249,7 @@ export default class Table extends React.Component {
           </optgroup>
         </select>
       );
-    }
+    },
   });
 
   createColumn = (runSetIdx, column, columnIdx) => {
@@ -275,14 +275,14 @@ export default class Table extends React.Component {
       Filter: filter => (
         <FilterInputField numeric={isNumericColumn(column)} {...filter} />
       ),
-      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod
+      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod,
     };
   };
 
   render() {
     const resultColumns = this.props.tools
       .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, this.createColumn)
+        createRunSetColumns(runSet, runSetIdx, this.createColumn),
       )
       .flat();
 

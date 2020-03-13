@@ -26,7 +26,7 @@ test("Click on reset button stops button from rendering", () => {
       filteredCount="23"
       totalCount="42"
       resetFilters={() => (isFiltered = false)}
-    />
+    />,
   );
 
   expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks (Reset Filters)");

@@ -30,7 +30,7 @@ expect.addSnapshotSerializer({
         return " ".repeat((s.length - trimmed.length) / 2) + trimmed;
       })
       .join("\n"),
-  test: val => val && val.hasOwnProperty("toJSON")
+  test: val => val && val.hasOwnProperty("toJSON"),
 });
 
 // Serializer that simplifies HTML elements with several children,
@@ -44,7 +44,7 @@ expect.addSnapshotSerializer({
     val &&
     Array.isArray(val.children) &&
     val.children.length > 1 &&
-    val.children.every(o => typeof o === "string")
+    val.children.every(o => typeof o === "string"),
 });
 
 // Serializer that simplifies HTML elements with one empty child
@@ -58,13 +58,13 @@ expect.addSnapshotSerializer({
     val &&
     Array.isArray(val.children) &&
     val.children.length === 1 &&
-    !val.children[0]
+    !val.children[0],
 });
 
 // Serializer that simplies the dangerouslySetInnerHTML attribute
 expect.addSnapshotSerializer({
   print: (val, serialize) => serialize(val.__html),
-  test: val => val && val.hasOwnProperty("__html")
+  test: val => val && val.hasOwnProperty("__html"),
 });
 
 const testDir = "../test_integration/expected/";

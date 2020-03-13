@@ -27,8 +27,8 @@ const menuItems = [
     key: "info",
     title: "Info",
     path: "/info",
-    icon: <FontAwesomeIcon icon={faQuestionCircle} />
-  }
+    icon: <FontAwesomeIcon icon={faQuestionCircle} />,
+  },
 ];
 
 const getCurrentPath = () => document.location.hash.split("?")[0].substr(1);
@@ -38,7 +38,7 @@ export default class Overview extends React.Component {
     super(props);
     //imported data
     const { tableHeader, tools, columns, table, stats } = prepareTableData(
-      props.data
+      props.data,
     );
 
     this.originalTable = table;
@@ -65,14 +65,14 @@ export default class Overview extends React.Component {
         menuItems.find(i => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
 
-      quantilePreSelection: tools[0].columns[1]
+      quantilePreSelection: tools[0].columns[1],
     };
   }
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = ev => {
     this.setState(prevState => ({
-      showSelectColumns: !prevState.showSelectColumns
+      showSelectColumns: !prevState.showSelectColumns,
     }));
   };
 
@@ -82,7 +82,7 @@ export default class Overview extends React.Component {
 
     this.setState(prevState => ({
       showLinkOverlay: !prevState.showLinkOverlay,
-      link: hrefRow
+      link: hrefRow,
     }));
   };
 
@@ -95,13 +95,13 @@ export default class Overview extends React.Component {
   filterPlotData = filter => {
     this.setState({
       table: this.filteredData,
-      filtered: filter
+      filtered: filter,
     });
   };
   resetFilters = () => {
     this.setState({
       table: this.originalTable,
-      filtered: []
+      filtered: [],
     });
   };
 
@@ -111,7 +111,7 @@ export default class Overview extends React.Component {
   changeTab = (_, column, tab) => {
     this.setState({
       tabIndex: tab,
-      quantilePreSelection: column
+      quantilePreSelection: column,
     });
   };
 

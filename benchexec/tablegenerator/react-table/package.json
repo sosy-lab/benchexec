@@ -38,6 +38,9 @@
       "prettier/prettier": "warn"
     }
   },
+  "prettier": {
+    "trailingComma": "all"
+  },
   "browserslist": {
     "production": [
       ">0.2%",

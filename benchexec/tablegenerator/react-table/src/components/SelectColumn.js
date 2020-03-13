@@ -16,7 +16,7 @@ export default class SelectColumn extends React.Component {
     this.state = {
       deselect: true,
       list: [...this.props.tools],
-      scrollBarWidth: 0
+      scrollBarWidth: 0,
     };
     this.selectable = [];
   }
@@ -59,7 +59,7 @@ export default class SelectColumn extends React.Component {
     const columns = this.state.list[index].columns;
     return this.selectable.map((headerRow, idxHeader) => {
       const column = columns.find(
-        el => el.display_title === headerRow.display_title
+        el => el.display_title === headerRow.display_title,
       );
       if (column !== undefined) {
         return (
@@ -91,7 +91,7 @@ export default class SelectColumn extends React.Component {
       tool.columns.forEach(column => {
         if (
           !this.selectable.some(
-            value => value.display_title === column.display_title
+            value => value.display_title === column.display_title,
           )
         ) {
           this.selectable.push(column);
@@ -102,8 +102,9 @@ export default class SelectColumn extends React.Component {
       const isVisible = this.state.list.some(tool =>
         tool.columns.some(
           col =>
-            col.isVisible === true && col.display_title === column.display_title
-        )
+            col.isVisible === true &&
+            col.display_title === column.display_title,
+        ),
       );
       return (
         <th
@@ -132,7 +133,7 @@ export default class SelectColumn extends React.Component {
     const list = [...this.state.list];
 
     list[tool].columns.find(
-      el => el.display_title === column
+      el => el.display_title === column,
     ).isVisible = value;
 
     this.checkTools(list);
@@ -168,12 +169,12 @@ export default class SelectColumn extends React.Component {
     list.forEach(tool =>
       tool.columns.forEach(column => {
         column.isVisible = !this.state.deselect;
-      })
+      }),
     );
 
     this.checkTools(list);
     this.setState(prevState => ({
-      deselect: !prevState.deselect
+      deselect: !prevState.deselect,
     }));
   };
 
@@ -187,7 +188,7 @@ export default class SelectColumn extends React.Component {
 
   getScrollBarWidth() {
     const modalBox = document.getElementsByClassName(
-      "ReactModal__Content ReactModal__Content--after-open overlay"
+      "ReactModal__Content ReactModal__Content--after-open overlay",
     )[0];
     const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
     this.setState({ scrollBarWidth: scrollBarWidth });
