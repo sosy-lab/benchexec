@@ -146,8 +146,7 @@ javascript-eslint:
     - cd benchexec/tablegenerator/react-table
     - npm install
   script:
-    - npx eslint src --max-warnings 0
-    - 'npx prettier $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.js" -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check'
+    - npm run lint
   cache:
     key: "$CI_JOB_NAME"
     paths:
