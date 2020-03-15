@@ -1,39 +1,22 @@
-"""
-CPAchecker is a tool for configurable software verification.
-This file is part of CPAchecker.
-
-Copyright (C) 2007-2020  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-
-CPAchecker web page:
-  http://cpachecker.sosy-lab.org
-"""
+# BenchExec is a framework for reliable benchmarking.
+# This file is part of BenchExec.
+#
+# Copyright (C) Dirk Beyer
+#
+# SPDX-License-Identifier: Apache-2.0
 
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
-import http.client
+import io
 import json
 import logging
 import os
+import requests
 import shutil
 import sys
 import time
-import urllib.request
 import zipfile
 
 import benchexec.util
@@ -42,11 +25,16 @@ from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-AWS_URL = "v7ozqsjfod.execute-api.eu-central-1.amazonaws.com"
-
-HTTP_GET = "GET"
-HTTP_POST = "POST"
-
+AWS_BASE_URL = "https://v7ozqsjfod.execute-api.eu-central-1.amazonaws.com/dev/"
+REQUEST_URL = {
+    "create": AWS_BASE_URL + "{0}/execution/create",
+    "upload": AWS_BASE_URL + "{0}/upload/{1}?file={2}",
+    "launch": AWS_BASE_URL
+    + "{0}/execution/{1}/launch?verifier={2}&verifierS3={3}&tasks={4}&tasksS3={5}&commands={6}",
+    "progress": AWS_BASE_URL + "{0}/execution/{1}/progress",
+    "results": AWS_BASE_URL + "{0}/execution/{1}/results",
+    "clean": AWS_BASE_URL + "{0}/clean",
+}
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
 DEFAULT_CLOUD_MEMLIMIT = None
@@ -70,87 +58,131 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    (awsInput, numberOfRuns) = getAWSInput(benchmark)
-    awsToken = benchmark.config.token
-
-    start_time = benchexec.util.read_local_time()
+    (toolpaths, awsInput) = getAWSInput(benchmark)
 
     try:
-        conn = http.client.HTTPSConnection(AWS_URL)
-        payload = ""
-        headers = {}
+        logging.info("Building archive files for the verifier-tool and the tasks...")
+        verifier_arc_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
+        verifier_arc_path = _createArchiveFile(
+            verifier_arc_name, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
+        )
+        tasks_arc_name = "tasks_" + benchmark.instance + ".zip"
+        tasks_arc_path = _createArchiveFile(
+            tasks_arc_name, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
+        )
+
+        awsToken = benchmark.config.token
+
+        start_time = benchexec.util.read_local_time()
+
+        logging.info("Waiting for the AWS EC2-instance to set everything up...")
 
         # Create
-        conn.request(
-            HTTP_GET,
-            "/dev/"
-            + awsToken
-            + "/execution/create?benchmark=https://cloud-mgr.s3.eu-central-1.amazonaws.com/test.zip&parallelization=best",
-            payload,
-            headers,
-        )
-        data = conn.getresponse().read()
-        servermsg = json.loads(data.decode("utf-8").replace("'", '"'))
+        http_request = requests.get(REQUEST_URL["create"].format(awsToken))
+        _exitWhenRequestFailed(http_request)
+
+        msg = http_request.json()
         if (
-            servermsg.get("message") is not None
-            and servermsg.get("message") == "Token not authorized."
+            msg.get("message") is not None
+            and msg.get("message") == "Token not authorized."
         ):
             sys.exit("Invalid token submitted: " + awsToken)
 
-        requestId = servermsg.get("requestId")
-        logging.debug(data.decode("utf-8"))
+        requestId = msg["requestId"]
+
+        # Upload verifier
+        http_request = requests.get(
+            REQUEST_URL["upload"].format(awsToken, requestId, verifier_arc_name)
+        )
+        _exitWhenRequestFailed(http_request)
+
+        msg = http_request.json()
+        (verifier_uploadUrl, verifier_s3_key, verifier_aws_public_url) = (
+            msg["uploadUrl"],
+            msg["S3Key"],
+            msg["publicURL"],
+        )
+
+        payload = open(verifier_arc_path, "rb").read()
+        headers = {"Content-Type": "application/zip"}
+        http_request = requests.request(
+            "PUT", verifier_uploadUrl, headers=headers, data=payload
+        )
+        _exitWhenRequestFailed(http_request)
+
+        # Upload tasks
+        http_request = requests.get(
+            REQUEST_URL["upload"].format(awsToken, requestId, tasks_arc_name)
+        )
+        _exitWhenRequestFailed(http_request)
+
+        msg = http_request.json()
+        (tasks_uploadUrl, tasks_s3_key, tasks_aws_public_url) = (
+            msg["uploadUrl"],
+            msg["S3Key"],
+            msg["publicURL"],
+        )
+
+        payload = open(tasks_arc_path, "rb").read()
+        headers = {"Content-Type": "application/zip"}
+        http_request = requests.request(
+            "PUT", tasks_uploadUrl, headers=headers, data=payload
+        )
+        _exitWhenRequestFailed(http_request)
+
+        # Launch
+        http_request = requests.get(
+            REQUEST_URL["launch"].format(
+                awsToken,
+                requestId,
+                verifier_aws_public_url,
+                verifier_s3_key,
+                tasks_aws_public_url,
+                tasks_s3_key,
+                json.dumps(awsInput),
+            )
+        )
+        _exitWhenRequestFailed(http_request)
 
         # Progress
         logging.info(
-            "Waiting for the AWS EC2-instance to set everything up. This will take several minutes."
+            "Executing RunExec on the AWS workers. Depending on the size of the tasks, this might take a while."
         )
+        progress_url = REQUEST_URL["progress"].format(awsToken, requestId)
         initialized = False
-        # Take a break to give the ec2-instance some time for instantiation
+        # Give the ec2-instance some time for instantiation
         while not initialized:
-            conn.request(
-                HTTP_GET,
-                "/dev/" + awsToken + "/execution/" + requestId + "/progress",
-                payload,
-                headers,
-            )
-            data = conn.getresponse().read()
-            logging.info("waiting...")
-            servermsg = json.loads(data.decode("utf-8").replace("'", '"'))
+            http_request = requests.get(progress_url)
+            _exitWhenRequestFailed(http_request)
+
+            msg = http_request.json()
             if (
-                servermsg.get("message") is not None
-                and servermsg.get("message") == "Internal server error"
+                msg["message"] == "Internal server error"
+                or msg["instancesNotTerminatedTotal"] > 0
             ):
+                logging.info("waiting...")
                 time.sleep(10)
                 continue
-            elif (
-                servermsg.get("instancesNotTerminatedTotal") is not None
-                and servermsg.get("instancesNotTerminatedTotal") > 0
-            ):
-                time.sleep(10)
-                continue
+
             initialized = True
 
+        logging.info("Done. Collecting the results back from AWS.")
+
         # Results
-        conn.request(
-            HTTP_GET,
-            "/dev/" + awsToken + "/execution/" + requestId + "/results",
-            payload,
-            headers,
-        )
-        res = conn.getresponse()
-        data = res.read()
-        urls = json.loads(data.decode("utf-8").replace("'", '"')).get("urls")
-        for url in urls:
+        http_request = requests.get(REQUEST_URL["results"].format(awsToken, requestId))
+        for url in http_request.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
-            dirname, filename = os.path.split(url)
-            zipFileDir = os.path.join(benchmark.log_folder, filename)
-            urllib.request.urlretrieve(url, zipFileDir)
-
-            with zipfile.ZipFile(zipFileDir, "r") as zip_file:
-                zip_file.extractall(benchmark.log_folder)
-
+            result_file = requests.get(url)
+            zipfile.ZipFile(io.BytesIO(result_file.content)).extractall(
+                benchmark.log_folder
+            )
     except KeyboardInterrupt:
         stop()
+    finally:
+        if os.path.exists(verifier_arc_path):
+            os.remove(verifier_arc_path)
+        if os.path.exists(tasks_arc_path):
+            os.remove(tasks_arc_path)
 
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted")
@@ -160,12 +192,21 @@ def execute_benchmark(benchmark, output_handler):
     handleCloudResults(benchmark, output_handler, start_time, end_time)
 
     # Clean
-    conn.request(HTTP_GET, "/dev/" + awsToken + "/clean", payload, headers)
+    requests.get(REQUEST_URL["clean"].format(awsToken))
 
 
 def stop():
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
+
+
+def _exitWhenRequestFailed(http_request):
+    if http_request.status_code != 200:
+        sys.exit(
+            "Http-request failed (Server responded with status code: {0}).".format(
+                http_request.status_code
+            )
+        )
 
 
 def getAWSInput(benchmark):
@@ -175,44 +216,97 @@ def getAWSInput(benchmark):
         limitsAndNumRuns,
         runDefinitions,
         sourceFiles,
-    ) = getBenchmarkDataForCloud(benchmark)
-    workingDir = benchmark.working_directory()
-    if not os.path.isdir(workingDir):
-        sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
-    logging.debug("Working dir: " + workingDir)
+    ) = getBenchmarkData(benchmark)
+    (workingDir, toolpaths) = getToolData(benchmark)
 
-    outputDir = benchmark.log_folder
-    absOutputDir = os.path.abspath(outputDir)
     absWorkingDir = os.path.abspath(workingDir)
+    absToolpaths = list(map(os.path.abspath, toolpaths))
     absSourceFiles = list(map(os.path.abspath, sourceFiles))
-    absBaseDir = benchexec.util.common_base_dir(absSourceFiles)
+    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
 
     if absBaseDir == "":
         sys.exit("No common base dir found.")
 
-    awsInput = [
-        toTabList([absBaseDir, absOutputDir, absWorkingDir]),
-        toTabList(requirements),
-    ]
+    toolpaths = {
+        "absBaseDir": absBaseDir,
+        "workingDir": workingDir,
+        "absWorkingDir": absWorkingDir,
+        "toolpaths": toolpaths,
+        "absToolpaths": absToolpaths,
+        "sourceFiles": sourceFiles,
+        "absSourceFiles": absSourceFiles,
+    }
+
+    awsInput = {
+        "requirements": requirements,
+        "workingDir": os.path.relpath(absWorkingDir, absBaseDir),
+    }
     if benchmark.result_files_patterns:
         if len(benchmark.result_files_patterns) > 1:
             sys.exit("Multiple result-files patterns not supported in cloud mode.")
-        awsInput.append(benchmark.result_files_patterns[0])
+        awsInput.update({"resultFilePatterns": benchmark.result_files_patterns[0]})
 
-    awsInput.extend([toTabList(limitsAndNumRuns)])
-    awsInput.extend(runDefinitions)
-    return ("\n".join(awsInput), numberOfRuns)
+    awsInput.update({"limitsAndNumRuns": limitsAndNumRuns})
+    awsInput.update({"runDefinitions": runDefinitions})
+
+    return (toolpaths, awsInput)
 
 
-def getBenchmarkDataForCloud(benchmark):
+def _zipdir(path, zipfile, absBaseDir):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            filepath = os.path.join(root, file)
+            zipfile.write(filepath, os.path.relpath(filepath, absBaseDir))
+
+
+def _createArchiveFile(archive_name, absBaseDir, abs_paths):
+
+    archive_path = os.path.join(absBaseDir, archive_name)
+    if os.path.isfile(archive_path):
+        sys.exit(
+            "Zip file already exists: '{0}'; not going to overwrite it.".format(
+                os.path.normpath(archive_path)
+            )
+        )
+
+    zipf = zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED)
+
+    for file in abs_paths:
+        if not os.path.exists(file):
+            zipf.close()
+            if os.path.isfile(archive_path):
+                os.remove(archive_path)
+
+            sys.exit(
+                "Missing file '{0}', cannot run benchmark without it.".format(
+                    os.path.normpath(file)
+                )
+            )
+
+        if os.path.isdir(file):
+            _zipdir(file, zipf, absBaseDir)
+        else:
+            zipf.write(file, os.path.relpath(file, absBaseDir))
+    zipf.close()
+
+    return archive_path
+
+
+def getBenchmarkData(benchmark):
 
     # get requirements
     r = benchmark.requirements
-    requirements = [
-        bytes_to_mb(DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory),
-        DEFAULT_CLOUD_CPUCORE_REQUIREMENT if r.cpu_cores is None else r.cpu_cores,
-        DEFAULT_CLOUD_CPUMODEL_REQUIREMENT if r.cpu_model is None else r.cpu_model,
-    ]
+    requirements = {
+        "cpu_cores": DEFAULT_CLOUD_CPUCORE_REQUIREMENT
+        if r.cpu_cores is None
+        else r.cpu_cores,
+        "cpu_model": DEFAULT_CLOUD_CPUMODEL_REQUIREMENT
+        if r.cpu_model is None
+        else r.cpu_model,
+        "memory_in_mb": bytes_to_mb(
+            DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory
+        ),
+    }
 
     # get limits and number of Runs
     timeLimit = benchmark.rlimits.get(TIMELIMIT, DEFAULT_CLOUD_TIMELIMIT)
@@ -221,12 +315,16 @@ def getBenchmarkDataForCloud(benchmark):
     numberOfRuns = sum(
         len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
     )
-    limitsAndNumRuns = [numberOfRuns, timeLimit, memLimit]
+    limitsAndNumRuns = {
+        "number_of_runs": numberOfRuns,
+        "time_limit_in_sec": timeLimit,
+        "mem_limit_in_mb": memLimit,
+    }
     if coreLimit is not None:
-        limitsAndNumRuns.append(coreLimit)
+        limitsAndNumRuns.update({"core_limit": coreLimit})
 
     # get Runs with args and sourcefiles
-    sourceFiles = []
+    sourceFiles = set()
     runDefinitions = []
     for runSet in benchmark.run_sets:
         if not runSet.should_be_executed():
@@ -236,25 +334,25 @@ def getBenchmarkDataForCloud(benchmark):
 
         # get runs
         for run in runSet.runs:
-            cmdline = run.cmdline()
+            runDefinition = {}
 
-            # we assume, that VCloud-client only splits its input at tabs,
-            # so we can use all other chars for the info, that is needed to run the tool.
-            argString = json.dumps(cmdline)
-            assert "\t" not in argString  # cannot call toTabList(), if there is a tab
-
+            # wrap list-elements in quotations-marks if they contain whitespace
+            cmdline = ["'{}'".format(x) if " " in x else x for x in run.cmdline()]
+            cmdline = " ".join(cmdline)
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
-            if os.path.exists(run.identifier):
-                runDefinitions.append(
-                    toTabList(
-                        [argString, log_file] + run.sourcefiles + run.required_files
-                    )
-                )
-            else:
-                runDefinitions.append(
-                    toTabList([argString, log_file] + run.required_files)
-                )
-            sourceFiles.extend(run.sourcefiles)
+
+            runDefinition.update(
+                {
+                    "cmdline": cmdline,
+                    "log_file": log_file,
+                    "sourcefile": run.sourcefiles,
+                    "required_files": run.required_files,
+                }
+            )
+
+            runDefinitions.append(runDefinition)
+            sourceFiles.update(run.sourcefiles)
+            sourceFiles.update(run.required_files)
 
     if not runDefinitions:
         sys.exit("Benchmark has nothing to run.")
@@ -262,14 +360,31 @@ def getBenchmarkDataForCloud(benchmark):
     return (requirements, numberOfRuns, limitsAndNumRuns, runDefinitions, sourceFiles)
 
 
+def getToolData(benchmark):
+
+    workingDir = benchmark.working_directory()
+    if not os.path.isdir(workingDir):
+        sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
+    logging.debug("Working dir: " + workingDir)
+
+    toolpaths = benchmark.required_files()
+    validToolpaths = set()
+    for file in toolpaths:
+        if not os.path.exists(file):
+            sys.exit(
+                "Missing file '{0}', not runing benchmark without it.".format(
+                    os.path.normpath(file)
+                )
+            )
+        validToolpaths.add(file)
+
+    return (workingDir, validToolpaths)
+
+
 def bytes_to_mb(mb):
     if mb is None:
         return None
     return int(mb / 1000 / 1000)
-
-
-def toTabList(l):
-    return "\t".join(map(str, l))
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
@@ -300,23 +415,22 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         for run in runSet.runs:
             filename = os.path.split(run.log_file)[1]
             resultFilesDir = os.path.splitext(filename)[0]
-            prop, filedirTrimmed = resultFilesDir.split(".", 1)
-            logFile = os.path.join(
-                benchmark.log_folder, filedirTrimmed, filename.split(".", 1)[1]
-            )
+            awsFileDir = os.path.join(benchmark.log_folder, resultFilesDir)
+            logFile = os.path.join(awsFileDir, filename)
             shutil.move(logFile, run.log_file)
 
             dataFile = run.log_file + ".data"
             shutil.move(logFile + ".data", dataFile)
 
-            shutil.move(
-                os.path.join(benchmark.log_folder, filedirTrimmed),
-                os.path.join(benchmark.log_folder, resultFilesDir),
-            )
+            errFile = run.log_file + ".stdError"
+            if os.path.exists(errFile):
+                shutil.move(logFile + ".stdError", errFile)
 
-            zipfile = os.path.join(benchmark.log_folder, filedirTrimmed + ".zip")
-            if os.path.isfile(zipfile):
-                os.remove(zipfile)
+            if os.path.isdir(awsFileDir):
+                if os.listdir(awsFileDir):
+                    logging.info("Dir %s contains unhandled files", awsFileDir)
+                else:
+                    os.rmdir(awsFileDir)
 
             if os.path.exists(dataFile) and os.path.exists(run.log_file):
                 try:

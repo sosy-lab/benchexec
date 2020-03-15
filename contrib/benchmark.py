@@ -1,33 +1,15 @@
 #!/usr/bin/env python3
 
-"""
-CPAchecker is a tool for configurable software verification.
-This file is part of CPAchecker.
-
-Copyright (C) 2007-2014  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-
-CPAchecker web page:
-  http://cpachecker.sosy-lab.org
-"""
+# BenchExec is a framework for reliable benchmarking.
+# This file is part of BenchExec.
+#
+# Copyright (C) Dirk Beyer
+#
+# SPDX-License-Identifier: Apache-2.0
 
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import glob
 import logging
 import os
 import subprocess
@@ -40,9 +22,6 @@ import benchexec.tools
 import benchexec.util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-cpachecker_dir = os.path.join(os.path.dirname(__file__), os.pardir)
-for egg in glob.glob(os.path.join(cpachecker_dir, "lib", "python-benchmark", "*.whl")):
-    sys.path.insert(0, egg)
 
 # Add ./benchmark/tools to __path__ of benchexec.tools package
 # such that additional tool-wrapper modules can be placed in this directory.
@@ -54,7 +33,7 @@ benchexec.tools.__path__ = [
 class Benchmark(benchexec.benchexec.BenchExec):
     """
     An extension of BenchExec for use with CPAchecker
-    that supports executing the benchmarks in the VerifierCloud.
+    to execute benchmarks in the AWS Cloud.
     """
 
     DEFAULT_OUTPUT_PATH = "test/results/"
@@ -89,15 +68,18 @@ class Benchmark(benchexec.benchexec.BenchExec):
                 "Running benchexec %s using Amazon AWS.", __version__,
             )
         else:
+            logging.warning(
+                "AWS flag was not specified. Benchexec will be executed only on the local machine."
+            )
             executor = super(Benchmark, self).load_executor()
 
         original_load_function = benchexec.model.load_tool_info
 
+        # The following code block is for testing only and will be removed eventually
         def build_cpachecker_before_load(tool_name, *args, **kwargs):
             if tool_name == "cpachecker":
-                # This duplicates the logic from our tool-info module,
-                # but we cannot call it here.
-                # Note that base_dir can be different from cpachecker_dir!
+                # This duplicates the logic from the tool-info module,
+                # but it cannot be called here.
                 script = benchexec.util.find_executable("cpa.sh", "scripts/cpa.sh")
                 base_dir = os.path.join(os.path.dirname(script), os.path.pardir)
                 build_file = os.path.join(base_dir, "build.xml")
