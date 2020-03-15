@@ -186,8 +186,9 @@ export default class SelectColumn extends React.Component {
   };
 
   getScrollBarWidth() {
-    const modalBox =
-      window.document.body.lastElementChild.lastElementChild.lastElementChild;
+    const modalBox = document.getElementsByClassName(
+      "ReactModal__Content ReactModal__Content--after-open overlay"
+    )[0];
     const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
     this.setState({ scrollBarWidth: scrollBarWidth });
   }
