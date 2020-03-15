@@ -62,7 +62,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
         if self.config.aws:
             if not self.config.token:
                 sys.exit("Cannot run aws without a user-specific token")
-            import benchmark.aws as executor
+            import aws.awsexecutor as executor
 
             logging.debug(
                 "Running benchexec %s using Amazon AWS.", __version__,
