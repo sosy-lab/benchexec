@@ -76,11 +76,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     @functools.lru_cache()
     def executable(self):
         exe = util.find_executable("Ultimate.py")
-        for (dirpath, dirnames, filenames) in os.walk(exe):
-            if "Ultimate" in filenames and "plugins" in dirnames:
-                return exe
-            break
-        # possibly another Ultimate.py was found, check in the current dir
+        if exe:
+            for (dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
+                if "Ultimate" in filenames and "plugins" in dirnames:
+                    return exe
+
+        # possibly another Ultimate.py was found or not found at all, check in the current dir
         current = os.getcwd()
         for (dirpath, dirnames, filenames) in os.walk(current):
             if (
