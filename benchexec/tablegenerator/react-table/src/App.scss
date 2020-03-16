@@ -230,6 +230,21 @@ $key-color: #71bcff;
   .rt-table {
     width: 99%;
     margin-bottom: 40px;
+    overflow-y: auto;
+  }
+  .rt-table::-webkit-scrollbar {
+    -webkit-appearance: none;
+  }
+  .rt-table::-webkit-scrollbar:vertical {
+    width: 11px;
+  }
+  .rt-table::-webkit-scrollbar:horizontal {
+    height: 11px;
+  }
+  .rt-table::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
   }
   .rt-thead {
     &.-headerGroups > div > div {
