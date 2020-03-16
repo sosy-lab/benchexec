@@ -17,10 +17,17 @@ export default class LinkOverlay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      content: `loading file: ${this.props.link}`
+      content: `loading file: ${this.props.link}`,
+      scrollBarWidth: 0
     };
 
     this.loadContent(this.props.link);
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.getScrollBarWidth();
+    }, 100);
   }
 
   // 1) Try loading url with normal Ajax request for uncompressed results.
@@ -148,6 +155,14 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
+  getScrollBarWidth() {
+    const modalBox = document.getElementsByClassName(
+      "ReactModal__Content ReactModal__Content--after-open overlay"
+    )[0];
+    const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
+    this.setState({ scrollBarWidth: scrollBarWidth });
+  }
+
   render() {
     ReactModal.setAppElement("#root");
     return (
@@ -160,6 +175,7 @@ export default class LinkOverlay extends React.Component {
           icon={faTimes}
           onClick={this.props.close}
           className="closing"
+          style={{ right: 28 + this.state.scrollBarWidth }}
         />
         {!this.state.error ? (
           <>

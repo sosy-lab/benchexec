@@ -27,7 +27,11 @@ exports[`Render SelectColumn for benchmark.test.2019-12-20_1532.results.html 1`]
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -250,7 +254,11 @@ exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -473,7 +481,11 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -973,7 +985,11 @@ exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = 
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -1169,7 +1185,11 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -1584,7 +1604,11 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -1999,7 +2023,11 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -2690,7 +2718,11 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -3381,7 +3413,11 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -4063,7 +4099,11 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -4745,7 +4785,11 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -5436,7 +5480,11 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -6127,7 +6175,11 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -6542,7 +6594,11 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -6957,7 +7013,11 @@ exports[`Render SelectColumn for nan_and_inf.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -7369,7 +7429,11 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -7638,7 +7702,11 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -7907,7 +7975,11 @@ exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -8157,7 +8229,11 @@ exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -8353,7 +8429,11 @@ exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`]
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -8549,7 +8629,11 @@ exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -8799,7 +8883,11 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -9150,7 +9238,11 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -9501,7 +9593,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -9770,7 +9866,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -10020,7 +10120,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -10216,7 +10320,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -10439,7 +10547,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -10635,7 +10747,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -10831,7 +10947,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.tabl
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -11027,7 +11147,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -11296,7 +11420,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -11565,7 +11693,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -11834,7 +11966,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -12103,7 +12239,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -12372,7 +12512,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -12641,7 +12785,11 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -12910,7 +13058,11 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -13179,7 +13331,11 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -13448,7 +13604,11 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -13717,7 +13877,11 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -13986,7 +14150,11 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -14255,7 +14423,11 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -14524,7 +14696,11 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -14866,7 +15042,11 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -15208,7 +15388,11 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -15477,7 +15661,11 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -15746,7 +15934,11 @@ exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = 
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
@@ -15942,7 +16134,11 @@ exports[`Render SelectColumn for union-table-valueAnalysis.table.html 1`] = `
    data-prefix="fas"
    focusable="false"
    role="img"
-   style={Object {}}
+   style={
+    Object {
+     "right": 28,
+    }
+   }
    viewBox="0 0 352 512"
    xmlns="http://www.w3.org/2000/svg"
   >
