@@ -25,15 +25,13 @@ from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-AWS_BASE_URL = "https://v7ozqsjfod.execute-api.eu-central-1.amazonaws.com/dev/"
 REQUEST_URL = {
-    "create": AWS_BASE_URL + "{0}/execution/create",
-    "upload": AWS_BASE_URL + "{0}/upload/{1}?file={2}",
-    "launch": AWS_BASE_URL
-    + "{0}/execution/{1}/launch?verifier={2}&verifierS3={3}&tasks={4}&tasksS3={5}&commands={6}",
-    "progress": AWS_BASE_URL + "{0}/execution/{1}/progress",
-    "results": AWS_BASE_URL + "{0}/execution/{1}/results",
-    "clean": AWS_BASE_URL + "{0}/clean",
+    "create": "{0}{1}/execution/create",
+    "upload": "{0}{1}/upload/{2}?file={3}",
+    "launch": "{0}{1}/execution/{2}/launch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commands={7}",
+    "progress": "{0}{1}/execution/{2}/progress",
+    "results": "{0}{1}/execution/{2}/results",
+    "clean": "{0}{1}/clean",
 }
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
@@ -60,6 +58,11 @@ def get_system_info():
 def execute_benchmark(benchmark, output_handler):
     (toolpaths, awsInput) = getAWSInput(benchmark)
 
+    with open(benchmark.config.aws_config, "r") as conf_file:
+        conf = json.load(conf_file)[0]
+        aws_endpoint = conf["Endpoint"]
+        aws_token = conf["UserToken"]
+
     try:
         logging.info("Building archive files for the verifier-tool and the tasks...")
         verifier_arc_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
@@ -71,14 +74,14 @@ def execute_benchmark(benchmark, output_handler):
             tasks_arc_name, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
         )
 
-        awsToken = benchmark.config.token
-
         start_time = benchexec.util.read_local_time()
 
         logging.info("Waiting for the AWS EC2-instance to set everything up...")
 
         # Create
-        http_request = requests.get(REQUEST_URL["create"].format(awsToken))
+        http_request = requests.get(
+            REQUEST_URL["create"].format(aws_endpoint, aws_token)
+        )
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
@@ -86,13 +89,15 @@ def execute_benchmark(benchmark, output_handler):
             msg.get("message") is not None
             and msg.get("message") == "Token not authorized."
         ):
-            sys.exit("Invalid token submitted: " + awsToken)
+            sys.exit("Invalid token submitted: " + aws_token)
 
         requestId = msg["requestId"]
 
         # Upload verifier
         http_request = requests.get(
-            REQUEST_URL["upload"].format(awsToken, requestId, verifier_arc_name)
+            REQUEST_URL["upload"].format(
+                aws_endpoint, aws_token, requestId, verifier_arc_name
+            )
         )
         _exitWhenRequestFailed(http_request)
 
@@ -112,7 +117,9 @@ def execute_benchmark(benchmark, output_handler):
 
         # Upload tasks
         http_request = requests.get(
-            REQUEST_URL["upload"].format(awsToken, requestId, tasks_arc_name)
+            REQUEST_URL["upload"].format(
+                aws_endpoint, aws_token, requestId, tasks_arc_name
+            )
         )
         _exitWhenRequestFailed(http_request)
 
@@ -133,7 +140,8 @@ def execute_benchmark(benchmark, output_handler):
         # Launch
         http_request = requests.get(
             REQUEST_URL["launch"].format(
-                awsToken,
+                aws_endpoint,
+                aws_token,
                 requestId,
                 verifier_aws_public_url,
                 verifier_s3_key,
@@ -148,7 +156,9 @@ def execute_benchmark(benchmark, output_handler):
         logging.info(
             "Executing RunExec on the AWS workers. Depending on the size of the tasks, this might take a while."
         )
-        progress_url = REQUEST_URL["progress"].format(awsToken, requestId)
+        progress_url = REQUEST_URL["progress"].format(
+            aws_endpoint, aws_token, requestId
+        )
         initialized = False
         # Give the ec2-instance some time for instantiation
         while not initialized:
@@ -169,7 +179,10 @@ def execute_benchmark(benchmark, output_handler):
         logging.info("Done. Collecting the results back from AWS.")
 
         # Results
-        http_request = requests.get(REQUEST_URL["results"].format(awsToken, requestId))
+        http_request = requests.get(
+            REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
+        )
+        _exitWhenRequestFailed(http_request)
         for url in http_request.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
             result_file = requests.get(url)
@@ -192,7 +205,7 @@ def execute_benchmark(benchmark, output_handler):
     handleCloudResults(benchmark, output_handler, start_time, end_time)
 
     # Clean
-    requests.get(REQUEST_URL["clean"].format(awsToken))
+    requests.get(REQUEST_URL["clean"].format(aws_endpoint, aws_token))
 
 
 def stop():

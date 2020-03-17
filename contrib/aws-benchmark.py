@@ -49,19 +49,25 @@ class Benchmark(benchexec.benchexec.BenchExec):
             help="Use Amazon AWS to execute benchmarks.",
         )
         aws_args.add_argument(
-            "--awsToken",
-            dest="token",
-            metavar="TOKEN",
+            "--awsConfig",
+            dest="aws_config",
+            metavar="CONFIG",
             type=str,
-            help="The token used for the internal post/get http-requests.",
+            help="The config containing the data for performing the required post/get http-requests. It is automatically created during the execution of the setup.sh script.",
         )
 
         return parser
 
     def load_executor(self):
         if self.config.aws:
-            if not self.config.token:
-                sys.exit("Cannot run aws without a user-specific token")
+            if not self.config.aws_config:
+                sys.exit("Cannot run aws without a config file.")
+            if not os.path.isfile(self.config.aws_config):
+                sys.exit(
+                    "Could not find aws-config file at path: %s".format(
+                        self.config.aws_config
+                    )
+                )
             import aws.awsexecutor as executor
 
             logging.debug(
