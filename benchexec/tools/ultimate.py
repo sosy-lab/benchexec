@@ -80,6 +80,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             for (dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
                 if "Ultimate" in filenames and "plugins" in dirnames:
                     return exe
+                break
 
         # possibly another Ultimate.py was found or not found at all, check in the current dir
         current = os.getcwd()
