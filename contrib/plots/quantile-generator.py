@@ -159,12 +159,11 @@ def main(args=None):
     index = start_index
     for run_result in results:
         index += index_increment(run_result)
-        columns = itertools.chain(
-            [index],
-            (id for id, show in zip(run_result.id, relevant_id_columns) if show),
-            map(util.remove_unit, (value or "" for value in run_result.values)),
+        task_ids = (
+            task_id for task_id, show in zip(run_result.id, relevant_id_columns) if show
         )
-        print(*columns, sep="\t")
+        result_values = (util.remove_unit(value or "") for value in run_result.values)
+        print(*itertools.chain([index], task_ids, result_values), sep="\t")
 
 
 if __name__ == "__main__":
