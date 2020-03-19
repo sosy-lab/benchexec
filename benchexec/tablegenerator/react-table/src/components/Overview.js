@@ -129,6 +129,7 @@ export default class Overview extends React.Component {
                         this.state.active === key ? "selected" : ""
                       }`}
                       to={path}
+                      key={path}
                       onClick={() => this.setState(() => ({ active: key }))}
                     >
                       {title} {icon || ""}
