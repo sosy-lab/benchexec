@@ -16,22 +16,59 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
-import { getRunSetName } from "../utils/utils";
+import {
+  getRunSetName,
+  setParam,
+  getHashSearch,
+  isNil,
+  stringAsBoolean
+} from "../utils/utils";
 
+const defaultValues = {
+  correct: "true",
+  linear: "false",
+  line: 10
+};
+
+const getFirstVisible = tool =>
+  tool.columns.find(column => column.isVisible && column.type !== "status");
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
+    let { correct, linear, toolX, toolY, columnX, columnY, line } = {
+      ...defaultValues,
+      ...getHashSearch()
+    };
+
+    correct = stringAsBoolean(correct);
+    linear = stringAsBoolean(linear);
+
+    let dataX;
+    let dataY;
+
+    if (isNil(toolX) || isNil(columnX)) {
+      dataX = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+    } else {
+      dataX = `${toolX}-${columnX}`;
+    }
+
+    if (isNil(toolY) || isNil(columnY)) {
+      dataY = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+    } else {
+      dataY = `${toolY}-${columnY}`;
+    }
+
     this.state = {
-      dataX: "0-1",
-      dataY: "0-1",
-      correct: true,
-      linear: false,
+      dataX,
+      dataY,
+      correct: typeof correct === "boolean" ? correct : true,
+      linear: linear || false,
       toolX: 0,
       toolY: 0,
-      line: 10,
+      line: line || 10,
       columnX: 1,
       columnY: 1,
       nameX: defaultName,
@@ -40,6 +77,13 @@ export default class ScatterPlot extends React.Component {
       width: window.innerWidth,
       height: window.innerHeight
     };
+
+    if (dataX) {
+      this.state = { ...this.state, ...this.extractAxisInfoByName(dataX, "X") };
+    }
+    if (dataY) {
+      this.state = { ...this.state, ...this.extractAxisInfoByName(dataY, "Y") };
+    }
 
     this.lineValues = [
       2,
@@ -88,7 +132,7 @@ export default class ScatterPlot extends React.Component {
           return column.isVisible ? (
             <option
               key={i + column.display_title}
-              value={i + "-" + j}
+              value={i + "-" + column.display_title.replace("-", "___")}
               name={column.display_title}
             >
               {column.display_title}
@@ -171,30 +215,39 @@ export default class ScatterPlot extends React.Component {
     }
   };
   toggleCorrectResults = () => {
+    setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
+    setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
       linear: !prevState.linear
     }));
   };
 
+  extractAxisInfoByName = (val, axis) => {
+    let [toolIndex, columnName] = val.split("-");
+    columnName = columnName.replace("___", "-");
+    return {
+      [`data${axis}`]: val,
+      [`tool${axis}`]: toolIndex,
+      [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
+        item => item.display_title === columnName
+      ),
+      [`name${axis}`]: columnName
+    };
+  };
   handleAxis = (ev, axis) => {
     this.array = [];
-    const splitted = ev.target.value.split("-", 2);
-    this.setState({
-      [`data${axis}`]: ev.target.value,
-      [`tool${axis}`]: splitted[0],
-      [`column${axis}`]: splitted[1],
-      [`name${axis}`]:
-        getRunSetName(this.props.tools[splitted[0]]) +
-        " " +
-        this.props.columns[splitted[0]][splitted[1]]
-    });
+    let [tool, column] = ev.target.value.split("-");
+    column = column.replace("___", "-");
+    setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
+    this.setState(this.extractAxisInfoByName(ev.target.value, axis));
   };
   handleLine = ({ target }) => {
+    setParam({ line: target.value });
     this.setState({
       line: target.value
     });

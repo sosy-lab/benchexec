@@ -8,7 +8,9 @@ import {
   applyNumericFilter,
   isOkStatus,
   numericSortMethod,
-  textSortMethod
+  textSortMethod,
+  getHashSearch,
+  setHashSearch
 } from "../utils/utils";
 
 //Example data set to test the filtering by regex
@@ -132,6 +134,36 @@ describe("numericSortMethod", () => {
     expect(numericSortMethod(undefined, testObject)).toBeGreaterThan(0);
     expect(numericSortMethod(testObject, null)).toBeLessThan(0);
     expect(numericSortMethod(testObject, undefined)).toBeLessThan(0);
+  });
+});
+
+describe.only("hashRouting helpers", () => {
+  describe("getHashSearch", () => {
+    test("should get params as object", () => {
+      const res = getHashSearch("localhost#/bla?id=1&name=benchexec");
+      expect(res).toMatchObject({ id: "1", name: "benchexec" });
+    });
+
+    test("should return empty object if no params are given", () => {
+      const res = getHashSearch("localhost#bla");
+      expect(res).toMatchObject({});
+    });
+
+    test("should return empty object if only ? is given", () => {
+      const res = getHashSearch("localhost#bla?");
+      expect(res).toMatchObject({});
+    });
+  });
+
+  describe("setHashSearch", () => {
+    test("should translate object to queryparams", () => {
+      const params = { id: "1", name: "benchexec" };
+      const res = setHashSearch(params, {
+        returnString: true,
+        baseUrl: "localhost#table"
+      });
+      expect(res).toEqual("localhost#table?id=1&name=benchexec");
+    });
   });
 });
 

@@ -13,9 +13,9 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-modal": "^3.11.1",
+    "react-router-dom": "^5.1.2",
     "react-table": "^6.10.3",
     "react-table-hoc-fixed-columns": "^2.1.1",
-    "react-tabs": "^3.0.0",
     "react-vis": "^1.11.7"
   },
   "engines": {
@@ -133,7 +133,7 @@
     "jest-watch-typeahead": "^0.4.0",
     "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^0.8.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "pnp-webpack-plugin": "^1.5.0",
     "postcss-flexbugs-fixes": "^4.1.0",

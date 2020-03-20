@@ -16,14 +16,44 @@ import {
   DiscreteColorLegend,
   Hint
 } from "react-vis";
-import { getRunSetName, EXTENDED_DISCRETE_COLOR_RANGE } from "../utils/utils";
+import {
+  getRunSetName,
+  EXTENDED_DISCRETE_COLOR_RANGE,
+  setParam,
+  getHashSearch,
+  stringAsBoolean
+} from "../utils/utils";
+
+const defaultValues = {
+  quantile: "true",
+  linear: "false",
+  correct: "true"
+};
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
 
-    const visibleColumn = this.props.preSelection.isVisible
-      ? this.props.preSelection
+    const queryProps = getHashSearch();
+
+    let { column, quantile, linear, correct } = {
+      ...defaultValues,
+      ...queryProps
+    };
+
+    quantile = stringAsBoolean(quantile);
+    linear = stringAsBoolean(linear);
+    correct = stringAsBoolean(correct);
+
+    const parameterSelection = column
+      ? this.props.tools
+          .map(tool => tool.columns)
+          .flat()
+          .find(col => col.display_title === column)
+      : this.props.preSelection;
+
+    const visibleColumn = parameterSelection.isVisible
+      ? parameterSelection
       : this.props.tools
           .map(tool => tool.columns)
           .flat()
@@ -32,9 +62,9 @@ export default class QuantilePlot extends React.Component {
     // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
     this.state = {
       selection: visibleColumn && visibleColumn.display_title,
-      quantile: true,
-      linear: false,
-      correct: true,
+      quantile: quantile,
+      linear: linear,
+      correct: correct,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: []
     };
@@ -256,6 +286,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = ev => {
+    setParam({ column: ev.target.value });
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>
@@ -264,16 +295,19 @@ export default class QuantilePlot extends React.Component {
     });
   };
   toggleQuantile = () => {
+    setParam({ quantile: !this.state.quantile });
     this.setState(prevState => ({
       quantile: !prevState.quantile
     }));
   };
   toggleCorrect = () => {
+    setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
       correct: !prevState.correct
     }));
   };
   toggleLinear = () => {
+    setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
       linear: !prevState.linear
     }));

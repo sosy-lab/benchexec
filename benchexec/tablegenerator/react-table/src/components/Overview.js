@@ -5,8 +5,7 @@
  * Copyright (C) Dirk Beyer. All rights reserved.
  */
 import React from "react";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -18,6 +17,21 @@ import Reset from "./Reset.js";
 import { prepareTableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+
+const menuItems = [
+  { key: "summary", title: "Summary", path: "/" },
+  { key: "table", title: "Table", path: "/table" },
+  { key: "quantile", title: "Quantile Plot", path: "/quantile" },
+  { key: "scatter", title: "Scatter Plot", path: "/scatter" },
+  {
+    key: "info",
+    title: "Info",
+    path: "/info",
+    icon: <FontAwesomeIcon icon={faQuestionCircle} />
+  }
+];
+
+const getCurrentPath = () => document.location.hash.split("?")[0].substr(1);
 
 export default class Overview extends React.Component {
   constructor(props) {
@@ -46,6 +60,10 @@ export default class Overview extends React.Component {
       showLinkOverlay: false,
       filtered: [],
       tabIndex: 0,
+
+      active: (
+        menuItems.find(i => i.path === getCurrentPath()) || { key: "summary" }
+      ).key,
 
       quantilePreSelection: tools[0].columns[1]
     };
@@ -101,96 +119,98 @@ export default class Overview extends React.Component {
     return (
       <div className="App">
         <main>
-          <div className="overview">
-            <Tabs
-              selectedIndex={this.state.tabIndex}
-              onSelect={tabIndex =>
-                this.setState({
-                  tabIndex,
-                  showSelectColumns: false,
-                  showLinkOverlay: false
-                })
-              }
-            >
-              <TabList>
-                <Tab>Summary</Tab>
-                <Tab>Table</Tab>
-                <Tab>Quantile Plot</Tab>
-                <Tab>Scatter Plot</Tab>
-                <Tab>
-                  Info <FontAwesomeIcon icon={faQuestionCircle} />
-                </Tab>
-                <Reset
-                  isFiltered={!!this.state.filtered.length}
-                  resetFilters={this.resetFilters}
-                  filteredCount={this.state.table.length}
-                  totalCount={this.originalTable.length}
-                />
-              </TabList>
-              <TabPanel>
-                <Summary
-                  tools={this.state.tools}
-                  tableHeader={this.tableHeader}
-                  version={this.props.data.version}
-                  selectColumn={this.toggleSelectColumns}
-                  stats={this.stats}
-                  changeTab={this.changeTab}
-                />
-              </TabPanel>
-              <TabPanel>
-                <Table
-                  tableHeader={this.tableHeader}
-                  data={this.originalTable}
-                  tools={this.state.tools}
-                  selectColumn={this.toggleSelectColumns}
-                  setFilter={this.setFilter}
-                  filterPlotData={this.filterPlotData}
-                  filtered={this.state.filtered}
-                  toggleLinkOverlay={this.toggleLinkOverlay}
-                  changeTab={this.changeTab}
-                />
-              </TabPanel>
-              <TabPanel>
-                <QuantilePlot
-                  table={this.state.table}
-                  tools={this.state.tools}
-                  preSelection={this.state.quantilePreSelection}
-                  getRowName={this.getRowName}
-                />
-              </TabPanel>
-              <TabPanel>
-                <ScatterPlot
-                  table={this.state.table}
-                  columns={this.columns}
-                  tools={this.state.tools}
-                  getRowName={this.getRowName}
-                />
-              </TabPanel>
-              <TabPanel>
-                <Info
-                  version={this.props.data.version}
-                  selectColumn={this.toggleSelectColumns}
-                />
-              </TabPanel>
-            </Tabs>
-          </div>
-          <div>
-            {this.state.showSelectColumns && (
-              <SelectColumn
-                close={this.toggleSelectColumns}
-                currColumns={this.columns}
-                tableHeader={this.tableHeader}
-                tools={this.state.tools}
-              />
-            )}
-            {this.state.showLinkOverlay && (
-              <LinkOverlay
-                close={this.toggleLinkOverlay}
-                link={this.state.link}
-                toggleLinkOverlay={this.toggleLinkOverlay}
-              />
-            )}
-          </div>
+          <Router>
+            <div className="overview">
+              <div className="overview-container">
+                <div className="menu">
+                  {menuItems.map(({ key, title, path, icon }) => (
+                    <Link
+                      className={`menu-item ${
+                        this.state.active === key ? "selected" : ""
+                      }`}
+                      to={path}
+                      key={path}
+                      onClick={() => this.setState(() => ({ active: key }))}
+                    >
+                      {title} {icon || ""}
+                    </Link>
+                  ))}
+                  <Reset
+                    isFiltered={!!this.state.filtered.length}
+                    resetFilters={this.resetFilters}
+                    filteredCount={this.state.table.length}
+                    totalCount={this.originalTable.length}
+                  />
+                </div>
+                <div className="route-container">
+                  <Switch>
+                    <Route exact path="/">
+                      <Summary
+                        tools={this.state.tools}
+                        tableHeader={this.tableHeader}
+                        version={this.props.data.version}
+                        selectColumn={this.toggleSelectColumns}
+                        stats={this.stats}
+                        changeTab={this.changeTab}
+                      />
+                    </Route>
+                    <Route path="/table">
+                      <Table
+                        tableHeader={this.tableHeader}
+                        data={this.originalTable}
+                        tools={this.state.tools}
+                        selectColumn={this.toggleSelectColumns}
+                        setFilter={this.setFilter}
+                        filterPlotData={this.filterPlotData}
+                        filtered={this.state.filtered}
+                        toggleLinkOverlay={this.toggleLinkOverlay}
+                        changeTab={this.changeTab}
+                      />
+                    </Route>
+                    <Route path="/quantile">
+                      <QuantilePlot
+                        table={this.state.table}
+                        tools={this.state.tools}
+                        preSelection={this.state.quantilePreSelection}
+                        getRowName={this.getRowName}
+                      />
+                    </Route>
+                    <Route path="/scatter">
+                      <ScatterPlot
+                        table={this.state.table}
+                        columns={this.columns}
+                        tools={this.state.tools}
+                        getRowName={this.getRowName}
+                      />
+                    </Route>
+                    <Route path="/info">
+                      <Info
+                        version={this.props.data.version}
+                        selectColumn={this.toggleSelectColumns}
+                      />
+                    </Route>
+                  </Switch>
+                </div>
+              </div>
+              <div>
+                {this.state.showSelectColumns && (
+                  <SelectColumn
+                    close={this.toggleSelectColumns}
+                    currColumns={this.columns}
+                    tableHeader={this.tableHeader}
+                    tools={this.state.tools}
+                  />
+                )}
+                {this.state.showLinkOverlay && (
+                  <LinkOverlay
+                    close={this.toggleLinkOverlay}
+                    link={this.state.link}
+                    toggleLinkOverlay={this.toggleLinkOverlay}
+                  />
+                )}
+              </div>
+            </div>
+          </Router>
         </main>
       </div>
     );

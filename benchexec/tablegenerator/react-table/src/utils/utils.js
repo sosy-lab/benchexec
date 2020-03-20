@@ -142,6 +142,57 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#B3AD9E"
 ];
 
+/**
+ *
+ * @param {String} [str]
+ */
+const getHashSearch = str => {
+  const urlParts = (str || document.location.href).split("?");
+  const search = urlParts.length > 1 ? urlParts[1] : undefined;
+  if (search === undefined || search.length === 0) {
+    return {};
+  }
+  const keyValuePairs = search.split("&").map(i => i.split("="));
+
+  const out = {};
+  for (const [key, value] of keyValuePairs) {
+    out[key] = value;
+  }
+  return out;
+};
+
+/**
+ *
+ * @param {Object} params Object containing the params to be encoded as query params
+ * @param {Boolean} [returnString] if true, only returns the url without setting it
+ */
+const setHashSearch = (
+  params = {},
+  options = { returnString: false, baseUrl: null }
+) => {
+  const optionTemplate = { returnString: false, baseUrl: null };
+  const { returnString, baseUrl } = { ...optionTemplate, ...options };
+  const url = (baseUrl || document.location.href).split("?")[0];
+  const pairs = Object.keys(params).map(key => `${key}=${params[key]}`);
+  const searchString = `?${pairs.join("&")}`;
+  const hrefString = `${url}${searchString}`;
+  if (returnString) {
+    return hrefString;
+  }
+  document.location.href = hrefString;
+};
+
+/**
+ * Adds or update given key-value pairs to the query params
+ *
+ * @param {Object} param The Key-Value pair to be added to the current query param list
+ */
+const setParam = param => {
+  setHashSearch({ ...getHashSearch(), ...param });
+};
+
+const stringAsBoolean = str => str === "true";
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -155,5 +206,9 @@ export {
   getRunSetName,
   isOkStatus,
   isNil,
-  EXTENDED_DISCRETE_COLOR_RANGE
+  EXTENDED_DISCRETE_COLOR_RANGE,
+  getHashSearch,
+  setHashSearch,
+  setParam,
+  stringAsBoolean
 };
