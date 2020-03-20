@@ -12,12 +12,12 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
     tools: tools.map(tool => ({
       ...tool,
       isVisible: true,
-      columns: tool.columns.map(column => ({ ...column, isVisible: true }))
+      columns: tool.columns.map(column => ({ ...column, isVisible: true })),
     })),
     columns: tools.map(tool => tool.columns.map(column => column.title)),
     table: rows,
     stats: stats,
-    properties: props
+    properties: props,
   };
 };
 
@@ -139,7 +139,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
   "#E79FD5",
   "#1E96BE",
   "#89DAC1",
-  "#B3AD9E"
+  "#B3AD9E",
 ];
 
 /**
@@ -168,7 +168,7 @@ const getHashSearch = str => {
  */
 const setHashSearch = (
   params = {},
-  options = { returnString: false, baseUrl: null }
+  options = { returnString: false, baseUrl: null },
 ) => {
   const optionTemplate = { returnString: false, baseUrl: null };
   const { returnString, baseUrl } = { ...optionTemplate, ...options };
@@ -210,5 +210,5 @@ export {
   getHashSearch,
   setHashSearch,
   setParam,
-  stringAsBoolean
+  stringAsBoolean,
 };

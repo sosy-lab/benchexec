@@ -24,7 +24,9 @@
   "scripts": {
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
     "build": "node scripts/dependencies.js && node scripts/build.js",
-    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js"
+    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/test.js",
+    "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
+    "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
   },
   "eslintConfig": {
     "extends": [
@@ -35,6 +37,9 @@
     "rules": {
       "prettier/prettier": "warn"
     }
+  },
+  "prettier": {
+    "trailingComma": "all"
   },
   "browserslist": {
     "production": [

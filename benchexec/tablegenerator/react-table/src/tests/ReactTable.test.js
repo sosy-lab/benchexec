@@ -19,7 +19,7 @@ expect.addSnapshotSerializer({
     delete val.props.title;
     return serialize(val);
   },
-  test: val => val && val.props && val.props.hasOwnProperty("title")
+  test: val => val && val.props && val.props.hasOwnProperty("title"),
 });
 
 test_snapshot_of("Render Summary", overview => (

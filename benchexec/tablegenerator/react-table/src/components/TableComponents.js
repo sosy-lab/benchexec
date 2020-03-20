@@ -73,9 +73,9 @@ const SeparatorColumn = Object.freeze({
       accessor: undefined,
       width: 2,
       headerClassName: "separator",
-      className: "separator"
-    })
-  ])
+      className: "separator",
+    }),
+  ]),
 });
 
 export const createRunSetColumns = (runSet, runSetIdx, createColumn) => [
@@ -83,7 +83,7 @@ export const createRunSetColumns = (runSet, runSetIdx, createColumn) => [
   {
     Header: <RunSetHeader runSet={runSet} />,
     columns: runSet.columns.map((column, columnIdx) =>
-      createColumn(runSetIdx, column, columnIdx)
-    )
-  }
+      createColumn(runSetIdx, column, columnIdx),
+    ),
+  },
 ];

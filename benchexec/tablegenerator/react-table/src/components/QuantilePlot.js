@@ -14,20 +14,20 @@ import {
   XAxis,
   YAxis,
   DiscreteColorLegend,
-  Hint
+  Hint,
 } from "react-vis";
 import {
   getRunSetName,
   EXTENDED_DISCRETE_COLOR_RANGE,
   setParam,
   getHashSearch,
-  stringAsBoolean
+  stringAsBoolean,
 } from "../utils/utils";
 
 const defaultValues = {
   quantile: "true",
   linear: "false",
-  correct: "true"
+  correct: "true",
 };
 
 export default class QuantilePlot extends React.Component {
@@ -38,7 +38,7 @@ export default class QuantilePlot extends React.Component {
 
     let { column, quantile, linear, correct } = {
       ...defaultValues,
-      ...queryProps
+      ...queryProps,
     };
 
     quantile = stringAsBoolean(quantile);
@@ -66,7 +66,7 @@ export default class QuantilePlot extends React.Component {
       linear: linear,
       correct: correct,
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
-      isInvisible: []
+      isInvisible: [],
     };
 
     this.possibleValues = [];
@@ -92,7 +92,7 @@ export default class QuantilePlot extends React.Component {
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
   };
 
@@ -119,7 +119,7 @@ export default class QuantilePlot extends React.Component {
       this.props.tools[index].columns
         .filter(QuantilePlot.relevantColumn)
         .forEach(column =>
-          this.renderData(column.display_title, index, column.display_title)
+          this.renderData(column.display_title, index, column.display_title),
         );
     }
   };
@@ -128,7 +128,7 @@ export default class QuantilePlot extends React.Component {
     const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
     const index = this.props.tools[tool].columns.findIndex(
-      value => value.display_title === column
+      value => value.display_title === column,
     );
 
     if (!this.state.isValue || index >= 0) {
@@ -169,7 +169,7 @@ export default class QuantilePlot extends React.Component {
         newArray.push({
           x: i + 1,
           y: value,
-          info: el[1]
+          info: el[1],
         });
       }
 
@@ -183,7 +183,7 @@ export default class QuantilePlot extends React.Component {
 
   sortArray = (array, column) => {
     const currentValue = this.possibleValues.find(
-      value => value.display_title === column
+      value => value.display_title === column,
     );
 
     return this.state.isValue && ["text", "status"].includes(currentValue.type)
@@ -197,7 +197,7 @@ export default class QuantilePlot extends React.Component {
         if (
           column.isVisible &&
           !this.possibleValues.some(
-            value => value.display_title === column.display_title
+            value => value.display_title === column.display_title,
           )
         ) {
           this.possibleValues.push(column);
@@ -290,38 +290,38 @@ export default class QuantilePlot extends React.Component {
     this.setState({
       selection: ev.target.value,
       isValue: this.props.tools.some(tool =>
-        tool.columns.some(value => value.display_title === ev.target.value)
-      )
+        tool.columns.some(value => value.display_title === ev.target.value),
+      ),
     });
   };
   toggleQuantile = () => {
     setParam({ quantile: !this.state.quantile });
     this.setState(prevState => ({
-      quantile: !prevState.quantile
+      quantile: !prevState.quantile,
     }));
   };
   toggleCorrect = () => {
     setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
-      correct: !prevState.correct
+      correct: !prevState.correct,
     }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
-      linear: !prevState.linear
+      linear: !prevState.linear,
     }));
   };
   toggleShow = ({ target }) => {
     this.setState({
-      [target.name]: target.checked
+      [target.name]: target.checked,
     });
   };
 
   handleType = () => {
     const { selection } = this.state;
     const index = this.possibleValues.findIndex(
-      value => value.display_title === selection
+      value => value.display_title === selection,
     );
     const type = this.state.isValue ? this.possibleValues[index].type : null;
 
@@ -374,13 +374,13 @@ export default class QuantilePlot extends React.Component {
               line = Object.toString();
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
-                  isInvisible: this.state.isInvisible.concat([line])
+                  isInvisible: this.state.isInvisible.concat([line]),
                 });
               } else {
                 return this.setState({
                   isInvisible: this.state.isInvisible.filter(l => {
                     return l !== line;
-                  })
+                  }),
                 });
               }
             }}

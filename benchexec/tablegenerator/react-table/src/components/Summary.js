@@ -12,7 +12,7 @@ import "react-table-hoc-fixed-columns/lib/styles.css";
 import {
   createRunSetColumns,
   StandardColumnHeader,
-  SelectColumnsButton
+  SelectColumnsButton,
 } from "./TableComponents.js";
 import { determineColumnWidth, isNumericColumn } from "../utils/utils";
 
@@ -23,7 +23,7 @@ export default class Summary extends React.Component {
     super(props);
 
     this.state = {
-      fixed: true
+      fixed: true,
     };
     this.infos = [
       "displayName",
@@ -36,7 +36,7 @@ export default class Summary extends React.Component {
       "runset",
       "branch",
       "options",
-      "property"
+      "property",
     ];
     this.headerWidth = window.innerWidth * 0.15;
     this.width = window.innerWidth;
@@ -51,7 +51,7 @@ export default class Summary extends React.Component {
   //fix columns
   handleInputChange = ({ target }) => {
     this.setState({
-      [target.name]: target.checked
+      [target.name]: target.checked,
     });
   };
 
@@ -109,9 +109,9 @@ export default class Summary extends React.Component {
             title={cell.value.description}
             className="row-title"
           />
-        )
-      }
-    ]
+        ),
+      },
+    ],
   });
 
   createColumn = (runSetIdx, column, columnIdx) => ({
@@ -129,7 +129,7 @@ export default class Summary extends React.Component {
     minWidth: determineColumnWidth(
       column,
       null,
-      column.type === "status" ? 6 : null
+      column.type === "status" ? 6 : null,
     ),
     accessor: row => row.content[runSetIdx][columnIdx],
     Cell: cell =>
@@ -141,13 +141,13 @@ export default class Summary extends React.Component {
         ></div>
       ) : (
         <div className="cell">-</div>
-      )
+      ),
   });
 
   render() {
     const statColumns = this.props.tools
       .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, this.createColumn)
+        createRunSetColumns(runSet, runSetIdx, this.createColumn),
       )
       .flat();
 
@@ -164,7 +164,7 @@ export default class Summary extends React.Component {
                   <tr key={"tr-" + row.id} className={row.id}>
                     <th key={"td-" + row.id}>{row.name}</th>
                     {row.content.map((tool, j) =>
-                      this.renderEnvironmentRow(row.id, tool[0], tool[1], j)
+                      this.renderEnvironmentRow(row.id, tool[0], tool[1], j),
                     )}
                   </tr>
                 ))}

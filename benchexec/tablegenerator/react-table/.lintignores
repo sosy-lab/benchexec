@@ -1,0 +1,8 @@
+build
+dist
+config
+scripts
+out
+vendor
+node_modules
+data

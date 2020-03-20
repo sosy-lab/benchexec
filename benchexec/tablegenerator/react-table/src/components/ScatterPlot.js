@@ -14,20 +14,20 @@ import {
   XAxis,
   YAxis,
   Hint,
-  DecorativeAxis
+  DecorativeAxis,
 } from "react-vis";
 import {
   getRunSetName,
   setParam,
   getHashSearch,
   isNil,
-  stringAsBoolean
+  stringAsBoolean,
 } from "../utils/utils";
 
 const defaultValues = {
   correct: "true",
   linear: "false",
-  line: 10
+  line: 10,
 };
 
 const getFirstVisible = tool =>
@@ -40,7 +40,7 @@ export default class ScatterPlot extends React.Component {
 
     let { correct, linear, toolX, toolY, columnX, columnY, line } = {
       ...defaultValues,
-      ...getHashSearch()
+      ...getHashSearch(),
     };
 
     correct = stringAsBoolean(correct);
@@ -75,7 +75,7 @@ export default class ScatterPlot extends React.Component {
       nameY: defaultName,
       value: false,
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     };
 
     if (dataX) {
@@ -101,7 +101,7 @@ export default class ScatterPlot extends React.Component {
       100000,
       1000000,
       10000000,
-      100000000
+      100000000,
     ];
     this.maxX = "";
     this.minX = "";
@@ -120,7 +120,7 @@ export default class ScatterPlot extends React.Component {
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
   };
 
@@ -168,7 +168,7 @@ export default class ScatterPlot extends React.Component {
           array.push({
             x,
             y,
-            info: this.props.getRowName(row)
+            info: this.props.getRowName(row),
           });
         }
         if (isLogAndInvalid) {
@@ -217,13 +217,13 @@ export default class ScatterPlot extends React.Component {
   toggleCorrectResults = () => {
     setParam({ correct: !this.state.correct });
     this.setState(prevState => ({
-      correct: !prevState.correct
+      correct: !prevState.correct,
     }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
     this.setState(prevState => ({
-      linear: !prevState.linear
+      linear: !prevState.linear,
     }));
   };
 
@@ -234,9 +234,9 @@ export default class ScatterPlot extends React.Component {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
-        item => item.display_title === columnName
+        item => item.display_title === columnName,
       ),
-      [`name${axis}`]: columnName
+      [`name${axis}`]: columnName,
     };
   };
   handleAxis = (ev, axis) => {
@@ -249,7 +249,7 @@ export default class ScatterPlot extends React.Component {
   handleLine = ({ target }) => {
     setParam({ line: target.value });
     this.setState({
-      line: target.value
+      line: target.value,
     });
   };
 
@@ -320,11 +320,11 @@ export default class ScatterPlot extends React.Component {
             className="middle-line"
             axisStart={{
               x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : 1
+              y: this.state.linear ? 0 : 1,
             }}
             axisEnd={{
               x: this.maxX > this.maxY ? this.maxX : this.maxY,
-              y: this.maxX > this.maxY ? this.maxX : this.maxY
+              y: this.maxX > this.maxY ? this.maxX : this.maxY,
             }}
             axisDomain={[0, 10000000000]}
             style={{
@@ -333,14 +333,14 @@ export default class ScatterPlot extends React.Component {
                 stroke: "none",
                 fill: "#009440",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <DecorativeAxis
             axisStart={{
               x: this.state.linear ? 0 : this.state.line,
-              y: this.state.linear ? 0 : 1
+              y: this.state.linear ? 0 : 1,
             }}
             axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
             axisDomain={[0, 10000000000]}
@@ -350,14 +350,14 @@ export default class ScatterPlot extends React.Component {
                 stroke: "none",
                 fill: "#6b6b76",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <DecorativeAxis
             axisStart={{
               x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : this.state.line
+              y: this.state.linear ? 0 : this.state.line,
             }}
             axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
             axisDomain={[0, 10000000000]}
@@ -367,8 +367,8 @@ export default class ScatterPlot extends React.Component {
                 stroke: "none",
                 fill: "#6b6b76",
                 fontWeight: 600,
-                opacity: 0
-              }
+                opacity: 0,
+              },
             }}
           />
           <XAxis
