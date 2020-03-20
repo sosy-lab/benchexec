@@ -16,7 +16,13 @@ import {
   Hint,
   DecorativeAxis
 } from "react-vis";
-import { getRunSetName, setParam, getHashSearch, isNil } from "../utils/utils";
+import {
+  getRunSetName,
+  setParam,
+  getHashSearch,
+  isNil,
+  stringAsBoolean
+} from "../utils/utils";
 
 const defaultValues = {
   correct: true,
@@ -37,8 +43,8 @@ export default class ScatterPlot extends React.Component {
       ...getHashSearch()
     };
 
-    correct = Boolean(correct);
-    linear = Boolean(linear);
+    correct = stringAsBoolean(correct);
+    linear = stringAsBoolean(linear);
 
     let dataX;
     let dataY;

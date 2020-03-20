@@ -191,6 +191,8 @@ const setParam = param => {
   setHashSearch({ ...getHashSearch(), ...param });
 };
 
+const stringAsBoolean = str => str === "true";
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -207,5 +209,6 @@ export {
   EXTENDED_DISCRETE_COLOR_RANGE,
   getHashSearch,
   setHashSearch,
-  setParam
+  setParam,
+  stringAsBoolean
 };

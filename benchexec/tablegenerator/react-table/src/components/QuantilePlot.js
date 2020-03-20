@@ -20,7 +20,8 @@ import {
   getRunSetName,
   EXTENDED_DISCRETE_COLOR_RANGE,
   setParam,
-  getHashSearch
+  getHashSearch,
+  stringAsBoolean
 } from "../utils/utils";
 
 const defaultValues = {
@@ -40,9 +41,9 @@ export default class QuantilePlot extends React.Component {
       ...queryProps
     };
 
-    quantile = Boolean(quantile);
-    linear = Boolean(linear);
-    correct = Boolean(correct);
+    quantile = stringAsBoolean(quantile);
+    linear = stringAsBoolean(linear);
+    correct = stringAsBoolean(correct);
 
     const parameterSelection = column
       ? this.props.tools
