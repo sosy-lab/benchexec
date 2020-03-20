@@ -25,9 +25,9 @@ import {
 } from "../utils/utils";
 
 const defaultValues = {
-  quantile: true,
-  linear: false,
-  correct: true
+  quantile: "true",
+  linear: "false",
+  correct: "true"
 };
 
 export default class QuantilePlot extends React.Component {

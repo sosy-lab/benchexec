@@ -25,8 +25,8 @@ import {
 } from "../utils/utils";
 
 const defaultValues = {
-  correct: true,
-  linear: false,
+  correct: "true",
+  linear: "false",
   line: 10
 };
 
