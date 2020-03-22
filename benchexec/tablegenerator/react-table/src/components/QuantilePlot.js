@@ -372,6 +372,17 @@ export default class QuantilePlot extends React.Component {
             onItemClick={(Object, item) => {
               let line = "";
               line = Object.toString();
+              const element = document.getElementsByClassName(
+                "rv-discrete-color-legend-item__title",
+              )[item];
+              if (
+                String(element.getAttribute("style")) === "color:black" ||
+                String(element.getAttribute("style")) === "null"
+              ) {
+                element.setAttribute("style", "color:grey");
+              } else {
+                element.setAttribute("style", "color:black");
+              }
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
                   isInvisible: this.state.isInvisible.concat([line]),
