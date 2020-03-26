@@ -68,7 +68,7 @@ if sys.stdout.isatty():
     elif _term.startswith("screen"):
         TERMINAL_TITLE = "\033kTask {0}\033\\"
 
-LEN_OF_STATUS = 22
+LEN_OF_STATUS = 25
 
 # the number of digits after the decimal separator for text output of time columns with times
 TIME_PRECISION = 2
