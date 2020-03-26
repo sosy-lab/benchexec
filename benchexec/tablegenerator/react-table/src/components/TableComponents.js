@@ -24,7 +24,7 @@ export const StandardColumnHeader = ({
 );
 
 export const RunSetHeader = ({ runSet, ...other }) => (
-  <span className="header__tool-infos" {...other}>
+  <span className="header__tool-infos" {...other} title={getRunSetName(runSet)}>
     {getRunSetName(runSet)}
   </span>
 );
