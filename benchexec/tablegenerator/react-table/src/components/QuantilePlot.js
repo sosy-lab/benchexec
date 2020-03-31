@@ -113,8 +113,8 @@ export default class QuantilePlot extends React.Component {
         .filter(QuantilePlot.relevantColumn)
         .map(c => {
           return {
-            disabled: this.state.isInvisible.some(el => el === c.display_title),
             title: c.display_title,
+            disabled: this.state.isInvisible.some(el => el === c.display_title),
           };
         });
     }
