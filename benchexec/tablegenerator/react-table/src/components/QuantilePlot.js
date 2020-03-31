@@ -99,7 +99,15 @@ export default class QuantilePlot extends React.Component {
   // --------------------rendering-----------------------------
   renderLegend = () => {
     if (this.state.isValue) {
-      return this.props.tools.filter(this.relevantRunSet).map(getRunSetName);
+      return this.props.tools
+        .filter(this.relevantRunSet)
+        .map(getRunSetName)
+        .map(c => {
+          return {
+            title: c,
+            disabled: this.state.isInvisible.some(el => el === c),
+          };
+        });
     } else {
       return this.props.tools[this.state.selection.split("-")[1]].columns
         .filter(QuantilePlot.relevantColumn)
@@ -376,10 +384,7 @@ export default class QuantilePlot extends React.Component {
             items={this.renderLegend()}
             onItemClick={(Object, item) => {
               let line = "";
-              line =
-                Object.toString() !== "[object Object]"
-                  ? Object.toString()
-                  : Object.title.toString();
+              line = Object.title.toString();
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
                   isInvisible: this.state.isInvisible.concat([line]),
