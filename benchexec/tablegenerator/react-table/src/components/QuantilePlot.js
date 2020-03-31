@@ -103,7 +103,12 @@ export default class QuantilePlot extends React.Component {
     } else {
       return this.props.tools[this.state.selection.split("-")[1]].columns
         .filter(QuantilePlot.relevantColumn)
-        .map(c => c.display_title);
+        .map(c => {
+          return {
+            disabled: this.state.isInvisible.some(el => el === c.display_title),
+            title: c.display_title,
+          };
+        });
     }
   };
 
@@ -371,18 +376,10 @@ export default class QuantilePlot extends React.Component {
             items={this.renderLegend()}
             onItemClick={(Object, item) => {
               let line = "";
-              line = Object.toString();
-              const element = document.getElementsByClassName(
-                "rv-discrete-color-legend-item__title",
-              )[item];
-              if (
-                String(element.getAttribute("style")) === "color:black" ||
-                String(element.getAttribute("style")) === "null"
-              ) {
-                element.setAttribute("style", "color:grey");
-              } else {
-                element.setAttribute("style", "color:black");
-              }
+              line =
+                Object.toString() !== "[object Object]"
+                  ? Object.toString()
+                  : Object.title.toString();
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
                   isInvisible: this.state.isInvisible.concat([line]),
