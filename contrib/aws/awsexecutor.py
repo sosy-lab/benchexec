@@ -469,7 +469,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
 
             if os.path.exists(dataFile) and os.path.exists(run.log_file):
                 try:
-                    values = parseCloudRunResultFile(dataFile)
+                    values = parseAWSRunResultFile(dataFile)
                     if not benchmark.config.debug:
                         os.remove(dataFile)
                 except IOError as e:
@@ -493,18 +493,17 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             if os.path.exists(run.log_file + ".stdError"):
                 runsProducedErrorOutput = True
 
-            # The directory structure differs between direct and webclient mode when using VCloud.
             # Move all output files from "sibling of log-file" to "sibling of parent directory".
             rawPath = run.log_file[: -len(".log")]
             dirname, filename = os.path.split(rawPath)
-            vcloudFilesDirectory = rawPath + ".files"
+            awsFilesDirectory = rawPath + ".files"
             benchexecFilesDirectory = os.path.join(
                 dirname[: -len(".logfiles")] + ".files", filename
             )
-            if os.path.isdir(vcloudFilesDirectory) and not os.path.isdir(
+            if os.path.isdir(awsFilesDirectory) and not os.path.isdir(
                 benchexecFilesDirectory
             ):
-                shutil.move(vcloudFilesDirectory, benchexecFilesDirectory)
+                shutil.move(awsFilesDirectory, benchexecFilesDirectory)
 
         output_handler.output_after_run_set(
             runSet, walltime=usedWallTime, end_time=end_time
@@ -521,17 +520,17 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         )
 
 
-def parseCloudRunResultFile(filePath):
+def parseAWSRunResultFile(filePath):
     def read_items():
         with open(filePath, "rt") as file:
             for line in file:
                 key, value = line.split("=", 1)
                 yield key, value
 
-    return parse_vcloud_run_result(read_items())
+    return parse_cloud_run_result(read_items())
 
 
-def parse_vcloud_run_result(values):
+def parse_cloud_run_result(values):
     result_values = collections.OrderedDict()
 
     def parse_time_value(s):
