@@ -9,6 +9,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
+from getpass import getuser
 import io
 import json
 import logging
@@ -58,7 +59,17 @@ def get_system_info():
 def execute_benchmark(benchmark, output_handler):
     (toolpaths, awsInput) = getAWSInput(benchmark)
 
-    with open(benchmark.config.aws_config, "r") as conf_file:
+    conf_file_path = (
+        benchmark.config.aws_config
+        if benchmark.config.aws_config is not None
+        else os.path.join(
+            os.path.expanduser("~"),
+            ".config",
+            "sv-comp-aws",
+            getuser() + ".client.config",
+        )
+    )
+    with open(conf_file_path, "r") as conf_file:
         conf = json.load(conf_file)[0]
         aws_endpoint = conf["Endpoint"]
         aws_token = conf["UserToken"]
