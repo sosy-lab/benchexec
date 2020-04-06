@@ -29,8 +29,8 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 REQUEST_URL = {
     "create": "{0}{1}/execution/create",
     "upload": "{0}{1}/upload/{2}?file={3}",
-    "launch": "{0}{1}/execution/{2}/launch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commands={7}",
-    "progress": "{0}{1}/execution/{2}/progress",
+    "launchBatch": "{0}{1}/execution/{2}/launchBatch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commands={7}",
+    "progressBatch": "{0}{1}/execution/{2}/progressBatch",
     "results": "{0}{1}/execution/{2}/results",
     "clean": "{0}{1}/clean",
 }
@@ -149,25 +149,25 @@ def execute_benchmark(benchmark, output_handler):
         _exitWhenRequestFailed(http_request)
 
         # Launch
-        http_request = requests.get(
-            REQUEST_URL["launch"].format(
-                aws_endpoint,
-                aws_token,
-                requestId,
-                verifier_aws_public_url,
-                verifier_s3_key,
-                tasks_aws_public_url,
-                tasks_s3_key,
-                json.dumps(awsInput),
-            )
+        url = REQUEST_URL["launchBatch"].format(
+            aws_endpoint,
+            aws_token,
+            requestId,
+            verifier_aws_public_url,
+            verifier_s3_key,
+            tasks_aws_public_url,
+            tasks_s3_key,
+            json.dumps(awsInput),
         )
+        logging.debug("Sending http-request for launch: \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
 
         # Progress
         logging.info(
             "Executing RunExec on the AWS workers. Depending on the size of the tasks, this might take a while."
         )
-        progress_url = REQUEST_URL["progress"].format(
+        progress_url = REQUEST_URL["progressBatch"].format(
             aws_endpoint, aws_token, requestId
         )
         initialized = False
