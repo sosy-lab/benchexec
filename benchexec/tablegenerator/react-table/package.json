@@ -17,7 +17,8 @@
     "react-router-dom": "^5.1.2",
     "react-table": "6.11.4",
     "react-table-hoc-fixed-columns": "^2.3.0",
-    "react-vis": "^1.11.7"
+    "react-vis": "^1.11.7",
+    "yaml": "^1.8.3"
   },
   "engines": {
     "node": ">=12.0.0"

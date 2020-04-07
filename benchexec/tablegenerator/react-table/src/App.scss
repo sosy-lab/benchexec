@@ -478,6 +478,32 @@ $table-border: 1px solid $border-color;
       background: black;
     }
   }
+
+  .link-overlay {
+    &-file-link {
+      color: blue;
+      text-decoration: underline;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    &-content-container {
+      // height of closing icon
+      margin-top: -2em;
+    }
+
+    &-back {
+      &-button:hover {
+        cursor: pointer;
+      }
+
+      &-icon {
+        margin-right: 1em;
+      }
+    }
+  }
 }
 
 .rt-td {
