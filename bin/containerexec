@@ -27,4 +27,5 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import benchexec.containerexecutor
 
-sys.exit(benchexec.containerexecutor.main())
+if __name__ == "__main__":
+    sys.exit(benchexec.containerexecutor.main())
