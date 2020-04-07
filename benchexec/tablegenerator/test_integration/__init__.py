@@ -28,7 +28,7 @@ import tempfile
 import unittest
 
 import benchexec
-from benchexec import util
+import benchexec.util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -153,14 +153,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             args, table_prefix, diff_prefix
         )
 
-        generated_csv = util.read_file(csv_file)
+        generated_csv = benchexec.util.read_file(csv_file)
         self.assert_file_content_equals(generated_csv, expected_file_name("csv"))
 
         generated_html = self.read_table_from_html(html_file)
         self.assert_file_content_equals(generated_html, expected_file_name("html"))
 
         if diff_prefix:
-            generated_csv_diff = util.read_file(csv_diff_file)
+            generated_csv_diff = benchexec.util.read_file(csv_diff_file)
             self.assert_file_content_equals(
                 generated_csv_diff, expected_diff_file_name("csv")
             )
@@ -180,12 +180,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
     def assert_file_content_equals(self, content, file):
         if OVERWRITE_MODE:
-            util.write_file(content, *file)
+            benchexec.util.write_file(content, *file)
         else:
-            self.assertMultiLineEqual(content, util.read_file(*file))
+            self.assertMultiLineEqual(content, benchexec.util.read_file(*file))
 
     def read_table_from_html(self, file):
-        content = util.read_file(file)
+        content = benchexec.util.read_file(file)
         # only keep table
         content = content[
             content.index("const data = {") + 13 : content.index("\n};") + 2
@@ -652,7 +652,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             formats=[],
             output_path="-",
         )
-        expected = util.read_file(
+        expected = benchexec.util.read_file(
             here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
         )
         self.assertMultiLineEqual(output.strip(), expected)
