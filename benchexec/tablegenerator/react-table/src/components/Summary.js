@@ -42,10 +42,10 @@ export default class Summary extends React.Component {
     this.width = window.innerWidth;
   }
 
-  renderTooltip = cell =>
+  renderTooltip = (cell) =>
     Object.keys(cell)
-      .filter(key => cell[key] && key !== "sum")
-      .map(key => `${key}: ${cell[key]}`)
+      .filter((key) => cell[key] && key !== "sum")
+      .map((key) => `${key}: ${cell[key]}`)
       .join(", ") || undefined;
 
   //fix columns
@@ -73,7 +73,7 @@ export default class Summary extends React.Component {
       </td>
     );
   };
-  renderOptions = text => {
+  renderOptions = (text) => {
     return text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
         <code>{i === 0 ? option : `-${option}`}</code>
@@ -103,7 +103,7 @@ export default class Summary extends React.Component {
         minWidth: this.headerWidth,
         Header: <SelectColumnsButton handler={this.props.selectColumn} />,
         accessor: "",
-        Cell: cell => (
+        Cell: (cell) => (
           <div
             dangerouslySetInnerHTML={{ __html: cell.value.title }}
             title={cell.value.description}
@@ -121,7 +121,7 @@ export default class Summary extends React.Component {
         column={column}
         className="columns"
         title="Show Quantile Plot of this column"
-        onClick={e => this.props.changeTab(e, column, 2)}
+        onClick={(e) => this.props.changeTab(e, column, 2)}
       />
     ),
     show:
@@ -131,8 +131,8 @@ export default class Summary extends React.Component {
       null,
       column.type === "status" ? 6 : null,
     ),
-    accessor: row => row.content[runSetIdx][columnIdx],
-    Cell: cell =>
+    accessor: (row) => row.content[runSetIdx][columnIdx],
+    Cell: (cell) =>
       cell.value ? (
         <div
           dangerouslySetInnerHTML={{ __html: cell.value.sum }}
@@ -158,8 +158,8 @@ export default class Summary extends React.Component {
           <table>
             <tbody>
               {this.infos
-                .map(row => this.props.tableHeader[row])
-                .filter(row => row !== null)
+                .map((row) => this.props.tableHeader[row])
+                .filter((row) => row !== null)
                 .map((row, i) => (
                   <tr key={"tr-" + row.id} className={row.id}>
                     <th key={"td-" + row.id}>{row.name}</th>

@@ -21,30 +21,30 @@ expect.addSnapshotSerializer({
     serialize(val.toJSON())
       .split("\n")
       // filter empty lines
-      .filter(s => !s.match(/^ *$/))
+      .filter((s) => !s.match(/^ *$/))
       // filter handler attributes (nothing important visible)
-      .filter(s => !s.match(/^ *on[a-zA-Z]*=\{\[Function\]\}$/))
+      .filter((s) => !s.match(/^ *on[a-zA-Z]*=\{\[Function\]\}$/))
       // reduce indentation to one space
-      .map(s => {
+      .map((s) => {
         const trimmed = s.trimStart();
         return " ".repeat((s.length - trimmed.length) / 2) + trimmed;
       })
       .join("\n"),
-  test: val => val && val.hasOwnProperty("toJSON"),
+  test: (val) => val && val.hasOwnProperty("toJSON"),
 });
 
 // Serializer that simplifies HTML elements with several children,
 // if all children are strings by joining the strings (better readable)
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
-    val.children = [val.children.filter(s => !s.match(/^ *$/)).join("")];
+    val.children = [val.children.filter((s) => !s.match(/^ *$/)).join("")];
     return serialize(val);
   },
-  test: val =>
+  test: (val) =>
     val &&
     Array.isArray(val.children) &&
     val.children.length > 1 &&
-    val.children.every(o => typeof o === "string"),
+    val.children.every((o) => typeof o === "string"),
 });
 
 // Serializer that simplifies HTML elements with one empty child
@@ -54,7 +54,7 @@ expect.addSnapshotSerializer({
     delete val.children;
     return serialize(val);
   },
-  test: val =>
+  test: (val) =>
     val &&
     Array.isArray(val.children) &&
     val.children.length === 1 &&
@@ -64,21 +64,21 @@ expect.addSnapshotSerializer({
 // Serializer that simplies the dangerouslySetInnerHTML attribute
 expect.addSnapshotSerializer({
   print: (val, serialize) => serialize(val.__html),
-  test: val => val && val.hasOwnProperty("__html"),
+  test: (val) => val && val.hasOwnProperty("__html"),
 });
 
 const testDir = "../test_integration/expected/";
 
 // Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
-ReactDOM.createPortal = dom => {
+ReactDOM.createPortal = (dom) => {
   return dom;
 };
 
 const test_snapshot_of = (name, component_func) => {
   fs.readdirSync(testDir)
-    .filter(file => file.endsWith(".html"))
-    .filter(file => fs.statSync(testDir + file).size < 100000)
-    .forEach(file => {
+    .filter((file) => file.endsWith(".html"))
+    .filter((file) => fs.statSync(testDir + file).size < 100000)
+    .forEach((file) => {
       it(name + " for " + file, () => {
         const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
         const data = JSON.parse(content);

@@ -62,7 +62,7 @@ export default class Overview extends React.Component {
       tabIndex: 0,
 
       active: (
-        menuItems.find(i => i.path === getCurrentPath()) || { key: "summary" }
+        menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
 
       quantilePreSelection: tools[0].columns[1],
@@ -70,8 +70,8 @@ export default class Overview extends React.Component {
   }
 
   // -----------------------SelectColumns-----------------------
-  toggleSelectColumns = ev => {
-    this.setState(prevState => ({
+  toggleSelectColumns = (ev) => {
+    this.setState((prevState) => ({
       showSelectColumns: !prevState.showSelectColumns,
     }));
   };
@@ -80,19 +80,19 @@ export default class Overview extends React.Component {
   toggleLinkOverlay = (ev, hrefRow) => {
     ev.preventDefault();
 
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       showLinkOverlay: !prevState.showLinkOverlay,
       link: hrefRow,
     }));
   };
 
   // -----------------------Filter-----------------------
-  setFilter = filteredData => {
-    this.filteredData = filteredData.map(row => {
+  setFilter = (filteredData) => {
+    this.filteredData = filteredData.map((row) => {
       return row._original;
     });
   };
-  filterPlotData = filter => {
+  filterPlotData = (filter) => {
     this.setState({
       table: this.filteredData,
       filtered: filter,
@@ -106,7 +106,7 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Common Functions-----------------------
-  getRowName = row => row.id.filter(s => s).join(" | ");
+  getRowName = (row) => row.id.filter((s) => s).join(" | ");
 
   changeTab = (_, column, tab) => {
     this.setState({

@@ -30,7 +30,7 @@ export default class SelectColumn extends React.Component {
   // -------------------------Rendering-------------------------
   renderRunSets = () => {
     return this.state.list.map((tool, i) => {
-      const isVisible = tool.columns.some(value => value.isVisible === true);
+      const isVisible = tool.columns.some((value) => value.isVisible === true);
       let toolName = getRunSetName(tool);
       return (
         <tr id={toolName} key={"tr" + toolName}>
@@ -45,7 +45,7 @@ export default class SelectColumn extends React.Component {
                 name={toolName}
                 type="checkbox"
                 checked={isVisible}
-                onChange={e => this.deselectTool(i, e)}
+                onChange={(e) => this.deselectTool(i, e)}
               ></input>
             </label>
           </td>
@@ -55,11 +55,11 @@ export default class SelectColumn extends React.Component {
     });
   };
 
-  renderColumns = index => {
+  renderColumns = (index) => {
     const columns = this.state.list[index].columns;
     return this.selectable.map((headerRow, idxHeader) => {
       const column = columns.find(
-        el => el.display_title === headerRow.display_title,
+        (el) => el.display_title === headerRow.display_title,
       );
       if (column !== undefined) {
         return (
@@ -87,21 +87,21 @@ export default class SelectColumn extends React.Component {
   };
 
   renderSelectColumns = () => {
-    this.state.list.forEach(tool => {
-      tool.columns.forEach(column => {
+    this.state.list.forEach((tool) => {
+      tool.columns.forEach((column) => {
         if (
           !this.selectable.some(
-            value => value.display_title === column.display_title,
+            (value) => value.display_title === column.display_title,
           )
         ) {
           this.selectable.push(column);
         }
       });
     });
-    return this.selectable.map(column => {
-      const isVisible = this.state.list.some(tool =>
+    return this.selectable.map((column) => {
+      const isVisible = this.state.list.some((tool) =>
         tool.columns.some(
-          col =>
+          (col) =>
             col.isVisible === true &&
             col.display_title === column.display_title,
         ),
@@ -133,7 +133,7 @@ export default class SelectColumn extends React.Component {
     const list = [...this.state.list];
 
     list[tool].columns.find(
-      el => el.display_title === column,
+      (el) => el.display_title === column,
     ).isVisible = value;
 
     this.checkTools(list);
@@ -143,8 +143,10 @@ export default class SelectColumn extends React.Component {
     const value = target.type === "checkbox" ? target.checked : target.value;
     const list = [...this.state.list];
 
-    list.forEach(tool => {
-      const column = tool.columns.find(el => el.display_title === target.name);
+    list.forEach((tool) => {
+      const column = tool.columns.find(
+        (el) => el.display_title === target.name,
+      );
       if (column) {
         column.isVisible = value;
       }
@@ -156,7 +158,7 @@ export default class SelectColumn extends React.Component {
     const value = target.type === "checkbox" ? target.checked : target.value;
     const list = [...this.state.list];
 
-    list[i].columns.forEach(column => {
+    list[i].columns.forEach((column) => {
       column.isVisible = value;
     });
 
@@ -166,21 +168,21 @@ export default class SelectColumn extends React.Component {
   deselectAll = () => {
     const list = [...this.state.list];
 
-    list.forEach(tool =>
-      tool.columns.forEach(column => {
+    list.forEach((tool) =>
+      tool.columns.forEach((column) => {
         column.isVisible = !this.state.deselect;
       }),
     );
 
     this.checkTools(list);
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       deselect: !prevState.deselect,
     }));
   };
 
-  checkTools = list => {
-    list.forEach(tool => {
-      tool.isVisible = tool.columns.some(column => column.isVisible);
+  checkTools = (list) => {
+    list.forEach((tool) => {
+      tool.isVisible = tool.columns.some((column) => column.isVisible);
     });
 
     this.setState({ list });
@@ -226,7 +228,7 @@ export default class SelectColumn extends React.Component {
           <button
             className="btn btn-apply"
             onClick={this.props.close}
-            disabled={!this.state.list.filter(tool => tool.isVisible).length}
+            disabled={!this.state.list.filter((tool) => tool.isVisible).length}
           >
             Apply and close
           </button>

@@ -49,8 +49,8 @@ const rows = [
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
-const getFilteredData = regex =>
-  rows.filter(row => applyNumericFilter({ id: "test", value: regex }, row));
+const getFilteredData = (regex) =>
+  rows.filter((row) => applyNumericFilter({ id: "test", value: regex }, row));
 
 test("applyNumericFilter single entry without result", () => {
   expect(

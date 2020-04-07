@@ -11,7 +11,7 @@ import { test_snapshot_of } from "./utils.js";
 
 // mock uniqid to have consistent names
 // https://stackoverflow.com/a/44538270/396730
-jest.mock("uniqid", () => i => i + "uniqid");
+jest.mock("uniqid", () => (i) => i + "uniqid");
 
 // Add a serializer that removes title attributes (irrelevant in our table)
 expect.addSnapshotSerializer({
@@ -19,10 +19,10 @@ expect.addSnapshotSerializer({
     delete val.props.title;
     return serialize(val);
   },
-  test: val => val && val.props && val.props.hasOwnProperty("title"),
+  test: (val) => val && val.props && val.props.hasOwnProperty("title"),
 });
 
-test_snapshot_of("Render Summary", overview => (
+test_snapshot_of("Render Summary", (overview) => (
   <Table
     tableHeader={overview.tableHeader}
     data={overview.originalTable}

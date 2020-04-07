@@ -45,7 +45,7 @@ export const StandardCell = ({
     return (
       <a
         href={href}
-        onClick={ev => toggleLinkOverlay(ev, href)}
+        onClick={(ev) => toggleLinkOverlay(ev, href)}
         dangerouslySetInnerHTML={html ? { __html: html } : undefined}
         {...other}
       >

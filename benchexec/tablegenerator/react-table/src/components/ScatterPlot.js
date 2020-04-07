@@ -30,8 +30,8 @@ const defaultValues = {
   line: 10,
 };
 
-const getFirstVisible = tool =>
-  tool.columns.find(column => column.isVisible && column.type !== "status");
+const getFirstVisible = (tool) =>
+  tool.columns.find((column) => column.isVisible && column.type !== "status");
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
@@ -147,7 +147,7 @@ export default class ScatterPlot extends React.Component {
     let array = [];
     this.hasInvalidLog = false;
 
-    this.props.table.forEach(row => {
+    this.props.table.forEach((row) => {
       const resX = row.results[this.state.toolX];
       const resY = row.results[this.state.toolY];
       const hasValues =
@@ -183,9 +183,9 @@ export default class ScatterPlot extends React.Component {
     this.dataArray = array;
   };
 
-  setMinMaxValues = array => {
-    const xValues = array.map(el => el.x);
-    const yValues = array.map(el => el.y);
+  setMinMaxValues = (array) => {
+    const xValues = array.map((el) => el.x);
+    const yValues = array.map((el) => el.y);
 
     this.maxX = this.findMaxValue(xValues);
     this.maxY = this.findMaxValue(yValues);
@@ -193,12 +193,12 @@ export default class ScatterPlot extends React.Component {
     this.minY = this.findMinValue(yValues);
   };
 
-  findMaxValue = values => {
+  findMaxValue = (values) => {
     const max = Math.max(...values);
     return max < 3 ? 3 : max;
   };
 
-  findMinValue = values => {
+  findMinValue = (values) => {
     const min = Math.min(...values);
     return min > 2 ? 1 : min;
   };
@@ -216,13 +216,13 @@ export default class ScatterPlot extends React.Component {
   };
   toggleCorrectResults = () => {
     setParam({ correct: !this.state.correct });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       correct: !prevState.correct,
     }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       linear: !prevState.linear,
     }));
   };
@@ -234,7 +234,7 @@ export default class ScatterPlot extends React.Component {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
-        item => item.display_title === columnName,
+        (item) => item.display_title === columnName,
       ),
       [`name${axis}`]: columnName,
     };
@@ -262,7 +262,7 @@ export default class ScatterPlot extends React.Component {
           <select
             name="Value XAxis"
             value={this.state.dataX}
-            onChange={ev => this.handleAxis(ev, "X")}
+            onChange={(ev) => this.handleAxis(ev, "X")}
           >
             {this.renderColumns()}
           </select>
@@ -270,7 +270,7 @@ export default class ScatterPlot extends React.Component {
           <select
             name="Value YAxis"
             value={this.state.dataY}
-            onChange={ev => this.handleAxis(ev, "Y")}
+            onChange={(ev) => this.handleAxis(ev, "Y")}
           >
             {this.renderColumns()}
           </select>
@@ -280,7 +280,7 @@ export default class ScatterPlot extends React.Component {
             value={this.state.line}
             onChange={this.handleLine}
           >
-            {this.lineValues.map(value => {
+            {this.lineValues.map((value) => {
               return (
                 <option key={value} name={value} value={value}>
                   {value}
@@ -373,13 +373,13 @@ export default class ScatterPlot extends React.Component {
           />
           <XAxis
             title={this.state.nameX}
-            tickFormat={value => value}
+            tickFormat={(value) => value}
             yType={this.handleType(this.state.toolY, this.state.columnY)}
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <YAxis
             title={this.state.nameY}
-            tickFormat={value => value}
+            tickFormat={(value) => value}
             yType={this.handleType(this.state.toolY, this.state.columnY)}
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
