@@ -546,8 +546,10 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
         return self.__bool__()
 
 
-def kill_process(pid, sig=signal.SIGKILL):
+def kill_process(pid, sig=None):
     """Try to send signal to given process."""
+    if sig is None:
+        sig = signal.SIGKILL  # set default lazily, otherwise importing fails on Windows
     try:
         os.kill(pid, sig)
     except OSError as e:
