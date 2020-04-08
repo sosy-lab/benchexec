@@ -621,9 +621,11 @@ def determine_directory_mode(dir_modes, path, fstype=None):
         return DIR_READ_ONLY
 
     if result_mode == DIR_OVERLAY and not os.path.isdir(path):
-        logging.debug("Cannot use overlay mode for %s because it is not a directory. "
+        logging.debug(
+            "Cannot use overlay mode for %s because it is not a directory. "
             "Using read-only mode instead. ",
-            path.decode())
+            path.decode(),
+        )
         return DIR_READ_ONLY
 
     if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
