@@ -467,12 +467,22 @@ $table-border: 1px solid $border-color;
   }
 
   .closing {
+    z-index: 11;
     cursor: pointer;
-    position: fixed;
-    top: 90px;
+    position: -webkit-sticky;
+    position: sticky;
+    // left: 95% as fallback value that generates an acceptable positioning for all screen widths
+    left: 95%;
+    top: 0;
     padding: 3px;
     font-size: 120%;
     border-radius: 4px;
+
+    &.svg-inline--fa.fa-w-11 {
+      // 0.6875em is the width of the icon defined by this class
+      left: calc(100% - 0.6875em);
+    }
+
     &:hover {
       color: white;
       background: black;
@@ -490,13 +500,24 @@ $table-border: 1px solid $border-color;
     }
 
     &-content-container {
-      // height of closing icon
-      margin-top: -2em;
+      z-index: 10;
+      position: absolute;
+      // 1em is the height of the closing icon with .svg-inline--fa.fa-w-11 classes
+      top: 1em;
+
+      pre {
+        margin: 0;
+      }
     }
 
     &-back {
-      &-button:hover {
-        cursor: pointer;
+      &-button {
+      display:inline-block;
+      margin-bottom: .5em;
+
+      &:hover {
+          cursor: pointer;
+        }
       }
 
       &-icon {
