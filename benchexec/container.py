@@ -676,12 +676,27 @@ def make_overlay_mount(mount, lower, upper, work):
         upper,
         work,
     )
+
+    def escape(s):
+        """
+        Safely encode a string for being used as a path for overlayfs.
+        In addition to escaping ",", which separates mount options,
+        we need to escape ":", which overlayfs uses to separate multiple lower dirs
+        (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+        """
+        return s.replace(b"\\", br"\\").replace(b":", br"\:").replace(b",", br"\,")
+
     libc.mount(
         b"none",
         mount,
         b"overlay",
         0,
-        b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work,
+        b"lowerdir="
+        + escape(lower)
+        + b",upperdir="
+        + escape(upper)
+        + b",workdir="
+        + escape(work),
     )
 
 
