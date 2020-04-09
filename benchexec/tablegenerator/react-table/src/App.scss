@@ -13,6 +13,7 @@
 $key-color: #71bcff;
 $border-color: rgb(173, 173, 173);
 $table-border: 1px solid $border-color;
+$hover-color: darken(white, 20%);
 
 //------------------common------------------
 .link {
@@ -63,6 +64,10 @@ $table-border: 1px solid $border-color;
 .selectColumns {
   cursor: pointer;
   font-weight: 700;
+  background-color: white;
+  &:hover {
+    background-color: $hover-color;
+  }
 }
 .header__tool-infos {
   font-weight: 700;
@@ -187,11 +192,11 @@ $table-border: 1px solid $border-color;
       }
 
       tr:nth-child(even) {
-        background-color: #f2f2f2;
+        background-color: mix($hover-color, white, 33%);
       }
 
       tr:hover {
-        background-color: #ddd;
+        background-color: mix($hover-color, white, 66%);
       }
 
       th {
@@ -221,6 +226,9 @@ $table-border: 1px solid $border-color;
     }
     .columns {
       cursor: pointer;
+      &:hover {
+        background-color: $hover-color;
+      }
     }
   }
 
@@ -236,7 +244,7 @@ $table-border: 1px solid $border-color;
     display: block;
   }
   a:hover {
-    background-color: lightgrey;
+    background-color: $hover-color;
   }
   a:focus {
     outline: 1px dotted red;
@@ -259,6 +267,12 @@ $table-border: 1px solid $border-color;
       &:first-child {
         width: 30vw;
       }
+    }
+    .rt-resizable-header:hover {
+      // TODO: Something like :not(:has(.selectColumns:hover)) would be good
+      // to avoid coloring the background if the user hovers over a nested button,
+      // but :has is not usable yet.
+      background-color: $hover-color;
     }
   }
 
@@ -354,7 +368,7 @@ $table-border: 1px solid $border-color;
 
   .rv-discrete-color-legend-item.clickable {
     &:hover {
-      background: #e2e2e2;
+      background: $hover-color;
     }
   }
 }
