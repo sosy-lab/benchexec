@@ -124,13 +124,15 @@ export default class Table extends React.Component {
     Header: () => (
       <div className="fixed">
         <form>
-          <label title="Fix the first column">Fixed task:</label>
-          <input
-            name="fixed"
-            type="checkbox"
-            checked={this.state.fixed}
-            onChange={this.handleInputChange}
-          />
+          <label title="Fix the first column">
+            Fixed task:
+            <input
+              name="fixed"
+              type="checkbox"
+              checked={this.state.fixed}
+              onChange={this.handleInputChange}
+            />
+          </label>
         </form>
       </div>
     ),

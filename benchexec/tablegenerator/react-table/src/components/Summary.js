@@ -85,13 +85,16 @@ export default class Summary extends React.Component {
     Header: () => (
       <div className="toolsHeader">
         <form>
-          <label>Fixed row title:</label>
-          <input
-            name="fixed"
-            type="checkbox"
-            checked={this.state.fixed}
-            onChange={this.handleInputChange}
-          />
+          <label title="Fix the first column">
+            Fixed row title:
+            <input
+              id="fixed-row-title"
+              name="fixed"
+              type="checkbox"
+              checked={this.state.fixed}
+              onChange={this.handleInputChange}
+            />
+          </label>
         </form>
       </div>
     ),
