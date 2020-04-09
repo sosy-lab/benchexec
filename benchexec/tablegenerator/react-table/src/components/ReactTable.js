@@ -138,7 +138,11 @@ export default class Table extends React.Component {
     columns: [
       {
         minWidth: window.innerWidth * 0.3,
-        Header: <SelectColumnsButton handler={this.props.selectColumn} />,
+        Header: (
+          <StandardColumnHeader>
+            <SelectColumnsButton handler={this.props.selectColumn} />
+          </StandardColumnHeader>
+        ),
         fixed: this.state.fixed ? "left" : "",
         accessor: "id",
         Cell: (cell) => {

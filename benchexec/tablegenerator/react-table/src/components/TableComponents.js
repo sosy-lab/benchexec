@@ -8,7 +8,7 @@ import React from "react";
 import { formatColumnTitle, getRunSetName } from "../utils/utils.js";
 
 export const SelectColumnsButton = ({ handler, ...other }) => (
-  <span onClick={handler} className="selectColumns" {...other}>
+  <span onClick={handler} title="" className="selectColumns" {...other}>
     Click here to select columns
   </span>
 );
@@ -16,10 +16,11 @@ export const SelectColumnsButton = ({ handler, ...other }) => (
 export const StandardColumnHeader = ({
   column,
   title = "Click here to sort. Hold shift to multi-sort",
+  children,
   ...other
 }) => (
   <div title={title} {...other}>
-    {formatColumnTitle(column)}
+    {children || formatColumnTitle(column)}
   </div>
 );
 
