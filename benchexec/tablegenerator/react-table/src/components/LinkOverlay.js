@@ -206,7 +206,7 @@ export default class LinkOverlay extends React.Component {
                     className="link-overlay-back-icon"
                     icon={faArrowLeft}
                   />
-                  Back to YAML
+                  Back to task definition
                 </span>
               ) : (
                 ""
