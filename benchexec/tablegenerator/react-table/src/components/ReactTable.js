@@ -292,26 +292,30 @@ export default class Table extends React.Component {
       .flat();
 
     return (
-      <div className="mainTable">
-        <ReactTableFixedColumns
-          data={this.data}
-          filterable={true}
-          filtered={this.props.filtered}
-          columns={[this.createTaskIdColumn()].concat(resultColumns)}
-          defaultPageSize={250}
-          pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
-          className="-highlight"
-          minRows={0}
-          onFilteredChange={(filtered) => {
-            this.props.filterPlotData(filtered);
-          }}
-          style={{ maxHeight: "100%" }}
-        >
-          {(state, makeTable, instance) => {
-            this.props.setFilter(state.sortedData);
-            return makeTable();
-          }}
-        </ReactTableFixedColumns>
+      <div class="wrapper">
+        <div class="container">
+          <div className="mainTable">
+            <ReactTableFixedColumns
+              data={this.data}
+              filterable={true}
+              filtered={this.props.filtered}
+              columns={[this.createTaskIdColumn()].concat(resultColumns)}
+              defaultPageSize={250}
+              pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
+              className="-highlight"
+              minRows={0}
+              onFilteredChange={(filtered) => {
+                this.props.filterPlotData(filtered);
+              }}
+              style={{ maxHeight: "80%" }}
+            >
+              {(state, makeTable, instance) => {
+                this.props.setFilter(state.sortedData);
+                return makeTable();
+              }}
+            </ReactTableFixedColumns>
+          </div>
+        </div>
       </div>
     );
   }

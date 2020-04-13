@@ -238,6 +238,16 @@ $hover-color: darken(white, 20%);
 }
 
 //------------------table------------------
+.wrapper {
+  overflow: hidden;
+  display: flex;
+}
+.container {
+  flex: 1;
+  overflow-x: scroll;
+  height:95vh;
+}
+
 .mainTable {
   a {
     text-decoration: none;
