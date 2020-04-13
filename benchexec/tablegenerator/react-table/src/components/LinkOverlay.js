@@ -180,15 +180,31 @@ export default class LinkOverlay extends React.Component {
     ReactModal.setAppElement("#root");
     return (
       <ReactModal
-        className="overlay"
+        className={`overlay ${this.state.isSecondLevel ? 'second-level' : ''}`}
         isOpen={true}
         onRequestClose={this.props.close}
       >
+      <div className="link-overlay-header-container">
         <FontAwesomeIcon
           icon={faTimes}
           onClick={this.props.close}
           className="closing"
         />
+        {this.state.isSecondLevel ? (
+          <span
+            className="link-overlay-back-button"
+            onClick={this.loadOriginalFile}
+          >
+            <FontAwesomeIcon
+              className="link-overlay-back-icon"
+              icon={faArrowLeft}
+            />
+            Back to task definition
+          </span>
+        ) : (
+          ""
+        )}
+    </div>
         {!this.state.error ? (
           this.state.isYAML ? (
             <TaskDefinitionViewer
@@ -196,28 +212,14 @@ export default class LinkOverlay extends React.Component {
               loadNewFile={this.loadNewFile}
             />
           ) : (
-            <div className="link-overlay-content-container">
-              {this.state.isSecondLevel ? (
-                <span
-                  className="link-overlay-back-button"
-                  onClick={this.loadOriginalFile}
-                >
-                  <FontAwesomeIcon
-                    className="link-overlay-back-icon"
-                    icon={faArrowLeft}
-                  />
-                  Back to task definition
-                </span>
-              ) : (
-                ""
-              )}
+            <>
               <pre className="link-overlay-text">{this.state.content}</pre>
               <input />
-            </div>
+            </>
           )
         ) : (
-          <div>
-            <p>Error while loading content ({this.state.error}).</p>
+          <div className="link-overlay-text">
+            <p style={{marginTop: "0"}}>Error while loading content ({this.state.error}).</p>
             <p>
               This could be a problem of the{" "}
               <a href="https://en.wikipedia.org/wiki/Same-origin_policy">

@@ -96,9 +96,7 @@ export default class TaskDefinitionViewer extends React.Component {
     });
 
     return (
-      <div className="link-overlay-content-container">
         <pre className="link-overlay-text">{jsxContent}</pre>
-      </div>
     );
   }
 }
