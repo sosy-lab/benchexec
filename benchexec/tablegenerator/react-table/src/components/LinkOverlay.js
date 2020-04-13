@@ -22,6 +22,7 @@ export default class LinkOverlay extends React.Component {
     this.state = {
       isYAML: this.isYAMLFile(this.props.link),
       content: `loading file: ${this.props.link}`,
+      currentFile: this.props.link,
       isSecondLevel: false,
     };
 
@@ -58,6 +59,7 @@ export default class LinkOverlay extends React.Component {
   // 3) Try loading url from within ZIP archive without Range header.
   loadContent = async url => {
     console.log("load content", url);
+    this.setState({currentFile: url});
     if (url) {
       try {
         const response = await fetch(url);
@@ -248,7 +250,7 @@ export default class LinkOverlay extends React.Component {
             ) : null}
             <p>
               You can try to download the file:{" "}
-              <a href={this.props.link}>{this.props.link}</a>
+              <a href={this.state.currentFile}>{this.state.currentFile}</a>
             </p>
           </div>
         )}
