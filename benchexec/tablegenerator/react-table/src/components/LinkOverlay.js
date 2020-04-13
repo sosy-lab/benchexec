@@ -11,8 +11,8 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { isOkStatus } from "../utils/utils";
 import zip from "../vendor/zip.js/index.js";
-import YAML from "yaml";
 import path from "path-browserify";
+import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
 const cachedZipFileEntries = {};
 
@@ -191,7 +191,7 @@ export default class LinkOverlay extends React.Component {
         />
         {!this.state.error ? (
           this.state.isYAML ? (
-            <LinkOverlayYAML
+            <TaskDefinitionViewer
               yamlText={this.state.content}
               loadNewFile={this.loadNewFile}
             />
@@ -250,108 +250,6 @@ export default class LinkOverlay extends React.Component {
           </div>
         )}
       </ReactModal>
-    );
-  }
-}
-
-/** Special Link Overlay for YAML files. */
-class LinkOverlayYAML extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      splitterTag: "<splitter#9d81y23>",
-      fileTag: "<file#092nt43>",
-      content: this.props.yamlText,
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.yamlText !== this.props.yamlText) {
-      this.prepareTextForRendering();
-    }
-  }
-
-  /**
-   * Parses the YAML file and encloses all input and property files with a fileTag as well as a splitterTag,
-   * so they can be rendered separately as links. Takes the following assumptions:
-   * input_files is either a string or a list of strings
-   * properties is a list of dicts, each with a "property_file" key
-   */
-  prepareTextForRendering = () => {
-    const yamlObj = YAML.parseDocument(this.props.yamlText);
-
-    const inputFiles = yamlObj.get("input_files");
-    if (inputFiles) {
-      if (Array.isArray(inputFiles.items)) {
-        inputFiles.items.forEach(inputFileItem => {
-          inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
-        });
-      } else {
-        yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
-      }
-    }
-
-    const properties = yamlObj.get("properties");
-    if (properties) {
-      properties.items.forEach(property => {
-        property.items.forEach(propertyItem => {
-          if (propertyItem.key.value === "property_file") {
-            propertyItem.value.value = this.encloseFileInTags(
-              propertyItem.value.value,
-            );
-          }
-        });
-      });
-    }
-
-    this.setState({ content: yamlObj.toString() });
-  };
-
-  encloseFileInTags = fileName => {
-    return (
-      this.state.splitterTag +
-      this.state.fileTag +
-      fileName +
-      this.state.fileTag +
-      this.state.splitterTag
-    );
-  };
-
-  render() {
-    const contentBySplitter = this.state.content.split(this.state.splitterTag);
-    const jsxContent = [];
-
-    contentBySplitter.forEach(contentPart => {
-      let jsxContentPart;
-      // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
-      if (
-        contentPart.match(
-          "^" + this.state.fileTag + "(?:.)+" + this.state.fileTag + "$",
-        )
-      ) {
-        contentPart = contentPart.replace(
-          new RegExp(this.state.fileTag, "g"),
-          "",
-        );
-        jsxContentPart = (
-          <span
-            onClick={() => this.props.loadNewFile(contentPart)}
-            className="link-overlay-file-link"
-            key={contentPart}
-          >
-            {contentPart}
-          </span>
-        );
-      } else {
-        jsxContentPart = <span key={contentPart}>{contentPart}</span>;
-      }
-      jsxContent.push(jsxContentPart);
-    });
-
-    return (
-      <div className="link-overlay-content-container">
-        <pre className="link-overlay-text">{jsxContent}</pre>
-      </div>
     );
   }
 }
