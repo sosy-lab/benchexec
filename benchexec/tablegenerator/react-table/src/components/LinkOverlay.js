@@ -47,6 +47,7 @@ export default class LinkOverlay extends React.Component {
       isYAML: this.isYAMLFile(this.props.link),
       isSecondLevel: false,
       content: `loading file: ${this.props.link}`,
+      error: undefined,
     });
     this.loadContent(this.props.link);
   };
