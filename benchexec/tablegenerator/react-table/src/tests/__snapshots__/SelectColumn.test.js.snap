@@ -9566,6 +9566,260 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
 </div>
 `;
 
+exports[`Render SelectColumn for table_with_yaml_files.html 1`] = `
+<div
+ className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ style={
+  Object {
+   "backgroundColor": "rgba(255, 255, 255, 0.75)",
+   "bottom": 0,
+   "left": 0,
+   "position": "fixed",
+   "right": 0,
+   "top": 0,
+  }
+ }
+>
+ <div
+  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  role="dialog"
+  style={Object {}}
+  tabIndex="-1"
+ >
+  <svg
+   aria-hidden="true"
+   className="svg-inline--fa fa-times fa-w-11 closing"
+   data-icon="times"
+   data-prefix="fas"
+   focusable="false"
+   role="img"
+   style={
+    Object {
+     "right": 28,
+    }
+   }
+   viewBox="0 0 352 512"
+   xmlns="http://www.w3.org/2000/svg"
+  >
+   <path
+    d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+    fill="currentColor"
+    style={Object {}}
+   />
+  </svg>
+  <h1>
+   Select the columns to display
+  </h1>
+  <table
+   className="selectRows"
+  >
+   <tbody>
+    <tr
+     className="selectColumn_all"
+    >
+     <th />
+     <th
+      className="checked"
+      id="td-all-status"
+     >
+      <label>
+       status
+       <input
+        checked={true}
+        name="status"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-cputime"
+     >
+      <label>
+       cputime
+       <input
+        checked={true}
+        name="cputime"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-cputime-h"
+     >
+      <label>
+       cputime-h
+       <input
+        checked={true}
+        name="cputime-h"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-walltime"
+     >
+      <label>
+       walltime
+       <input
+        checked={true}
+        name="walltime"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-memUsage"
+     >
+      <label>
+       memUsage
+       <input
+        checked={true}
+        name="memUsage"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-memUsage-GB"
+     >
+      <label>
+       memUsage-GB
+       <input
+        checked={true}
+        name="memUsage-GB"
+        type="checkbox"
+       />
+      </label>
+     </th>
+    </tr>
+    <tr
+     id="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+    >
+     <td
+      className="checked"
+      id="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+     >
+      <label>
+       CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
+       <input
+        checked={true}
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0status"
+     >
+      <label>
+       status
+       <input
+        checked={true}
+        id="0--status"
+        name="0--status"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0cputime"
+     >
+      <label>
+       cputime
+       <input
+        checked={true}
+        id="0--cputime"
+        name="0--cputime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0cputime-h"
+     >
+      <label>
+       cputime-h
+       <input
+        checked={true}
+        id="0--cputime-h"
+        name="0--cputime-h"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0walltime"
+     >
+      <label>
+       walltime
+       <input
+        checked={true}
+        id="0--walltime"
+        name="0--walltime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0memUsage"
+     >
+      <label>
+       memUsage
+       <input
+        checked={true}
+        id="0--memUsage"
+        name="0--memUsage"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0memUsage-GB"
+     >
+      <label>
+       memUsage-GB
+       <input
+        checked={true}
+        id="0--memUsage-GB"
+        name="0--memUsage-GB"
+        type="checkbox"
+       />
+      </label>
+     </td>
+    </tr>
+   </tbody>
+  </table>
+  <div
+   className="overlay__buttons"
+  >
+   <button
+    className="btn"
+   >
+    Deselect all
+   </button>
+   <button
+    className="btn btn-apply"
+    disabled={false}
+   >
+    Apply and close
+   </button>
+   <input />
+  </div>
+ </div>
+</div>
+`;
+
 exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
 <div
  className="ReactModal__Overlay ReactModal__Overlay--after-open"

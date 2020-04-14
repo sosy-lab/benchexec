@@ -1,0 +1,552 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: other_subproperty
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 2`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_sub2_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: sub2
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 3`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: sub
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 4`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 5`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  true_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: true
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for benchmark.test.2019-12-20_1532.results.html 6`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  unknown_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  # Required, string with format version of this file (currently only "1.0")
+format_version: "1.0"
+# Required, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory will be given as input to the tool.
+input_files:
+ - '
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  *.md
+ </span>
+ <span>
+  '
+ - '
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  ../*.md
+ </span>
+ <span>
+  '
+# Optional, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory is treated as required for the task,
+# but will not be explicitly given to the tool.
+required_files:
+ - 'properties/'
+# Optional, contains list of dicts, each with at least the key "property_file".
+# Existing entries specify which properties can be used for tasks from this file.
+# If given, benchexec will compare expected verdicts against actual verdicts.
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  properties/memsafety.prp
+ </span>
+ <span>
+  # string with file-name pattern that matches exactly one file
+  expected_verdict: false # optional boolean
+  subproperty: valid-deref # optional string, contains violated subproperty
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  properties/unreach-call.prp
+ </span>
+ <span>
+  expected_verdict: true
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  properties/overflow.prp
+ </span>
+ <span>
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 2`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files:
+ - 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_sub_task.yml
+ </span>
+ <span>
+ - 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: other_subproperty
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 3`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: other_subproperty
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 4`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: []
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+  subproperty: other_subproperty
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 5`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files:
+ - 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_sub_task.yml
+ </span>
+ <span>
+ - 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties: []
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 6`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  expected_verdict: false
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 7`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_other_sub_task.yml
+ </span>
+ <span>
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  subproperty: other_subproperty
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 8`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 9`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+properties:
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  test.prp
+ </span>
+ <span>
+  subproperty: other_subproperty
+ - property_file: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  other.prp
+ </span>
+ <span>
+  expected_verdict: false
+ </span>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for table_with_yaml_files.html 10`] = `
+<pre
+ className="link-overlay-text"
+>
+ <span>
+  format_version: "1.0"
+input_files: 
+ </span>
+ <span
+  className="link-overlay-file-link"
+ >
+  false_task.yml
+ </span>
+ <span>
+ </span>
+</pre>
+`;
