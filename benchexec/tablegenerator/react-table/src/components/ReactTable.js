@@ -95,7 +95,7 @@ export default class Table extends React.Component {
       "property",
     ];
     this.typingTimer = -1;
-    this.height = window.innerHeight - 50;
+    this.height = window.innerHeight - 43;
   }
   //fix columns
   handleInputChange = ({ target }) => {
