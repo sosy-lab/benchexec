@@ -7,11 +7,10 @@
 import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { isOkStatus } from "../utils/utils";
 import zip from "../vendor/zip.js/index.js";
-import path from "path-browserify";
+import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
 const cachedZipFileEntries = {};
@@ -19,18 +18,21 @@ const cachedZipFileEntries = {};
 export default class LinkOverlay extends React.Component {
   constructor(props) {
     super(props);
+    const isYAML = this.props.link ? this.isYAMLFile(this.props.link) : false;
     this.state = {
-      isYAML: this.isYAMLFile(this.props.link),
+      isYAML: isYAML,
       content: `loading file: ${this.props.link}`,
       currentFile: this.props.link,
       isSecondLevel: false,
     };
+  }
 
+  componentDidMount() {
     this.loadContent(this.props.link);
   }
 
-  isYAMLFile(path) {
-    return path.endsWith(".yml");
+  isYAMLFile(filePath) {
+    return filePath.endsWith(".yml");
   }
 
   loadNewFile = relativeURL => {
@@ -180,9 +182,10 @@ export default class LinkOverlay extends React.Component {
   };
 
   render() {
-    ReactModal.setAppElement("#root");
+    ReactModal.setAppElement(document.getElementById("root"));
     return (
       <ReactModal
+        ariaHideApp={false}
         className={`overlay ${this.state.isSecondLevel ? 'second-level' : ''}`}
         isOpen={true}
         onRequestClose={this.props.close}
@@ -215,10 +218,7 @@ export default class LinkOverlay extends React.Component {
               loadNewFile={this.loadNewFile}
             />
           ) : (
-            <>
-              <pre className="link-overlay-text">{this.state.content}</pre>
-              <input />
-            </>
+            <pre className="link-overlay-text">{this.state.content}</pre>
           )
         ) : (
           <div className="link-overlay-text">
