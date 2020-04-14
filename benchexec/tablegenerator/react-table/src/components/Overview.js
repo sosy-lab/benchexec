@@ -119,102 +119,98 @@ export default class Overview extends React.Component {
 
   render() {
     return (
-      <div className="App">
-        <main>
-          <Router>
-            <div className="overview">
-              <div className="overview-container">
-                <div className="menu">
-                  {menuItems.map(({ key, title, path, icon }) => (
-                    <Link
-                      className={`menu-item ${
-                        this.state.active === key ? "selected" : ""
-                      }`}
-                      to={path}
-                      key={path}
-                      onClick={() => this.setState(() => ({ active: key }))}
-                    >
-                      {title} {icon || ""}
-                    </Link>
-                  ))}
-                  <Reset
-                    isFiltered={!!this.state.filtered.length}
-                    resetFilters={this.resetFilters}
-                    filteredCount={this.state.table.length}
-                    totalCount={this.originalTable.length}
-                  />
-                </div>
-                <div className="route-container">
-                  <Switch>
-                    <Route exact path="/">
-                      <Summary
-                        tools={this.state.tools}
-                        tableHeader={this.tableHeader}
-                        version={this.props.data.version}
-                        selectColumn={this.toggleSelectColumns}
-                        stats={this.stats}
-                        changeTab={this.changeTab}
-                      />
-                    </Route>
-                    <Route path="/table">
-                      <Table
-                        tableHeader={this.tableHeader}
-                        data={this.originalTable}
-                        tools={this.state.tools}
-                        selectColumn={this.toggleSelectColumns}
-                        setFilter={this.setFilter}
-                        filterPlotData={this.filterPlotData}
-                        filtered={this.state.filtered}
-                        toggleLinkOverlay={this.toggleLinkOverlay}
-                        changeTab={this.changeTab}
-                      />
-                    </Route>
-                    <Route path="/quantile">
-                      <QuantilePlot
-                        table={this.state.table}
-                        tools={this.state.tools}
-                        preSelection={this.state.quantilePreSelection}
-                        getRowName={this.getRowName}
-                      />
-                    </Route>
-                    <Route path="/scatter">
-                      <ScatterPlot
-                        table={this.state.table}
-                        columns={this.columns}
-                        tools={this.state.tools}
-                        getRowName={this.getRowName}
-                      />
-                    </Route>
-                    <Route path="/info">
-                      <Info
-                        version={this.props.data.version}
-                        selectColumn={this.toggleSelectColumns}
-                      />
-                    </Route>
-                  </Switch>
-                </div>
-              </div>
-              <div>
-                {this.state.showSelectColumns && (
-                  <SelectColumn
-                    close={this.toggleSelectColumns}
-                    currColumns={this.columns}
-                    tableHeader={this.tableHeader}
-                    tools={this.state.tools}
-                  />
-                )}
-                {this.state.showLinkOverlay && (
-                  <LinkOverlay
-                    close={this.toggleLinkOverlay}
-                    link={this.state.link}
-                    toggleLinkOverlay={this.toggleLinkOverlay}
-                  />
-                )}
-              </div>
+      <Router>
+        <div className="overview">
+          <div className="overview-container">
+            <div className="menu">
+              {menuItems.map(({ key, title, path, icon }) => (
+                <Link
+                  className={`menu-item ${
+                    this.state.active === key ? "selected" : ""
+                  }`}
+                  to={path}
+                  key={path}
+                  onClick={() => this.setState(() => ({ active: key }))}
+                >
+                  {title} {icon || ""}
+                </Link>
+              ))}
+              <Reset
+                isFiltered={!!this.state.filtered.length}
+                resetFilters={this.resetFilters}
+                filteredCount={this.state.table.length}
+                totalCount={this.originalTable.length}
+              />
             </div>
-          </Router>
-        </main>
-      </div>
+            <div className="route-container">
+              <Switch>
+                <Route exact path="/">
+                  <Summary
+                    tools={this.state.tools}
+                    tableHeader={this.tableHeader}
+                    version={this.props.data.version}
+                    selectColumn={this.toggleSelectColumns}
+                    stats={this.stats}
+                    changeTab={this.changeTab}
+                  />
+                </Route>
+                <Route path="/table">
+                  <Table
+                    tableHeader={this.tableHeader}
+                    data={this.originalTable}
+                    tools={this.state.tools}
+                    selectColumn={this.toggleSelectColumns}
+                    setFilter={this.setFilter}
+                    filterPlotData={this.filterPlotData}
+                    filtered={this.state.filtered}
+                    toggleLinkOverlay={this.toggleLinkOverlay}
+                    changeTab={this.changeTab}
+                  />
+                </Route>
+                <Route path="/quantile">
+                  <QuantilePlot
+                    table={this.state.table}
+                    tools={this.state.tools}
+                    preSelection={this.state.quantilePreSelection}
+                    getRowName={this.getRowName}
+                  />
+                </Route>
+                <Route path="/scatter">
+                  <ScatterPlot
+                    table={this.state.table}
+                    columns={this.columns}
+                    tools={this.state.tools}
+                    getRowName={this.getRowName}
+                  />
+                </Route>
+                <Route path="/info">
+                  <Info
+                    version={this.props.data.version}
+                    selectColumn={this.toggleSelectColumns}
+                  />
+                </Route>
+              </Switch>
+            </div>
+          </div>
+          <div>
+            {this.state.showSelectColumns && (
+              <SelectColumn
+                close={this.toggleSelectColumns}
+                currColumns={this.columns}
+                tableHeader={this.tableHeader}
+                tools={this.state.tools}
+              />
+            )}
+            {this.state.showLinkOverlay && (
+              <LinkOverlay
+                close={this.toggleLinkOverlay}
+                link={this.state.link}
+                toggleLinkOverlay={this.toggleLinkOverlay}
+              />
+            )}
+          </div>
+        </div>
+      </Router>
     );
   }
 }
