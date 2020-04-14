@@ -18,6 +18,10 @@ export default class TaskDefinitionViewer extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.prepareTextForRendering();
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.yamlText !== this.props.yamlText) {
       this.prepareTextForRendering();
@@ -56,7 +60,7 @@ export default class TaskDefinitionViewer extends React.Component {
         });
       });
     }
-
+    
     this.setState({ content: yamlObj.toString() });
   };
 
@@ -102,7 +106,7 @@ export default class TaskDefinitionViewer extends React.Component {
     });
 
     return (
-        <pre className="link-overlay-text">{jsxContent}</pre>
+      <pre className="link-overlay-text">{jsxContent}</pre>
     );
   }
 }
