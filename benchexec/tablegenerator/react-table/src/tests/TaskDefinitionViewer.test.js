@@ -26,13 +26,9 @@ test_multiple_snapshots_of("Render TaskDefinitionViewer", overview => {
 
     if (pathToFile.endsWith(".yml") && fs.existsSync(pathToFile)) {
       content = fs.readFileSync(pathToFile, { encoding: "UTF-8" });
-      const taskDefinitionViewer = (
-        <TaskDefinitionViewer
-          yamlText={content}
-        />
-      );
+      const taskDefinitionViewer = <TaskDefinitionViewer yamlText={content} />;
       components.push(taskDefinitionViewer);
     }
-  })
+  });
   return components;
 });

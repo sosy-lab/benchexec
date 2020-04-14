@@ -61,7 +61,7 @@ export default class LinkOverlay extends React.Component {
   // 3) Try loading url from within ZIP archive without Range header.
   loadContent = async url => {
     console.log("load content", url);
-    this.setState({currentFile: url});
+    this.setState({ currentFile: url });
     if (url) {
       try {
         const response = await fetch(url);
@@ -186,31 +186,31 @@ export default class LinkOverlay extends React.Component {
     return (
       <ReactModal
         ariaHideApp={false}
-        className={`overlay ${this.state.isSecondLevel ? 'second-level' : ''}`}
+        className={`overlay ${this.state.isSecondLevel ? "second-level" : ""}`}
         isOpen={true}
         onRequestClose={this.props.close}
       >
-      <div className="link-overlay-header-container">
-        <FontAwesomeIcon
-          icon={faTimes}
-          onClick={this.props.close}
-          className="closing"
-        />
-        {this.state.isSecondLevel ? (
-          <span
-            className="link-overlay-back-button"
-            onClick={this.loadOriginalFile}
-          >
-            <FontAwesomeIcon
-              className="link-overlay-back-icon"
-              icon={faArrowLeft}
-            />
-            Back to task definition
-          </span>
-        ) : (
-          ""
-        )}
-    </div>
+        <div className="link-overlay-header-container">
+          <FontAwesomeIcon
+            icon={faTimes}
+            onClick={this.props.close}
+            className="closing"
+          />
+          {this.state.isSecondLevel ? (
+            <span
+              className="link-overlay-back-button"
+              onClick={this.loadOriginalFile}
+            >
+              <FontAwesomeIcon
+                className="link-overlay-back-icon"
+                icon={faArrowLeft}
+              />
+              Back to task definition
+            </span>
+          ) : (
+            ""
+          )}
+        </div>
         {!this.state.error ? (
           this.state.isYAML ? (
             <TaskDefinitionViewer
@@ -222,7 +222,9 @@ export default class LinkOverlay extends React.Component {
           )
         ) : (
           <div className="link-overlay-text">
-            <p style={{marginTop: "0"}}>Error while loading content ({this.state.error}).</p>
+            <p style={{ marginTop: "0" }}>
+              Error while loading content ({this.state.error}).
+            </p>
             <p>
               This could be a problem of the{" "}
               <a href="https://en.wikipedia.org/wiki/Same-origin_policy">

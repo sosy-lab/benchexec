@@ -60,7 +60,7 @@ export default class TaskDefinitionViewer extends React.Component {
         });
       });
     }
-    
+
     this.setState({ content: yamlObj.toString() });
   };
 
@@ -105,8 +105,6 @@ export default class TaskDefinitionViewer extends React.Component {
       jsxContent.push(jsxContentPart);
     });
 
-    return (
-      <pre className="link-overlay-text">{jsxContent}</pre>
-    );
+    return <pre className="link-overlay-text">{jsxContent}</pre>;
   }
 }
