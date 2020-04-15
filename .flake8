@@ -19,7 +19,7 @@ ignore =
     # several scripts use print() for their output, so allow it
     T001,
     # only relevant if pytest is used
-    PT009,T003
+    PT,T003
 per-file-ignores =
     # wildcard imports significantly shorten test code
     benchexec/test*.py:F405
