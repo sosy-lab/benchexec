@@ -150,8 +150,10 @@ export default class ScatterPlot extends React.Component {
     this.props.table.forEach((row) => {
       const resX = row.results[this.state.toolX];
       const resY = row.results[this.state.toolY];
+      const x = resX.values[this.state.columnX].raw;
+      const y = resY.values[this.state.columnY].raw;
       const hasValues =
-        resX.values[this.state.columnX] && resY.values[this.state.columnY];
+        x !== undefined && x !== null && y !== undefined && y !== null;
 
       if (
         hasValues &&
@@ -160,19 +162,16 @@ export default class ScatterPlot extends React.Component {
             resX.category === "correct" &&
             resY.category === "correct"))
       ) {
-        const x = resX.values[this.state.columnX].raw;
-        const y = resY.values[this.state.columnY].raw;
         const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
 
-        if (x !== null && y !== null && !isLogAndInvalid) {
+        if (isLogAndInvalid) {
+          this.hasInvalidLog = true;
+        } else {
           array.push({
             x,
             y,
             info: this.props.getRowName(row),
           });
-        }
-        if (isLogAndInvalid) {
-          this.hasInvalidLog = true;
         }
       }
     });
@@ -396,9 +395,10 @@ export default class ScatterPlot extends React.Component {
         </XYPlot>
         {this.lineCount === 0 && (
           <div className="plot__noresults">
-            {this.hasInvalidLog
-              ? "All results have undefined values"
-              : "No correct results"}
+            No {this.state.correct && "correct"} results
+            {this.props.table.length > 0 && " with valid data points"}
+            {this.hasInvalidLog &&
+              " (negative values are not shown in logarithmic plot)"}
           </div>
         )}
         <button className="btn" onClick={this.toggleLinear}>
