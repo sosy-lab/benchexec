@@ -67,6 +67,20 @@ expect.addSnapshotSerializer({
   test: (val) => val && val.hasOwnProperty("__html"),
 });
 
+// Serializer that hides empty style attributes.
+expect.addSnapshotSerializer({
+  print: (val, serialize) => {
+    delete val.props.style;
+    return serialize(val);
+  },
+  test: (val) =>
+    val &&
+    val.props &&
+    val.props.style &&
+    val.props.style.constructor === Object &&
+    Object.keys(val.props.style).length === 0,
+});
+
 const testDir = "../test_integration/expected/";
 
 // Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
