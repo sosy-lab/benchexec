@@ -74,42 +74,23 @@ ReactDOM.createPortal = dom => {
   return dom;
 };
 
-function getSnapshotTestFiles() {
-  return fs
-    .readdirSync(testDir)
-    .filter(file => file.endsWith(".html"))
-    .filter(file => fs.statSync(testDir + file).size < 100000);
-}
-
 const test_snapshot_of = (name, component_func) => {
-  getSnapshotTestFiles().forEach(file => {
-    it(name + " for " + file, () => {
-      const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-      const data = JSON.parse(content);
+  fs.readdirSync(testDir)
+    .filter(file => file.endsWith(".html"))
+    .filter(file => fs.statSync(testDir + file).size < 100000)
+    .forEach(file => {
+      it(name + " for " + file, () => {
+        const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
+        const data = JSON.parse(content);
 
-      const overview = renderer.create(<Overview data={data} />).getInstance();
-      const component = renderer.create(component_func(overview));
+        const overview = renderer
+          .create(<Overview data={data} />)
+          .getInstance();
+        const component = renderer.create(component_func(overview));
 
-      expect(component).toMatchSnapshot();
-    });
-  });
-};
-
-const test_multiple_snapshots_of = (name, component_arr_func) => {
-  getSnapshotTestFiles().forEach(file => {
-    it(name + " for " + file, () => {
-      const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-      const data = JSON.parse(content);
-
-      const overview = renderer.create(<Overview data={data} />).getInstance();
-      const components = component_arr_func(overview).map(rawComponent =>
-        renderer.create(rawComponent),
-      );
-      components.forEach(component => {
         expect(component).toMatchSnapshot();
       });
     });
-  });
 };
 
-export { test_snapshot_of, test_multiple_snapshots_of };
+export { test_snapshot_of };

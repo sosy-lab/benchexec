@@ -7,28 +7,19 @@
 import React from "react";
 import TaskDefinitionViewer from "../components/TaskDefinitionViewer.js";
 import fs from "fs";
-import path from "path";
-import { test_multiple_snapshots_of } from "./utils.js";
+import renderer from "react-test-renderer";
 
-// mock uniqid to have consistent names
-// https://stackoverflow.com/a/44538270/396730
-jest.mock("uniqid", () => i => i + "uniqid");
+const testDir = "src/tests/task_definition_files/";
 
-// path where the data for the overview originally came from
-const pathToStartFrom = "../test_integration/expected/";
-
-test_multiple_snapshots_of("Render TaskDefinitionViewer", overview => {
-  const components = [];
-
-  overview.originalTable.forEach(tableEntry => {
-    let content = "";
-    const pathToFile = pathToStartFrom + tableEntry.href;
-
-    if (pathToFile.endsWith(".yml") && fs.existsSync(pathToFile)) {
-      content = fs.readFileSync(pathToFile, { encoding: "UTF-8" });
-      const taskDefinitionViewer = <TaskDefinitionViewer yamlText={content} />;
-      components.push(taskDefinitionViewer);
-    }
+fs.readdirSync(testDir)
+  .filter(file => file.endsWith(".yml"))
+  .filter(file => fs.statSync(testDir + file).size < 100000)
+  .forEach(file => {
+    it("Render TaskDefinitionViewer for " + file, () => {
+      const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
+      const component = renderer.create(
+        <TaskDefinitionViewer yamlText={content} />,
+      );
+      expect(component).toMatchSnapshot();
+    });
   });
-  return components;
-});

@@ -1,0 +1,8 @@
+task1:
+  - programs
+  - tasks
+
+task2:
+  - input
+  - bench
+  - output
