@@ -95,7 +95,6 @@ export default class Table extends React.Component {
       "property",
     ];
     this.typingTimer = -1;
-    this.height = window.innerHeight - 43;
   }
   //fix columns
   handleInputChange = ({ target }) => {
@@ -306,7 +305,6 @@ export default class Table extends React.Component {
           onFilteredChange={(filtered) => {
             this.props.filterPlotData(filtered);
           }}
-          style={{ maxHeight: this.height }}
         >
           {(state, makeTable, instance) => {
             this.props.setFilter(state.sortedData);

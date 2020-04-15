@@ -79,16 +79,14 @@ $hover-color: darken(white, 20%);
 }
 
 //------------------overview------------------
+$content-height: calc(100vh - 43px); // height of .menu sums up to 43px
+
 .overview {
-  background: $key-color;
-  .overview-container {
-    background: $key-color;
-  }
+  background: white;
+
   .menu {
     display: flex;
-    width: 100vw;
-    position: fixed;
-    top: 0;
+    width: calc(100% - 20px);
     padding: 10px 10px 0;
     font-weight: 700;
     z-index: 100;
@@ -103,6 +101,7 @@ $hover-color: darken(white, 20%);
       background: rgba(255, 255, 255, 0.5);
       font-size: 14px;
       text-decoration: none;
+      white-space: nowrap;
       color: black;
       &.selected {
         background: white;
@@ -110,9 +109,8 @@ $hover-color: darken(white, 20%);
     }
   }
   .route-container {
-    padding-top: 43px;
-    background: white;
-    display: block;
+    max-height: $content-height;
+    overflow: auto;
   }
   button {
     cursor: pointer;
@@ -145,9 +143,7 @@ $hover-color: darken(white, 20%);
 
 //------------------summary------------------
 #summary {
-  margin: auto;
   padding-top: 30px;
-  background: white;
   text-align: center;
   #benchmark_setup {
     width: 100%;
@@ -243,6 +239,23 @@ $hover-color: darken(white, 20%);
       margin-right: 40px;
     }
   }
+  .ReactTable {
+    // Add scroll bar inside table instead of relying on outer scroll bar.
+    // otherwise scroll bar extends besides pagination bar.
+    height: $content-height;
+    .rt-table {
+      // Better have vertical scroll bar always visible (less jumping around)
+      overflow-y: scroll;
+    }
+
+    // force pagination bar to bottom by preventing other elements from growing
+    .rt-thead,
+    .rt-tbody,
+    .rt-tr-group {
+      flex-grow: 0;
+    }
+  }
+
   .rt-thead {
     &.-headerGroups > div > div {
       &:first-child {
@@ -258,7 +271,6 @@ $hover-color: darken(white, 20%);
   }
 
   .rt-tbody {
-    overflow: scroll;
     span {
       text-align: center;
     }
@@ -295,6 +307,13 @@ $hover-color: darken(white, 20%);
     }
   }
 
+  .pagination-bottom {
+    position: sticky;
+    bottom: 0;
+    z-index: 99;
+    background: white;
+  }
+
   .correct {
     color: green;
   }
@@ -327,7 +346,6 @@ $hover-color: darken(white, 20%);
 }
 
 .quantilePlot {
-  position: relative;
   margin: 20px;
   select {
     display: flex;
@@ -348,7 +366,6 @@ $hover-color: darken(white, 20%);
 }
 
 .scatterPlot {
-  position: relative;
   text-align: center;
   &__select select {
     margin: 10px;
