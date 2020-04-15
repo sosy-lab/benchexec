@@ -50,15 +50,19 @@ export default class TaskDefinitionViewer extends React.Component {
 
     const properties = yamlObj.get("properties");
     if (properties) {
-      properties.items.forEach(property => {
-        property.items.forEach(propertyItem => {
-          if (propertyItem.key.value === "property_file") {
-            propertyItem.value.value = this.encloseFileInTags(
-              propertyItem.value.value,
-            );
+      if (Array.isArray(properties.items)) {
+        properties.items.forEach(property => {
+          if (Array.isArray(property.items)) {
+            property.items.forEach(propertyItem => {
+              if (propertyItem.key.value === "property_file") {
+                propertyItem.value.value = this.encloseFileInTags(
+                  propertyItem.value.value,
+                );
+              }
+            });
           }
         });
-      });
+      }
     }
 
     this.setState({ content: yamlObj.toString() });
