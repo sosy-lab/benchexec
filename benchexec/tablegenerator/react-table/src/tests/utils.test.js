@@ -137,7 +137,7 @@ describe("numericSortMethod", () => {
   });
 });
 
-describe.only("hashRouting helpers", () => {
+describe("hashRouting helpers", () => {
   describe("getHashSearch", () => {
     test("should get params as object", () => {
       const res = getHashSearch("localhost#/bla?id=1&name=benchexec");
