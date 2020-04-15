@@ -36,7 +36,7 @@ const applyNumericFilter = (filter, row, cell) => {
     const [start, end] = filterParams;
 
     const numRaw = Number(raw);
-    const numStart = Number(start);
+    const numStart = start ? Number(start) : -Infinity;
     const numEnd = end ? Number(end) : Infinity;
 
     return numRaw >= numStart && numRaw <= numEnd;
