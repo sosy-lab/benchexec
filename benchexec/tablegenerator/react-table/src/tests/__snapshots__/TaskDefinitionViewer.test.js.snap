@@ -5,8 +5,7 @@ exports[`Render TaskDefinitionViewer for empty_file.yml 1`] = `
   className="link-overlay-text"
 >
   <span>
-    null
-
+    
   </span>
 </pre>
 `;
@@ -415,15 +414,14 @@ exports[`Render TaskDefinitionViewer for other_lists.yml 1`] = `
   className="link-overlay-text"
 >
   <span>
-    american:
-  - Boston Red Sox
-  - Detroit Tigers
-  - New York Yankees
+    task1:
+  - programs
+  - tasks
 
-national:
-  - New York Mets
-  - Chicago Cubs
-  - Atlanta Braves
+task2:
+  - input
+  - bench
+  - output
 
   </span>
 </pre>

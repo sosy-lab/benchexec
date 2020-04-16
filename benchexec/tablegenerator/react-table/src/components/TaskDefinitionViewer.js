@@ -35,37 +35,39 @@ export default class TaskDefinitionViewer extends React.Component {
    * properties is a list of dicts, each with a "property_file" key
    */
   prepareTextForRendering = () => {
-    const yamlObj = yamlParser.parseDocument(this.props.yamlText);
+    if (this.props.yamlText !== "") {
+      const yamlObj = yamlParser.parseDocument(this.props.yamlText);
 
-    const inputFiles = yamlObj.get("input_files");
-    if (inputFiles) {
-      if (Array.isArray(inputFiles.items)) {
-        inputFiles.items.forEach(inputFileItem => {
-          inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
-        });
-      } else {
-        yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
+      const inputFiles = yamlObj.get("input_files");
+      if (inputFiles) {
+        if (Array.isArray(inputFiles.items)) {
+          inputFiles.items.forEach(inputFileItem => {
+            inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
+          });
+        } else {
+          yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
+        }
       }
-    }
 
-    const properties = yamlObj.get("properties");
-    if (properties) {
-      if (Array.isArray(properties.items)) {
-        properties.items.forEach(property => {
-          if (Array.isArray(property.items)) {
-            property.items.forEach(propertyItem => {
-              if (propertyItem.key.value === "property_file") {
-                propertyItem.value.value = this.encloseFileInTags(
-                  propertyItem.value.value,
-                );
-              }
-            });
-          }
-        });
+      const properties = yamlObj.get("properties");
+      if (properties) {
+        if (Array.isArray(properties.items)) {
+          properties.items.forEach(property => {
+            if (Array.isArray(property.items)) {
+              property.items.forEach(propertyItem => {
+                if (propertyItem.key.value === "property_file") {
+                  propertyItem.value.value = this.encloseFileInTags(
+                    propertyItem.value.value,
+                  );
+                }
+              });
+            }
+          });
+        }
       }
-    }
 
-    this.setState({ content: yamlObj.toString() });
+      this.setState({ content: yamlObj.toString() });
+    }
   };
 
   encloseFileInTags = fileName => {
