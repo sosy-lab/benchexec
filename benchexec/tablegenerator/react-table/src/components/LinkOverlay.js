@@ -18,7 +18,7 @@ const cachedZipFileEntries = {};
 export default class LinkOverlay extends React.Component {
   constructor(props) {
     super(props);
-    const isYAML = this.props.link ? this.isYAMLFile(this.props.link) : false;
+    const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
       isYAML: isYAML,
       content: `loading file: ${this.props.link}`,
