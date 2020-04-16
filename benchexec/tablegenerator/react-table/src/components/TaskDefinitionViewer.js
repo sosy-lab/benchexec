@@ -104,7 +104,7 @@ export default class TaskDefinitionViewer extends React.Component {
           </span>
         );
       } else {
-        jsxContentPart = <span key={contentPart}>{contentPart}</span>;
+        jsxContentPart = contentPart;
       }
       jsxContent.push(jsxContentPart);
     });
