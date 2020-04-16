@@ -36,7 +36,7 @@ export default class LinkOverlay extends React.Component {
   }
 
   loadNewFile = relativeURL => {
-    let newURL = path.join(this.props.link, "../" + relativeURL);
+    const newURL = path.join(this.props.link, "../" + relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
       isSecondLevel: true,
