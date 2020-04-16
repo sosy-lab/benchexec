@@ -82,21 +82,16 @@ export default class TaskDefinitionViewer extends React.Component {
 
   render() {
     const contentBySplitter = this.state.content.split(this.state.splitterTag);
-    const jsxContent = [];
-
-    contentBySplitter.forEach(contentPart => {
-      let jsxContentPart;
+    const jsxContent = contentBySplitter.map(contentPart => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
-        contentPart.match(
-          `^${this.state.fileTag}(?:.)+${this.state.fileTag}$`,
-        )
+        contentPart.match(`^${this.state.fileTag}(?:.)+${this.state.fileTag}$`)
       ) {
         contentPart = contentPart.replace(
           new RegExp(this.state.fileTag, "g"),
           "",
         );
-        jsxContentPart = (
+        return (
           <span
             onClick={() => this.props.loadNewFile(contentPart)}
             className="link-overlay-file-link"
@@ -106,9 +101,8 @@ export default class TaskDefinitionViewer extends React.Component {
           </span>
         );
       } else {
-        jsxContentPart = contentPart;
+        return contentPart;
       }
-      jsxContent.push(jsxContentPart);
     });
 
     return <pre className="link-overlay-text">{jsxContent}</pre>;
