@@ -97,13 +97,13 @@ export default class TaskDefinitionViewer extends React.Component {
           "",
         );
         jsxContentPart = (
-          <span
+          <a
             onClick={() => this.props.loadNewFile(contentPart)}
             className="link-overlay-file-link"
             key={contentPart}
           >
             {contentPart}
-          </span>
+          </a>
         );
       } else {
         jsxContentPart = <span key={contentPart}>{contentPart}</span>;
