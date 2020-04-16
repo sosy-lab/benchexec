@@ -20,7 +20,7 @@ export default class LinkOverlay extends React.Component {
     super(props);
     const isYAML = this.props.link ? this.isYAMLFile(this.props.link) : false;
     this.state = {
-      isYAML: isYAML,
+      isYAML,
       content: `loading file: ${this.props.link}`,
       currentFile: this.props.link,
       isSecondLevel: false,
