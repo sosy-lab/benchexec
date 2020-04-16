@@ -13,7 +13,6 @@ const testDir = "src/tests/task_definition_files/";
 
 fs.readdirSync(testDir)
   .filter(file => file.endsWith(".yml"))
-  .filter(file => fs.statSync(testDir + file).size < 100000)
   .forEach(file => {
     it("Render TaskDefinitionViewer for " + file, () => {
       const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
