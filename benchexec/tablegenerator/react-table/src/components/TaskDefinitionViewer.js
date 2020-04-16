@@ -89,7 +89,7 @@ export default class TaskDefinitionViewer extends React.Component {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
         contentPart.match(
-          "^" + this.state.fileTag + "(?:.)+" + this.state.fileTag + "$",
+          `^${this.state.fileTag}(?:.)+${this.state.fileTag}$`,
         )
       ) {
         contentPart = contentPart.replace(
@@ -106,7 +106,7 @@ export default class TaskDefinitionViewer extends React.Component {
           </a>
         );
       } else {
-        jsxContentPart = <span key={contentPart}>{contentPart}</span>;
+        jsxContentPart = contentPart;
       }
       jsxContent.push(jsxContentPart);
     });
