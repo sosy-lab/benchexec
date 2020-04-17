@@ -87,6 +87,29 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .overview {
   background: white;
 
+  .filterBox {
+    position: absolute;
+    right: 0;
+    width: 500px;
+    z-index: 9999;
+    background-color: white;
+    &--container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .filter-add-button {
+        padding: 5px;
+        background-color: #71bcff;
+        border-radius: 100%;
+        color: white;
+        box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
+        cursor: pointer;
+      }
+    }
+  }
+
   .menu {
     display: flex;
     width: calc(100% - 20px);

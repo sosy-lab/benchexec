@@ -13,6 +13,7 @@ import Info from "./Info.js";
 import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
+import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
 import { prepareTableData } from "../utils/utils";
@@ -130,6 +131,13 @@ export default class Overview extends React.Component {
       <Router>
         <div className="overview">
           <div className="overview-container">
+            <FilterBox
+              tableHeader={this.tableHeader}
+              data={this.originalTable}
+              tools={this.state.tools}
+              selectColumn={this.toggleSelectColumns}
+              setFilter={this.setFilter}
+            />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
                 <Link
