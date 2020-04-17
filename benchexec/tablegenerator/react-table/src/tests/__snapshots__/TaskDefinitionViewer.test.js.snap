@@ -570,3 +570,40 @@ input_files:
 
 </pre>
 `;
+
+exports[`Render TaskDefinitionViewer for with_html_tags.yml 1`] = `
+<pre
+  className="link-overlay-text"
+>
+  format_version: "1.0"
+
+input_files:
+  - 
+  <button
+    className="link-overlay-file-link"
+    onClick={[Function]}
+  >
+    &lt;span&gt;false_other_sub_task.&lt;b&gt;yml&lt;/b&gt;&lt;/span&gt;
+  </button>
+  
+  - 
+  <button
+    className="link-overlay-file-link"
+    onClick={[Function]}
+  >
+    &lt;div&gt;false_other_sub_task.yml&lt;/div&gt;
+  </button>
+  
+
+&lt;button style="padding-right:3px" onClick="console.log("This should not work")"&gt;&lt;/button&gt;: &lt;button&gt;test&lt;/button&gt;
+
+properties:
+  - property_file: 
+  &lt;file#092nt43&gt;&lt;a
+      href="github.com"&gt;test.prp&lt;/a&gt;&lt;file#092nt43&gt;
+  
+    expected_verdict: false
+    broken_list: &lt;ul&gt; &lt;li&gt; item &lt;/li&gt; &lt;/li&gt; &lt;li&gt; &lt;/ul&gt; &lt;/ul&gt;
+
+</pre>
+`;
