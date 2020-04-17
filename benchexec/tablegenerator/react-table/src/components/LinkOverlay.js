@@ -31,6 +31,14 @@ export default class LinkOverlay extends React.Component {
     this.loadContent(this.props.link);
   }
 
+  // Focus modal container when new content is loaded into the modal for accessibility via keyboard
+  componentDidUpdate() {
+    const modalContainer = document.getElementById("modal-container");
+    if (modalContainer) {
+      modalContainer.focus();
+    }
+  }
+
   isYAMLFile(filePath) {
     return filePath.endsWith(".yml");
   }
@@ -53,6 +61,12 @@ export default class LinkOverlay extends React.Component {
       error: undefined,
     });
     this.loadContent(this.props.link);
+  };
+
+  loadOriginalFileIfEnter = e => {
+    if (e.key === "Enter") {
+      this.loadOriginalFile();
+    }
   };
 
   // 1) Try loading url with normal Ajax request for uncompressed results.
@@ -185,6 +199,7 @@ export default class LinkOverlay extends React.Component {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
       <ReactModal
+        id="modal-container"
         ariaHideApp={false}
         className={`overlay ${this.state.isSecondLevel ? "second-level" : ""}`}
         isOpen={true}
@@ -199,7 +214,10 @@ export default class LinkOverlay extends React.Component {
           {this.state.isSecondLevel ? (
             <span
               className="link-overlay-back-button"
+              tabIndex="0"
+              role="button"
               onClick={this.loadOriginalFile}
+              onKeyDown={this.loadOriginalFileIfEnter}
             >
               <FontAwesomeIcon
                 className="link-overlay-back-icon"

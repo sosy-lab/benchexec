@@ -490,6 +490,9 @@ $table-border: 1px solid $border-color;
     &-file-link {
       color: blue;
       text-decoration: underline;
+      background-color: inherit;
+      border: none;
+      font: inherit;
 
       &:hover {
         cursor: pointer;
