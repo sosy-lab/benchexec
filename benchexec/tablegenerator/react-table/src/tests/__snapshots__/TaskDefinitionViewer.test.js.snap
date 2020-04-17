@@ -4,9 +4,7 @@ exports[`Render TaskDefinitionViewer for empty_file.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    
-  </span>
+  
 </pre>
 `;
 
@@ -14,8 +12,7 @@ exports[`Render TaskDefinitionViewer for input_files_as_mapping.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files:
   - input_file: false_sub_task.yml
@@ -23,19 +20,16 @@ input_files:
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
 
-  </span>
 </pre>
 `;
 
@@ -43,48 +37,40 @@ exports[`Render TaskDefinitionViewer for input_files_brackets.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files:
   [
     
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_sub_task.yml
-  </span>
-  <span>
-    ,
+  </button>
+  ,
     
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
   ]
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
 
-  </span>
 </pre>
 `;
 
@@ -92,35 +78,29 @@ exports[`Render TaskDefinitionViewer for input_files_multiline_string.yml 1`] = 
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
 
-  </span>
 </pre>
 `;
 
@@ -128,46 +108,38 @@ exports[`Render TaskDefinitionViewer for multiple_input_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files:
   - 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
   - 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
 
-  </span>
 </pre>
 `;
 
@@ -175,46 +147,38 @@ exports[`Render TaskDefinitionViewer for multiple_property_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     other.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
 
-  </span>
 </pre>
 `;
 
@@ -222,10 +186,8 @@ exports[`Render TaskDefinitionViewer for no_input_and_property_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
-  </span>
 </pre>
 `;
 
@@ -233,37 +195,31 @@ exports[`Render TaskDefinitionViewer for no_input_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: []
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
     subproperty: other_subproperty
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     other.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
 
-  </span>
 </pre>
 `;
 
@@ -271,34 +227,28 @@ exports[`Render TaskDefinitionViewer for no_property_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files:
   - 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
   - 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties: []
 
-  </span>
 </pre>
 `;
 
@@ -306,44 +256,36 @@ exports[`Render TaskDefinitionViewer for one_input_file.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     other.prp
-  </span>
-  <span>
-    
+  </button>
+  
 
-  </span>
 </pre>
 `;
 
@@ -351,34 +293,28 @@ exports[`Render TaskDefinitionViewer for one_property_file.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     subproperty: other_subproperty
 
-  </span>
 </pre>
 `;
 
@@ -386,12 +322,10 @@ exports[`Render TaskDefinitionViewer for other_list_of_lists.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    - [ name, duration ]
+  - [ name, duration ]
 - [ task1, 152 ]
 - [ task2, 165 ]
 
-  </span>
 </pre>
 `;
 
@@ -399,13 +333,11 @@ exports[`Render TaskDefinitionViewer for other_list_of_other_mappings.yml 1`] = 
 <pre
   className="link-overlay-text"
 >
-  <span>
-    - name: task1
+  - name: task1
   duration: 152
 - name: task2
   duration: 165
 
-  </span>
 </pre>
 `;
 
@@ -413,8 +345,7 @@ exports[`Render TaskDefinitionViewer for other_lists.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    task1:
+  task1:
   - programs
   - tasks
 
@@ -423,7 +354,6 @@ task2:
   - bench
   - output
 
-  </span>
 </pre>
 `;
 
@@ -431,52 +361,44 @@ exports[`Render TaskDefinitionViewer for property_files_brackets.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   [
     {
         property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    ,
+  </button>
+  ,
         expected_verdict: false,
         subproperty: other_subproperty
       },
     {
         property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     other.prp
-  </span>
-  <span>
-    ,
+  </button>
+  ,
         expected_verdict: false
       }
   ]
 
-  </span>
 </pre>
 `;
 
@@ -484,35 +406,29 @@ exports[`Render TaskDefinitionViewer for property_files_multiline_string.yml 1`]
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - property_file: "
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    "
+  </button>
+  "
     expected_verdict: false
     subproperty: "other_subproperty"
 
-  </span>
 </pre>
 `;
 
@@ -520,25 +436,21 @@ exports[`Render TaskDefinitionViewer for property_files_no_mapping.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_other_sub_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
 properties:
   - test.prp
   - other.prp
 
-  </span>
 </pre>
 `;
 
@@ -546,8 +458,7 @@ exports[`Render TaskDefinitionViewer for task_definition_doc_template.yml 1`] = 
 <pre
   className="link-overlay-text"
 >
-  <span>
-    # Required, string with format version of this file (currently only "1.0")
+  # Required, string with format version of this file (currently only "1.0")
 format_version: "1.0"
 
 # Required, either a string or a list of strings with file-name patterns.
@@ -555,25 +466,21 @@ format_version: "1.0"
 # Each matching file or directory will be given as input to the tool.
 input_files:
   - '
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     *.md
-  </span>
-  <span>
-    '
+  </button>
+  '
   - '
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     ../*.md
-  </span>
-  <span>
-    '
+  </button>
+  '
 
 # Optional, either a string or a list of strings with file-name patterns.
 # Relative paths interpreted as relative to this file.
@@ -587,40 +494,33 @@ required_files:
 # If given, benchexec will compare expected verdicts against actual verdicts.
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     properties/memsafety.prp
-  </span>
-  <span>
-     # string with file-name pattern that matches exactly one file
+  </button>
+   # string with file-name pattern that matches exactly one file
     expected_verdict: false # optional boolean
     subproperty: valid-deref # optional string, contains violated subproperty
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     properties/unreach-call.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: true
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     properties/overflow.prp
-  </span>
-  <span>
-    
+  </button>
+  
 
-  </span>
 </pre>
 `;
 
@@ -628,34 +528,28 @@ exports[`Render TaskDefinitionViewer for undefined_input_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 properties:
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     test.prp
-  </span>
-  <span>
-    
+  </button>
+  
     subproperty: other_subproperty
   - property_file: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     other.prp
-  </span>
-  <span>
-    
+  </button>
+  
     expected_verdict: false
 
-  </span>
 </pre>
 `;
 
@@ -663,20 +557,16 @@ exports[`Render TaskDefinitionViewer for undefined_property_files.yml 1`] = `
 <pre
   className="link-overlay-text"
 >
-  <span>
-    format_version: "1.0"
+  format_version: "1.0"
 
 input_files: 
-  </span>
-  <span
+  <button
     className="link-overlay-file-link"
     onClick={[Function]}
   >
     false_task.yml
-  </span>
-  <span>
-    
+  </button>
+  
 
-  </span>
 </pre>
 `;
