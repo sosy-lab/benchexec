@@ -33,7 +33,12 @@ const defaultValues = {
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
+    this.state = this.setup();
+    this.possibleValues = [];
+    this.lineCount = 1;
+  }
 
+  setup() {
     const queryProps = getHashSearch();
 
     let { column, quantile, linear, correct } = {
@@ -58,9 +63,7 @@ export default class QuantilePlot extends React.Component {
           .map((tool) => tool.columns)
           .flat()
           .some((col) => col.isVisible);
-
-    // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
-    this.state = {
+    return {
       selection: visibleColumn && visibleColumn.display_title,
       quantile: quantile,
       linear: linear,
@@ -68,9 +71,6 @@ export default class QuantilePlot extends React.Component {
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: [],
     };
-
-    this.possibleValues = [];
-    this.lineCount = 1;
   }
 
   static relevantColumn = (column) =>
@@ -83,10 +83,12 @@ export default class QuantilePlot extends React.Component {
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener("popstate", this.refreshUrlState);
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener("popstate", this.refreshUrlState);
   }
 
   updateDimensions = () => {
@@ -94,6 +96,10 @@ export default class QuantilePlot extends React.Component {
       width: window.innerWidth,
       height: window.innerHeight,
     });
+  };
+
+  refreshUrlState = () => {
+    this.setState(this.setup());
   };
 
   // --------------------rendering-----------------------------
@@ -294,7 +300,6 @@ export default class QuantilePlot extends React.Component {
         });
     }
   };
-
   // ------------------------handeling----------------------------
   handleLineState = (line) => {
     return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;

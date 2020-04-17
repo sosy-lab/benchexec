@@ -67,6 +67,12 @@ export default class Overview extends React.Component {
 
       quantilePreSelection: tools[0].columns[1],
     };
+
+    window.addEventListener("popstate", () => {
+      if (this.state.showLinkOverlay) {
+        this.setState({ showLinkOverlay: false });
+      }
+    });
   }
 
   // -----------------------SelectColumns-----------------------
