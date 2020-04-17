@@ -18,6 +18,7 @@ export default class FilterContainer extends React.Component {
   setFilter({ title, active, value }) {
     console.log("Container received", { title, active, value });
     this.setState({
+      addingFilter: false,
       filters: this.state.filters.map((filter) =>
         filter.title === title
           ? { ...filter, filtered: active, value }
@@ -32,7 +33,16 @@ export default class FilterContainer extends React.Component {
     return (
       <div className="filterBox--container">
         <h4>{this.state.toolName}</h4>
-        {filters.length === 0 ? "No Filters set" : null}
+        {filters.length === 0
+          ? "No Filters set"
+          : filters.map((filter) => (
+              <FilterCard
+                onFilterUpdate={(vals) => this.setFilter(vals)}
+                title={filter.display_title}
+                filter={filter}
+                key={filter.title}
+              />
+            ))}
         <br />
         <br />
         {this.state.addingFilter ? (
