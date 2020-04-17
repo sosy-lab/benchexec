@@ -35,6 +35,33 @@ const getFirstVisible = (tool) =>
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = this.setup();
+
+    this.lineValues = [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      100,
+      1000,
+      10000,
+      100000,
+      1000000,
+      10000000,
+      100000000,
+    ];
+    this.maxX = "";
+    this.minX = "";
+    this.lineCount = 1;
+  }
+
+  setup() {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
@@ -61,7 +88,7 @@ export default class ScatterPlot extends React.Component {
       dataY = `${toolY}-${columnY}`;
     }
 
-    this.state = {
+    let out = {
       dataX,
       dataY,
       correct: typeof correct === "boolean" ? correct : true,
@@ -79,42 +106,23 @@ export default class ScatterPlot extends React.Component {
     };
 
     if (dataX) {
-      this.state = { ...this.state, ...this.extractAxisInfoByName(dataX, "X") };
+      out = { ...out, ...this.extractAxisInfoByName(dataX, "X") };
     }
     if (dataY) {
-      this.state = { ...this.state, ...this.extractAxisInfoByName(dataY, "Y") };
+      out = { ...out, ...this.extractAxisInfoByName(dataY, "Y") };
     }
-
-    this.lineValues = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      100,
-      1000,
-      10000,
-      100000,
-      1000000,
-      10000000,
-      100000000,
-    ];
-    this.maxX = "";
-    this.minX = "";
-    this.lineCount = 1;
+    return out;
   }
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener("popstate", this.refreshUrlState);
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener("popstate", this.refreshUrlState);
   }
 
   updateDimensions = () => {
@@ -122,6 +130,10 @@ export default class ScatterPlot extends React.Component {
       width: window.innerWidth,
       height: window.innerHeight,
     });
+  };
+
+  refreshUrlState = () => {
+    this.setState(this.setup());
   };
 
   // --------------------rendering-----------------------------
