@@ -6,9 +6,10 @@ export default class FilterCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: props.availableFilters.length
-        ? props.availableFilters[0].title
-        : "",
+      title:
+        props.availableFilters && props.availableFilters.length
+          ? props.availableFilters[0].title
+          : "",
       value: null,
       active: true,
     };
@@ -20,7 +21,8 @@ export default class FilterCard extends React.Component {
   }
 
   render() {
-    const filterAddSelection = (
+    const { filter, editable, availableFilters } = this.props;
+    const filterAddSelection = () => (
       <>
         <select
           class="filter-selection"
@@ -28,7 +30,7 @@ export default class FilterCard extends React.Component {
             this.setState({ title: e.target.value, active: true })
           }
         >
-          {this.props.availableFilters.map((i) => (
+          {availableFilters.map((i) => (
             <option value={i.title}>{i.display_title}</option>
           ))}
         </select>
@@ -41,14 +43,16 @@ export default class FilterCard extends React.Component {
 
     const makeHeader = (name, editable) => (
       <div className="filter-card--header">
-        {editable ? filterAddSelection : <h4>{name}</h4>}
+        {editable ? (
+          filterAddSelection()
+        ) : (
+          <h4 className="title">{filter.display_title}</h4>
+        )}
       </div>
     );
 
     return (
-      <div className="filter-card">
-        {makeHeader(this.props.name, this.props.editable)}
-      </div>
+      <div className="filter-card">{makeHeader(this.props.name, editable)}</div>
     );
   }
 }
