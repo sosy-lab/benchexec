@@ -11,7 +11,7 @@ ignore =
     # followup warning from another one (F403 for star imports)
     F405,
     # we have no isort config
-    I002,
+    I,
     # "... if .. else ..." is fine
     IF100,
     # using a result variable instead of early return allows later addition of logic
