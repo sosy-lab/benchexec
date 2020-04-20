@@ -35,4 +35,5 @@ and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 
 import benchexec.benchexec
 
-sys.exit(benchexec.benchexec.main())
+if __name__ == "__main__":
+    sys.exit(benchexec.benchexec.main())

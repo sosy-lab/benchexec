@@ -1088,7 +1088,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param output_dir: the directory where to write result files
         @param patterns: a list of patterns of files to retrieve as result files
         """
-        assert output_dir and patterns
+        assert output_dir
+        assert patterns
         if any(os.path.isabs(pattern) for pattern in patterns):
             base_dir = tool_output_dir
         else:

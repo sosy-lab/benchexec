@@ -41,7 +41,7 @@ export default class TaskDefinitionViewer extends React.Component {
       const inputFiles = yamlObj.get("input_files");
       if (inputFiles) {
         if (Array.isArray(inputFiles.items)) {
-          inputFiles.items.forEach(inputFileItem => {
+          inputFiles.items.forEach((inputFileItem) => {
             inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
           });
         } else {
@@ -52,9 +52,9 @@ export default class TaskDefinitionViewer extends React.Component {
       const properties = yamlObj.get("properties");
       if (properties) {
         if (Array.isArray(properties.items)) {
-          properties.items.forEach(property => {
+          properties.items.forEach((property) => {
             if (Array.isArray(property.items)) {
-              property.items.forEach(propertyItem => {
+              property.items.forEach((propertyItem) => {
                 if (propertyItem.key.value === "property_file") {
                   propertyItem.value.value = this.encloseFileInTags(
                     propertyItem.value.value,
@@ -70,7 +70,7 @@ export default class TaskDefinitionViewer extends React.Component {
     }
   };
 
-  encloseFileInTags = fileName => {
+  encloseFileInTags = (fileName) => {
     return (
       this.state.splitterTag +
       this.state.fileTag +
@@ -82,7 +82,7 @@ export default class TaskDefinitionViewer extends React.Component {
 
   render() {
     const contentBySplitter = this.state.content.split(this.state.splitterTag);
-    const jsxContent = contentBySplitter.map(contentPart => {
+    const jsxContent = contentBySplitter.map((contentPart) => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
         contentPart.match(`^${this.state.fileTag}(?:.)+${this.state.fileTag}$`)

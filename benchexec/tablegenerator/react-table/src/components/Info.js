@@ -10,7 +10,7 @@ const dependencies = require("../data/dependencies.json");
 
 class Dependency extends React.Component {
   knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"];
-  linkifyLicense = license => (
+  linkifyLicense = (license) => (
     <a
       key={license}
       href={"https://spdx.org/licenses/" + license}
@@ -20,10 +20,12 @@ class Dependency extends React.Component {
       {license}
     </a>
   );
-  linkifyLicenses = licensesString =>
+  linkifyLicenses = (licensesString) =>
     licensesString
       .split(/([A-Za-z0-9.-]+)/)
-      .map(s => (this.knownLicenses.includes(s) ? this.linkifyLicense(s) : s));
+      .map((s) =>
+        this.knownLicenses.includes(s) ? this.linkifyLicense(s) : s,
+      );
 
   render = () => (
     <div>
@@ -70,7 +72,7 @@ class Dependency extends React.Component {
   );
 }
 
-export default props => (
+export default (props) => (
   <div className="info">
     <div className="info-header">
       <h1>Info and Help</h1>
@@ -196,7 +198,7 @@ export default props => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {dependencies.dependencies.map(dependency => {
+      {dependencies.dependencies.map((dependency) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}

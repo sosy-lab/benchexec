@@ -22,7 +22,6 @@ class App extends Component {
           <Overview data={window.data} />
           {/* imports the component Overview with all subcomponents */}
         </main>
-        <footer className="App-footer"></footer>
       </div>
     );
   }

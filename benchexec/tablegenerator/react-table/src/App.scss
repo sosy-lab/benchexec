@@ -13,6 +13,7 @@
 $key-color: #71bcff;
 $border-color: rgb(173, 173, 173);
 $table-border: 1px solid $border-color;
+$hover-color: darken(white, 20%);
 
 //------------------common------------------
 .link {
@@ -23,7 +24,6 @@ $table-border: 1px solid $border-color;
 .btn {
   margin: 0 10px 9px 0;
   text-align: center;
-  padding: auto;
   height: 35px;
   cursor: pointer;
 
@@ -63,6 +63,10 @@ $table-border: 1px solid $border-color;
 .selectColumns {
   cursor: pointer;
   font-weight: 700;
+  background-color: white;
+  &:hover {
+    background-color: $hover-color;
+  }
 }
 .header__tool-infos {
   font-weight: 700;
@@ -75,28 +79,14 @@ $table-border: 1px solid $border-color;
 }
 
 //------------------overview------------------
+$content-height: calc(100vh - 43px); // height of .menu sums up to 43px
+
 .overview {
-  background: $key-color;
-  .overview-container {
-    background: $key-color;
-  }
-  .menu-item {
-    display: inline-block;
-    border: 1px solid transparent;
-    border-bottom: none;
-    bottom: -1px;
-    position: relative;
-    list-style: none;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
+  background: white;
+
   .menu {
     display: flex;
-    width: 100vw;
-    height: 36px;
-    margin-bottom: 5px;
-    position: fixed;
-    top: 0;
+    width: calc(100% - 20px);
     padding: 10px 10px 0;
     font-weight: 700;
     z-index: 100;
@@ -104,14 +94,14 @@ $table-border: 1px solid $border-color;
     align-items: flex-start;
 
     .menu-item {
-      // width: 18vw;
-      height: 23px;
+      height: 17px;
       margin-right: 1px;
-      text-align: center;
+      padding: 8px 13px;
       border-radius: 8px 8px 0 0;
       background: rgba(255, 255, 255, 0.5);
       font-size: 14px;
       text-decoration: none;
+      white-space: nowrap;
       color: black;
       &.selected {
         background: white;
@@ -119,9 +109,8 @@ $table-border: 1px solid $border-color;
     }
   }
   .route-container {
-    padding-top: 43px;
-    background: white;
-    display: block;
+    max-height: $content-height;
+    overflow: auto;
   }
   button {
     cursor: pointer;
@@ -154,9 +143,7 @@ $table-border: 1px solid $border-color;
 
 //------------------summary------------------
 #summary {
-  margin: auto;
   padding-top: 30px;
-  background: white;
   text-align: center;
   #benchmark_setup {
     width: 100%;
@@ -187,11 +174,11 @@ $table-border: 1px solid $border-color;
       }
 
       tr:nth-child(even) {
-        background-color: #f2f2f2;
+        background-color: mix($hover-color, white, 33%);
       }
 
       tr:hover {
-        background-color: #ddd;
+        background-color: mix($hover-color, white, 66%);
       }
 
       th {
@@ -203,7 +190,6 @@ $table-border: 1px solid $border-color;
     }
   }
   #statistics .rt-table {
-    border: 1px solid #ddd;
     .rt-td {
       padding-top: 8px;
       padding-bottom: 8px;
@@ -221,6 +207,9 @@ $table-border: 1px solid $border-color;
     }
     .columns {
       cursor: pointer;
+      &:hover {
+        background-color: $hover-color;
+      }
     }
   }
 
@@ -236,7 +225,7 @@ $table-border: 1px solid $border-color;
     display: block;
   }
   a:hover {
-    background-color: lightgrey;
+    background-color: $hover-color;
   }
   a:focus {
     outline: 1px dotted red;
@@ -250,20 +239,38 @@ $table-border: 1px solid $border-color;
       margin-right: 40px;
     }
   }
-  .rt-table {
-    width: 99%;
-    margin-bottom: 40px;
+  .ReactTable {
+    // Add scroll bar inside table instead of relying on outer scroll bar.
+    // otherwise scroll bar extends besides pagination bar.
+    height: $content-height;
+    .rt-table {
+      // Better have vertical scroll bar always visible (less jumping around)
+      overflow-y: scroll;
+    }
+
+    // force pagination bar to bottom by preventing other elements from growing
+    .rt-thead,
+    .rt-tbody,
+    .rt-tr-group {
+      flex-grow: 0;
+    }
   }
+
   .rt-thead {
     &.-headerGroups > div > div {
       &:first-child {
         width: 30vw;
       }
     }
+    .rt-resizable-header:hover {
+      // TODO: Something like :not(:has(.selectColumns:hover)) would be good
+      // to avoid coloring the background if the user hovers over a nested button,
+      // but :has is not usable yet.
+      background-color: $hover-color;
+    }
   }
 
   .rt-tbody {
-    overflow: scroll;
     span {
       text-align: center;
     }
@@ -299,11 +306,11 @@ $table-border: 1px solid $border-color;
       border-bottom: 1px solid lightgrey;
     }
   }
+
   .pagination-bottom {
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    width: 100%;
-    z-index: 10;
+    z-index: 99;
     background: white;
   }
 
@@ -339,7 +346,6 @@ $table-border: 1px solid $border-color;
 }
 
 .quantilePlot {
-  position: relative;
   margin: 20px;
   select {
     display: flex;
@@ -354,13 +360,12 @@ $table-border: 1px solid $border-color;
 
   .rv-discrete-color-legend-item.clickable {
     &:hover {
-      background: #e2e2e2;
+      background: $hover-color;
     }
   }
 }
 
 .scatterPlot {
-  position: relative;
   text-align: center;
   &__select select {
     margin: 10px;
@@ -418,7 +423,7 @@ $table-border: 1px solid $border-color;
   top: 80px;
   right: 20px;
   left: 20px;
-  height: 80%;
+  bottom: 40px;
   background: white;
   border: 5px solid grey;
   border-radius: 5px;
@@ -530,4 +535,7 @@ $table-border: 1px solid $border-color;
 
 .rt-td {
   text-align: left;
+}
+.ReactTable {
+  border: none !important;
 }

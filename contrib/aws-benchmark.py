@@ -10,6 +10,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from getpass import getuser
 import logging
 import os
 import subprocess
@@ -60,13 +61,25 @@ class Benchmark(benchexec.benchexec.BenchExec):
 
     def load_executor(self):
         if self.config.aws:
-            if not self.config.aws_config:
-                sys.exit("Cannot run aws without a config file.")
-            if not os.path.isfile(self.config.aws_config):
-                sys.exit(
-                    "Could not find aws-config file at path: %s".format(
-                        self.config.aws_config
+            if self.config.aws_config:
+                if not os.path.isfile(self.config.aws_config):
+                    sys.exit(
+                        "Config param provided, but could not find a file at "
+                        "the corresponding path: "
+                        "{}".format(self.config.aws_config)
                     )
+            elif not os.path.isfile(
+                os.path.join(
+                    os.path.expanduser("~"),
+                    ".config",
+                    "sv-comp-aws",
+                    getuser() + ".client.config",
+                )
+            ):
+                sys.exit(
+                    "AWS flag without a config specified, but could not find a "
+                    "config file at the default location either "
+                    "(~/.config/sv-comp-aws/{}.client.config).".format(getuser())
                 )
             import aws.awsexecutor as executor
 

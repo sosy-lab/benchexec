@@ -33,7 +33,12 @@ const defaultValues = {
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
+    this.state = this.setup();
+    this.possibleValues = [];
+    this.lineCount = 1;
+  }
 
+  setup() {
     const queryProps = getHashSearch();
 
     let { column, quantile, linear, correct } = {
@@ -47,20 +52,18 @@ export default class QuantilePlot extends React.Component {
 
     const parameterSelection = column
       ? this.props.tools
-          .map(tool => tool.columns)
+          .map((tool) => tool.columns)
           .flat()
-          .find(col => col.display_title === column)
+          .find((col) => col.display_title === column)
       : this.props.preSelection;
 
     const visibleColumn = parameterSelection.isVisible
       ? parameterSelection
       : this.props.tools
-          .map(tool => tool.columns)
+          .map((tool) => tool.columns)
           .flat()
-          .some(col => col.isVisible);
-
-    // TODO: deselect all tools => open quantiles => BOOOOOOMMMM
-    this.state = {
+          .some((col) => col.isVisible);
+    return {
       selection: visibleColumn && visibleColumn.display_title,
       quantile: quantile,
       linear: linear,
@@ -68,25 +71,24 @@ export default class QuantilePlot extends React.Component {
       isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: [],
     };
-
-    this.possibleValues = [];
-    this.lineCount = 1;
   }
 
-  static relevantColumn = column =>
+  static relevantColumn = (column) =>
     column.isVisible && column.type !== "text" && column.type !== "status";
 
-  relevantRunSet = tool =>
+  relevantRunSet = (tool) =>
     tool.isVisible &&
-    tool.columns.some(c => c.display_title === this.state.selection);
+    tool.columns.some((c) => c.display_title === this.state.selection);
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener("popstate", this.refreshUrlState);
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener("popstate", this.refreshUrlState);
   }
 
   updateDimensions = () => {
@@ -96,14 +98,33 @@ export default class QuantilePlot extends React.Component {
     });
   };
 
+  refreshUrlState = () => {
+    this.setState(this.setup());
+  };
+
   // --------------------rendering-----------------------------
   renderLegend = () => {
     if (this.state.isValue) {
-      return this.props.tools.filter(this.relevantRunSet).map(getRunSetName);
+      return this.props.tools
+        .filter(this.relevantRunSet)
+        .map(getRunSetName)
+        .map((c) => {
+          return {
+            title: c,
+            disabled: this.state.isInvisible.some((el) => el === c),
+          };
+        });
     } else {
       return this.props.tools[this.state.selection.split("-")[1]].columns
         .filter(QuantilePlot.relevantColumn)
-        .map(c => c.display_title);
+        .map((c) => {
+          return {
+            title: c.display_title,
+            disabled: this.state.isInvisible.some(
+              (el) => el === c.display_title,
+            ),
+          };
+        });
     }
   };
 
@@ -118,7 +139,7 @@ export default class QuantilePlot extends React.Component {
       const index = this.state.selection.split("-")[1];
       this.props.tools[index].columns
         .filter(QuantilePlot.relevantColumn)
-        .forEach(column =>
+        .forEach((column) =>
           this.renderData(column.display_title, index, column.display_title),
         );
     }
@@ -128,11 +149,11 @@ export default class QuantilePlot extends React.Component {
     const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
     const index = this.props.tools[tool].columns.findIndex(
-      value => value.display_title === column,
+      (value) => value.display_title === column,
     );
 
     if (!this.state.isValue || index >= 0) {
-      arrayY = this.props.table.map(runSet => {
+      arrayY = this.props.table.map((runSet) => {
         // Get y value if it should be shown and normalize it.
         // For correct x values, arrayY needs to have same length as table.
         const runResult = runSet.results[tool];
@@ -153,7 +174,7 @@ export default class QuantilePlot extends React.Component {
       });
 
       if (this.state.quantile) {
-        arrayY = arrayY.filter(element => element[0] !== null);
+        arrayY = arrayY.filter((element) => element[0] !== null);
         arrayY = this.sortArray(arrayY, column);
       }
     }
@@ -183,7 +204,7 @@ export default class QuantilePlot extends React.Component {
 
   sortArray = (array, column) => {
     const currentValue = this.possibleValues.find(
-      value => value.display_title === column,
+      (value) => value.display_title === column,
     );
 
     return this.state.isValue && ["text", "status"].includes(currentValue.type)
@@ -192,12 +213,12 @@ export default class QuantilePlot extends React.Component {
   };
 
   renderColumns = () => {
-    this.props.tools.forEach(tool => {
-      tool.columns.forEach(column => {
+    this.props.tools.forEach((tool) => {
+      tool.columns.forEach((column) => {
         if (
           column.isVisible &&
           !this.possibleValues.some(
-            value => value.display_title === column.display_title,
+            (value) => value.display_title === column.display_title,
           )
         ) {
           this.possibleValues.push(column);
@@ -205,7 +226,7 @@ export default class QuantilePlot extends React.Component {
       });
     });
     this.renderAll();
-    return this.possibleValues.map(value => {
+    return this.possibleValues.map((value) => {
       return (
         <option
           key={value.display_title}
@@ -252,13 +273,13 @@ export default class QuantilePlot extends React.Component {
             />
           );
         })
-        .filter(el => !!el);
+        .filter((el) => !!el);
     } else {
       const index = this.state.selection.split("-")[1];
 
       return this.props.tools[index].columns
         .filter(QuantilePlot.relevantColumn)
-        .map(column => {
+        .map((column) => {
           const data = this[column.display_title];
           this.lineCount++;
 
@@ -279,36 +300,35 @@ export default class QuantilePlot extends React.Component {
         });
     }
   };
-
   // ------------------------handeling----------------------------
-  handleLineState = line => {
+  handleLineState = (line) => {
     return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;
   };
 
-  handleColumn = ev => {
+  handleColumn = (ev) => {
     setParam({ column: ev.target.value });
     this.setState({
       selection: ev.target.value,
-      isValue: this.props.tools.some(tool =>
-        tool.columns.some(value => value.display_title === ev.target.value),
+      isValue: this.props.tools.some((tool) =>
+        tool.columns.some((value) => value.display_title === ev.target.value),
       ),
     });
   };
   toggleQuantile = () => {
     setParam({ quantile: !this.state.quantile });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       quantile: !prevState.quantile,
     }));
   };
   toggleCorrect = () => {
     setParam({ correct: !this.state.correct });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       correct: !prevState.correct,
     }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       linear: !prevState.linear,
     }));
   };
@@ -321,7 +341,7 @@ export default class QuantilePlot extends React.Component {
   handleType = () => {
     const { selection } = this.state;
     const index = this.possibleValues.findIndex(
-      value => value.display_title === selection,
+      (value) => value.display_title === selection,
     );
     const type = this.state.isValue ? this.possibleValues[index].type : null;
 
@@ -363,22 +383,22 @@ export default class QuantilePlot extends React.Component {
         >
           <VerticalGridLines />
           <HorizontalGridLines />
-          <XAxis tickFormat={value => value} />
-          <YAxis tickFormat={value => value} />
+          <XAxis tickFormat={(value) => value} />
+          <YAxis tickFormat={(value) => value} />
           {this.state.value ? <Hint value={this.state.value} /> : null}
           <DiscreteColorLegend
             colors={EXTENDED_DISCRETE_COLOR_RANGE}
             items={this.renderLegend()}
             onItemClick={(Object, item) => {
               let line = "";
-              line = Object.toString();
+              line = Object.title.toString();
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
                   isInvisible: this.state.isInvisible.concat([line]),
                 });
               } else {
                 return this.setState({
-                  isInvisible: this.state.isInvisible.filter(l => {
+                  isInvisible: this.state.isInvisible.filter((l) => {
                     return l !== line;
                   }),
                 });

@@ -32,4 +32,5 @@ except ImportError:
 
 import benchexec.tablegenerator
 
-sys.exit(benchexec.tablegenerator.main())
+if __name__ == "__main__":
+    sys.exit(benchexec.tablegenerator.main())

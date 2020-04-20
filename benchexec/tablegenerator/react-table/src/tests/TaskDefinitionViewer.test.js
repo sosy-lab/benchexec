@@ -12,8 +12,8 @@ import renderer from "react-test-renderer";
 const testDir = "src/tests/task_definition_files/";
 
 fs.readdirSync(testDir)
-  .filter(file => file.endsWith(".yml"))
-  .forEach(file => {
+  .filter((file) => file.endsWith(".yml"))
+  .forEach((file) => {
     it("Render TaskDefinitionViewer for " + file, () => {
       const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
       const component = renderer.create(

@@ -43,7 +43,7 @@ export default class LinkOverlay extends React.Component {
     return filePath.endsWith(".yml");
   }
 
-  loadNewFile = relativeURL => {
+  loadNewFile = (relativeURL) => {
     const newURL = path.join(this.props.link, "../" + relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
@@ -63,7 +63,7 @@ export default class LinkOverlay extends React.Component {
     this.loadContent(this.props.link);
   };
 
-  loadOriginalFileIfEnter = e => {
+  loadOriginalFileIfEnter = (e) => {
     if (e.key === "Enter") {
       this.loadOriginalFile();
     }
@@ -73,7 +73,7 @@ export default class LinkOverlay extends React.Component {
   // 2) Try loading url from within ZIP archive using HTTP Range header for efficient access
   //    (this fails for ZIPs on the local disk).
   // 3) Try loading url from within ZIP archive without Range header.
-  loadContent = async url => {
+  loadContent = async (url) => {
     console.log("load content", url);
     this.setState({ currentFile: url });
     if (url) {
@@ -99,14 +99,14 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  setError = error => {
+  setError = (error) => {
     this.setState({ error: `${error}` });
   };
 
   loadFileFromZipEntries = (entries, logfile, zipUrl) => {
     for (let entry of entries) {
       if (entry.filename.indexOf(logfile) >= 0) {
-        entry.getData(new zip.TextWriter(), content =>
+        entry.getData(new zip.TextWriter(), (content) =>
           this.setState({ content }),
         );
         return;
@@ -116,7 +116,7 @@ export default class LinkOverlay extends React.Component {
   };
 
   loadFileFromZip = (logZip, logfile, zipUrl) => {
-    logZip.getEntries(entries => {
+    logZip.getEntries((entries) => {
       cachedZipFileEntries[zipUrl] = entries;
       this.loadFileFromZipEntries(entries, logfile, zipUrl);
     });
@@ -132,7 +132,7 @@ export default class LinkOverlay extends React.Component {
         () => {
           zip.createReader(
             new zip.ArrayBufferReader(xhr.response),
-            reader => this.loadFileFromZip(reader, logfile, zipUrl),
+            (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
             this.setError,
           );
         },
@@ -146,7 +146,7 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-  attemptLoadingFromZIP = async url => {
+  attemptLoadingFromZIP = async (url) => {
     console.log("Text is not received. Try as zip?", url);
     const splitPos = url.lastIndexOf("/");
     const zipUrl = url.substring(0, splitPos) + ".zip";
@@ -165,8 +165,8 @@ export default class LinkOverlay extends React.Component {
       try {
         zip.createReader(
           new zip.HttpRangeReader(zipUrl),
-          reader => this.loadFileFromZip(reader, logfile, zipUrl),
-          error => {
+          (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
+          (error) => {
             if (error === "HTTP Range not supported.") {
               // try again without HTTP Range header
               this.setState({
@@ -178,8 +178,8 @@ export default class LinkOverlay extends React.Component {
               // so fall back to a manual XMLHttpRequest.
               zip.createReader(
                 new zip.HttpReader(zipUrl),
-                reader => this.loadFileFromZip(reader, logfile, zipUrl),
-                error => {
+                (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
+                (error) => {
                   console.log("Loading ZIP with HttpReader failed", error);
                   this.attemptLoadingZIPManually(logfile, zipUrl);
                 },

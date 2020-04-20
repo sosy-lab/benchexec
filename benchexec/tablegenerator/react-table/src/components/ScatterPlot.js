@@ -30,11 +30,38 @@ const defaultValues = {
   line: 10,
 };
 
-const getFirstVisible = tool =>
-  tool.columns.find(column => column.isVisible && column.type !== "status");
+const getFirstVisible = (tool) =>
+  tool.columns.find((column) => column.isVisible && column.type !== "status");
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = this.setup();
+
+    this.lineValues = [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      100,
+      1000,
+      10000,
+      100000,
+      1000000,
+      10000000,
+      100000000,
+    ];
+    this.maxX = "";
+    this.minX = "";
+    this.lineCount = 1;
+  }
+
+  setup() {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
@@ -61,7 +88,7 @@ export default class ScatterPlot extends React.Component {
       dataY = `${toolY}-${columnY}`;
     }
 
-    this.state = {
+    let out = {
       dataX,
       dataY,
       correct: typeof correct === "boolean" ? correct : true,
@@ -79,42 +106,23 @@ export default class ScatterPlot extends React.Component {
     };
 
     if (dataX) {
-      this.state = { ...this.state, ...this.extractAxisInfoByName(dataX, "X") };
+      out = { ...out, ...this.extractAxisInfoByName(dataX, "X") };
     }
     if (dataY) {
-      this.state = { ...this.state, ...this.extractAxisInfoByName(dataY, "Y") };
+      out = { ...out, ...this.extractAxisInfoByName(dataY, "Y") };
     }
-
-    this.lineValues = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      100,
-      1000,
-      10000,
-      100000,
-      1000000,
-      10000000,
-      100000000,
-    ];
-    this.maxX = "";
-    this.minX = "";
-    this.lineCount = 1;
+    return out;
   }
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
+    window.addEventListener("popstate", this.refreshUrlState);
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
+    window.removeEventListener("popstate", this.refreshUrlState);
   }
 
   updateDimensions = () => {
@@ -122,6 +130,10 @@ export default class ScatterPlot extends React.Component {
       width: window.innerWidth,
       height: window.innerHeight,
     });
+  };
+
+  refreshUrlState = () => {
+    this.setState(this.setup());
   };
 
   // --------------------rendering-----------------------------
@@ -147,11 +159,13 @@ export default class ScatterPlot extends React.Component {
     let array = [];
     this.hasInvalidLog = false;
 
-    this.props.table.forEach(row => {
+    this.props.table.forEach((row) => {
       const resX = row.results[this.state.toolX];
       const resY = row.results[this.state.toolY];
+      const x = resX.values[this.state.columnX].raw;
+      const y = resY.values[this.state.columnY].raw;
       const hasValues =
-        resX.values[this.state.columnX] && resY.values[this.state.columnY];
+        x !== undefined && x !== null && y !== undefined && y !== null;
 
       if (
         hasValues &&
@@ -160,19 +174,16 @@ export default class ScatterPlot extends React.Component {
             resX.category === "correct" &&
             resY.category === "correct"))
       ) {
-        const x = resX.values[this.state.columnX].raw;
-        const y = resY.values[this.state.columnY].raw;
         const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
 
-        if (x !== null && y !== null && !isLogAndInvalid) {
+        if (isLogAndInvalid) {
+          this.hasInvalidLog = true;
+        } else {
           array.push({
             x,
             y,
             info: this.props.getRowName(row),
           });
-        }
-        if (isLogAndInvalid) {
-          this.hasInvalidLog = true;
         }
       }
     });
@@ -183,9 +194,9 @@ export default class ScatterPlot extends React.Component {
     this.dataArray = array;
   };
 
-  setMinMaxValues = array => {
-    const xValues = array.map(el => el.x);
-    const yValues = array.map(el => el.y);
+  setMinMaxValues = (array) => {
+    const xValues = array.map((el) => el.x);
+    const yValues = array.map((el) => el.y);
 
     this.maxX = this.findMaxValue(xValues);
     this.maxY = this.findMaxValue(yValues);
@@ -193,12 +204,12 @@ export default class ScatterPlot extends React.Component {
     this.minY = this.findMinValue(yValues);
   };
 
-  findMaxValue = values => {
+  findMaxValue = (values) => {
     const max = Math.max(...values);
     return max < 3 ? 3 : max;
   };
 
-  findMinValue = values => {
+  findMinValue = (values) => {
     const min = Math.min(...values);
     return min > 2 ? 1 : min;
   };
@@ -216,13 +227,13 @@ export default class ScatterPlot extends React.Component {
   };
   toggleCorrectResults = () => {
     setParam({ correct: !this.state.correct });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       correct: !prevState.correct,
     }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       linear: !prevState.linear,
     }));
   };
@@ -234,7 +245,7 @@ export default class ScatterPlot extends React.Component {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
-        item => item.display_title === columnName,
+        (item) => item.display_title === columnName,
       ),
       [`name${axis}`]: columnName,
     };
@@ -262,7 +273,7 @@ export default class ScatterPlot extends React.Component {
           <select
             name="Value XAxis"
             value={this.state.dataX}
-            onChange={ev => this.handleAxis(ev, "X")}
+            onChange={(ev) => this.handleAxis(ev, "X")}
           >
             {this.renderColumns()}
           </select>
@@ -270,7 +281,7 @@ export default class ScatterPlot extends React.Component {
           <select
             name="Value YAxis"
             value={this.state.dataY}
-            onChange={ev => this.handleAxis(ev, "Y")}
+            onChange={(ev) => this.handleAxis(ev, "Y")}
           >
             {this.renderColumns()}
           </select>
@@ -280,7 +291,7 @@ export default class ScatterPlot extends React.Component {
             value={this.state.line}
             onChange={this.handleLine}
           >
-            {this.lineValues.map(value => {
+            {this.lineValues.map((value) => {
               return (
                 <option key={value} name={value} value={value}>
                   {value}
@@ -373,13 +384,13 @@ export default class ScatterPlot extends React.Component {
           />
           <XAxis
             title={this.state.nameX}
-            tickFormat={value => value}
+            tickFormat={(value) => value}
             yType={this.handleType(this.state.toolY, this.state.columnY)}
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <YAxis
             title={this.state.nameY}
-            tickFormat={value => value}
+            tickFormat={(value) => value}
             yType={this.handleType(this.state.toolY, this.state.columnY)}
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
@@ -396,9 +407,10 @@ export default class ScatterPlot extends React.Component {
         </XYPlot>
         {this.lineCount === 0 && (
           <div className="plot__noresults">
-            {this.hasInvalidLog
-              ? "All results have undefined values"
-              : "No correct results"}
+            No {this.state.correct && "correct"} results
+            {this.props.table.length > 0 && " with valid data points"}
+            {this.hasInvalidLog &&
+              " (negative values are not shown in logarithmic plot)"}
           </div>
         )}
         <button className="btn" onClick={this.toggleLinear}>

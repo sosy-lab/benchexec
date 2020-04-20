@@ -9,6 +9,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
+from getpass import getuser
 import io
 import json
 import logging
@@ -28,8 +29,8 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 REQUEST_URL = {
     "create": "{0}{1}/execution/create",
     "upload": "{0}{1}/upload/{2}?file={3}",
-    "launch": "{0}{1}/execution/{2}/launch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commands={7}",
-    "progress": "{0}{1}/execution/{2}/progress",
+    "launchBatch": "{0}{1}/execution/{2}/launchBatch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commands={7}",
+    "progressBatch": "{0}{1}/execution/{2}/progressBatch",
     "results": "{0}{1}/execution/{2}/results",
     "clean": "{0}{1}/clean",
 }
@@ -58,13 +59,23 @@ def get_system_info():
 def execute_benchmark(benchmark, output_handler):
     (toolpaths, awsInput) = getAWSInput(benchmark)
 
-    with open(benchmark.config.aws_config, "r") as conf_file:
+    conf_file_path = (
+        benchmark.config.aws_config
+        if benchmark.config.aws_config is not None
+        else os.path.join(
+            os.path.expanduser("~"),
+            ".config",
+            "sv-comp-aws",
+            getuser() + ".client.config",
+        )
+    )
+    with open(conf_file_path, "r") as conf_file:
         conf = json.load(conf_file)[0]
         aws_endpoint = conf["Endpoint"]
         aws_token = conf["UserToken"]
 
     try:
-        logging.info("Building archive files for the verifier-tool and the tasks...")
+        logging.info("Building archive files for verifier-tool and tasks...")
         verifier_arc_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
         verifier_arc_path = _createArchiveFile(
             verifier_arc_name, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
@@ -76,29 +87,23 @@ def execute_benchmark(benchmark, output_handler):
 
         start_time = benchexec.util.read_local_time()
 
-        logging.info("Waiting for the AWS EC2-instance to set everything up...")
+        logging.info("Waiting on the AWS EC2-instance to set everything up...")
 
         # Create
-        http_request = requests.get(
-            REQUEST_URL["create"].format(aws_endpoint, aws_token)
-        )
+        url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
+        logging.debug("Sending http-request for aws instantiation (create): \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
-        if (
-            msg.get("message") is not None
-            and msg.get("message") == "Token not authorized."
-        ):
-            sys.exit("Invalid token submitted: " + aws_token)
-
         requestId = msg["requestId"]
 
         # Upload verifier
-        http_request = requests.get(
-            REQUEST_URL["upload"].format(
-                aws_endpoint, aws_token, requestId, verifier_arc_name
-            )
+        url = REQUEST_URL["upload"].format(
+            aws_endpoint, aws_token, requestId, verifier_arc_name
         )
+        logging.debug("Sending http-request for uploading the verifier: \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
@@ -110,17 +115,18 @@ def execute_benchmark(benchmark, output_handler):
 
         payload = open(verifier_arc_path, "rb").read()
         headers = {"Content-Type": "application/zip"}
+        logging.info("Uploading the verifier to AWS...")
         http_request = requests.request(
             "PUT", verifier_uploadUrl, headers=headers, data=payload
         )
         _exitWhenRequestFailed(http_request)
 
         # Upload tasks
-        http_request = requests.get(
-            REQUEST_URL["upload"].format(
-                aws_endpoint, aws_token, requestId, tasks_arc_name
-            )
+        url = REQUEST_URL["upload"].format(
+            aws_endpoint, aws_token, requestId, tasks_arc_name
         )
+        logging.debug("Sending http-request for uploading tasks: \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
@@ -132,56 +138,68 @@ def execute_benchmark(benchmark, output_handler):
 
         payload = open(tasks_arc_path, "rb").read()
         headers = {"Content-Type": "application/zip"}
+        logging.info("Uploading tasks to AWS...")
         http_request = requests.request(
             "PUT", tasks_uploadUrl, headers=headers, data=payload
         )
         _exitWhenRequestFailed(http_request)
 
         # Launch
-        http_request = requests.get(
-            REQUEST_URL["launch"].format(
-                aws_endpoint,
-                aws_token,
-                requestId,
-                verifier_aws_public_url,
-                verifier_s3_key,
-                tasks_aws_public_url,
-                tasks_s3_key,
-                json.dumps(awsInput),
-            )
+        url = REQUEST_URL["launchBatch"].format(
+            aws_endpoint,
+            aws_token,
+            requestId,
+            verifier_aws_public_url,
+            verifier_s3_key,
+            tasks_aws_public_url,
+            tasks_s3_key,
+            json.dumps(awsInput),
         )
+        logging.debug("Sending http-request for launch: \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
 
         # Progress
         logging.info(
-            "Executing RunExec on the AWS workers. Depending on the size of the tasks, this might take a while."
+            "Executing Runexec on the AWS workers. Depending on the size of the tasks, this might take a while."
         )
-        progress_url = REQUEST_URL["progress"].format(
+        progress_url = REQUEST_URL["progressBatch"].format(
             aws_endpoint, aws_token, requestId
         )
-        initialized = False
+        logging.debug("Sending http-request for progress: \n%s", progress_url)
+        printMsg = 0
         # Give the ec2-instance some time for instantiation
-        while not initialized:
+        while True:
             http_request = requests.get(progress_url)
             _exitWhenRequestFailed(http_request)
 
             msg = http_request.json()
-            if (
-                msg["message"] == "Internal server error"
-                or msg["instancesNotTerminatedTotal"] > 0
-            ):
-                logging.info("waiting...")
-                time.sleep(10)
-                continue
-
-            initialized = True
-
-        logging.info("Done. Collecting the results back from AWS.")
+            if msg.get("message") == "Internal server error":
+                printMsg += 1
+                if printMsg % 2 == 0:
+                    logging.info("Waiting for EC2 to launch the batch processes...")
+                time.sleep(15)
+            elif not msg["completed"]:
+                printMsg += 1
+                if printMsg % 2 == 0:
+                    jobsCompleted = msg.get("totalNumberOfJobsCompleted")
+                    totalJobs = msg.get("totalNumberOfJobs")
+                    logging.info(
+                        "Waiting until all tasks have been verified... "
+                        "(Completed: {}/{})".format(jobsCompleted, totalJobs)
+                    )
+                time.sleep(15)
+            else:
+                logging.info(
+                    "Execution of %s tasks finished. Collecting the results back from AWS.",
+                    msg.get("totalNumberOfJobsCompleted"),
+                )
+                break
 
         # Results
-        http_request = requests.get(
-            REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
-        )
+        url = REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
+        logging.debug("Sending http-request for collecting the results: \n%s", url)
+        http_request = requests.get(url)
         _exitWhenRequestFailed(http_request)
         for url in http_request.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
@@ -205,7 +223,9 @@ def execute_benchmark(benchmark, output_handler):
     handleCloudResults(benchmark, output_handler, start_time, end_time)
 
     # Clean
-    requests.get(REQUEST_URL["clean"].format(aws_endpoint, aws_token))
+    url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
+    logging.debug("Sending http-request for cleaning up the aws services: \n%s", url)
+    http_request = requests.get(url)
 
 
 def stop():
@@ -215,9 +235,11 @@ def stop():
 
 def _exitWhenRequestFailed(http_request):
     if http_request.status_code != 200:
+        msg = http_request.json().get("message")
         sys.exit(
-            "Http-request failed (Server responded with status code: {0}).".format(
-                http_request.status_code
+            "Http-request failed. Server responded with status code: {0}{1}.".format(
+                http_request.status_code,
+                " (Message: " + msg + ")" if msg is not None else "",
             )
         )
 
@@ -406,7 +428,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
     if not os.path.isdir(outputDir) or not os.listdir(outputDir):
         # outputDir does not exist or is empty
         logging.warning(
-            "Cloud produced no results. Output-directory is missing or empty: %s",
+            "Received no results from AWS. Output-directory is missing or empty: %s",
             outputDir,
         )
 
@@ -447,7 +469,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
 
             if os.path.exists(dataFile) and os.path.exists(run.log_file):
                 try:
-                    values = parseCloudRunResultFile(dataFile)
+                    values = parseAWSRunResultFile(dataFile)
                     if not benchmark.config.debug:
                         os.remove(dataFile)
                 except IOError as e:
@@ -471,18 +493,17 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             if os.path.exists(run.log_file + ".stdError"):
                 runsProducedErrorOutput = True
 
-            # The directory structure differs between direct and webclient mode when using VCloud.
             # Move all output files from "sibling of log-file" to "sibling of parent directory".
             rawPath = run.log_file[: -len(".log")]
             dirname, filename = os.path.split(rawPath)
-            vcloudFilesDirectory = rawPath + ".files"
+            awsFilesDirectory = rawPath + ".files"
             benchexecFilesDirectory = os.path.join(
                 dirname[: -len(".logfiles")] + ".files", filename
             )
-            if os.path.isdir(vcloudFilesDirectory) and not os.path.isdir(
+            if os.path.isdir(awsFilesDirectory) and not os.path.isdir(
                 benchexecFilesDirectory
             ):
-                shutil.move(vcloudFilesDirectory, benchexecFilesDirectory)
+                shutil.move(awsFilesDirectory, benchexecFilesDirectory)
 
         output_handler.output_after_run_set(
             runSet, walltime=usedWallTime, end_time=end_time
@@ -499,17 +520,17 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         )
 
 
-def parseCloudRunResultFile(filePath):
+def parseAWSRunResultFile(filePath):
     def read_items():
         with open(filePath, "rt") as file:
             for line in file:
                 key, value = line.split("=", 1)
                 yield key, value
 
-    return parse_vcloud_run_result(read_items())
+    return parse_cloud_run_result(read_items())
 
 
-def parse_vcloud_run_result(values):
+def parse_cloud_run_result(values):
     result_values = collections.OrderedDict()
 
     def parse_time_value(s):

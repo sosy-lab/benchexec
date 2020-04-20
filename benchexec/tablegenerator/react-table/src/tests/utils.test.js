@@ -46,11 +46,16 @@ const rows = [
       raw: "11.001",
     },
   },
+  {
+    test: {
+      raw: "-1",
+    },
+  },
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
-const getFilteredData = regex =>
-  rows.filter(row => applyNumericFilter({ id: "test", value: regex }, row));
+const getFilteredData = (regex) =>
+  rows.filter((row) => applyNumericFilter({ id: "test", value: regex }, row));
 
 test("applyNumericFilter single entry without result", () => {
   expect(
@@ -74,12 +79,28 @@ test("applyNumericFilter greater 10", () => {
   expect(getFilteredData("10:").length).toBe(4);
 });
 
+test("applyNumericFilter less than 10", () => {
+  expect(getFilteredData(":10").length).toBe(3);
+});
+
 test("applyNumericFilter equals 10", () => {
   expect(getFilteredData("10").length).toBe(2);
 });
 
 test("applyNumericFilter between 10.3 and 10.7", () => {
   expect(getFilteredData("10.3:10.7").length).toBe(1);
+});
+
+test("applyNumericFilter non-positive numbers", () => {
+  expect(getFilteredData(":0").length).toBe(1);
+});
+
+test("applyNumericFilter non-negative numbers", () => {
+  expect(getFilteredData("0:").length).toBe(5);
+});
+
+test("applyNumericFilter all numbers", () => {
+  expect(getFilteredData(":").length).toBe(6);
 });
 
 test("applyNumericFilter with string", () => {
@@ -137,7 +158,7 @@ describe("numericSortMethod", () => {
   });
 });
 
-describe.only("hashRouting helpers", () => {
+describe("hashRouting helpers", () => {
   describe("getHashSearch", () => {
     test("should get params as object", () => {
       const res = getHashSearch("localhost#/bla?id=1&name=benchexec");

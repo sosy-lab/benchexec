@@ -9,19 +9,19 @@ import React from "react";
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
-    tools: tools.map(tool => ({
+    tools: tools.map((tool) => ({
       ...tool,
       isVisible: true,
-      columns: tool.columns.map(column => ({ ...column, isVisible: true })),
+      columns: tool.columns.map((column) => ({ ...column, isVisible: true })),
     })),
-    columns: tools.map(tool => tool.columns.map(column => column.title)),
+    columns: tools.map((tool) => tool.columns.map((column) => column.title)),
     table: rows,
     stats: stats,
     properties: props,
   };
 };
 
-const isNumericColumn = column =>
+const isNumericColumn = (column) =>
   column.type === "count" || column.type === "measure";
 
 const applyNumericFilter = (filter, row, cell) => {
@@ -36,7 +36,7 @@ const applyNumericFilter = (filter, row, cell) => {
     const [start, end] = filterParams;
 
     const numRaw = Number(raw);
-    const numStart = Number(start);
+    const numStart = start ? Number(start) : -Infinity;
     const numEnd = end ? Number(end) : Infinity;
 
     return numRaw >= numStart && numRaw <= numEnd;
@@ -57,7 +57,7 @@ const applyTextFilter = (filter, row, cell) => {
   return raw.includes(filter.value);
 };
 
-const isNil = data => data === undefined || data === null;
+const isNil = (data) => data === undefined || data === null;
 
 const getRawOrDefault = (value, def) =>
   isNil(value) || isNil(value.raw) ? def : value.raw;
@@ -80,7 +80,7 @@ const textSortMethod = (a, b) => {
   return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
 };
 
-const isOkStatus = status => {
+const isOkStatus = (status) => {
   return status === 0 || status === 200;
 };
 
@@ -100,7 +100,7 @@ const determineColumnWidth = (column, min_width, max_width) => {
   return width * 8 + 20;
 };
 
-const formatColumnTitle = column =>
+const formatColumnTitle = (column) =>
   column.unit ? (
     <>
       {column.display_title}
@@ -146,13 +146,13 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  *
  * @param {String} [str]
  */
-const getHashSearch = str => {
+const getHashSearch = (str) => {
   const urlParts = (str || document.location.href).split("?");
   const search = urlParts.length > 1 ? urlParts[1] : undefined;
   if (search === undefined || search.length === 0) {
     return {};
   }
-  const keyValuePairs = search.split("&").map(i => i.split("="));
+  const keyValuePairs = search.split("&").map((i) => i.split("="));
 
   const out = {};
   for (const [key, value] of keyValuePairs) {
@@ -173,7 +173,7 @@ const setHashSearch = (
   const optionTemplate = { returnString: false, baseUrl: null };
   const { returnString, baseUrl } = { ...optionTemplate, ...options };
   const url = (baseUrl || document.location.href).split("?")[0];
-  const pairs = Object.keys(params).map(key => `${key}=${params[key]}`);
+  const pairs = Object.keys(params).map((key) => `${key}=${params[key]}`);
   const searchString = `?${pairs.join("&")}`;
   const hrefString = `${url}${searchString}`;
   if (returnString) {
@@ -187,11 +187,11 @@ const setHashSearch = (
  *
  * @param {Object} param The Key-Value pair to be added to the current query param list
  */
-const setParam = param => {
+const setParam = (param) => {
   setHashSearch({ ...getHashSearch(), ...param });
 };
 
-const stringAsBoolean = str => str === "true";
+const stringAsBoolean = (str) => str === "true";
 
 export {
   prepareTableData,

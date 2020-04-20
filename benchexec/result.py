@@ -357,7 +357,8 @@ def expected_results_of_file(filename):
             expected_result = expected_result_class == RESULT_CLASS_TRUE
             subproperty = None
             if len(for_properties) > 1:
-                assert for_properties == _MEMSAFETY_SUBPROPERTIES and expected_result
+                assert for_properties == _MEMSAFETY_SUBPROPERTIES
+                assert expected_result
                 prop = _PROP_MEMSAFETY
             else:
                 prop = next(iter(for_properties))
