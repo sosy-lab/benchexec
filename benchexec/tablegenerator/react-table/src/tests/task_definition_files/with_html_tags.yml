@@ -1,0 +1,12 @@
+format_version: "1.0"
+
+input_files:
+  - <span>false_other_sub_task.<b>yml</b></span>
+  - <div>false_other_sub_task.yml</div>
+
+<button style="padding-right:3px" onClick="console.log("This should not work")"></button>: <button>test</button>
+
+properties:
+  - property_file: <a href="github.com">test.prp</a>
+    expected_verdict: false
+    broken_list: <ul> <li> item </li> </li> <li> </ul> </ul>

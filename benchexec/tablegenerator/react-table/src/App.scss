@@ -427,7 +427,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   background: white;
   border: 5px solid grey;
   border-radius: 5px;
-  padding: 10px;
 
   h1 {
     margin-bottom: 40px;
@@ -473,14 +472,63 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .closing {
     cursor: pointer;
-    position: fixed;
-    top: 90px;
-    padding: 3px;
     font-size: 120%;
     border-radius: 4px;
+
     &:hover {
       color: white;
       background: black;
+    }
+  }
+
+  &.second-level {
+    .link-overlay-header-container {
+      background-color: white;
+    }
+
+    .link-overlay-text {
+      margin-top: 0;
+    }
+  }
+
+  .link-overlay {
+    &-file-link {
+      color: blue;
+      text-decoration: underline;
+      background-color: inherit;
+      border: none;
+      font: inherit;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    &-header-container {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row-reverse;
+      position: sticky;
+      top: 0;
+      left: 0;
+      height: 30px;
+      padding: 10px 10px 0;
+    }
+
+    &-back {
+      &-button:hover {
+        cursor: pointer;
+      }
+
+      &-icon {
+        margin-right: 1em;
+      }
+    }
+
+    &-text {
+      // height of .link-overlay-header-container
+      margin-top: -30px;
+      padding: 0px 10px 10px 10px;
     }
   }
 }

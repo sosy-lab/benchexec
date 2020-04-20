@@ -7,28 +7,67 @@
 import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { isOkStatus } from "../utils/utils";
 import zip from "../vendor/zip.js/index.js";
+import path from "path";
+import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
 const cachedZipFileEntries = {};
 
 export default class LinkOverlay extends React.Component {
   constructor(props) {
     super(props);
+    const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
+      isYAML,
       content: `loading file: ${this.props.link}`,
-      scrollBarWidth: 0,
+      currentFile: this.props.link,
+      isSecondLevel: false,
     };
-
-    this.loadContent(this.props.link);
   }
 
   componentDidMount() {
-    setTimeout(() => {
-      this.getScrollBarWidth();
-    }, 100);
+    this.loadContent(this.props.link);
   }
+
+  // Focus modal container when new content is loaded into the modal for accessibility via keyboard
+  componentDidUpdate() {
+    const modalContainer = document.getElementById("modal-container");
+    if (modalContainer) {
+      modalContainer.focus();
+    }
+  }
+
+  isYAMLFile(filePath) {
+    return filePath.endsWith(".yml");
+  }
+
+  loadNewFile = (relativeURL) => {
+    const newURL = path.join(this.props.link, "../" + relativeURL);
+    this.setState({
+      isYAML: this.isYAMLFile(relativeURL),
+      isSecondLevel: true,
+      content: `loading file: ${newURL}`,
+    });
+    this.loadContent(newURL);
+  };
+
+  loadOriginalFile = () => {
+    this.setState({
+      isYAML: this.isYAMLFile(this.props.link),
+      isSecondLevel: false,
+      content: `loading file: ${this.props.link}`,
+      error: undefined,
+    });
+    this.loadContent(this.props.link);
+  };
+
+  loadOriginalFileIfEnter = (e) => {
+    if (e.key === "Enter") {
+      this.loadOriginalFile();
+    }
+  };
 
   // 1) Try loading url with normal Ajax request for uncompressed results.
   // 2) Try loading url from within ZIP archive using HTTP Range header for efficient access
@@ -36,6 +75,7 @@ export default class LinkOverlay extends React.Component {
   // 3) Try loading url from within ZIP archive without Range header.
   loadContent = async (url) => {
     console.log("load content", url);
+    this.setState({ currentFile: url });
     if (url) {
       try {
         const response = await fetch(url);
@@ -155,36 +195,54 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  getScrollBarWidth() {
-    const modalBox = document.getElementsByClassName(
-      "ReactModal__Content ReactModal__Content--after-open overlay",
-    )[0];
-    const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
-    this.setState({ scrollBarWidth: scrollBarWidth });
-  }
-
   render() {
-    ReactModal.setAppElement("#root");
+    ReactModal.setAppElement(document.getElementById("root"));
     return (
       <ReactModal
-        className="overlay"
+        id="modal-container"
+        ariaHideApp={false}
+        className={`overlay ${this.state.isSecondLevel ? "second-level" : ""}`}
         isOpen={true}
         onRequestClose={this.props.close}
       >
-        <FontAwesomeIcon
-          icon={faTimes}
-          onClick={this.props.close}
-          className="closing"
-          style={{ right: 28 + this.state.scrollBarWidth }}
-        />
+        <div className="link-overlay-header-container">
+          <FontAwesomeIcon
+            icon={faTimes}
+            onClick={this.props.close}
+            className="closing"
+          />
+          {this.state.isSecondLevel ? (
+            <span
+              className="link-overlay-back-button"
+              tabIndex="0"
+              role="button"
+              onClick={this.loadOriginalFile}
+              onKeyDown={this.loadOriginalFileIfEnter}
+            >
+              <FontAwesomeIcon
+                className="link-overlay-back-icon"
+                icon={faArrowLeft}
+              />
+              Back to task definition
+            </span>
+          ) : (
+            ""
+          )}
+        </div>
         {!this.state.error ? (
-          <>
-            <pre>{this.state.content}</pre>
-            <input />
-          </>
+          this.state.isYAML ? (
+            <TaskDefinitionViewer
+              yamlText={this.state.content}
+              loadNewFile={this.loadNewFile}
+            />
+          ) : (
+            <pre className="link-overlay-text">{this.state.content}</pre>
+          )
         ) : (
-          <div>
-            <p>Error while loading content ({this.state.error}).</p>
+          <div className="link-overlay-text">
+            <p style={{ marginTop: "0" }}>
+              Error while loading content ({this.state.error}).
+            </p>
             <p>
               This could be a problem of the{" "}
               <a href="https://en.wikipedia.org/wiki/Same-origin_policy">
@@ -212,7 +270,7 @@ export default class LinkOverlay extends React.Component {
             ) : null}
             <p>
               You can try to download the file:{" "}
-              <a href={this.props.link}>{this.props.link}</a>
+              <a href={this.state.currentFile}>{this.state.currentFile}</a>
             </p>
           </div>
         )}

@@ -1,0 +1,7 @@
+format_version: "1.0"
+
+input_files:
+    - false_sub_task.yml
+    - false_other_sub_task.yml
+
+properties: []
