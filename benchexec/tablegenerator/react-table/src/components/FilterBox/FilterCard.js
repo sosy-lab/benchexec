@@ -19,7 +19,10 @@ export default class FilterCard extends React.Component {
   }
 
   sendFilterUpdate() {
-    this.props.onFilterUpdate({ ...this.state });
+    this.props.onFilterUpdate({
+      ...this.state,
+      title: this.state.title || this.props.title,
+    });
     console.log("Filtercard sent", this.state);
   }
 
@@ -39,6 +42,7 @@ export default class FilterCard extends React.Component {
           ))}
         </select>
         <FontAwesomeIcon
+          className="check-button"
           icon={faCheck}
           onClick={() => this.sendFilterUpdate()}
         />
@@ -50,7 +54,14 @@ export default class FilterCard extends React.Component {
         {editable ? (
           filterAddSelection()
         ) : (
-          <h4 className="title">{filter.display_title}</h4>
+          <>
+            <h4 className="title">{filter.display_title}</h4>
+            <FontAwesomeIcon
+              className="check-button"
+              icon={faCheck}
+              onClick={() => this.sendFilterUpdate()}
+            />
+          </>
         )}
       </div>
     );

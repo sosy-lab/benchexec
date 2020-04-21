@@ -1,5 +1,6 @@
 import React from "react";
 import FilterContainer from "./FilterContainer";
+import { faBreadSlice } from "@fortawesome/free-solid-svg-icons";
 
 const linkDataToTool = (toolIdx, columns, data) => {
   const out = columns;
@@ -75,12 +76,48 @@ export default class FilterBox extends React.Component {
 
     console.log(this.state);
   }
+  updateFilters(idx, data) {
+    const preppedTools = this.state.preppedTools;
+    console.log("box received", data);
+    preppedTools[idx].columns = data;
+    this.setState({ preppedTools });
+    const filtered = [];
+    for (const row of this.props.data) {
+      const results = row.results;
+      let push = true;
+      for (const tool of preppedTools) {
+        if (!push) {
+          break;
+        }
+        const toolSection = results[tool.index];
+        for (const colIdx in tool.columns) {
+          const col = tool.columns[colIdx];
+          if (col.currentMin !== 0 && col.currentMax !== 0) {
+            const val = Number(toolSection.values[colIdx].raw);
+            if (val < col.currentMin || val > col.currentMax) {
+              push = false;
+              break;
+            }
+          }
+        }
+      }
+      if (push) {
+        filtered.push({ _original: row });
+      }
+    }
+    this.props.setFilter(filtered);
+  }
+
   render() {
     return (
       <div className="filterBox">
         {this.state.preppedTools.map((tool) => {
           return (
-            <FilterContainer toolName={tool.name} filters={tool.columns} />
+            <FilterContainer
+              updateFilters={(data) => this.updateFilters(tool.index, data)}
+              toolName={tool.name}
+              filters={tool.columns}
+            />
           );
         })}
       </div>

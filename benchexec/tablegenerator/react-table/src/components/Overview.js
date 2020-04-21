@@ -99,11 +99,13 @@ export default class Overview extends React.Component {
 
   // -----------------------Filter-----------------------
   setFilter = (filteredData) => {
+    console.log({ filteredData });
     this.filteredData = filteredData.map((row) => {
       return row._original;
     });
   };
   filterPlotData = (filter) => {
+    console.log(filter);
     this.setState({
       table: this.filteredData,
       filtered: filter,

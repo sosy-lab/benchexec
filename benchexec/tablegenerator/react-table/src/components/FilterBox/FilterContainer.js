@@ -15,16 +15,29 @@ export default class FilterContainer extends React.Component {
     return this.state.filters.filter((item) => item.filtered);
   }
 
-  setFilter({ title, active, value }) {
-    console.log("Container received", { title, active, value });
+  setFilter({ title, active, currentMin, currentMax }) {
+    console.log("Container received", {
+      title,
+      active,
+      currentMin,
+      currentMax,
+    });
+    const newFilters = this.state.filters.map((filter) =>
+      filter.title === title
+        ? {
+            ...filter,
+            filtered: active,
+            currentMin: Number(currentMin),
+            currentMax: Number(currentMax),
+          }
+        : filter,
+    );
     this.setState({
       addingFilter: false,
-      filters: this.state.filters.map((filter) =>
-        filter.title === title
-          ? { ...filter, filtered: active, value }
-          : filter,
-      ),
+      filters: newFilters,
     });
+
+    this.props.updateFilters(newFilters);
   }
 
   render() {
@@ -52,11 +65,11 @@ export default class FilterContainer extends React.Component {
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
         ) : (
-          <div className="filter-add-button">
-            <FontAwesomeIcon
-              icon={faPlus}
-              onClick={() => this.setState({ addingFilter: true })}
-            />
+          <div
+            className="filter-add-button"
+            onClick={() => this.setState({ addingFilter: true })}
+          >
+            <FontAwesomeIcon icon={faPlus} />
           </div>
         )}
       </div>
