@@ -16,15 +16,8 @@ export default class SelectColumn extends React.Component {
     this.state = {
       deselect: true,
       list: [...this.props.tools],
-      scrollBarWidth: 0,
     };
     this.selectable = [];
-  }
-
-  componentDidMount() {
-    setTimeout(() => {
-      this.getScrollBarWidth();
-    }, 100);
   }
 
   // -------------------------Rendering-------------------------
@@ -188,14 +181,6 @@ export default class SelectColumn extends React.Component {
     this.setState({ list });
   };
 
-  getScrollBarWidth() {
-    const modalBox = document.getElementsByClassName(
-      "ReactModal__Content ReactModal__Content--after-open overlay",
-    )[0];
-    const scrollBarWidth = modalBox.offsetWidth - modalBox.clientWidth;
-    this.setState({ scrollBarWidth: scrollBarWidth });
-  }
-
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -205,12 +190,13 @@ export default class SelectColumn extends React.Component {
         isOpen={true}
         onRequestClose={this.props.close}
       >
-        <FontAwesomeIcon
-          icon={faTimes}
-          onClick={this.props.close}
-          className="closing"
-          style={{ right: 28 + this.state.scrollBarWidth }}
-        />
+        <div className="link-overlay-header-container">
+          <FontAwesomeIcon
+            icon={faTimes}
+            onClick={this.props.close}
+            className="closing"
+          />
+        </div>
         <h1>Select the columns to display</h1>
         <table className="selectRows">
           <tbody>
