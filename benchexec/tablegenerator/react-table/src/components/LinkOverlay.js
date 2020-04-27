@@ -108,28 +108,19 @@ export default class LinkOverlay extends React.Component {
     if (zipPath in zipEntriesCache) {
       this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile);
     } else {
-      this.readZipArchive(zipPath, zipFile, true);
+      this.readZipArchiveHttpRange(zipPath, zipFile, true);
     }
   }
 
-  /*
-   * Tries to read the file from a ZIP archive. A flag decides whether to use a HTTP range request for faster access.
-   * Automatically tries again with a normal HTTP request in case a HTTP range request is not supported. Tries to load
-   * the file via XML in case the HTTP request in general fails.
-   */
-  readZipArchive(zipPath, zipFile, useHttpRange) {
-    const reader = useHttpRange
-      ? new zip.HttpRangeReader(zipPath)
-      : new zip.HttpReader(zipPath);
+  /* Tries to read the file from a ZIP archive with a HTTP range request.  */
+  readZipArchiveHttpRange(zipPath, zipFile) {
     try {
       zip.createReader(
-        reader,
+        new zip.HttpRangeReader(zipPath),
         zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
         error => {
-          if (useHttpRange && error === "HTTP Range not supported.") {
-            this.readZipArchive(zipPath, zipFile, false);
-          } else if (!useHttpRange) {
-            this.loadFileFromZipViaXML(zipPath, zipFile);
+          if (error === "HTTP Range not supported.") {
+            this.readZipArchiveNoHttpRange(zipPath, zipFile);
           } else {
             const errorMsg =
               typeof error === "string"
@@ -137,6 +128,25 @@ export default class LinkOverlay extends React.Component {
                 : `Could not read the file ${zipFile}`;
             this.setError(errorMsg);
           }
+        },
+      );
+    } catch (error) {
+      const errorMsg =
+        typeof error === "string"
+          ? error
+          : "ZIP reader could not be initialized";
+      this.setError(errorMsg);
+    }
+  }
+
+  /* Tries to read the file from a ZIP archive with a normal HTTP request.  */
+  readZipArchiveNoHttpRange(zipPath, zipFile) {
+    try {
+      zip.createReader(
+        new zip.HttpReader(zipPath),
+        zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        error => {
+          this.loadFileFromZipViaXML(zipPath, zipFile);
         },
       );
     } catch (error) {
