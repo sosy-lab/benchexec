@@ -125,7 +125,7 @@ export default class LinkOverlay extends React.Component {
             const errorMsg =
               typeof error === "string"
                 ? error
-                : `Could not read the file ${zipFile}`;
+                : `HTTP request for the file "${zipFile}" failed`;
             this.setError(errorMsg);
           }
         },
@@ -181,7 +181,10 @@ export default class LinkOverlay extends React.Component {
       xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
-      const errorMsg = typeof error === "string" ? error : "XML request failed";
+      const errorMsg =
+        typeof error === "string"
+          ? error
+          : `HTTP request for the file "${zipFile}" failed`;
       this.setError(errorMsg);
     }
   }
@@ -200,7 +203,7 @@ export default class LinkOverlay extends React.Component {
         this.setState({ content }),
       );
     } else {
-      this.setError(`Could not find the file "${zipFile}`);
+      this.setError(`Could not find the file "${zipFile}"`);
     }
   }
 
