@@ -13,7 +13,7 @@ import zip from "../vendor/zip.js/index.js";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
-const cachedZipFileEntries = {};
+const zipEntriesCache = {};
 
 export default class LinkOverlay extends React.Component {
   constructor(props) {
@@ -21,14 +21,14 @@ export default class LinkOverlay extends React.Component {
     const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
       isYAML,
-      content: `loading file: ${this.props.link}`,
-      currentFile: this.props.link,
+      content: `loading file: ${props.link}`,
+      currentFile: props.link,
       isSecondLevel: false,
     };
   }
 
   componentDidMount() {
-    this.loadContent(this.props.link);
+    this.loadFile(this.props.link);
   }
 
   // Focus modal container when new content is loaded into the modal for accessibility via keyboard
@@ -43,14 +43,14 @@ export default class LinkOverlay extends React.Component {
     return filePath.endsWith(".yml");
   }
 
-  loadNewFile = (relativeURL) => {
+  loadNewFile = relativeURL => {
     const newURL = path.join(this.props.link, "../" + relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
       isSecondLevel: true,
       content: `loading file: ${newURL}`,
     });
-    this.loadContent(newURL);
+    this.loadFile(newURL);
   };
 
   loadOriginalFile = () => {
@@ -60,71 +60,99 @@ export default class LinkOverlay extends React.Component {
       content: `loading file: ${this.props.link}`,
       error: undefined,
     });
-    this.loadContent(this.props.link);
+    this.loadFile(this.props.link);
   };
 
-  loadOriginalFileIfEnter = (e) => {
+  loadOriginalFileIfEnter = e => {
     if (e.key === "Enter") {
       this.loadOriginalFile();
     }
   };
 
-  // 1) Try loading url with normal Ajax request for uncompressed results.
-  // 2) Try loading url from within ZIP archive using HTTP Range header for efficient access
-  //    (this fails for ZIPs on the local disk).
-  // 3) Try loading url from within ZIP archive without Range header.
-  loadContent = async (url) => {
-    console.log("load content", url);
-    this.setState({ currentFile: url });
+  /*
+   * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
+   * 1) AJAX request -> fails for ZIP archives
+   * 2) HTTP Range request for file in ZIP archive -> fails for ZIPs on the local disk
+   * 3) Normal HTTP request for file in ZIP archive -> fails for Google Chrome for ZIPs on the local disk
+   * 4) XML request
+   */
+  async loadFile(url) {
     if (url) {
+      this.setState({ currentFile: url });
       try {
         const response = await fetch(url);
-        //status 404/403 => error?
         if (isOkStatus(response.status)) {
-          try {
-            const content = await response.text();
-            this.setState({ content });
-          } catch (e) {
-            console.log("Error: Stream not readable", url, e);
-            this.attemptLoadingFromZIP(url);
-          }
+          const content = await response.text();
+          this.setState({ content });
         } else {
-          console.log("Error: Loading file not possible", response);
-          this.attemptLoadingFromZIP(url);
+          this.loadFileFromZip(url);
         }
       } catch (e) {
-        console.log("Error: Resource not found", url, e);
-        this.attemptLoadingFromZIP(url);
+        this.loadFileFromZip(url);
       }
     }
-  };
+  }
 
-  setError = (error) => {
-    this.setState({ error: `${error}` });
-  };
+  /* Loads the file from a ZIP archive and stores the entries in a cache for faster future access. */
+  loadFileFromZip(url) {
+    const decodedUrl = decodeURIComponent(url);
+    const folderSplitterSlash =
+      decodedUrl.lastIndexOf("/") > decodedUrl.lastIndexOf("\\") ? "/" : "\\";
+    const folderSplitPos = decodedUrl.lastIndexOf(folderSplitterSlash);
+    const zipPath = decodedUrl.substring(0, folderSplitPos) + ".zip";
+    const splittedUrl = decodedUrl.split(folderSplitterSlash);
+    const zipFile = `${splittedUrl[splittedUrl.length - 2]}/${
+      splittedUrl[splittedUrl.length - 1]
+    }`;
 
-  loadFileFromZipEntries = (entries, logfile, zipUrl) => {
-    for (let entry of entries) {
-      if (entry.filename.indexOf(logfile) >= 0) {
-        entry.getData(new zip.TextWriter(), (content) =>
-          this.setState({ content }),
-        );
-        return;
-      }
+    if (zipPath in zipEntriesCache) {
+      this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile);
+    } else {
+      this.readZipArchive(zipPath, zipFile, true);
     }
-    this.setError(`Did not find file "${logfile}" in "${zipUrl}"`);
-  };
+  }
 
-  loadFileFromZip = (logZip, logfile, zipUrl) => {
-    logZip.getEntries((entries) => {
-      cachedZipFileEntries[zipUrl] = entries;
-      this.loadFileFromZipEntries(entries, logfile, zipUrl);
-    });
-  };
-
-  attemptLoadingZIPManually(logfile, zipUrl) {
+  /*
+   * Tries to read the file from a ZIP archive. A flag decides whether to use a HTTP range request for faster access.
+   * Automatically tries again with a normal HTTP request in case a HTTP range request is not supported. Tries to load
+   * the file via XML in case the HTTP request in general fails.
+   */
+  readZipArchive(zipPath, zipFile, useHttpRange) {
+    const reader = useHttpRange
+      ? new zip.HttpRangeReader(zipPath)
+      : new zip.HttpReader(zipPath);
     try {
-      // This is basically just for Chrome because HTTPReader fails there
+      zip.createReader(
+        reader,
+        zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        error => {
+          if (useHttpRange && error === "HTTP Range not supported.") {
+            this.readZipArchive(zipPath, zipFile, false);
+          } else if (!useHttpRange) {
+            this.loadFileFromZipViaXML(zipPath, zipFile);
+          } else {
+            const errorMsg =
+              typeof error === "string"
+                ? error
+                : `Could not read the file ${zipFile}`;
+            this.setError(errorMsg);
+          }
+        },
+      );
+    } catch (error) {
+      const errorMsg =
+        typeof error === "string"
+          ? error
+          : "ZIP reader could not be initialized";
+      this.setError(errorMsg);
+    }
+  }
+
+  /* Loads a file from the zip archive via an XML request.
+   * This should only be necessary for Google Chrome as a HTTP Reader does not work there.
+   */
+  loadFileFromZipViaXML(zipPath, zipFile) {
+    try {
       const xhr = new XMLHttpRequest();
       xhr.responseType = "arraybuffer";
       xhr.addEventListener(
@@ -132,67 +160,42 @@ export default class LinkOverlay extends React.Component {
         () => {
           zip.createReader(
             new zip.ArrayBufferReader(xhr.response),
-            (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
+            zipReader =>
+              this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
             this.setError,
           );
         },
         false,
       );
       xhr.addEventListener("error", this.setError, false);
-      xhr.open("GET", zipUrl);
+      xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
-      this.setError(error);
+      const errorMsg = typeof error === "string" ? error : "XML request failed";
+      this.setError(errorMsg);
     }
   }
 
-  attemptLoadingFromZIP = async (url) => {
-    console.log("Text is not received. Try as zip?", url);
-    const splitPos = url.lastIndexOf("/");
-    const zipUrl = url.substring(0, splitPos) + ".zip";
-    const urlArray = url.split("/");
-    const logfile = decodeURIComponent(
-      `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`,
-    ); // <folder>/<logfile>
+  loadFileFromZipArchive = (zipReader, zipFile, zipPath) => {
+    zipReader.getEntries(entries => {
+      zipEntriesCache[zipPath] = entries;
+      this.loadFileFromZipEntries(entries, zipFile);
+    });
+  };
 
-    if (zipUrl in cachedZipFileEntries) {
-      this.loadFileFromZipEntries(
-        cachedZipFileEntries[zipUrl],
-        logfile,
-        zipUrl,
+  loadFileFromZipEntries(entries, zipFile) {
+    const entry = entries.find(entry => entry.filename === zipFile);
+    if (entry) {
+      entry.getData(new zip.TextWriter(), content =>
+        this.setState({ content }),
       );
     } else {
-      try {
-        zip.createReader(
-          new zip.HttpRangeReader(zipUrl),
-          (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
-          (error) => {
-            if (error === "HTTP Range not supported.") {
-              // try again without HTTP Range header
-              this.setState({
-                content:
-                  `Loading file "${logfile}" ` +
-                  `from ZIP archive "${zipUrl}" without using HTTP Range header.`,
-              });
-              // Try with HttpReader, but this fails in Chrome for local files,
-              // so fall back to a manual XMLHttpRequest.
-              zip.createReader(
-                new zip.HttpReader(zipUrl),
-                (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
-                (error) => {
-                  console.log("Loading ZIP with HttpReader failed", error);
-                  this.attemptLoadingZIPManually(logfile, zipUrl);
-                },
-              );
-            } else {
-              this.setError(error);
-            }
-          },
-        );
-      } catch (error) {
-        this.setError(error);
-      }
+      this.setError(`Could not find the file "${zipFile}`);
     }
+  }
+
+  setError = error => {
+    this.setState({ error: `${error}` });
   };
 
   render() {
