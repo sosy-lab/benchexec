@@ -74,7 +74,7 @@ export default class LinkOverlay extends React.Component {
    * 1) AJAX request -> fails for ZIP archives
    * 2) HTTP Range request for file in ZIP archive -> fails for ZIPs on the local disk
    * 3) Normal HTTP request for file in ZIP archive -> fails for Google Chrome for ZIPs on the local disk
-   * 4) XML request
+   * 4) Manually via XMLHttpRequest
    */
   async loadFile(url) {
     if (url) {
@@ -146,7 +146,7 @@ export default class LinkOverlay extends React.Component {
         new zip.HttpReader(zipPath),
         zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
         error => {
-          this.loadFileFromZipViaXML(zipPath, zipFile);
+          this.readZipArchiveManually(zipPath, zipFile);
         },
       );
     } catch (error) {
@@ -158,10 +158,11 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-  /* Loads a file from the zip archive via an XML request.
-   * This should only be necessary for Google Chrome as a HTTP Reader does not work there.
+  /*
+   * Loads a file from the zip archive with a HTTP request manually. This should only be necessary
+   * for Google Chrome as a HTTP Reader does not work there.
    */
-  loadFileFromZipViaXML(zipPath, zipFile) {
+  readZipArchiveManually(zipPath, zipFile) {
     try {
       const xhr = new XMLHttpRequest();
       xhr.responseType = "arraybuffer";
