@@ -106,7 +106,7 @@ export default class LinkOverlay extends React.Component {
     }`;
 
     if (zipPath in zipEntriesCache) {
-      this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile);
+      this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile, zipPath);
     } else {
       this.readZipArchive(zipPath, zipFile);
     }
@@ -177,24 +177,24 @@ export default class LinkOverlay extends React.Component {
   loadFileFromZipArchive = (zipReader, zipFile, zipPath) => {
     zipReader.getEntries(entries => {
       zipEntriesCache[zipPath] = entries;
-      this.loadFileFromZipEntries(entries, zipFile);
+      this.loadFileFromZipEntries(entries, zipFile, zipPath);
     });
   };
 
-  loadFileFromZipEntries(entries, zipFile) {
+  loadFileFromZipEntries(entries, zipFile, zipPath) {
     const entry = entries.find(entry => entry.filename === zipFile);
     if (entry) {
       entry.getData(new zip.TextWriter(), content =>
         this.setState({ content }),
       );
     } else {
-      this.setError(`Could not find the file "${zipFile}"`);
+      this.setError(`Could not find the file "${zipFile}" in "${zipPath}"`);
     }
   }
 
 /*
  * Sets the error message of the overlay. In case an error object was provided and the
- * error object is a plain string, this error object will be set for the message. Otherwise 
+ * error object is a plain string, this error object will be set for the message. Otherwise
  * the simple error message, i.e. the first parameter, will be set.
  */
   setError = (errorMsg, errorObj) => {
