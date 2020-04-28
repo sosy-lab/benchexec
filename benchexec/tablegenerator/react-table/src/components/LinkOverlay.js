@@ -122,20 +122,12 @@ export default class LinkOverlay extends React.Component {
           if (error === "HTTP Range not supported.") {
             this.readZipArchiveNoHttpRange(zipPath, zipFile);
           } else {
-            const errorMsg =
-              typeof error === "string"
-                ? error
-                : `HTTP request for the file "${zipFile}" failed`;
-            this.setError(errorMsg);
+            this.setError(`HTTP request for the file "${zipFile}" failed`, error);
           }
         },
       );
     } catch (error) {
-      const errorMsg =
-        typeof error === "string"
-          ? error
-          : "ZIP reader could not be initialized";
-      this.setError(errorMsg);
+      this.setError("ZIP reader could not be initialized", error);
     }
   }
 
@@ -150,11 +142,7 @@ export default class LinkOverlay extends React.Component {
         },
       );
     } catch (error) {
-      const errorMsg =
-        typeof error === "string"
-          ? error
-          : "ZIP reader could not be initialized";
-      this.setError(errorMsg);
+      this.setError("ZIP reader could not be initialized", error);
     }
   }
 
@@ -182,11 +170,7 @@ export default class LinkOverlay extends React.Component {
       xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
-      const errorMsg =
-        typeof error === "string"
-          ? error
-          : `HTTP request for the file "${zipFile}" failed`;
-      this.setError(errorMsg);
+      this.setError(`HTTP request for the file "${zipFile}" failed`, error);
     }
   }
 
@@ -208,7 +192,16 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-  setError = error => {
+/*
+ * Sets the error message of the overlay. In case an error object was provided and the
+ * error object is a plain string, this error object will be set for the message. Otherwise 
+ * the simple error message, i.e. the first parameter, will be set.
+ */
+  setError = (errorMsg, errorObj) => {
+    const error =
+      errorObj && typeof errorObj === "string"
+        ? errorObj
+        : errorMsg;
     this.setState({ error: `${error}` });
   };
 
