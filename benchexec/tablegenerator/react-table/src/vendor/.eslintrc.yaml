@@ -1,3 +1,0 @@
----
-# Disable eslint in this directory completely by resetting the config
-  root: true

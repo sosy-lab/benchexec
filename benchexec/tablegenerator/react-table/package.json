@@ -40,6 +40,9 @@
       "prettier/prettier": "warn"
     }
   },
+  "eslintIgnore": [
+    "src/vendor/"
+  ],
   "prettier": {
     "trailingComma": "all"
   },
