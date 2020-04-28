@@ -108,7 +108,7 @@ export default class LinkOverlay extends React.Component {
     if (zipPath in zipEntriesCache) {
       this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile);
     } else {
-      this.readZipArchiveHttpRange(zipPath, zipFile, true);
+      this.readZipArchiveHttpRange(zipPath, zipFile);
     }
   }
 
