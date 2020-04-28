@@ -43,7 +43,7 @@ export default class LinkOverlay extends React.Component {
     return filePath.endsWith(".yml");
   }
 
-  loadNewFile = relativeURL => {
+  loadNewFile = (relativeURL) => {
     const newURL = path.join(this.props.link, "../" + relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
@@ -63,7 +63,7 @@ export default class LinkOverlay extends React.Component {
     this.loadFile(this.props.link);
   };
 
-  loadOriginalFileIfEnter = e => {
+  loadOriginalFileIfEnter = (e) => {
     if (e.key === "Enter") {
       this.loadOriginalFile();
     }
@@ -117,12 +117,15 @@ export default class LinkOverlay extends React.Component {
     try {
       zip.createReader(
         new zip.HttpRangeReader(zipPath),
-        zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
-        error => {
+        (zipReader) => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        (error) => {
           if (error === "HTTP Range not supported.") {
             this.readZipArchiveNoHttpRange(zipPath, zipFile);
           } else {
-            this.setError(`HTTP request for the file "${zipFile}" failed`, error);
+            this.setError(
+              `HTTP request for the file "${zipFile}" failed`,
+              error,
+            );
           }
         },
       );
@@ -136,8 +139,8 @@ export default class LinkOverlay extends React.Component {
     try {
       zip.createReader(
         new zip.HttpReader(zipPath),
-        zipReader => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
-        error => {
+        (zipReader) => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        (error) => {
           this.readZipArchiveManually(zipPath, zipFile);
         },
       );
@@ -159,7 +162,7 @@ export default class LinkOverlay extends React.Component {
         () => {
           zip.createReader(
             new zip.ArrayBufferReader(xhr.response),
-            zipReader =>
+            (zipReader) =>
               this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
             this.setError,
           );
@@ -175,16 +178,16 @@ export default class LinkOverlay extends React.Component {
   }
 
   loadFileFromZipArchive = (zipReader, zipFile, zipPath) => {
-    zipReader.getEntries(entries => {
+    zipReader.getEntries((entries) => {
       zipEntriesCache[zipPath] = entries;
       this.loadFileFromZipEntries(entries, zipFile, zipPath);
     });
   };
 
   loadFileFromZipEntries(entries, zipFile, zipPath) {
-    const entry = entries.find(entry => entry.filename === zipFile);
+    const entry = entries.find((entry) => entry.filename === zipFile);
     if (entry) {
-      entry.getData(new zip.TextWriter(), content =>
+      entry.getData(new zip.TextWriter(), (content) =>
         this.setState({ content }),
       );
     } else {
@@ -192,16 +195,14 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-/*
- * Sets the error message of the overlay. In case an error object was provided and the
- * error object is a plain string, this error object will be set for the message. Otherwise
- * the simple error message, i.e. the first parameter, will be set.
- */
+  /*
+   * Sets the error message of the overlay. In case an error object was provided and the
+   * error object is a plain string, this error object will be set for the message. Otherwise
+   * the simple error message, i.e. the first parameter, will be set.
+   */
   setError = (errorMsg, errorObj) => {
     const error =
-      errorObj && typeof errorObj === "string"
-        ? errorObj
-        : errorMsg;
+      errorObj && typeof errorObj === "string" ? errorObj : errorMsg;
     this.setState({ error: `${error}` });
   };
 
