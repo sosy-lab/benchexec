@@ -181,6 +181,40 @@ export default class SelectColumn extends React.Component {
     this.setState({ list });
   };
 
+  backButton = () => {
+    // event listener for back button
+    (function (window) {
+      window.addEventListener("hashchange", function (e) {
+        console.log("back button clicked");
+      });
+    })(window);
+
+    // Change the function of the browser's back button
+    (function (window, location) {
+      window.history.replaceState(
+        null,
+        document.title,
+        location.pathname + "#!/stealingyourhistory",
+      );
+      window.history.pushState(null, document.title, location.pathname);
+
+      window.addEventListener(
+        "popstate",
+        function () {
+          if (location.hash === "#!/stealingyourhistory") {
+            window.history.replaceState(
+              null,
+              document.title,
+              location.pathname,
+            );
+            location.replace("http://google.com"); // That will redirect back button to the location.replace specify
+          }
+        },
+        false,
+      );
+    })(window, window.location);
+  };
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -219,6 +253,7 @@ export default class SelectColumn extends React.Component {
             Apply and close
           </button>
           <input />
+          {this.backButton()}
         </div>
       </ReactModal>
     );
