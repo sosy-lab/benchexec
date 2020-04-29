@@ -1,6 +1,0 @@
-./cbmc --32 --propertyfile test/programs/benchmarks/ntdrivers/ALL.prp test/programs/benchmarks/ntdrivers/floppy2_true-unreach-call.i.cil.c
-
-
---------------------------------------------------------------------------------
-
-
