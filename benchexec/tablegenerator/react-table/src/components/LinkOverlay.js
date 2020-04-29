@@ -267,11 +267,6 @@ export default class LinkOverlay extends React.Component {
                   --allow-file-access-from-files.
                 </p>
                 <p>
-                  Reading files from within ZIP archives on the local disk does
-                  not work with Google Chrome, if the target file is within a
-                  ZIP archive you need to extract it.
-                </p>
-                <p>
                   Firefox can access files from local directories by default,
                   but this does not work for files that are not beneath the same
                   directory as this HTML page.
