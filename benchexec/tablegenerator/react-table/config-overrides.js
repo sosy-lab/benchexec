@@ -60,13 +60,6 @@ module.exports = {
       config.resolve.alias["@data"] = path.resolve(__dirname, dataPath);
     }
 
-    // Remove unnecessary plugins for Manifest and Service Workers
-    config.plugins = config.plugins.filter(
-      (e) =>
-        e.constructor.name !== "ManifestPlugin" &&
-        e.constructor.name !== "GenerateSW",
-    );
-
     return config;
   },
 
