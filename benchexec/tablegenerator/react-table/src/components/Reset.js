@@ -9,7 +9,7 @@ import React from "react";
 export default class Reset extends React.Component {
   render = () => (
     <button
-      className="reset"
+      className={this.props.className || "reset"}
       onClick={this.props.resetFilters}
       disabled={!this.props.isFiltered}
     >
