@@ -7,9 +7,9 @@
   "private": true,
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.8.7",
-    "@fortawesome/fontawesome-svg-core": "^1.2.27",
-    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@babel/runtime": "^7.9.6",
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/react-fontawesome": "^0.1.9",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -18,7 +18,7 @@
     "react-table": "6.11.4",
     "react-table-hoc-fixed-columns": "^2.3.0",
     "react-vis": "^1.11.7",
-    "yaml": "^1.8.3"
+    "yaml": "^1.9.2"
   },
   "engines": {
     "node": ">=12.0.0"
