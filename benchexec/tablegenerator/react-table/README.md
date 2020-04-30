@@ -16,6 +16,9 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
+Some of the links in the table tab work and point to files
+that allow testing of components like our table-definition viewer.
+
 You are also able to pass an optional `relative path to test data file` to be used instead of the
 default file under `./src/data/data.json`.
 
@@ -46,21 +49,20 @@ docker run --network=host -v $(pwd)/..:$(pwd)/..:rw -w $(pwd) -it node bash
 ## Code Style and Linting
 
 We use [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/)
-for checking code style and best practices:
+for checking code style and best practices.
 
-- `npx eslint src`<br>
-  (use `--fix` to automatically apply fixes)
-- `npx prettier $(find . \( -name build -o -name node_modules -o -name vendor \) -prune -type f -o -name "*.js" -o -name "*.json" -o -name "*.css" -o -name "*.scss") --ignore-path .gitignore --check`<br>
-  (use `--write` to automatically reformat code)
-
+Run `npm run lint` to check the code and `npm run lint:fix` to apply fixes and the code formatter.
 
 ## Utilities
 
-- For upgrading dependencies: [npm-check-updates](https://www.npmjs.com/package/npm-check-updates)<br>
-  Alternative: [npm-check](https://www.npmjs.com/package/npm-check)
+- For viewing outdated dependencies: `npm outdated`
+- Updating dependencies within one major version: `npm update` and `npm update --depth=10` for transitive dependencies
+- Upgrading dependencies across major versions: [npm-check-updates](https://www.npmjs.com/package/npm-check-updates) or [npm-check](https://www.npmjs.com/package/npm-check)
+- Upgrading `react-scripts` needs to be done manually according to their instructions in the [changelog](https://github.com/facebook/create-react-app/releases).
 
 ## Learn More
 
 - [React documentation](https://reactjs.org/)
+- [Documentation of create-react-app and react-scripts](https://create-react-app.dev/) (our build system)
 - [react-table documentation](https://github.com/tannerlinsley/react-table/tree/v6)
 - [react-vis documentation](https://uber.github.io/react-vis/documentation)
