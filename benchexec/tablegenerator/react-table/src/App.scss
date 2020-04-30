@@ -106,6 +106,21 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       display: flex;
       align-items: center;
       padding: 5px;
+      &--reset {
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: none;
+        &:disabled {
+          display: inline-block;
+          background: none;
+          border: none;
+          color: black;
+          font-weight: 600;
+          .hide {
+            display: none;
+          }
+        }
+      }
       &--icon {
         margin-right: 15px;
         margin-left: 10px;

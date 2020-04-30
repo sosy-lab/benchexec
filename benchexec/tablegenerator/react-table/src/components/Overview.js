@@ -130,11 +130,21 @@ export default class Overview extends React.Component {
   };
 
   render() {
+    const reset = (className) => (
+      <Reset
+        className={className}
+        isFiltered={!!this.state.filtered.length}
+        resetFilters={this.resetFilters}
+        filteredCount={this.state.table.length}
+        totalCount={this.originalTable.length}
+      />
+    );
     return (
       <Router>
         <div className="overview">
           <div className="overview-container">
             <FilterBox
+              headerComponent={reset("filterBox--header--reset")}
               tableHeader={this.tableHeader}
               data={this.originalTable}
               tools={this.state.tools}
@@ -156,12 +166,7 @@ export default class Overview extends React.Component {
                   {title} {icon || ""}
                 </Link>
               ))}
-              <Reset
-                isFiltered={!!this.state.filtered.length}
-                resetFilters={this.resetFilters}
-                filteredCount={this.state.table.length}
-                totalCount={this.originalTable.length}
-              />
+              {reset()}
             </div>
             <div className="route-container">
               <Switch>

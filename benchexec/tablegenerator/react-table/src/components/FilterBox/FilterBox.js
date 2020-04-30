@@ -85,7 +85,7 @@ export default class FilterBox extends React.Component {
       >
         <div className="filterBox--header">
           <FontAwesomeIcon icon={faTimes} className="filterBox--header--icon" />
-          Header
+          {this.props.headerComponent}
         </div>
         {this.state.filterable.map((tool, idx) => {
           return (
