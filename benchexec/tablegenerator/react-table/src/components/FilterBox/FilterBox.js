@@ -13,7 +13,6 @@ export default class FilterBox extends React.Component {
     this.state = {
       filterable,
       filters: this.createFiltersFromReactTableStructure(filtered),
-      visible: true,
     };
   }
 
@@ -81,15 +80,13 @@ export default class FilterBox extends React.Component {
   render() {
     return (
       <div
-        className={`filterBox ${this.state.visible ? "" : "filterBox--hidden"}`}
+        className={`filterBox ${this.props.visible ? "" : "filterBox--hidden"}`}
       >
         <div className="filterBox--header">
           <FontAwesomeIcon
             icon={faTimes}
             className="filterBox--header--icon"
-            onClick={() => {
-              this.setState({ visible: false });
-            }}
+            onClick={this.props.hide}
           />
           {this.props.headerComponent}
         </div>

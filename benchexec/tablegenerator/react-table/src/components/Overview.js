@@ -15,8 +15,8 @@ import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
-import Reset from "./Reset.js";
 import classNames from "classnames";
+import FilterInfoButton from "./FilterInfoButton.js";
 import { prepareTableData, getFilterableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -64,7 +64,7 @@ export default class Overview extends React.Component {
       showLinkOverlay: false,
       filtered: [],
       tabIndex: 0,
-
+      filterBoxVisible: false,
       active: (
         menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
@@ -130,9 +130,12 @@ export default class Overview extends React.Component {
   };
 
   render() {
-    const reset = (className) => (
-      <Reset
+    const reset = ({ className, isReset = false, onClick, enabled }) => (
+      <FilterInfoButton
         className={className}
+        showFilterText={isReset}
+        onClick={onClick}
+        enabled={enabled}
         isFiltered={!!this.state.filtered.length}
         resetFilters={this.resetFilters}
         filteredCount={this.state.table.length}
@@ -144,7 +147,10 @@ export default class Overview extends React.Component {
         <div className="overview">
           <div className="overview-container">
             <FilterBox
-              headerComponent={reset("filterBox--header--reset")}
+              headerComponent={reset({
+                className: "filterBox--header--reset",
+                isReset: true,
+              })}
               tableHeader={this.tableHeader}
               data={this.originalTable}
               tools={this.state.tools}
@@ -152,6 +158,10 @@ export default class Overview extends React.Component {
               filterable={this.state.filterable}
               setFilter={this.filterPlotData}
               filtered={this.state.filtered}
+              visible={this.state.filterBoxVisible}
+              hide={() => {
+                this.setState({ filterBoxVisible: false });
+              }}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
@@ -166,7 +176,13 @@ export default class Overview extends React.Component {
                   {title} {icon || ""}
                 </Link>
               ))}
-              {reset()}
+              {reset({
+                className: "reset",
+                enabled: true,
+                onClick: () => {
+                  this.setState({ filterBoxVisible: true });
+                },
+              })}
             </div>
             <div className="route-container">
               <Switch>
