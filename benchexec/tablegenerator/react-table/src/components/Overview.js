@@ -16,8 +16,8 @@ import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
-import { prepareTableData } from "../utils/utils";
 import classNames from "classnames";
+import { prepareTableData, getFilterableData } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
@@ -44,6 +44,7 @@ export default class Overview extends React.Component {
       props.data,
     );
 
+    const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
     this.originalTools = tools;
 
@@ -58,7 +59,7 @@ export default class Overview extends React.Component {
     this.state = {
       tools,
       table,
-
+      filterable,
       showSelectColumns: false,
       showLinkOverlay: false,
       filtered: [],
@@ -105,7 +106,7 @@ export default class Overview extends React.Component {
     });
   };
   filterPlotData = (filter) => {
-    console.log(filter);
+    console.log({ filter });
     this.setState({
       table: this.filteredData,
       filtered: filter,
@@ -138,7 +139,9 @@ export default class Overview extends React.Component {
               data={this.originalTable}
               tools={this.state.tools}
               selectColumn={this.toggleSelectColumns}
-              setFilter={this.setFilter}
+              filterable={this.state.filterable}
+              setFilter={this.filterPlotData}
+              filtered={this.state.filtered}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (

@@ -7,6 +7,75 @@
 
 import React from "react";
 
+const getFilterableData = ({ tools, rows }) => {
+  const mapped = tools.map((tool, idx) => {
+    let statusIdx;
+    const { tool: toolName, date, niceName } = tool;
+    let name = `${toolName} ${date} ${niceName}`;
+    const columns = tool.columns.map((col, idx) => {
+      if (col.type === "status") {
+        statusIdx = idx;
+        return { ...col, categories: {}, statuses: {}, idx };
+      }
+      if (col.type === "text") {
+        return { ...col, distincts: {}, idx };
+      }
+      return { ...col, min: Infinity, max: -Infinity, idx };
+    });
+
+    if (isNil(statusIdx)) {
+      console.log(`Couldn't find any status columns in tool ${idx}`);
+      return undefined;
+    }
+
+    columns[statusIdx] = {
+      ...columns[statusIdx],
+      categories: {},
+      statuses: {},
+    };
+
+    for (const row of rows) {
+      for (const result of row.results) {
+        columns[statusIdx].categories[result.category] = true;
+
+        for (const colIdx in result.values) {
+          const col = result.values[colIdx];
+          const { raw } = col;
+          const filterCol = columns[colIdx];
+
+          if (filterCol.type === "status") {
+            filterCol.statuses[raw] = true;
+          } else if (filterCol.type === "text") {
+            filterCol.distincts[raw] = true;
+          } else {
+            filterCol.min = Math.min(filterCol.min, Number(raw));
+            filterCol.max = Math.max(filterCol.max, Number(raw));
+          }
+        }
+      }
+    }
+
+    return {
+      name,
+      columns: columns.map(({ distincts, categories, statuses, ...col }) => {
+        if (distincts) {
+          return { ...col, distincts: Object.keys(distincts) };
+        }
+        if (categories) {
+          return {
+            ...col,
+            categories: Object.keys(categories),
+            statuses: Object.keys(statuses),
+          };
+        }
+        return col;
+      }),
+    };
+  });
+  console.log({ mapped });
+  return mapped;
+};
+
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
@@ -212,4 +281,5 @@ export {
   setHashSearch,
   setParam,
   stringAsBoolean,
+  getFilterableData,
 };
