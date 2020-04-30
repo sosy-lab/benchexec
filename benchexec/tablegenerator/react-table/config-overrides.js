@@ -46,14 +46,6 @@ module.exports = {
     // For consistency with previous configs
     delete config.output.jsonpFunction;
 
-    // Enable ignore option of eslint config (which is the one that has eslintPath)
-    // to honour our exclusions
-    const isEslintConfig = (e) => e.options.eslintPath;
-    const eslintOptions = config.module.rules
-      .find((r) => r.use && r.use.some(isEslintConfig))
-      .use.find(isEslintConfig).options;
-    eslintOptions.ignore = true;
-
     if (isEnvDevelopment) {
       // Make @data resolve to our dummy data
       const dataPath = process.env.DATA || "src/data/data.json";
