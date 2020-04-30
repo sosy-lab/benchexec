@@ -1,5 +1,7 @@
 import React from "react";
 import FilterContainer from "./FilterContainer";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default class FilterBox extends React.Component {
   constructor(props) {
@@ -11,6 +13,7 @@ export default class FilterBox extends React.Component {
     this.state = {
       filterable,
       filters: this.createFiltersFromReactTableStructure(filtered),
+      visible: true,
     };
   }
 
@@ -77,7 +80,13 @@ export default class FilterBox extends React.Component {
 
   render() {
     return (
-      <div className="filterBox">
+      <div
+        className={`filterBox ${this.state.visible ? "" : "filterBox--hidden"}`}
+      >
+        <div className="filterBox--header">
+          <FontAwesomeIcon icon={faTimes} className="filterBox--header--icon" />
+          Header
+        </div>
         {this.state.filterable.map((tool, idx) => {
           return (
             <FilterContainer

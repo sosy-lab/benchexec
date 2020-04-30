@@ -95,6 +95,24 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     height: 100vh;
     z-index: 9998;
     background-color: white;
+    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
+    transition: all 0.5s ease-in-out;
+    &--hidden {
+      right: -100vw;
+    }
+    &--header {
+      height: 35px;
+      background-color: #88c7ff;
+      display: flex;
+      align-items: center;
+      padding: 5px;
+      &--icon {
+        margin-right: 15px;
+        margin-left: 10px;
+        cursor: pointer;
+        padding: 10px;
+      }
+    }
     &--container {
       display: flex;
       flex-direction: column;
