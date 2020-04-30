@@ -7,6 +7,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+body {
+  overflow-x: hidden;
+}
+
 .App {
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,

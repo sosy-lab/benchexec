@@ -84,7 +84,13 @@ export default class FilterBox extends React.Component {
         className={`filterBox ${this.state.visible ? "" : "filterBox--hidden"}`}
       >
         <div className="filterBox--header">
-          <FontAwesomeIcon icon={faTimes} className="filterBox--header--icon" />
+          <FontAwesomeIcon
+            icon={faTimes}
+            className="filterBox--header--icon"
+            onClick={() => {
+              this.setState({ visible: false });
+            }}
+          />
           {this.props.headerComponent}
         </div>
         {this.state.filterable.map((tool, idx) => {
