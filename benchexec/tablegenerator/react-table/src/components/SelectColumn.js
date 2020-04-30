@@ -21,11 +21,21 @@ export default class SelectColumn extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener("hashchange", this.props.close, false);
+    window.addEventListener(
+      "hashchange",
+      this.props.close,
+      window.history.forward(),
+      false,
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener("hashchange", this.props.close, false);
+    window.removeEventListener(
+      "hashchange",
+      this.props.close,
+      window.history.forward(),
+      false,
+    );
   }
 
   // -------------------------Rendering-------------------------
