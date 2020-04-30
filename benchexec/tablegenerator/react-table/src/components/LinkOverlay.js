@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { isOkStatus } from "../utils/utils";
 import zip from "../vendor/zip.js/index.js";
+import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
@@ -212,7 +213,9 @@ export default class LinkOverlay extends React.Component {
       <ReactModal
         id="modal-container"
         ariaHideApp={false}
-        className={`overlay ${this.state.isSecondLevel ? "second-level" : ""}`}
+        className={classNames("overlay", {
+          "second-level": this.state.isSecondLevel,
+        })}
         isOpen={true}
         onRequestClose={this.props.close}
       >
