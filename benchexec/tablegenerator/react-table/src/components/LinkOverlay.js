@@ -29,6 +29,8 @@ export default class LinkOverlay extends React.Component {
 
   componentDidMount() {
     this.loadContent(this.props.link);
+    window.history.pushState({}, "", "");
+    window.addEventListener("popstate", this.props.close, false);
   }
 
   // Focus modal container when new content is loaded into the modal for accessibility via keyboard
@@ -37,6 +39,10 @@ export default class LinkOverlay extends React.Component {
     if (modalContainer) {
       modalContainer.focus();
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.props.close, false);
   }
 
   isYAMLFile(filePath) {
