@@ -153,9 +153,9 @@
   ],
   "rows": [
     {
-      "href": "results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+      "href": "task_definition.yml",
       "id": [
-        "test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+        "task_definition.yml",
         "unreach-label"
       ],
       "results": [
@@ -197,7 +197,7 @@
       "results": [
         {
           "category": "correct",
-          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.switch_test_default_fallthrough_false-unreach-label.c.log",
+          "href": "https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.logfiles/diskperf_false-unreach-call.i.cil.c.log",
           "values": [
             {
               "raw": "false(reach)"
@@ -233,7 +233,7 @@
       "results": [
         {
           "category": "correct",
-          "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.compoundLiteral_true-unreach-label.c.log",
+          "href": "https://sosy-lab.github.io/benchexec/example-table/predicateAnalysis.2015-12-11_1059.logfiles/ABEl.diskperf_false-unreach-call.i.cil.c.log",
           "values": [
             {
               "raw": "true"

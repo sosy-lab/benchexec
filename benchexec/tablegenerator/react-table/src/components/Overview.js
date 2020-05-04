@@ -15,6 +15,7 @@ import QuantilePlot from "./QuantilePlot.js";
 import LinkOverlay from "./LinkOverlay.js";
 import Reset from "./Reset.js";
 import { prepareTableData } from "../utils/utils";
+import classNames from "classnames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
@@ -131,9 +132,9 @@ export default class Overview extends React.Component {
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
                 <Link
-                  className={`menu-item ${
-                    this.state.active === key ? "selected" : ""
-                  }`}
+                  className={classNames("menu-item", {
+                    selected: this.state.active === key,
+                  })}
                   to={path}
                   key={path}
                   onClick={() => this.setState(() => ({ active: key }))}

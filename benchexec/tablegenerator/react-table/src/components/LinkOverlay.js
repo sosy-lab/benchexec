@@ -10,10 +10,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { isOkStatus } from "../utils/utils";
 import zip from "../vendor/zip.js/index.js";
+import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
 
-const cachedZipFileEntries = {};
+const zipEntriesCache = {};
 
 export default class LinkOverlay extends React.Component {
   constructor(props) {
@@ -21,14 +22,14 @@ export default class LinkOverlay extends React.Component {
     const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
       isYAML,
-      content: `loading file: ${this.props.link}`,
-      currentFile: this.props.link,
+      content: `loading file: ${props.link}`,
+      currentFile: props.link,
       isSecondLevel: false,
     };
   }
 
   componentDidMount() {
-    this.loadContent(this.props.link);
+    this.loadFile(this.props.link);
     window.history.pushState({}, "", "");
     window.addEventListener("popstate", this.props.close, false);
   }
@@ -56,7 +57,7 @@ export default class LinkOverlay extends React.Component {
       isSecondLevel: true,
       content: `loading file: ${newURL}`,
     });
-    this.loadContent(newURL);
+    this.loadFile(newURL);
   };
 
   loadOriginalFile = () => {
@@ -66,7 +67,7 @@ export default class LinkOverlay extends React.Component {
       content: `loading file: ${this.props.link}`,
       error: undefined,
     });
-    this.loadContent(this.props.link);
+    this.loadFile(this.props.link);
   };
 
   loadOriginalFileIfEnter = (e) => {
@@ -75,62 +76,92 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  // 1) Try loading url with normal Ajax request for uncompressed results.
-  // 2) Try loading url from within ZIP archive using HTTP Range header for efficient access
-  //    (this fails for ZIPs on the local disk).
-  // 3) Try loading url from within ZIP archive without Range header.
-  loadContent = async (url) => {
-    console.log("load content", url);
-    this.setState({ currentFile: url });
+  /*
+   * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
+   * 1) AJAX request -> fails for ZIP archives
+   * 2) HTTP Range request for file in ZIP archive -> fails for ZIPs on the local disk
+   * 3) Normal HTTP request for file in ZIP archive -> fails for Google Chrome for ZIPs on the local disk
+   * 4) Manually via XMLHttpRequest
+   */
+  async loadFile(url) {
     if (url) {
+      this.setState({ currentFile: url });
       try {
         const response = await fetch(url);
-        //status 404/403 => error?
         if (isOkStatus(response.status)) {
-          try {
-            const content = await response.text();
-            this.setState({ content });
-          } catch (e) {
-            console.log("Error: Stream not readable", url, e);
-            this.attemptLoadingFromZIP(url);
-          }
+          const content = await response.text();
+          this.setState({ content });
         } else {
-          console.log("Error: Loading file not possible", response);
-          this.attemptLoadingFromZIP(url);
+          this.loadFileFromZip(url);
         }
       } catch (e) {
-        console.log("Error: Resource not found", url, e);
-        this.attemptLoadingFromZIP(url);
+        this.loadFileFromZip(url);
       }
     }
-  };
+  }
 
-  setError = (error) => {
-    this.setState({ error: `${error}` });
-  };
+  /* Loads the file from a ZIP archive and stores the entries in a cache for faster future access. */
+  loadFileFromZip(url) {
+    const decodedUrl = decodeURIComponent(url);
+    const folderSplitterSlash =
+      decodedUrl.lastIndexOf("/") > decodedUrl.lastIndexOf("\\") ? "/" : "\\";
+    const folderSplitPos = decodedUrl.lastIndexOf(folderSplitterSlash);
+    const zipPath = decodedUrl.substring(0, folderSplitPos) + ".zip";
+    const splittedUrl = decodedUrl.split(folderSplitterSlash);
+    const zipFile = `${splittedUrl[splittedUrl.length - 2]}/${
+      splittedUrl[splittedUrl.length - 1]
+    }`;
 
-  loadFileFromZipEntries = (entries, logfile, zipUrl) => {
-    for (let entry of entries) {
-      if (entry.filename.indexOf(logfile) >= 0) {
-        entry.getData(new zip.TextWriter(), (content) =>
-          this.setState({ content }),
-        );
-        return;
-      }
+    if (zipPath in zipEntriesCache) {
+      this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile, zipPath);
+    } else {
+      this.readZipArchive(zipPath, zipFile);
     }
-    this.setError(`Did not find file "${logfile}" in "${zipUrl}"`);
-  };
+  }
 
-  loadFileFromZip = (logZip, logfile, zipUrl) => {
-    logZip.getEntries((entries) => {
-      cachedZipFileEntries[zipUrl] = entries;
-      this.loadFileFromZipEntries(entries, logfile, zipUrl);
-    });
-  };
-
-  attemptLoadingZIPManually(logfile, zipUrl) {
+  /* Tries to read the file from a ZIP archive with a HTTP range request.  */
+  readZipArchive(zipPath, zipFile) {
     try {
-      // This is basically just for Chrome because HTTPReader fails there
+      zip.createReader(
+        new zip.HttpRangeReader(zipPath),
+        (zipReader) => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        (error) => {
+          if (error === "HTTP Range not supported.") {
+            this.readZipArchiveNoHttpRange(zipPath, zipFile);
+          } else {
+            this.setError(
+              `HTTP request for the file "${zipFile}" failed`,
+              error,
+            );
+          }
+        },
+      );
+    } catch (error) {
+      this.setError("ZIP reader could not be initialized", error);
+    }
+  }
+
+  /* Tries to read the file from a ZIP archive with a normal HTTP request.  */
+  readZipArchiveNoHttpRange(zipPath, zipFile) {
+    try {
+      zip.createReader(
+        new zip.HttpReader(zipPath),
+        (zipReader) => this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
+        (error) => {
+          this.readZipArchiveManually(zipPath, zipFile);
+        },
+      );
+    } catch (error) {
+      this.setError("ZIP reader could not be initialized", error);
+    }
+  }
+
+  /*
+   * Loads a file from the zip archive with a HTTP request manually. This should only be necessary
+   * for Google Chrome as a HTTP Reader does not work there.
+   */
+  readZipArchiveManually(zipPath, zipFile) {
+    try {
       const xhr = new XMLHttpRequest();
       xhr.responseType = "arraybuffer";
       xhr.addEventListener(
@@ -138,67 +169,48 @@ export default class LinkOverlay extends React.Component {
         () => {
           zip.createReader(
             new zip.ArrayBufferReader(xhr.response),
-            (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
+            (zipReader) =>
+              this.loadFileFromZipArchive(zipReader, zipFile, zipPath),
             this.setError,
           );
         },
         false,
       );
       xhr.addEventListener("error", this.setError, false);
-      xhr.open("GET", zipUrl);
+      xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
-      this.setError(error);
+      this.setError(`HTTP request for the file "${zipFile}" failed`, error);
     }
   }
 
-  attemptLoadingFromZIP = async (url) => {
-    console.log("Text is not received. Try as zip?", url);
-    const splitPos = url.lastIndexOf("/");
-    const zipUrl = url.substring(0, splitPos) + ".zip";
-    const urlArray = url.split("/");
-    const logfile = decodeURIComponent(
-      `${urlArray[urlArray.length - 2]}/${urlArray[urlArray.length - 1]}`,
-    ); // <folder>/<logfile>
+  loadFileFromZipArchive = (zipReader, zipFile, zipPath) => {
+    zipReader.getEntries((entries) => {
+      zipEntriesCache[zipPath] = entries;
+      this.loadFileFromZipEntries(entries, zipFile, zipPath);
+    });
+  };
 
-    if (zipUrl in cachedZipFileEntries) {
-      this.loadFileFromZipEntries(
-        cachedZipFileEntries[zipUrl],
-        logfile,
-        zipUrl,
+  loadFileFromZipEntries(entries, zipFile, zipPath) {
+    const entry = entries.find((entry) => entry.filename === zipFile);
+    if (entry) {
+      entry.getData(new zip.TextWriter(), (content) =>
+        this.setState({ content }),
       );
     } else {
-      try {
-        zip.createReader(
-          new zip.HttpRangeReader(zipUrl),
-          (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
-          (error) => {
-            if (error === "HTTP Range not supported.") {
-              // try again without HTTP Range header
-              this.setState({
-                content:
-                  `Loading file "${logfile}" ` +
-                  `from ZIP archive "${zipUrl}" without using HTTP Range header.`,
-              });
-              // Try with HttpReader, but this fails in Chrome for local files,
-              // so fall back to a manual XMLHttpRequest.
-              zip.createReader(
-                new zip.HttpReader(zipUrl),
-                (reader) => this.loadFileFromZip(reader, logfile, zipUrl),
-                (error) => {
-                  console.log("Loading ZIP with HttpReader failed", error);
-                  this.attemptLoadingZIPManually(logfile, zipUrl);
-                },
-              );
-            } else {
-              this.setError(error);
-            }
-          },
-        );
-      } catch (error) {
-        this.setError(error);
-      }
+      this.setError(`Could not find the file "${zipFile}" in "${zipPath}"`);
     }
+  }
+
+  /*
+   * Sets the error message of the overlay. In case an error object was provided and the
+   * error object is a plain string, this error object will be set for the message. Otherwise
+   * the simple error message, i.e. the first parameter, will be set.
+   */
+  setError = (errorMsg, errorObj) => {
+    const error =
+      errorObj && typeof errorObj === "string" ? errorObj : errorMsg;
+    this.setState({ error: `${error}` });
   };
 
   render() {
@@ -207,7 +219,9 @@ export default class LinkOverlay extends React.Component {
       <ReactModal
         id="modal-container"
         ariaHideApp={false}
-        className={`overlay ${this.state.isSecondLevel ? "second-level" : ""}`}
+        className={classNames("overlay", {
+          "second-level": this.state.isSecondLevel,
+        })}
         isOpen={true}
         onRequestClose={this.props.close}
       >
@@ -261,11 +275,6 @@ export default class LinkOverlay extends React.Component {
                 <p>
                   If you are using Google Chrome, try launching it with a flag
                   --allow-file-access-from-files.
-                </p>
-                <p>
-                  Reading files from within ZIP archives on the local disk does
-                  not work with Google Chrome, if the target file is within a
-                  ZIP archive you need to extract it.
                 </p>
                 <p>
                   Firefox can access files from local directories by default,
