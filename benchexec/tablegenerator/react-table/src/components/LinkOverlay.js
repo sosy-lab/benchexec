@@ -279,13 +279,20 @@ export default class LinkOverlay extends React.Component {
             {window.location.href.indexOf("file://") === 0 ? (
               <>
                 <p>
-                  If you are using Google Chrome, try launching it with a flag
-                  --allow-file-access-from-files.
+                  If you are using Chrome or a Chrome-based browser, try
+                  launching it with the command-line option{" "}
+                  <code>--allow-file-access-from-files</code>.
                 </p>
                 <p>
-                  Firefox can access files from local directories by default,
-                  but this does not work for files that are not beneath the same
-                  directory as this HTML page.
+                  If you are using Firefox, please open the extended settings by
+                  entering <code>about:config</code> in the URL bar, search for{" "}
+                  <code>privacy.file_unique_origin</code> and set this option to{" "}
+                  <code>false</code> by double-clicking on it (
+                  <a href="https://developer.mozilla.org/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp">
+                    more details
+                  </a>
+                  ). Access to files that are not beneath the same directory as
+                  this HTML page is still forbidden.
                 </p>
               </>
             ) : null}
