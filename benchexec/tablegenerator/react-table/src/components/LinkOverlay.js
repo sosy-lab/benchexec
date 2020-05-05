@@ -30,6 +30,8 @@ export default class LinkOverlay extends React.Component {
 
   componentDidMount() {
     this.loadFile(this.props.link);
+    window.history.pushState({}, "", "");
+    window.addEventListener("popstate", this.props.close, false);
   }
 
   // Focus modal container when new content is loaded into the modal for accessibility via keyboard
@@ -38,6 +40,11 @@ export default class LinkOverlay extends React.Component {
     if (modalContainer) {
       modalContainer.focus();
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.props.close, false);
+    window.removeEventListener("click", this.props.close, false);
   }
 
   isYAMLFile(filePath) {
@@ -207,6 +214,11 @@ export default class LinkOverlay extends React.Component {
     this.setState({ error: `${error}` });
   };
 
+  handlePopState = () => {
+    window.history.back();
+    window.addEventListener("click", this.props.close, false);
+  };
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -217,12 +229,12 @@ export default class LinkOverlay extends React.Component {
           "second-level": this.state.isSecondLevel,
         })}
         isOpen={true}
-        onRequestClose={this.props.close}
+        onRequestClose={() => this.handlePopState()}
       >
         <div className="link-overlay-header-container">
           <FontAwesomeIcon
             icon={faTimes}
-            onClick={this.props.close}
+            onClick={() => this.handlePopState()}
             className="closing"
           />
           {this.state.isSecondLevel ? (

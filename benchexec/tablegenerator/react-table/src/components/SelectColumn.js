@@ -20,6 +20,16 @@ export default class SelectColumn extends React.Component {
     this.selectable = [];
   }
 
+  componentDidMount() {
+    window.history.pushState({}, "", "");
+    window.addEventListener("popstate", this.props.close, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.props.close, false);
+    window.removeEventListener("click", this.props.close, false);
+  }
+
   // -------------------------Rendering-------------------------
   renderRunSets = () => {
     return this.state.list.map((tool, i) => {
@@ -181,6 +191,11 @@ export default class SelectColumn extends React.Component {
     this.setState({ list });
   };
 
+  handlePopState = () => {
+    window.history.back();
+    window.addEventListener("click", this.props.close, false);
+  };
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -188,12 +203,12 @@ export default class SelectColumn extends React.Component {
         ariaHideApp={false}
         className="overlay"
         isOpen={true}
-        onRequestClose={this.props.close}
+        onRequestClose={() => this.handlePopState()}
       >
         <div className="link-overlay-header-container">
           <FontAwesomeIcon
             icon={faTimes}
-            onClick={this.props.close}
+            onClick={() => this.handlePopState()}
             className="closing"
           />
         </div>
@@ -213,7 +228,7 @@ export default class SelectColumn extends React.Component {
           </button>
           <button
             className="btn btn-apply"
-            onClick={this.props.close}
+            onClick={() => this.handlePopState()}
             disabled={!this.state.list.filter((tool) => tool.isVisible).length}
           >
             Apply and close
