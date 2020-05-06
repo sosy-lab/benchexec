@@ -39,5 +39,5 @@ class Tool(benchexec.tools.template.BaseTool):
             + options
             + ["--spec"]
             + [propertyfile or "None"]
-            + [f for f in tasks]
+            + list(tasks)
         )
