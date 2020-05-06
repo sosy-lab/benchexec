@@ -35,9 +35,5 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         return (
-            [executable]
-            + options
-            + ["--spec"]
-            + [propertyfile or "None"]
-            + list(tasks)
+            [executable] + options + ["--spec"] + [propertyfile or "None"] + list(tasks)
         )
