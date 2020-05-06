@@ -17,17 +17,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import benchexec.tools.condtesttools as condtest
+import benchexec.tools.condtest as condtest
 
 
 class Tool(condtest.Tool):
     """
-    This tool instruments the test criteria in the C file, such that a verifier
-    can be used on it.
+    This tool prunes the input file by removing any goal targets not provided in the input.
     url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
-    _exec_path = "bin/instrumenter/instrumenter"
+    _exec_path = "bin/reducer/annotator"
 
     def name(self):
-        return "condtest-instrumenter"
+        return "CondTest Annotator"

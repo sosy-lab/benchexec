@@ -17,7 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import benchexec.tools.condtesttools as condtest
+import benchexec.tools.condtest as condtest
 
 
 class Tool(condtest.Tool):
@@ -26,7 +26,7 @@ class Tool(condtest.Tool):
     url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
-    _exec_path = "bin/reducer/annotator"
+    _exec_path = "bin/reducer/pruner"
 
     def name(self):
-        return "condtest-annotator"
+        return "CondTest Pruner"

@@ -17,16 +17,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import benchexec.tools.condtesttools as condtest
+import benchexec.tools.template
+import benchexec.util as util
 
 
-class Tool(condtest.Tool):
+class Tool(benchexec.tools.template.BaseTool):
     """
-    This tool prunes the input file by removing any goal targets not provided in the input.
+    An abstract class for the conditonal-testing tools.
     url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
-    _exec_path = "bin/reducer/pruner"
+    def executable(self):
+        return util.find_executable(self._exec_path)
 
-    def name(self):
-        return "condtest-pruner"
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        return (
+            [executable]
+            + options
+            + ["--spec"]
+            + [propertyfile or "None"]
+            + [f for f in tasks]
+        )
