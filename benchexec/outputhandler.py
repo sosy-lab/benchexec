@@ -52,7 +52,7 @@ UNDERLINE = "\033[4m{0}\033[0m"
 COLOR_DIC = collections.defaultdict(lambda: COLOR_DEFAULT)
 TERMINAL_TITLE = ""
 
-if sys.stdout.isatty():
+if util.should_color_output():
     COLOR_DIC.update(
         {
             result.CATEGORY_CORRECT: COLOR_GREEN,
@@ -62,6 +62,7 @@ if sys.stdout.isatty():
             result.CATEGORY_MISSING: COLOR_DEFAULT,
         }
     )
+if sys.stdout.isatty():
     _term = os.environ.get("TERM", "")
     if _term.startswith(("xterm", "rxvt")):
         TERMINAL_TITLE = "\033]0;Task {0}\007"

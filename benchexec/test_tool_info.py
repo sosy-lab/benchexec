@@ -29,6 +29,7 @@ import sys
 import benchexec
 import benchexec.benchexec
 from benchexec import model
+from benchexec import util
 import benchexec.tools.template
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -38,12 +39,12 @@ COLOR_GREEN = "\033[32;1m"
 COLOR_ORANGE = "\033[33;1m"
 COLOR_MAGENTA = "\033[35;1m"
 
-COLOR_DEFAULT = "\033[m"
-COLOR_DESCRIPTION = COLOR_MAGENTA
-COLOR_VALUE = COLOR_GREEN
-COLOR_WARNING = COLOR_RED
-
-if not sys.stdout.isatty():
+if util.should_color_output():
+    COLOR_DEFAULT = "\033[m"
+    COLOR_DESCRIPTION = COLOR_MAGENTA
+    COLOR_VALUE = COLOR_GREEN
+    COLOR_WARNING = COLOR_RED
+else:
     COLOR_DEFAULT = ""
     COLOR_DESCRIPTION = ""
     COLOR_VALUE = ""

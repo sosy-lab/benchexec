@@ -650,14 +650,24 @@ def read_local_time():
     return datetime.datetime.now(datetime.timezone.utc).astimezone()
 
 
+def should_color_output():
+    """Determine whether we want colored output to stdout."""
+    # cf. https://no-color.org/
+    return sys.stdout.isatty() and "NO_COLOR" not in os.environ
+
+
 def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
     """Setup the logging framework with a basic configuration"""
-    try:
-        import coloredlogs
+    if should_color_output():
+        try:
+            import coloredlogs
 
-        coloredlogs.install(fmt=fmt, level=level)
-    except ImportError:
-        logging.basicConfig(format=fmt, level=level)
+            coloredlogs.install(fmt=fmt, level=level)
+            return
+        except ImportError:
+            pass
+
+    logging.basicConfig(format=fmt, level=level)
 
 
 def _debug_current_process(sig, current_frame):
