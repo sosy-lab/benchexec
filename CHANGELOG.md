@@ -1,5 +1,51 @@
 # BenchExec Changelog
 
+## BenchExec 2.6
+
+This release brings several improvements for the new kind of HTML tables
+produced by `table-generator`, in particular:
+
+- Add hash routing, i.e., the possibility to navigate to certain parts
+  of the application directly by adding a suffix to the URL.
+  For example, opening `...table.html#/table` will directly open the table.
+  While navigating through the application, the URL automatically adjusts.
+  This also means that it is possible to use the "Back" button of the browser
+  for going back to previously opened tabs or for closing an overlay window.
+  Thanks @DennisSimon for this!
+- Make references to files in task-definition files clickable.
+  When clicking on a cell in the first column of table,
+  it shows the task-definition file in an overlay.
+  Now the file's YAML content is parsed and links to input files are added.
+  Thanks @lachnerm for this!
+- Fix filtering of negative values in half-open intervals.
+- More tooltips and hover effects on table headers to improve usability.
+- The table tab now appropriately adjusts if the browser window is resized.
+- Fix legend of quantile plot if some columns are empty/missing,
+  and show disabled columns in gray.
+- Fix scatter plot if not all data points have valid values.
+- Fix layout of column-selection dialog in case not all columns are present
+  for all run sets.
+- Fix scrolling behavior of close button of overlay windows.
+- In case the property is the same for all tasks of a table,
+  it was not shown so far in the table. Now we show it on the summary tab.
+- Improve position of scroll bars across all tabs.
+
+There are also a few changes in other parts of BenchExec:
+
+- Fix mount problems in container mode if mount points with unusual characters
+  (like `:`) or bind mounts over files exist.
+  The latter is for example relevant when nesting containers
+  (inside another BenchExec or Docker container).
+- Several new tool-info modules and small improvements to existing ones.
+- `runexec` now creates parent directories of output files if necessary.
+- `table-generator` now works if environment variable `LANG` is missing.
+- `table-generator` should now work on Windows.
+- It is possible to turn off colored output on stdout by setting the
+  environment variable `NO_COLOR` (cf. https://no-color.org/).
+- In the `contrib` folder, we now provide a script for generating
+  task-definition files in YAML format for old-style tasks.
+
+
 ## BenchExec 2.5.1
 
 This release does not contain any changes to BenchExec itself,

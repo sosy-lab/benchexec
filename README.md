@@ -87,6 +87,7 @@ Contributors:
 - [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
+- [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
 - [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
@@ -96,6 +97,7 @@ Contributors:
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
+- [Martin Yankov](https://github.com/marto97)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
