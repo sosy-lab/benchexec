@@ -513,6 +513,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       left: 0;
       height: 30px;
       padding: 10px 10px 0;
+
+      // This container must not receive pointer events, otherwise reaching
+      // through to link-overlay-text does not work. But all UI elements
+      // in it need to be clickable.
+      pointer-events: none;
+      & > * {
+        pointer-events: auto;
+      }
     }
 
     &-back {
