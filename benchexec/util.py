@@ -315,9 +315,9 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
         return fallback
 
 
-def common_base_dir(l):
+def common_base_dir(paths):
     # os.path.commonprefix returns the common prefix, not the common directory
-    return os.path.dirname(os.path.commonprefix(l))
+    return os.path.dirname(os.path.commonprefix(paths))
 
 
 def relative_path(destination, start):

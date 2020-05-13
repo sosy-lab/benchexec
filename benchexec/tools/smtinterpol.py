@@ -36,7 +36,9 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
             self.cmdline(executable, ["-version"], []), stderr=subprocess.PIPE
         ).communicate()[1]
         stderr = util.decode_to_string(stderr)
-        line = next(l for l in stderr.splitlines() if l.startswith("SMTInterpol"))
+        line = next(
+            line for line in stderr.splitlines() if line.startswith("SMTInterpol")
+        )
         line = line.replace("SMTInterpol", "")
         return line.strip()
 

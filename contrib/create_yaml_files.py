@@ -132,16 +132,15 @@ if __name__ == "__main__":
     for verification_set in verification_set_files:
         sets_to_tasks[verification_set] = []
         with open(verification_set, "r") as inp:
-            for line in (l.strip() for l in inp.readlines()):
+            for line in inp.readlines():
+                line = line.strip()
                 if not line:
                     continue
                 if "*" in line:
                     sets_to_tasks[verification_set].append("## " + line)
-                for l in sorted(
-                    l for l in glob.iglob(line) if CANDIDATE_REGEX.match(l)
-                ):
-                    all_tasks.add(l)
-                    sets_to_tasks[verification_set].append(l)
+                for task in sorted(filter(CANDIDATE_REGEX.match, glob.iglob(line))):
+                    all_tasks.add(task)
+                    sets_to_tasks[verification_set].append(task)
 
     sets_to_tasks[DUMMY_SET] = other_files
     all_tasks = all_tasks.union(set(other_files))
@@ -275,4 +274,4 @@ if __name__ == "__main__":
             remaining -= set(globbed_tasks)
         if task_set != DUMMY_SET:
             with open(task_set, "w+") as outp:
-                outp.writelines(l + "\n" for l in new_content)
+                outp.writelines(line + "\n" for line in new_content)
