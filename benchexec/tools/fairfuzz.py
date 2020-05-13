@@ -35,11 +35,8 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def version(self, executable):
-        stdout = self._version_from_tool(executable)
-        line = next(l for l in stdout.splitlines() if l.startswith("FairFuzz"))
-        line = line.rstrip()
-        version_number = line.split("Version ")[1]
-        return version_number
+        version = self._version_from_tool(executable, line_prefix="FairFuzz")
+        return version.split("Version ")[1]
 
     def name(self):
         return "FairFuzz"

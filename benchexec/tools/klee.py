@@ -54,11 +54,8 @@ class Tool(benchexec.tools.template.BaseTool):
           Default target: x86_64-pc-linux-gnu
           Host CPU: bdver1
         """
-        stdout = self._version_from_tool(executable)
-        line = next(l for l in stdout.splitlines() if l.startswith("KLEE"))
-        line = line.replace("KLEE", "")
-        line = line.split("(")[0]
-        return line.strip()
+        version = self._version_from_tool(executable, line_prefix="KLEE")
+        return version.split("(")[0].strip()
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         if propertyfile:

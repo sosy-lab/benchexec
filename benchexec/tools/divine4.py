@@ -53,12 +53,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable(self.BINS[0])
 
     def version(self, executable):
-        output = self._version_from_tool(executable, ignore_stderr=True)
-        for l in output.splitlines():
-            k, v = l.split(":", maxsplit=1)
-            if k == "version":
-                return v.strip()
-        return ""
+        return self._version_from_tool(
+            executable, ignore_stderr=True, line_prefix="version:"
+        )
 
     def name(self):
         """

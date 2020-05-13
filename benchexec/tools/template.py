@@ -113,7 +113,12 @@ class BaseTool(object):
         return ""
 
     def _version_from_tool(
-        self, executable, arg="--version", use_stderr=False, ignore_stderr=False
+        self,
+        executable,
+        arg="--version",
+        use_stderr=False,
+        ignore_stderr=False,
+        line_prefix=None,
     ):
         """
         Get version of a tool by executing it with argument "--version"
@@ -121,6 +126,7 @@ class BaseTool(object):
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param arg: an argument to pass to the tool to let it print its version
         @param use_stderr: True if the tool prints version on stderr, False for stdout
+        @param line_prefix: if given, search line with this prefix and return only the rest of this line
         @return a (possibly empty) string of output of the tool
         """
         try:
@@ -149,7 +155,16 @@ class BaseTool(object):
                 )
             )
             return ""
-        return util.decode_to_string(stderr if use_stderr else stdout).strip()
+
+        output = util.decode_to_string(stderr if use_stderr else stdout).strip()
+        if line_prefix:
+            matches = (
+                line[len(line_prefix) :].strip()
+                for line in output.splitlines()
+                if line.startswith(line_prefix)
+            )
+            output = next(matches, "")
+        return output
 
     def name(self):
         """
