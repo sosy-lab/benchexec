@@ -288,21 +288,12 @@ class TaskId(collections.namedtuple("TaskId", "name property runset")):
         return "'" + ", ".join(s for s in self if s) + "'"
 
 
-def get_task_id(task, base_path_or_url):
-    """
-    Return a unique identifier for a given task.
-    @param task: the XML element that represents a task
-    @return a TaskId instance
-    """
-    name = task.get("name")
-    if base_path_or_url:
-        if util.is_url(base_path_or_url):
-            name = urllib.parse.urljoin(base_path_or_url, name)
-        else:
-            name = os.path.normpath(
-                os.path.join(os.path.dirname(base_path_or_url), name)
-            )
-    return TaskId(name, task.get("properties"), task.get("runset"))
+def normalize_path(path, base_path_or_url):
+    """Returns a normalized form of path, interpreted relative to base_path_or_url"""
+    if util.is_url(base_path_or_url):
+        return urllib.parse.urljoin(base_path_or_url, path)
+    else:
+        return os.path.normpath(os.path.join(os.path.dirname(base_path_or_url), path))
 
 
 loaded_tools = {}
@@ -851,6 +842,23 @@ class RunResult(object):
                     )
                     return []
 
+        sourcefiles = sourcefileTag.get("files")
+        if sourcefiles:
+            if not sourcefiles.startswith("["):
+                raise AssertionError("Unknown format for files tag:")
+            sourcefiles_exist = any(s.strip() for s in sourcefiles[1:-1].split(","))
+        else:
+            sourcefiles_exist = False
+
+        task_name = sourcefileTag.get("name")
+        if sourcefiles_exist:
+            # task_name is a path
+            task_name = normalize_path(task_name, result_file_or_url)
+
+        task_id = TaskId(
+            task_name, sourcefileTag.get("properties"), sourcefileTag.get("runset")
+        )
+
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
         if not category:
@@ -888,22 +896,8 @@ class RunResult(object):
                 value = str(score)
             values.append(value)
 
-        sourcefiles = sourcefileTag.get("files")
-        if sourcefiles:
-            if sourcefiles.startswith("["):
-                sourcefileList = [
-                    s.strip() for s in sourcefiles[1:-1].split(",") if s.strip()
-                ]
-                sourcefiles_exist = True if sourcefileList else False
-            else:
-                raise AssertionError("Unknown format for files tag:")
-        else:
-            sourcefiles_exist = False
-
         return RunResult(
-            get_task_id(
-                sourcefileTag, result_file_or_url if sourcefiles_exist else None
-            ),
+            task_id,
             status,
             category,
             score,
