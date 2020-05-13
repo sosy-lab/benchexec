@@ -858,6 +858,7 @@ class RunResult(object):
         task_id = TaskId(
             task_name, sourcefileTag.get("properties"), sourcefileTag.get("runset")
         )
+        prop, _ = get_property_of_task(task_id)
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
@@ -867,9 +868,9 @@ class RunResult(object):
             else:  # probably everything is missing, special category for tables
                 category = "aborted"
 
-        score = result.score_for_task(
-            sourcefileTag.get("properties", "").split(), category, status
-        )
+        score = None
+        if prop:
+            score = prop.compute_score(category, status)
         logfileLines = None
 
         values = []

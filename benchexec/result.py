@@ -425,16 +425,6 @@ def _svcomp_score(category, result):
         return _SCORE_UNKNOWN
 
 
-def score_for_task(properties, category, result):
-    """
-    Return the possible score of task, depending on whether the result is correct or not.
-    """
-    assert result is not None
-    if properties and Property.create_from_names(properties).is_svcomp:
-        return _svcomp_score(category, result)
-    return None
-
-
 def get_result_classification(result):
     """
     Classify the given result into "true" (property holds),

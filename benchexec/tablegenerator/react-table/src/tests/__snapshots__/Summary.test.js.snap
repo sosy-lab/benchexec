@@ -1587,7 +1587,7 @@ exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={0}
+         dangerouslySetInnerHTML={-126}
         />
        </div>
        <div
