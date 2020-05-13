@@ -222,7 +222,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .mainTable {
   a {
     text-decoration: none;
-    display: block;
+    display: inline-block;
+    margin: 0 10px; 
   }
   a:hover {
     background-color: $hover-color;
