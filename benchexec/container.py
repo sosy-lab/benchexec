@@ -93,7 +93,7 @@ root:x:0:
 benchexec:x:{gid}:
 nogroup:x:65534:
 """.format(
-    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
+    gid=CONTAINER_GID
 )
 
 CONTAINER_ETC_HOSTS = """
