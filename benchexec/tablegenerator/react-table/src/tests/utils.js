@@ -1,9 +1,10 @@
-/* SPDX-License-Identifier: Apache-2.0
- *
- * BenchExec is a framework for reliable benchmarking.
- * This file is part of BenchExec.
- * Copyright (C) Dirk Beyer. All rights reserved.
- */
+// This file is part of BenchExec, a framework for reliable benchmarking:
+// https://github.com/sosy-lab/benchexec
+//
+// SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import React from "react";
 import ReactDOM from "react-dom";
 import renderer from "react-test-renderer";
