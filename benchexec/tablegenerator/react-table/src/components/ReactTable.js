@@ -66,8 +66,6 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default class Table extends React.Component {
   constructor(props) {
     super(props);
-
-    this.data = this.props.data;
     this.state = {
       fixed: true,
     };
@@ -113,7 +111,7 @@ export default class Table extends React.Component {
         if (!columnFilter(tool, column)) {
           return undefined;
         }
-        const values = this.data
+        const values = this.props.data
           .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
           .filter(Boolean);
         return [...new Set(values)].sort();
@@ -169,6 +167,7 @@ export default class Table extends React.Component {
           );
         },
         filterMethod: (filter, row, column) => {
+          return true;
           const id = filter.pivotId || filter.id;
           return row[id].some((v) => v && v.includes(filter.value));
         },
@@ -207,18 +206,7 @@ export default class Table extends React.Component {
       );
     },
     sortMethod: textSortMethod,
-    filterMethod: (filter, row) => {
-      const cellValue = getRawOrDefault(row[filter.id]);
-      if (!filter.value || filter.value === "all ") {
-        return true;
-      } else if (filter.value.endsWith(" ")) {
-        // category filters are marked with space at end
-        const category = row._original.results[runSetIdx].category;
-        return category === filter.value.trim();
-      } else {
-        return filter.value === cellValue;
-      }
-    },
+    filterMethod: () => true,
     Filter: ({ filter, onChange }) => {
       const categoryValues = this.categoryValues[runSetIdx][columnIdx];
       return (
@@ -275,9 +263,8 @@ export default class Table extends React.Component {
           toggleLinkOverlay={this.props.toggleLinkOverlay}
         />
       ),
-      filterMethod: isNumericColumn(column)
-        ? applyNumericFilter
-        : applyTextFilter,
+      filterMethod:
+        true || isNumericColumn(column) ? applyNumericFilter : applyTextFilter,
       Filter: (filter) => (
         <FilterInputField numeric={isNumericColumn(column)} {...filter} />
       ),
@@ -295,7 +282,7 @@ export default class Table extends React.Component {
     return (
       <div className="mainTable">
         <ReactTableFixedColumns
-          data={this.data}
+          data={this.props.data}
           filterable={true}
           filtered={this.props.filtered}
           columns={[this.createTaskIdColumn()].concat(resultColumns)}
@@ -304,11 +291,10 @@ export default class Table extends React.Component {
           className="-highlight"
           minRows={0}
           onFilteredChange={(filtered) => {
-            this.props.filterPlotData(filtered);
+            this.props.filterPlotData(filtered, true);
           }}
         >
-          {(state, makeTable, instance) => {
-            this.props.setFilter(state.sortedData);
+          {(_, makeTable) => {
             return makeTable();
           }}
         </ReactTableFixedColumns>

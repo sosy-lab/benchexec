@@ -114,7 +114,7 @@ export default class Overview extends React.Component {
       return row._original;
     });
   };
-  filterPlotData = (filter, runFilterLogic = false) => {
+  filterPlotData = (filter, runFilterLogic = true) => {
     console.log({ filter });
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
@@ -212,7 +212,7 @@ export default class Overview extends React.Component {
                 <Route path="/table">
                   <Table
                     tableHeader={this.tableHeader}
-                    data={this.originalTable}
+                    data={this.state.table}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
                     setFilter={this.setFilter}

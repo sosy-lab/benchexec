@@ -156,7 +156,7 @@ const isOkStatus = (status) => {
 
 const buildMatcher = (filters) =>
   filters.reduce((acc, { id, value }) => {
-    if (isNil(value)) {
+    if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
       return acc;
     }
     const [tool, , columnIdx] = id.split("_");
@@ -180,6 +180,7 @@ const buildMatcher = (filters) =>
   }, {});
 
 const applyMatcher = (matcher) => (data) => {
+  console.log({ matcher });
   return data.filter((row) => {
     for (const tool in matcher) {
       for (const column in matcher[tool]) {
