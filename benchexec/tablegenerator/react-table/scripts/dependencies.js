@@ -31,7 +31,12 @@ checker.init(
     start: ".",
     production: true,
     excludePrivatePackages: true,
-    onlyAllow: "BSD-3-Clause; CC-BY-4.0; ISC; MIT; Zlib",
+    // The following is the list of currently allowed licenses for bundled code.
+    // We can add other free licenses, but must adjust the licences for
+    // build/vendors.min* in ../../../.reuse/dep5, the linkification code in
+    // src/components/Info.js and setup.py accordingly,
+    // and run "reuse download --all".
+    onlyAllow: "BSD-3-Clause; CC-BY-4.0; ISC; MIT",
     customFormat: {
       name: "",
       version: "",

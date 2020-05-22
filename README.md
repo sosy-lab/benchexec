@@ -71,6 +71,15 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
 
+### License and Copyright
+
+BenchExec is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0),
+copyright [Dirk Beyer](https://www.sosy-lab.org/people/beyer/).
+Exceptions are some tool-info modules
+and third-party code that is bundled in the HTML tables,
+which are available under several other free licenses
+(cf. [folder `LICENSES`](https://github.com/sosy-lab/benchexec/tree/master/LICENSES)).
+
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
