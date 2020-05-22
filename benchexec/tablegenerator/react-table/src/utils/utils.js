@@ -154,12 +154,24 @@ const isOkStatus = (status) => {
   return status === 0 || status === 200;
 };
 
+const omit = (keys, data) => {
+  const newKeys = Object.keys(data).filter((key) => !keys.includes(key));
+  return newKeys.reduce((acc, key) => (acc[key] = data[key]), {});
+};
+
 const buildMatcher = (filters) =>
   filters.reduce((acc, { id, value }) => {
     if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
       return acc;
     }
     const [tool, , columnIdx] = id.split("_");
+    if (value === "diff") {
+      if (!acc.diff) {
+        acc.diff = [];
+      }
+      acc.diff.push({ col: columnIdx });
+      return acc;
+    }
     if (!acc[tool]) {
       acc[tool] = {};
     }
@@ -181,8 +193,24 @@ const buildMatcher = (filters) =>
 
 const applyMatcher = (matcher) => (data) => {
   console.log({ matcher });
-  return data.filter((row) => {
-    for (const tool in matcher) {
+  let diffd = [...data];
+  if (matcher.diff) {
+    diffd = diffd.filter((row) => {
+      for (const { col } of matcher.diff) {
+        const vals = {};
+        for (const tool of row.results) {
+          const val = tool.values[col].raw;
+          if (vals[val]) {
+            return false;
+          }
+          vals[val] = true;
+        }
+      }
+      return true;
+    });
+  }
+  return diffd.filter((row) => {
+    for (const tool in omit(["diff"], matcher)) {
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
