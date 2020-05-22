@@ -63,6 +63,7 @@ export default class FilterBox extends React.Component {
         })
         .flat()
         .filter((i) => i !== null && i !== undefined),
+      true,
     );
   }
 

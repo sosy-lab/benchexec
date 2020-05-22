@@ -17,7 +17,12 @@ import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
-import { prepareTableData, getFilterableData } from "../utils/utils";
+import {
+  prepareTableData,
+  getFilterableData,
+  buildMatcher,
+  applyMatcher,
+} from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
@@ -99,14 +104,22 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Filter-----------------------
-  setFilter = (filteredData) => {
+  setFilter = (filteredData, raw = false) => {
     console.log({ filteredData });
+    if (raw) {
+      this.filteredData = filteredData;
+      return;
+    }
     this.filteredData = filteredData.map((row) => {
       return row._original;
     });
   };
-  filterPlotData = (filter) => {
+  filterPlotData = (filter, runFilterLogic = false) => {
     console.log({ filter });
+    if (runFilterLogic) {
+      const matcher = buildMatcher(filter);
+      this.setFilter(applyMatcher(matcher)(this.originalTable), true);
+    }
     this.setState({
       table: this.filteredData,
       filtered: filter,
