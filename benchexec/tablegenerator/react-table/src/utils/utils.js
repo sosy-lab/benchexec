@@ -163,14 +163,19 @@ const buildMatcher = (filters) =>
     if (!acc[tool]) {
       acc[tool] = {};
     }
+    let filter;
     if (value.includes(":")) {
       let [minV, maxV] = value.split(":");
       minV = minV === "" ? -Infinity : Number(minV);
       maxV = maxV === "" ? Infinity : Number(maxV);
-      acc[tool][columnIdx] = { min: minV, max: maxV };
-      return acc;
+      filter = { min: minV, max: maxV };
+    } else {
+      filter = { value };
     }
-    acc[tool][columnIdx] = { value };
+    if (!acc[tool][columnIdx]) {
+      acc[tool][columnIdx] = [];
+    }
+    acc[tool][columnIdx].push(filter);
     return acc;
   }, {});
 
@@ -179,19 +184,21 @@ const applyMatcher = (matcher) => (data) => {
     for (const tool in matcher) {
       let rowPass = true;
       for (const column in matcher[tool]) {
-        const { value, min, max } = matcher[tool][column];
+        let columnPass = false;
+        for (const filter of matcher[tool][column]) {
+          const { value, min, max } = filter;
 
-        if (!isNil(min) && !isNil(max)) {
-          const num = Number(row.results[tool].values[column].raw);
-          if (num < min || num > max) {
-            rowPass = false;
-            break;
+          if (!isNil(min) && !isNil(max)) {
+            const num = Number(row.results[tool].values[column].raw);
+            columnPass = columnPass || (num >= min && num <= max);
+          } else {
+            columnPass =
+              columnPass || value === row.results[tool].values[column].raw;
           }
-        } else {
-          if (row.results[tool].values[column].raw !== value) {
-            rowPass = false;
-            break;
-          }
+        }
+        if (!columnPass) {
+          rowPass = false;
+          break;
         }
       }
       if (!rowPass) {
