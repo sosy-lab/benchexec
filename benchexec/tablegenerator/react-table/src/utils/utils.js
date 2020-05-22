@@ -182,7 +182,6 @@ const buildMatcher = (filters) =>
 const applyMatcher = (matcher) => (data) => {
   return data.filter((row) => {
     for (const tool in matcher) {
-      let rowPass = true;
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
@@ -195,16 +194,22 @@ const applyMatcher = (matcher) => (data) => {
             columnPass =
               columnPass || value === row.results[tool].values[column].raw;
           }
+
+          if (columnPass) {
+            // as multiple values of the same column are OR connected,
+            // we can abort if we pass since the result will always be true.
+            break;
+          }
         }
         if (!columnPass) {
-          rowPass = false;
-          break;
+          // values of the same column are OR connected
+          // multiple columns in the same row are AND connected
+          // if the matcher fails for one column, the whole row fails
+          return false;
         }
       }
-      if (!rowPass) {
-        return false;
-      }
     }
+    // all filter requirements were satisfied
     return true;
   });
 };
