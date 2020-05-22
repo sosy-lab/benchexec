@@ -70,6 +70,8 @@ class StatAccumulator(object):
         self.walltime_values.append(extract_walltime(result))
 
     def to_latex(self, name_parts):
+        if not self.cputime_values or not self.walltime_values:
+            return ""
         cputime_stats = StatValue.from_list(self.cputime_values)
         walltime_stats = StatValue.from_list(self.walltime_values)
         assert len(name_parts) <= 4
