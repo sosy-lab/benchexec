@@ -154,6 +154,53 @@ const isOkStatus = (status) => {
   return status === 0 || status === 200;
 };
 
+const buildMatcher = (filters) =>
+  filters.reduce((acc, { id, value }) => {
+    if (isNil(value)) {
+      return acc;
+    }
+    const [tool, , columnIdx] = id.split("_");
+    if (!acc[tool]) {
+      acc[tool] = {};
+    }
+    if (value.includes(":")) {
+      let [minV, maxV] = value.split(":");
+      minV = minV === "" ? -Infinity : Number(minV);
+      maxV = maxV === "" ? Infinity : Number(maxV);
+      acc[tool][columnIdx] = { min: minV, max: maxV };
+      return acc;
+    }
+    acc[tool][columnIdx] = { value };
+    return acc;
+  }, {});
+
+const applyMatcher = (matcher) => (data) => {
+  return data.filter((row) => {
+    for (const tool in matcher) {
+      let rowPass = true;
+      for (const column in matcher[tool]) {
+        const { value, min, max } = matcher[tool][column];
+
+        if (!isNil(min) && !isNil(max)) {
+          const num = Number(row.results[tool].values[column].raw);
+          if (num < min || num > max) {
+            rowPass = false;
+            break;
+          }
+        } else {
+          if (row.results[tool].values[column].raw !== value) {
+            rowPass = false;
+            break;
+          }
+        }
+      }
+      if (!rowPass) {
+        return false;
+      }
+    }
+    return true;
+  });
+};
 // Best-effort attempt for calculating a meaningful column width
 const determineColumnWidth = (column, min_width, max_width) => {
   let width = column.max_width; // number of chars in column
@@ -282,4 +329,6 @@ export {
   setParam,
   stringAsBoolean,
   getFilterableData,
+  buildMatcher,
+  applyMatcher,
 };
