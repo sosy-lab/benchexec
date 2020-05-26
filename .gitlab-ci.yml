@@ -150,6 +150,16 @@ javascript-eslint:
       - "benchexec/tablegenerator/react-table/node_modules"
 
 
+# check license declarations etc.
+reuse:
+  stage: test
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  script:
+    - reuse lint
+
+
 # Build Docker images
 # following this guideline: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
 .build-docker:
