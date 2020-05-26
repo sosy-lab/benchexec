@@ -73,7 +73,7 @@ pushd "$TEMP3/benchexec"
 pip install -e "."
 pip install 'wheel>=0.32.0' 'setuptools>=42.0.0'
 python setup.py nosetests
-python setup.py sdist bdist_egg bdist_wheel
+python setup.py sdist bdist_wheel
 popd
 deactivate
 cp "$TEMP3/benchexec/dist/"* "$DIST_DIR"

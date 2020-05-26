@@ -84,7 +84,7 @@ please raise an issue.
  * In a clean checkout and in a virtual environment with Python 3 (as described above),
    create the release archives:
 
-        python3 setup.py sdist bdist_egg bdist_wheel
+        python3 setup.py sdist bdist_wheel
 
  * Sign the files and upload them to PyPi inside the build directory:
 

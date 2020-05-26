@@ -65,12 +65,12 @@ To do so, simply use the `runexec` command in your benchmarking framework
 as a wrapper around the actual command, and pass the appropriate command-line flags
 for resource limits and read the resource measurements from the output.
 If you want to bundle BenchExec with your framework,
-you only need to use the `.egg` file for BenchExec,
+you only need to use the `.whl` file for BenchExec,
 no external dependencies are required.
-You can also execute `runexec` directly from the `.egg` file with the following command
+You can also execute `runexec` directly from the `.whl` file with the following command
 (no separate start script or installation is necessary):
 
-    PYTHONPATH=path/to/BenchExec.egg python3 -m benchexec.runexecutor ...
+    PYTHONPATH=path/to/BenchExec.whl python3 -m benchexec.runexecutor ...
 
 From within Python, BenchExec can be used to execute a command as in the following example:
 
