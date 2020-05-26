@@ -57,7 +57,6 @@ setuptools.setup(
     packages=["benchexec", "benchexec.tablegenerator", "benchexec.tools"],
     package_data={
         "benchexec.tablegenerator": [
-            "template*",
             "react-table/build/*.min.js",
             "react-table/build/*.min.css",
         ]
