@@ -39,7 +39,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sosy-lab/benchexec/",
-    license="Apache-2.0 AND BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC",
+    license="Apache-2.0 AND BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC AND LicenseRef-BSD-3-Clause-CMU",
     keywords="benchmarking resource measurement",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

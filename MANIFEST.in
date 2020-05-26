@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 include *.md
-include LICENSE
 include benchexec/tablegenerator/template*
 recursive-include benchexec/tablegenerator/react-table/build *.min.js
 recursive-include benchexec/tablegenerator/react-table/build *.min.css
