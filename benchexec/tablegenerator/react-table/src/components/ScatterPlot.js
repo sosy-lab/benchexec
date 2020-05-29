@@ -227,15 +227,9 @@ export default class ScatterPlot extends React.Component {
   };
   toggleCorrectResults = () => {
     setParam({ correct: !this.state.correct });
-    this.setState((prevState) => ({
-      correct: !prevState.correct,
-    }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState((prevState) => ({
-      linear: !prevState.linear,
-    }));
   };
 
   extractAxisInfoByName = (val, axis) => {
@@ -255,13 +249,9 @@ export default class ScatterPlot extends React.Component {
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
-    this.setState(this.extractAxisInfoByName(ev.target.value, axis));
   };
   handleLine = ({ target }) => {
     setParam({ line: target.value });
-    this.setState({
-      line: target.value,
-    });
   };
 
   render() {

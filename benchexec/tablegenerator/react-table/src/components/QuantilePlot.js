@@ -307,30 +307,15 @@ export default class QuantilePlot extends React.Component {
 
   handleColumn = (ev) => {
     setParam({ column: ev.target.value });
-    this.setState({
-      selection: ev.target.value,
-      isValue: this.props.tools.some((tool) =>
-        tool.columns.some((value) => value.display_title === ev.target.value),
-      ),
-    });
   };
   toggleQuantile = () => {
     setParam({ quantile: !this.state.quantile });
-    this.setState((prevState) => ({
-      quantile: !prevState.quantile,
-    }));
   };
   toggleCorrect = () => {
     setParam({ correct: !this.state.correct });
-    this.setState((prevState) => ({
-      correct: !prevState.correct,
-    }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState((prevState) => ({
-      linear: !prevState.linear,
-    }));
   };
   toggleShow = ({ target }) => {
     this.setState({
