@@ -168,8 +168,6 @@ export default class Table extends React.Component {
         },
         filterMethod: (filter, row, column) => {
           return true;
-          const id = filter.pivotId || filter.id;
-          return row[id].some((v) => v && v.includes(filter.value));
         },
         Filter: FilterInputField,
       },
