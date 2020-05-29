@@ -51,12 +51,15 @@ export default class QuantilePlot extends React.Component {
     linear = stringAsBoolean(linear);
     correct = stringAsBoolean(correct);
 
-    const parameterSelection = column
-      ? this.props.tools
-          .map((tool) => tool.columns)
-          .flat()
-          .find((col) => col.display_title === column)
-      : this.props.preSelection;
+    const isValue = column && !column.startsWith("runset");
+
+    const parameterSelection =
+      column && isValue
+        ? this.props.tools
+            .map((tool) => tool.columns)
+            .flat()
+            .find((col) => col.display_title === column)
+        : this.props.preSelection;
 
     const visibleColumn = parameterSelection.isVisible
       ? parameterSelection
@@ -64,12 +67,17 @@ export default class QuantilePlot extends React.Component {
           .map((tool) => tool.columns)
           .flat()
           .some((col) => col.isVisible);
+
+    const selection = isValue
+      ? visibleColumn && visibleColumn.display_title
+      : column;
+
     return {
-      selection: visibleColumn && visibleColumn.display_title,
+      selection: selection,
       quantile: quantile,
       linear: linear,
       correct: correct,
-      isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
+      isValue: isValue, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: [],
     };
   }
