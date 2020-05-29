@@ -3,26 +3,33 @@ import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 
+import { without, pathOr } from "../../utils/utils";
+
 const Range = createSliderWithTooltip(Slider.Range);
 
 export default class FilterCard extends React.Component {
   constructor(props) {
     super(props);
-    const { value } = props.filter || { value: undefined };
+    const { values, min, max, type } = props.filter || { values: [] };
     let currentMin = 0;
     let currentMax = 0;
-    if (value && value.includes(":")) {
-      const res = this.handleMinMaxValue(value);
-      currentMin = res.min;
-      currentMax = res.max;
+    if (type === "measure" || type === "number") {
+      currentMin = min;
+      currentMax = max;
+      const value = values && values[0];
+      if (value && value.includes(":")) {
+        const res = this.handleMinMaxValue(value);
+        currentMin = res.min;
+        currentMax = res.max;
+      }
     }
     this.state = {
       title:
         props.availableFilters && props.availableFilters.length
           ? props.availableFilters[0].title
           : "",
-      value: null,
-      idx: 0,
+      values: [],
+      idx: pathOr(["availableFilters", 0, "idx"], 0, props),
       active: true,
       selectedDistincts: [],
       currentMin,
@@ -30,9 +37,9 @@ export default class FilterCard extends React.Component {
     };
   }
 
-  sendFilterUpdate(value) {
+  sendFilterUpdate(values) {
     this.props.onFilterUpdate({
-      value: value,
+      values,
       title: this.state.title || this.props.title,
     });
   }
@@ -44,10 +51,11 @@ export default class FilterCard extends React.Component {
     }
     if (
       !prevProps.filter ||
-      prevProps.filter.value !== this.props.filter.value
+      prevProps.filter.values !== this.props.filter.values
     ) {
-      const { value } = this.props.filter;
-      console.log("filtercard decided to update: ", value);
+      const { values } = this.props.filter;
+      console.log("filtercard decided to update: ", values);
+      const value = [values];
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value);
         console.log("settings state", { currentMin: min, currentMax: max });
@@ -97,11 +105,11 @@ export default class FilterCard extends React.Component {
         ) : (
           <>
             <h4 className="title">{filter.display_title}</h4>
-            <FontAwesomeIcon
+            {/* <FontAwesomeIcon
               className="check-button"
               icon={faCheck}
               onClick={() => this.sendFilterUpdate()}
-            />
+            /> */}
           </>
         )}
       </div>
@@ -119,8 +127,9 @@ export default class FilterCard extends React.Component {
         max,
         categories,
         statuses,
-        value,
+        values = [],
       } = filter;
+      console.log({ values });
       let body;
       if (type === "status") {
         body = (
@@ -132,15 +141,18 @@ export default class FilterCard extends React.Component {
                   <input
                     type="checkbox"
                     name={`cat-${category}`}
-                    checked={category === value}
+                    checked={values.includes(category)}
                     onChange={({ target: { checked } }) => {
                       console.log({ checked, category });
                       if (checked) {
-                        this.setState({ value: category });
-                        this.sendFilterUpdate(category);
+                        const newValues = [...values, category];
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
                       } else {
-                        this.setState({ value: null });
-                        this.sendFilterUpdate(null);
+                        const newValues = without(category, values);
+
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
                       }
                     }}
                   />
@@ -155,15 +167,18 @@ export default class FilterCard extends React.Component {
                   <input
                     type="checkbox"
                     name={`stat-${status}`}
-                    checked={status === value}
+                    checked={values.includes(status)}
                     onChange={({ target: { checked } }) => {
                       console.log({ checked, status });
                       if (checked) {
-                        this.setState({ value: status });
-                        this.sendFilterUpdate(status);
+                        const newValues = [...values, status];
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
                       } else {
-                        this.setState({ value: null });
-                        this.sendFilterUpdate(null);
+                        const newValues = without(status, values);
+                        console.log({ values, newValues });
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
                       }
                     }}
                   />
@@ -174,6 +189,7 @@ export default class FilterCard extends React.Component {
           </>
         );
       } else if (type === "text") {
+        const [value] = values;
         body = (
           <ul className="filter-card--body--list">
             {distincts.map((status) => (
@@ -198,6 +214,7 @@ export default class FilterCard extends React.Component {
             <Range
               min={min}
               max={max}
+              step={(max - min) / 1000.0}
               defaultValue={[min, max]}
               value={[this.state.currentMin, this.state.currentMax]}
               onChange={([nMin, nMax]) =>
@@ -207,9 +224,9 @@ export default class FilterCard extends React.Component {
                 this.setState({
                   currentMin: nMin,
                   currentMax: nMax,
-                  value: `${nMin}:${nMax}`,
+                  values: [`${nMin}:${nMax}`],
                 });
-                this.sendFilterUpdate(`${nMin}:${nMax}`);
+                this.sendFilterUpdate([`${nMin}:${nMax}`]);
               }}
             />
             <div className="filter-card--range-input-fields">
@@ -235,12 +252,12 @@ export default class FilterCard extends React.Component {
                     this.setState({
                       currentMax: value,
                       currentMin: this.state.currentMax,
-                      value: `${this.state.currentMax}:${value}`,
+                      values: [`${this.state.currentMax}:${value}`],
                     });
                   } else {
                     this.setState({
                       currentmin: value,
-                      value: `${value}:${this.state.currentMax}`,
+                      values: [`${value}:${this.state.currentMax}`],
                     });
                   }
                 }}
@@ -249,18 +266,19 @@ export default class FilterCard extends React.Component {
                 type="number"
                 min={max}
                 name={`inp-${title}-max`}
+                step={(max - min) / 1000.0}
                 value={this.state.currentMax}
                 onChange={({ target: { value } }) => {
                   if (value < this.state.currentMin) {
                     this.setState({
                       currentMax: this.state.currentMin,
                       currentMin: value,
-                      value: `${value}:${this.state.currentMin}`,
+                      values: [`${value}:${this.state.currentMin}`],
                     });
                   } else {
                     this.setState({
                       currentMax: value,
-                      value: `${this.state.currentMin}:${value}`,
+                      values: [`${this.state.currentMin}:${value}`],
                     });
                   }
                 }}

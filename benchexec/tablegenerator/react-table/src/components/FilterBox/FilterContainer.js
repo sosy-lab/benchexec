@@ -17,13 +17,13 @@ export default class FilterContainer extends React.Component {
       .sort((a, b) => a.numCards - b.numCards);
   }
 
-  setFilter({ title, value }, idx) {
+  setFilter({ title, values }, idx) {
     console.log("Container received", {
       title,
-      value,
+      values,
       idx,
     });
-    this.props.updateFilters({ title, value }, idx);
+    this.props.updateFilters({ title, values }, idx);
   }
 
   addFilter(idx) {
@@ -42,7 +42,7 @@ export default class FilterContainer extends React.Component {
   removeFilter(idx) {
     const newFilterState = this.state.filters;
     newFilterState[idx].filtering = false;
-    newFilterState[idx].value = null;
+    newFilterState[idx].values = [];
 
     this.setState({ filters: newFilterState });
   }
@@ -57,7 +57,7 @@ export default class FilterContainer extends React.Component {
         filters[idx] = {
           ...filters[idx],
           ...currentFilters[idx],
-          filtering: currentFilters[idx].value !== "all ",
+          filtering: currentFilters[idx].value !== "all ", // TODO
         };
       }
       this.setState({ filters });

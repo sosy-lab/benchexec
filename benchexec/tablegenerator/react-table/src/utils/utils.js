@@ -13,6 +13,9 @@ const getFilterableData = ({ tools, rows }) => {
     const { tool: toolName, date, niceName } = tool;
     let name = `${toolName} ${date} ${niceName}`;
     const columns = tool.columns.map((col, idx) => {
+      if (!col) {
+        return undefined;
+      }
       if (col.type === "status") {
         statusIdx = idx;
         return { ...col, categories: {}, statuses: {}, idx };
@@ -36,12 +39,16 @@ const getFilterableData = ({ tools, rows }) => {
 
     for (const row of rows) {
       for (const result of row.results) {
-        columns[statusIdx].categories[result.category] = true;
+        // convention as of writing this commit is to postfix categories with a space character
+        columns[statusIdx].categories[`${result.category} `] = true;
 
         for (const colIdx in result.values) {
           const col = result.values[colIdx];
           const { raw } = col;
           const filterCol = columns[colIdx];
+          if (!filterCol) {
+            continue;
+          }
 
           if (filterCol.type === "status") {
             filterCol.statuses[raw] = true;
@@ -159,6 +166,16 @@ const omit = (keys, data) => {
   return newKeys.reduce((acc, key) => (acc[key] = data[key]), {});
 };
 
+const without = (value, array) => {
+  const out = [];
+  for (const item of array) {
+    if (item !== value) {
+      out.push(item);
+    }
+  }
+  return out;
+};
+
 const buildMatcher = (filters) =>
   filters.reduce((acc, { id, value }) => {
     if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
@@ -182,7 +199,11 @@ const buildMatcher = (filters) =>
       maxV = maxV === "" ? Infinity : Number(maxV);
       filter = { min: minV, max: maxV };
     } else {
-      filter = { value };
+      if (value[value.length - 1] === " ") {
+        filter = { category: value.substr(0, value.length - 1) };
+      } else {
+        filter = { value };
+      }
     }
     if (!acc[tool][columnIdx]) {
       acc[tool][columnIdx] = [];
@@ -200,10 +221,12 @@ const applyMatcher = (matcher) => (data) => {
         const vals = {};
         for (const tool of row.results) {
           const val = tool.values[col].raw;
-          if (vals[val]) {
-            return false;
+          if (!vals[val]) {
+            vals[val] = true;
           }
-          vals[val] = true;
+        }
+        if (Object.keys(vals).length === 1) {
+          return false;
         }
       }
       return true;
@@ -214,11 +237,15 @@ const applyMatcher = (matcher) => (data) => {
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
-          const { value, min, max } = filter;
+          const { value, min, max, category } = filter;
+
+          console.log({ matcherFilter: filter });
 
           if (!isNil(min) && !isNil(max)) {
             const num = Number(row.results[tool].values[column].raw);
             columnPass = columnPass || (num >= min && num <= max);
+          } else if (!isNil(category)) {
+            columnPass = columnPass || row.results[tool].category === category;
           } else {
             columnPass =
               columnPass || value === row.results[tool].values[column].raw;
@@ -256,6 +283,23 @@ const determineColumnWidth = (column, min_width, max_width) => {
   }
 
   return width * 8 + 20;
+};
+
+const path = (pathArr, data) => {
+  let last = data;
+  for (const p of pathArr) {
+    last = last[p];
+    if (isNil(last)) {
+      return undefined;
+    }
+  }
+  return last;
+};
+
+const pathOr = (pathArr, fallback, data) => {
+  const pathRes = path(pathArr, data);
+
+  return pathRes === undefined ? fallback : pathRes;
 };
 
 const formatColumnTitle = (column) =>
@@ -372,4 +416,7 @@ export {
   getFilterableData,
   buildMatcher,
   applyMatcher,
+  without,
+  pathOr,
+  path,
 };

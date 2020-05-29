@@ -30,12 +30,18 @@ export default class FilterBox extends React.Component {
       return [];
     }
 
+    console.log({ filters });
+
     const out = [];
 
-    for (const { id, value } of filters) {
+    for (const { id, value } of filters.flat()) {
       const [tool, title, col] = id.split("_");
       const toolArr = out[tool] || [];
-      toolArr[col] = { title, value };
+      if (!toolArr[col]) {
+        toolArr[col] = { title, values: [value] };
+      } else {
+        toolArr[col].values.push(value);
+      }
       out[tool] = toolArr;
     }
 
@@ -55,13 +61,13 @@ export default class FilterBox extends React.Component {
       filters
         .map((tool, toolIdx) => {
           return tool.map((col, colIdx) => {
-            return {
+            return col.values.map((val) => ({
               id: `${toolIdx}_${col.title}_${colIdx}`,
-              value: col.value,
-            };
+              value: val,
+            }));
           });
         })
-        .flat()
+        .flat(3)
         .filter((i) => i !== null && i !== undefined),
       true,
     );
