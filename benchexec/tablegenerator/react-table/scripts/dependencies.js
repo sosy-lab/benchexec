@@ -74,6 +74,10 @@ checker.init(
 
         var license = dependency.licenseText;
 
+        // Replace windows specific line endings with unix based ones so the bundled
+        // files stay the same on any OS
+        license = license.replace(/\r\n/g, "\n");
+
         if (dependency.licenses === "(MIT OR GPL-3.0)") {
           // Trim long GPL from dual-licenses dependency, we choose MIT anyway
           license = stripUpTo(license, "GPL version 3", false);
