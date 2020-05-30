@@ -51,7 +51,7 @@ export default class QuantilePlot extends React.Component {
     linear = stringAsBoolean(linear);
     correct = stringAsBoolean(correct);
 
-    const isValue = column && !column.startsWith("runset");
+    const isValue = column === undefined || !column.startsWith("runset");
 
     const parameterSelection =
       column && isValue
