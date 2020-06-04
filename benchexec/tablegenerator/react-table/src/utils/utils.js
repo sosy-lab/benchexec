@@ -164,7 +164,10 @@ const isOkStatus = (status) => {
 
 const omit = (keys, data) => {
   const newKeys = Object.keys(data).filter((key) => !keys.includes(key));
-  return newKeys.reduce((acc, key) => (acc[key] = data[key]), {});
+  return newKeys.reduce((acc, key) => {
+    acc[key] = data[key];
+    return acc;
+  }, {});
 };
 
 const without = (value, array) => {
@@ -239,11 +242,11 @@ const applyMatcher = (matcher) => (data) => {
   }
   const out = diffd.filter((row) => {
     for (const tool in omit(["diff"], matcher)) {
+      console.log(`matching toool ${tool}`);
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
           const { value, min, max, category } = filter;
-
           if (!isNil(min) && !isNil(max)) {
             const num = Number(row.results[tool].values[column].raw);
             columnPass = columnPass || (num >= min && num <= max);

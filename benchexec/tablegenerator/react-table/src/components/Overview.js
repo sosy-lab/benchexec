@@ -22,6 +22,7 @@ import {
   getFilterableData,
   buildMatcher,
   applyMatcher,
+  getRawOrDefault,
 } from "../utils/utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -82,6 +83,16 @@ export default class Overview extends React.Component {
         this.setState({ showLinkOverlay: false });
       }
     });
+
+    // Collect all status and category values for filter drop-down
+    this.statusValues = this.findAllValuesOfColumn(
+      (_tool, column) => column.type === "status",
+      (_runResult, value) => getRawOrDefault(value),
+    );
+    this.categoryValues = this.findAllValuesOfColumn(
+      (_tool, column) => column.type === "status",
+      (runResult, _value) => runResult.category,
+    );
   }
 
   // -----------------------SelectColumns-----------------------
@@ -131,6 +142,20 @@ export default class Overview extends React.Component {
       filtered: [],
     });
   };
+
+  // --------------React Table Setup -------------------------
+  findAllValuesOfColumn = (columnFilter, valueAccessor) =>
+    this.originalTools.map((tool, j) =>
+      tool.columns.map((column, i) => {
+        if (!columnFilter(tool, column)) {
+          return undefined;
+        }
+        const values = this.originalTable
+          .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
+          .filter(Boolean);
+        return [...new Set(values)].sort();
+      }),
+    );
 
   // -----------------------Common Functions-----------------------
   getRowName = (row) => row.id.filter((s) => s).join(" | ");
@@ -211,7 +236,7 @@ export default class Overview extends React.Component {
                 <Route path="/table">
                   <Table
                     tableHeader={this.tableHeader}
-                    data={this.originalTable}
+                    data={this.state.table}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
                     setFilter={this.setFilter}
@@ -219,6 +244,8 @@ export default class Overview extends React.Component {
                     filtered={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
                     changeTab={this.changeTab}
+                    statusValues={this.statusValues}
+                    categoryValues={this.categoryValues}
                   />
                 </Route>
                 <Route path="/quantile">

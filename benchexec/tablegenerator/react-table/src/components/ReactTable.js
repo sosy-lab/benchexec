@@ -18,10 +18,7 @@ import {
   SelectColumnsButton,
 } from "./TableComponents.js";
 import {
-  getRawOrDefault,
   isNumericColumn,
-  applyNumericFilter,
-  applyTextFilter,
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
@@ -70,16 +67,6 @@ export default class Table extends React.PureComponent {
       fixed: true,
     };
 
-    // Collect all status and category values for filter drop-down
-    this.statusValues = this.findAllValuesOfColumn(
-      (tool, column) => column.type === "status",
-      (runResult, value) => getRawOrDefault(value),
-    );
-    this.categoryValues = this.findAllValuesOfColumn(
-      (tool, column) => column.type === "status",
-      (runResult, value) => runResult.category,
-    );
-
     this.infos = [
       "displayName",
       "tool",
@@ -104,19 +91,6 @@ export default class Table extends React.PureComponent {
       [name]: value,
     });
   };
-
-  findAllValuesOfColumn = (columnFilter, valueAccessor) =>
-    this.props.tools.map((tool, j) =>
-      tool.columns.map((column, i) => {
-        if (!columnFilter(tool, column)) {
-          return undefined;
-        }
-        const values = this.props.data
-          .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
-          .filter(Boolean);
-        return [...new Set(values)].sort();
-      }),
-    );
 
   createTaskIdColumn = () => ({
     Header: () => (
@@ -166,9 +140,8 @@ export default class Table extends React.PureComponent {
             <span title="This task has no associated file">{content}</span>
           );
         },
-        filterMethod: (filter, row, column) => {
-          const id = filter.pivotId || filter.id;
-          return row[id].some((v) => v && v.includes(filter.value));
+        filterMethod: () => {
+          return true;
         },
         Filter: FilterInputField,
       },
@@ -206,19 +179,10 @@ export default class Table extends React.PureComponent {
     },
     sortMethod: textSortMethod,
     filterMethod: (filter, row) => {
-      const cellValue = getRawOrDefault(row[filter.id]);
-      if (!filter.value || filter.value === "all ") {
-        return true;
-      } else if (filter.value.endsWith(" ")) {
-        // category filters are marked with space at end
-        const category = row._original.results[runSetIdx].category;
-        return category === filter.value.trim();
-      } else {
-        return filter.value === cellValue;
-      }
+      return true;
     },
     Filter: ({ filter, onChange }) => {
-      const categoryValues = this.categoryValues[runSetIdx][columnIdx];
+      const categoryValues = this.props.categoryValues[runSetIdx][columnIdx];
       return (
         <select
           onChange={(event) => onChange(event.target.value)}
@@ -245,7 +209,7 @@ export default class Table extends React.PureComponent {
               ))}
           </optgroup>
           <optgroup label="Status">
-            {this.statusValues[runSetIdx][columnIdx].map((status) => (
+            {this.props.statusValues[runSetIdx][columnIdx].map((status) => (
               <option value={status} key={status}>
                 {status}
               </option>
@@ -273,9 +237,7 @@ export default class Table extends React.PureComponent {
           toggleLinkOverlay={this.props.toggleLinkOverlay}
         />
       ),
-      filterMethod: isNumericColumn(column)
-        ? applyNumericFilter
-        : applyTextFilter,
+      filterMethod: () => true,
       Filter: (filter) => (
         <FilterInputField numeric={isNumericColumn(column)} {...filter} />
       ),
@@ -289,7 +251,7 @@ export default class Table extends React.PureComponent {
         createRunSetColumns(runSet, runSetIdx, this.createColumn),
       )
       .flat();
-
+    console.log({ resultColumns });
     return (
       <div className="mainTable">
         <ReactTableFixedColumns
@@ -302,7 +264,7 @@ export default class Table extends React.PureComponent {
           className="-highlight"
           minRows={0}
           onFilteredChange={(filtered) => {
-            //this.props.filterPlotData(filtered, true);
+            this.props.filterPlotData(filtered, true);
           }}
         >
           {(_, makeTable) => {
