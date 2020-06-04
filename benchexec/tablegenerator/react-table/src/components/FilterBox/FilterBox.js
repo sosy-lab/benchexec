@@ -2,22 +2,22 @@ import React from "react";
 import FilterContainer from "./FilterContainer";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { equals } from "ramda";
 
 export default class FilterBox extends React.PureComponent {
   constructor(props) {
     super(props);
     //console.log({ props });
 
-    const { filterable, filtered } = props;
+    const { filtered } = props;
 
     this.state = {
-      filterable,
       filters: this.createFiltersFromReactTableStructure(filtered),
     };
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.filtered !== this.props.filtered) {
+    if (!equals(prevProps.filtered, this.props.filtered)) {
       this.setState({
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
       });
@@ -98,7 +98,7 @@ export default class FilterBox extends React.PureComponent {
           />
           {this.props.headerComponent}
         </div>
-        {this.state.filterable.map((tool, idx) => {
+        {this.props.filterable.map((tool, idx) => {
           return (
             <FilterContainer
               updateFilters={(data, columnIndex) =>

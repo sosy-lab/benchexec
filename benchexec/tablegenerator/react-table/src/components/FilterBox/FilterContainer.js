@@ -7,7 +7,6 @@ import { equals } from "ramda";
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
     super(props);
-
     const { filters, toolName } = props;
     this.state = { filters, toolName, addingFilter: false, numCards: 0 };
   }
@@ -24,6 +23,9 @@ export default class FilterContainer extends React.PureComponent {
       values,
       idx,
     });
+    const prevFilters = this.state.filters;
+    prevFilters[idx].values = values;
+    this.setState({ filters: [...prevFilters] });
     this.props.updateFilters({ title, values }, idx);
   }
 
