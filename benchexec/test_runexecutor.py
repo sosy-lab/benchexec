@@ -85,6 +85,13 @@ class TestRunExecutor(unittest.TestCase):
         is thrown and the given error message had been logged with level ERROR."""
         # Note: assertLogs checks that there is at least one log message of given level.
         # This is not what we want, so we just rely on one debug message being present.
+        if not hasattr(self, "assertLogs"):
+            try:
+                yield
+            except SystemExit as e:
+                self.skipTest(e)
+            return
+
         try:
             with self.assertLogs(level=logging.DEBUG) as log:
                 yield
@@ -740,6 +747,11 @@ class TestRunExecutor(unittest.TestCase):
         subprocess.check_call(["rm", "-r", os.path.dirname(temp_dir)])
 
     def test_require_cgroup_invalid(self):
+        if not hasattr(self, "assertLogs"):
+            with self.assertRaises(SystemExit):
+                RunExecutor(additional_cgroup_subsystems=["invalid"])
+            return
+
         with self.assertLogs(level=logging.ERROR) as log:
             with self.assertRaises(SystemExit):
                 RunExecutor(additional_cgroup_subsystems=["invalid"])
