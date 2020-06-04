@@ -393,9 +393,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             try:
                 self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
             except ValueError as e:
-                logging.warning(
-                    "Could not read available CPU cores from kernel: %s", e.strerror
-                )
+                logging.warning("Could not read available CPU cores from kernel: %s", e)
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
