@@ -95,7 +95,7 @@ def find_my_cgroups(cgroup_paths=None):
         if os.access(mount, os.F_OK):
             cgroupPath = os.path.join(mount, my_cgroups[subsystem])
             fallbackPath = os.path.join(mount, CGROUP_FALLBACK_PATH)
-            if not os.access(cgroupPath, os.W_OK) and os.access(fallbackPath, os.W_OK):
+            if not os.access(cgroupPath, os.W_OK) and os.path.isdir(fallbackPath):
                 cgroupPath = fallbackPath
             cgroupsParents[subsystem] = cgroupPath
 
