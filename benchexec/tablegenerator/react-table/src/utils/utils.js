@@ -8,6 +8,7 @@
 import React from "react";
 
 const getFilterableData = ({ tools, rows }) => {
+  const start = Date.now();
   const mapped = tools.map((tool, idx) => {
     let statusIdx;
     const { tool: toolName, date, niceName } = tool;
@@ -79,7 +80,7 @@ const getFilterableData = ({ tools, rows }) => {
       }),
     };
   });
-  console.log({ mapped });
+  console.log({ mapped, creationTime: `${Date.now() - start} ms` });
   return mapped;
 };
 
@@ -176,8 +177,9 @@ const without = (value, array) => {
   return out;
 };
 
-const buildMatcher = (filters) =>
-  filters.reduce((acc, { id, value }) => {
+const buildMatcher = (filters) => {
+  const start = Date.now();
+  const out = filters.reduce((acc, { id, value }) => {
     if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
       return acc;
     }
@@ -211,9 +213,12 @@ const buildMatcher = (filters) =>
     acc[tool][columnIdx].push(filter);
     return acc;
   }, {});
+  console.log(`Creating matcher took ${Date.now() - start} ms`);
+  return out;
+};
 
 const applyMatcher = (matcher) => (data) => {
-  console.log({ matcher });
+  const start = Date.now();
   let diffd = [...data];
   if (matcher.diff) {
     diffd = diffd.filter((row) => {
@@ -232,14 +237,12 @@ const applyMatcher = (matcher) => (data) => {
       return true;
     });
   }
-  return diffd.filter((row) => {
+  const out = diffd.filter((row) => {
     for (const tool in omit(["diff"], matcher)) {
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
           const { value, min, max, category } = filter;
-
-          console.log({ matcherFilter: filter });
 
           if (!isNil(min) && !isNil(max)) {
             const num = Number(row.results[tool].values[column].raw);
@@ -268,6 +271,8 @@ const applyMatcher = (matcher) => (data) => {
     // all filter requirements were satisfied
     return true;
   });
+  console.log(`matching took ${Date.now() - start} ms`);
+  return out;
 };
 // Best-effort attempt for calculating a meaningful column width
 const determineColumnWidth = (column, min_width, max_width) => {
@@ -395,6 +400,27 @@ const setParam = (param) => {
 
 const stringAsBoolean = (str) => str === "true";
 
+const deepEquals = (a, b) => {
+  for (const key in a) {
+    if (typeof a[key] === "function" && typeof b[key] === "function") {
+      continue;
+    }
+    if (typeof a[key] !== typeof b[key]) {
+      return false;
+    } else if (Array.isArray(a[key]) || typeof a[key] === "object") {
+      if (!deepEquals(a[key], b[key])) {
+        return false;
+      }
+    } else {
+      if (a[key] !== b[key]) {
+        console.log(`${a[key]} !== ${b[key]}`);
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -419,4 +445,5 @@ export {
   without,
   pathOr,
   path,
+  deepEquals,
 };
