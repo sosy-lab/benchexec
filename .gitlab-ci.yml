@@ -104,6 +104,7 @@ flake8:
     - pip install flake8-awesome
   script:
     - flake8
+  allow_failure: true
 
 
 # For HTML tables, test that bundled files are uptodate
