@@ -209,3 +209,21 @@ def has_swap():
                 if int(swap) == 0:
                     return False
     return True
+
+
+def is_debian():
+    """Try to detect whether the current system is a Debian or derivative like Ubuntu"""
+    try:
+        with open("/etc/os-release") as f:
+            return any(
+                (line.startswith("ID=") or line.startswith("ID_LIKE="))
+                and "debian" in line
+                for line in f.readlines()
+            )
+    except OSError:
+        return False
+
+
+def has_systemd():
+    """Try to detect whether the current system is running systemd as init system."""
+    return os.path.isdir("/run/systemd/system")
