@@ -19,6 +19,7 @@
 # prepare for Python 3
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import contextlib
 import glob
 import logging
 import os
@@ -68,22 +69,32 @@ class TestRunExecutor(unittest.TestCase):
     def setUpClass(cls):
         cls.longMessage = True
         cls.maxDiff = None
-        logging.disable(logging.CRITICAL)
+        logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
-        if not hasattr(cls, "assertRaisesRegex"):
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     def setUp(self, *args, **kwargs):
-        try:
+        with self.skip_if_logs(
+            "Cannot reliably kill sub-processes without freezer cgroup"
+        ):
             self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+
+    @contextlib.contextmanager
+    def skip_if_logs(self, error_msg):
+        """A context manager that automatically marks the test as skipped if SystemExit
+        is thrown and the given error message had been logged with level ERROR."""
+        # Note: assertLogs checks that there is at least one log message of given level.
+        # This is not what we want, so we just rely on one debug message being present.
+        try:
+            with self.assertLogs(level=logging.DEBUG) as log:
+                yield
         except SystemExit as e:
-            if str(e).startswith(
-                "Cannot reliably kill sub-processes without freezer cgroup"
+            if any(
+                record.levelno == logging.ERROR and record.msg.startswith(error_msg)
+                for record in log.records
             ):
                 self.skipTest(e)
-            else:
-                raise e
+            raise e
 
     def execute_run(self, *args, **kwargs):
         # Make keyword-only argument after support for Python 2 is dropped
@@ -286,7 +297,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -294,11 +305,6 @@ class TestRunExecutor(unittest.TestCase):
                 hardtimelimit=1,
                 expect_terminationreason="cputime",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
             result["walltime"],
@@ -319,7 +325,9 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_softlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs(
+            "Soft time limit cannot be specified without cpuacct cgroup"
+        ):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -327,12 +335,6 @@ class TestRunExecutor(unittest.TestCase):
                 softtimelimit=1,
                 expect_terminationreason="cputime-soft",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Soft time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
-
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
         self.assertAlmostEqual(
             result["walltime"],
@@ -379,7 +381,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_walltime_limit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -388,11 +390,6 @@ class TestRunExecutor(unittest.TestCase):
                 walltimelimit=5,
                 expect_terminationreason="cputime",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -414,7 +411,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_all_timelimits(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -424,11 +421,6 @@ class TestRunExecutor(unittest.TestCase):
                 walltimelimit=5,
                 expect_terminationreason="cputime-soft",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
 
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
         self.assertAlmostEqual(
@@ -748,10 +740,13 @@ class TestRunExecutor(unittest.TestCase):
         subprocess.check_call(["rm", "-r", os.path.dirname(temp_dir)])
 
     def test_require_cgroup_invalid(self):
-        self.assertRaisesRegex(
-            SystemExit,
-            ".*invalid.*",
-            lambda: RunExecutor(additional_cgroup_subsystems=["invalid"]),
+        with self.assertLogs(level=logging.ERROR) as log:
+            with self.assertRaises(SystemExit):
+                RunExecutor(additional_cgroup_subsystems=["invalid"])
+
+        self.assertIn(
+            'Cgroup subsystem "invalid" was required but is not available',
+            "\n".join(log.output),
         )
 
     def test_require_cgroup_cpu(self):
