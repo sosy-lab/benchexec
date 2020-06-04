@@ -2,8 +2,9 @@ import React from "react";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FilterCard from "./FilterCard";
+import { equals } from "ramda";
 
-export default class FilterContainer extends React.Component {
+export default class FilterContainer extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -49,8 +50,9 @@ export default class FilterContainer extends React.Component {
 
   componentDidUpdate({ currentFilters: prevFilters }) {
     const { currentFilters } = this.props;
-    if (prevFilters !== currentFilters) {
+    if (!equals(prevFilters, currentFilters)) {
       // update set filters
+      console.log("updated container");
       const { filters } = this.state;
       filters.forEach((item) => (item.filtering = false));
       for (const idx in currentFilters) {
@@ -60,14 +62,14 @@ export default class FilterContainer extends React.Component {
           filtering: currentFilters[idx].value !== "all ", // TODO
         };
       }
-      this.setState({ filters });
+      this.setState({ filters: [...filters] });
     }
   }
 
   render() {
     console.log({ currentFilters: this.props.currentFilters });
     const filters = this.getActiveFilters();
-    console.log({ activeFilters: filters });
+    console.log({ containerState: this.state });
     console.log("container rendered");
     return (
       <div className="filterBox--container">

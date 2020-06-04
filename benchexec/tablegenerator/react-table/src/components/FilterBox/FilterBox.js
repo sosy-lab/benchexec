@@ -3,10 +3,10 @@ import FilterContainer from "./FilterContainer";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export default class FilterBox extends React.Component {
+export default class FilterBox extends React.PureComponent {
   constructor(props) {
     super(props);
-    console.log(props);
+    //console.log({ props });
 
     const { filterable, filtered } = props;
 
@@ -22,10 +22,11 @@ export default class FilterBox extends React.Component {
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
       });
     }
-    console.log(this.state);
+    console.log("updated box", this.state);
   }
 
   createFiltersFromReactTableStructure(filters) {
+    const start = Date.now();
     if (!filters || !filters.length) {
       return [];
     }
@@ -44,7 +45,7 @@ export default class FilterBox extends React.Component {
       }
       out[tool] = toolArr;
     }
-
+    console.log(`creation of filter structure took ${Date.now() - start} ms`);
     return out;
   }
 

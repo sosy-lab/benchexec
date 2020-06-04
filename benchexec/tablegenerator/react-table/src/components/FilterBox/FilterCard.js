@@ -7,7 +7,7 @@ import { without, pathOr } from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
-export default class FilterCard extends React.Component {
+export default class FilterCard extends React.PureComponent {
   constructor(props) {
     super(props);
     const { values, min, max, type } = props.filter || { values: [] };
@@ -44,8 +44,13 @@ export default class FilterCard extends React.Component {
     });
   }
 
-  componentDidUpdate(prevProps) {
-    console.log("filtercard updates", { prevProps, newProps: this.props });
+  componentDidUpdate(prevProps, prevState) {
+    console.log("filtercard updates", {
+      prevProps,
+      newProps: { ...this.props },
+      prevState,
+      newState: this.state,
+    });
     if (!this.props.filter) {
       return;
     }
@@ -58,7 +63,6 @@ export default class FilterCard extends React.Component {
       const value = [values];
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value);
-        console.log("settings state", { currentMin: min, currentMax: max });
         this.setState({ currentMin: min, currentMax: max });
       }
     }
@@ -79,7 +83,7 @@ export default class FilterCard extends React.Component {
 
   render() {
     const { filter, editable, availableFilters } = this.props;
-    // console.log("FilterCard received", filter);
+    console.log("FilterCard rendering", { filter });
     const filterAddSelection = () => (
       <>
         <select
