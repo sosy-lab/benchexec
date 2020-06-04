@@ -186,6 +186,10 @@ const buildMatcher = (filters) => {
     if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
       return acc;
     }
+    if (id === "id") {
+      acc.id = { value };
+      return acc;
+    }
     const [tool, , columnIdx] = id.split("_");
     if (value === "diff") {
       if (!acc.diff) {
@@ -240,21 +244,31 @@ const applyMatcher = (matcher) => (data) => {
       return true;
     });
   }
+  if (!isNil(matcher.id)) {
+    const { value: idValue } = matcher.id;
+    diffd = diffd.filter(
+      ({ href }) => href === idValue || href.includes(idValue),
+    );
+  }
+  console.log({ diffd, matcher });
   const out = diffd.filter((row) => {
-    for (const tool in omit(["diff"], matcher)) {
+    for (const tool in omit(["diff", "id"], matcher)) {
       console.log(`matching toool ${tool}`);
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
           const { value, min, max, category } = filter;
+
           if (!isNil(min) && !isNil(max)) {
-            const num = Number(row.results[tool].values[column].raw);
+            const rawValue = row.results[tool].values[column].raw;
+            const num = Number(rawValue);
             columnPass = columnPass || (num >= min && num <= max);
           } else if (!isNil(category)) {
             columnPass = columnPass || row.results[tool].category === category;
           } else {
+            const rawValue = row.results[tool].values[column].raw;
             columnPass =
-              columnPass || value === row.results[tool].values[column].raw;
+              columnPass || value === rawValue || value.includes(rawValue);
           }
 
           if (columnPass) {
