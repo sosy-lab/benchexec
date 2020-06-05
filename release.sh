@@ -100,7 +100,7 @@ rm -rf "$TEMP_DEB"
 for f in "$DIST_DIR/"*; do
   gpg --detach-sign -a "$f"
 done
-git tag -s "$VERSION" -m "Relase $VERSION"
+git tag -s "$VERSION" -m "Release $VERSION"
 
 
 # Upload and finish
