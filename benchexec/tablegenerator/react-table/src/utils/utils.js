@@ -47,7 +47,7 @@ const getFilterableData = ({ tools, rows }) => {
           const col = result.values[colIdx];
           const { raw } = col;
           const filterCol = columns[colIdx];
-          if (!filterCol) {
+          if (!filterCol || isNil(raw)) {
             continue;
           }
 
@@ -261,14 +261,22 @@ const applyMatcher = (matcher) => (data) => {
 
           if (!isNil(min) && !isNil(max)) {
             const rawValue = row.results[tool].values[column].raw;
+            if (isNil(rawValue)) {
+              columnPass = false;
+              continue;
+            }
             const num = Number(rawValue);
             columnPass = columnPass || (num >= min && num <= max);
           } else if (!isNil(category)) {
             columnPass = columnPass || row.results[tool].category === category;
           } else {
             const rawValue = row.results[tool].values[column].raw;
+            if (isNil(rawValue)) {
+              columnPass = false;
+              continue;
+            }
             columnPass =
-              columnPass || value === rawValue || value.includes(rawValue);
+              columnPass || value === rawValue || rawValue.includes(value);
           }
 
           if (columnPass) {
