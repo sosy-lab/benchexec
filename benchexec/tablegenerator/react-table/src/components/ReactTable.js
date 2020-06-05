@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -22,34 +22,36 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
+  getRawOrDefault,
+  applyNumericFilter,
+  applyTextFilter,
 } from "../utils/utils";
 
-class FilterInputField extends React.Component {
-  constructor(props) {
-    super(props);
-    this.elementId = props.column.id + "_filter";
-    this.filter = props.filter ? props.filter.value : props.filter;
-  }
+const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
 
-  numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
+function FilterInputField(props) {
+  const elementId = props.column.id + "_filter";
+  const filter = props.filter ? props.filter.value : props.filter;
+  let value;
+  let typingTimer;
 
-  onChange = (event) => {
-    this.value = event.target.value;
-    clearTimeout(this.typingTimer);
-    this.typingTimer = setTimeout(() => {
-      this.props.onChange(this.value);
-      document.getElementById(this.elementId).focus();
+  const onChange = (event) => {
+    value = event.target.value;
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => {
+      props.onChange(value);
+      document.getElementById(elementId).focus();
     }, 500);
   };
 
-  render = () => (
+  return (
     <input
-      id={this.elementId}
-      placeholder={this.props.numeric ? "Min:Max" : "text"}
-      defaultValue={this.value ? this.value : this.filter}
-      onChange={this.onChange}
+      id={elementId}
+      placeholder={props.numeric ? "Min:Max" : "text"}
+      defaultValue={value ? value : filter}
+      onChange={onChange}
       type="search"
-      pattern={this.props.numeric ? this.numericPattern : undefined}
+      pattern={props.numeric ? numericPattern : undefined}
     />
   );
 }
@@ -60,39 +62,16 @@ const RUN_EMPTY = "empty"; // result tag was not present in results XML
 const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
-export default class Table extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fixed: true,
-    };
 
-    this.infos = [
-      "displayName",
-      "tool",
-      "limit",
-      "host",
-      "os",
-      "system",
-      "date",
-      "runset",
-      "branch",
-      "options",
-      "property",
-    ];
-    this.typingTimer = -1;
-  }
-  //fix columns
-  handleInputChange = ({ target }) => {
+export default function Table(props) {
+  const [fixed, setFixed] = useState(true);
+
+  const handleFixedInputChange = ({ target }) => {
     const value = target.checked;
-    const name = target.name;
-
-    this.setState({
-      [name]: value,
-    });
+    setFixed(value);
   };
 
-  createTaskIdColumn = () => ({
+  const createTaskIdColumn = () => ({
     Header: () => (
       <div className="fixed">
         <form>
@@ -101,23 +80,23 @@ export default class Table extends React.PureComponent {
             <input
               name="fixed"
               type="checkbox"
-              checked={this.state.fixed}
-              onChange={this.handleInputChange}
+              checked={fixed}
+              onChange={handleFixedInputChange}
             />
           </label>
         </form>
       </div>
     ),
-    fixed: this.state.fixed ? "left" : "",
+    fixed: fixed ? "left" : "",
     columns: [
       {
         minWidth: window.innerWidth * 0.3,
         Header: (
           <StandardColumnHeader>
-            <SelectColumnsButton handler={this.props.selectColumn} />
+            <SelectColumnsButton handler={props.selectColumn} />
           </StandardColumnHeader>
         ),
-        fixed: this.state.fixed ? "left" : "",
+        fixed: fixed ? "left" : "",
         accessor: "id",
         Cell: (cell) => {
           const content = cell.value.map((id) => (
@@ -132,7 +111,7 @@ export default class Table extends React.PureComponent {
               className="row__name--cellLink"
               href={href}
               title="Click here to show source code"
-              onClick={(ev) => this.props.toggleLinkOverlay(ev, href)}
+              onClick={(ev) => props.toggleLinkOverlay(ev, href)}
             >
               {content}
             </a>
@@ -140,15 +119,16 @@ export default class Table extends React.PureComponent {
             <span title="This task has no associated file">{content}</span>
           );
         },
-        filterMethod: () => {
-          return true;
+        filterMethod: (filter, row) => {
+          const id = filter.pivotId || filter.id;
+          return row[id].some((v) => v && v.includes(filter.value));
         },
         Filter: FilterInputField,
       },
     ],
   });
 
-  createStatusColumn = (runSetIdx, column, columnIdx) => ({
+  const createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
     show: column.isVisible,
@@ -171,7 +151,7 @@ export default class Table extends React.PureComponent {
           cell={cell}
           href={href}
           className={category}
-          toggleLinkOverlay={this.props.toggleLinkOverlay}
+          toggleLinkOverlay={props.toggleLinkOverlay}
           title={tooltip}
           force={true}
         />
@@ -179,10 +159,19 @@ export default class Table extends React.PureComponent {
     },
     sortMethod: textSortMethod,
     filterMethod: (filter, row) => {
-      return true;
+      const cellValue = getRawOrDefault(row[filter.id]);
+      if (!filter.value || filter.value === "all ") {
+        return true;
+      } else if (filter.value.endsWith(" ")) {
+        // category filters are marked with space at end
+        const category = row._original.results[runSetIdx].category;
+        return category === filter.value.trim();
+      } else {
+        return filter.value === cellValue;
+      }
     },
     Filter: ({ filter, onChange }) => {
-      const categoryValues = this.props.categoryValues[runSetIdx][columnIdx];
+      const categoryValues = props.categoryValues[runSetIdx][columnIdx];
       return (
         <select
           onChange={(event) => onChange(event.target.value)}
@@ -209,7 +198,7 @@ export default class Table extends React.PureComponent {
               ))}
           </optgroup>
           <optgroup label="Status">
-            {this.props.statusValues[runSetIdx][columnIdx].map((status) => (
+            {props.statusValues[runSetIdx][columnIdx].map((status) => (
               <option value={status} key={status}>
                 {status}
               </option>
@@ -220,9 +209,9 @@ export default class Table extends React.PureComponent {
     },
   });
 
-  createColumn = (runSetIdx, column, columnIdx) => {
+  const createColumn = (runSetIdx, column, columnIdx) => {
     if (column.type === "status") {
-      return this.createStatusColumn(runSetIdx, column, columnIdx);
+      return createStatusColumn(runSetIdx, column, columnIdx);
     }
 
     return {
@@ -232,12 +221,11 @@ export default class Table extends React.PureComponent {
       minWidth: determineColumnWidth(column),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
       Cell: (cell) => (
-        <StandardCell
-          cell={cell}
-          toggleLinkOverlay={this.props.toggleLinkOverlay}
-        />
+        <StandardCell cell={cell} toggleLinkOverlay={props.toggleLinkOverlay} />
       ),
-      filterMethod: () => true,
+      filterMethod: isNumericColumn(column)
+        ? applyNumericFilter
+        : applyTextFilter,
       Filter: (filter) => (
         <FilterInputField numeric={isNumericColumn(column)} {...filter} />
       ),
@@ -245,33 +233,31 @@ export default class Table extends React.PureComponent {
     };
   };
 
-  render() {
-    const resultColumns = this.props.tools
-      .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, this.createColumn),
-      )
-      .flat();
-    console.log({ resultColumns });
-    return (
-      <div className="mainTable">
-        <ReactTableFixedColumns
-          data={this.props.data}
-          filterable={true}
-          filtered={this.props.filtered}
-          columns={[this.createTaskIdColumn()].concat(resultColumns)}
-          defaultPageSize={250}
-          pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
-          className="-highlight"
-          minRows={0}
-          onFilteredChange={(filtered) => {
-            this.props.filterPlotData(filtered, true);
-          }}
-        >
-          {(_, makeTable) => {
-            return makeTable();
-          }}
-        </ReactTableFixedColumns>
-      </div>
-    );
-  }
+  const resultColumns = props.tools
+    .map((runSet, runSetIdx) =>
+      createRunSetColumns(runSet, runSetIdx, createColumn),
+    )
+    .flat();
+
+  return (
+    <div className="mainTable">
+      <ReactTableFixedColumns
+        data={props.data}
+        filterable={true}
+        filtered={props.filtered}
+        columns={[createTaskIdColumn()].concat(resultColumns)}
+        defaultPageSize={250}
+        pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
+        className="-highlight"
+        minRows={0}
+        onFilteredChange={(filtered) => {
+          props.filterPlotData(filtered, false);
+        }}
+      >
+        {(_, makeTable) => {
+          return makeTable();
+        }}
+      </ReactTableFixedColumns>
+    </div>
+  );
 }
