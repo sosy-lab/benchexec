@@ -14,7 +14,7 @@ import os
 import requests
 import shutil
 import sys
-import time
+from threading import Event
 import zipfile
 
 import benchexec.util
@@ -40,6 +40,7 @@ DEFAULT_CLOUD_CPUCORE_REQUIREMENT = 2  # one core with hyperthreading
 DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
 STOPPED_BY_INTERRUPT = False
+event_handler = Event()
 
 
 def init(config, benchmark):
@@ -165,17 +166,20 @@ def execute_benchmark(benchmark, output_handler):
         )
         logging.debug("Sending http-request for progress: \n%s", progress_url)
         printMsg = 0
-        # Give the ec2-instance some time for instantiation
-        while True:
+        # Poll the current status in AWS by periodically sending an http-request
+        # (for example, how much tasks have been verified so far)
+        while not event_handler.is_set():
             http_request = requests.get(progress_url)
             _exitWhenRequestFailed(http_request)
 
             msg = http_request.json()
+            # poll every 15 sec and print a user message every second time
             if msg.get("message") == "Internal server error":
+                # This message appears if the ec2-instances are not instantiated / running yet
                 printMsg += 1
                 if printMsg % 2 == 0:
                     logging.info("Waiting for EC2 to launch the batch processes...")
-                time.sleep(15)
+                event_handler.wait(15)
             elif not msg["completed"]:
                 printMsg += 1
                 if printMsg % 2 == 0:
@@ -185,7 +189,7 @@ def execute_benchmark(benchmark, output_handler):
                         "Waiting until all tasks have been verified... "
                         "(Completed: {}/{})".format(jobsCompleted, totalJobs)
                     )
-                time.sleep(15)
+                event_handler.wait(15)
             else:
                 logging.info(
                     "Execution of %s tasks finished. Collecting the results back from AWS.",
@@ -212,6 +216,13 @@ def execute_benchmark(benchmark, output_handler):
         if os.path.exists(tasks_arc_path):
             os.remove(tasks_arc_path)
 
+        # Clean
+        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
+        logging.debug(
+            "Sending an http-request for cleaning up the used aws services: \n%s", url
+        )
+        requests.get(url)
+
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted")
 
@@ -219,13 +230,10 @@ def execute_benchmark(benchmark, output_handler):
 
     handleCloudResults(benchmark, output_handler, start_time, end_time)
 
-    # Clean
-    url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
-    logging.debug("Sending http-request for cleaning up the aws services: \n%s", url)
-    http_request = requests.get(url)
-
 
 def stop():
+    global event_handler
+    event_handler.set()
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
 
