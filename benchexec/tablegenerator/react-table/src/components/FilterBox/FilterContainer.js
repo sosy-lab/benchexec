@@ -69,9 +69,7 @@ export default class FilterContainer extends React.PureComponent {
   }
 
   render() {
-    console.log({ currentFilters: this.props.currentFilters });
     const filters = this.getActiveFilters();
-    console.log({ containerState: this.state });
     console.log("container rendered");
     return (
       <div className="filterBox--container">
@@ -83,7 +81,7 @@ export default class FilterContainer extends React.PureComponent {
                 onFilterUpdate={(val) => this.setFilter(val, filter.idx)}
                 title={filter.display_title}
                 filter={filter}
-                key={filter.numCards}
+                key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
               />
             ))}
         <br />

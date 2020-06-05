@@ -22,7 +22,6 @@ export default class FilterBox extends React.PureComponent {
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
       });
     }
-    console.log("updated box", this.state);
   }
 
   createFiltersFromReactTableStructure(filters) {
@@ -30,8 +29,6 @@ export default class FilterBox extends React.PureComponent {
     if (!filters || !filters.length) {
       return [];
     }
-
-    console.log({ filters });
 
     const out = [];
 
@@ -56,8 +53,6 @@ export default class FilterBox extends React.PureComponent {
   sendFilters(filter) {
     const filters = filter.filter((i) => i !== null && i !== undefined);
 
-    console.log({ filters });
-
     this.props.setFilter(
       filters
         .map((tool, toolIdx) => {
@@ -75,13 +70,11 @@ export default class FilterBox extends React.PureComponent {
   }
 
   updateFilters(toolIdx, columnIdx, data) {
-    console.log({ toolIdx, columnIdx, data });
     //this.props.setFilter(newFilter);
     const newFilters = [...this.state.filters];
     newFilters[toolIdx] = newFilters[toolIdx] || [];
     newFilters[toolIdx][columnIdx] = data;
     this.setState({ filters: newFilters });
-    console.log(this.state.filters);
     this.sendFilters(newFilters);
   }
 
