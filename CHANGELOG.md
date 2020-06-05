@@ -1,5 +1,16 @@
 # BenchExec Changelog
 
+## BenchExec 2.7
+
+- The supplied file `benchexec-cgroup.service` for cgroup configuration
+  on systems with systemd now works with systemd 240 or newer
+  (e.g., on Ubuntu 20.04).
+  This also affects the Debian package of BenchExec.
+- Error messages about failed cgroup access were improved.
+- Buttons below plots in the HTML table do not need to be clicked twice.
+- Directly opening the quantile tab of HTML tables via the URL works now.
+- First line of logs shown in overlay of HTML tables is selectable again.
+
 ## BenchExec 2.6
 
 This release brings several improvements for the new kind of HTML tables
