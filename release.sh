@@ -24,7 +24,7 @@ if [ "$VERSION" = "$OLD_VERSION" ]; then
   echo "Version already exists."
   exit 1
 fi
-if ! grep -q "BenchExec $VERSION" CHANGELOG.md; then
+if ! grep -q "^#* *BenchExec $VERSION" CHANGELOG.md; then
   echo "Cannot release version without changelog, please update CHANGELOG.md"
   exit 1
 fi
