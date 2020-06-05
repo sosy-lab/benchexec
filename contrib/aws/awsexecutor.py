@@ -453,24 +453,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         output_handler.output_before_run_set(runSet, start_time=start_time)
 
         for run in runSet.runs:
-            filename = os.path.split(run.log_file)[1]
-            resultFilesDir = os.path.splitext(filename)[0]
-            awsFileDir = os.path.join(benchmark.log_folder, resultFilesDir)
-            logFile = os.path.join(awsFileDir, filename)
-            shutil.move(logFile, run.log_file)
-
             dataFile = run.log_file + ".data"
-            shutil.move(logFile + ".data", dataFile)
-
-            errFile = run.log_file + ".stdError"
-            if os.path.exists(errFile):
-                shutil.move(logFile + ".stdError", errFile)
-
-            if os.path.isdir(awsFileDir):
-                if os.listdir(awsFileDir):
-                    logging.info("Dir %s contains unhandled files", awsFileDir)
-                else:
-                    os.rmdir(awsFileDir)
 
             if os.path.exists(dataFile) and os.path.exists(run.log_file):
                 try:
