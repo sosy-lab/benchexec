@@ -64,7 +64,11 @@
   "jest": {
     "moduleNameMapper": {
       "@data": "<rootDir>/src/data/data.json"
-    }
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>src/tests/setup/setup.js",
+      "<rootDir>src/tests/utils.js"
+    ]
   },
   "devDependencies": {
     "enzyme": "^3.11.0",
