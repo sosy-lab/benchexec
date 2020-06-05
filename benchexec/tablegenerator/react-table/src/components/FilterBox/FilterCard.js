@@ -7,6 +7,8 @@ import { without, pathOr } from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
+let debounceHandler = setTimeout(() => {}, 500);
+
 export default class FilterCard extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -60,7 +62,7 @@ export default class FilterCard extends React.PureComponent {
     ) {
       const { values } = this.props.filter;
       console.log("filtercard decided to update: ", values);
-      const value = [values];
+      const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value);
         this.setState({ currentMin: min, currentMax: max });
@@ -73,7 +75,6 @@ export default class FilterCard extends React.PureComponent {
       min: 0,
       max: Infinity,
     };
-    console.log("handleMinMaxValue", { propMin, propMax });
     const [vMin, vMax] = value.split(":");
     return {
       min: vMin.trim() !== "" ? Number(vMin) : propMin,
@@ -126,7 +127,6 @@ export default class FilterCard extends React.PureComponent {
       const {
         title,
         type,
-        distincts,
         min,
         max,
         categories,
@@ -160,7 +160,7 @@ export default class FilterCard extends React.PureComponent {
                       }
                     }}
                   />
-                  <label for={`cat-${category}`}>{category}</label>
+                  <label htmlFor={`cat-${category}`}>{category}</label>
                 </li>
               ))}
             </ul>
@@ -186,7 +186,7 @@ export default class FilterCard extends React.PureComponent {
                       }
                     }}
                   />
-                  <label for={`stat-${status}`}>{status}</label>
+                  <label htmlFor={`stat-${status}`}>{status}</label>
                 </li>
               ))}
             </ul>
@@ -194,19 +194,22 @@ export default class FilterCard extends React.PureComponent {
         );
       } else if (type === "text") {
         const [value] = values;
+
         body = (
-          <ul className="filter-card--body--list">
-            {distincts.map((status) => (
-              <li key={status}>
-                <input
-                  type="checkbox"
-                  name={`stat-${status}`}
-                  checked={status === value}
-                />
-                <label for={`text-${status}`}>{status}</label>
-              </li>
-            ))}
-          </ul>
+          <input
+            type="text"
+            name={`text-${title}`}
+            placeholder="Search for value"
+            value={value}
+            onChange={({ target: { value: textValue } }) => {
+              console.log({ textValue });
+              clearTimeout(debounceHandler);
+              this.setState({ values: [textValue] });
+              debounceHandler = setTimeout(() => {
+                this.sendFilterUpdate([textValue]);
+              }, 500);
+            }}
+          />
         );
       } else {
         body = (
@@ -236,13 +239,13 @@ export default class FilterCard extends React.PureComponent {
             <div className="filter-card--range-input-fields">
               <label
                 className="range-input-fields--min"
-                for={`inp-${title}-min`}
+                htmlFor={`inp-${title}-min`}
               >
                 minimum
               </label>
               <label
                 className="range-input-fields--max"
-                for={`inp-${title}-max`}
+                htmlFor={`inp-${title}-max`}
               >
                 maximum
               </label>
