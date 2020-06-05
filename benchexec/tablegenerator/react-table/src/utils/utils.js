@@ -250,10 +250,8 @@ const applyMatcher = (matcher) => (data) => {
       ({ href }) => href === idValue || href.includes(idValue),
     );
   }
-  console.log({ diffd, matcher });
   const out = diffd.filter((row) => {
     for (const tool in omit(["diff", "id"], matcher)) {
-      console.log(`matching toool ${tool}`);
       for (const column in matcher[tool]) {
         let columnPass = false;
         for (const filter of matcher[tool][column]) {
