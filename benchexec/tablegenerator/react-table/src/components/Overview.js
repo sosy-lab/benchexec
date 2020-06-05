@@ -236,7 +236,7 @@ export default class Overview extends React.Component {
                 <Route path="/table">
                   <Table
                     tableHeader={this.tableHeader}
-                    data={this.state.table}
+                    data={this.originalTable}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
                     setFilter={this.setFilter}
