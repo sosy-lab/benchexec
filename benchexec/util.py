@@ -33,6 +33,9 @@ except ImportError:
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
+TIMESTAMP_FILENAME_FORMAT = "%Y-%m-%d_%H-%M-%S"
+"""Our standard timestamp format for file names (without colons etc.)"""
+
 
 def printOut(value, end="\n"):
     """

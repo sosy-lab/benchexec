@@ -1601,9 +1601,10 @@ def main(args=None):
                 outputFilePattern = "{name}.{ext}"
         else:
             if not name:
-                name = (
-                    NAME_START + "." + time.strftime("%Y-%m-%d_%H%M", time.localtime())
+                timestamp = time.strftime(
+                    benchexec.util.TIMESTAMP_FILENAME_FORMAT, time.localtime()
                 )
+                name = NAME_START + "." + timestamp
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])

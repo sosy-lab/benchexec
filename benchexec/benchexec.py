@@ -284,7 +284,7 @@ class BenchExec(object):
             dest="start_time",
             type=parse_time_arg,
             default=None,
-            metavar="'YYYY-MM-DD hh:mm'",
+            metavar="'YYYY-MM-DD hh:mm:ss'",
             help="Set the given date and time as the start time of the benchmark.",
         )
 
@@ -440,7 +440,7 @@ def parse_time_arg(s):
     Parse a time stamp in the "year-month-day hour-minute" format.
     """
     try:
-        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M")
+        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
 
