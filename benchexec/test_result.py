@@ -36,6 +36,40 @@ from benchexec.result import (
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
+class TestExpectedResult(unittest.TestCase):
+    def test_via_string(self):
+        def test(result, subproperty):
+            expected_result = ExpectedResult(result, subproperty)
+            self.assertEqual(
+                ExpectedResult.from_str(str(expected_result)), expected_result
+            )
+
+        test(None, None)
+        test(True, None)
+        test(False, None)
+        test(True, "foo")
+        test(False, "foo")
+
+    def test_via_instance(self):
+        def test(s):
+            self.assertEqual(str(ExpectedResult.from_str(s)), s)
+
+        test("")
+        test("true")
+        test("false")
+        test("true(foo)")
+        test("false(foo)")
+
+    def test_invalid_string(self):
+        def test(s):
+            with self.assertRaises(ValueError, msg="for '{}'".format(s)):
+                ExpectedResult.from_str(s)
+
+        test("foo")
+        test("unknown")
+        test("true()")
+
+
 class TestResult(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

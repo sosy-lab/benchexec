@@ -8,6 +8,7 @@
 import collections
 import functools
 import os
+import re
 from benchexec import BenchExecException
 
 # CONSTANTS
@@ -210,6 +211,15 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
         if result and self.subproperty:
             return "{}({})".format(result, self.subproperty)
         return result
+
+    @classmethod
+    def from_str(cls, s):
+        if s == "":
+            return ExpectedResult(None, None)
+        match = re.match(r"^(true|false)(\((.+)\))?$", s)
+        if not match:
+            raise ValueError("Not a valid expected verdict: {}".format(s))
+        return ExpectedResult(match.group(1) == "true", match.group(3))
 
 
 class Property(
