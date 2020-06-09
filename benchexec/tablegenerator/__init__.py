@@ -935,9 +935,12 @@ class Row(object):
 
 
 def get_property_of_task(task_name, property_string):
+    if property_string is None:
+        return (None, None)
+
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
-        property_names = set((property_string or "").split())
+        property_names = set(property_string.split())
         try:
             task_template = model.load_task_definition_file(task_name)
             for prop_dict in task_template.get("properties", []):
@@ -959,10 +962,7 @@ def get_property_of_task(task_name, property_string):
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
 
-    if property_string:
-        return (result.Property(None, False, False, property_string, None), None)
-
-    return (None, None)
+    return (result.Property(None, False, False, property_string, None), None)
 
 
 def rows_to_columns(rows):
