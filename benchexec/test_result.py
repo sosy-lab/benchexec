@@ -14,9 +14,7 @@ import unittest
 from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
     _PROP_CALL,
-    _PROP_DEREF,
     _PROP_FREE,
-    _PROP_MEMTRACK,
     _PROP_MEMCLEANUP,
     _PROP_TERMINATION,
     _SCORE_CORRECT_FALSE,
@@ -25,8 +23,6 @@ from benchexec.result import (
     _SCORE_WRONG_FALSE,
     _PROP_OVERFLOW,
     _PROP_DEADLOCK,
-    _PROP_MEMSAFETY,
-    _MEMSAFETY_SUBPROPERTIES,
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -75,14 +71,12 @@ class TestResult(unittest.TestCase):
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 
-    prop_call = Property("dummy.prp", True, True, _PROP_CALL, [])
-    prop_deadlock = Property("dummy.prp", True, True, _PROP_DEADLOCK, [])
-    prop_memcleanup = Property("dummy.prp", True, True, _PROP_MEMCLEANUP, [])
-    prop_memsafety = Property(
-        "dummy.prp", True, True, _PROP_MEMSAFETY, list(_MEMSAFETY_SUBPROPERTIES)
-    )
-    prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
-    prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
+    prop_call = Property("dummy.prp", False, True, _PROP_CALL, [])
+    prop_deadlock = Property("dummy.prp", False, True, _PROP_DEADLOCK, [])
+    prop_memcleanup = Property("dummy.prp", False, True, _PROP_MEMCLEANUP, [])
+    prop_memsafety = Property("dummy.prp", False, True, "valid-memsafety", [])
+    prop_overflow = Property("dummy.prp", False, True, _PROP_OVERFLOW, [])
+    prop_termination = Property("dummy.prp", False, True, _PROP_TERMINATION, [])
     prop_sat = Property("dummy.prp", False, False, "satisfiable", [])
 
     def test_Property_from_standard_file(self):
@@ -91,15 +85,8 @@ class TestResult(unittest.TestCase):
         )
         for property_file in property_files:
             name = os.path.splitext(os.path.basename(property_file))[0]
-            is_svcomp = True
-            subproperties = (
-                [_PROP_FREE, _PROP_DEREF, _PROP_MEMTRACK]
-                if name == _PROP_MEMSAFETY
-                else None
-            )
-
             self.assertEqual(
-                Property(property_file, True, is_svcomp, name, subproperties),
+                Property(property_file, False, True, name, None),
                 Property.create(property_file),
             )
 
@@ -138,7 +125,6 @@ class TestResult(unittest.TestCase):
         )
 
     def test_Property_names(self):
-        self.assertEqual(list(_MEMSAFETY_SUBPROPERTIES), self.prop_memsafety.names)
         self.assertEqual([_PROP_CALL], list(self.prop_call.names))
         self.assertEqual(["test"], Property(None, False, False, "test", None).names)
         self.assertEqual(
@@ -476,7 +462,7 @@ class TestResult(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            CATEGORY_WRONG,
+            CATEGORY_UNKNOWN,
             get_result_category(
                 self.expected_result(False, "valid-deref"),
                 RESULT_FALSE_FREE,
@@ -484,7 +470,7 @@ class TestResult(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            CATEGORY_WRONG,
+            CATEGORY_UNKNOWN,
             get_result_category(
                 self.expected_result(False, "valid-free"),
                 RESULT_FALSE_MEMTRACK,
@@ -492,7 +478,7 @@ class TestResult(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            CATEGORY_WRONG,
+            CATEGORY_UNKNOWN,
             get_result_category(
                 self.expected_result(False, "valid-memtrack"),
                 RESULT_FALSE_DEREF,
@@ -633,38 +619,38 @@ class TestResult(unittest.TestCase):
     def test_result_category_different_false_result(self):
         expected_result_false = self.expected_result(False)
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_DEREF, [self.prop_call]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_call]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_call]
             ),
         )
 
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_REACH, [self.prop_termination]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_DEREF, [self.prop_termination]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_termination]
             ),
@@ -708,57 +694,57 @@ class TestResult(unittest.TestCase):
         )
 
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_REACH, [self.prop_overflow]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_DEREF, [self.prop_overflow]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_overflow]
             ),
         )
 
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_REACH, [self.prop_deadlock]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_DEREF, [self.prop_deadlock]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_deadlock]
             ),
         )
 
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_WRONG,
             get_result_category(
                 self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_call]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_WRONG,
             get_result_category(
                 self.expected_result(True), RESULT_FALSE_REACH, [self.prop_termination]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_WRONG,
             get_result_category(
                 self.expected_result(True), RESULT_FALSE_PROP, [self.prop_memsafety]
             ),

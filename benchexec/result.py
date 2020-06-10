@@ -36,8 +36,6 @@ because no property was defined, and no other categories apply."""
 
 
 # internal property names used in this module (should not contain spaces)
-# previously used by SV-COMP (http://sv-comp.sosy-lab.org/2014/rules.php)
-_PROP_LABEL = "unreach-label"
 # currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php)
 _PROP_CALL = "unreach-call"
 _PROP_TERMINATION = "termination"
@@ -47,10 +45,6 @@ _PROP_DEREF = "valid-deref"
 _PROP_FREE = "valid-free"
 _PROP_MEMTRACK = "valid-memtrack"
 _PROP_MEMCLEANUP = "valid-memcleanup"
-# for Java verification:
-_PROP_ASSERT = "assert"
-# internal meta property
-_PROP_MEMSAFETY = "valid-memsafety"
 
 # possible run results (output of a tool)
 RESULT_DONE = "done"
@@ -107,37 +101,10 @@ RESULT_CLASS_OTHER = "other"
 
 # This maps content of property files to property name.
 _PROPERTY_NAMES = {
-    "LTL(G ! label(": _PROP_LABEL,
-    "LTL(G ! call(__VERIFIER_error()))": _PROP_CALL,
-    "LTL(F end)": _PROP_TERMINATION,
-    "LTL(G valid-free)": _PROP_FREE,
-    "LTL(G valid-deref)": _PROP_DEREF,
-    "LTL(G valid-memtrack)": _PROP_MEMTRACK,
-    "LTL(G valid-memcleanup)": _PROP_MEMCLEANUP,
-    "LTL(G ! overflow)": _PROP_OVERFLOW,
-    "LTL(G ! deadlock)": _PROP_DEADLOCK,
 }
-
-_MEMSAFETY_SUBPROPERTIES = {_PROP_DEREF, _PROP_FREE, _PROP_MEMTRACK}
 
 # Map a property to all possible results for it.
 _VALID_RESULTS_PER_PROPERTY = {
-    _PROP_ASSERT: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
-    _PROP_LABEL: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
-    _PROP_CALL: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
-    _PROP_DEREF: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEREF},
-    _PROP_FREE: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_FREE},
-    _PROP_MEMTRACK: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_MEMTRACK},
-    _PROP_MEMSAFETY: {
-        RESULT_TRUE_PROP,
-        RESULT_FALSE_DEREF,
-        RESULT_FALSE_FREE,
-        RESULT_FALSE_MEMTRACK,
-    },
-    _PROP_MEMCLEANUP: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_MEMCLEANUP},
-    _PROP_OVERFLOW: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_OVERFLOW},
-    _PROP_DEADLOCK: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEADLOCK},
-    _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_TERMINATION},
 }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
@@ -225,7 +192,6 @@ class Property(
         # parse content for known properties
         is_svcomp = False
         known_properties = []
-        only_known_svcomp_property = True
 
         if False:
             known_properties = [_PROPERTY_NAMES[content]]
@@ -233,36 +199,16 @@ class Property(
         elif content.startswith("CHECK"):
             is_svcomp = True
             for line in filter(None, content.splitlines()):
-                if line.startswith("CHECK"):
-                    # SV-COMP property, either a well-known one or a new one
-                    props_in_line = [
-                        prop
-                        for (substring, prop) in _PROPERTY_NAMES.items()
-                        if substring in line
-                    ]
-                    if len(props_in_line) == 1:
-                        known_properties.append(props_in_line[0])
-                    else:
-                        only_known_svcomp_property = False
-                else:
+                if not line.startswith("CHECK"):
                     # not actually an SV-COMP property file
                     is_svcomp = False
-                    known_properties = []
                     break
 
         # check if some known property content was found
         subproperties = None
-        if only_known_svcomp_property and len(known_properties) == 1:
+        if len(known_properties) == 1:
             is_well_known = True
             name = known_properties[0]
-
-        elif (
-            only_known_svcomp_property
-            and set(known_properties) == _MEMSAFETY_SUBPROPERTIES
-        ):
-            is_well_known = True
-            name = _PROP_MEMSAFETY
-            subproperties = list(known_properties)
 
         else:
             is_well_known = False
