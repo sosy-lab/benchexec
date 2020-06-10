@@ -14,7 +14,6 @@ import unittest
 from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
     _PROP_CALL,
-    _PROP_AUTOMATON,
     _PROP_DEREF,
     _PROP_FREE,
     _PROP_MEMTRACK,
@@ -92,8 +91,7 @@ class TestResult(unittest.TestCase):
         )
         for property_file in property_files:
             name = os.path.splitext(os.path.basename(property_file))[0]
-
-            is_svcomp = name not in {_PROP_AUTOMATON}
+            is_svcomp = True
             subproperties = (
                 [_PROP_FREE, _PROP_DEREF, _PROP_MEMTRACK]
                 if name == _PROP_MEMSAFETY

@@ -49,8 +49,6 @@ _PROP_MEMTRACK = "valid-memtrack"
 _PROP_MEMCLEANUP = "valid-memcleanup"
 # for Java verification:
 _PROP_ASSERT = "assert"
-# specification given as an automaton:
-_PROP_AUTOMATON = "observer-automaton"
 # internal meta property
 _PROP_MEMSAFETY = "valid-memsafety"
 
@@ -119,7 +117,6 @@ _PROPERTY_NAMES = {
     "LTL(G valid-deref)": _PROP_DEREF,
     "LTL(G valid-memtrack)": _PROP_MEMTRACK,
     "LTL(G valid-memcleanup)": _PROP_MEMCLEANUP,
-    "OBSERVER AUTOMATON": _PROP_AUTOMATON,
     "LTL(G ! overflow)": _PROP_OVERFLOW,
     "LTL(G ! deadlock)": _PROP_DEADLOCK,
 }
@@ -131,7 +128,6 @@ _VALID_RESULTS_PER_PROPERTY = {
     _PROP_ASSERT: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
     _PROP_LABEL: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
     _PROP_CALL: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
-    _PROP_AUTOMATON: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_REACH},
     _PROP_DEREF: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEREF},
     _PROP_FREE: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_FREE},
     _PROP_MEMTRACK: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_MEMTRACK},
@@ -234,7 +230,7 @@ class Property(
         known_properties = []
         only_known_svcomp_property = True
 
-        if content == "OBSERVER AUTOMATON":
+        if False:
             known_properties = [_PROPERTY_NAMES[content]]
 
         elif content.startswith("CHECK"):
