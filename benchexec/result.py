@@ -284,7 +284,7 @@ class Property(
         elif content.startswith("CHECK"):
             is_svcomp = True
             for line in filter(None, content.splitlines()):
-                if content.startswith("CHECK"):
+                if line.startswith("CHECK"):
                     # SV-COMP property, either a well-known one or a new one
                     props_in_line = [
                         prop
