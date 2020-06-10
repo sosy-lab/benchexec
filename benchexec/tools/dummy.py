@@ -38,6 +38,6 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
             line = line.strip()
-            if line in result.RESULT_LIST:
+            if result.get_result_classification(line) != result.RESULT_CLASS_OTHER:
                 return line
         return result.RESULT_UNKNOWN

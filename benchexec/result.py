@@ -59,7 +59,6 @@ RESULT_TRUE_PROP = "true"
 RESULT_FALSE_PROP = "false"
 """property does not hold"""
 RESULT_FALSE_REACH = RESULT_FALSE_PROP + "(" + _PROP_CALL + ")"
-_RESULT_FALSE_REACH_OLD = RESULT_FALSE_PROP + "(reach)"
 """SV-COMP reachability property violated"""
 RESULT_FALSE_TERMINATION = RESULT_FALSE_PROP + "(" + _PROP_TERMINATION + ")"
 """SV-COMP termination property violated"""
@@ -76,21 +75,6 @@ RESULT_FALSE_MEMTRACK = RESULT_FALSE_PROP + "(" + _PROP_MEMTRACK + ")"
 RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(" + _PROP_MEMCLEANUP + ")"
 """SV-COMP valid-memcleanup property violated"""
 
-# List of all possible results.
-# If a result is not in this list, it is handled as RESULT_CLASS_OTHER.
-RESULT_LIST = [
-    RESULT_TRUE_PROP,
-    RESULT_FALSE_PROP,
-    RESULT_FALSE_REACH,
-    _RESULT_FALSE_REACH_OLD,
-    RESULT_FALSE_TERMINATION,
-    RESULT_FALSE_DEREF,
-    RESULT_FALSE_FREE,
-    RESULT_FALSE_MEMTRACK,
-    RESULT_FALSE_MEMCLEANUP,
-    RESULT_FALSE_OVERFLOW,
-    RESULT_FALSE_DEADLOCK,
-]
 RESULT_LIST_OTHER = [RESULT_DONE, RESULT_ERROR, RESULT_UNKNOWN]
 """list of unspecific standard results besides true/false"""
 
@@ -266,19 +250,19 @@ def get_result_classification(result):
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @return One of RESULT_CLASS_* strings
     """
-    if result not in RESULT_LIST:
-        if (
-            result
-            and result.startswith(RESULT_FALSE_PROP + "(")
-            and result.endswith(")")
-        ):
-            return RESULT_CLASS_FALSE
+    if not result:
         return RESULT_CLASS_OTHER
+
+    if result == RESULT_FALSE_PROP:
+        return RESULT_CLASS_FALSE
+
+    if result.startswith(RESULT_FALSE_PROP + "(") and result.endswith(")"):
+        return RESULT_CLASS_FALSE
 
     if result == RESULT_TRUE_PROP:
         return RESULT_CLASS_TRUE
-    else:
-        return RESULT_CLASS_FALSE
+
+    return RESULT_CLASS_OTHER
 
 
 def get_result_category(expected_results, result, properties):
