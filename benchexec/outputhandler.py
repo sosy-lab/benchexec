@@ -375,9 +375,7 @@ class OutputHandler(object):
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                all_properties = (
-                    prop_name for prop in run.properties for prop_name in prop.names
-                )
+                all_properties = (prop.name for prop in run.properties)
                 run.xml.set("properties", " ".join(sorted(all_properties)))
             if len(run.properties) == 1:
                 prop = run.properties[0]

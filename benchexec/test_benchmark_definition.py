@@ -60,7 +60,7 @@ def mock_load_task_def_file(f):
 
 def mock_property_create(property_file):
     assert property_file == "test.prp"
-    return benchexec.result.Property("test.prp", False, False, "test", None)
+    return benchexec.result.Property("test.prp", False, False, "test")
 
 
 class TestBenchmarkDefinition(unittest.TestCase):

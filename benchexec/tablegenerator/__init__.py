@@ -950,7 +950,7 @@ def get_property_of_task(
             prop = result.Property.create(property_file)
         except OSError as e:
             logging.debug("Cannot read property file %s: %s", property_file, e)
-            prop = result.Property(property_file, False, False, property_string, None)
+            prop = result.Property(property_file, False, False, property_string)
 
         if expected_result is not None:
             expected_result = result.ExpectedResult.from_str(expected_result)
@@ -959,7 +959,6 @@ def get_property_of_task(
 
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
-        property_names = set(property_string.split())
         try:
             task_template = model.load_task_definition_file(task_name)
             for prop_dict in task_template.get("properties", []):
@@ -969,7 +968,7 @@ def get_property_of_task(
                     )
                     if len(expanded) == 1:
                         prop = result.Property.create(expanded[0])
-                        if set(prop.names) == property_names:
+                        if prop.name == property_string:
                             expected_result = prop_dict.get("expected_verdict")
                             if isinstance(expected_result, bool):
                                 expected_result = result.ExpectedResult(
@@ -981,7 +980,7 @@ def get_property_of_task(
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
 
-    return (result.Property(None, False, False, property_string, None), None)
+    return (result.Property(None, False, False, property_string), None)
 
 
 def rows_to_columns(rows):

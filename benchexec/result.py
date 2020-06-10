@@ -140,17 +140,11 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
 
 
 class Property(
-    collections.namedtuple(
-        "Property", "filename is_well_known is_svcomp name subproperties"
-    )
+    collections.namedtuple("Property", "filename is_well_known is_svcomp name")
 ):
     """Stores information about a property"""
 
     __slots__ = ()  # reduce per-instance memory consumption
-
-    @property
-    def names(self):
-        return self.subproperties or [self.name]
 
     def compute_score(self, category, result):
         if not self.is_svcomp:
@@ -205,7 +199,6 @@ class Property(
                     break
 
         # check if some known property content was found
-        subproperties = None
         if len(known_properties) == 1:
             is_well_known = True
             name = known_properties[0]
@@ -214,7 +207,7 @@ class Property(
             is_well_known = False
             name = os.path.splitext(os.path.basename(propertyfile))[0]
 
-        return cls(propertyfile, is_well_known, is_svcomp, name, subproperties)
+        return cls(propertyfile, is_well_known, is_svcomp, name)
 
 
 def _svcomp_max_score(expected_result):
