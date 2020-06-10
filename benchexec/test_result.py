@@ -71,13 +71,13 @@ class TestResult(unittest.TestCase):
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 
-    prop_call = Property("dummy.prp", False, True, _PROP_CALL)
-    prop_deadlock = Property("dummy.prp", False, True, _PROP_DEADLOCK)
-    prop_memcleanup = Property("dummy.prp", False, True, _PROP_MEMCLEANUP)
-    prop_memsafety = Property("dummy.prp", False, True, "valid-memsafety")
-    prop_overflow = Property("dummy.prp", False, True, _PROP_OVERFLOW)
-    prop_termination = Property("dummy.prp", False, True, _PROP_TERMINATION)
-    prop_sat = Property("dummy.prp", False, False, "satisfiable")
+    prop_call = Property("dummy.prp", True, _PROP_CALL)
+    prop_deadlock = Property("dummy.prp", True, _PROP_DEADLOCK)
+    prop_memcleanup = Property("dummy.prp", True, _PROP_MEMCLEANUP)
+    prop_memsafety = Property("dummy.prp", True, "valid-memsafety")
+    prop_overflow = Property("dummy.prp", True, _PROP_OVERFLOW)
+    prop_termination = Property("dummy.prp", True, _PROP_TERMINATION)
+    prop_sat = Property("dummy.prp", False, "satisfiable")
 
     def test_Property_from_standard_file(self):
         property_files = glob.glob(
@@ -86,8 +86,7 @@ class TestResult(unittest.TestCase):
         for property_file in property_files:
             name = os.path.splitext(os.path.basename(property_file))[0]
             self.assertEqual(
-                Property(property_file, False, True, name),
-                Property.create(property_file),
+                Property(property_file, True, name), Property.create(property_file),
             )
 
     def _test_Property_from_file(self, content, is_svcomp):
@@ -101,7 +100,6 @@ class TestResult(unittest.TestCase):
             self.assertEqual(
                 Property(
                     filename=filename,
-                    is_well_known=False,
                     is_svcomp=is_svcomp,
                     name=os.path.splitext(os.path.basename(filename))[0],
                 ),
@@ -370,7 +368,7 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-        test_prop = Property("dummy.prp", False, True, "test prop")
+        test_prop = Property("dummy.prp", True, "test prop")
         self.assertEqual(
             CATEGORY_CORRECT,
             get_result_category(
@@ -384,7 +382,7 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-        test_prop = Property("dummy.prp", False, True, "test prop")
+        test_prop = Property("dummy.prp", True, "test prop")
         self.assertEqual(
             CATEGORY_CORRECT,
             get_result_category(
@@ -567,7 +565,7 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-        test_prop = Property("dummy.prp", False, True, "test prop")
+        test_prop = Property("dummy.prp", True, "test prop")
         self.assertEqual(
             CATEGORY_WRONG,
             get_result_category(
@@ -588,7 +586,7 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-        test_prop = Property("dummy.prp", False, True, "test prop")
+        test_prop = Property("dummy.prp", True, "test prop")
         self.assertEqual(
             CATEGORY_WRONG,
             get_result_category(
@@ -766,7 +764,7 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-        test_prop = Property("dummy.prp", False, True, "test prop")
+        test_prop = Property("dummy.prp", True, "test prop")
         self.assertEqual(
             CATEGORY_UNKNOWN,
             get_result_category(

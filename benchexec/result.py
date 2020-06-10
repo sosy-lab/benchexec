@@ -83,14 +83,6 @@ RESULT_CLASS_TRUE = "true"
 RESULT_CLASS_FALSE = "false"
 RESULT_CLASS_OTHER = "other"
 
-# This maps content of property files to property name.
-_PROPERTY_NAMES = {
-}
-
-# Map a property to all possible results for it.
-_VALID_RESULTS_PER_PROPERTY = {
-}
-
 # Score values taken from http://sv-comp.sosy-lab.org/
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
@@ -123,9 +115,7 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
         return ExpectedResult(match.group(1) == "true", match.group(3))
 
 
-class Property(
-    collections.namedtuple("Property", "filename is_well_known is_svcomp name")
-):
+class Property(collections.namedtuple("Property", "filename is_svcomp name")):
     """Stores information about a property"""
 
     __slots__ = ()  # reduce per-instance memory consumption
@@ -147,11 +137,10 @@ class Property(
 
     @property
     def nice_name(self):
-        use_short_name = self.is_well_known or not self.filename
         return (
             ("SV-COMP-" if self.is_svcomp else "")
             + "Property "
-            + (self.name if use_short_name else "from " + self.filename)
+            + (("from " + self.filename) if self.filename else self.name)
         )
 
     def __str__(self):
@@ -167,14 +156,8 @@ class Property(
         with open(propertyfile) as f:
             content = f.read().strip()
 
-        # parse content for known properties
         is_svcomp = False
-        known_properties = []
-
-        if False:
-            known_properties = [_PROPERTY_NAMES[content]]
-
-        elif content.startswith("CHECK"):
+        if content.startswith("CHECK"):
             is_svcomp = True
             for line in filter(None, content.splitlines()):
                 if not line.startswith("CHECK"):
@@ -182,16 +165,9 @@ class Property(
                     is_svcomp = False
                     break
 
-        # check if some known property content was found
-        if len(known_properties) == 1:
-            is_well_known = True
-            name = known_properties[0]
+        name = os.path.splitext(os.path.basename(propertyfile))[0]
 
-        else:
-            is_well_known = False
-            name = os.path.splitext(os.path.basename(propertyfile))[0]
-
-        return cls(propertyfile, is_well_known, is_svcomp, name)
+        return cls(propertyfile, is_svcomp, name)
 
 
 def _svcomp_max_score(expected_result):
@@ -296,10 +272,7 @@ def get_result_category(expected_results, result, properties):
         # expected result of task is unknown
         return CATEGORY_MISSING
 
-    if prop.is_well_known:
-        # for well-known properties, only support hard-coded results
-        is_valid_result = result in _VALID_RESULTS_PER_PROPERTY[prop.name]
-    elif expected_result.subproperty:
+    if expected_result.subproperty:
         is_valid_result = result in {
             RESULT_TRUE_PROP,
             RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")",

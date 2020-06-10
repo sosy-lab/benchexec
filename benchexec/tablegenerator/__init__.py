@@ -950,7 +950,7 @@ def get_property_of_task(
             prop = result.Property.create(property_file)
         except OSError as e:
             logging.debug("Cannot read property file %s: %s", property_file, e)
-            prop = result.Property(property_file, False, False, property_string)
+            prop = result.Property(property_file, False, property_string)
 
         if expected_result is not None:
             expected_result = result.ExpectedResult.from_str(expected_result)
@@ -980,7 +980,7 @@ def get_property_of_task(
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
 
-    return (result.Property(None, False, False, property_string), None)
+    return (result.Property(None, False, property_string), None)
 
 
 def rows_to_columns(rows):
