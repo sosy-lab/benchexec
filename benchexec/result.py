@@ -9,7 +9,6 @@ import collections
 import functools
 import os
 import re
-from benchexec import BenchExecException
 
 # CONSTANTS
 
@@ -232,11 +231,10 @@ class Property(
 
     @classmethod
     @functools.lru_cache()  # cache because it reads files
-    def create(cls, propertyfile, allow_unknown):
+    def create(cls, propertyfile):
         """
         Create a Property instance by attempting to parse the given property file.
         @param propertyfile: A file name of a property file
-        @param allow_unknown: Whether to accept unknown properties
         """
         with open(propertyfile) as f:
             content = f.read().strip()
@@ -284,10 +282,6 @@ class Property(
             subproperties = list(known_properties)
 
         else:
-            if not allow_unknown:
-                raise BenchExecException(
-                    'File "{0}" does not contain a known property.'.format(propertyfile)
-                )
             is_well_known = False
             name = os.path.splitext(os.path.basename(propertyfile))[0]
 

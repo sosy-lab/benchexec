@@ -947,7 +947,7 @@ def get_property_of_task(
     if property_file:
         property_file = normalize_path(property_file, base_path)
         try:
-            prop = result.Property.create(property_file, allow_unknown=True)
+            prop = result.Property.create(property_file)
         except OSError as e:
             logging.debug("Cannot read property file %s: %s", property_file, e)
             prop = result.Property(property_file, False, False, property_string, None)
@@ -968,7 +968,7 @@ def get_property_of_task(
                         prop_dict["property_file"], os.path.dirname(task_name)
                     )
                     if len(expanded) == 1:
-                        prop = result.Property.create(expanded[0], allow_unknown=True)
+                        prop = result.Property.create(expanded[0])
                         if set(prop.names) == property_names:
                             expected_result = prop_dict.get("expected_verdict")
                             if isinstance(expected_result, bool):

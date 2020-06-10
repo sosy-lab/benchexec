@@ -103,7 +103,7 @@ class TestResult(unittest.TestCase):
 
             self.assertEqual(
                 Property(property_file, True, is_svcomp, name, subproperties),
-                Property.create(property_file, allow_unknown=False),
+                Property.create(property_file),
             )
 
     def _test_Property_from_file(self, content, is_svcomp):
@@ -114,13 +114,6 @@ class TestResult(unittest.TestCase):
             temp_file.flush()
             filename = temp_file.name
 
-            with self.assertRaisesRegex(
-                BenchExecException,
-                "known property",
-                msg="for property file with content\n" + content,
-            ):
-                Property.create(filename, allow_unknown=False)
-
             self.assertEqual(
                 Property(
                     filename=filename,
@@ -129,7 +122,7 @@ class TestResult(unittest.TestCase):
                     name=os.path.splitext(os.path.basename(filename))[0],
                     subproperties=None,
                 ),
-                Property.create(filename, allow_unknown=True),
+                Property.create(filename),
                 msg="different result for property file with content\n" + content,
             )
 

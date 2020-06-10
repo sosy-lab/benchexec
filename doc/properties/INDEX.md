@@ -43,27 +43,6 @@ but `benchexec` will pass them only as parameter to the tool.
 It will not check the tool result whether it is as expected
 and it will not compute scores.
 
-In this mode, only the specific property files in this directory are valid:
-
-- [unreach-call](unreach-call.prp): Reachability of an error function in a program (defined by [SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
-- [unreach-label](unreach-label.prp): Reachability of an error label in a program (defined by [previous SV-Comp](http://sv-comp.sosy-lab.org/2014/rules.php))
-- [valid-memsafety](valid-memsafety.prp): Memory safety of a program ([defined by SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
-- [no-overflow](no-overflow.prp): Absence of signed integer overflows in a program ([defined by SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
-- [termination](termination.prp): Termination of a program (defined by [SV-Comp](http://sv-comp.sosy-lab.org/2017/rules.php))
-- [no-deadlock](no-deadlock.prp): Absence of deadlocks in a program
-- [observer-automaton](observer-automaton.prp): Specification given by an additional observer automaton for programs
-- [sat](sat.prp): Satisfiability of a formula
-
-The property `valid-memsafety` actually consists of the three properties
-`valid-deref`, `valid-free`, and `valid-memtrack`,
-which can also be used individually.
-
-Some properties contain additional information,
-such as the entry function or the name of the error function to check for reachability.
-This information can be changed without affecting BenchExec,
-but otherwise the property files cannot be changed in this mode
-(use task-definition files if you need arbitrary properties).
-
 For creating task-definition files for tasks where the expected result
 is encoded in the file name (as it was previously supported by `benchexec`)
 we provide a [helper script](../../contrib/create_yaml_files.py).

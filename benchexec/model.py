@@ -699,7 +699,7 @@ class RunSet(object):
         if not run.propertyfile:
             return run
 
-        prop = result.Property.create(run.propertyfile, allow_unknown=False)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
 
         if run.propertytag.get("expectedverdict"):
@@ -768,7 +768,7 @@ class RunSet(object):
             return run
 
         # TODO: support "property_name" attribute in yaml
-        prop = result.Property.create(run.propertyfile, allow_unknown=True)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
 
         for prop_dict in task_def.get("properties", []):
