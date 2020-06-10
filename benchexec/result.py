@@ -51,8 +51,6 @@ _PROP_MEMCLEANUP = "valid-memcleanup"
 _PROP_ASSERT = "assert"
 # specification given as an automaton:
 _PROP_AUTOMATON = "observer-automaton"
-# for solvers:
-_PROP_SAT = "sat"
 # internal meta property
 _PROP_MEMSAFETY = "valid-memsafety"
 
@@ -87,10 +85,6 @@ RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(" + _PROP_MEMCLEANUP + ")"
 """SV-COMP valid-memcleanup property violated"""
 RESULT_WITNESS_CONFIRMED = "witness confirmed"
 """SV-COMP property violated and witness confirmed"""
-RESULT_SAT = "sat"
-"""task is satisfiable"""
-RESULT_UNSAT = "unsat"
-"""task is unsatisfiable"""
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_OTHER.
@@ -105,8 +99,6 @@ RESULT_LIST = [
     RESULT_FALSE_MEMTRACK,
     RESULT_FALSE_MEMCLEANUP,
     RESULT_WITNESS_CONFIRMED,
-    RESULT_SAT,
-    RESULT_UNSAT,
     RESULT_FALSE_OVERFLOW,
     RESULT_FALSE_DEADLOCK,
 ]
@@ -128,7 +120,6 @@ _PROPERTY_NAMES = {
     "LTL(G valid-memtrack)": _PROP_MEMTRACK,
     "LTL(G valid-memcleanup)": _PROP_MEMCLEANUP,
     "OBSERVER AUTOMATON": _PROP_AUTOMATON,
-    "SATISFIABLE": _PROP_SAT,
     "LTL(G ! overflow)": _PROP_OVERFLOW,
     "LTL(G ! deadlock)": _PROP_DEADLOCK,
 }
@@ -154,7 +145,6 @@ _VALID_RESULTS_PER_PROPERTY = {
     _PROP_OVERFLOW: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_OVERFLOW},
     _PROP_DEADLOCK: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_DEADLOCK},
     _PROP_TERMINATION: {RESULT_TRUE_PROP, RESULT_FALSE_PROP, RESULT_FALSE_TERMINATION},
-    _PROP_SAT: {RESULT_SAT, RESULT_UNSAT},
 }
 
 # Score values taken from http://sv-comp.sosy-lab.org/
@@ -244,7 +234,7 @@ class Property(
         known_properties = []
         only_known_svcomp_property = True
 
-        if content == "OBSERVER AUTOMATON" or content == "SATISFIABLE":
+        if content == "OBSERVER AUTOMATON":
             known_properties = [_PROPERTY_NAMES[content]]
 
         elif content.startswith("CHECK"):
@@ -353,7 +343,7 @@ def get_result_classification(result):
             return RESULT_CLASS_FALSE
         return RESULT_CLASS_OTHER
 
-    if result == RESULT_TRUE_PROP or result == RESULT_SAT:
+    if result == RESULT_TRUE_PROP:
         return RESULT_CLASS_TRUE
     else:
         return RESULT_CLASS_FALSE

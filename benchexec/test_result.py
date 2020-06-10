@@ -20,7 +20,6 @@ from benchexec.result import (
     _PROP_MEMTRACK,
     _PROP_MEMCLEANUP,
     _PROP_TERMINATION,
-    _PROP_SAT,
     _SCORE_CORRECT_FALSE,
     _SCORE_CORRECT_TRUE,
     _SCORE_WRONG_TRUE,
@@ -85,7 +84,7 @@ class TestResult(unittest.TestCase):
     )
     prop_overflow = Property("dummy.prp", True, True, _PROP_OVERFLOW, [])
     prop_termination = Property("dummy.prp", True, True, _PROP_TERMINATION, [])
-    prop_sat = Property("dummy.prp", True, False, _PROP_SAT, [])
+    prop_sat = Property("dummy.prp", False, False, "satisfiable", [])
 
     def test_Property_from_standard_file(self):
         property_files = glob.glob(
@@ -94,7 +93,7 @@ class TestResult(unittest.TestCase):
         for property_file in property_files:
             name = os.path.splitext(os.path.basename(property_file))[0]
 
-            is_svcomp = name not in {_PROP_SAT, _PROP_AUTOMATON}
+            is_svcomp = name not in {_PROP_AUTOMATON}
             subproperties = (
                 [_PROP_FREE, _PROP_DEREF, _PROP_MEMTRACK]
                 if name == _PROP_MEMSAFETY
@@ -143,7 +142,6 @@ class TestResult(unittest.TestCase):
     def test_Property_names(self):
         self.assertEqual(list(_MEMSAFETY_SUBPROPERTIES), self.prop_memsafety.names)
         self.assertEqual([_PROP_CALL], list(self.prop_call.names))
-        self.assertEqual([_PROP_SAT], list(self.prop_sat.names))
         self.assertEqual(["test"], Property(None, False, False, "test", None).names)
         self.assertEqual(
             ["a", "b"], Property(None, False, False, "test", ["a", "b"]).names
@@ -190,8 +188,10 @@ class TestResult(unittest.TestCase):
         )
 
     def test_Property_compute_score_smt(self):
-        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_SAT))
-        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_SAT))
+        self.assertIsNone(
+            self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP)
+        )
+        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
 
     def test_Property_compute_score_svcomp(self):
         self.assertEqual(
@@ -286,7 +286,6 @@ class TestResult(unittest.TestCase):
 
     def test_result_classification(self):
         self.assertEqual(RESULT_CLASS_TRUE, get_result_classification(RESULT_TRUE_PROP))
-        self.assertEqual(RESULT_CLASS_TRUE, get_result_classification(RESULT_SAT))
 
         self.assertEqual(
             RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_REACH)
@@ -303,7 +302,6 @@ class TestResult(unittest.TestCase):
         self.assertEqual(
             RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_TERMINATION)
         )
-        self.assertEqual(RESULT_CLASS_FALSE, get_result_classification(RESULT_UNSAT))
         self.assertEqual(
             RESULT_CLASS_FALSE, get_result_classification(RESULT_WITNESS_CONFIRMED)
         )
@@ -372,18 +370,6 @@ class TestResult(unittest.TestCase):
             CATEGORY_WRONG,
             get_result_category(
                 self.expected_result(False), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_SAT, [self.prop_sat]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_SAT, [self.prop_sat]
             ),
         )
         self.assertEqual(
@@ -537,18 +523,6 @@ class TestResult(unittest.TestCase):
         self.assertEqual(
             CATEGORY_WRONG,
             get_result_category(
-                self.expected_result(True), RESULT_UNSAT, [self.prop_sat]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_UNSAT, [self.prop_sat]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
                 self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_overflow]
             ),
         )
@@ -677,10 +651,6 @@ class TestResult(unittest.TestCase):
         )
         self.assertEqual(
             CATEGORY_UNKNOWN,
-            get_result_category(expected_result_false, RESULT_UNSAT, [self.prop_call]),
-        )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
             get_result_category(
                 expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_call]
             ),
@@ -701,48 +671,42 @@ class TestResult(unittest.TestCase):
         self.assertEqual(
             CATEGORY_UNKNOWN,
             get_result_category(
-                expected_result_false, RESULT_UNSAT, [self.prop_termination]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
                 expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_termination]
             ),
         )
 
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_REACH, [self.prop_sat]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_DEREF, [self.prop_sat]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_sat]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_sat]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_WRONG,
             get_result_category(
                 self.expected_result(True), RESULT_FALSE_PROP, [self.prop_sat]
             ),
         )
         self.assertEqual(
-            CATEGORY_UNKNOWN,
+            CATEGORY_CORRECT,
             get_result_category(
                 expected_result_false, RESULT_FALSE_PROP, [self.prop_sat]
             ),
@@ -766,12 +730,6 @@ class TestResult(unittest.TestCase):
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_overflow]
             ),
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                expected_result_false, RESULT_UNSAT, [self.prop_overflow]
-            ),
-        )
 
         self.assertEqual(
             CATEGORY_UNKNOWN,
@@ -789,12 +747,6 @@ class TestResult(unittest.TestCase):
             CATEGORY_UNKNOWN,
             get_result_category(
                 expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_deadlock]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                expected_result_false, RESULT_UNSAT, [self.prop_deadlock]
             ),
         )
 
@@ -849,19 +801,6 @@ class TestResult(unittest.TestCase):
             ),
         )
 
-    def test_result_category_different_true_result(self):
-        expected_result_true = self.expected_result(True)
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(expected_result_true, RESULT_SAT, [self.prop_call]),
-        )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                expected_result_true, RESULT_TRUE_PROP, [self.prop_sat]
-            ),
-        )
-
     def test_result_category_no_property(self):
         self.assertEqual(
             CATEGORY_MISSING,
@@ -888,14 +827,6 @@ class TestResult(unittest.TestCase):
         self.assertEqual(
             CATEGORY_MISSING,
             get_result_category(self.expected_result(False), RESULT_TRUE_PROP, []),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_SAT, []),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(False), RESULT_SAT, []),
         )
         self.assertEqual(
             CATEGORY_MISSING,
@@ -943,18 +874,6 @@ class TestResult(unittest.TestCase):
                 self.expected_result(None), RESULT_FALSE_PROP, [self.prop_termination]
             ),
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_SAT, [self.prop_sat]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_UNSAT, [self.prop_sat]
-            ),
-        )
 
         self.assertEqual(
             CATEGORY_MISSING,
@@ -979,12 +898,6 @@ class TestResult(unittest.TestCase):
         self.assertEqual(
             CATEGORY_MISSING,
             get_result_category({}, RESULT_FALSE_PROP, [self.prop_termination]),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING, get_result_category({}, RESULT_SAT, [self.prop_sat])
-        )
-        self.assertEqual(
-            CATEGORY_MISSING, get_result_category({}, RESULT_UNSAT, [self.prop_sat])
         )
 
     def test_result_category_different_property(self):
@@ -1027,18 +940,6 @@ class TestResult(unittest.TestCase):
             CATEGORY_MISSING,
             get_result_category(
                 other_expected_result(False), RESULT_TRUE_PROP, [self.prop_call]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(True), RESULT_SAT, [self.prop_call]
-            ),
-        )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(False), RESULT_SAT, [self.prop_call]
             ),
         )
 
