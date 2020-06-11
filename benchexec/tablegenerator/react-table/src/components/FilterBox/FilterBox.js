@@ -2,7 +2,7 @@ import React from "react";
 import FilterContainer from "./FilterContainer";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { equals } from "ramda";
+import equals from "deep-equal";
 
 export default class FilterBox extends React.PureComponent {
   constructor(props) {

@@ -2,7 +2,7 @@ import React from "react";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FilterCard from "./FilterCard";
-import { equals } from "ramda";
+import equals from "deep-equal";
 
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
