@@ -120,8 +120,7 @@ export default function Table(props) {
           );
         },
         filterMethod: (filter, row) => {
-          const id = filter.pivotId || filter.id;
-          return row[id].some((v) => v && v.includes(filter.value));
+          return true;
         },
         Filter: FilterInputField,
       },
@@ -159,16 +158,7 @@ export default function Table(props) {
     },
     sortMethod: textSortMethod,
     filterMethod: (filter, row) => {
-      const cellValue = getRawOrDefault(row[filter.id]);
-      if (!filter.value || filter.value === "all ") {
-        return true;
-      } else if (filter.value.endsWith(" ")) {
-        // category filters are marked with space at end
-        const category = row._original.results[runSetIdx].category;
-        return category === filter.value.trim();
-      } else {
-        return filter.value === cellValue;
-      }
+      return true;
     },
     Filter: ({ filter, onChange }) => {
       const categoryValues = props.categoryValues[runSetIdx][columnIdx];
@@ -223,9 +213,7 @@ export default function Table(props) {
       Cell: (cell) => (
         <StandardCell cell={cell} toggleLinkOverlay={props.toggleLinkOverlay} />
       ),
-      filterMethod: isNumericColumn(column)
-        ? applyNumericFilter
-        : applyTextFilter,
+      filterMethod: () => true,
       Filter: (filter) => (
         <FilterInputField numeric={isNumericColumn(column)} {...filter} />
       ),
@@ -251,7 +239,7 @@ export default function Table(props) {
         className="-highlight"
         minRows={0}
         onFilteredChange={(filtered) => {
-          props.filterPlotData(filtered, false);
+          props.filterPlotData(filtered, true);
         }}
       >
         {(_, makeTable) => {
