@@ -301,9 +301,6 @@ class TestResult(unittest.TestCase):
             RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_TERMINATION)
         )
         self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_WITNESS_CONFIRMED)
-        )
-        self.assertEqual(
             RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_OVERFLOW)
         )
         self.assertEqual(

@@ -81,8 +81,6 @@ RESULT_FALSE_MEMTRACK = RESULT_FALSE_PROP + "(" + _PROP_MEMTRACK + ")"
 """SV-COMP valid-memtrack property violated"""
 RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(" + _PROP_MEMCLEANUP + ")"
 """SV-COMP valid-memcleanup property violated"""
-RESULT_WITNESS_CONFIRMED = "witness confirmed"
-"""SV-COMP property violated and witness confirmed"""
 
 # List of all possible results.
 # If a result is not in this list, it is handled as RESULT_CLASS_OTHER.
@@ -96,7 +94,6 @@ RESULT_LIST = [
     RESULT_FALSE_FREE,
     RESULT_FALSE_MEMTRACK,
     RESULT_FALSE_MEMCLEANUP,
-    RESULT_WITNESS_CONFIRMED,
     RESULT_FALSE_OVERFLOW,
     RESULT_FALSE_DEADLOCK,
 ]
