@@ -13,15 +13,15 @@ SPDX-License-Identifier: Apache-2.0
 This allows to have the same input file be used with different expected results
 depending on the given property file.
 A property file can be an arbitrary file that is listed in the
-[task-definition file](../benchexec.md#task-definition-files)
-([example](../task-definition-example.yml#L22)).
+[task-definition file](benchexec.md#task-definition-files)
+([example](task-definition-example.yml#L22)).
 For benchmarking, one selects the property file to be used
-in the `<propertyfile>` tag of the [benchmark definition](../benchexec.md#input-for-benchexec).
+in the `<propertyfile>` tag of the [benchmark definition](benchexec.md#input-for-benchexec).
 Note that you can use variables in this tag,
 for example `<propertyfile>${taskdef_path}/ALL.prp</propertyfile>`
 refers to the file `ALL.prp` in the same directory as the respective task-definition file.
 
-The [tool-info module](../tool-integration.md) is given the name of the selected property file
+The [tool-info module](tool-integration.md) is given the name of the selected property file
 and can pass it along to the tool, but it does not need to
 (property files can be used without support of the tool).
 `benchexec` then looks up the expected result for the selected property file in the task-definition file.
@@ -45,4 +45,4 @@ and it will not compute scores.
 
 For creating task-definition files for tasks where the expected result
 is encoded in the file name (as it was previously supported by `benchexec`)
-we provide a [helper script](../../contrib/create_yaml_files.py).
+we provide a [helper script](../contrib/create_yaml_files.py).

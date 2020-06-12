@@ -20,7 +20,7 @@ input_files:
 # Each matching file or directory is treated as required for the task,
 # but will not be explicitly given to the tool.
 required_files:
-  - 'properties/'
+  - './'
 
 # Optional, contains list of dicts, each with at least the key "property_file".
 # Existing entries specify which properties can be used for tasks from this file.

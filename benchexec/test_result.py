@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import glob
 import logging
 import sys
 import tempfile
@@ -78,16 +77,6 @@ class TestResult(unittest.TestCase):
     prop_overflow = Property("dummy.prp", True, _PROP_OVERFLOW)
     prop_termination = Property("dummy.prp", True, _PROP_TERMINATION)
     prop_sat = Property("dummy.prp", False, "satisfiable")
-
-    def test_Property_from_standard_file(self):
-        property_files = glob.glob(
-            os.path.join(os.path.dirname(__file__), "../doc/properties/*.prp")
-        )
-        for property_file in property_files:
-            name = os.path.splitext(os.path.basename(property_file))[0]
-            self.assertEqual(
-                Property(property_file, True, name), Property.create(property_file),
-            )
 
     def _test_Property_from_file(self, content, is_svcomp):
         with tempfile.NamedTemporaryFile(
