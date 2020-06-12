@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -22,9 +22,6 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
-  getRawOrDefault,
-  applyNumericFilter,
-  applyTextFilter,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";

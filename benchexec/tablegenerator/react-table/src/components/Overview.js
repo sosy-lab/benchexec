@@ -17,13 +17,12 @@ import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
+import { prepareTableData, getRawOrDefault } from "../utils/utils";
 import {
-  prepareTableData,
   getFilterableData,
   buildMatcher,
   applyMatcher,
-  getRawOrDefault,
-} from "../utils/utils";
+} from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
