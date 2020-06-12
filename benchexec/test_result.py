@@ -12,16 +12,10 @@ import unittest
 
 from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
-    _PROP_CALL,
-    _PROP_FREE,
-    _PROP_MEMCLEANUP,
-    _PROP_TERMINATION,
     _SCORE_CORRECT_FALSE,
     _SCORE_CORRECT_TRUE,
     _SCORE_WRONG_TRUE,
     _SCORE_WRONG_FALSE,
-    _PROP_OVERFLOW,
-    _PROP_DEADLOCK,
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -70,12 +64,12 @@ class TestResult(unittest.TestCase):
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 
-    prop_call = Property("dummy.prp", True, _PROP_CALL)
-    prop_deadlock = Property("dummy.prp", True, _PROP_DEADLOCK)
-    prop_memcleanup = Property("dummy.prp", True, _PROP_MEMCLEANUP)
+    prop_call = Property("dummy.prp", True, "unreach-call")
+    prop_deadlock = Property("dummy.prp", True, "no-deadlock")
+    prop_memcleanup = Property("dummy.prp", True, "valid-memcleanup")
     prop_memsafety = Property("dummy.prp", True, "valid-memsafety")
-    prop_overflow = Property("dummy.prp", True, _PROP_OVERFLOW)
-    prop_termination = Property("dummy.prp", True, _PROP_TERMINATION)
+    prop_overflow = Property("dummy.prp", True, "no-overflow")
+    prop_termination = Property("dummy.prp", True, "termination")
     prop_sat = Property("dummy.prp", False, "satisfiable")
 
     def _test_Property_from_file(self, content, is_svcomp):
@@ -136,7 +130,7 @@ class TestResult(unittest.TestCase):
         )
         self.assertEqual(
             _SCORE_CORRECT_FALSE,
-            self.prop_memsafety.max_score(ExpectedResult(False, _PROP_FREE)),
+            self.prop_memsafety.max_score(ExpectedResult(False, "valid-free")),
         )
 
     def test_Property_compute_score_not_available(self):

@@ -14,15 +14,14 @@ import re
 
 # categorization of a run result
 # 'correct' and 'wrong' refer to whether the tool's result matches the expected result.
-# 'confirmed' and 'unconfirmed' refer to whether the tool's result was confirmed (e.g., by witness validation)
 CATEGORY_CORRECT = "correct"
-"""run result given by tool is correct (we use 'correct' instead of 'correct-confirmed')"""
+"""run result given by tool is correct"""
 
 CATEGORY_CORRECT_UNCONFIRMED = "correct-unconfirmed"
-"""run result given by tool is correct but not confirmed"""
+"""run result given by tool is correct but not confirmed according to SV-COMP rules"""
 
 CATEGORY_WRONG = "wrong"
-"""run result given by tool is wrong (we use 'wrong' instead of 'wrong-unconfirmed')"""
+"""run result given by tool is wrong"""
 
 CATEGORY_UNKNOWN = "unknown"
 """run result given by tool is "unknown" (i.e., no answer)"""
@@ -33,18 +32,6 @@ CATEGORY_ERROR = "error"
 CATEGORY_MISSING = "missing"
 """BenchExec could not determine whether run result was correct or wrong
 because no property was defined, and no other categories apply."""
-
-
-# internal property names used in this module (should not contain spaces)
-# currently used by SV-COMP (http://sv-comp.sosy-lab.org/2016/rules.php)
-_PROP_CALL = "unreach-call"
-_PROP_TERMINATION = "termination"
-_PROP_OVERFLOW = "no-overflow"
-_PROP_DEADLOCK = "no-deadlock"
-_PROP_DEREF = "valid-deref"
-_PROP_FREE = "valid-free"
-_PROP_MEMTRACK = "valid-memtrack"
-_PROP_MEMCLEANUP = "valid-memcleanup"
 
 # possible run results (output of a tool)
 RESULT_DONE = "done"
@@ -58,21 +45,23 @@ RESULT_TRUE_PROP = "true"
 """property holds"""
 RESULT_FALSE_PROP = "false"
 """property does not hold"""
-RESULT_FALSE_REACH = RESULT_FALSE_PROP + "(" + _PROP_CALL + ")"
+
+# shortcuts for tool-info modules that return results as required in SV-COMP
+RESULT_FALSE_REACH = RESULT_FALSE_PROP + "(unreach-call)"
 """SV-COMP reachability property violated"""
-RESULT_FALSE_TERMINATION = RESULT_FALSE_PROP + "(" + _PROP_TERMINATION + ")"
+RESULT_FALSE_TERMINATION = RESULT_FALSE_PROP + "(termination)"
 """SV-COMP termination property violated"""
-RESULT_FALSE_OVERFLOW = RESULT_FALSE_PROP + "(" + _PROP_OVERFLOW + ")"
+RESULT_FALSE_OVERFLOW = RESULT_FALSE_PROP + "(no-overflow)"
 """SV-COMP overflow property violated"""
-RESULT_FALSE_DEADLOCK = RESULT_FALSE_PROP + "(" + _PROP_DEADLOCK + ")"
+RESULT_FALSE_DEADLOCK = RESULT_FALSE_PROP + "(no-deadlock)"
 """deadlock property violated"""  # not yet part of SV-COMP
-RESULT_FALSE_DEREF = RESULT_FALSE_PROP + "(" + _PROP_DEREF + ")"
+RESULT_FALSE_DEREF = RESULT_FALSE_PROP + "(valid-deref)"
 """SV-COMP valid-deref property violated"""
-RESULT_FALSE_FREE = RESULT_FALSE_PROP + "(" + _PROP_FREE + ")"
+RESULT_FALSE_FREE = RESULT_FALSE_PROP + "(valid-free)"
 """SV-COMP valid-free property violated"""
-RESULT_FALSE_MEMTRACK = RESULT_FALSE_PROP + "(" + _PROP_MEMTRACK + ")"
+RESULT_FALSE_MEMTRACK = RESULT_FALSE_PROP + "(valid-memtrack)"
 """SV-COMP valid-memtrack property violated"""
-RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(" + _PROP_MEMCLEANUP + ")"
+RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(valid-memcleanup)"
 """SV-COMP valid-memcleanup property violated"""
 
 RESULT_LIST_OTHER = [RESULT_DONE, RESULT_ERROR, RESULT_UNKNOWN]
