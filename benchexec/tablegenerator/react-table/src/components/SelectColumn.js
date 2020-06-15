@@ -28,7 +28,6 @@ export default class SelectColumn extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener("popstate", this.props.close, false);
-    window.removeEventListener("click", this.props.close, false);
   }
 
   // -------------------------Rendering-------------------------
@@ -194,7 +193,6 @@ export default class SelectColumn extends React.Component {
 
   handlePopState = () => {
     window.history.back();
-    window.addEventListener("click", this.props.close, false);
   };
 
   render() {
