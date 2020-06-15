@@ -25,6 +25,8 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
+  getHashSearch,
+  setParam,
 } from "../utils/utils";
 
 class FilterInputField extends React.Component {
@@ -70,6 +72,7 @@ export default class Table extends React.Component {
     this.data = this.props.data;
     this.state = {
       fixed: true,
+      tools: this.adjustToUrlParams(this.props.tools),
     };
 
     // Collect all status and category values for filter drop-down
@@ -97,6 +100,50 @@ export default class Table extends React.Component {
     ];
     this.typingTimer = -1;
   }
+
+  componentDidMount() {
+    window.addEventListener("popstate", this.updateTools, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.updateTools, false);
+  }
+
+  updateTools = () => {
+    this.setState((prevState) => ({
+      tools: this.adjustToUrlParams(prevState.tools),
+    }));
+  };
+
+  adjustToUrlParams(tools) {
+    const newTools = [...tools];
+    if (this.props.hasAccessToUrlParams) {
+      const urlParams = getHashSearch();
+
+      if (urlParams.hidden || urlParams.hidden === "") {
+        const hiddenCols = urlParams.hidden.split(",");
+
+        newTools.forEach((tool) => {
+          tool.columns.forEach((column) => {
+            column.isVisible = !hiddenCols.includes(column.display_title);
+          });
+        });
+      } else {
+        const hiddenCols = this.props.tools
+          .map((tool) => {
+            return tool.columns
+              .filter((column) => !column.isVisible)
+              .map((column) => column.display_title);
+          })
+          .flat();
+        if (hiddenCols.length > 0) {
+          setParam({ hidden: hiddenCols.toString() });
+        }
+      }
+    }
+    return newTools;
+  }
+
   //fix columns
   handleInputChange = ({ target }) => {
     const value = target.checked;
@@ -108,7 +155,7 @@ export default class Table extends React.Component {
   };
 
   findAllValuesOfColumn = (columnFilter, valueAccessor) =>
-    this.props.tools.map((tool, j) =>
+    this.state.tools.map((tool, j) =>
       tool.columns.map((column, i) => {
         if (!columnFilter(tool, column)) {
           return undefined;
@@ -286,7 +333,7 @@ export default class Table extends React.Component {
   };
 
   render() {
-    const resultColumns = this.props.tools
+    const resultColumns = this.state.tools
       .map((runSet, runSetIdx) =>
         createRunSetColumns(runSet, runSetIdx, this.createColumn),
       )
