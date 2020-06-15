@@ -9,7 +9,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { getRunSetName } from "../utils/utils";
+import { getRunSetName, setParam } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
@@ -28,6 +28,14 @@ export default class SelectColumn extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener("popstate", this.props.close, false);
+    const hiddenCols = this.state.list
+      .map((tool) => {
+        return tool.columns
+          .filter((column) => !column.isVisible)
+          .map((column) => column.display_title);
+      })
+      .flat();
+    setParam({ hidden: hiddenCols.toString() });
   }
 
   // -------------------------Rendering-------------------------
