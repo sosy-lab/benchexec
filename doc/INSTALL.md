@@ -219,7 +219,8 @@ to mount the cgroup hierarchy within the container when starting it:
 
 Note that you additionally need the `--privileged` flag for container mode.
 However, this gives your Docker container full root access to the host,
-so make sure to use this only with trusted images,
+so please also add the `--cpa-drop=all` flag,
+make sure to use this only with trusted images,
 and configure your Docker container such that everything in it
 is executed under a different user account, not as root.
 BenchExec is not designed to run as root and does not provide
