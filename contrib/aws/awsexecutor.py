@@ -105,12 +105,13 @@ def execute_benchmark(benchmark, output_handler):
             msg["publicURL"],
         )
 
-        payload = open(verifier_arc_path, "rb").read()
-        headers = {"Content-Type": "application/zip"}
-        logging.info("Uploading the verifier to AWS...")
-        http_request = requests.request(
-            "PUT", verifier_uploadUrl, headers=headers, data=payload
-        )
+        with open(verifer_arc_path, "rb") as archive_file:
+            payload = archive_file.read()
+            headers = {"Content-Type": "application/zip"}
+            logging.info("Uploading the verifier to AWS...")
+            http_request = requests.request(
+                "PUT", verifier_uploadUrl, headers=headers, data=payload
+            )
         _exitWhenRequestFailed(http_request)
 
         # Upload tasks
@@ -128,12 +129,13 @@ def execute_benchmark(benchmark, output_handler):
             msg["publicURL"],
         )
 
-        payload = open(tasks_arc_path, "rb").read()
-        headers = {"Content-Type": "application/zip"}
-        logging.info("Uploading tasks to AWS...")
-        http_request = requests.request(
-            "PUT", tasks_uploadUrl, headers=headers, data=payload
-        )
+        with open(tasks_arc_path, "rb") as archive_file:
+            payload = archive_file.read()
+            headers = {"Content-Type": "application/zip"}
+            logging.info("Uploading tasks to AWS...")
+            http_request = requests.request(
+                "PUT", tasks_uploadUrl, headers=headers, data=payload
+            )
         _exitWhenRequestFailed(http_request)
 
         # Upload commands
@@ -225,9 +227,8 @@ def execute_benchmark(benchmark, output_handler):
         for url in http_request.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
             result_file = requests.get(url)
-            zipfile.ZipFile(io.BytesIO(result_file.content)).extractall(
-                benchmark.log_folder
-            )
+            with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
+                zipf.extractall(benchmark.log_folder)
     except KeyboardInterrupt:
         stop()
     finally:
@@ -331,25 +332,23 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
             )
         )
 
-    zipf = zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED)
+    with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file in abs_paths:
+            if not os.path.exists(file):
+                zipf.close()
+                if os.path.isfile(archive_path):
+                    os.remove(archive_path)
 
-    for file in abs_paths:
-        if not os.path.exists(file):
-            zipf.close()
-            if os.path.isfile(archive_path):
-                os.remove(archive_path)
-            raise BenchExecException(
-            sys.exit(
-                "Missing file '{0}', cannot run benchmark without it.".format(
-                    os.path.normpath(file)
+                raise BenchExecException(
+                    "Missing file '{0}', cannot run benchmark without it.".format(
+                        os.path.normpath(file)
+                    )
                 )
-            )
 
-        if os.path.isdir(file):
-            _zipdir(file, zipf, absBaseDir)
-        else:
-            zipf.write(file, os.path.relpath(file, absBaseDir))
-    zipf.close()
+            if os.path.isdir(file):
+                _zipdir(file, zipf, absBaseDir)
+            else:
+                zipf.write(file, os.path.relpath(file, absBaseDir))
 
     return archive_path
 
