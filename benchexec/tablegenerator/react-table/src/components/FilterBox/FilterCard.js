@@ -88,11 +88,13 @@ export default class FilterCard extends React.PureComponent {
     const filterAddSelection = () => (
       <>
         <select
-          class="filter-selection"
+          className="filter-selection"
           onChange={(e) => this.setState({ idx: e.target.value, active: true })}
         >
           {availableFilters.map(({ idx, display_title }) => (
-            <option value={idx}>{display_title}</option>
+            <option key={idx} value={idx}>
+              {display_title}
+            </option>
           ))}
         </select>
         <FontAwesomeIcon
