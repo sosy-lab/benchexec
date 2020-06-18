@@ -251,9 +251,9 @@ export default class FilterCard extends React.PureComponent {
               </label>
               <input
                 type="number"
-                min={min}
                 name={`inp-${title}-min`}
                 value={this.state.currentMin}
+                step={(max - min) / 1000.0}
                 onChange={({ target: { value } }) => {
                   if (value > this.state.currentMax) {
                     this.setState({
@@ -271,7 +271,6 @@ export default class FilterCard extends React.PureComponent {
               />
               <input
                 type="number"
-                min={max}
                 name={`inp-${title}-max`}
                 step={(max - min) / 1000.0}
                 value={this.state.currentMax}
