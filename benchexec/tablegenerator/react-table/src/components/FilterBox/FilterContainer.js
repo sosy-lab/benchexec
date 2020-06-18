@@ -17,7 +17,7 @@ export default class FilterContainer extends React.PureComponent {
       .sort((a, b) => a.numCards - b.numCards);
   }
 
-  setFilter({ title, values }, idx) {
+  setFilter({ title, values, filtering = true }, idx) {
     console.log("Container received", {
       title,
       values,
@@ -25,6 +25,7 @@ export default class FilterContainer extends React.PureComponent {
     });
     const prevFilters = this.state.filters;
     prevFilters[idx].values = values;
+    prevFilters[idx].filtering = filtering;
     this.setState({ filters: [...prevFilters] });
     this.props.updateFilters({ title, values }, idx);
   }
@@ -42,12 +43,12 @@ export default class FilterContainer extends React.PureComponent {
     });
   }
 
-  removeFilter(idx) {
+  removeFilter(idx, title) {
     const newFilterState = this.state.filters;
     newFilterState[idx].filtering = false;
     newFilterState[idx].values = [];
-
-    this.setState({ filters: newFilterState });
+    this.setState({ filters: [...newFilterState] });
+    this.props.updateFilters({ title, values: [] }, idx);
   }
 
   componentDidUpdate({ currentFilters: prevFilters }) {
@@ -56,12 +57,11 @@ export default class FilterContainer extends React.PureComponent {
       // update set filters
       console.log("updated container");
       const { filters } = this.state;
-      filters.forEach((item) => (item.filtering = false));
       for (const idx in currentFilters) {
         filters[idx] = {
           ...filters[idx],
           ...currentFilters[idx],
-          filtering: currentFilters[idx].value !== "all ", // TODO
+          filtering: true,
         };
       }
       this.setState({ filters: [...filters] });
@@ -80,6 +80,9 @@ export default class FilterContainer extends React.PureComponent {
               <FilterCard
                 onFilterUpdate={(val) => this.setFilter(val, filter.idx)}
                 title={filter.display_title}
+                removeFilter={() =>
+                  this.removeFilter(filter.idx, filter.display_title)
+                }
                 filter={filter}
                 key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
               />

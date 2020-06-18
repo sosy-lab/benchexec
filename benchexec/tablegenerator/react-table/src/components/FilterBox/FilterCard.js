@@ -121,7 +121,9 @@ export default class FilterCard extends React.PureComponent {
             <FontAwesomeIcon
               className="delete-button"
               icon={faTimes}
-              onClick={() => {}}
+              onClick={() => {
+                this.props.removeFilter();
+              }}
             />
           </>
         )}
