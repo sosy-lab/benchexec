@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+from encodings.utf_8 import getregentry as utf_8_regentry
 from getpass import getuser
 import io
 import json
@@ -26,8 +27,8 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 REQUEST_URL = {
     "create": "{0}{1}/execution/create",
-    "upload": "{0}{1}/upload/{2}?file={3}",
-    "launchBatch": "{0}{1}/execution/{2}/launchBatch?verifier={3}&verifierS3={4}&tasks={5}&tasksS3={6}&commandsS3={7}",
+    "upload": "{0}{1}/upload/{2}",
+    "launchBatch": "{0}{1}/execution/{2}/launchBatch",
     "progressBatch": "{0}{1}/execution/{2}/progressBatch",
     "results": "{0}{1}/execution/{2}/results",
     "clean": "{0}{1}/clean",
@@ -35,6 +36,12 @@ REQUEST_URL = {
 
 STOPPED_BY_INTERRUPT = False
 event_handler = Event()
+
+UTF_8 = utf_8_regentry().name
+
+# Number of seconds a http request will wait to establish a connection to the
+# remote machine.
+HTTP_REQUEST_TIMEOUT = 10
 
 
 def init(config, benchmark):
@@ -68,13 +75,13 @@ def execute_benchmark(benchmark, output_handler):
 
     try:
         logging.info("Building archive files for verifier-tool and tasks...")
-        verifier_arc_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
-        verifier_arc_path = _createArchiveFile(
-            verifier_arc_name, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
+        verif_archive_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
+        verif_archive_path = _createArchiveFile(
+            verif_archive_name, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
         )
-        tasks_arc_name = "tasks_" + benchmark.instance + ".zip"
-        tasks_arc_path = _createArchiveFile(
-            tasks_arc_name, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
+        tasks_archive_name = "tasks_" + benchmark.instance + ".zip"
+        tasks_archive_path = _createArchiveFile(
+            tasks_archive_name, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
         )
 
         start_time = benchexec.util.read_local_time()
@@ -82,72 +89,76 @@ def execute_benchmark(benchmark, output_handler):
         logging.info("Waiting on the AWS EC2-instance to set everything up...")
 
         # Create
-        url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
+        url = REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(UTF_8)
         logging.debug("Sending http-request for aws instantiation (create): \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
+        http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
 
-        msg = http_request.json()
+        msg = http_response.json()
         requestId = msg["requestId"]
 
         # Upload verifier
-        url = REQUEST_URL["upload"].format(
-            aws_endpoint, aws_token, requestId, verifier_arc_name
+        payload = {"file": verif_archive_name}
+        url = (
+            REQUEST_URL["upload"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
         )
         logging.debug("Sending http-request for uploading the verifier: \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
+        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
 
-        msg = http_request.json()
+        msg = http_response.json()
         verifier_upload_url = msg["uploadUrl"]
         verifier_s3_key = msg["S3Key"]
         verifier_aws_public_url = msg["publicURL"]
-            msg["publicURL"],
-        )
 
-        with open(verifer_arc_path, "rb") as archive_file:
+        with open(verif_archive_path, "rb") as archive_file:
             payload = archive_file.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading the verifier to AWS...")
             http_request = requests.request(
-                "PUT", verifier_uploadUrl, headers=headers, data=payload
+                "PUT", verifier_upload_url, headers=headers, data=payload
             )
         http_request.raise_for_status()
 
         # Upload tasks
-        url = REQUEST_URL["upload"].format(
-            aws_endpoint, aws_token, requestId, tasks_arc_name
+        payload = {"file": tasks_archive_name}
+        url = (
+            REQUEST_URL["upload"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
         )
         logging.debug("Sending http-request for uploading tasks: \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
+        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
 
-        msg = http_request.json()
+        msg = http_response.json()
         tasks_upload_url = msg["uploadUrl"]
         tasks_s3_key = msg["S3Key"]
         tasks_aws_public_url = msg["publicURL"]
-            msg["publicURL"],
-        )
 
-        with open(tasks_arc_path, "rb") as archive_file:
+        with open(tasks_archive_path, "rb") as archive_file:
             payload = archive_file.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading tasks to AWS...")
             http_request = requests.request(
-                "PUT", tasks_uploadUrl, headers=headers, data=payload
+                "PUT", tasks_upload_url, headers=headers, data=payload
             )
         http_request.raise_for_status()
 
         # Upload commands
-        commands_file_name = "commands.json"
-        url = REQUEST_URL["upload"].format(
-            aws_endpoint, aws_token, requestId, commands_file_name
+        payload = {"file": "commands.json"}
+        url = (
+            REQUEST_URL["upload"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
         )
         logging.debug("Sending http-request for uploading commands: \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
+        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
 
-        msg = http_request.json()
+        msg = http_response.json()
         commands_upload_url = msg["uploadUrl"]
         commands_s3_key = msg["S3Key"]
 
@@ -160,40 +171,44 @@ def execute_benchmark(benchmark, output_handler):
         http_request.raise_for_status()
 
         # Launch
-        url = REQUEST_URL["launchBatch"].format(
-            aws_endpoint,
-            aws_token,
-            requestId,
-            verifier_aws_public_url,
-            verifier_s3_key,
-            tasks_aws_public_url,
-            tasks_s3_key,
-            commands_s3_key,
+        payload = {
+            "verifier": verifier_aws_public_url,
+            "verifierS3": verifier_s3_key,
+            "tasks": tasks_aws_public_url,
+            "tasksS3": tasks_s3_key,
+            "commandsS3": commands_s3_key,
+        }
+        url = (
+            REQUEST_URL["launchBatch"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
         )
         logging.debug("Sending http-request for launch: \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
+        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
 
         # Progress
         logging.info(
             "Executing Runexec on the AWS workers. "
             "Depending on the size of the tasks, this might take a while."
         )
-        progress_url = REQUEST_URL["progressBatch"].format(
-            aws_endpoint, aws_token, requestId
+        progress_url = (
+            REQUEST_URL["progressBatch"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
         )
         logging.debug("Sending http-request for progress: \n%s", progress_url)
         printMsg = 0
         # Poll the current status in AWS by periodically sending an http-request
         # (for example, how much tasks have been verified so far)
         while not event_handler.is_set():
-            http_request = requests.get(progress_url)
+            http_response = requests.get(progress_url, timeout=HTTP_REQUEST_TIMEOUT)
             # There is currently an issue on the server side in which the
             # status code of the response is rarely not 200.
             # This needs to be investigated before uncommenting the following line.
-            # http_request.raise_for_status()
+            # http_response.raise_for_status()
 
-            msg = http_request.json()
+            msg = http_response.json()
             # poll every 15 sec and print a user message every second time
             if msg.get("message") == "Internal server error":
                 # This message appears if the ec2-instances are not instantiated or
@@ -223,11 +238,15 @@ def execute_benchmark(benchmark, output_handler):
                 break
 
         # Results
-        url = REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
+        url = (
+            REQUEST_URL["results"]
+            .format(aws_endpoint, aws_token, requestId)
+            .encode(UTF_8)
+        )
         logging.debug("Sending http-request for collecting the results: \n%s", url)
-        http_request = requests.get(url)
-        http_request.raise_for_status()
-        for url in http_request.json()["urls"]:
+        http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
+        http_response.raise_for_status()
+        for url in http_response.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
             result_file = requests.get(url)
             with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
@@ -235,17 +254,17 @@ def execute_benchmark(benchmark, output_handler):
     except KeyboardInterrupt:
         stop()
     finally:
-        if os.path.exists(verifier_arc_path):
-            os.remove(verifier_arc_path)
-        if os.path.exists(tasks_arc_path):
-            os.remove(tasks_arc_path)
+        if os.path.exists(verif_archive_path):
+            os.remove(verif_archive_path)
+        if os.path.exists(tasks_archive_path):
+            os.remove(tasks_archive_path)
 
         # Clean
-        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
+        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(UTF_8)
         logging.debug(
             "Sending http-request for cleaning the aws services up: \n%s", url
         )
-        requests.get(url)
+        requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
 
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted")
