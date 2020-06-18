@@ -10,6 +10,7 @@ import FilterContainer from "./FilterContainer";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
+const classNames = require("classnames");
 
 export default class FilterBox extends React.PureComponent {
   constructor(props) {
@@ -88,7 +89,9 @@ export default class FilterBox extends React.PureComponent {
   render() {
     return (
       <div
-        className={`filterBox ${this.props.visible ? "" : "filterBox--hidden"}`}
+        className={classNames("filterBox", {
+          "filterBox--hidden": !this.props.visible,
+        })}
       >
         <div className="filterBox--header">
           <FontAwesomeIcon
