@@ -1,5 +1,5 @@
 import React from "react";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 
@@ -87,21 +87,27 @@ export default class FilterCard extends React.PureComponent {
     console.log("FilterCard rendering", { filter });
     const filterAddSelection = () => (
       <>
+        <span style={{ marginLeft: "12px" }}>Add filter for: </span>
         <select
           className="filter-selection"
-          onChange={(e) => this.setState({ idx: e.target.value, active: true })}
+          defaultValue="-1"
+          onChange={({ target: { value: idx } }) => {
+            if (idx === -1) {
+              return;
+            }
+            this.setState({ idx, active: true });
+            this.props.addFilter(idx);
+          }}
         >
+          <option value="-1" disabled>
+            Column
+          </option>
           {availableFilters.map(({ idx, display_title }) => (
             <option key={idx} value={idx}>
               {display_title}
             </option>
           ))}
         </select>
-        <FontAwesomeIcon
-          className="check-button"
-          icon={faCheck}
-          onClick={() => this.props.addFilter(this.state.idx)}
-        />
       </>
     );
 
@@ -112,11 +118,11 @@ export default class FilterCard extends React.PureComponent {
         ) : (
           <>
             <h4 className="title">{filter.display_title}</h4>
-            {/* <FontAwesomeIcon
-              className="check-button"
-              icon={faCheck}
-              onClick={() => this.sendFilterUpdate()}
-            /> */}
+            <FontAwesomeIcon
+              className="delete-button"
+              icon={faTimes}
+              onClick={() => {}}
+            />
           </>
         )}
       </div>
