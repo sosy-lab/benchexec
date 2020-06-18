@@ -19,6 +19,7 @@ import zipfile
 
 import benchexec.util
 
+from benchexec import BenchExecException
 from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -31,13 +32,6 @@ REQUEST_URL = {
     "results": "{0}{1}/execution/{2}/results",
     "clean": "{0}{1}/clean",
 }
-
-DEFAULT_CLOUD_TIMELIMIT = 300  # s
-DEFAULT_CLOUD_MEMLIMIT = None
-
-DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7000000000  # 7 GB
-DEFAULT_CLOUD_CPUCORE_REQUIREMENT = 2  # one core with hyperthreading
-DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
 STOPPED_BY_INTERRUPT = False
 event_handler = Event()
@@ -360,21 +354,28 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
 
 def getBenchmarkData(benchmark):
     r = benchmark.requirements
+    # These values are currently not used internally, but the goal is
+    # to eventually integrate them in a later stage.
+    if r.cpu_cores is None or r.cpu_model is None or r.memory is None:
+        raise BenchExecException(
+            "The entry for either the amount of used cpu cores, model, or memory "
+            "is missing from the benchmark definition"
+        )
     requirements = {
-        "cpu_cores": DEFAULT_CLOUD_CPUCORE_REQUIREMENT
-        if r.cpu_cores is None
-        else r.cpu_cores,
-        "cpu_model": DEFAULT_CLOUD_CPUMODEL_REQUIREMENT
-        if r.cpu_model is None
-        else r.cpu_model,
-        "memory_in_mb": bytes_to_mb(
-            DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory
-        ),
+        "cpu_cores": r.cpu_cores,
+        "cpu_model": r.cpu_model,
+        "memory_in_mb": bytes_to_mb(r.memory),
     }
 
     # get limits and number of runs
-    timeLimit = benchmark.rlimits.get(TIMELIMIT, DEFAULT_CLOUD_TIMELIMIT)
-    memLimit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, DEFAULT_CLOUD_MEMLIMIT))
+    timeLimit = benchmark.rlimits.get(TIMELIMIT, None)
+    memLimit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, None))
+    if timeLimit is None or memLimit is None:
+        raise BenchExecException(
+            "An entry for either the time- or memory-limit is missing "
+            "in the benchmark definition"
+        )
+
     coreLimit = benchmark.rlimits.get(CORELIMIT, None)
     numberOfRuns = sum(
         len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
