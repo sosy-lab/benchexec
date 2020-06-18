@@ -85,7 +85,7 @@ def execute_benchmark(benchmark, output_handler):
         url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
         logging.debug("Sending http-request for aws instantiation (create): \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         msg = http_request.json()
         requestId = msg["requestId"]
@@ -96,7 +96,7 @@ def execute_benchmark(benchmark, output_handler):
         )
         logging.debug("Sending http-request for uploading the verifier: \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         msg = http_request.json()
         verifier_upload_url = msg["uploadUrl"]
@@ -112,7 +112,7 @@ def execute_benchmark(benchmark, output_handler):
             http_request = requests.request(
                 "PUT", verifier_uploadUrl, headers=headers, data=payload
             )
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         # Upload tasks
         url = REQUEST_URL["upload"].format(
@@ -120,7 +120,7 @@ def execute_benchmark(benchmark, output_handler):
         )
         logging.debug("Sending http-request for uploading tasks: \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         msg = http_request.json()
         tasks_upload_url = msg["uploadUrl"]
@@ -136,7 +136,7 @@ def execute_benchmark(benchmark, output_handler):
             http_request = requests.request(
                 "PUT", tasks_uploadUrl, headers=headers, data=payload
             )
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         # Upload commands
         commands_file_name = "commands.json"
@@ -145,7 +145,7 @@ def execute_benchmark(benchmark, output_handler):
         )
         logging.debug("Sending http-request for uploading commands: \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         msg = http_request.json()
         commands_upload_url = msg["uploadUrl"]
@@ -157,7 +157,7 @@ def execute_benchmark(benchmark, output_handler):
         http_request = requests.request(
             "PUT", commands_upload_url, headers=headers, data=payload
         )
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         # Launch
         url = REQUEST_URL["launchBatch"].format(
@@ -172,7 +172,7 @@ def execute_benchmark(benchmark, output_handler):
         )
         logging.debug("Sending http-request for launch: \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
 
         # Progress
         logging.info(
@@ -188,7 +188,10 @@ def execute_benchmark(benchmark, output_handler):
         # (for example, how much tasks have been verified so far)
         while not event_handler.is_set():
             http_request = requests.get(progress_url)
-            _exitWhenRequestFailed(http_request)
+            # There is currently an issue on the server side in which the
+            # status code of the response is rarely not 200.
+            # This needs to be investigated before uncommenting the following line.
+            # http_request.raise_for_status()
 
             msg = http_request.json()
             # poll every 15 sec and print a user message every second time
@@ -223,7 +226,7 @@ def execute_benchmark(benchmark, output_handler):
         url = REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for collecting the results: \n%s", url)
         http_request = requests.get(url)
-        _exitWhenRequestFailed(http_request)
+        http_request.raise_for_status()
         for url in http_request.json()["urls"]:
             logging.debug("Downloading file from url: %s", url)
             result_file = requests.get(url)
@@ -257,17 +260,6 @@ def stop():
     event_handler.set()
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
-
-
-def _exitWhenRequestFailed(http_request):
-    if http_request.status_code != 200:
-        msg = http_request.json().get("message")
-        sys.exit(
-            "Http-request failed. Server responded with status code: {0}{1}.".format(
-                http_request.status_code,
-                " (Message: " + msg + ")" if msg is not None else "",
-            )
-        )
 
 
 def getAWSInput(benchmark):
