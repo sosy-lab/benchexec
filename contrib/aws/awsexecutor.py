@@ -285,7 +285,7 @@ def getAWSInput(benchmark):
     absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
 
     if absBaseDir == "":
-        sys.exit("No common base dir found.")
+        raise BenchExecException("No common base dir found.")
 
     toolpaths = {
         "absBaseDir": absBaseDir,
@@ -303,7 +303,9 @@ def getAWSInput(benchmark):
     }
     if benchmark.result_files_patterns:
         if len(benchmark.result_files_patterns) > 1:
-            sys.exit("Multiple result-files patterns not supported in cloud mode.")
+            raise BenchExecException(
+                "Multiple result-file patterns not supported in cloud mode."
+            )
         awsInput.update({"resultFilePatterns": benchmark.result_files_patterns[0]})
 
     awsInput.update({"limitsAndNumRuns": limitsAndNumRuns})
@@ -323,7 +325,7 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
 
     archive_path = os.path.join(absBaseDir, archive_name)
     if os.path.isfile(archive_path):
-        sys.exit(
+        raise BenchExecException(
             "Zip file already exists: '{0}'; not going to overwrite it.".format(
                 os.path.normpath(archive_path)
             )
@@ -336,7 +338,7 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
             zipf.close()
             if os.path.isfile(archive_path):
                 os.remove(archive_path)
-
+            raise BenchExecException(
             sys.exit(
                 "Missing file '{0}', cannot run benchmark without it.".format(
                     os.path.normpath(file)
@@ -420,7 +422,7 @@ def getBenchmarkData(benchmark):
             sourceFiles.update(run.required_files)
 
     if not runDefinitions:
-        sys.exit("Benchmark has nothing to run.")
+        raise BenchExecException("Benchmark has nothing to run.")
 
     return (requirements, numberOfRuns, limitsAndNumRuns, runDefinitions, sourceFiles)
 
@@ -429,15 +431,16 @@ def getToolData(benchmark):
 
     workingDir = benchmark.working_directory()
     if not os.path.isdir(workingDir):
-        sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
-    logging.debug("Working dir: " + workingDir)
+        raise BenchExecException(
+            "Missing working directory '{0}', cannot run tool.".format(workingDir)
+        )
     logging.debug("Working dir: %s", workingDir)
 
     toolpaths = benchmark.required_files()
     validToolpaths = set()
     for file in toolpaths:
         if not os.path.exists(file):
-            sys.exit(
+            raise BenchExecException(
                 "Missing file '{0}', not runing benchmark without it.".format(
                     os.path.normpath(file)
                 )
