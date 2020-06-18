@@ -10,6 +10,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FilterCard from "./FilterCard";
 import equals from "deep-equal";
+import classNames from "classnames";
 
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
@@ -105,7 +106,10 @@ export default class FilterContainer extends React.PureComponent {
           />
         ) : (
           <div
-            className="filter-add-button"
+            className={classNames("filter-add-button", {
+              hidden:
+                this.state.filters.filter((i) => !i.filtering).length === 0,
+            })}
             onClick={() => this.setState({ addingFilter: true })}
           >
             <FontAwesomeIcon icon={faPlus} />
