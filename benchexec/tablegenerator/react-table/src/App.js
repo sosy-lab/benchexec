@@ -6,7 +6,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import "./App.scss";
-import 'rc-slider/assets/index.css';
 import React, { Component } from "react";
 import Overview from "./components/Overview";
 
