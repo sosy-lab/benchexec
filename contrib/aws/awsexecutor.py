@@ -105,9 +105,9 @@ def execute_benchmark(benchmark, output_handler):
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
-        (verifier_uploadUrl, verifier_s3_key, verifier_aws_public_url) = (
-            msg["uploadUrl"],
-            msg["S3Key"],
+        verifier_upload_url = msg["uploadUrl"]
+        verifier_s3_key = msg["S3Key"]
+        verifier_aws_public_url = msg["publicURL"]
             msg["publicURL"],
         )
 
@@ -128,9 +128,9 @@ def execute_benchmark(benchmark, output_handler):
         _exitWhenRequestFailed(http_request)
 
         msg = http_request.json()
-        (tasks_uploadUrl, tasks_s3_key, tasks_aws_public_url) = (
-            msg["uploadUrl"],
-            msg["S3Key"],
+        tasks_upload_url = msg["uploadUrl"]
+        tasks_s3_key = msg["S3Key"]
+        tasks_aws_public_url = msg["publicURL"]
             msg["publicURL"],
         )
 
@@ -180,7 +180,8 @@ def execute_benchmark(benchmark, output_handler):
 
         # Progress
         logging.info(
-            "Executing Runexec on the AWS workers. Depending on the size of the tasks, this might take a while."
+            "Executing Runexec on the AWS workers. "
+            "Depending on the size of the tasks, this might take a while."
         )
         progress_url = REQUEST_URL["progressBatch"].format(
             aws_endpoint, aws_token, requestId
@@ -196,7 +197,8 @@ def execute_benchmark(benchmark, output_handler):
             msg = http_request.json()
             # poll every 15 sec and print a user message every second time
             if msg.get("message") == "Internal server error":
-                # This message appears if the ec2-instances are not instantiated / running yet
+                # This message appears if the ec2-instances are not instantiated or
+                # running yet
                 printMsg += 1
                 if printMsg % 2 == 0:
                     logging.info("Waiting for EC2 to launch the batch processes...")
@@ -208,12 +210,15 @@ def execute_benchmark(benchmark, output_handler):
                     totalJobs = msg.get("totalNumberOfJobs")
                     logging.info(
                         "Waiting until all tasks have been verified... "
-                        "(Completed: {}/{})".format(jobsCompleted, totalJobs)
+                        "(Completed: %d/%d)",
+                        jobsCompleted,
+                        totalJobs,
                     )
                 event_handler.wait(15)
             else:
                 logging.info(
-                    "Execution of %s tasks finished. Collecting the results back from AWS.",
+                    "Execution of %s tasks finished. "
+                    "Collecting the results back from AWS.",
                     msg.get("totalNumberOfJobsCompleted"),
                 )
                 break
@@ -240,7 +245,7 @@ def execute_benchmark(benchmark, output_handler):
         # Clean
         url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
         logging.debug(
-            "Sending an http-request for cleaning up the used aws services: \n%s", url
+            "Sending http-request for cleaning the aws services up: \n%s", url
         )
         requests.get(url)
 
@@ -354,8 +359,6 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
 
 
 def getBenchmarkData(benchmark):
-
-    # get requirements
     r = benchmark.requirements
     requirements = {
         "cpu_cores": DEFAULT_CLOUD_CPUCORE_REQUIREMENT
@@ -369,7 +372,7 @@ def getBenchmarkData(benchmark):
         ),
     }
 
-    # get limits and number of Runs
+    # get limits and number of runs
     timeLimit = benchmark.rlimits.get(TIMELIMIT, DEFAULT_CLOUD_TIMELIMIT)
     memLimit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, DEFAULT_CLOUD_MEMLIMIT))
     coreLimit = benchmark.rlimits.get(CORELIMIT, None)
@@ -384,7 +387,7 @@ def getBenchmarkData(benchmark):
     if coreLimit is not None:
         limitsAndNumRuns.update({"core_limit": coreLimit})
 
-    # get Runs with args and sourcefiles
+    # get runs with args and sourcefiles
     sourceFiles = set()
     runDefinitions = []
     for runSet in benchmark.run_sets:
@@ -427,6 +430,7 @@ def getToolData(benchmark):
     if not os.path.isdir(workingDir):
         sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
     logging.debug("Working dir: " + workingDir)
+    logging.debug("Working dir: %s", workingDir)
 
     toolpaths = benchmark.required_files()
     validToolpaths = set()
@@ -502,7 +506,8 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             if os.path.exists(run.log_file + ".stdError"):
                 runsProducedErrorOutput = True
 
-            # Move all output files from "sibling of log-file" to "sibling of parent directory".
+            # Move all output files from "sibling of log-file" to
+            # "sibling of parent directory".
             rawPath = run.log_file[: -len(".log")]
             dirname, filename = os.path.split(rawPath)
             awsFilesDirectory = rawPath + ".files"
@@ -524,7 +529,8 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         logging.warning("Some expected result files could not be found!")
     if runsProducedErrorOutput and not benchmark.config.debug:
         logging.warning(
-            "Some runs produced unexpected warnings on stderr, please check the %s files!",
+            "Some runs produced unexpected warnings on stderr, "
+            "please check the %s files!",
             os.path.join(outputDir, "*.stdError"),
         )
 
@@ -576,7 +582,5 @@ def parse_cloud_run_result(values):
             or key.startswith("cputime-cpu")
         ):
             result_values[key] = value
-        elif key not in ["command", "timeLimit", "coreLimit", "memoryLimit"]:
-            result_values["vcloud-" + key] = value
 
     return result_values
