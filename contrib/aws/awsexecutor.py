@@ -204,9 +204,9 @@ def execute_benchmark(benchmark, output_handler):
         while not event_handler.is_set():
             http_response = requests.get(progress_url, timeout=HTTP_REQUEST_TIMEOUT)
             # There is currently an issue on the server side in which the
-            # status code of the response is rarely not 200.
-            # This needs to be investigated before uncommenting the following line.
-            # http_response.raise_for_status()
+            # status code of the response is on rare occasions not 200.
+            # TODO: Once this is fixed, check the above http_response for a valid
+            # status code (i.e., call raise_for_status() )
 
             msg = http_response.json()
             # poll every 15 sec and print a user message every second time
