@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
-from encodings.utf_8 import getregentry as utf_8_regentry
 from getpass import getuser
 import io
 import json
@@ -37,7 +36,7 @@ REQUEST_URL = {
 STOPPED_BY_INTERRUPT = False
 event_handler = Event()
 
-UTF_8 = utf_8_regentry().name
+ENCODING_UTF_8 = "utf-8"
 
 # Number of seconds a http request will wait to establish a connection to the
 # remote machine.
@@ -89,7 +88,9 @@ def execute_benchmark(benchmark, output_handler):
         logging.info("Waiting on the AWS EC2-instance to set everything up...")
 
         # Create
-        url = REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(UTF_8)
+        url = (
+            REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
+        )
         logging.debug("Sending http-request for aws instantiation (create): \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -102,7 +103,7 @@ def execute_benchmark(benchmark, output_handler):
         url = (
             REQUEST_URL["upload"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for uploading the verifier: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
@@ -127,7 +128,7 @@ def execute_benchmark(benchmark, output_handler):
         url = (
             REQUEST_URL["upload"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for uploading tasks: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
@@ -152,7 +153,7 @@ def execute_benchmark(benchmark, output_handler):
         url = (
             REQUEST_URL["upload"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for uploading commands: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
@@ -181,7 +182,7 @@ def execute_benchmark(benchmark, output_handler):
         url = (
             REQUEST_URL["launchBatch"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for launch: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
@@ -195,7 +196,7 @@ def execute_benchmark(benchmark, output_handler):
         progress_url = (
             REQUEST_URL["progressBatch"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for progress: \n%s", progress_url)
         printMsg = 0
@@ -241,7 +242,7 @@ def execute_benchmark(benchmark, output_handler):
         url = (
             REQUEST_URL["results"]
             .format(aws_endpoint, aws_token, requestId)
-            .encode(UTF_8)
+            .encode(ENCODING_UTF_8)
         )
         logging.debug("Sending http-request for collecting the results: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
@@ -260,7 +261,9 @@ def execute_benchmark(benchmark, output_handler):
             os.remove(tasks_archive_path)
 
         # Clean
-        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(UTF_8)
+        url = (
+            REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
+        )
         logging.debug(
             "Sending http-request for cleaning the aws services up: \n%s", url
         )
