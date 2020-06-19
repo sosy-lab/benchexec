@@ -158,55 +158,73 @@ export default class FilterCard extends React.PureComponent {
           <>
             <b>Category</b>
             <ul className="filter-card--body--list">
-              {categories.map((category) => (
-                <li key={category}>
-                  <input
-                    type="checkbox"
-                    name={`cat-${category}`}
-                    checked={values.includes(category)}
-                    onChange={({ target: { checked } }) => {
-                      console.log({ checked, category });
-                      if (checked) {
-                        const newValues = [...values, category];
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      } else {
-                        const newValues = without(category, values);
+              {categories.map((category) => {
+                const ref = React.createRef();
+                return (
+                  <li key={category}>
+                    <input
+                      type="checkbox"
+                      name={`cat-${category}`}
+                      checked={values.includes(category)}
+                      ref={ref}
+                      onChange={({ target: { checked } }) => {
+                        console.log({ checked, category });
+                        if (checked) {
+                          const newValues = [...values, category];
+                          this.setState({ values: newValues });
+                          this.sendFilterUpdate(newValues);
+                        } else {
+                          const newValues = without(category, values);
 
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      }
-                    }}
-                  />
-                  <label htmlFor={`cat-${category}`}>{category}</label>
-                </li>
-              ))}
+                          this.setState({ values: newValues });
+                          this.sendFilterUpdate(newValues);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor={`cat-${category}`}
+                      onClick={() => ref.current.click()}
+                    >
+                      {category}
+                    </label>
+                  </li>
+                );
+              })}
             </ul>
             <b>Status</b>
             <ul className="filter-card--body--list">
-              {statuses.map((status) => (
-                <li key={status}>
-                  <input
-                    type="checkbox"
-                    name={`stat-${status}`}
-                    checked={values.includes(status)}
-                    onChange={({ target: { checked } }) => {
-                      console.log({ checked, status });
-                      if (checked) {
-                        const newValues = [...values, status];
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      } else {
-                        const newValues = without(status, values);
-                        console.log({ values, newValues });
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      }
-                    }}
-                  />
-                  <label htmlFor={`stat-${status}`}>{status}</label>
-                </li>
-              ))}
+              {statuses.map((status) => {
+                const ref = React.createRef();
+                return (
+                  <li key={status}>
+                    <input
+                      type="checkbox"
+                      name={`stat-${status}`}
+                      ref={ref}
+                      checked={values.includes(status)}
+                      onChange={({ target: { checked } }) => {
+                        console.log({ checked, status });
+                        if (checked) {
+                          const newValues = [...values, status];
+                          this.setState({ values: newValues });
+                          this.sendFilterUpdate(newValues);
+                        } else {
+                          const newValues = without(status, values);
+                          console.log({ values, newValues });
+                          this.setState({ values: newValues });
+                          this.sendFilterUpdate(newValues);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor={`stat-${status}`}
+                      onClick={() => ref.current.click()}
+                    >
+                      {status}
+                    </label>
+                  </li>
+                );
+              })}
             </ul>
           </>
         );
