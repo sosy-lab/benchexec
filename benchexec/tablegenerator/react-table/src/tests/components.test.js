@@ -14,7 +14,7 @@ import { shallow, configure } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 
 // components
-import Reset from "../components/Reset.js";
+import Reset from "../components/FilterInfoButton.js";
 
 configure({ adapter: new Adapter() });
 
@@ -30,7 +30,7 @@ test("Click on reset button stops button from rendering", () => {
     />,
   );
 
-  expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks (Reset Filters)");
+  expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks");
 
   resetBtn.simulate("click");
 
@@ -61,18 +61,6 @@ it("Render reset button", () => {
       </span>
       42
        tasks
-      <span
-        className="hide"
-      >
-         
-        (
-        <span
-          className="highlight"
-        >
-          Reset Filters
-        </span>
-        )
-      </span>
     </button>
   `);
 });
@@ -96,18 +84,6 @@ it("Hide reset button", () => {
          
       </span>
        tasks
-      <span
-        className="hide"
-      >
-         
-        (
-        <span
-          className="highlight"
-        >
-          Reset Filters
-        </span>
-        )
-      </span>
     </button>
   `);
 });

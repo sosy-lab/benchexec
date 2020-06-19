@@ -7,10 +7,26 @@ exports[`FilterCard tests FilterCard should allow selection of available filters
   <div
     className="filter-card--header"
   >
+    <span
+      style={
+        Object {
+          "marginLeft": "12px",
+        }
+      }
+    >
+      Add filter for: 
+    </span>
     <select
-      class="filter-selection"
+      className="filter-selection"
+      defaultValue="-1"
       onChange={[Function]}
     >
+      <option
+        disabled={true}
+        value="-1"
+      >
+        Column
+      </option>
       <option>
         Filter1
       </option>
@@ -18,22 +34,6 @@ exports[`FilterCard tests FilterCard should allow selection of available filters
         Filter2
       </option>
     </select>
-    <svg
-      aria-hidden="true"
-      className="svg-inline--fa fa-check fa-w-16 check-button"
-      data-icon="check"
-      data-prefix="fas"
-      focusable="false"
-      onClick={[Function]}
-      role="img"
-      viewBox="0 0 512 512"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"
-        fill="currentColor"
-      />
-    </svg>
   </div>
 </div>
 `;
@@ -50,6 +50,22 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
     >
       cputime
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
@@ -151,14 +167,13 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         maximum
       </label>
       <input
-        min={1337}
         name="inp-undefined-min"
         onChange={[Function]}
+        step={7.664}
         type="number"
         value={1500}
       />
       <input
-        min={9001}
         name="inp-undefined-max"
         onChange={[Function]}
         step={7.664}
@@ -182,6 +197,22 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
     >
       Status
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
@@ -281,6 +312,22 @@ exports[`FilterCard tests FilterCard should correctly reflect already set text f
     >
       host
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
@@ -308,6 +355,22 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
     >
       Status
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
@@ -407,6 +470,22 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
     >
       cputime
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
@@ -508,14 +587,13 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
         maximum
       </label>
       <input
-        min={1337}
         name="inp-undefined-min"
         onChange={[Function]}
+        step={7.664}
         type="number"
         value={1337}
       />
       <input
-        min={9001}
         name="inp-undefined-max"
         onChange={[Function]}
         step={7.664}
@@ -539,6 +617,22 @@ exports[`FilterCard tests FilterCard should display textbox for text filters 1`]
     >
       host
     </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-times fa-w-11 delete-button"
+      data-icon="times"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 352 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        fill="currentColor"
+      />
+    </svg>
   </div>
   <div
     className="filter-card--body"
