@@ -56,7 +56,7 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    (toolpaths, awsInput) = getAWSInput(benchmark)
+    (toolpaths, aws_input) = getAWSInput(benchmark)
 
     conf_file_path = (
         benchmark.config.aws_config
@@ -177,7 +177,7 @@ def execute_benchmark(benchmark, output_handler):
         commands_upload_url = msg["uploadUrl"]
         commands_s3_key = msg["S3Key"]
 
-        payload = json.dumps(awsInput)
+        payload = json.dumps(aws_input)
         headers = {"Content-Type": "application/json"}
         logging.info("Uploading the commands to AWS...")
         http_request = requests.request(
@@ -296,46 +296,46 @@ def stop():
 def getAWSInput(benchmark):
     (
         requirements,
-        numberOfRuns,
-        limitsAndNumRuns,
-        runDefinitions,
-        sourceFiles,
+        number_of_runs,
+        limits_and_num_runs,
+        run_definitions,
+        source_files,
     ) = getBenchmarkData(benchmark)
-    (workingDir, toolpaths) = getToolData(benchmark)
+    (working_dir, toolpaths) = getToolData(benchmark)
 
-    absWorkingDir = os.path.abspath(workingDir)
-    absToolpaths = list(map(os.path.abspath, toolpaths))
-    absSourceFiles = list(map(os.path.abspath, sourceFiles))
-    abs_base_dir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
+    abs_working_dir = os.path.abspath(working_dir)
+    abs_tool_paths = list(map(os.path.abspath, toolpaths))
+    abs_source_files = list(map(os.path.abspath, source_files))
+    abs_base_dir = benchexec.util.common_base_dir(abs_source_files + abs_tool_paths)
 
     if abs_base_dir == "":
         raise BenchExecException("No common base dir found.")
 
     toolpaths = {
         "absBaseDir": abs_base_dir,
-        "workingDir": workingDir,
-        "absWorkingDir": absWorkingDir,
+        "workingDir": working_dir,
+        "absWorkingDir": abs_working_dir,
         "toolpaths": toolpaths,
-        "absToolpaths": absToolpaths,
-        "sourceFiles": sourceFiles,
-        "absSourceFiles": absSourceFiles,
+        "absToolpaths": abs_tool_paths,
+        "sourceFiles": source_files,
+        "absSourceFiles": abs_source_files,
     }
 
-    awsInput = {
+    aws_input = {
         "requirements": requirements,
-        "workingDir": os.path.relpath(absWorkingDir, abs_base_dir),
+        "workingDir": os.path.relpath(abs_working_dir, abs_base_dir),
     }
     if benchmark.result_files_patterns:
         if len(benchmark.result_files_patterns) > 1:
             raise BenchExecException(
                 "Multiple result-file patterns not supported in cloud mode."
             )
-        awsInput.update({"resultFilePatterns": benchmark.result_files_patterns[0]})
+        aws_input.update({"resultFilePatterns": benchmark.result_files_patterns[0]})
 
-    awsInput.update({"limitsAndNumRuns": limitsAndNumRuns})
-    awsInput.update({"runDefinitions": runDefinitions})
+    aws_input.update({"limitsAndNumRuns": limits_and_num_runs})
+    aws_input.update({"runDefinitions": run_definitions})
 
-    return (toolpaths, awsInput)
+    return (toolpaths, aws_input)
 
 
 def _zipdir(path, zipfile, abs_base_dir):
@@ -382,74 +382,82 @@ def getBenchmarkData(benchmark):
     }
 
     # get limits and number of runs
-    timeLimit = benchmark.rlimits.get(TIMELIMIT, None)
-    memLimit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, None))
-    if timeLimit is None or memLimit is None:
+    time_limit = benchmark.rlimits.get(TIMELIMIT, None)
+    mem_limit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, None))
+    if time_limit is None or mem_limit is None:
         raise BenchExecException(
             "An entry for either the time- or memory-limit is missing "
             "in the benchmark definition"
         )
 
-    coreLimit = benchmark.rlimits.get(CORELIMIT, None)
-    numberOfRuns = sum(
-        len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
+    core_limit = benchmark.rlimits.get(CORELIMIT, None)
+    number_of_runs = sum(
+        len(run_set.runs)
+        for run_set in benchmark.run_sets
+        if run_set.should_be_executed()
     )
-    limitsAndNumRuns = {
-        "number_of_runs": numberOfRuns,
-        "time_limit_in_sec": timeLimit,
-        "mem_limit_in_mb": memLimit,
+    limits_and_num_runs = {
+        "number_of_runs": number_of_runs,
+        "time_limit_in_sec": time_limit,
+        "mem_limit_in_mb": mem_limit,
     }
-    if coreLimit is not None:
-        limitsAndNumRuns.update({"core_limit": coreLimit})
+    if core_limit is not None:
+        limits_and_num_runs.update({"core_limit": core_limit})
 
-    # get runs with args and sourcefiles
-    sourceFiles = set()
-    runDefinitions = []
-    for runSet in benchmark.run_sets:
-        if not runSet.should_be_executed():
+    # get runs with args and source_files
+    source_files = set()
+    run_definitions = []
+    for run_set in benchmark.run_sets:
+        if not run_set.should_be_executed():
             continue
         if STOPPED_BY_INTERRUPT:
             break
 
         # get runs
-        for run in runSet.runs:
-            runDefinition = {}
+        for run in run_set.runs:
+            run_definition = {}
 
             # wrap list-elements in quotations-marks if they contain whitespace
             cmdline = ["'{}'".format(x) if " " in x else x for x in run.cmdline()]
             cmdline = " ".join(cmdline)
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
 
-            runDefinition.update(
+            run_definition.update(
                 {
                     "cmdline": cmdline,
                     "log_file": log_file,
-                    "sourcefile": run.sourcefiles,
+                    "sourcefile": run.source_files,
                     "required_files": run.required_files,
                 }
             )
 
-            runDefinitions.append(runDefinition)
-            sourceFiles.update(run.sourcefiles)
-            sourceFiles.update(run.required_files)
+            run_definitions.append(run_definition)
+            source_files.update(run.source_files)
+            source_files.update(run.required_files)
 
-    if not runDefinitions:
+    if not run_definitions:
         raise BenchExecException("Benchmark has nothing to run.")
 
-    return (requirements, numberOfRuns, limitsAndNumRuns, runDefinitions, sourceFiles)
+    return (
+        requirements,
+        number_of_runs,
+        limits_and_num_runs,
+        run_definitions,
+        source_files,
+    )
 
 
 def getToolData(benchmark):
 
-    workingDir = benchmark.working_directory()
-    if not os.path.isdir(workingDir):
+    working_dir = benchmark.working_directory()
+    if not os.path.isdir(working_dir):
         raise BenchExecException(
-            "Missing working directory '{0}', cannot run tool.".format(workingDir)
+            "Missing working directory '{0}', cannot run tool.".format(working_dir)
         )
-    logging.debug("Working dir: %s", workingDir)
+    logging.debug("Working dir: %s", working_dir)
 
     toolpaths = benchmark.required_files()
-    validToolpaths = set()
+    valid_toolpaths = set()
     for file in toolpaths:
         if not os.path.exists(file):
             raise BenchExecException(
@@ -457,9 +465,9 @@ def getToolData(benchmark):
                     os.path.normpath(file)
                 )
             )
-        validToolpaths.add(file)
+        valid_toolpaths.add(file)
 
-    return (workingDir, validToolpaths)
+    return (working_dir, valid_toolpaths)
 
 
 def bytes_to_mb(mb):
@@ -470,84 +478,84 @@ def bytes_to_mb(mb):
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
 
-    outputDir = benchmark.log_folder
-    if not os.path.isdir(outputDir) or not os.listdir(outputDir):
-        # outputDir does not exist or is empty
+    output_dir = benchmark.log_folder
+    if not os.path.isdir(output_dir) or not os.listdir(output_dir):
+        # output_dir does not exist or is empty
         logging.warning(
             "Received no results from AWS. Output-directory is missing or empty: %s",
-            outputDir,
+            output_dir,
         )
 
     if start_time and end_time:
-        usedWallTime = (end_time - start_time).total_seconds()
+        used_wall_time = (end_time - start_time).total_seconds()
     else:
-        usedWallTime = None
+        used_wall_time = None
 
     # write results in runs and handle output after all runs are done
-    executedAllRuns = True
-    runsProducedErrorOutput = False
-    for runSet in benchmark.run_sets:
-        if not runSet.should_be_executed():
-            output_handler.output_for_skipping_run_set(runSet)
+    executed_all_runs = True
+    runs_produced_error_output = False
+    for run_set in benchmark.run_sets:
+        if not run_set.should_be_executed():
+            output_handler.output_for_skipping_run_set(run_set)
             continue
 
-        output_handler.output_before_run_set(runSet, start_time=start_time)
+        output_handler.output_before_run_set(run_set, start_time=start_time)
 
-        for run in runSet.runs:
-            dataFile = run.log_file + ".data"
+        for run in run_set.runs:
+            data_file = run.log_file + ".data"
 
-            if os.path.exists(dataFile) and os.path.exists(run.log_file):
+            if os.path.exists(data_file) and os.path.exists(run.log_file):
                 try:
-                    values = parseAWSRunResultFile(dataFile)
+                    values = parseAWSRunResultFile(data_file)
                     if not benchmark.config.debug:
-                        os.remove(dataFile)
+                        os.remove(data_file)
                 except OSError as e:
                     logging.warning(
                         "Cannot extract measured values from output for file %s: %s",
                         run.identifier,
                         e,
                     )
-                    output_handler.all_created_files.add(dataFile)
-                    output_handler.set_error("missing results", runSet)
-                    executedAllRuns = False
+                    output_handler.all_created_files.add(data_file)
+                    output_handler.set_error("missing results", run_set)
+                    executed_all_runs = False
                 else:
                     output_handler.output_before_run(run)
                     run.set_result(values, ["host"])
                     output_handler.output_after_run(run)
             else:
                 logging.warning("No results exist for file %s.", run.identifier)
-                output_handler.set_error("missing results", runSet)
-                executedAllRuns = False
+                output_handler.set_error("missing results", run_set)
+                executed_all_runs = False
 
             if os.path.exists(run.log_file + ".stdError"):
-                runsProducedErrorOutput = True
+                runs_produced_error_output = True
 
             # Move all output files from "sibling of log-file" to
             # "sibling of parent directory".
-            rawPath = run.log_file[: -len(".log")]
-            dirname, filename = os.path.split(rawPath)
-            awsFilesDirectory = rawPath + ".files"
-            benchexecFilesDirectory = os.path.join(
+            raw_path = run.log_file[: -len(".log")]
+            dirname, filename = os.path.split(raw_path)
+            aws_files_directory = raw_path + ".files"
+            benchexec_files_directory = os.path.join(
                 dirname[: -len(".logfiles")] + ".files", filename
             )
-            if os.path.isdir(awsFilesDirectory) and not os.path.isdir(
-                benchexecFilesDirectory
+            if os.path.isdir(aws_files_directory) and not os.path.isdir(
+                benchexec_files_directory
             ):
-                shutil.move(awsFilesDirectory, benchexecFilesDirectory)
+                shutil.move(aws_files_directory, benchexec_files_directory)
 
         output_handler.output_after_run_set(
-            runSet, walltime=usedWallTime, end_time=end_time
+            run_set, walltime=used_wall_time, end_time=end_time
         )
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
-    if not executedAllRuns:
+    if not executed_all_runs:
         logging.warning("Some expected result files could not be found!")
-    if runsProducedErrorOutput and not benchmark.config.debug:
+    if runs_produced_error_output and not benchmark.config.debug:
         logging.warning(
             "Some runs produced unexpected warnings on stderr, "
             "please check the %s files!",
-            os.path.join(outputDir, "*.stdError"),
+            os.path.join(output_dir, "*.stdError"),
         )
 
 
@@ -574,7 +582,7 @@ def parse_cloud_run_result(values):
             old = result_values["exitcode"]
             assert (
                 old == new
-            ), "Inconsistent exit codes {} and {} from VerifierCloud".format(old, new)
+            ), "Inconsistent exit codes {} and {} from AWS execution".format(old, new)
         else:
             result_values["exitcode"] = new
 
