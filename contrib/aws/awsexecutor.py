@@ -14,6 +14,7 @@ import os
 import requests
 import shutil
 import sys
+import tempfile
 from threading import Event
 import zipfile
 
@@ -73,25 +74,14 @@ def execute_benchmark(benchmark, output_handler):
         aws_token = conf["UserToken"]
 
     try:
-        logging.info("Building archive files for verifier-tool and tasks...")
-        verif_archive_name = benchmark.tool_name + "_" + benchmark.instance + ".zip"
-        verif_archive_path = _createArchiveFile(
-            verif_archive_name, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
-        )
-        tasks_archive_name = "tasks_" + benchmark.instance + ".zip"
-        tasks_archive_path = _createArchiveFile(
-            tasks_archive_name, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
-        )
-
         start_time = benchexec.util.read_local_time()
 
-        logging.info("Waiting on the AWS EC2-instance to set everything up...")
-
         # Create
+        logging.info("Sending http-request for the specific upload destinations")
         url = (
             REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
         )
-        logging.debug("Sending http-request for aws instantiation (create): \n%s", url)
+        logging.debug("Url of the 'create' HTTP -request: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
 
@@ -99,54 +89,78 @@ def execute_benchmark(benchmark, output_handler):
         requestId = msg["requestId"]
 
         # Upload verifier
-        payload = {"file": verif_archive_name}
-        url = (
-            REQUEST_URL["upload"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
-        logging.debug("Sending http-request for uploading the verifier: \n%s", url)
-        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
-        http_response.raise_for_status()
+        prefix = benchmark.tool_name + "_" + benchmark.instance + "_"
+        with tempfile.SpooledTemporaryFile(
+            mode="w+b", prefix=prefix, suffix=".zip"
+        ) as fp:
+            logging.info("Building archive for verifier-tool...")
+            _createArchiveFile(
+                fp, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
+            )
 
-        msg = http_response.json()
-        verifier_upload_url = msg["uploadUrl"]
-        verifier_s3_key = msg["S3Key"]
-        verifier_aws_public_url = msg["publicURL"]
+            fp.seek(0)  # resets the file pointer
 
-        with open(verif_archive_path, "rb") as archive_file:
-            payload = archive_file.read()
+            payload = {"file": prefix + ".zip"}
+            url = (
+                REQUEST_URL["upload"]
+                .format(aws_endpoint, aws_token, requestId)
+                .encode(ENCODING_UTF_8)
+            )
+            logging.debug("Sending http-request for uploading the verifier: \n%s", url)
+            http_response = requests.get(
+                url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
+            )
+            http_response.raise_for_status()
+
+            msg = http_response.json()
+            verifier_upload_url = msg["uploadUrl"]
+            verifier_s3_key = msg["S3Key"]
+            verifier_aws_public_url = msg["publicURL"]
+
+            payload = fp.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading the verifier to AWS...")
             http_request = requests.request(
                 "PUT", verifier_upload_url, headers=headers, data=payload
             )
-        http_request.raise_for_status()
+            http_request.raise_for_status()
 
         # Upload tasks
-        payload = {"file": tasks_archive_name}
-        url = (
-            REQUEST_URL["upload"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
-        logging.debug("Sending http-request for uploading tasks: \n%s", url)
-        http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
-        http_response.raise_for_status()
+        prefix = "BenchExec_tasks_" + benchmark.instance + "_"
+        with tempfile.SpooledTemporaryFile(
+            mode="w+b", prefix=prefix, suffix=".zip"
+        ) as fp:
+            logging.info("Building archive for the tasks...")
+            _createArchiveFile(
+                fp, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
+            )
 
-        msg = http_response.json()
-        tasks_upload_url = msg["uploadUrl"]
-        tasks_s3_key = msg["S3Key"]
-        tasks_aws_public_url = msg["publicURL"]
+            fp.seek(0)  # resets the file pointer
 
-        with open(tasks_archive_path, "rb") as archive_file:
-            payload = archive_file.read()
+            payload = {"file": prefix + ".zip"}
+            url = (
+                REQUEST_URL["upload"]
+                .format(aws_endpoint, aws_token, requestId)
+                .encode(ENCODING_UTF_8)
+            )
+            logging.debug("Sending http-request for uploading tasks: \n%s", url)
+            http_response = requests.get(
+                url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
+            )
+            http_response.raise_for_status()
+
+            msg = http_response.json()
+            tasks_upload_url = msg["uploadUrl"]
+            tasks_s3_key = msg["S3Key"]
+            tasks_aws_public_url = msg["publicURL"]
+
+            payload = fp.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading tasks to AWS...")
             http_request = requests.request(
                 "PUT", tasks_upload_url, headers=headers, data=payload
             )
-        http_request.raise_for_status()
+            http_request.raise_for_status()
 
         # Upload commands
         payload = {"file": "commands.json"}
@@ -255,11 +269,6 @@ def execute_benchmark(benchmark, output_handler):
     except KeyboardInterrupt:
         stop()
     finally:
-        if os.path.exists(verif_archive_path):
-            os.remove(verif_archive_path)
-        if os.path.exists(tasks_archive_path):
-            os.remove(tasks_archive_path)
-
         # Clean
         url = (
             REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
@@ -297,13 +306,13 @@ def getAWSInput(benchmark):
     absWorkingDir = os.path.abspath(workingDir)
     absToolpaths = list(map(os.path.abspath, toolpaths))
     absSourceFiles = list(map(os.path.abspath, sourceFiles))
-    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
+    abs_base_dir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
 
-    if absBaseDir == "":
+    if abs_base_dir == "":
         raise BenchExecException("No common base dir found.")
 
     toolpaths = {
-        "absBaseDir": absBaseDir,
+        "absBaseDir": abs_base_dir,
         "workingDir": workingDir,
         "absWorkingDir": absWorkingDir,
         "toolpaths": toolpaths,
@@ -314,7 +323,7 @@ def getAWSInput(benchmark):
 
     awsInput = {
         "requirements": requirements,
-        "workingDir": os.path.relpath(absWorkingDir, absBaseDir),
+        "workingDir": os.path.relpath(absWorkingDir, abs_base_dir),
     }
     if benchmark.result_files_patterns:
         if len(benchmark.result_files_patterns) > 1:
@@ -329,22 +338,14 @@ def getAWSInput(benchmark):
     return (toolpaths, awsInput)
 
 
-def _zipdir(path, zipfile, absBaseDir):
+def _zipdir(path, zipfile, abs_base_dir):
     for root, dirs, files in os.walk(path):
         for file in files:
             filepath = os.path.join(root, file)
-            zipfile.write(filepath, os.path.relpath(filepath, absBaseDir))
+            zipfile.write(filepath, os.path.relpath(filepath, abs_base_dir))
 
 
-def _createArchiveFile(archive_name, absBaseDir, abs_paths):
-
-    archive_path = os.path.join(absBaseDir, archive_name)
-    if os.path.isfile(archive_path):
-        raise BenchExecException(
-            "Zip file already exists: '{0}'; not going to overwrite it.".format(
-                os.path.normpath(archive_path)
-            )
-        )
+def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
 
     with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file in abs_paths:
@@ -360,11 +361,9 @@ def _createArchiveFile(archive_name, absBaseDir, abs_paths):
                 )
 
             if os.path.isdir(file):
-                _zipdir(file, zipf, absBaseDir)
+                _zipdir(file, zipf, abs_base_dir)
             else:
-                zipf.write(file, os.path.relpath(file, absBaseDir))
-
-    return archive_path
+                zipf.write(file, os.path.relpath(file, abs_base_dir))
 
 
 def getBenchmarkData(benchmark):
