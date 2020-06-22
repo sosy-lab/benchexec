@@ -426,13 +426,13 @@ def getBenchmarkData(benchmark):
                 {
                     "cmdline": cmdline,
                     "log_file": log_file,
-                    "sourcefile": run.source_files,
+                    "sourcefile": run.sourcefiles,
                     "required_files": run.required_files,
                 }
             )
 
             run_definitions.append(run_definition)
-            source_files.update(run.source_files)
+            source_files.update(run.sourcefiles)
             source_files.update(run.required_files)
 
     if not run_definitions:
