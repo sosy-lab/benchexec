@@ -410,7 +410,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
-        environ=os.environ.copy(),
+        environ=None,
     ):
         """
         This method executes the command line and waits for the termination of it,
@@ -435,6 +435,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         temp_dir = None
         if rootDir is None:
             temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        if environ is None:
+            environ = os.environ.copy()
 
         pid = None
         returnvalue = 0
