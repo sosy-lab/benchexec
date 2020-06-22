@@ -1568,7 +1568,7 @@ def main(args=None):
                 )
 
         except util.TableDefinitionError as e:
-            handle_error("Fault in %s: %s", options.xmltablefile, e.message)
+            handle_error("Fault in %s: %s", options.xmltablefile, e)
 
         if not name:
             name = basename_without_ending(options.xmltablefile)
