@@ -92,13 +92,13 @@ def execute_benchmark(benchmark, output_handler):
         prefix = benchmark.tool_name + "_" + benchmark.instance + "_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
-        ) as fp:
+        ) as tempfile_verifier:
             logging.info("Building archive for verifier-tool...")
             _createArchiveFile(
-                fp, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
+                tempfile_verifier, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
             )
 
-            fp.seek(0)  # resets the file pointer
+            tempfile_verifier.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
             url = (
@@ -117,11 +117,10 @@ def execute_benchmark(benchmark, output_handler):
             verifier_s3_key = msg["S3Key"]
             verifier_aws_public_url = msg["publicURL"]
 
-            payload = fp.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading the verifier to AWS...")
             http_request = requests.request(
-                "PUT", verifier_upload_url, headers=headers, data=payload
+                "PUT", verifier_upload_url, headers=headers, data=tempfile_verifier
             )
             http_request.raise_for_status()
 
@@ -129,13 +128,13 @@ def execute_benchmark(benchmark, output_handler):
         prefix = "BenchExec_tasks_" + benchmark.instance + "_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
-        ) as fp:
+        ) as tempfile_tasks:
             logging.info("Building archive for the tasks...")
             _createArchiveFile(
-                fp, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
+                tempfile_tasks, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
             )
 
-            fp.seek(0)  # resets the file pointer
+            tempfile_tasks.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
             url = (
@@ -154,11 +153,10 @@ def execute_benchmark(benchmark, output_handler):
             tasks_s3_key = msg["S3Key"]
             tasks_aws_public_url = msg["publicURL"]
 
-            payload = fp.read()
             headers = {"Content-Type": "application/zip"}
             logging.info("Uploading tasks to AWS...")
             http_request = requests.request(
-                "PUT", tasks_upload_url, headers=headers, data=payload
+                "PUT", tasks_upload_url, headers=headers, data=tempfile_tasks
             )
             http_request.raise_for_status()
 
