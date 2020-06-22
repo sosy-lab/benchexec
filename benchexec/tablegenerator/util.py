@@ -63,7 +63,7 @@ def open_url_seekable(path_url, mode="rt"):
     copying it into a buffer if necessary."""
 
     logging.debug("Making request to '%s'", path_url)
-    response = urllib.request.urlopen(path_url)
+    response = urllib.request.urlopen(path_url)  # noqa: S310
     logging.debug("Got response %s", response.info())
 
     try:

@@ -517,7 +517,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment = {}
         else:
             run_environment = os.environ.copy()
-        for key, value in environments.get("keepEnv", {}).items():
+        for key in environments.get("keepEnv", {}).keys():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
         for key, value in environments.get("newEnv", {}).items():

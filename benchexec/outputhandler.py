@@ -158,7 +158,7 @@ class OutputHandler(object):
         if runSet:
             # insert before <run> tags to conform with DTD
             i = None
-            for i, elem in enumerate(runSet.xml):
+            for i, elem in enumerate(runSet.xml):  # noqa: B007
                 if elem.tag == "run":
                     break
             if i is None:

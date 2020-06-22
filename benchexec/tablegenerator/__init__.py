@@ -1315,13 +1315,15 @@ def write_csv_table(
 ):
     num_id_columns = relevant_id_columns[1:].count(True)
 
-    def write_head_line(name, values, value_repetitions=itertools.repeat(1)):
+    def write_head_line(
+        name, values, value_repetitions=itertools.repeat(1)  # noqa: B008
+    ):
         if any(values):
             out.write(name)
-            for i in range(num_id_columns):
+            for i in range(num_id_columns):  # noqa: B007
                 out.write(sep)
             for value, count in zip(values, value_repetitions):
-                for i in range(count):
+                for i in range(count):  # noqa: B007
                     out.write(sep)
                     if value:
                         out.write(value)

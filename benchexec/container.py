@@ -325,10 +325,10 @@ else:
 
 def setup_user_mapping(
     pid,
-    uid=os.getuid(),
-    gid=os.getgid(),
-    parent_uid=os.getuid(),
-    parent_gid=os.getgid(),
+    uid=os.getuid(),  # noqa: B008
+    gid=os.getgid(),  # noqa: B008
+    parent_uid=os.getuid(),  # noqa: B008
+    parent_gid=os.getgid(),  # noqa: B008
 ):
     """Write uid_map and gid_map in /proc to create a user mapping
     that maps our user from outside the container to the same user inside the container
@@ -862,7 +862,7 @@ def close_open_fds(keep_files=[]):
         else:
             try:
                 keep_fds.add(file.fileno())
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
 
     for fd in os.listdir("/proc/self/fd"):
