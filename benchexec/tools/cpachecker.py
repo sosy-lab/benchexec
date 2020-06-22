@@ -66,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def _find_newest_mtime(self, path):
         mtime = 0
-        for root, dirs, files, rootfd in os.fwalk(path):
+        for _root, _dirs, files, rootfd in os.fwalk(path):
             for f in files:
                 mtime = max(mtime, os.stat(f, dir_fd=rootfd).st_mtime)
 

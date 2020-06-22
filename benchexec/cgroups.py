@@ -425,7 +425,7 @@ class Cgroup(object):
         """
 
         def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
-            for dirpath, dirs, files in os.walk(cgroup, topdown=False):
+            for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
                 for subCgroup in dirs:
                     subCgroup = os.path.join(dirpath, subCgroup)
                     kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)

@@ -345,7 +345,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
         def onerror(*args):
             raise
 
-    for root, dirs, unused_files in os.walk(path):
+    for root, dirs, _unused_files in os.walk(path):
         for directory in dirs:
             try:
                 abs_directory = os.path.join(root, directory)

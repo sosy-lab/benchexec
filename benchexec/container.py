@@ -447,7 +447,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
         os.makedirs(temp_path, exist_ok=True)
 
-    for unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
         mountpoint = full_mountpoint[len(mount_base) :] or b"/"

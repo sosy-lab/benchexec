@@ -339,7 +339,7 @@ def getAWSInput(benchmark):
 
 
 def _zipdir(path, zipfile, abs_base_dir):
-    for root, dirs, files in os.walk(path):
+    for root, _dirs, files in os.walk(path):
         for file in files:
             filepath = os.path.join(root, file)
             zipfile.write(filepath, os.path.relpath(filepath, abs_base_dir))

@@ -65,14 +65,14 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def executable(self):
         exe = util.find_executable("Ultimate.py")
         if exe:
-            for (dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
+            for (_dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
                 if "Ultimate" in filenames and "plugins" in dirnames:
                     return exe
                 break
 
         # possibly another Ultimate.py was found or not found at all, check in the current dir
         current = os.getcwd()
-        for (dirpath, dirnames, filenames) in os.walk(current):
+        for (_dirpath, dirnames, filenames) in os.walk(current):
             if (
                 "Ultimate" in filenames
                 and "Ultimate.py" in filenames

@@ -1108,7 +1108,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
                 # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
-                    for root, unused_dirs, files in os.walk(abs_file):
+                    for root, _unused_dirs, files in os.walk(abs_file):
                         for file in files:
                             transfer_file(os.path.join(root, file))
                 else:
