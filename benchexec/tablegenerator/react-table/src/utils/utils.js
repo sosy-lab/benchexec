@@ -10,10 +10,15 @@ import React from "react";
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
-    tools: tools.map((tool) => ({
+    tools: tools.map((tool, idx) => ({
       ...tool,
       isVisible: true,
-      columns: tool.columns.map((column) => ({ ...column, isVisible: true })),
+      toolIdx: idx,
+      columns: tool.columns.map((column, idx) => ({
+        ...column,
+        colIdx: idx,
+        isVisible: true,
+      })),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
     table: rows,
@@ -194,6 +199,53 @@ const setParam = (param) => {
 
 const stringAsBoolean = (str) => str === "true";
 
+/**
+ * Creates an object with an entry for each of the tools, identified by the index of the tool, that stores the hidden columns defined in the URL.
+ * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
+ */
+const createHiddenColsFromURL = (tools) => {
+  const urlParams = getHashSearch();
+  // Object containing all hidden runsets from the URL (= param "hidden")
+  let hiddenTools = [];
+  if (urlParams.hidden) {
+    hiddenTools = urlParams.hidden
+      .split(",")
+      .filter((tool) => Number.isInteger(parseInt(tool)))
+      .map((tool) => parseInt(tool));
+  }
+
+  // Object containing all hidden columns from the URL with an individual entry for each runset (= params of the form "hiddenX" for runset X)
+  const hiddenCols = {};
+  const hiddenParams = Object.keys(urlParams).filter((param) =>
+    /hidden[0-9]+/.test(param),
+  );
+  hiddenParams.forEach((hiddenParam) => {
+    const toolIdx = parseInt(hiddenParam.replace("hidden", ""));
+    if (Number.isInteger(toolIdx)) {
+      hiddenCols[toolIdx] = urlParams[hiddenParam]
+        .split(",")
+        .filter((col) => Number.isInteger(parseInt(col)))
+        .map((col) => parseInt(col));
+    }
+  });
+
+  // Set all columns of a hidden runset to hidden
+  hiddenTools.forEach((hiddenToolIdx) => {
+    hiddenCols[hiddenToolIdx] = tools
+      .find((tool) => tool.toolIdx === hiddenToolIdx)
+      .columns.map((column) => column.colIdx);
+  });
+
+  // Leave hidden columns for not mentioned tools empty
+  tools.forEach((tool) => {
+    if (!hiddenCols[tool.toolIdx]) {
+      hiddenCols[tool.toolIdx] = [];
+    }
+  });
+
+  return hiddenCols;
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -211,5 +263,6 @@ export {
   getHashSearch,
   setHashSearch,
   setParam,
+  createHiddenColsFromURL,
   stringAsBoolean,
 };

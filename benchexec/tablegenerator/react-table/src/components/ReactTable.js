@@ -25,8 +25,7 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
-  getHashSearch,
-  setParam,
+  createHiddenColsFromURL,
 } from "../utils/utils";
 
 class FilterInputField extends React.Component {
@@ -72,7 +71,7 @@ export default class Table extends React.Component {
     this.data = this.props.data;
     this.state = {
       fixed: true,
-      tools: this.adjustToUrlParams(this.props.tools),
+      hiddenCols: createHiddenColsFromURL(this.props.tools),
     };
 
     // Collect all status and category values for filter drop-down
@@ -102,47 +101,16 @@ export default class Table extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener("popstate", this.updateTools, false);
+    window.addEventListener("popstate", this.updateHiddenCols, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateTools, false);
+    window.removeEventListener("popstate", this.updateHiddenCols, false);
   }
 
-  updateTools = () => {
-    this.setState((prevState) => ({
-      tools: this.adjustToUrlParams(prevState.tools),
-    }));
+  updateHiddenCols = () => {
+    this.setState({ hiddenCols: createHiddenColsFromURL(this.props.tools) });
   };
-
-  adjustToUrlParams(tools) {
-    const newTools = [...tools];
-    if (this.props.hasAccessToUrlParams) {
-      const urlParams = getHashSearch();
-
-      if (urlParams.hidden || urlParams.hidden === "") {
-        const hiddenCols = urlParams.hidden.split(",");
-
-        newTools.forEach((tool) => {
-          tool.columns.forEach((column) => {
-            column.isVisible = !hiddenCols.includes(column.display_title);
-          });
-        });
-      } else {
-        const hiddenCols = this.props.tools
-          .map((tool) => {
-            return tool.columns
-              .filter((column) => !column.isVisible)
-              .map((column) => column.display_title);
-          })
-          .flat();
-        if (hiddenCols.length > 0) {
-          setParam({ hidden: hiddenCols.toString() });
-        }
-      }
-    }
-    return newTools;
-  }
 
   //fix columns
   handleInputChange = ({ target }) => {
@@ -155,7 +123,7 @@ export default class Table extends React.Component {
   };
 
   findAllValuesOfColumn = (columnFilter, valueAccessor) =>
-    this.state.tools.map((tool, j) =>
+    this.props.tools.map((tool, j) =>
       tool.columns.map((column, i) => {
         if (!columnFilter(tool, column)) {
           return undefined;
@@ -227,7 +195,7 @@ export default class Table extends React.Component {
   createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
-    show: column.isVisible,
+    show: !this.state.hiddenCols[runSetIdx].includes(column.colIdx),
     minWidth: determineColumnWidth(column, 10),
     accessor: (row) => row.results[runSetIdx].values[columnIdx],
     Cell: (cell) => {
@@ -313,7 +281,7 @@ export default class Table extends React.Component {
     return {
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
-      show: column.isVisible,
+      show: !this.state.hiddenCols[runSetIdx].includes(column.colIdx),
       minWidth: determineColumnWidth(column),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
       Cell: (cell) => (
@@ -333,7 +301,7 @@ export default class Table extends React.Component {
   };
 
   render() {
-    const resultColumns = this.state.tools
+    const resultColumns = this.props.tools
       .map((runSet, runSetIdx) =>
         createRunSetColumns(runSet, runSetIdx, this.createColumn),
       )

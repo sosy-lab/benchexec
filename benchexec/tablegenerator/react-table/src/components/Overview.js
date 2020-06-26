@@ -173,7 +173,6 @@ export default class Overview extends React.Component {
                     filtered={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
                     changeTab={this.changeTab}
-                    hasAccessToUrlParams={!this.state.showSelectColumns}
                   />
                 </Route>
                 <Route path="/quantile">
