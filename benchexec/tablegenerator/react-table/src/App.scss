@@ -193,8 +193,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           }
           .delete-button {
             position: absolute;
-            color: red;
             right: 12px;
+            cursor: pointer;
           }
           .title {
             margin: 0;

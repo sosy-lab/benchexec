@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import "rc-slider/assets/index.css";
@@ -128,7 +128,7 @@ export default class FilterCard extends React.PureComponent {
             <h4 className="title">{filter.display_title}</h4>
             <FontAwesomeIcon
               className="delete-button"
-              icon={faTimes}
+              icon={faTrash}
               onClick={() => {
                 this.props.removeFilter();
               }}
