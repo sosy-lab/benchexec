@@ -11,6 +11,7 @@ import {
   textSortMethod,
   getHashSearch,
   setHashSearch,
+  NumberFormatterBuilder,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -91,6 +92,82 @@ describe("hashRouting helpers", () => {
       });
       expect(res).toEqual("localhost#table?id=1&name=benchexec");
     });
+  });
+});
+
+describe("NumberFormatterBuilder", () => {
+  let builder;
+  beforeEach(() => {
+    builder = new NumberFormatterBuilder(4);
+  });
+  test("should not count decimal point as significant number", () => {
+    const formatter = builder.build();
+
+    const number = "12.34";
+
+    expect(formatter(number)).toBe("12.34");
+  });
+
+  test("should correctly format numbers with integral and fractional parts", () => {
+    const formatter = builder.build();
+
+    const number = "12.30000000123";
+
+    expect(formatter(number)).toBe("12.30");
+  });
+
+  test("should prefix numbers without a leading integral with a single dot", () => {
+    const formatter = builder.build();
+
+    const number = "0.1337";
+
+    expect(formatter(number)).toBe(".1337");
+  });
+
+  test("in fractions below 1, should add all zeros before the first non-zero digit", () => {
+    const formatter = builder.build();
+
+    const number = "0.000001234";
+
+    expect(formatter(number)).toBe(".000001234");
+  });
+
+  test("should identify comma and dots as decimal points", () => {
+    const formatter = builder.build();
+
+    const numberDot = "12.34";
+    const numberComma = "12,34";
+
+    expect(formatter(numberDot)).toBe("12.34");
+    expect(formatter(numberComma)).toBe("12.34");
+  });
+
+  test("should format whitespaces according to dataset context", () => {
+    builder.addDataItem("1234");
+    builder.addDataItem("0.12345");
+
+    const formatter = builder.build();
+
+    // we have 4 digits before and 5 digits after the decimal point
+    const number1 = "23";
+    const number2 = "23.1";
+    const number3 = "0.123";
+    const number4 = "0.01337";
+
+    const expected1 = "  23      ";
+    const expected2 = "  23.1    ";
+    const expected3 = "    .123  ";
+    const expected4 = "    .01337";
+
+    const actual1 = formatter(number1, true);
+    const actual2 = formatter(number2, true);
+    const actual3 = formatter(number3, true);
+    const actual4 = formatter(number4, true);
+
+    expect(actual1).toBe(expected1);
+    expect(actual2).toBe(expected2);
+    expect(actual3).toBe(expected3);
+    expect(actual4).toBe(expected4);
   });
 });
 

@@ -217,6 +217,90 @@ const deepEquals = (a, b) => {
   return true;
 };
 
+/**
+ * Builds and configures a formatting function that can format a number based on
+ * the significant digits of the dataset for its column.
+ * If whitespaceFormat in the returned function is set to true, the number will be
+ * whitespace formatted as described on Page 24 in
+ * https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf
+ *
+ * @param {Number} significantDigits - Number of significant digits for this column
+ */
+class NumberFormatterBuilder {
+  constructor(significantDigits) {
+    this.significantDigits = significantDigits;
+    this.maxPositiveDecimalPosition = -1;
+    this.maxNegativeDecimalPosition = -1;
+  }
+
+  addDataItem(item) {
+    const [positive, negative] = item.split(/\.|,/);
+    this.maxPositiveDecimalPosition = Math.max(
+      this.maxPositiveDecimalPosition,
+      positive ? positive.length : 0,
+    );
+    this.maxNegativeDecimalPosition = Math.max(
+      this.maxNegativeDecimalPosition,
+      negative ? negative.length : 0,
+    );
+  }
+
+  build() {
+    return (number, whitespaceFormat = false) => {
+      let significantPart = "";
+      let addedNumbers = 0;
+      let numsBeforeDecimal = 0;
+      let positive = true;
+      let foundFirstNonNull = false;
+      for (const num of number) {
+        const isDecimalPoint = num === "." || num === ",";
+        if (isDecimalPoint) {
+          positive = false;
+          significantPart += ".";
+          continue;
+        }
+        significantPart += num;
+        if (num !== "0") {
+          if (!foundFirstNonNull) {
+            foundFirstNonNull = true;
+          }
+        }
+        if (foundFirstNonNull) {
+          if (positive) {
+            numsBeforeDecimal += 1;
+          }
+          addedNumbers += 1;
+        }
+        if (addedNumbers === this.significantDigits) {
+          break;
+        }
+      }
+      if (!numsBeforeDecimal) {
+        significantPart = `.${significantPart.split(/\.|,/)[1]}`;
+      }
+
+      if (whitespaceFormat) {
+        const [positivePart, negativePart] = significantPart.split(/\.|,/);
+        const deltaNeg =
+          this.maxNegativeDecimalPosition -
+          (negativePart ? negativePart.length : 0);
+        const deltaPos =
+          this.maxPositiveDecimalPosition -
+          (positivePart ? positivePart.length : 0);
+
+        const spacesPositive = " ".repeat(deltaPos);
+        let spacesNegative = " ".repeat(deltaNeg);
+        if (positive) {
+          spacesNegative += " "; // in case we don't have a decimal point
+        }
+        significantPart = `${spacesPositive}${significantPart}${spacesNegative}`;
+      }
+
+      return significantPart;
+    };
+  }
+}
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -238,4 +322,5 @@ export {
   path,
   omit,
   deepEquals,
+  NumberFormatterBuilder,
 };
