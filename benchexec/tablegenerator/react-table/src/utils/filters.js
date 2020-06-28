@@ -7,6 +7,12 @@
 
 import { isNil, getRawOrDefault, omit } from "./utils";
 
+/**
+ * Prepares raw data for filtering by retrieving available distinct values as min
+ * and max values of numeric fields
+ *
+ * @param {Object} data -  Data object received from json data
+ */
 const getFilterableData = ({ tools, rows }) => {
   const start = Date.now();
   const mapped = tools.map((tool, idx) => {
@@ -116,6 +122,28 @@ const applyTextFilter = (filter, row, cell) => {
   return raw.includes(filter.value);
 };
 
+/**
+ * Transforms a list of filter objects into a matcher.
+ * The matcher helps with data access and provides clear, parsed information
+ * on what the filter should do.
+ *
+ * for example:
+ *
+ * Filter object: [
+ *    {id: "0_status_1", value: "false"},
+ *    {id: "0_status_1", value: "TIMEOUT"},
+ *    {id: "0_cputime_3", value: "50: 1337"},
+ * ]
+ *
+ * matcher: {
+ *  0: {
+ *      1: [{value: "false"}, {value: "TIMEOUT"}],   // all values on this level are disjunctively connected
+ *      3: [{min: 50, max: 1337}],
+ *    }
+ * }
+ *
+ * @param {Array<Object>} filters - List of filters
+ */
 const buildMatcher = (filters) => {
   const start = Date.now();
   const out = filters.reduce((acc, { id, value }) => {
@@ -128,6 +156,7 @@ const buildMatcher = (filters) => {
     }
     const [tool, , columnIdx] = id.split("_");
     if (value === "diff") {
+      // this branch is noop as of now
       if (!acc.diff) {
         acc.diff = [];
       }
@@ -160,6 +189,17 @@ const buildMatcher = (filters) => {
   return out;
 };
 
+/**
+ * @typedef (function(Object[])) MatchingFunction
+ * @param {Object[]} data - the data of the current Table context
+ * @returns {Object[]} filtered data
+ */
+
+/**
+ *
+ * @param {matcher} matcher - the pre-compiled matcher
+ * @returns {MatchingFunction} - the built matching function. It requires
+ */
 const applyMatcher = (matcher) => (data) => {
   const start = Date.now();
   let diffd = [...data];
