@@ -37,9 +37,14 @@ export default class FilterContainer extends React.PureComponent {
 
   addFilter(idx) {
     const { filters: newFilterState, numCards } = this.state;
-    console.log({ newFilterState, idx });
-    newFilterState[idx].filtering = true;
-    newFilterState[idx].numCards = numCards;
+    const newFilter = { filtering: true, numCards };
+    if (newFilterState[idx].type === "status") {
+      newFilter.values = [
+        ...newFilterState[idx].categories,
+        ...newFilterState[idx].statuses,
+      ];
+    }
+    newFilterState[idx] = { ...newFilterState[idx], ...newFilter };
 
     this.setState({
       filters: newFilterState,
