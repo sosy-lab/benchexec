@@ -93,17 +93,20 @@ export default class FilterCard extends React.PureComponent {
   render() {
     const { filter, editable, availableFilters } = this.props;
     console.log("FilterCard rendering", { filter });
+    const selectRef = React.createRef();
     const filterAddSelection = () => (
       <>
         <span style={{ marginLeft: "12px" }}>Add filter for: </span>
         <select
           className="filter-selection"
           defaultValue="-1"
+          ref={selectRef}
           onChange={({ target: { value: idx } }) => {
             if (idx === -1) {
               return;
             }
-            this.setState({ idx, active: true });
+            this.setState({ idx: -1, active: true });
+            selectRef.current.value = "-1"; // Reset preselected option to "Column"
             this.props.addFilter(idx);
           }}
         >

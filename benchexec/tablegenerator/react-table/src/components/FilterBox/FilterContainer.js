@@ -6,11 +6,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FilterCard from "./FilterCard";
 import equals from "deep-equal";
-import classNames from "classnames";
 
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
@@ -79,6 +76,7 @@ export default class FilterContainer extends React.PureComponent {
   render() {
     const filters = this.getActiveFilters();
     console.log("container rendered");
+    const availableFilters = this.state.filters.filter((i) => !i.filtering);
     return (
       <div className="filterBox--container">
         <h4>{this.state.toolName}</h4>
@@ -97,23 +95,13 @@ export default class FilterContainer extends React.PureComponent {
             ))}
         <br />
         <br />
-        {this.state.addingFilter ? (
+        {availableFilters.length && (
           <FilterCard
-            availableFilters={this.state.filters.filter((i) => !i.filtering)}
+            availableFilters={availableFilters}
             editable="true"
             addFilter={(idx) => this.addFilter(idx)}
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
-        ) : (
-          <div
-            className={classNames("filter-add-button", {
-              hidden:
-                this.state.filters.filter((i) => !i.filtering).length === 0,
-            })}
-            onClick={() => this.setState({ addingFilter: true })}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </div>
         )}
       </div>
     );
