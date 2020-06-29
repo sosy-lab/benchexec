@@ -86,7 +86,7 @@ export default class SelectColumn extends React.Component {
                 name={toolName + "--" + toolIdx}
                 type="checkbox"
                 checked={isVisible}
-                onChange={this.toggleToolHidden}
+                onChange={(e) => this.toggleToolHidden(toolIdx, e)}
               ></input>
             </label>
           </td>
@@ -124,7 +124,7 @@ export default class SelectColumn extends React.Component {
                 name={toolIdx + "--" + colTitle}
                 type="checkbox"
                 checked={isVisible}
-                onChange={this.toggleToolColHidden}
+                onChange={(e) => this.toggleToolColHidden(toolIdx, colTitle, e)}
               ></input>
             </label>
           </td>
@@ -166,7 +166,7 @@ export default class SelectColumn extends React.Component {
               name={colTitle}
               type="checkbox"
               checked={isVisible}
-              onChange={this.toggleWholeColHidden}
+              onChange={(e) => this.toggleWholeColHidden(colTitle, e)}
             ></input>
           </label>
         </th>
@@ -193,11 +193,9 @@ export default class SelectColumn extends React.Component {
   };
 
   // Toggles all columns of the runset with the id of the target
-  toggleToolHidden = ({ target }) => {
-    let toolIdx = parseInt(target.name.split("--")[1]);
+  toggleToolHidden = (toolIdx, { target }) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
-
     const newHiddenCols = isAlreadyHidden
       ? []
       : this.props.tools
@@ -207,12 +205,11 @@ export default class SelectColumn extends React.Component {
   };
 
   // Toggles all columns with the display title of the target within a single runset
-  toggleToolColHidden = ({ target }) => {
-    const [toolIdx, colTitle] = target.name.split("--");
+  toggleToolColHidden = (toolIdx, colTitle, { target }) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
     const colIdxs = this.props.tools
-      .find((tool) => tool.toolIdx === parseInt(toolIdx))
+      .find((tool) => tool.toolIdx === toolIdx)
       .columns.filter((col) => col.display_title === colTitle)
       .map((col) => col.colIdx);
     isAlreadyHidden
@@ -221,8 +218,7 @@ export default class SelectColumn extends React.Component {
   };
 
   // Toggles all columns with the display title of the target column in all runsets
-  toggleWholeColHidden = ({ target }) => {
-    const colTitle = target.name;
+  toggleWholeColHidden = (colTitle, { target }) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
 
