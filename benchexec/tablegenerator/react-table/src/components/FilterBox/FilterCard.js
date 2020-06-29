@@ -292,6 +292,7 @@ export default class FilterCard extends React.PureComponent {
                 type="number"
                 name={`inp-${title}-min`}
                 value={this.state.currentMin}
+                lang="en-US"
                 step={(max - min) / 1000.0}
                 onChange={({ target: { value } }) => {
                   if (value > this.state.currentMax) {
@@ -312,6 +313,7 @@ export default class FilterCard extends React.PureComponent {
                 type="number"
                 name={`inp-${title}-max`}
                 step={(max - min) / 1000.0}
+                lang="en-US"
                 value={this.state.currentMax}
                 onChange={({ target: { value } }) => {
                   if (value < this.state.currentMin) {
