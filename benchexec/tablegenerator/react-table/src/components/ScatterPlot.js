@@ -31,8 +31,6 @@ const defaultValues = {
   line: 10,
 };
 
-const getFirstVisible = (tool) =>
-  tool.columns.find((column) => column.isVisible && column.type !== "status");
 export default class ScatterPlot extends React.Component {
   constructor(props) {
     super(props);
@@ -74,18 +72,25 @@ export default class ScatterPlot extends React.Component {
     correct = stringAsBoolean(correct);
     linear = stringAsBoolean(linear);
 
-    let dataX;
-    let dataY;
+    let dataX, dataY, areAllColsHidden;
 
     if (isNil(toolX) || isNil(columnX)) {
-      dataX = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+      const [firstVisibleTool, firstVisibleColumn] = this.getFirstVisibles();
+      areAllColsHidden = firstVisibleTool === undefined;
+      toolX = firstVisibleTool;
+      dataX = `${firstVisibleTool}-${firstVisibleColumn}`;
     } else {
+      areAllColsHidden = false;
       dataX = `${toolX}-${columnX}`;
     }
 
     if (isNil(toolY) || isNil(columnY)) {
-      dataY = `0-${getFirstVisible(this.props.tools[0]).display_title}`;
+      const [firstVisibleTool, firstVisibleColumn] = this.getFirstVisibles();
+      areAllColsHidden = firstVisibleTool === undefined;
+      toolY = firstVisibleTool;
+      dataY = `${firstVisibleTool}-${firstVisibleColumn}`;
     } else {
+      areAllColsHidden = false;
       dataY = `${toolY}-${columnY}`;
     }
 
@@ -104,12 +109,13 @@ export default class ScatterPlot extends React.Component {
       value: false,
       width: window.innerWidth,
       height: window.innerHeight,
+      areAllColsHidden,
     };
 
-    if (dataX) {
+    if (dataX && !areAllColsHidden) {
       out = { ...out, ...this.extractAxisInfoByName(dataX, "X") };
     }
-    if (dataY) {
+    if (dataY && !areAllColsHidden) {
       out = { ...out, ...this.extractAxisInfoByName(dataY, "Y") };
     }
     return out;
@@ -137,15 +143,48 @@ export default class ScatterPlot extends React.Component {
     this.setState(this.setup());
   };
 
+  /**
+   * Returns the index of the first runset that has a column that is not hidden and not of the type status, as well as the index
+   * of the corresponding column. In case there is no such column, returns the index of the first runset that has a status column
+   * that is not hidden, as well as the index of this column. In case there is also no such column, i.e. all columns of all runsets
+   * are hidden, returns undefined for those values.
+   **/
+  getFirstVisibles = () => {
+    let visibleCol;
+    let visibleTool = this.props.tools.find((tool) => {
+      visibleCol = tool.columns.find(
+        (col) =>
+          col.type !== "status" &&
+          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
+      );
+      return visibleCol;
+    });
+
+    if (!visibleCol) {
+      visibleTool = this.props.tools.find(
+        (tool) =>
+          (visibleCol = tool.columns.find(
+            (col) =>
+              col.type === "status" &&
+              !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
+          )),
+      );
+    }
+
+    return visibleTool && visibleCol
+      ? [visibleTool.toolIdx, visibleCol.colIdx]
+      : [undefined, undefined];
+  };
+
   // --------------------rendering-----------------------------
   renderColumns = () => {
     return this.props.tools.map((runset, i) => (
       <optgroup key={"runset" + i} label={getRunSetName(runset)}>
         {runset.columns.map((column, j) => {
-          return column.isVisible ? (
+          return !this.props.hiddenCols[i].includes(column.colIdx) ? (
             <option
               key={i + column.display_title}
-              value={i + "-" + column.display_title.replace("-", "___")}
+              value={i + "-" + column.colIdx}
               name={column.display_title}
             >
               {column.display_title}
@@ -160,34 +199,36 @@ export default class ScatterPlot extends React.Component {
     let array = [];
     this.hasInvalidLog = false;
 
-    this.props.table.forEach((row) => {
-      const resX = row.results[this.state.toolX];
-      const resY = row.results[this.state.toolY];
-      const x = resX.values[this.state.columnX].raw;
-      const y = resY.values[this.state.columnY].raw;
-      const hasValues =
-        x !== undefined && x !== null && y !== undefined && y !== null;
+    if (!this.state.areAllColsHidden) {
+      this.props.table.forEach((row) => {
+        const resX = row.results[this.state.toolX];
+        const resY = row.results[this.state.toolY];
+        const x = resX.values[this.state.columnX].raw;
+        const y = resY.values[this.state.columnY].raw;
+        const hasValues =
+          x !== undefined && x !== null && y !== undefined && y !== null;
 
-      if (
-        hasValues &&
-        (!this.state.correct ||
-          (this.state.correct &&
-            resX.category === "correct" &&
-            resY.category === "correct"))
-      ) {
-        const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
+        if (
+          hasValues &&
+          (!this.state.correct ||
+            (this.state.correct &&
+              resX.category === "correct" &&
+              resY.category === "correct"))
+        ) {
+          const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
 
-        if (isLogAndInvalid) {
-          this.hasInvalidLog = true;
-        } else {
-          array.push({
-            x,
-            y,
-            info: this.props.getRowName(row),
-          });
+          if (isLogAndInvalid) {
+            this.hasInvalidLog = true;
+          } else {
+            array.push({
+              x,
+              y,
+              info: this.props.getRowName(row),
+            });
+          }
         }
-      }
-    });
+      });
+    }
 
     this.setMinMaxValues(array);
 
@@ -234,15 +275,14 @@ export default class ScatterPlot extends React.Component {
   };
 
   extractAxisInfoByName = (val, axis) => {
-    let [toolIndex, columnName] = val.split("-");
-    columnName = columnName.replace("___", "-");
+    let [toolIndex, colIdx] = val.split("-");
     return {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
-      [`column${axis}`]: this.props.tools[toolIndex].columns.findIndex(
-        (item) => item.display_title === columnName,
-      ),
-      [`name${axis}`]: columnName,
+      [`column${axis}`]: colIdx,
+      [`name${axis}`]: this.props.tools[toolIndex].columns.find(
+        (col) => col.colIdx === parseInt(colIdx),
+      ).display_title,
     };
   };
   handleAxis = (ev, axis) => {
@@ -396,13 +436,17 @@ export default class ScatterPlot extends React.Component {
           />
           {this.state.value ? <Hint value={this.state.value} /> : null}
         </XYPlot>
-        {this.lineCount === 0 && (
-          <div className="plot__noresults">
-            No {this.state.correct && "correct"} results
-            {this.props.table.length > 0 && " with valid data points"}
-            {this.hasInvalidLog &&
-              " (negative values are not shown in logarithmic plot)"}
-          </div>
+        {this.state.areAllColsHidden ? (
+          <div className="plot__noresults">No columns to show!</div>
+        ) : (
+          this.lineCount === 0 && (
+            <div className="plot__noresults">
+              No {this.state.correct && "correct"} results
+              {this.props.table.length > 0 && " with valid data points"}
+              {this.hasInvalidLog &&
+                " (negative values are not shown in logarithmic plot)"}
+            </div>
+          )
         )}
         <button className="btn" onClick={this.toggleLinear}>
           {this.state.linear
