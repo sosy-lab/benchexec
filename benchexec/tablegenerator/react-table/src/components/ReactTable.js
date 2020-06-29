@@ -25,7 +25,6 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
-  createHiddenColsFromURL,
 } from "../utils/utils";
 
 class FilterInputField extends React.Component {
@@ -71,7 +70,6 @@ export default class Table extends React.Component {
     this.data = this.props.data;
     this.state = {
       fixed: true,
-      hiddenCols: createHiddenColsFromURL(this.props.tools),
     };
 
     // Collect all status and category values for filter drop-down
@@ -99,18 +97,6 @@ export default class Table extends React.Component {
     ];
     this.typingTimer = -1;
   }
-
-  componentDidMount() {
-    window.addEventListener("popstate", this.updateHiddenCols, false);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateHiddenCols, false);
-  }
-
-  updateHiddenCols = () => {
-    this.setState({ hiddenCols: createHiddenColsFromURL(this.props.tools) });
-  };
 
   //fix columns
   handleInputChange = ({ target }) => {
@@ -195,7 +181,7 @@ export default class Table extends React.Component {
   createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
-    show: !this.state.hiddenCols[runSetIdx].includes(column.colIdx),
+    show: !this.props.hiddenCols[runSetIdx].includes(column.colIdx),
     minWidth: determineColumnWidth(column, 10),
     accessor: (row) => row.results[runSetIdx].values[columnIdx],
     Cell: (cell) => {
@@ -281,7 +267,7 @@ export default class Table extends React.Component {
     return {
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
-      show: !this.state.hiddenCols[runSetIdx].includes(column.colIdx),
+      show: !this.props.hiddenCols[runSetIdx].includes(column.colIdx),
       minWidth: determineColumnWidth(column),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
       Cell: (cell) => (

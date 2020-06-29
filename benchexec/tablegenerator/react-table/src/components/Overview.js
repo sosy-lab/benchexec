@@ -19,6 +19,7 @@ import { prepareTableData } from "../utils/utils";
 import classNames from "classnames";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { createHiddenColsFromURL } from "../utils/utils";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -68,9 +69,21 @@ export default class Overview extends React.Component {
       ).key,
 
       quantilePreSelection: tools[0].columns[1],
+      hiddenCols: createHiddenColsFromURL(tools),
     };
-
   }
+
+  componentDidMount() {
+    window.addEventListener("popstate", this.updateHiddenCols, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.updateHiddenCols, false);
+  }
+
+  updateHiddenCols = () => {
+    this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
+  };
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = (ev) => {
@@ -121,6 +134,11 @@ export default class Overview extends React.Component {
   };
 
   render() {
+    let urlParams = document.location.href.split("?")[1] || "";
+    urlParams = urlParams
+      .split("&")
+      .filter((param) => param.startsWith("hidden"))
+      .join("&");
     return (
       <Router>
         <div className="overview">
@@ -131,7 +149,7 @@ export default class Overview extends React.Component {
                   className={classNames("menu-item", {
                     selected: this.state.active === key,
                   })}
-                  to={path}
+                  to={path + (urlParams ? "?" + urlParams : "")}
                   key={path}
                   onClick={() => this.setState(() => ({ active: key }))}
                 >
@@ -155,6 +173,7 @@ export default class Overview extends React.Component {
                     selectColumn={this.toggleSelectColumns}
                     stats={this.stats}
                     changeTab={this.changeTab}
+                    hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/table">
@@ -168,6 +187,7 @@ export default class Overview extends React.Component {
                     filtered={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
                     changeTab={this.changeTab}
+                    hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/quantile">
@@ -176,6 +196,7 @@ export default class Overview extends React.Component {
                     tools={this.state.tools}
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
+                    hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/scatter">
@@ -184,6 +205,7 @@ export default class Overview extends React.Component {
                     columns={this.columns}
                     tools={this.state.tools}
                     getRowName={this.getRowName}
+                    hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/info">
@@ -202,6 +224,7 @@ export default class Overview extends React.Component {
                 currColumns={this.columns}
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
+                hiddenCols={this.state.hiddenCols}
               />
             )}
             {this.state.showLinkOverlay && (

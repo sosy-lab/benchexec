@@ -9,11 +9,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import {
-  getRunSetName,
-  setHashSearch,
-  createHiddenColsFromURL,
-} from "../utils/utils";
+import { getRunSetName, setHashSearch } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
@@ -34,7 +30,7 @@ export default class SelectColumn extends React.Component {
 
     this.state = {
       isButtonOnDeselect: true,
-      hiddenCols: createHiddenColsFromURL(this.props.tools),
+      hiddenCols: this.props.hiddenCols,
       selectableCols,
     };
   }
