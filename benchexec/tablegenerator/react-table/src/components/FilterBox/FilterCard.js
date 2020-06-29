@@ -48,10 +48,18 @@ export default class FilterCard extends React.PureComponent {
   }
 
   sendFilterUpdate(values) {
-    this.props.onFilterUpdate({
-      values,
-      title: this.state.title || this.props.title,
-    });
+    const { type } = this.props.filter;
+    if (values.length === 0 && type === "status") {
+      this.props.onFilterUpdate({
+        values: ["##########"],
+        title: this.state.title || this.props.title,
+      });
+    } else {
+      this.props.onFilterUpdate({
+        values,
+        title: this.state.title || this.props.title,
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
