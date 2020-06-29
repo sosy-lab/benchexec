@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
-from getpass import getuser
 import io
 import json
 import logging
@@ -62,10 +61,7 @@ def execute_benchmark(benchmark, output_handler):
         benchmark.config.aws_config
         if benchmark.config.aws_config is not None
         else os.path.join(
-            os.path.expanduser("~"),
-            ".config",
-            "sv-comp-aws",
-            getuser() + ".client.config",
+            os.path.expanduser("~"), ".config", "sv-comp-aws", "aws.client.config",
         )
     )
     with open(conf_file_path, "r") as conf_file:
