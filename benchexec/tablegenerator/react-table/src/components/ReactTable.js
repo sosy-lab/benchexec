@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -22,6 +22,7 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
+  pathOr,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -62,6 +63,35 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
 export default function Table(props) {
   const [fixed, setFixed] = useState(true);
+  let [filteredColumnValues, setFilteredColumnValues] = useState({});
+  // get selected status and category values
+  useEffect(() => {
+    const { filtered } = props;
+    const newFilteredColumnValues = {};
+    for (const filter of filtered) {
+      const { value, id } = filter;
+      const [runset, , column] = id.split("_");
+      const currentRunsetFilters = newFilteredColumnValues[runset] || {};
+
+      const isCategory =
+        typeof value === "string" && value[value.length - 1] === " ";
+
+      if (isCategory) {
+        const categories = currentRunsetFilters.categories || [];
+        categories.push(value);
+        currentRunsetFilters.categories = categories;
+      } else {
+        const filtersOfColumn = currentRunsetFilters[column] || [];
+        filtersOfColumn.push(value);
+        currentRunsetFilters[column] = filtersOfColumn;
+      }
+
+      newFilteredColumnValues[runset] = currentRunsetFilters;
+    }
+    setFilteredColumnValues(newFilteredColumnValues);
+
+    console.log({ newFilteredColumnValues });
+  }, [props]);
 
   const handleFixedInputChange = ({ target }) => {
     const value = target.checked;
@@ -159,12 +189,36 @@ export default function Table(props) {
     },
     Filter: ({ filter, onChange }) => {
       const categoryValues = props.categoryValues[runSetIdx][columnIdx];
+      console.log({ filter });
+      const selectedCategoryFilters = pathOr(
+        [runSetIdx, "categories"],
+        [],
+        filteredColumnValues,
+      );
+      const selectedStatusValues = pathOr(
+        [runSetIdx, columnIdx],
+        [],
+        filteredColumnValues,
+      );
+      const selectedFilters = [
+        ...selectedCategoryFilters,
+        ...selectedStatusValues,
+      ];
+      const multipleSelected = selectedFilters.length > 1;
+
+      const singleFilterValue = filter ? filter.value : "all ";
+      const selectValue = multipleSelected ? "multiple" : singleFilterValue;
       return (
         <select
           onChange={(event) => onChange(event.target.value)}
           style={{ width: "100%" }}
-          value={filter ? filter.value : "all "}
+          value={selectValue}
         >
+          {multipleSelected && (
+            <option value="multiple" disabled selected>
+              {selectedFilters.join(", ")}
+            </option>
+          )}
           <option value="all ">Show all</option>
           {categoryValues
             .filter((category) => category in SPECIAL_CATEGORIES)
@@ -223,6 +277,8 @@ export default function Table(props) {
       createRunSetColumns(runSet, runSetIdx, createColumn),
     )
     .flat();
+
+  console.log({ filtered: props.filtered });
 
   return (
     <div className="mainTable">
