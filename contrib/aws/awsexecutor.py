@@ -459,7 +459,8 @@ def getToolData(benchmark):
                     os.path.normpath(file)
                 )
             )
-        valid_toolpaths.add(file)
+        for glob in benchexec.util.expand_filename_pattern(file, working_dir):
+            valid_toolpaths.add(glob)
 
     return (working_dir, valid_toolpaths)
 
