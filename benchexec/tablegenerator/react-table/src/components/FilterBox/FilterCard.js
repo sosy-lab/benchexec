@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-import { without, pathOr } from "../../utils/utils";
+import { without, pathOr, NumberFormatterBuilder } from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -148,11 +148,13 @@ export default class FilterCard extends React.PureComponent {
       if (!filter) {
         return null;
       }
+      console.log({ filter });
       const {
         title,
         type,
         min,
         max,
+        number_of_significant_digits: significantDigits,
         categories,
         statuses,
         values = [],
@@ -249,6 +251,10 @@ export default class FilterCard extends React.PureComponent {
           />
         );
       } else {
+        const builder = new NumberFormatterBuilder(significantDigits);
+        builder.addDataItem(max.toString());
+        builder.addDataItem(min.toString());
+        const formatter = builder.build();
         body = (
           <>
             <div className="filter-card--range-container">
@@ -258,17 +264,24 @@ export default class FilterCard extends React.PureComponent {
             <Range
               min={min}
               max={max}
-              step={(max - min) / 1000.0}
+              step={(max - min) / 100.0}
               defaultValue={[min, max]}
               value={[this.state.currentMin, this.state.currentMax]}
-              onChange={([nMin, nMax]) =>
-                this.setState({ currentMin: nMin, currentMax: nMax })
-              }
-              onAfterChange={([nMin, nMax]) => {
+              onChange={([nMin, nMax]) => {
+                const formattedMin = formatter(nMin.toString());
+                const formattedMax = formatter(nMax.toString());
                 this.setState({
-                  currentMin: nMin,
-                  currentMax: nMax,
-                  values: [`${nMin}:${nMax}`],
+                  currentMin: formattedMin,
+                  currentMax: formattedMax,
+                });
+              }}
+              onAfterChange={([nMin, nMax]) => {
+                const formattedMin = formatter(nMin.toString());
+                const formattedMax = formatter(nMax.toString());
+                this.setState({
+                  currentMin: formattedMin,
+                  currentMax: formattedMax,
+                  values: [`${formattedMin}:${formattedMax}`],
                 });
                 this.sendFilterUpdate([`${nMin}:${nMax}`]);
               }}
