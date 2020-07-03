@@ -23,6 +23,7 @@ import {
   getHashSearch,
   isNil,
   stringAsBoolean,
+  getFirstVisibles,
 } from "../utils/utils";
 
 const defaultValues = {
@@ -75,7 +76,10 @@ export default class ScatterPlot extends React.Component {
     let dataX, dataY, areAllColsHidden;
 
     if (isNil(toolX) || isNil(columnX)) {
-      const [firstVisibleTool, firstVisibleColumn] = this.getFirstVisibles();
+      const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        this.props.tools,
+        this.props.hiddenCols,
+      );
       areAllColsHidden = firstVisibleTool === undefined;
       toolX = firstVisibleTool;
       dataX = `${firstVisibleTool}-${firstVisibleColumn}`;
@@ -85,7 +89,10 @@ export default class ScatterPlot extends React.Component {
     }
 
     if (isNil(toolY) || isNil(columnY)) {
-      const [firstVisibleTool, firstVisibleColumn] = this.getFirstVisibles();
+      const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        this.props.tools,
+        this.props.hiddenCols,
+      );
       areAllColsHidden = firstVisibleTool === undefined;
       toolY = firstVisibleTool;
       dataY = `${firstVisibleTool}-${firstVisibleColumn}`;
@@ -141,39 +148,6 @@ export default class ScatterPlot extends React.Component {
 
   refreshUrlState = () => {
     this.setState(this.setup());
-  };
-
-  /**
-   * Returns the index of the first runset that has a column that is not hidden and not of the type status, as well as the index
-   * of the corresponding column. In case there is no such column, returns the index of the first runset that has a status column
-   * that is not hidden, as well as the index of this column. In case there is also no such column, i.e. all columns of all runsets
-   * are hidden, returns undefined for those values.
-   **/
-  getFirstVisibles = () => {
-    let visibleCol;
-    let visibleTool = this.props.tools.find((tool) => {
-      visibleCol = tool.columns.find(
-        (col) =>
-          col.type !== "status" &&
-          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
-      );
-      return visibleCol;
-    });
-
-    if (!visibleCol) {
-      visibleTool = this.props.tools.find(
-        (tool) =>
-          (visibleCol = tool.columns.find(
-            (col) =>
-              col.type === "status" &&
-              !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
-          )),
-      );
-    }
-
-    return visibleTool && visibleCol
-      ? [visibleTool.toolIdx, visibleCol.colIdx]
-      : [undefined, undefined];
   };
 
   // --------------------rendering-----------------------------
