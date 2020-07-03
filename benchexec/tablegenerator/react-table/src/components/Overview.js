@@ -193,6 +193,7 @@ export default class Overview extends React.Component {
               selectColumn={this.toggleSelectColumns}
               filterable={this.state.filterable}
               setFilter={this.filterPlotData}
+              resetFilters={this.resetFilters}
               filtered={this.state.filtered}
               visible={this.state.filterBoxVisible}
               hide={() => {

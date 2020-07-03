@@ -13,6 +13,7 @@ export default class FilterContainer extends React.PureComponent {
   constructor(props) {
     super(props);
     const { filters, toolName } = props;
+    this.props.resetFilterHook(() => this.resetAllFilters());
     this.state = { filters, toolName, addingFilter: false, numCards: 0 };
   }
 
@@ -51,6 +52,21 @@ export default class FilterContainer extends React.PureComponent {
       addingFilter: false,
       numCards: numCards + 1,
     });
+  }
+
+  resetAllFilters() {
+    const newFilterState = this.state.filters.map((filter) => ({
+      ...filter,
+      filtering: false,
+      values: [],
+    }));
+    this.setState({ filters: [...newFilterState] });
+    for (const filter of newFilterState) {
+      this.props.updateFilters(
+        { title: filter.display_title, values: [] },
+        filter.idx,
+      );
+    }
   }
 
   removeFilter(idx, title) {

@@ -7,7 +7,7 @@
 
 import React from "react";
 import FilterContainer from "./FilterContainer";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
 const classNames = require("classnames");
@@ -18,6 +18,10 @@ export default class FilterBox extends React.PureComponent {
     //console.log({ props });
 
     const { filtered } = props;
+
+    this.listeners = [];
+
+    this.resetFilterHook = (fun) => this.listeners.push(fun);
 
     this.state = {
       filters: this.createFiltersFromReactTableStructure(filtered),
@@ -30,6 +34,10 @@ export default class FilterBox extends React.PureComponent {
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
       });
     }
+  }
+
+  resetAllContainers() {
+    this.listeners.forEach((fun) => fun());
   }
 
   createFiltersFromReactTableStructure(filters) {
@@ -100,10 +108,16 @@ export default class FilterBox extends React.PureComponent {
             onClick={this.props.hide}
           />
           {this.props.headerComponent}
+          <FontAwesomeIcon
+            icon={faTrash}
+            className="filterBox--header--reset-icon"
+            onClick={() => this.resetAllContainers()}
+          />
         </div>
         {this.props.filterable.map((tool, idx) => {
           return (
             <FilterContainer
+              resetFilterHook={this.resetFilterHook}
               updateFilters={(data, columnIndex) =>
                 this.updateFilters(idx, columnIndex, data)
               }

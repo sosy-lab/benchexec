@@ -114,6 +114,12 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         height: 100%;
         background-color: rgba(255, 255, 255, 0.5);
         border: none;
+        cursor: initial;
+        &-icon {
+          position: absolute;
+          right: 15px;
+          cursor: pointer;
+        }
         &:disabled {
           display: inline-block;
           background: none;
@@ -266,6 +272,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       border: none;
       font-size: 12px;
       color: black;
+      .filter-icon {
+        margin-left: 10x;
+        margin-right: 5px;
+      }
       .highlight {
         font-weight: bold;
       }
