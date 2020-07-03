@@ -95,7 +95,7 @@ describe("hashRouting helpers", () => {
   });
 });
 
-describe.only("NumberFormatterBuilder", () => {
+describe("NumberFormatterBuilder", () => {
   let builder;
   beforeEach(() => {
     builder = new NumberFormatterBuilder(4);
