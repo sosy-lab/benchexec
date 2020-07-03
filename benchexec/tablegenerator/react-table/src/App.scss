@@ -141,6 +141,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       align-items: center;
       text-align: center;
 
+      h4 {
+        max-width: 90%;
+      }
+
       .hidden {
         display: none !important;
       }
