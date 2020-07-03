@@ -53,7 +53,10 @@ export default class QuantilePlot extends React.Component {
     correct = stringAsBoolean(correct);
 
     const initialSelection = selection;
-    const isValue = selection === undefined || !selection.startsWith("runset");
+    const toolIdxes = this.props.tools.map((tool) => tool.toolIdx).join("");
+    const runsetPattern = new RegExp("runset-[" + toolIdxes + "]");
+
+    const isValue = selection === undefined || !runsetPattern.test(selection);
 
     if (isValue) {
       let selectedCol = selection
@@ -63,10 +66,10 @@ export default class QuantilePlot extends React.Component {
             .find((col) => col.display_title === selection)
         : this.props.preSelection;
 
-      /* If the defined col is not visible in any of the runsets, the first visible column that is not of the type status
-         of the first visible runset will be shown instead. In case there is no such column, the first column of the type
-         status will be selected. */
-      if (!this.isColVisibleInAnyTool(selectedCol)) {
+      /* If the defined col does not match any of the columns of the runsets or is not visible in any of the runsets,
+         the first visible column that is not of the type status of the first visible runset will be shown instead. In case
+         there is no such column, the first column of the type status will be selected. */
+      if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
         const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
           this.props.tools,
           this.props.hiddenCols,
