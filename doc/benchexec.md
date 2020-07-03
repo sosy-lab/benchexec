@@ -37,8 +37,8 @@ The tasks are defined in nested `<tasks>` tags,
 which are explained in the next section.
 Command-line arguments for the tool are given with `<option>` tags,
 which can appear directly inside the root tag (always effective),
-inside a `<rundefinition>` tag (affective for this configuration),
-or inside a `<tasks>` tag (affective only for this subset of tasks for all configurations).
+inside a `<rundefinition>` tag (effective for this configuration),
+or inside a `<tasks>` tag (effective only for this subset of tasks for all configurations).
 Note that you need to use a separate `<option>` tag for each argument,
 putting multiple arguments separated by spaces into a single tag will not have the desired effect.
 
@@ -114,7 +114,7 @@ Such files can be used to specify more complex tasks,
 such as tasks with several input files
 or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
-and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
+and their structure is explained in our [example file doc/task-definition-example.yml](task-definition-example.yml).
 For creating task-definition files for existing tasks
 that use the legacy way of encoding expected verdicts in the file name
 we provide a [helper script](../contrib/create_yaml_files.py).
