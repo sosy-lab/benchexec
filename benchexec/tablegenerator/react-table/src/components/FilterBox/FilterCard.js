@@ -136,7 +136,9 @@ export default class FilterCard extends React.PureComponent {
           filterAddSelection()
         ) : (
           <>
-            <h4 className="title">{filter.display_title}</h4>
+            <h4 className="title">{`${filter.display_title} ${
+              filter.source_unit ? "(" + filter.source_unit + ")" : ""
+            }`}</h4>
             <FontAwesomeIcon
               className="delete-button"
               icon={faTrash}
