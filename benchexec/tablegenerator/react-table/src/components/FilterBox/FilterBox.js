@@ -15,7 +15,6 @@ const classNames = require("classnames");
 export default class FilterBox extends React.PureComponent {
   constructor(props) {
     super(props);
-    //console.log({ props });
 
     const { filtered } = props;
 

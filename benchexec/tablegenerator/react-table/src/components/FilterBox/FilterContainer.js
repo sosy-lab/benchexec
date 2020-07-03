@@ -24,11 +24,6 @@ export default class FilterContainer extends React.PureComponent {
   }
 
   setFilter({ title, values, filtering = true }, idx) {
-    console.log("Container received", {
-      title,
-      values,
-      idx,
-    });
     const prevFilters = this.state.filters;
     prevFilters[idx].values = values;
     prevFilters[idx].filtering = filtering;
@@ -62,7 +57,6 @@ export default class FilterContainer extends React.PureComponent {
       values: [],
     }));
     this.setState({ filters: [...newFilterState] });
-    console.log([...setFilters]);
     for (const filter of setFilters) {
       if (filter.values) {
         this.props.updateFilters(

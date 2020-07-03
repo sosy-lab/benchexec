@@ -63,12 +63,6 @@ export default class FilterCard extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("filtercard updates", {
-      prevProps,
-      newProps: { ...this.props },
-      prevState,
-      newState: this.state,
-    });
     if (!this.props.filter) {
       return;
     }
@@ -100,7 +94,6 @@ export default class FilterCard extends React.PureComponent {
 
   render() {
     const { filter, editable, availableFilters } = this.props;
-    console.log("FilterCard rendering", { filter });
     const selectRef = React.createRef();
     const filterAddSelection = () => (
       <>
@@ -164,7 +157,6 @@ export default class FilterCard extends React.PureComponent {
         statuses,
         values = [],
       } = filter;
-      console.log({ values });
       let body;
       if (type === "status") {
         body = (
@@ -181,7 +173,6 @@ export default class FilterCard extends React.PureComponent {
                       checked={values.includes(category)}
                       ref={ref}
                       onChange={({ target: { checked } }) => {
-                        console.log({ checked, category });
                         if (checked) {
                           const newValues = [...values, category];
                           this.setState({ values: newValues });
@@ -216,14 +207,12 @@ export default class FilterCard extends React.PureComponent {
                       ref={ref}
                       checked={values.includes(status)}
                       onChange={({ target: { checked } }) => {
-                        console.log({ checked, status });
                         if (checked) {
                           const newValues = [...values, status];
                           this.setState({ values: newValues });
                           this.sendFilterUpdate(newValues);
                         } else {
                           const newValues = without(status, values);
-                          console.log({ values, newValues });
                           this.setState({ values: newValues });
                           this.sendFilterUpdate(newValues);
                         }
@@ -251,7 +240,6 @@ export default class FilterCard extends React.PureComponent {
             placeholder="Search for value"
             value={value}
             onChange={({ target: { value: textValue } }) => {
-              console.log({ textValue });
               clearTimeout(debounceHandler);
               this.setState({ values: [textValue] });
               debounceHandler = setTimeout(() => {
