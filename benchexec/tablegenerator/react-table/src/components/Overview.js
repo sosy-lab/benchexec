@@ -214,7 +214,7 @@ export default class Overview extends React.Component {
                 </Link>
               ))}
               {reset({
-                className: "reset",
+                className: "reset tooltip",
                 enabled: true,
                 onClick: () => {
                   this.setState({ filterBoxVisible: true });
