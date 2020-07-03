@@ -12,12 +12,10 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
     tableHeader: head,
     tools: tools.map((tool, idx) => ({
       ...tool,
-      isVisible: true,
       toolIdx: idx,
       columns: tool.columns.map((column, idx) => ({
         ...column,
         colIdx: idx,
-        isVisible: true,
       })),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
