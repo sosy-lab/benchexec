@@ -271,7 +271,7 @@ class NumberFormatterBuilder {
           }
           addedNumbers += 1;
         }
-        if (addedNumbers === this.significantDigits) {
+        if (!positive && addedNumbers >= this.significantDigits) {
           break;
         }
       }

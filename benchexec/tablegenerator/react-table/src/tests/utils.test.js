@@ -95,7 +95,7 @@ describe("hashRouting helpers", () => {
   });
 });
 
-describe("NumberFormatterBuilder", () => {
+describe.only("NumberFormatterBuilder", () => {
   let builder;
   beforeEach(() => {
     builder = new NumberFormatterBuilder(4);
@@ -140,6 +140,13 @@ describe("NumberFormatterBuilder", () => {
 
     expect(formatter(numberDot)).toBe("12.34");
     expect(formatter(numberComma)).toBe("12.34");
+  });
+
+  test("should keep whole integer numbers", () => {
+    const formatter = builder.build();
+    const number = "123456789";
+
+    expect(formatter(number)).toBe("123456789");
   });
 
   test("should format whitespaces according to dataset context", () => {
