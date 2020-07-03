@@ -95,9 +95,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     overflow-y: scroll;
     position: absolute;
     right: 0;
-    width: 500px;
     height: 100vh;
     z-index: 9998;
+    max-width: max-content;
     background-color: white;
     box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
     transition: all 0.5s ease-in-out;
@@ -166,6 +166,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           }
           &-input-fields {
             display: grid;
+
+            input {
+              width: 100%;
+            }
 
             .range-input-fields--min {
               grid-column-start: 1;
