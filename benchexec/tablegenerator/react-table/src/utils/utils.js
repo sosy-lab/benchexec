@@ -210,8 +210,12 @@ const createHiddenColsFromURL = (tools) => {
   if (urlParams.hidden) {
     hiddenTools = urlParams.hidden
       .split(",")
-      .filter((tool) => Number.isInteger(parseInt(tool)))
-      .map((tool) => parseInt(tool));
+      .filter(
+        (hiddenTool) =>
+          Number.isInteger(parseInt(hiddenTool)) &&
+          tools.some((tool) => tool.toolIdx === parseInt(hiddenTool)),
+      )
+      .map((hiddenTool) => parseInt(hiddenTool));
   }
 
   // Object containing all hidden columns from the URL with an individual entry for each runset (= params of the form "hiddenX" for runset X)
@@ -221,10 +225,15 @@ const createHiddenColsFromURL = (tools) => {
   );
   hiddenParams.forEach((hiddenParam) => {
     const toolIdx = parseInt(hiddenParam.replace("hidden", ""));
-    if (Number.isInteger(toolIdx)) {
+    const tool = tools.find((tool) => tool.toolIdx === toolIdx);
+    if (Number.isInteger(toolIdx) && tool) {
       hiddenCols[toolIdx] = urlParams[hiddenParam]
         .split(",")
-        .filter((col) => Number.isInteger(parseInt(col)))
+        .filter(
+          (hiddenCol) =>
+            Number.isInteger(parseInt(hiddenCol)) &&
+            tool.columns.some((col) => col.colIdx === parseInt(hiddenCol)),
+        )
         .map((col) => parseInt(col));
     }
   });
