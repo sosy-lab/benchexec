@@ -55,17 +55,21 @@ export default class FilterContainer extends React.PureComponent {
   }
 
   resetAllFilters() {
+    const setFilters = this.state.filters.filter((item) => item.filtering);
     const newFilterState = this.state.filters.map((filter) => ({
       ...filter,
       filtering: false,
       values: [],
     }));
     this.setState({ filters: [...newFilterState] });
-    for (const filter of newFilterState) {
-      this.props.updateFilters(
-        { title: filter.display_title, values: [] },
-        filter.idx,
-      );
+    console.log([...setFilters]);
+    for (const filter of setFilters) {
+      if (filter.values) {
+        this.props.updateFilters(
+          { title: filter.display_title, values: [] },
+          filter.idx,
+        );
+      }
     }
   }
 
