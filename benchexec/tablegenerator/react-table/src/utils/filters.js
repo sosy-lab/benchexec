@@ -154,7 +154,7 @@ const buildMatcher = (filters) => {
       acc.id = { value };
       return acc;
     }
-    const [tool, , columnIdx] = id.split("_");
+    const [tool, name, columnIdx] = id.split("_");
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
@@ -175,6 +175,8 @@ const buildMatcher = (filters) => {
     } else {
       if (value[value.length - 1] === " ") {
         filter = { category: value.substr(0, value.length - 1) };
+      } else if (name === "status") {
+        filter = { status: value };
       } else {
         filter = { value };
       }
@@ -186,6 +188,7 @@ const buildMatcher = (filters) => {
     return acc;
   }, {});
   console.log(`Creating matcher took ${Date.now() - start} ms`);
+  console.log({ matcher: out });
   return out;
 };
 
@@ -230,8 +233,10 @@ const applyMatcher = (matcher) => (data) => {
     for (const tool in omit(["diff", "id"], matcher)) {
       for (const column in matcher[tool]) {
         let columnPass = false;
+        let categoryPass = false;
+        let statusPass = false;
         for (const filter of matcher[tool][column]) {
-          const { value, min, max, category } = filter;
+          const { value, min, max, category, status } = filter;
 
           if (!isNil(min) && !isNil(max)) {
             const rawValue = row.results[tool].values[column].raw;
@@ -242,7 +247,13 @@ const applyMatcher = (matcher) => (data) => {
             const num = Number(rawValue);
             columnPass = columnPass || (num >= min && num <= max);
           } else if (!isNil(category)) {
-            columnPass = columnPass || row.results[tool].category === category;
+            categoryPass =
+              row.results[tool].category === category || categoryPass;
+            columnPass = categoryPass && statusPass;
+          } else if (!isNil(status)) {
+            statusPass =
+              row.results[tool].values[column].raw === status || statusPass;
+            columnPass = categoryPass && statusPass;
           } else {
             const rawValue = row.results[tool].values[column].raw;
             if (isNil(rawValue)) {
