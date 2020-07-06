@@ -325,10 +325,10 @@ else:
 
 def setup_user_mapping(
     pid,
-    uid=os.getuid(),
-    gid=os.getgid(),
-    parent_uid=os.getuid(),
-    parent_gid=os.getgid(),
+    uid=os.getuid(),  # noqa: B008
+    gid=os.getgid(),  # noqa: B008
+    parent_uid=os.getuid(),  # noqa: B008
+    parent_gid=os.getgid(),  # noqa: B008
 ):
     """Write uid_map and gid_map in /proc to create a user mapping
     that maps our user from outside the container to the same user inside the container
@@ -447,7 +447,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
         os.makedirs(temp_path, exist_ok=True)
 
-    for unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
         mountpoint = full_mountpoint[len(mount_base) :] or b"/"
@@ -862,7 +862,7 @@ def close_open_fds(keep_files=[]):
         else:
             try:
                 keep_fds.add(file.fileno())
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
 
     for fd in os.listdir("/proc/self/fd"):

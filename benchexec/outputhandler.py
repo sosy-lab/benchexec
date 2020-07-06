@@ -24,8 +24,8 @@ from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
-RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 2.3//EN"
-RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-2.3.dtd"
+RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN"
+RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.0.dtd"
 
 # colors for column status in terminal
 COLOR_GREEN = "\033[32;1m{0}\033[m"
@@ -158,7 +158,7 @@ class OutputHandler(object):
         if runSet:
             # insert before <run> tags to conform with DTD
             i = None
-            for i, elem in enumerate(runSet.xml):
+            for i, elem in enumerate(runSet.xml):  # noqa: B007
                 if elem.tag == "run":
                     break
             if i is None:
@@ -375,10 +375,16 @@ class OutputHandler(object):
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                all_properties = (
-                    prop_name for prop in run.properties for prop_name in prop.names
-                )
+                all_properties = (prop.name for prop in run.properties)
                 run.xml.set("properties", " ".join(sorted(all_properties)))
+            if len(run.properties) == 1:
+                prop = run.properties[0]
+                run.xml.set(
+                    "propertyFile", util.relative_path(prop.filename, xml_file_name)
+                )
+                expected_result = str(run.expected_results[prop.filename])
+                if expected_result:
+                    run.xml.set("expectedVerdict", expected_result)
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)

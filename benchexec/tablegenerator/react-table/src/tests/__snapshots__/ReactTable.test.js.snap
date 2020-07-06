@@ -1,1394 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Render Summary for benchmark.test.2019-12-20_1532.results.html 1`] = `
-<div
- className="mainTable"
->
- <div
-  className="ReactTable -highlight rthfc-uniqid rthfc -sp"
- >
-  <div
-   className="rt-table"
-   role="grid"
-  >
-   <div
-    className="rt-thead -headerGroups"
-    style={
-     Object {
-      "minWidth": "729.2px",
-     }
-    }
-   >
-    <div
-     className="rt-tr"
-     role="row"
-    >
-     <div
-      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "307.2 0 auto",
-        "left": 0,
-        "maxWidth": null,
-        "right": false,
-        "width": "307.2px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="fixed"
-      >
-       <form>
-        <label>
-         Fixed task:
-         <input
-          checked={true}
-          name="fixed"
-          type="checkbox"
-         />
-        </label>
-       </form>
-      </div>
-     </div>
-     <div
-      className="rt-th separator"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "0 0 auto",
-        "left": false,
-        "maxWidth": "2px",
-        "right": false,
-        "width": "2px",
-       }
-      }
-      tabIndex="-1"
-     />
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "420 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "420px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <span
-       className="header__tool-infos"
-      >
-       DummyTool 2019-12-20 15:32:33 CET 0
-      </span>
-     </div>
-    </div>
-   </div>
-   <div
-    className="rt-thead -header"
-    style={
-     Object {
-      "minWidth": "729.2px",
-     }
-    }
-   >
-    <div
-     className="rt-tr"
-     role="row"
-    >
-     <div
-      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "307.2 0 auto",
-        "left": 0,
-        "maxWidth": null,
-        "right": false,
-        "width": "307.2px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        <span
-         className="selectColumns"
-        >
-         Click here to select columns
-        </span>
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-     <div
-      className="rt-th separator"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "2 0 auto",
-        "left": false,
-        "maxWidth": "2px",
-        "right": false,
-        "width": "2px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className=""
-      />
-     </div>
-     <div
-      className="rt-th rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "100 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "100px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        status
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-     <div
-      className="rt-th rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "76 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "76px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        cputime
-        <br />
-        (s)
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-     <div
-      className="rt-th rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "84 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "84px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        walltime
-        <br />
-        (s)
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-     <div
-      className="rt-th rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "68 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "68px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        memory
-        <br />
-        (MB)
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-     <div
-      className="rt-th rt-resizable-header -cursor-pointer"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "92 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "92px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <div
-       className="rt-resizable-header-content"
-      >
-       <div>
-        cpuenergy
-        <br />
-        (J)
-       </div>
-      </div>
-      <div
-       className="rt-resizer"
-      />
-     </div>
-    </div>
-   </div>
-   <div
-    className="rt-thead -filters"
-    style={
-     Object {
-      "minWidth": "729.2px",
-     }
-    }
-   >
-    <div
-     className="rt-tr"
-     role="row"
-    >
-     <div
-      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "307.2 0 auto",
-        "left": 0,
-        "maxWidth": null,
-        "right": false,
-        "width": "307.2px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <input
-       id="id_filter"
-       placeholder="text"
-       type="search"
-      />
-     </div>
-     <div
-      className="rt-th separator"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "2 0 auto",
-        "left": false,
-        "maxWidth": "2px",
-        "right": false,
-        "width": "2px",
-       }
-      }
-      tabIndex="-1"
-     />
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "100 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "100px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <select
-       style={
-        Object {
-         "width": "100%",
-        }
-       }
-       value="all "
-      >
-       <option
-        value="all "
-       >
-        Show all
-       </option>
-       <optgroup
-        label="Category"
-       >
-        <option
-         value="correct "
-        >
-         correct
-        </option>
-        <option
-         value="missing "
-        >
-         missing
-        </option>
-        <option
-         value="wrong "
-        >
-         wrong
-        </option>
-       </optgroup>
-       <optgroup
-        label="Status"
-       >
-        <option
-         value="true"
-        >
-         true
-        </option>
-       </optgroup>
-      </select>
-     </div>
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "76 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "76px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <input
-       id="0_cputime_1_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
-       type="search"
-      />
-     </div>
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "84 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "84px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <input
-       id="0_walltime_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
-       type="search"
-      />
-     </div>
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "68 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "68px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <input
-       id="0_memory_3_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
-       type="search"
-      />
-     </div>
-     <div
-      className="rt-th"
-      role="columnheader"
-      style={
-       Object {
-        "flex": "92 0 auto",
-        "left": false,
-        "maxWidth": null,
-        "right": false,
-        "width": "92px",
-       }
-      }
-      tabIndex="-1"
-     >
-      <input
-       id="0_cpuenergy_4_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
-       type="search"
-      />
-     </div>
-    </div>
-   </div>
-   <div
-    className="rt-tbody"
-    style={
-     Object {
-      "minWidth": "729.2px",
-     }
-    }
-   >
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -odd"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/false_other_sub_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         false_other_sub_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="wrong"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_other_sub_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00167"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00545"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".307"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-       />
-      </div>
-     </div>
-    </div>
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -even"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/false_sub2_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         false_sub2_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="wrong"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_sub2_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00161"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00342"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".381"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      />
-     </div>
-    </div>
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -odd"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/false_sub_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         false_sub_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="wrong"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_sub_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00247"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00444"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".303"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".0137"}
-       />
-      </div>
-     </div>
-    </div>
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -even"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/false_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         false_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="wrong"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00151"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00473"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".381"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-       />
-      </div>
-     </div>
-    </div>
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -odd"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/true_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         true_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="correct"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/true_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00160"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00334"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".410"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      />
-     </div>
-    </div>
-    <div
-     className="rt-tr-group"
-     role="rowgroup"
-    >
-     <div
-      className="rt-tr -even"
-      role="row"
-     >
-      <div
-       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "307.2 0 auto",
-         "left": 0,
-         "maxWidth": null,
-         "right": false,
-         "width": "307.2px",
-        }
-       }
-      >
-       <a
-        className="row__name--cellLink"
-        href="../../../../test/tasks/unknown_task.yml"
-       >
-        <span
-         className="row_id"
-        >
-         unknown_task.yml
-        </span>
-       </a>
-      </div>
-      <div
-       className="rt-td separator"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "2 0 auto",
-         "left": false,
-         "maxWidth": "2px",
-         "right": false,
-         "width": "2px",
-        }
-       }
-      />
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "100 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "100px",
-        }
-       }
-      >
-       <a
-        className="missing"
-        href="../results/benchmark.test.2019-12-20_1532.logfiles/unknown_task.yml.log"
-       >
-        true
-       </a>
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "76 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "76px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00147"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "84 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "84px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".00339"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "68 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "68px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={".381"}
-       />
-      </div>
-      <div
-       className="rt-td"
-       role="gridcell"
-       style={
-        Object {
-         "flex": "92 0 auto",
-         "left": false,
-         "maxWidth": null,
-         "right": false,
-         "width": "92px",
-        }
-       }
-      >
-       <div
-        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-       />
-      </div>
-     </div>
-    </div>
-   </div>
-  </div>
-  <div
-   className="pagination-bottom"
-  >
-   <div
-    className="-pagination"
-   >
-    <div
-     className="-previous"
-    >
-     <button
-      className="-btn"
-      disabled={true}
-      type="button"
-     >
-      Previous
-     </button>
-    </div>
-    <div
-     className="-center"
-    >
-     <span
-      className="-pageInfo"
-     >
-      Page
-      <div
-       className="-pageJump"
-      >
-       <input
-        aria-label="jump to page"
-        type="number"
-        value={1}
-       />
-      </div>
-      of
-      <span
-       className="-totalPages"
-      >
-       1
-      </span>
-     </span>
-     <span
-      className="select-wrap -pageSizeOptions"
-     >
-      <select
-       aria-label="rows per page"
-       value={250}
-      >
-       <option
-        value={50}
-       >
-        50 rows
-       </option>
-       <option
-        value={100}
-       >
-        100 rows
-       </option>
-       <option
-        value={250}
-       >
-        250 rows
-       </option>
-       <option
-        value={500}
-       >
-        500 rows
-       </option>
-       <option
-        value={1000}
-       >
-        1000 rows
-       </option>
-       <option
-        value={2500}
-       >
-        2500 rows
-       </option>
-      </select>
-     </span>
-    </div>
-    <div
-     className="-next"
-    >
-     <button
-      className="-btn"
-      disabled={true}
-      type="button"
-     >
-      Next
-     </button>
-    </div>
-   </div>
-  </div>
-  <div
-   className="-loading"
-  >
-   <div
-    className="-loading-inner"
-   >
-    Loading...
-   </div>
-  </div>
- </div>
-</div>
-`;
-
 exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no options.html 1`] = `
 <div
  className="mainTable"
@@ -32330,8 +30941,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32550,8 +31160,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32760,8 +31369,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -32980,8 +31588,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -33197,11 +31804,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33341,11 +31944,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33485,11 +32084,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33629,11 +32224,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33812,11 +32403,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -33956,11 +32543,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34100,11 +32683,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34244,11 +32823,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34427,11 +33002,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -34692,11 +33263,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -36274,8 +34841,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36504,8 +35070,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36724,8 +35289,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -36954,8 +35518,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -37171,11 +35734,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37315,11 +35874,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37459,11 +36014,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37603,11 +36154,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37786,11 +36333,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -37930,11 +36473,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38074,11 +36613,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38218,11 +36753,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38401,11 +36932,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38545,11 +37072,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38689,11 +37212,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -38833,11 +37352,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -39610,11 +38125,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -39875,11 +38386,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -41397,8 +39904,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -41617,8 +40123,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -41827,8 +40332,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -42027,8 +40531,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -42224,11 +40727,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42368,11 +40867,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42512,11 +41007,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42643,11 +41134,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42813,11 +41300,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -42957,11 +41440,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43101,11 +41580,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43232,11 +41707,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43402,11 +41873,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -43667,11 +42134,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -45173,8 +43636,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45403,8 +43865,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45623,8 +44084,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -45833,8 +44293,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -46030,11 +44489,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46174,11 +44629,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46318,11 +44769,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46449,11 +44896,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46619,11 +45062,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46763,11 +45202,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -46907,11 +45342,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47038,11 +45469,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47208,11 +45635,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47352,11 +45775,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47496,11 +45915,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -47627,11 +46042,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -48365,11 +46776,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -48630,11 +47037,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -50186,8 +48589,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50411,8 +48813,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50631,8 +49032,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -50856,8 +49256,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -51073,11 +49472,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51217,11 +49612,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51361,11 +49752,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51505,11 +49892,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51688,11 +50071,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51832,11 +50211,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -51976,11 +50351,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52120,11 +50491,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52303,11 +50670,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52447,11 +50810,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52591,11 +50950,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -52735,11 +51090,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -54790,8 +53141,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55020,8 +53370,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="1_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55240,8 +53589,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="2_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55470,8 +53818,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
      >
       <input
        id="3_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -55687,11 +54034,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -55831,11 +54174,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -55975,11 +54314,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56119,11 +54454,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56302,11 +54633,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56446,11 +54773,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56590,11 +54913,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56734,11 +55053,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -56917,11 +55232,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57061,11 +55372,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57205,11 +55512,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -57349,11 +55652,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        0
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -58126,11 +56425,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -58391,11 +56686,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70355,8 +68646,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
      >
       <input
        id="0_score_2_filter"
-       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
-       placeholder="Min:Max"
+       placeholder="text"
        type="search"
       />
      </div>
@@ -70531,11 +68821,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        -32
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70684,11 +68970,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        1
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -70837,11 +69119,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -71134,11 +69412,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          "width": "60px",
         }
        }
-      >
-       <div>
-        2
-       </div>
-      </div>
+      />
       <div
        className="rt-td"
        role="gridcell"
@@ -78823,6 +77097,2366 @@ exports[`Render Summary for smt.table.html 1`] = `
        <div>
         46264320
        </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div
+   className="pagination-bottom"
+  >
+   <div
+    className="-pagination"
+   >
+    <div
+     className="-previous"
+    >
+     <button
+      className="-btn"
+      disabled={true}
+      type="button"
+     >
+      Previous
+     </button>
+    </div>
+    <div
+     className="-center"
+    >
+     <span
+      className="-pageInfo"
+     >
+      Page
+      <div
+       className="-pageJump"
+      >
+       <input
+        aria-label="jump to page"
+        type="number"
+        value={1}
+       />
+      </div>
+      of
+      <span
+       className="-totalPages"
+      >
+       1
+      </span>
+     </span>
+     <span
+      className="select-wrap -pageSizeOptions"
+     >
+      <select
+       aria-label="rows per page"
+       value={250}
+      >
+       <option
+        value={50}
+       >
+        50 rows
+       </option>
+       <option
+        value={100}
+       >
+        100 rows
+       </option>
+       <option
+        value={250}
+       >
+        250 rows
+       </option>
+       <option
+        value={500}
+       >
+        500 rows
+       </option>
+       <option
+        value={1000}
+       >
+        1000 rows
+       </option>
+       <option
+        value={2500}
+       >
+        2500 rows
+       </option>
+      </select>
+     </span>
+    </div>
+    <div
+     className="-next"
+    >
+     <button
+      className="-btn"
+      disabled={true}
+      type="button"
+     >
+      Next
+     </button>
+    </div>
+   </div>
+  </div>
+  <div
+   className="-loading"
+  >
+   <div
+    className="-loading-inner"
+   >
+    Loading...
+   </div>
+  </div>
+ </div>
+</div>
+`;
+
+exports[`Render Summary for task-def-files.table.html 1`] = `
+<div
+ className="mainTable"
+>
+ <div
+  className="ReactTable -highlight rthfc-uniqid rthfc -sp"
+ >
+  <div
+   className="rt-table"
+   role="grid"
+  >
+   <div
+    className="rt-thead -headerGroups"
+    style={
+     Object {
+      "minWidth": "1151.2px",
+     }
+    }
+   >
+    <div
+     className="rt-tr"
+     role="row"
+    >
+     <div
+      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "307.2 0 auto",
+        "left": 0,
+        "maxWidth": null,
+        "right": false,
+        "width": "307.2px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="fixed"
+      >
+       <form>
+        <label>
+         Fixed task:
+         <input
+          checked={true}
+          name="fixed"
+          type="checkbox"
+         />
+        </label>
+       </form>
+      </div>
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "0 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     />
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "420 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "420px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <span
+       className="header__tool-infos"
+      >
+       DummyTool 2019-12-20 15:32:33 CET 0
+      </span>
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "0 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     />
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "420 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "420px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <span
+       className="header__tool-infos"
+      >
+       DummyTool 2020-06-10 09:17:06 CEST 0
+      </span>
+     </div>
+    </div>
+   </div>
+   <div
+    className="rt-thead -header"
+    style={
+     Object {
+      "minWidth": "1151.2px",
+     }
+    }
+   >
+    <div
+     className="rt-tr"
+     role="row"
+    >
+     <div
+      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "307.2 0 auto",
+        "left": 0,
+        "maxWidth": null,
+        "right": false,
+        "width": "307.2px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        <span
+         className="selectColumns"
+        >
+         Click here to select columns
+        </span>
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "2 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className=""
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        status
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "76 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "76px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        cputime
+        <br />
+        (s)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "84 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "84px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        walltime
+        <br />
+        (s)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "68 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "68px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        memory
+        <br />
+        (MB)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "92 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "92px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        cpuenergy
+        <br />
+        (J)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "2 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className=""
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        status
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "76 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "76px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        cputime
+        <br />
+        (s)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "84 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "84px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        walltime
+        <br />
+        (s)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "68 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "68px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        memory
+        <br />
+        (MB)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "92 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "92px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        cpuenergy
+        <br />
+        (J)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+    </div>
+   </div>
+   <div
+    className="rt-thead -filters"
+    style={
+     Object {
+      "minWidth": "1151.2px",
+     }
+    }
+   >
+    <div
+     className="rt-tr"
+     role="row"
+    >
+     <div
+      className="rt-th rthfc-th-fixed rthfc-th-fixed-left rthfc-th-fixed-left-last"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "307.2 0 auto",
+        "left": 0,
+        "maxWidth": null,
+        "right": false,
+        "width": "307.2px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="id_filter"
+       placeholder="text"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "2 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     />
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <select
+       style={
+        Object {
+         "width": "100%",
+        }
+       }
+       value="all "
+      >
+       <option
+        value="all "
+       >
+        Show all
+       </option>
+       <optgroup
+        label="Category"
+       >
+        <option
+         value="correct "
+        >
+         correct
+        </option>
+        <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
+         value="wrong "
+        >
+         wrong
+        </option>
+       </optgroup>
+       <optgroup
+        label="Status"
+       >
+        <option
+         value="true"
+        >
+         true
+        </option>
+       </optgroup>
+      </select>
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "76 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "76px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="0_cputime_1_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "84 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "84px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="0_walltime_2_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "68 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "68px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="0_memory_3_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "92 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "92px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="0_cpuenergy_4_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th separator"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "2 0 auto",
+        "left": false,
+        "maxWidth": "2px",
+        "right": false,
+        "width": "2px",
+       }
+      }
+      tabIndex="-1"
+     />
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <select
+       style={
+        Object {
+         "width": "100%",
+        }
+       }
+       value="all "
+      >
+       <option
+        value="all "
+       >
+        Show all
+       </option>
+       <optgroup
+        label="Category"
+       >
+        <option
+         value="correct "
+        >
+         correct
+        </option>
+        <option
+         value="missing "
+        >
+         missing
+        </option>
+        <option
+         value="wrong "
+        >
+         wrong
+        </option>
+       </optgroup>
+       <optgroup
+        label="Status"
+       >
+        <option
+         value="true"
+        >
+         true
+        </option>
+       </optgroup>
+      </select>
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "76 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "76px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="1_cputime_1_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "84 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "84px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="1_walltime_2_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "68 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "68px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="1_memory_3_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "92 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "92px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       id="1_cpuenergy_4_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+    </div>
+   </div>
+   <div
+    className="rt-tbody"
+    style={
+     Object {
+      "minWidth": "1151.2px",
+     }
+    }
+   >
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -odd"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/false_other_sub_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         false_other_sub_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         false(other_subproperty)
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_other_sub_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00167"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00545"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".307"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_other_sub_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00192"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00235"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".250"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -even"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/false_sub2_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         false_sub2_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         false(sub2)
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_sub2_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00161"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00342"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".381"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      />
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_sub2_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00208"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00808"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".254"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -odd"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/false_sub_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         false_sub_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         false(sub)
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_sub_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00247"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00444"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".303"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".0137"}
+       />
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_sub_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00132"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00161"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".250"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -even"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/false_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         false_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         false
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/false_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00151"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00473"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".381"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="wrong"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00162"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00191"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".250"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -odd"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/true_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         true_task.yml
+        </span>
+        <span
+         className="row_id"
+        >
+         true
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="correct"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/true_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00160"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00334"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".410"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      />
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="correct"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/true_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00150"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00393"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".381"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+     </div>
+    </div>
+    <div
+     className="rt-tr-group"
+     role="rowgroup"
+    >
+     <div
+      className="rt-tr -even"
+      role="row"
+     >
+      <div
+       className="rt-td rthfc-td-fixed rthfc-td-fixed-left rthfc-td-fixed-left-last"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "307.2 0 auto",
+         "left": 0,
+         "maxWidth": null,
+         "right": false,
+         "width": "307.2px",
+        }
+       }
+      >
+       <a
+        className="row__name--cellLink"
+        href="../../../../test/tasks/unknown_task.yml"
+       >
+        <span
+         className="row_id"
+        >
+         unknown_task.yml
+        </span>
+       </a>
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="missing"
+        href="../results/benchmark.test.2019-12-20_1532.logfiles/unknown_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00147"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00339"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".381"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+       />
+      </div>
+      <div
+       className="rt-td separator"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "2 0 auto",
+         "left": false,
+         "maxWidth": "2px",
+         "right": false,
+         "width": "2px",
+        }
+       }
+      />
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <a
+        className="missing"
+        href="../results/benchmark.test.2020-06-10_09-17-06.logfiles/unknown_task.yml.log"
+       >
+        true
+       </a>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "76 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "76px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00157"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "84 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "84px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".00294"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "68 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "68px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".381"}
+       />
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "92 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "92px",
+        }
+       }
+      >
+       <div
+        dangerouslySetInnerHTML={".0170"}
+       />
       </div>
      </div>
     </div>

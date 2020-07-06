@@ -12,9 +12,9 @@
 // This is necessary such that zip.js can register itself as it expects,
 // and because zip-ext and inflate require zip to be attached to the window object.
 // https://github.com/webpack-contrib/imports-loader
-require("imports-loader?this=>window!./zip.js");
-require("imports-loader?this=>window!./zip-ext.js");
-require("imports-loader?this=>window!./inflate.js");
+require("imports-loader?wrapper=window!./zip.js");
+require("imports-loader?wrapper=window!./zip-ext.js");
+require("imports-loader?wrapper=window!./inflate.js");
 zip.useWebWorkers = false;
 
 module.exports = zip;

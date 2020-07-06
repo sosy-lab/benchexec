@@ -22,9 +22,9 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
             for line in output:
                 line = line.strip()
                 if line == "unsat":
-                    status = result.RESULT_UNSAT
+                    status = result.RESULT_FALSE_PROP
                 elif line == "sat":
-                    status = result.RESULT_SAT
+                    status = result.RESULT_TRUE_PROP
                 elif not status and line.startswith("(error "):
                     status = "ERROR"
 

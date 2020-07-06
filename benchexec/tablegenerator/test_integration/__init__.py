@@ -283,8 +283,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
     def test_simple_table_with_taskdef_files(self):
         self.generate_tables_and_compare_content(
-            [result_file("benchmark.test.2019-12-20_1532.results.xml.bz2")],
-            "benchmark.test.2019-12-20_1532.results",
+            [
+                "--name",
+                "task-def-files",
+                # old set of results does not have propertyFile attributes,
+                # table-generator needs to parse yaml files
+                result_file("benchmark.test.2019-12-20_1532.results.xml.bz2"),
+                # new set of results has more metadata like propertyFile in results
+                result_file("benchmark.test.2020-06-10_09-17-06.results.xml.bz2"),
+            ],
+            table_prefix="task-def-files.table",
         )
 
     def test_multi_table(self):

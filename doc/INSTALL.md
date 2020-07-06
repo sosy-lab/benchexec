@@ -218,6 +218,13 @@ to mount the cgroup hierarchy within the container when starting it:
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
 
 Note that you additionally need the `--privileged` flag for container mode.
+However, this gives your Docker container full root access to the host,
+so please also add the `--cpa-drop=all` flag,
+make sure to use this only with trusted images,
+and configure your Docker container such that everything in it
+is executed under a different user account, not as root.
+BenchExec is not designed to run as root and does not provide
+any safety guarantees regarding its container under this circumstances.
 
 ### Testing Cgroups Setup and Known Problems
 

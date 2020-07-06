@@ -6,6 +6,10 @@
     [
      "2019-12-20 15:32:33 CET",
      5
+    ],
+    [
+     "2020-06-10 09:17:06 CEST",
+     5
     ]
    ],
    "id": "date",
@@ -16,7 +20,7 @@
    "content": [
     [
      "t460p",
-     5
+     10
     ]
    ],
    "id": "host",
@@ -26,7 +30,7 @@
    "content": [
     [
      "timelimit: -, memlimit: -, CPU core limit: -",
-     5
+     10
     ]
    ],
    "id": "limits",
@@ -34,6 +38,10 @@
   },
   "options": {
    "content": [
+    [
+     "true",
+     5
+    ],
     [
      "true",
      5
@@ -47,6 +55,10 @@
     [
      "Linux-5.0.0-37-generic-x86_64-with-Ubuntu-18.04-bionic",
      5
+    ],
+    [
+     "Linux-5.3.0-53-generic-x86_64-with-Ubuntu-18.04-bionic",
+     5
     ]
    ],
    "id": "os",
@@ -56,7 +68,7 @@
    "content": [
     [
      "test",
-     5
+     10
     ]
    ],
    "id": "property",
@@ -64,6 +76,10 @@
   },
   "runset": {
    "content": [
+    [
+     "0",
+     5
+    ],
     [
      "0",
      5
@@ -77,6 +93,10 @@
     [
      "CPU: Intel Core i5-6440HQ CPU @ 2.60GHz, cores: 4, frequency: 3500 MHz, Turbo Boost: enabled; RAM: 33587 MB",
      5
+    ],
+    [
+     "CPU: Intel Core i5-6440HQ CPU @ 2.60GHz, cores: 4, frequency: 3500 MHz, Turbo Boost: enabled; RAM: 33537 MB",
+     5
     ]
    ],
    "id": "system",
@@ -84,6 +104,26 @@
   },
   "title": {
    "content": [
+    [
+     "status",
+     1
+    ],
+    [
+     "cputime (s)",
+     1
+    ],
+    [
+     "walltime (s)",
+     1
+    ],
+    [
+     "memory (MB)",
+     1
+    ],
+    [
+     "cpuenergy (J)",
+     1
+    ],
     [
      "status",
      1
@@ -112,7 +152,7 @@
    "content": [
     [
      "DummyTool ",
-     5
+     10
     ]
    ],
    "id": "tool",
@@ -123,7 +163,8 @@
   {
    "href": "../../../../test/tasks/false_other_sub_task.yml",
    "id": [
-    "false_other_sub_task.yml"
+    "false_other_sub_task.yml",
+    "false(other_subproperty)"
    ],
    "results": [
     {
@@ -150,13 +191,39 @@
        "raw": "0"
       }
      ]
+    },
+    {
+     "category": "wrong",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_other_sub_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00192",
+       "raw": "0.001915179"
+      },
+      {
+       "html": ".00235",
+       "raw": "0.0023537310007668566"
+      },
+      {
+       "html": ".250",
+       "raw": "0.249856"
+      },
+      {
+       "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
+       "raw": "0"
+      }
+     ]
     }
    ]
   },
   {
    "href": "../../../../test/tasks/false_sub2_task.yml",
    "id": [
-    "false_sub2_task.yml"
+    "false_sub2_task.yml",
+    "false(sub2)"
    ],
    "results": [
     {
@@ -180,13 +247,39 @@
       },
       {}
      ]
+    },
+    {
+     "category": "wrong",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_sub2_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00208",
+       "raw": "0.002084712"
+      },
+      {
+       "html": ".00808",
+       "raw": "0.008082981999905314"
+      },
+      {
+       "html": ".254",
+       "raw": "0.253952"
+      },
+      {
+       "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
+       "raw": "0"
+      }
+     ]
     }
    ]
   },
   {
    "href": "../../../../test/tasks/false_sub_task.yml",
    "id": [
-    "false_sub_task.yml"
+    "false_sub_task.yml",
+    "false(sub)"
    ],
    "results": [
     {
@@ -213,13 +306,39 @@
        "raw": "0.013672"
       }
      ]
+    },
+    {
+     "category": "wrong",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_sub_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00132",
+       "raw": "0.001321182"
+      },
+      {
+       "html": ".00161",
+       "raw": "0.0016077199998107972"
+      },
+      {
+       "html": ".250",
+       "raw": "0.249856"
+      },
+      {
+       "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
+       "raw": "0"
+      }
+     ]
     }
    ]
   },
   {
    "href": "../../../../test/tasks/false_task.yml",
    "id": [
-    "false_task.yml"
+    "false_task.yml",
+    "false"
    ],
    "results": [
     {
@@ -246,13 +365,39 @@
        "raw": "0"
       }
      ]
+    },
+    {
+     "category": "wrong",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/false_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00162",
+       "raw": "0.001623722"
+      },
+      {
+       "html": ".00191",
+       "raw": "0.0019061140001213062"
+      },
+      {
+       "html": ".250",
+       "raw": "0.249856"
+      },
+      {
+       "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
+       "raw": "0"
+      }
+     ]
     }
    ]
   },
   {
    "href": "../../../../test/tasks/true_task.yml",
    "id": [
-    "true_task.yml"
+    "true_task.yml",
+    "true"
    ],
    "results": [
     {
@@ -275,6 +420,31 @@
        "raw": "0.40959999999999996"
       },
       {}
+     ]
+    },
+    {
+     "category": "correct",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/true_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00150",
+       "raw": "0.001500394"
+      },
+      {
+       "html": ".00393",
+       "raw": "0.003930105999643274"
+      },
+      {
+       "html": ".381",
+       "raw": "0.380928"
+      },
+      {
+       "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
+       "raw": "0"
+      }
      ]
     }
    ]
@@ -307,6 +477,31 @@
       {
        "html": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;",
        "raw": "0"
+      }
+     ]
+    },
+    {
+     "category": "missing",
+     "href": "../results/benchmark.test.2020-06-10_09-17-06.logfiles/unknown_task.yml.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": ".00157",
+       "raw": "0.001569923"
+      },
+      {
+       "html": ".00294",
+       "raw": "0.002944144000139204"
+      },
+      {
+       "html": ".381",
+       "raw": "0.380928"
+      },
+      {
+       "html": ".0170",
+       "raw": "0.017029"
       }
      ]
     }
@@ -352,6 +547,43 @@
       "stdev": "0.00592",
       "sum": ".0137"
      }
+    ],
+    [
+     {
+      "sum": 6
+     },
+     {
+      "avg": "0.00167",
+      "max": "0.00208",
+      "median": "0.00160",
+      "min": "0.00132",
+      "stdev": "0.000256",
+      "sum": ".0100&#x2007;"
+     },
+     {
+      "avg": "0.00347",
+      "max": "0.00808",
+      "median": "0.00265",
+      "min": "0.00161",
+      "stdev": "0.00220",
+      "sum": ".0208&#x2007;"
+     },
+     {
+      "avg": "0.294",
+      "max": "0.381",
+      "median": "0.252",
+      "min": "0.250",
+      "stdev": "0.0613",
+      "sum": "1.77&#x2007;"
+     },
+     {
+      "avg": "0.00284",
+      "max": "0.0170",
+      "median": "0",
+      "min": "0",
+      "stdev": "0.00635",
+      "sum": ".0170"
+     }
     ]
    ],
    "description": "in total 1 true tasks, 4 false tasks",
@@ -371,6 +603,19 @@
      null,
      {
       "sum": "3.76&#x2007;&#x2007;"
+     }
+    ],
+    [
+     null,
+     {
+      "sum": ".283&#x2007;&#x2007;"
+     },
+     {
+      "sum": "1.16&#x2007;&#x2007;&#x2007;"
+     },
+     null,
+     {
+      "sum": "4.59&#x2007;&#x2007;"
      }
     ]
    ],
@@ -409,6 +654,43 @@
       "sum": ".410"
      },
      {
+      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
+     }
+    ],
+    [
+     {
+      "sum": 1
+     },
+     {
+      "avg": "0.00150",
+      "max": "0.00150",
+      "median": "0.00150",
+      "min": "0.00150",
+      "stdev": "0",
+      "sum": ".00150"
+     },
+     {
+      "avg": "0.00393",
+      "max": "0.00393",
+      "median": "0.00393",
+      "min": "0.00393",
+      "stdev": "0",
+      "sum": ".00393"
+     },
+     {
+      "avg": "0.381",
+      "max": "0.381",
+      "median": "0.381",
+      "min": "0.381",
+      "stdev": "0",
+      "sum": ".381"
+     },
+     {
+      "avg": "0",
+      "max": "0",
+      "median": "0",
+      "min": "0",
+      "stdev": "0",
       "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
      }
     ]
@@ -450,6 +732,43 @@
      {
       "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
      }
+    ],
+    [
+     {
+      "sum": 1
+     },
+     {
+      "avg": "0.00150",
+      "max": "0.00150",
+      "median": "0.00150",
+      "min": "0.00150",
+      "stdev": "0",
+      "sum": ".00150"
+     },
+     {
+      "avg": "0.00393",
+      "max": "0.00393",
+      "median": "0.00393",
+      "min": "0.00393",
+      "stdev": "0",
+      "sum": ".00393"
+     },
+     {
+      "avg": "0.381",
+      "max": "0.381",
+      "median": "0.381",
+      "min": "0.381",
+      "stdev": "0",
+      "sum": ".381"
+     },
+     {
+      "avg": "0",
+      "max": "0",
+      "median": "0",
+      "min": "0",
+      "stdev": "0",
+      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
+     }
     ]
    ],
    "description": "property holds + result is true",
@@ -458,6 +777,15 @@
   },
   {
    "content": [
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null,
+     null
+    ],
     [
      {
       "sum": 0
@@ -510,6 +838,43 @@
       "stdev": "0.00645",
       "sum": ".0137"
      }
+    ],
+    [
+     {
+      "sum": 4
+     },
+     {
+      "avg": "0.00174",
+      "max": "0.00208",
+      "median": "0.00177",
+      "min": "0.00132",
+      "stdev": "0.000291",
+      "sum": ".00694"
+     },
+     {
+      "avg": "0.00349",
+      "max": "0.00808",
+      "median": "0.00213",
+      "min": "0.00161",
+      "stdev": "0.00267",
+      "sum": ".0140&#x2007;"
+     },
+     {
+      "avg": "0.251",
+      "max": "0.254",
+      "median": "0.250",
+      "min": "0.250",
+      "stdev": "0.00177",
+      "sum": "1.00&#x2007;"
+     },
+     {
+      "avg": "0",
+      "max": "0",
+      "median": "0",
+      "min": "0",
+      "stdev": "0",
+      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
+     }
     ]
    ],
    "description": "(property holds + result is false) OR (property does not hold + result is true)",
@@ -554,6 +919,43 @@
       "stdev": "0.00645",
       "sum": ".0137"
      }
+    ],
+    [
+     {
+      "sum": 4
+     },
+     {
+      "avg": "0.00174",
+      "max": "0.00208",
+      "median": "0.00177",
+      "min": "0.00132",
+      "stdev": "0.000291",
+      "sum": ".00694"
+     },
+     {
+      "avg": "0.00349",
+      "max": "0.00808",
+      "median": "0.00213",
+      "min": "0.00161",
+      "stdev": "0.00267",
+      "sum": ".0140&#x2007;"
+     },
+     {
+      "avg": "0.251",
+      "max": "0.254",
+      "median": "0.250",
+      "min": "0.250",
+      "stdev": "0.00177",
+      "sum": "1.00&#x2007;"
+     },
+     {
+      "avg": "0",
+      "max": "0",
+      "median": "0",
+      "min": "0",
+      "stdev": "0",
+      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
+     }
     ]
    ],
    "description": "property does not hold + result is true",
@@ -570,6 +972,15 @@
      null,
      null,
      null
+    ],
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null,
+     null
     ]
    ],
    "description": "property holds + result is false",
@@ -578,6 +989,15 @@
   },
   {
    "content": [
+    [
+     {
+      "sum": -126
+     },
+     null,
+     null,
+     null,
+     null
+    ],
     [
      {
       "sum": -126
@@ -662,6 +1082,79 @@
    "os": "Linux-5.0.0-37-generic-x86_64-with-Ubuntu-18.04-bionic",
    "ram": "33587 MB",
    "starttime": "2019-12-20T15:32:34.018467+01:00",
+   "timelimit": "-",
+   "tool": "DummyTool",
+   "toolmodule": "benchexec.tools.dummy",
+   "turbo": ", Turbo Boost: enabled"
+  },
+  {
+   "benchmarkname": "benchmark.test",
+   "block": "0",
+   "columns": [
+    {
+     "display_title": "status",
+     "max_width": 6,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "title": "status",
+     "type": "status"
+    },
+    {
+     "display_title": "cputime",
+     "max_width": 7,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "cputime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "walltime",
+     "max_width": 8,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "walltime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "memory",
+     "max_width": 6,
+     "relevant_for_diff": false,
+     "scale_factor": 1e-06,
+     "source_unit": "B",
+     "title": "memory",
+     "type": "measure",
+     "unit": "MB"
+    },
+    {
+     "display_title": "cpuenergy",
+     "max_width": 9,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "J",
+     "title": "cpuenergy",
+     "type": "measure",
+     "unit": "J"
+    }
+   ],
+   "cores": "4",
+   "cpu": "Intel Core i5-6440HQ CPU @ 2.60GHz",
+   "cpuCores": "-",
+   "date": "2020-06-10 09:17:06 CEST",
+   "endtime": "2020-06-10T09:17:07.937375+02:00",
+   "freq": "3500 MHz",
+   "generator": "BenchExec 3.0-dev",
+   "host": "t460p",
+   "memlimit": "-",
+   "name": "0",
+   "niceName": "0",
+   "options": "true",
+   "os": "Linux-5.3.0-53-generic-x86_64-with-Ubuntu-18.04-bionic",
+   "ram": "33537 MB",
+   "starttime": "2020-06-10T09:17:06.777927+02:00",
    "timelimit": "-",
    "tool": "DummyTool",
    "toolmodule": "benchexec.tools.dummy",

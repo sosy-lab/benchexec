@@ -856,7 +856,11 @@ class RunResult(object):
             task_name = normalize_path(task_name, result_file_or_url)
 
         prop, expected_result = get_property_of_task(
-            task_name, sourcefileTag.get("properties")
+            task_name,
+            result_file_or_url,
+            sourcefileTag.get("properties"),
+            sourcefileTag.get("propertyFile"),
+            sourcefileTag.get("expectedVerdict"),
         )
         task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
 
@@ -934,8 +938,25 @@ class Row(object):
         self.short_filename = self.id.name.replace(common_prefix, "", 1)
 
 
-def get_property_of_task(task_name, property_string):
-    property_names = property_string.split() if property_string else []
+def get_property_of_task(
+    task_name, base_path, property_string, property_file, expected_result
+):
+    if property_string is None:
+        return (None, None)
+
+    if property_file:
+        property_file = normalize_path(property_file, base_path)
+        try:
+            prop = result.Property.create(property_file)
+        except OSError as e:
+            logging.debug("Cannot read property file %s: %s", property_file, e)
+            prop = result.Property(property_file, False, property_string)
+
+        if expected_result is not None:
+            expected_result = result.ExpectedResult.from_str(expected_result)
+
+        return (prop, expected_result)
+
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
         try:
@@ -946,8 +967,8 @@ def get_property_of_task(task_name, property_string):
                         prop_dict["property_file"], os.path.dirname(task_name)
                     )
                     if len(expanded) == 1:
-                        prop = result.Property.create(expanded[0], allow_unknown=True)
-                        if set(prop.names) == set(property_names):
+                        prop = result.Property.create(expanded[0])
+                        if prop.name == property_string:
                             expected_result = prop_dict.get("expected_verdict")
                             if isinstance(expected_result, bool):
                                 expected_result = result.ExpectedResult(
@@ -959,12 +980,7 @@ def get_property_of_task(task_name, property_string):
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
 
-    if property_names:
-        prop = result.Property.create_from_names(property_names)
-        expected_result = result.expected_results_of_file(task_name).get(prop.name)
-        return (prop, expected_result)
-
-    return (None, None)
+    return (result.Property(None, False, property_string), None)
 
 
 def rows_to_columns(rows):
@@ -1135,10 +1151,6 @@ def select_relevant_id_columns(rows):
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-            if column == 2:
-                # hide expected verdict for now
-                relevant_id_columns.append(False)
-                continue
 
             def id_equal_to_prototype(row):
                 return row.id[column] == prototype_id[column]
@@ -1315,13 +1327,15 @@ def write_csv_table(
 ):
     num_id_columns = relevant_id_columns[1:].count(True)
 
-    def write_head_line(name, values, value_repetitions=itertools.repeat(1)):
+    def write_head_line(
+        name, values, value_repetitions=itertools.repeat(1)  # noqa: B008
+    ):
         if any(values):
             out.write(name)
-            for i in range(num_id_columns):
+            for i in range(num_id_columns):  # noqa: B007
                 out.write(sep)
             for value, count in zip(values, value_repetitions):
-                for i in range(count):
+                for i in range(count):  # noqa: B007
                     out.write(sep)
                     if value:
                         out.write(value)
@@ -1568,7 +1582,7 @@ def main(args=None):
                 )
 
         except util.TableDefinitionError as e:
-            handle_error("Fault in %s: %s", options.xmltablefile, e.message)
+            handle_error("Fault in %s: %s", options.xmltablefile, e)
 
         if not name:
             name = basename_without_ending(options.xmltablefile)

@@ -58,10 +58,9 @@ def mock_load_task_def_file(f):
     return yaml.safe_load(content)
 
 
-def mock_property_create(property_file, allow_unknown):
+def mock_property_create(property_file):
     assert property_file == "test.prp"
-    assert allow_unknown
-    return benchexec.result.Property("test.prp", False, False, "test", None)
+    return benchexec.result.Property("test.prp", False, "test")
 
 
 class TestBenchmarkDefinition(unittest.TestCase):

@@ -9,6 +9,65 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.0
+
+This release contains only one new feature compared to BenchExec 2.7:
+
+- Tables produced by `table-generator` now show the expected verdict of each task,
+  if it is known and it is not the same for all rows.
+
+However, there are several deprecated features removed
+and other backwards-incompatible changes
+to make BenchExec more consistent and user-friendly:
+
+- Support for Python 2.7 and 3.4 is removed,
+  the minimal Python version is now 3.5 for all components of BenchExec.
+  We plan to remove support for Python 3.5
+  after Ubuntu 16.04 goes out of support in 2021.
+- If a tool-info module returns `UNKNOWN` for a run result,
+  BenchExec will no longer overwrite that if it thinks the tool terminated
+  abnormally. It will continue to do so if `ERROR` is returned.
+- Result values named `cpuenergy-pkg[0-9]+` are renamed to `cpuenergy-pkg[0-9]+-package`
+  because these are not a sum of all the other CPU-energy measurements.
+- Names of result files produced by `benchexec` now contain timestamps
+  with seconds in order to avoid problems when starting `benchexec`
+  in quick succession.
+- Support for generating the old-style static HTML tables
+  (with `table-generator --static-table`) is removed.
+  Only the modern tables that are available since BenchExec 2.3
+  and CSV tables can be generated.
+- More metadata are stored in result files of `benchexec`,
+  so `table-generator` no longer needs access to the task-definition files,
+  and changes to the expected verdict that are made after benchmarking
+  will not be reflected in tables.
+- The Python library Tempita is no longer a dependency of BenchExec.
+- We do not create and distribute `.egg` packages for BenchExec releases anymore,
+  only the more modern `.whl` packages,
+  as well as Debian/Ubuntu packages and Tar archives.
+
+Furthermore, BenchExec no longer contains hard-coded knowledge about any specific property,
+all properties are treated in the same way.
+(The only exception is that score computation is enabled for SV-COMP properties.)
+This simplification implies several more changes:
+
+- For checking expected verdicts and computing scores it is now required that
+  task-definition files are used.
+  Expected verdicts encoded in the task name are no longer supported.
+- Tool-info modules need to return results `true` or `false`,
+  the results `sat` and `unsat` are no longer supported
+  (these were allowed only for the property `SATISFIABLE`).
+- There is no special handling for composite properties like SV-COMP's property
+  for memory safety anymore. Previously this property would be represented as
+  a collection of its subproperties, now it is treated as one property.
+  Task-definition files can still contain a violated subproperty,
+  and `benchexec` will continue to use this information for checking the tool result,
+  but this does not depend on which property is used.
+- Score computation is fixed for tables where property files have uncommon names.
+  The name of property files is now no longer relevant (as it should have been).
+  Because of this, `table-generator` needs to have access to
+  the property files that were used during benchmarking.
+
+
 ## BenchExec 2.7
 
 - The supplied file `benchexec-cgroup.service` for cgroup configuration

@@ -410,7 +410,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
-        environ=os.environ.copy(),
+        environ=None,
     ):
         """
         This method executes the command line and waits for the termination of it,
@@ -435,6 +435,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         temp_dir = None
         if rootDir is None:
             temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        if environ is None:
+            environ = os.environ.copy()
 
         pid = None
         returnvalue = 0
@@ -1106,7 +1108,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
                 # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
-                    for root, unused_dirs, files in os.walk(abs_file):
+                    for root, _unused_dirs, files in os.walk(abs_file):
                         for file in files:
                             transfer_file(os.path.join(root, file))
                 else:

@@ -52,9 +52,6 @@ Apart from what is formatted automatically,
 we try to follow the official Python style guide [PEP8](https://www.python.org/dev/peps/pep-0008/).
 
 We also check our code using the static-analysis tool [flake8](http://flake8.pycqa.org).
-The CI check for this is currently not enforced because there are too many existing warnings.
-Please check manually that you do not introduce new warnings,
-and clean up existing warnings.
 If you find a rule that should not be enforced in your opinion,
 please raise an issue.
 

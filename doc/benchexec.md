@@ -37,8 +37,8 @@ The tasks are defined in nested `<tasks>` tags,
 which are explained in the next section.
 Command-line arguments for the tool are given with `<option>` tags,
 which can appear directly inside the root tag (always effective),
-inside a `<rundefinition>` tag (affective for this configuration),
-or inside a `<tasks>` tag (affective only for this subset of tasks for all configurations).
+inside a `<rundefinition>` tag (effective for this configuration),
+or inside a `<tasks>` tag (effective only for this subset of tasks for all configurations).
 Note that you need to use a separate `<option>` tag for each argument,
 putting multiple arguments separated by spaces into a single tag will not have the desired effect.
 
@@ -46,13 +46,6 @@ Which tool should be benchmarked by BenchExec is indicated by
 the attribute `tool` of the tag `<benchmark>`.
 It's value is the name of a so-called *tool-info module*
 described in more detail under [Tool Integration](tool-integration.md).
-
-BenchExec allows to check whether the output of the tool matches the expected result
-for a given task, and to categorize the results accordingly.
-To do so, it needs to be given a [property file](properties/INDEX.md)
-with the tag `<propertyfile>`
-and the name of the input file needs to encode the expected result
-for the given property.
 
 Inside the `<option>` tag and other tags some variables can be used
 that will be expanded by BenchExec. The following variables are supported:
@@ -121,7 +114,7 @@ Such files can be used to specify more complex tasks,
 such as tasks with several input files
 or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
-and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
+and their structure is explained in our [example file doc/task-definition-example.yml](task-definition-example.yml).
 For creating task-definition files for existing tasks
 that use the legacy way of encoding expected verdicts in the file name
 we provide a [helper script](../contrib/create_yaml_files.py).
@@ -130,7 +123,7 @@ If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
-If a [property file](properties/INDEX.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
+If a [property file](properties.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
 `benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
 If none is found, the task defined by this task definition is ignored.

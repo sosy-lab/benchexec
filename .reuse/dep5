@@ -21,7 +21,3 @@ License: BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC
 Files: debian/*
 Copyright: 2015-2020 Dirk Beyer <https://www.sosy-lab.org>
 License: Apache-2.0
-
-Files: doc/properties/*.prp
-Copyright: 2013-2020 Dirk Beyer <https://www.sosy-lab.org>
-License: Apache-2.0

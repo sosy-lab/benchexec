@@ -862,7 +862,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 ),
             )
             result_files = []
-            for root, unused_dirs, files in os.walk(output_dir):
+            for root, _unused_dirs, files in os.walk(output_dir):
                 for file in files:
                     result_files.append(
                         os.path.relpath(os.path.join(root, file), output_dir)
