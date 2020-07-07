@@ -9,16 +9,30 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { getRunSetName } from "../utils/utils";
+import { getRunSetName, setHashSearch } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
     super(props);
+
+    // All unique display_titles of the columns of all runsets
+    const selectableCols = props.tools
+      .map((tool) => tool.columns)
+      .flat()
+      .filter(
+        (col, idx, arr) =>
+          idx ===
+          arr.findIndex(
+            (otherCol) => otherCol.display_title === col.display_title,
+          ),
+      )
+      .map((col) => col.display_title);
+
     this.state = {
-      deselect: true,
-      list: [...this.props.tools],
+      isButtonOnDeselect: true,
+      hiddenCols: this.props.hiddenCols,
+      selectableCols,
     };
-    this.selectable = [];
   }
 
   componentDidMount() {
@@ -28,101 +42,127 @@ export default class SelectColumn extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener("popstate", this.props.close, false);
-    window.removeEventListener("click", this.props.close, false);
+
+    const hiddenParams = {};
+    const hiddenRunsets = [];
+
+    Object.entries(this.state.hiddenCols).forEach(([toolIdx, cols]) => {
+      // If all columns of the runset are hidden, the runset will be added to the "hidden" parameter
+      const colsOfTool = this.props.tools.find(
+        (tool) => tool.toolIdx === parseInt(toolIdx),
+      ).columns;
+      if (cols.length === colsOfTool.length) {
+        hiddenRunsets.push(toolIdx);
+        // Hidden columns of runset X will be added to the "hiddenX" parameter if not the entire runset is hidden yet
+      } else if (cols.length > 0) {
+        hiddenParams["hidden" + toolIdx] = cols.toString();
+      }
+    });
+
+    if (hiddenRunsets.length > 0) {
+      hiddenParams["hidden"] = hiddenRunsets.toString();
+    }
+
+    setHashSearch(hiddenParams);
   }
 
   // -------------------------Rendering-------------------------
-  renderRunSets = () => {
-    return this.state.list.map((tool, i) => {
-      const isVisible = tool.columns.some((value) => value.isVisible === true);
-      let toolName = getRunSetName(tool);
+  renderTools = () => {
+    return this.props.tools.map((tool) => {
+      const toolIdx = tool.toolIdx;
+      const isVisible =
+        this.state.hiddenCols[toolIdx].length !== tool.columns.length;
+      const toolName = getRunSetName(tool);
       return (
-        <tr id={toolName} key={"tr" + toolName}>
-          <td
-            id={toolName}
-            key={"key" + toolName}
-            className={isVisible ? "checked" : ""}
-          >
+        <tr id={toolName} key={"tr" + toolName + toolIdx}>
+          <td id={toolName} className={isVisible ? "checked" : ""}>
             <label>
               {toolName}
               <input
-                name={toolName}
+                name={toolName + "--" + toolIdx}
                 type="checkbox"
                 checked={isVisible}
-                onChange={(e) => this.deselectTool(i, e)}
+                onChange={(e) => this.toggleToolHidden(toolIdx, e)}
               ></input>
             </label>
           </td>
-          {this.renderColumns(i)}
+          {this.renderToolColumns(toolIdx)}
         </tr>
       );
     });
   };
 
-  renderColumns = (index) => {
-    const columns = this.state.list[index].columns;
-    return this.selectable.map((headerRow, idxHeader) => {
-      const column = columns.find(
-        (el) => el.display_title === headerRow.display_title,
+  renderToolColumns = (toolIdx) => {
+    const currentTool = this.props.tools.find(
+      (tool) => tool.toolIdx === toolIdx,
+    );
+    return this.state.selectableCols.map((colTitle) => {
+      const hasToolCol = currentTool.columns.some(
+        (col) => col.display_title === colTitle,
       );
-      if (column !== undefined) {
+      if (hasToolCol) {
+        const colIdxs = currentTool.columns
+          .filter((col) => col.display_title === colTitle)
+          .map((col) => col.colIdx);
+        const isVisible = !colIdxs.some((col) =>
+          this.state.hiddenCols[toolIdx].includes(col),
+        );
         return (
           <td
-            id={"td" + index + column.display_title}
-            key={"key" + idxHeader + column.display_title}
-            className={column.isVisible ? "checked" : ""}
+            id={"td" + toolIdx + colTitle}
+            key={colTitle}
+            className={isVisible ? "checked" : ""}
           >
             <label>
-              {column.display_title}
+              {colTitle}
               <input
-                id={index + "--" + column.display_title}
-                name={index + "--" + column.display_title}
+                id={toolIdx + "--" + colTitle}
+                name={toolIdx + "--" + colTitle}
                 type="checkbox"
-                checked={column.isVisible}
-                onChange={this.handleSelecion}
+                checked={isVisible}
+                onChange={(e) => this.toggleToolColHidden(toolIdx, colTitle, e)}
               ></input>
             </label>
           </td>
         );
       } else {
-        return <td key={idxHeader}></td>;
+        return <td key={colTitle}></td>;
       }
     });
   };
 
-  renderSelectColumns = () => {
-    this.state.list.forEach((tool) => {
-      tool.columns.forEach((column) => {
-        if (
-          !this.selectable.some(
-            (value) => value.display_title === column.display_title,
-          )
-        ) {
-          this.selectable.push(column);
-        }
-      });
-    });
-    return this.selectable.map((column) => {
-      const isVisible = this.state.list.some((tool) =>
-        tool.columns.some(
-          (col) =>
-            col.isVisible === true &&
-            col.display_title === column.display_title,
-        ),
+  renderColumnHeaders = () => {
+    return this.state.selectableCols.map((colTitle) => {
+      // Column is visible if there is at least one runset that contains this col and this col is not hidden for
+      const isVisible = Object.values(this.state.hiddenCols).some(
+        (hiddenCols, idx) => {
+          const currentTool = this.props.tools.find(
+            (tool) => tool.toolIdx === idx,
+          );
+          const colIdxs = currentTool.columns
+            .filter((col) => col.display_title === colTitle)
+            .map((col) => col.colIdx);
+          return (
+            !colIdxs.some((col) => hiddenCols.includes(col)) &&
+            currentTool.columns.some(
+              (toolCol) => toolCol.display_title === colTitle,
+            )
+          );
+        },
       );
       return (
         <th
-          id={"td-all-" + column.display_title}
-          key={"key" + column.display_title}
+          id={"td-all-" + colTitle}
+          key={"key" + colTitle}
           className={isVisible ? "checked" : ""}
         >
           <label>
-            {column.display_title}
+            {colTitle}
             <input
-              name={column.display_title}
+              name={colTitle}
               type="checkbox"
               checked={isVisible}
-              onChange={this.handleSelectColumns}
+              onChange={(e) => this.toggleWholeColHidden(colTitle, e)}
             ></input>
           </label>
         </th>
@@ -131,74 +171,99 @@ export default class SelectColumn extends React.Component {
   };
 
   // -------------------------Handling-------------------------
-  handleSelecion = ({ target }) => {
-    const [tool, column] = target.name.split("--");
-    const value = target.type === "checkbox" ? target.checked : target.value;
-    const list = [...this.state.list];
+  // Toggles all columns of all runsets
+  toggleAllColsHidden = () => {
+    let hiddenCols = {};
+    this.props.tools.forEach((tool) => (hiddenCols[tool.toolIdx] = []));
 
-    list[tool].columns.find(
-      (el) => el.display_title === column,
-    ).isVisible = value;
+    if (this.state.isButtonOnDeselect) {
+      this.props.tools.forEach((tool) => {
+        hiddenCols[tool.toolIdx] = tool.columns.map((column) => column.colIdx);
+      });
+    }
 
-    this.checkTools(list);
-  };
-
-  handleSelectColumns = ({ target }) => {
-    const value = target.type === "checkbox" ? target.checked : target.value;
-    const list = [...this.state.list];
-
-    list.forEach((tool) => {
-      const column = tool.columns.find(
-        (el) => el.display_title === target.name,
-      );
-      if (column) {
-        column.isVisible = value;
-      }
-    });
-
-    this.checkTools(list);
-  };
-  deselectTool = (i, { target }) => {
-    const value = target.type === "checkbox" ? target.checked : target.value;
-    const list = [...this.state.list];
-
-    list[i].columns.forEach((column) => {
-      column.isVisible = value;
-    });
-
-    this.checkTools(list);
-  };
-
-  deselectAll = () => {
-    const list = [...this.state.list];
-
-    list.forEach((tool) =>
-      tool.columns.forEach((column) => {
-        column.isVisible = !this.state.deselect;
-      }),
-    );
-
-    this.checkTools(list);
     this.setState((prevState) => ({
-      deselect: !prevState.deselect,
+      isButtonOnDeselect: !prevState.isButtonOnDeselect,
+      hiddenCols,
     }));
   };
 
-  checkTools = (list) => {
-    list.forEach((tool) => {
-      tool.isVisible = tool.columns.some((column) => column.isVisible);
-    });
-
-    this.setState({ list });
+  // Toggles all columns of the runset with the id of the target
+  toggleToolHidden = (toolIdx, { target }) => {
+    const isAlreadyHidden =
+      target.type === "checkbox" ? target.checked : target.value;
+    const newHiddenCols = isAlreadyHidden
+      ? []
+      : this.props.tools
+          .find((tool) => tool.toolIdx === toolIdx)
+          .columns.map((col) => col.colIdx);
+    this.setHiddenColsForTool(toolIdx, newHiddenCols);
   };
+
+  // Toggles all columns with the display title of the target within a single runset
+  toggleToolColHidden = (toolIdx, colTitle, { target }) => {
+    const isAlreadyHidden =
+      target.type === "checkbox" ? target.checked : target.value;
+    const colIdxs = this.props.tools
+      .find((tool) => tool.toolIdx === toolIdx)
+      .columns.filter((col) => col.display_title === colTitle)
+      .map((col) => col.colIdx);
+    isAlreadyHidden
+      ? this.removeFromHiddenCols(toolIdx, colIdxs)
+      : this.addToHiddenCols(toolIdx, colIdxs);
+  };
+
+  // Toggles all columns with the display title of the target column in all runsets
+  toggleWholeColHidden = (colTitle, { target }) => {
+    const isAlreadyHidden =
+      target.type === "checkbox" ? target.checked : target.value;
+
+    this.props.tools.forEach((tool) => {
+      const cols = tool.columns.filter((col) => col.display_title === colTitle);
+      if (cols.length > 0) {
+        const colIdxs = cols.map((col) => col.colIdx);
+        isAlreadyHidden
+          ? this.removeFromHiddenCols(tool.toolIdx, colIdxs)
+          : this.addToHiddenCols(tool.toolIdx, colIdxs);
+      }
+    });
+  };
+
+  // Adds the given column indexes of the given runset to the hidden columns
+  addToHiddenCols = (toolIdx, colIdxs) => {
+    const newHiddenCols = [
+      ...new Set(this.state.hiddenCols[toolIdx].concat(colIdxs)),
+    ];
+    this.setHiddenColsForTool(toolIdx, newHiddenCols);
+  };
+
+  // Removes the given column indexes of the given runset to the hidden columns
+  removeFromHiddenCols = (toolIdx, colIdxs) => {
+    const newHiddenCols = this.state.hiddenCols[toolIdx].filter(
+      (hiddenColIdx) => !colIdxs.includes(hiddenColIdx),
+    );
+    this.setHiddenColsForTool(toolIdx, newHiddenCols);
+  };
+
+  setHiddenColsForTool(toolIdx, newHiddenCols) {
+    this.setState((prevState) => ({
+      hiddenCols: {
+        ...prevState.hiddenCols,
+        [toolIdx]: newHiddenCols,
+      },
+    }));
+  }
 
   handlePopState = () => {
     window.history.back();
-    window.addEventListener("click", this.props.close, false);
   };
 
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
+    const areAllColsDisabled = this.props.tools.every(
+      (tool) =>
+        tool.columns.length === this.state.hiddenCols[tool.toolIdx].length,
+    );
     return (
       <ReactModal
         ariaHideApp={false}
@@ -218,19 +283,19 @@ export default class SelectColumn extends React.Component {
           <tbody>
             <tr className="selectColumn_all">
               <th></th>
-              {this.renderSelectColumns()}
+              {this.renderColumnHeaders()}
             </tr>
-            {this.renderRunSets()}
+            {this.renderTools()}
           </tbody>
         </table>
         <div className="overlay__buttons">
-          <button className="btn" onClick={this.deselectAll}>
-            {this.state.deselect ? "Deselect all" : "Select all"}
+          <button className="btn" onClick={this.toggleAllColsHidden}>
+            {this.state.isButtonOnDeselect ? "Deselect all" : "Select all"}
           </button>
           <button
             className="btn btn-apply"
             onClick={() => this.handlePopState()}
-            disabled={!this.state.list.filter((tool) => tool.isVisible).length}
+            disabled={areAllColsDisabled}
           >
             Apply and close
           </button>

@@ -10,10 +10,13 @@ import React from "react";
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
-    tools: tools.map((tool) => ({
+    tools: tools.map((tool, idx) => ({
       ...tool,
-      isVisible: true,
-      columns: tool.columns.map((column) => ({ ...column, isVisible: true })),
+      toolIdx: idx,
+      columns: tool.columns.map((column, idx) => ({
+        ...column,
+        colIdx: idx,
+      })),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
     table: rows,
@@ -194,6 +197,94 @@ const setParam = (param) => {
 
 const stringAsBoolean = (str) => str === "true";
 
+/**
+ * Creates an object with an entry for each of the tools, identified by the index of the tool, that stores the hidden columns defined in the URL.
+ * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
+ */
+const createHiddenColsFromURL = (tools) => {
+  const urlParams = getHashSearch();
+  // Object containing all hidden runsets from the URL (= param "hidden")
+  let hiddenTools = [];
+  if (urlParams.hidden) {
+    hiddenTools = urlParams.hidden
+      .split(",")
+      .filter(
+        (hiddenTool) =>
+          Number.isInteger(parseInt(hiddenTool)) &&
+          tools.some((tool) => tool.toolIdx === parseInt(hiddenTool)),
+      )
+      .map((hiddenTool) => parseInt(hiddenTool));
+  }
+
+  // Object containing all hidden columns from the URL with an individual entry for each runset (= params of the form "hiddenX" for runset X)
+  const hiddenCols = {};
+  const hiddenParams = Object.keys(urlParams).filter((param) =>
+    /hidden[0-9]+/.test(param),
+  );
+  hiddenParams.forEach((hiddenParam) => {
+    const toolIdx = parseInt(hiddenParam.replace("hidden", ""));
+    const tool = tools.find((tool) => tool.toolIdx === toolIdx);
+    if (Number.isInteger(toolIdx) && tool) {
+      hiddenCols[toolIdx] = urlParams[hiddenParam]
+        .split(",")
+        .filter(
+          (hiddenCol) =>
+            Number.isInteger(parseInt(hiddenCol)) &&
+            tool.columns.some((col) => col.colIdx === parseInt(hiddenCol)),
+        )
+        .map((col) => parseInt(col));
+    }
+  });
+
+  // Set all columns of a hidden runset to hidden
+  hiddenTools.forEach((hiddenToolIdx) => {
+    hiddenCols[hiddenToolIdx] = tools
+      .find((tool) => tool.toolIdx === hiddenToolIdx)
+      .columns.map((column) => column.colIdx);
+  });
+
+  // Leave hidden columns for not mentioned tools empty
+  tools.forEach((tool) => {
+    if (!hiddenCols[tool.toolIdx]) {
+      hiddenCols[tool.toolIdx] = [];
+    }
+  });
+
+  return hiddenCols;
+};
+
+/**
+ * Returns the index of the first runset that has a column that is not hidden and not of the type status, as well as the index
+ * of the corresponding column. In case there is no such column, returns the index of the first runset that has a status column
+ * that is not hidden, as well as the index of this column. In case there is also no such column, i.e. all columns of all runsets
+ * are hidden, returns undefined for those values.
+ **/
+const getFirstVisibles = (tools, hiddenCols) => {
+  let visibleCol;
+  let visibleTool = tools.find((tool) => {
+    visibleCol = tool.columns.find(
+      (col) =>
+        col.type !== "status" && !hiddenCols[tool.toolIdx].includes(col.colIdx),
+    );
+    return visibleCol;
+  });
+
+  if (!visibleCol) {
+    visibleTool = tools.find(
+      (tool) =>
+        (visibleCol = tool.columns.find(
+          (col) =>
+            col.type === "status" &&
+            !hiddenCols[tool.toolIdx].includes(col.colIdx),
+        )),
+    );
+  }
+
+  return visibleTool && visibleCol
+    ? [visibleTool.toolIdx, visibleCol.colIdx]
+    : [undefined, undefined];
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -211,5 +302,7 @@ export {
   getHashSearch,
   setHashSearch,
   setParam,
+  createHiddenColsFromURL,
   stringAsBoolean,
+  getFirstVisibles,
 };

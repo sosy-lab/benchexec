@@ -126,7 +126,7 @@ exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.
        DummyTool 2019-11-06 09:32:28 CET no options
        <input
         checked={true}
-        name="DummyTool 2019-11-06 09:32:28 CET no options"
+        name="DummyTool 2019-11-06 09:32:28 CET no options--0"
         type="checkbox"
        />
       </label>
@@ -402,7 +402,7 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
        CPAchecker 2015-10-20 13:55:32 CEST integration-predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-10-20 13:55:32 CEST integration-predicateAnalysis"
+        name="CPAchecker 2015-10-20 13:55:32 CEST integration-predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -545,7 +545,7 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
        CPAchecker 2015-10-22 11:13:44 CEST integration-predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-10-22 11:13:44 CEST integration-predicateAnalysis"
+        name="CPAchecker 2015-10-22 11:13:44 CEST integration-predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -623,7 +623,7 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
        CPAchecker 2015-10-23 13:48:29 CEST integration-predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-10-23 13:48:29 CEST integration-predicateAnalysis"
+        name="CPAchecker 2015-10-23 13:48:29 CEST integration-predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -838,7 +838,7 @@ exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = 
        CBMC 2015-12-11 12:11:02 CET cbmc
        <input
         checked={true}
-        name="CBMC 2015-12-11 12:11:02 CET cbmc"
+        name="CBMC 2015-12-11 12:11:02 CET cbmc--0"
         type="checkbox"
        />
       </label>
@@ -1035,7 +1035,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -1108,7 +1108,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -1181,7 +1181,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -1254,7 +1254,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -1451,7 +1451,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -1524,7 +1524,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -1597,7 +1597,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -1670,7 +1670,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -1919,7 +1919,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -2048,7 +2048,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -2177,7 +2177,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -2306,7 +2306,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -2611,7 +2611,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -2740,7 +2740,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -2869,7 +2869,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -2998,7 +2998,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -3316,7 +3316,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -3446,7 +3446,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -3576,7 +3576,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -3693,7 +3693,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -3999,7 +3999,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -4129,7 +4129,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -4259,7 +4259,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -4376,7 +4376,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -4669,7 +4669,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -4798,7 +4798,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -4927,7 +4927,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -5056,7 +5056,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -5361,7 +5361,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -5490,7 +5490,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -5619,7 +5619,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -5748,7 +5748,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -6001,7 +6001,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -6074,7 +6074,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -6147,7 +6147,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -6220,7 +6220,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -6417,7 +6417,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -6490,7 +6490,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -6563,7 +6563,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -6636,7 +6636,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET valueAnalysis--3"
         type="checkbox"
        />
       </label>
@@ -6937,7 +6937,7 @@ exports[`Render SelectColumn for nan_and_inf.html 1`] = `
        CPAchecker 2018-06-27 14:40:12 CEST Model-Based-Selection
        <input
         checked={true}
-        name="CPAchecker 2018-06-27 14:40:12 CEST Model-Based-Selection"
+        name="CPAchecker 2018-06-27 14:40:12 CEST Model-Based-Selection--0"
         type="checkbox"
        />
       </label>
@@ -7246,7 +7246,7 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -7319,7 +7319,7 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -7516,7 +7516,7 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -7589,7 +7589,7 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -7812,7 +7812,7 @@ exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -8037,7 +8037,7 @@ exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -8234,7 +8234,7 @@ exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`]
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -8457,7 +8457,7 @@ exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -8708,7 +8708,7 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
        MathSAT 2015-05-27 10:04:55 CEST mathsat
        <input
         checked={true}
-        name="MathSAT 2015-05-27 10:04:55 CEST mathsat"
+        name="MathSAT 2015-05-27 10:04:55 CEST mathsat--0"
         type="checkbox"
        />
       </label>
@@ -8809,7 +8809,7 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
        SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol
        <input
         checked={true}
-        name="SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol"
+        name="SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol--1"
         type="checkbox"
        />
       </label>
@@ -9060,7 +9060,7 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
        MathSAT 2015-05-27 10:04:55 CEST mathsat
        <input
         checked={true}
-        name="MathSAT 2015-05-27 10:04:55 CEST mathsat"
+        name="MathSAT 2015-05-27 10:04:55 CEST mathsat--0"
         type="checkbox"
        />
       </label>
@@ -9161,7 +9161,7 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
        SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol
        <input
         checked={true}
-        name="SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol"
+        name="SMTInterpol 2015-05-27 10:04:27 CEST smtinterpol--1"
         type="checkbox"
        />
       </label>
@@ -9399,7 +9399,7 @@ exports[`Render SelectColumn for task-def-files.table.html 1`] = `
        DummyTool 2019-12-20 15:32:33 CET 0
        <input
         checked={true}
-        name="DummyTool 2019-12-20 15:32:33 CET 0"
+        name="DummyTool 2019-12-20 15:32:33 CET 0--0"
         type="checkbox"
        />
       </label>
@@ -9486,7 +9486,7 @@ exports[`Render SelectColumn for task-def-files.table.html 1`] = `
        DummyTool 2020-06-10 09:17:06 CEST 0
        <input
         checked={true}
-        name="DummyTool 2020-06-10 09:17:06 CEST 0"
+        name="DummyTool 2020-06-10 09:17:06 CEST 0--1"
         type="checkbox"
        />
       </label>
@@ -9697,7 +9697,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -9770,7 +9770,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -9993,7 +9993,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -10218,7 +10218,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -10428,7 +10428,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis.0
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis.0"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis.0--0"
         type="checkbox"
        />
       </label>
@@ -10639,7 +10639,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -10836,7 +10836,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -11033,7 +11033,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.tabl
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -11230,7 +11230,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -11303,7 +11303,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -11500,7 +11500,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -11573,7 +11573,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -11770,7 +11770,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -11843,7 +11843,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -12040,7 +12040,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -12113,7 +12113,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -12310,7 +12310,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -12383,7 +12383,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -12580,7 +12580,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -12653,7 +12653,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -12850,7 +12850,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -12923,7 +12923,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -13120,7 +13120,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -13193,7 +13193,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -13390,7 +13390,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -13463,7 +13463,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -13660,7 +13660,7 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -13733,7 +13733,7 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -13930,7 +13930,7 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -14003,7 +14003,7 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -14200,7 +14200,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -14273,7 +14273,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -14470,7 +14470,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -14543,7 +14543,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -14740,7 +14740,7 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -14813,7 +14813,7 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -14886,7 +14886,7 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -15083,7 +15083,7 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -15156,7 +15156,7 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -15229,7 +15229,7 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
        CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 18:15:20 CET predicateAnalysis--2"
         type="checkbox"
        />
       </label>
@@ -15426,7 +15426,7 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -15499,7 +15499,7 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -15696,7 +15696,7 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -15769,7 +15769,7 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
        CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis
        <input
         checked={true}
-        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis"
+        name="CPAchecker [2015-03-03 16:13:02 CET; 2015-03-03 18:15:20 CET] valueAnalysis--1"
         type="checkbox"
        />
       </label>
@@ -15966,7 +15966,7 @@ exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = 
        CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET predicateAnalysis--0"
         type="checkbox"
        />
       </label>
@@ -16163,7 +16163,7 @@ exports[`Render SelectColumn for union-table-valueAnalysis.table.html 1`] = `
        CPAchecker 2015-03-03 16:13:02 CET valueAnalysis
        <input
         checked={true}
-        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis"
+        name="CPAchecker 2015-03-03 16:13:02 CET valueAnalysis--0"
         type="checkbox"
        />
       </label>

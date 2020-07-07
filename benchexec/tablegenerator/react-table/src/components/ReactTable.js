@@ -97,6 +97,7 @@ export default class Table extends React.Component {
     ];
     this.typingTimer = -1;
   }
+
   //fix columns
   handleInputChange = ({ target }) => {
     const value = target.checked;
@@ -180,7 +181,7 @@ export default class Table extends React.Component {
   createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
-    show: column.isVisible,
+    show: !this.props.hiddenCols[runSetIdx].includes(column.colIdx),
     minWidth: determineColumnWidth(column, 10),
     accessor: (row) => row.results[runSetIdx].values[columnIdx],
     Cell: (cell) => {
@@ -266,7 +267,7 @@ export default class Table extends React.Component {
     return {
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
-      show: column.isVisible,
+      show: !this.props.hiddenCols[runSetIdx].includes(column.colIdx),
       minWidth: determineColumnWidth(column),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
       Cell: (cell) => (

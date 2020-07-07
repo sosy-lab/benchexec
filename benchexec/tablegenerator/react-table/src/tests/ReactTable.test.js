@@ -35,5 +35,6 @@ test_snapshot_of("Render Summary", (overview) => (
     filtered={overview.state.filtered}
     toggleLinkOverlay={overview.toggleLinkOverlay}
     changeTab={overview.changeTab}
+    hiddenCols={overview.state.hiddenCols}
   />
 ));

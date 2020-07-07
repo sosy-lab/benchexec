@@ -129,7 +129,8 @@ export default class Summary extends React.Component {
       />
     ),
     show:
-      column.isVisible && (isNumericColumn(column) || column.type === "status"),
+      !this.props.hiddenCols[runSetIdx].includes(columnIdx) &&
+      (isNumericColumn(column) || column.type === "status"),
     minWidth: determineColumnWidth(
       column,
       null,
