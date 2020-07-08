@@ -118,10 +118,10 @@ export default class QuantilePlot extends React.Component {
     };
   }
 
-  relevantColumn = (column) =>
-    this.isColVisibleInAnyTool(column) &&
-    column.type !== "text" &&
-    column.type !== "status";
+  isColRelevantForTool = (colIdx, toolIdx) =>
+    !this.props.hiddenCols[toolIdx].includes(colIdx) &&
+    colIdx.type !== "text" &&
+    colIdx.type !== "status";
 
   relevantRunSet = (tool) =>
     tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length &&
@@ -172,9 +172,12 @@ export default class QuantilePlot extends React.Component {
           };
         });
     } else {
+      const tool = this.props.tools[this.state.selection.split("-")[1]];
       return !this.state.areAllColsHidden
-        ? this.props.tools[this.state.selection.split("-")[1]].columns
-            .filter((col) => this.relevantColumn(col))
+        ? tool.columns
+            .filter((col) =>
+              this.isColRelevantForTool(col.colIdx, tool.toolIdx),
+            )
             .map((c) => {
               return {
                 title: c.display_title,
@@ -197,8 +200,13 @@ export default class QuantilePlot extends React.Component {
       //var 2: compare different values of one RunSet
       if (!this.state.areAllColsHidden) {
         const index = this.state.selection.split("-")[1];
-        this.props.tools[index].columns
-          .filter((col) => this.relevantColumn(col))
+        const tool = this.props.tools[index];
+        tool.columns
+          .filter(
+            (col) =>
+              this.isColRelevantForTool(col.colIdx, tool.toolIdx) &&
+              !this.props.hiddenCols[index].includes(col.colIdx),
+          )
           .forEach((column) =>
             this.renderData(column.display_title, index, column.display_title),
           );
@@ -341,8 +349,9 @@ export default class QuantilePlot extends React.Component {
     } else {
       if (!this.state.areAllColsHidden) {
         const index = this.state.selection.split("-")[1];
-        return this.props.tools[index].columns
-          .filter((col) => this.relevantColumn(col))
+        const tool = this.props.tools[index];
+        return tool.columns
+          .filter((col) => this.isColRelevantForTool(col.colIdx, tool.toolIdx))
           .map((column) => {
             const data = this[column.display_title];
             this.lineCount++;
