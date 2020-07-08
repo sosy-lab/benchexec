@@ -123,9 +123,14 @@ export default class QuantilePlot extends React.Component {
     colIdx.type !== "text" &&
     colIdx.type !== "status";
 
-  relevantRunSet = (tool) =>
-    tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length &&
-    tool.columns.some((c) => c.display_title === this.state.selection);
+  isToolRelevantForCol = (tool, colName) => {
+    const colInTool = tool.columns.find((col) => col.display_title === colName);
+    return (
+      tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length &&
+      colInTool &&
+      !this.props.hiddenCols[tool.toolIdx].includes(colInTool.colIdx)
+    );
+  };
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
@@ -163,7 +168,7 @@ export default class QuantilePlot extends React.Component {
   renderLegend = () => {
     if (this.state.isValue) {
       return this.props.tools
-        .filter(this.relevantRunSet)
+        .filter((tool) => this.isToolRelevantForCol(tool, this.state.selection))
         .map(getRunSetName)
         .map((c) => {
           return {
@@ -322,7 +327,7 @@ export default class QuantilePlot extends React.Component {
       return this.props.tools
         .map((tool, i) => {
           // Cannot use filter() because we need original value of i
-          if (!this.relevantRunSet(tool)) {
+          if (!this.isToolRelevantForCol(tool, this.state.selection)) {
             return null;
           }
           const task = this.state.selection;
