@@ -206,21 +206,24 @@ export default class QuantilePlot extends React.Component {
     }
   };
 
-  renderData = (column, tool, field) => {
+  renderData = (column, toolIdx, field) => {
     const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
-    const index = this.props.tools[tool].columns.findIndex(
+    const colIdx = this.props.tools[toolIdx].columns.findIndex(
       (value) => value.display_title === column,
     );
 
-    if (!this.state.isValue || index >= 0) {
+    if (
+      !this.state.isValue ||
+      (colIdx >= 0 && !this.props.hiddenCols[toolIdx].includes(colIdx))
+    ) {
       arrayY = this.props.table.map((runSet) => {
         // Get y value if it should be shown and normalize it.
         // For correct x values, arrayY needs to have same length as table.
-        const runResult = runSet.results[tool];
+        const runResult = runSet.results[toolIdx];
         let value = null;
         if (!this.state.correct || runResult.category === "correct") {
-          value = runResult.values[index].raw;
+          value = runResult.values[colIdx].raw;
           if (value === undefined) {
             value = null;
           }
