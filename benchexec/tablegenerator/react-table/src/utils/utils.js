@@ -151,7 +151,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  * @param {String} [str]
  */
 const getHashSearch = (str) => {
-  const urlParts = (str || document.location.href).split("?");
+  const urlParts = (str || decodeURI(document.location.href)).split("?");
   const search = urlParts.length > 1 ? urlParts[1] : undefined;
   if (search === undefined || search.length === 0) {
     return {};
@@ -179,7 +179,7 @@ const setHashSearch = (
   const url = (baseUrl || document.location.href).split("?")[0];
   const pairs = Object.keys(params).map((key) => `${key}=${params[key]}`);
   const searchString = `?${pairs.join("&")}`;
-  const hrefString = `${url}${searchString}`;
+  const hrefString = encodeURI(`${url}${searchString}`);
   if (returnString) {
     return hrefString;
   }
