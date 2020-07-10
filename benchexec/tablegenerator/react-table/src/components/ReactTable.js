@@ -282,9 +282,6 @@ export default function Table(props) {
       createRunSetColumns(runSet, runSetIdx, createColumn),
     )
     .flat();
-
-  console.log({ filtered: props.filtered });
-
   return (
     <div className="mainTable">
       <ReactTableFixedColumns

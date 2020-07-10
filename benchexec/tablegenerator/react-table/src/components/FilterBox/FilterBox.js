@@ -7,6 +7,7 @@
 
 import React from "react";
 import FilterContainer from "./FilterContainer";
+import TaskFilterCard from "./TaskFilterCard";
 import { faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
@@ -24,6 +25,7 @@ export default class FilterBox extends React.PureComponent {
 
     this.state = {
       filters: this.createFiltersFromReactTableStructure(filtered),
+      idFilters: [],
     };
   }
 
@@ -65,21 +67,24 @@ export default class FilterBox extends React.PureComponent {
     return Object.values(Object.values(this.state.filters));
   }
 
-  sendFilters(filter) {
+  sendFilters({ filter, idFilter }) {
     const filters = filter.filter((i) => i !== null && i !== undefined);
 
     this.props.setFilter(
-      filters
-        .map((tool, toolIdx) => {
-          return tool.map((col, colIdx) => {
-            return col.values.map((val) => ({
-              id: `${toolIdx}_${col.title}_${colIdx}`,
-              value: val,
-            }));
-          });
-        })
-        .flat(3)
-        .filter((i) => i !== null && i !== undefined),
+      [
+        ...filters
+          .map((tool, toolIdx) => {
+            return tool.map((col, colIdx) => {
+              return col.values.map((val) => ({
+                id: `${toolIdx}_${col.title}_${colIdx}`,
+                value: val,
+              }));
+            });
+          })
+          .flat(3)
+          .filter((i) => i !== null && i !== undefined),
+        { id: "id", values: idFilter },
+      ],
       true,
     );
   }
@@ -87,10 +92,17 @@ export default class FilterBox extends React.PureComponent {
   updateFilters(toolIdx, columnIdx, data) {
     //this.props.setFilter(newFilter);
     const newFilters = [...this.state.filters];
+    const idFilter = this.state.idFilters;
     newFilters[toolIdx] = newFilters[toolIdx] || [];
     newFilters[toolIdx][columnIdx] = data;
     this.setState({ filters: newFilters });
-    this.sendFilters(newFilters);
+    this.sendFilters({ filter: newFilters, idFilter });
+  }
+
+  updateIdFilters(data) {
+    const mapped = Object.keys(this.props.ids).map((i) => data[i]);
+    this.setState({ idFilters: mapped });
+    this.sendFilters({ filter: this.state.filters, idFilter: mapped });
   }
 
   render() {
@@ -113,6 +125,11 @@ export default class FilterBox extends React.PureComponent {
             onClick={() => this.resetAllContainers()}
           />
         </div>
+        <TaskFilterCard
+          ids={this.props.ids}
+          updateFilters={(data) => this.updateIdFilters(data)}
+          resetFilterHook={this.resetFilterHook}
+        />
         {this.props.filterable.map((tool, idx) => {
           return (
             <FilterContainer

@@ -17,7 +17,11 @@ import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
-import { prepareTableData, getRawOrDefault } from "../utils/utils";
+import {
+  prepareTableData,
+  getRawOrDefault,
+  getTaskIdParts,
+} from "../utils/utils";
 import {
   getFilterableData,
   buildMatcher,
@@ -199,6 +203,7 @@ export default class Overview extends React.Component {
               hide={() => {
                 this.setState({ filterBoxVisible: false });
               }}
+              ids={getTaskIdParts(this.originalTable)}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
