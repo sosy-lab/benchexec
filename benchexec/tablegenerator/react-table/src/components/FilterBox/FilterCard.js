@@ -11,7 +11,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-import { without, pathOr, NumberFormatterBuilder } from "../../utils/utils";
+import {
+  without,
+  pathOr,
+  NumberFormatterBuilder,
+  emptyStateValue,
+} from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -51,7 +56,7 @@ export default class FilterCard extends React.PureComponent {
     const { type } = this.props.filter;
     if (values.length === 0 && type === "status") {
       this.props.onFilterUpdate({
-        values: ["##########"],
+        values: [emptyStateValue],
         title: this.state.title || this.props.title,
       });
     } else {

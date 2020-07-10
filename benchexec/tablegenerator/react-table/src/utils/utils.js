@@ -7,6 +7,8 @@
 
 import React from "react";
 
+const emptyStateValue = "##########";
+
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
@@ -323,4 +325,5 @@ export {
   omit,
   deepEquals,
   NumberFormatterBuilder,
+  emptyStateValue,
 };

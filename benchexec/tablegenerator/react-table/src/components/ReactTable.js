@@ -23,6 +23,7 @@ import {
   textSortMethod,
   determineColumnWidth,
   pathOr,
+  emptyStateValue,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -204,7 +205,8 @@ export default function Table(props) {
         ...selectedCategoryFilters,
         ...selectedStatusValues,
       ];
-      const multipleSelected = selectedFilters.length > 1;
+      const multipleSelected =
+        selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
 
       const singleFilterValue = filter ? filter.value : "all ";
       const selectValue = multipleSelected ? "multiple" : singleFilterValue;
@@ -216,7 +218,10 @@ export default function Table(props) {
         >
           {multipleSelected && (
             <option value="multiple" disabled selected>
-              {selectedFilters.join(", ")}
+              {selectedFilters
+                .map((x) => x.trim())
+                .filter((x) => x !== "all" && x !== emptyStateValue)
+                .join(", ") || "Empty Set"}
             </option>
           )}
           <option value="all ">Show all</option>
