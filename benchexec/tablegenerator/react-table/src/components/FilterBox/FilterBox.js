@@ -11,6 +11,7 @@ import TaskFilterCard from "./TaskFilterCard";
 import { faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
+import { isNil } from "../../utils/utils";
 const classNames = require("classnames");
 
 export default class FilterBox extends React.PureComponent {
@@ -70,23 +71,22 @@ export default class FilterBox extends React.PureComponent {
   sendFilters({ filter, idFilter }) {
     const filters = filter.filter((i) => i !== null && i !== undefined);
 
-    this.props.setFilter(
-      [
-        ...filters
-          .map((tool, toolIdx) => {
-            return tool.map((col, colIdx) => {
-              return col.values.map((val) => ({
-                id: `${toolIdx}_${col.title}_${colIdx}`,
-                value: val,
-              }));
-            });
-          })
-          .flat(3)
-          .filter((i) => i !== null && i !== undefined),
-        { id: "id", values: idFilter },
-      ],
-      true,
-    );
+    const newFilter = [
+      ...filters
+        .map((tool, toolIdx) => {
+          return tool.map((col, colIdx) => {
+            return col.values.map((val) => ({
+              id: `${toolIdx}_${col.title}_${colIdx}`,
+              value: val,
+            }));
+          });
+        })
+        .flat(3)
+        .filter((i) => i !== null && i !== undefined),
+    ];
+    newFilter.push({ id: "id", values: idFilter });
+
+    this.props.setFilter(newFilter, true);
   }
 
   updateFilters(toolIdx, columnIdx, data) {
@@ -101,8 +101,14 @@ export default class FilterBox extends React.PureComponent {
 
   updateIdFilters(data) {
     const mapped = Object.keys(this.props.ids).map((i) => data[i]);
-    this.setState({ idFilters: mapped });
-    this.sendFilters({ filter: this.state.filters, idFilter: mapped });
+
+    const newFilter = mapped.some((item) => item !== "" && !isNil(item))
+      ? mapped
+      : undefined;
+
+    this.setState({ idFilters: newFilter });
+
+    this.sendFilters({ filter: this.state.filters, idFilter: newFilter });
   }
 
   render() {

@@ -24,36 +24,10 @@ import {
   determineColumnWidth,
   pathOr,
   emptyStateValue,
+  isNil,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
-
-function FilterInputField(props) {
-  const elementId = props.column.id + "_filter";
-  const filter = props.filter ? props.filter.value : props.filter;
-  let value;
-  let typingTimer;
-
-  const onChange = (event) => {
-    value = event.target.value;
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      props.onChange(value);
-      document.getElementById(elementId).focus();
-    }, 500);
-  };
-
-  return (
-    <input
-      id={elementId}
-      placeholder={props.numeric ? "Min:Max" : "text"}
-      defaultValue={value ? value : filter}
-      onChange={onChange}
-      type="search"
-      pattern={props.numeric ? numericPattern : undefined}
-    />
-  );
-}
 
 // Special markers we use as category for empty run results
 const RUN_ABORTED = "aborted"; // result tag was present but empty (failure)
@@ -65,12 +39,53 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 export default function Table(props) {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
+  let [disableTaskText, setDisableTaskText] = useState(false);
+
+  function FilterInputField(props) {
+    const elementId = props.column.id + "_filter";
+    const filter = props.filter ? props.filter.value : props.filter;
+    let value;
+    let typingTimer;
+
+    const textPlaceHolder = disableTaskText
+      ? "To edit, please clear task id filter in the sidebar"
+      : "text";
+
+    const onChange = (event) => {
+      value = event.target.value;
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        props.onChange(value);
+        document.getElementById(elementId).focus();
+      }, 500);
+    };
+
+    return (
+      <input
+        id={elementId}
+        placeholder={props.numeric ? "Min:Max" : textPlaceHolder}
+        defaultValue={value ? value : filter}
+        onChange={onChange}
+        disabled={props.column.id === "id" ? disableTaskText : false}
+        type="search"
+        pattern={props.numeric ? numericPattern : undefined}
+      />
+    );
+  }
+
   // get selected status and category values
   useEffect(() => {
     const { filtered } = props;
     const newFilteredColumnValues = {};
     for (const filter of filtered) {
-      const { value, id } = filter;
+      const { value, values, id } = filter;
+      if (id === "id") {
+        if (!isNil(values)) {
+          setDisableTaskText(true);
+        } else {
+          setDisableTaskText(false);
+        }
+      }
       const [runset, , column] = id.split("_");
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
