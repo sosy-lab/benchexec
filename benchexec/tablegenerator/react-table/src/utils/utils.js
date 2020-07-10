@@ -219,6 +219,18 @@ const deepEquals = (a, b) => {
   return true;
 };
 
+// TODO Add extraction of human-readable task id part names once they are being exported from python
+/**
+ * Function to extract the names of the task id parts and to provide a mapping for filtering.
+ *
+ * @param {*} rows - the rows array of the dataset
+ */
+const getTaskIdParts = (rows) =>
+  pathOr(["0", "id"], [], rows).reduce(
+    (acc, curr, idx) => ({ ...acc, [idx]: curr }),
+    {},
+  );
+
 /**
  * Builds and configures a formatting function that can format a number based on
  * the significant digits of the dataset for its column.
@@ -326,4 +338,5 @@ export {
   deepEquals,
   NumberFormatterBuilder,
   emptyStateValue,
+  getTaskIdParts,
 };

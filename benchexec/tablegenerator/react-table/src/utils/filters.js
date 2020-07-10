@@ -146,12 +146,15 @@ const applyTextFilter = (filter, row, cell) => {
  */
 const buildMatcher = (filters) => {
   const start = Date.now();
-  const out = filters.reduce((acc, { id, value }) => {
-    if (isNil(value) || (typeof value === "string" && value.trim() === "all")) {
+  const out = filters.reduce((acc, { id, value, values }) => {
+    if (
+      (isNil(value) && isNil(values)) ||
+      (typeof value === "string" && value.trim() === "all")
+    ) {
       return acc;
     }
     if (id === "id") {
-      acc.id = { value };
+      acc.id = { value, values };
       return acc;
     }
     const [tool, name, columnIdx] = id.split("_");
@@ -224,10 +227,25 @@ const applyMatcher = (matcher) => (data) => {
     });
   }
   if (!isNil(matcher.id)) {
-    const { value: idValue } = matcher.id;
-    diffd = diffd.filter(
-      ({ href }) => href === idValue || href.includes(idValue),
-    );
+    const { value: idValue, values: idValues } = matcher.id;
+    if (idValue) {
+      diffd = diffd.filter(({ id }) =>
+        id.some((idName) => idName === idValue || idName.includes(idValue)),
+      );
+    } else {
+      diffd = diffd.filter(({ id }) =>
+        idValues.every((filterValue, idx) => {
+          const idName = id[idx];
+          if (isNil(filterValue) || filterValue === "") {
+            return true;
+          }
+          if (isNil(idName) || idName === "") {
+            return false;
+          }
+          return idName === filterValue || idName.includes(filterValue);
+        }),
+      );
+    }
   }
   const out = diffd.filter((row) => {
     for (const tool in omit(["diff", "id"], matcher)) {
