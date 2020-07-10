@@ -101,6 +101,80 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     background-color: white;
     box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
     transition: all 0.5s ease-in-out;
+    .filter-card {
+      width: calc(100% - 50px);
+      box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
+      margin-top: 18px;
+      &--body {
+        text-align: left;
+        margin-left: 25px;
+        margin-right: 25px;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        &--list {
+          list-style: none;
+        }
+        .task-id-filters {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          input {
+            margin-bottom: 15px;
+          }
+        }
+      }
+      &--range {
+        &-container {
+          display: flex;
+          justify-content: space-between;
+        }
+        &-input-fields {
+          display: grid;
+
+          input {
+            width: 100%;
+          }
+
+          .range-input-fields--min {
+            grid-column-start: 1;
+            grid-column-end: 2;
+          }
+          .range-input-fields--max {
+            grid-column-start: 2;
+            grid-column-end: 3;
+          }
+        }
+      }
+      &--header {
+        width: 100%;
+        display: flex;
+        position: relative;
+        align-items: center;
+        background-color: #b8ddff;
+        .filter-selection {
+          margin-left: 25px;
+        }
+        .check-button {
+          margin-left: 15px;
+          color: green;
+        }
+        .delete-button {
+          position: absolute;
+          right: 12px;
+          cursor: pointer;
+        }
+        .title {
+          margin: 0;
+          margin-left: 25px;
+          font-size: 1.4rem;
+          padding: 3px;
+        }
+      }
+    }
     &--hidden {
       right: -100vw;
     }
@@ -147,72 +221,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
       .hidden {
         display: none !important;
-      }
-
-      .filter-card {
-        width: calc(100% - 50px);
-        box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
-        margin-top: 18px;
-        &--body {
-          text-align: left;
-          margin-left: 25px;
-          margin-right: 25px;
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          margin-top: 10px;
-          margin-bottom: 10px;
-          &--list {
-            list-style: none;
-          }
-        }
-        &--range {
-          &-container {
-            display: flex;
-            justify-content: space-between;
-          }
-          &-input-fields {
-            display: grid;
-
-            input {
-              width: 100%;
-            }
-
-            .range-input-fields--min {
-              grid-column-start: 1;
-              grid-column-end: 2;
-            }
-            .range-input-fields--max {
-              grid-column-start: 2;
-              grid-column-end: 3;
-            }
-          }
-        }
-        &--header {
-          width: 100%;
-          display: flex;
-          position: relative;
-          align-items: center;
-          background-color: #b8ddff;
-          .filter-selection {
-            margin-left: 25px;
-          }
-          .check-button {
-            margin-left: 15px;
-            color: green;
-          }
-          .delete-button {
-            position: absolute;
-            right: 12px;
-            cursor: pointer;
-          }
-          .title {
-            margin: 0;
-            margin-left: 25px;
-            font-size: 1.4rem;
-            padding: 3px;
-          }
-        }
       }
 
       .filter-add-button {
