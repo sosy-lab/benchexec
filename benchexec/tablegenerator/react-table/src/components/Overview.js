@@ -191,6 +191,7 @@ export default class Overview extends React.Component {
               headerComponent={reset({
                 className: "filterBox--header--reset",
                 isReset: true,
+                enabled: false,
               })}
               tableHeader={this.tableHeader}
               tools={this.state.tools}

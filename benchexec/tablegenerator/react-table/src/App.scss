@@ -186,6 +186,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       padding: 5px;
       &--icon {
         cursor: pointer;
+        margin: 15px;
       }
       &--reset {
         height: 100%;
