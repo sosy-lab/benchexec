@@ -16,20 +16,36 @@ import {
   YAxis,
   DiscreteColorLegend,
   Hint,
+  makeWidthFlexible,
 } from "react-vis";
 import {
   getRunSetName,
   EXTENDED_DISCRETE_COLOR_RANGE,
   setParam,
   getHashSearch,
-  stringAsBoolean,
   getFirstVisibles,
 } from "../utils/utils";
 
+const plotOptions = {
+  quantile: "Quantile",
+  direct: "Direct",
+};
+
+const scalingOptions = {
+  linear: "Linear",
+  logarithmic: "Logarithmic",
+};
+
+const resultsOptions = {
+  all: "All",
+  correct: "Correct",
+};
+
 const defaultValues = {
-  quantile: "true",
-  linear: "false",
-  correct: "true",
+  plot: plotOptions.quantile,
+  scaling: scalingOptions.linear,
+  results: resultsOptions.correct,
+  UIDesign: 1,
 };
 
 export default class QuantilePlot extends React.Component {
@@ -43,14 +59,10 @@ export default class QuantilePlot extends React.Component {
   setup() {
     const queryProps = getHashSearch();
 
-    let { selection, quantile, linear, correct } = {
+    let { selection, plot, scaling, results, UIDesign } = {
       ...defaultValues,
       ...queryProps,
     };
-
-    quantile = stringAsBoolean(quantile);
-    linear = stringAsBoolean(linear);
-    correct = stringAsBoolean(correct);
 
     const initialSelection = selection;
     const toolIdxes = this.props.tools.map((tool) => tool.toolIdx).join("");
@@ -108,11 +120,12 @@ export default class QuantilePlot extends React.Component {
     }
 
     return {
-      selection: selection,
-      quantile: quantile,
-      linear: linear,
-      correct: correct,
-      isValue: isValue, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
+      selection,
+      plot,
+      scaling,
+      results,
+      isValue, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
+      UIDesign,
       isInvisible: [],
       areAllColsHidden: selection === undefined,
     };
@@ -235,7 +248,10 @@ export default class QuantilePlot extends React.Component {
         // For correct x values, arrayY needs to have same length as table.
         const runResult = runSet.results[toolIdx];
         let value = null;
-        if (!this.state.correct || runResult.category === "correct") {
+        if (
+          this.state.results !== resultsOptions.correct ||
+          runResult.category === "correct"
+        ) {
           value = runResult.values[colIdx].raw;
           if (value === undefined) {
             value = null;
@@ -250,7 +266,7 @@ export default class QuantilePlot extends React.Component {
         return [value, this.props.getRowName(runSet)];
       });
 
-      if (this.state.quantile) {
+      if (this.state.plot === plotOptions.quantile) {
         arrayY = arrayY.filter((element) => element[0] !== null);
         arrayY = this.sortArray(arrayY, column);
       }
@@ -261,7 +277,8 @@ export default class QuantilePlot extends React.Component {
 
     arrayY.forEach((el, i) => {
       const value = el[0];
-      const isLogAndInvalid = !this.state.linear && value <= 0;
+      const isLogAndInvalid =
+        this.state.scaling === scalingOptions.logarithmic && value <= 0;
 
       if (value !== null && !isLogAndInvalid) {
         newArray.push({
@@ -379,23 +396,39 @@ export default class QuantilePlot extends React.Component {
       }
     }
   };
+
+  renderSettingOptions = (options, name) =>
+    Object.values(options).map((option) => (
+      <option value={option} key={option} name={option + " " + name}>
+        {option + " " + name}
+      </option>
+    ));
+
   // ------------------------handeling----------------------------
   handleLineState = (line) => {
     return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;
   };
 
-  handleColumn = (ev) => {
+  setSelection = (ev) => {
     setParam({ selection: ev.target.value });
   };
-  toggleQuantile = () => {
-    setParam({ quantile: !this.state.quantile });
+
+  setPlot = (ev) => {
+    setParam({ plot: ev.target.value });
   };
-  toggleCorrect = () => {
-    setParam({ correct: !this.state.correct });
+
+  setScaling = (ev) => {
+    setParam({ scaling: ev.target.value });
   };
-  toggleLinear = () => {
-    setParam({ linear: !this.state.linear });
+
+  setResults = (ev) => {
+    setParam({ results: ev.target.value });
   };
+
+  setUI = (ev) => {
+    setParam({ UIDesign: ev.target.value });
+  };
+
   toggleShow = ({ target }) => {
     this.setState({
       [target.name]: target.checked,
@@ -411,96 +444,179 @@ export default class QuantilePlot extends React.Component {
       this.state.isValue && index >= 0 ? this.possibleValues[index].type : null;
     return this.state.isValue && (type === "text" || type === "status")
       ? "ordinal"
-      : this.state.linear
+      : this.state.scaling === scalingOptions.linear
       ? "linear"
       : "log";
   };
 
   render() {
+    const FlexibleXYPlot = makeWidthFlexible(XYPlot);
+    const isLegendInPlot = [1, 2, 3].includes(parseInt(this.state.UIDesign));
+
     return (
-      <div className="quantilePlot">
-        {!this.state.areAllColsHidden && (
-          <select
-            name="Select Column"
-            value={this.state.selection}
-            onChange={this.handleColumn}
-          >
-            <optgroup label="Run sets">
-              {this.props.tools.map((runset, i) => {
-                return runset.columns.length !==
-                  this.props.hiddenCols[runset.toolIdx].length ? (
-                  <option
-                    key={"runset-" + i}
-                    value={"runset-" + i}
-                    name={"runset-" + i}
-                  >
-                    {getRunSetName(runset)}
-                  </option>
-                ) : null;
-              })}
-            </optgroup>
-            <optgroup label="Columns">{this.renderColumns()}</optgroup>
-          </select>
-        )}
-        <XYPlot
-          height={window.innerHeight - 200}
-          width={window.innerWidth - 100}
-          margin={{ left: 90 }}
-          yType={this.handleType()}
-        >
-          <VerticalGridLines />
-          <HorizontalGridLines />
-          <XAxis tickFormat={(value) => value} />
-          <YAxis tickFormat={(value) => value} />
-          {this.state.value ? <Hint value={this.state.value} /> : null}
-          <DiscreteColorLegend
-            colors={EXTENDED_DISCRETE_COLOR_RANGE}
-            items={this.renderLegend()}
-            onItemClick={(Object, item) => {
-              let line = "";
-              line = Object.title.toString();
-              if (this.state.isInvisible.indexOf(line) < 0) {
-                this.setState({
-                  isInvisible: this.state.isInvisible.concat([line]),
-                });
-              } else {
-                return this.setState({
-                  isInvisible: this.state.isInvisible.filter((l) => {
-                    return l !== line;
-                  }),
-                });
-              }
-            }}
-          />
-          {this.renderLines()}
-        </XYPlot>
-        {this.state.areAllColsHidden ? (
-          <div className="plot__noresults">No columns to show!</div>
-        ) : (
-          this.lineCount === 0 && (
-            <div className="plot__noresults">
-              {this.hasInvalidLog
-                ? "All results have undefined values"
-                : "No correct results"}
+      <>
+        <div className={"quantilePlot" + this.state.UIDesign}>
+          {!this.state.areAllColsHidden && (
+            <div className="settings-container">
+              <div className="setting">
+                <span className="setting-label">Selection:</span>
+                <select
+                  className="setting-select"
+                  name="Selection"
+                  value={this.state.selection}
+                  onChange={this.setSelection}
+                >
+                  <optgroup label="Runsets">
+                    {this.props.tools.map((runset, i) => {
+                      return runset.columns.length !==
+                        this.props.hiddenCols[runset.toolIdx].length ? (
+                        <option
+                          key={"runset-" + i}
+                          value={"runset-" + i}
+                          name={"Runset " + i}
+                        >
+                          {getRunSetName(runset)}
+                        </option>
+                      ) : null;
+                    })}
+                  </optgroup>
+                  <optgroup label="Columns">{this.renderColumns()}</optgroup>
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">Plot:</span>
+                <select
+                  className="setting-select"
+                  name="Plot"
+                  value={this.state.plot}
+                  onChange={this.setPlot}
+                >
+                  {this.renderSettingOptions(plotOptions, "Plot")}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">Scaling:</span>
+                <select
+                  className="setting-select"
+                  name="Scaling"
+                  value={this.state.scaling}
+                  onChange={this.setScaling}
+                >
+                  {this.renderSettingOptions(scalingOptions, "Scale")}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">Results:</span>
+                <select
+                  className="setting-select"
+                  name="Results"
+                  value={this.state.results}
+                  onChange={this.setResults}
+                >
+                  {this.renderSettingOptions(resultsOptions, "Results")}
+                </select>
+              </div>
+              {!isLegendInPlot && (
+                <DiscreteColorLegend
+                  colors={EXTENDED_DISCRETE_COLOR_RANGE}
+                  items={this.renderLegend()}
+                  orientation="horizontal"
+                  onItemClick={(Object, item) => {
+                    let line = "";
+                    line = Object.title.toString();
+                    if (this.state.isInvisible.indexOf(line) < 0) {
+                      this.setState({
+                        isInvisible: this.state.isInvisible.concat([line]),
+                      });
+                    } else {
+                      return this.setState({
+                        isInvisible: this.state.isInvisible.filter((l) => {
+                          return l !== line;
+                        }),
+                      });
+                    }
+                  }}
+                />
+              )}
             </div>
-          )
-        )}
-        <button className="btn" onClick={this.toggleQuantile}>
-          {this.state.quantile
-            ? "Switch to Direct Plot"
-            : "Switch to Quantile Plot"}
-        </button>
-        <button className="btn" onClick={this.toggleLinear}>
-          {this.state.linear
-            ? "Switch to Logarithmic Scale"
-            : "Switch to Linear Scale"}
-        </button>
-        <button className="btn" onClick={this.toggleCorrect}>
-          {this.state.correct
-            ? "Switch to All Results"
-            : "Switch to Correct Results Only"}
-        </button>
-      </div>
+          )}
+          <FlexibleXYPlot
+            height={window.innerHeight - 200}
+            margin={{ left: 90 }}
+            yType={this.handleType()}
+          >
+            <VerticalGridLines />
+            <HorizontalGridLines />
+            <XAxis tickFormat={(value) => value} />
+            <YAxis tickFormat={(value) => value} />
+            {this.state.value ? <Hint value={this.state.value} /> : null}
+            {isLegendInPlot && (
+              <DiscreteColorLegend
+                colors={EXTENDED_DISCRETE_COLOR_RANGE}
+                items={this.renderLegend()}
+                onItemClick={(Object, item) => {
+                  let line = "";
+                  line = Object.title.toString();
+                  if (this.state.isInvisible.indexOf(line) < 0) {
+                    this.setState({
+                      isInvisible: this.state.isInvisible.concat([line]),
+                    });
+                  } else {
+                    return this.setState({
+                      isInvisible: this.state.isInvisible.filter((l) => {
+                        return l !== line;
+                      }),
+                    });
+                  }
+                }}
+              />
+            )}
+            {this.renderLines()}
+          </FlexibleXYPlot>
+          {this.state.areAllColsHidden ? (
+            <div className="plot__noresults">No columns to show!</div>
+          ) : (
+            this.lineCount === 0 && (
+              <div className="plot__noresults">
+                {this.hasInvalidLog
+                  ? "All results have undefined values"
+                  : "No correct results"}
+              </div>
+            )
+          )}
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            padding: ".5em",
+            fontSize: "1.5em",
+            backgroundColor: "#71bcff",
+            width: "50%",
+          }}
+        >
+          <span
+            style={{
+              paddingRight: "1em",
+            }}
+          >
+            UI Design Selection:
+          </span>
+          <select
+            style={{
+              fontSize: "1em",
+            }}
+            name="UI"
+            value={this.state.UIDesign}
+            onChange={this.setUI}
+          >
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </>
     );
   }
 }

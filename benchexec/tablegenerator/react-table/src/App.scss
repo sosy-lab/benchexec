@@ -350,10 +350,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
 .quantilePlot {
   margin: 20px;
-  select {
-    display: flex;
-    margin: auto;
-  }
+
   .rv-discrete-color-legend {
     padding: 0;
     border: 1px solid rgb(186, 186, 186);
@@ -366,23 +363,473 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       background: $hover-color;
     }
   }
+
+  .settings-container {
+    text-align: center;
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0 1em;
+
+    &-label {
+      margin-right: 0.5em;
+    }
+  }
 }
 
-.scatterPlot {
+.quantilePlot1 {
+  margin: 20px;
   text-align: center;
+
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    float: right;
+    max-width: 50%;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0 1em;
+
+    &-label {
+      margin-right: 0.5em;
+    }
+  }
+}
+
+.quantilePlot2 {
+  margin: 20px;
+  text-align: center;
+
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    float: right;
+    max-width: 50%;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0 1em;
+    background-color: $key-color;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+    padding: 0.5em 1em;
+
+    &-label {
+      margin-right: 0.5em;
+    }
+
+    &-select {
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.quantilePlot3 {
+  margin: 20px;
+
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    float: right;
+    max-width: 50%;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: flex;
+    margin: 0 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      background-color: $key-color;
+      margin-right: 0.5em;
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      border: none;
+      margin: 0.5em 1em;
+      padding-right: 5px;
+    }
+  }
+}
+
+.quantilePlot4 {
+  margin: 20px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .rv-discrete-color-legend-item {
+      min-width: 25%;
+    }
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    margin-left: 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .setting {
+    display: inline-block;
+    padding: 1em 1.5em;
+    margin: 1em 0;
+    border: 1px solid #c3c3c3;
+
+    &-label {
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.8em;
+    }
+
+    &-select {
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.quantilePlot5 {
+  margin: 20px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+
+  .rv-discrete-color-legend {
+    padding: 0;
+    border: 1px solid rgb(186, 186, 186);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .rv-discrete-color-legend-item {
+      min-width: 25%;
+    }
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    margin-left: 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 1em 0;
+    border: 1px solid #c3c3c3;
+    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      font-size: 1.2rem;
+      display: block;
+      padding: 0.4em 0;
+      background-color: $key-color;
+    }
+
+    &-select {
+      margin: 1.5em;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 5px;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.scatterPlot1 {
+  text-align: center;
+  margin: 20px;
+
   &__select select {
     margin: 10px;
   }
-  .middle-line {
-    .rv-xy-plot__axis__line {
-      stroke: $key-color;
-    }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
   }
+
   &__plot {
     margin: auto;
   }
+
   button {
     margin: 10px;
+  }
+
+  .settings-container {
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0 1em;
+
+    &-label {
+      margin-right: 0.5em;
+    }
+  }
+}
+
+.scatterPlot2 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0 1em;
+    background-color: $key-color;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+    padding: 0.5em 1em;
+
+    &-label {
+      margin-right: 0.5em;
+    }
+
+    &-select {
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+
+.scatterPlot3 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1em;
+  }
+
+  .setting {
+    display: flex;
+    margin: 0 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      background-color: $key-color;
+      margin-right: 0.5em;
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      border: none;
+      margin: 0.5em 1em;
+      padding-right: 5px;
+    }
+  }
+}
+
+.scatterPlot4 {
+  text-align: center;
+  display: flex;
+  flex-direction: row-reverse;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    margin: auto 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .setting {
+    display: inline-block;
+    padding: 1em 1.5em;
+    margin: 1em 0;
+    border: 1px solid #c3c3c3;
+
+    &-label {
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.8em;
+    }
+
+    &-select {
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.scatterPlot5 {
+  text-align: center;
+  display: flex;
+  flex-direction: row-reverse;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    margin: auto 2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 1em 0;
+    border: 1px solid #c3c3c3;
+    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      font-size: 1.2rem;
+      display: block;
+      padding: 0.4em 0;
+      background-color: $key-color;
+    }
+
+    &-select {
+      margin: 1.5em;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 5px;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
   }
 }
 

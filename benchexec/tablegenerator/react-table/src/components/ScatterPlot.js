@@ -16,20 +16,50 @@ import {
   YAxis,
   Hint,
   DecorativeAxis,
+  makeWidthFlexible,
 } from "react-vis";
 import {
   getRunSetName,
   setParam,
   getHashSearch,
   isNil,
-  stringAsBoolean,
   getFirstVisibles,
 } from "../utils/utils";
 
+const scalingOptions = {
+  linear: "Linear",
+  logarithmic: "Logarithmic",
+};
+
+const resultsOptions = {
+  all: "All",
+  correct: "Correct",
+};
+
+const lineOptions = [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  100,
+  1000,
+  10000,
+  100000,
+  1000000,
+  10000000,
+  100000000,
+];
+
 const defaultValues = {
-  correct: "true",
-  linear: "false",
+  scaling: scalingOptions.linear,
+  results: resultsOptions.correct,
   line: 10,
+  UIDesign: 1,
 };
 
 export default class ScatterPlot extends React.Component {
@@ -37,25 +67,6 @@ export default class ScatterPlot extends React.Component {
     super(props);
 
     this.state = this.setup();
-
-    this.lineValues = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      100,
-      1000,
-      10000,
-      100000,
-      1000000,
-      10000000,
-      100000000,
-    ];
     this.maxX = "";
     this.minX = "";
     this.lineCount = 1;
@@ -65,13 +76,10 @@ export default class ScatterPlot extends React.Component {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let { correct, linear, toolX, toolY, columnX, columnY, line } = {
+    let { results, scaling, toolX, toolY, columnX, columnY, line, UIDesign } = {
       ...defaultValues,
       ...getHashSearch(),
     };
-
-    correct = stringAsBoolean(correct);
-    linear = stringAsBoolean(linear);
 
     let dataX, dataY, areAllColsHidden;
 
@@ -104,8 +112,8 @@ export default class ScatterPlot extends React.Component {
     let out = {
       dataX,
       dataY,
-      correct: typeof correct === "boolean" ? correct : true,
-      linear: linear || false,
+      results,
+      scaling,
       toolX: 0,
       toolY: 0,
       line: line || 10,
@@ -114,9 +122,9 @@ export default class ScatterPlot extends React.Component {
       nameX: defaultName,
       nameY: defaultName,
       value: false,
-      width: window.innerWidth,
       height: window.innerHeight,
       areAllColsHidden,
+      UIDesign,
     };
 
     if (dataX && !areAllColsHidden) {
@@ -141,7 +149,6 @@ export default class ScatterPlot extends React.Component {
 
   updateDimensions = () => {
     this.setState({
-      width: window.innerWidth,
       height: window.innerHeight,
     });
   };
@@ -181,15 +188,19 @@ export default class ScatterPlot extends React.Component {
         const y = resY.values[this.state.columnY].raw;
         const hasValues =
           x !== undefined && x !== null && y !== undefined && y !== null;
+        const areOnlyCorrectResults =
+          this.state.results === resultsOptions.correct;
 
         if (
           hasValues &&
-          (!this.state.correct ||
-            (this.state.correct &&
+          (!areOnlyCorrectResults ||
+            (areOnlyCorrectResults &&
               resX.category === "correct" &&
               resY.category === "correct"))
         ) {
-          const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
+          const isLogAndInvalid =
+            this.state.scaling === scalingOptions.logarithmic &&
+            (x <= 0 || y <= 0);
 
           if (isLogAndInvalid) {
             this.hasInvalidLog = true;
@@ -230,22 +241,23 @@ export default class ScatterPlot extends React.Component {
     return min > 2 ? 1 : min;
   };
 
+  renderSettingOptions = (options, name) =>
+    Object.values(options).map((option) => (
+      <option value={option} key={option} name={option + " " + name}>
+        {option + " " + name}
+      </option>
+    ));
+
   // ------------------------handeling----------------------------
   handleType = (tool, column) => {
-    if (
-      this.props.tools[tool].columns[column].type === "text" ||
-      this.props.tools[tool].columns[column].type === "status"
-    ) {
+    const colType = this.props.tools[tool].columns[column].type;
+    if (colType === "text" || colType === "status") {
       return "ordinal";
     } else {
-      return this.state.linear ? "linear" : "log";
+      return this.state.scaling === scalingOptions.logarithmic
+        ? "log"
+        : "linear";
     }
-  };
-  toggleCorrectResults = () => {
-    setParam({ correct: !this.state.correct });
-  };
-  toggleLinear = () => {
-    setParam({ linear: !this.state.linear });
   };
 
   extractAxisInfoByName = (val, axis) => {
@@ -259,180 +271,257 @@ export default class ScatterPlot extends React.Component {
       ).display_title,
     };
   };
-  handleAxis = (ev, axis) => {
+
+  setAxis = (ev, axis) => {
     this.array = [];
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
-  handleLine = ({ target }) => {
-    setParam({ line: target.value });
+
+  setLine = (ev) => {
+    setParam({ line: ev.target.value });
+  };
+
+  setScaling = (ev) => {
+    setParam({ scaling: ev.target.value });
+  };
+
+  setResults = (ev) => {
+    setParam({ results: ev.target.value });
+  };
+
+  setUI = (ev) => {
+    setParam({ UIDesign: ev.target.value });
   };
 
   render() {
     this.renderData();
+    const isLinear = this.state.scaling === scalingOptions.linear;
+    const FlexibleXYPlot = makeWidthFlexible(XYPlot);
+    const showColon = [1, 2].includes(parseInt(this.state.UIDesign));
+
     return (
-      <div className="scatterPlot">
-        <div className="scatterPlot__select">
-          <span> X: </span>
-          <select
-            name="Value XAxis"
-            value={this.state.dataX}
-            onChange={(ev) => this.handleAxis(ev, "X")}
+      <>
+        <div className={"scatterPlot" + this.state.UIDesign}>
+          <div className="settings-container">
+            <div className="setting">
+              <span className="setting-label">
+                X-Axis{showColon ? ":" : ""}
+              </span>
+              <select
+                className="setting-select"
+                name="X-Axis"
+                value={this.state.dataX}
+                onChange={(ev) => this.setAxis(ev, "X")}
+              >
+                {this.renderColumns()}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">
+                Y-Axis{showColon ? ":" : ""}
+              </span>
+              <select
+                className="setting-select"
+                name="Y-Axis"
+                value={this.state.dataY}
+                onChange={(ev) => this.setAxis(ev, "Y")}
+              >
+                {this.renderColumns()}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">
+                Scaling{showColon ? ":" : ""}
+              </span>
+              <select
+                className="setting-select"
+                name="Scaling"
+                value={this.state.scaling}
+                onChange={this.setScaling}
+              >
+                {this.renderSettingOptions(scalingOptions, "Scale")}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">
+                Results{showColon ? ":" : ""}
+              </span>
+              <select
+                className="setting-select"
+                name="Results"
+                value={this.state.results}
+                onChange={this.setResults}
+              >
+                {this.renderSettingOptions(resultsOptions, "Results")}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">
+                Aux. Lines{showColon ? ":" : ""}
+              </span>
+              <select
+                className="setting-select"
+                name="Aux. Lines"
+                value={this.state.line}
+                onChange={this.setLine}
+              >
+                {this.renderSettingOptions(lineOptions, "")}
+              </select>
+            </div>
+          </div>
+          <FlexibleXYPlot
+            className="scatterPlot__plot"
+            height={this.state.height - 200}
+            margin={{ left: 90 }}
+            yType={this.handleType(this.state.toolY, this.state.columnY)}
+            xType={this.handleType(this.state.toolX, this.state.columnX)}
+            xDomain={
+              this.handleType(this.state.toolX, this.state.columnX) !==
+              "ordinal"
+                ? [this.minX, this.maxX]
+                : null
+            }
+            yDomain={
+              this.handleType(this.state.toolY, this.state.columnY) !==
+              "ordinal"
+                ? [this.minY, this.maxY]
+                : null
+            }
           >
-            {this.renderColumns()}
-          </select>
-          <span> Y: </span>
-          <select
-            name="Value YAxis"
-            value={this.state.dataY}
-            onChange={(ev) => this.handleAxis(ev, "Y")}
+            <VerticalGridLines
+              yType={this.handleType(this.state.toolY, this.state.columnY)}
+              xType={this.handleType(this.state.toolX, this.state.columnX)}
+            />
+            <HorizontalGridLines
+              yType={this.handleType(this.state.toolY, this.state.columnY)}
+              xType={this.handleType(this.state.toolX, this.state.columnX)}
+            />
+
+            <DecorativeAxis
+              className="middle-line"
+              axisStart={{
+                x: isLinear ? 0 : 1,
+                y: isLinear ? 0 : 1,
+              }}
+              axisEnd={{
+                x: this.maxX > this.maxY ? this.maxX : this.maxY,
+                y: this.maxX > this.maxY ? this.maxX : this.maxY,
+              }}
+              axisDomain={[0, 10000000000]}
+              style={{
+                ticks: { stroke: "#009440", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#009440",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              }}
+            />
+            <DecorativeAxis
+              axisStart={{
+                x: isLinear ? 0 : this.state.line,
+                y: isLinear ? 0 : 1,
+              }}
+              axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
+              axisDomain={[0, 10000000000]}
+              style={{
+                ticks: { stroke: "#ADDDE1", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#6b6b76",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              }}
+            />
+            <DecorativeAxis
+              axisStart={{
+                x: isLinear ? 0 : 1,
+                y: isLinear ? 0 : this.state.line,
+              }}
+              axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
+              axisDomain={[0, 10000000000]}
+              style={{
+                ticks: { stroke: "#ADDDE1", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#6b6b76",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              }}
+            />
+            <XAxis
+              title={this.state.nameX}
+              tickFormat={(value) => value}
+              yType={this.handleType(this.state.toolY, this.state.columnY)}
+              xType={this.handleType(this.state.toolX, this.state.columnX)}
+            />
+            <YAxis
+              title={this.state.nameY}
+              tickFormat={(value) => value}
+              yType={this.handleType(this.state.toolY, this.state.columnY)}
+              xType={this.handleType(this.state.toolX, this.state.columnX)}
+            />
+            <MarkSeries
+              data={this.dataArray}
+              onValueMouseOver={(datapoint, event) =>
+                this.setState({ value: datapoint })
+              }
+              onValueMouseOut={(datapoint, event) =>
+                this.setState({ value: null })
+              }
+            />
+            {this.state.value ? <Hint value={this.state.value} /> : null}
+          </FlexibleXYPlot>
+          {this.state.areAllColsHidden ? (
+            <div className="plot__noresults">No columns to show!</div>
+          ) : (
+            this.lineCount === 0 && (
+              <div className="plot__noresults">
+                No {this.state.results === resultsOptions.correct && "correct"}{" "}
+                results
+                {this.props.table.length > 0 && " with valid data points"}
+                {this.hasInvalidLog &&
+                  " (negative values are not shown in logarithmic plot)"}
+              </div>
+            )
+          )}
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            padding: ".5em",
+            fontSize: "1.5em",
+            backgroundColor: "#71bcff",
+          }}
+        >
+          <span
+            style={{
+              paddingRight: "1em",
+            }}
           >
-            {this.renderColumns()}
-          </select>
-          <span>Line:</span>
+            UI Design Selection:
+          </span>
           <select
-            name="Line"
-            value={this.state.line}
-            onChange={this.handleLine}
+            style={{
+              fontSize: "1em",
+            }}
+            name="UI"
+            value={this.state.UIDesign}
+            onChange={this.setUI}
           >
-            {this.lineValues.map((value) => {
-              return (
-                <option key={value} name={value} value={value}>
-                  {value}
-                </option>
-              );
-            })}
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
           </select>
         </div>
-        <XYPlot
-          className="scatterPlot__plot"
-          height={this.state.height - 200}
-          width={this.state.width - 100}
-          margin={{ left: 90 }}
-          yType={this.handleType(this.state.toolY, this.state.columnY)}
-          xType={this.handleType(this.state.toolX, this.state.columnX)}
-          xDomain={
-            this.handleType(this.state.toolX, this.state.columnX) !== "ordinal"
-              ? [this.minX, this.maxX]
-              : null
-          }
-          yDomain={
-            this.handleType(this.state.toolY, this.state.columnY) !== "ordinal"
-              ? [this.minY, this.maxY]
-              : null
-          }
-        >
-          <VerticalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
-          <HorizontalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
-
-          <DecorativeAxis
-            className="middle-line"
-            axisStart={{
-              x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : 1,
-            }}
-            axisEnd={{
-              x: this.maxX > this.maxY ? this.maxX : this.maxY,
-              y: this.maxX > this.maxY ? this.maxX : this.maxY,
-            }}
-            axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#009440", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#009440",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
-          />
-          <DecorativeAxis
-            axisStart={{
-              x: this.state.linear ? 0 : this.state.line,
-              y: this.state.linear ? 0 : 1,
-            }}
-            axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
-            axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#6b6b76",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
-          />
-          <DecorativeAxis
-            axisStart={{
-              x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : this.state.line,
-            }}
-            axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
-            axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#6b6b76",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
-          />
-          <XAxis
-            title={this.state.nameX}
-            tickFormat={(value) => value}
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
-          <YAxis
-            title={this.state.nameY}
-            tickFormat={(value) => value}
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
-          />
-          <MarkSeries
-            data={this.dataArray}
-            onValueMouseOver={(datapoint, event) =>
-              this.setState({ value: datapoint })
-            }
-            onValueMouseOut={(datapoint, event) =>
-              this.setState({ value: null })
-            }
-          />
-          {this.state.value ? <Hint value={this.state.value} /> : null}
-        </XYPlot>
-        {this.state.areAllColsHidden ? (
-          <div className="plot__noresults">No columns to show!</div>
-        ) : (
-          this.lineCount === 0 && (
-            <div className="plot__noresults">
-              No {this.state.correct && "correct"} results
-              {this.props.table.length > 0 && " with valid data points"}
-              {this.hasInvalidLog &&
-                " (negative values are not shown in logarithmic plot)"}
-            </div>
-          )
-        )}
-        <button className="btn" onClick={this.toggleLinear}>
-          {this.state.linear
-            ? "Switch to Logarithmic Scale"
-            : "Switch to Linear Scale"}
-        </button>
-        <button className="btn" onClick={this.toggleCorrectResults}>
-          {this.state.correct
-            ? "Switch to All Results"
-            : "Switch to Correct Results Only"}
-        </button>
-      </div>
+      </>
     );
   }
 }
