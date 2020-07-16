@@ -30,7 +30,7 @@ test("Click on reset button stops button from rendering", () => {
     />,
   );
 
-  expect(resetBtn.text()).toEqual("Showing 23 of 42 tasks");
+  expect(resetBtn.text()).toContain("Showing 23 of 42 tasks");
 
   resetBtn.simulate("click");
 
@@ -47,9 +47,7 @@ it("Render reset button", () => {
       className="reset"
       disabled={false}
     >
-      <span
-        className="hide"
-      >
+      <span>
         Showing 
         <span
           className="highlight"
@@ -61,6 +59,21 @@ it("Render reset button", () => {
       </span>
       42
        tasks
+      <svg
+        aria-hidden="true"
+        className="svg-inline--fa fa-filter fa-w-16 filter-icon"
+        data-icon="filter"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 512 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+          fill="currentColor"
+        />
+      </svg>
     </button>
   `);
 });
@@ -73,9 +86,7 @@ it("Hide reset button", () => {
       className="reset"
       disabled={true}
     >
-      <span
-        className="hide"
-      >
+      <span>
         Showing 
         <span
           className="highlight"
@@ -84,6 +95,21 @@ it("Hide reset button", () => {
          
       </span>
        tasks
+      <svg
+        aria-hidden="true"
+        className="svg-inline--fa fa-filter fa-w-16 filter-icon"
+        data-icon="filter"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 512 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+          fill="currentColor"
+        />
+      </svg>
     </button>
   `);
 });

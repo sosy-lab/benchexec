@@ -21,11 +21,11 @@ export default class FilterInfoButton extends React.Component {
       <span>
         Showing <span className="highlight">{this.props.filteredCount}</span> of{" "}
       </span>
-      {this.props.className.includes("tooltip") && (
+      {(this.props.className || "").includes("tooltip") && (
         <span className="tooltiptext tooltip-bottom">Open filter menu</span>
       )}
       {this.props.totalCount} tasks
-      {!this.props.className.includes("header") && (
+      {!(this.props.className || "").includes("header") && (
         <FontAwesomeIcon icon={faFilter} className="filter-icon" />
       )}
     </button>

@@ -309,6 +309,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -390,6 +391,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -411,6 +413,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -432,6 +435,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -453,6 +457,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cpuenergy_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -4822,6 +4827,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -4923,6 +4929,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -4944,6 +4951,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -4965,6 +4973,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -4986,6 +4995,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_energy-core_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5007,6 +5017,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_energy-cpu_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5028,6 +5039,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_energy-external_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5049,6 +5061,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_energy-uncore_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5070,6 +5083,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_host_8_filter"
        placeholder="text"
        type="search"
@@ -5166,6 +5180,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5187,6 +5202,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5208,6 +5224,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5305,6 +5322,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5326,6 +5344,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5347,6 +5366,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -5368,6 +5388,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_host_4_filter"
        placeholder="text"
        type="search"
@@ -18192,6 +18213,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -18283,6 +18305,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -18304,6 +18327,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -18325,6 +18349,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24633,6 +24658,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -24719,6 +24745,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24740,6 +24767,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24761,6 +24789,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24858,6 +24887,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24879,6 +24909,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24900,6 +24931,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -24987,6 +25019,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -25008,6 +25041,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -25029,6 +25063,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -25126,6 +25161,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -25147,6 +25183,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -25168,6 +25205,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27143,6 +27181,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -27239,6 +27278,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27260,6 +27300,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27281,6 +27322,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27388,6 +27430,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27409,6 +27452,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27430,6 +27474,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27527,6 +27572,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27548,6 +27594,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27569,6 +27616,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27676,6 +27724,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27697,6 +27746,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -27718,6 +27768,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -30834,6 +30885,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -30920,6 +30972,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -30940,6 +30993,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -30960,6 +31014,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -30981,6 +31036,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31002,6 +31058,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -31022,6 +31079,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31043,6 +31101,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -31139,6 +31198,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -31159,6 +31219,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -31179,6 +31240,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31200,6 +31262,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31221,6 +31284,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -31241,6 +31305,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -31261,6 +31326,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31348,6 +31414,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -31368,6 +31435,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -31388,6 +31456,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31409,6 +31478,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31430,6 +31500,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -31450,6 +31521,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31471,6 +31543,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -31567,6 +31640,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -31587,6 +31661,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -31607,6 +31682,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31628,6 +31704,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -31649,6 +31726,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -31669,6 +31747,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -31689,6 +31768,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -34724,6 +34804,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -34820,6 +34901,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -34840,6 +34922,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -34860,6 +34943,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -34881,6 +34965,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -34902,6 +34987,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -34922,6 +35008,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -34943,6 +35030,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -35049,6 +35137,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -35069,6 +35158,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -35089,6 +35179,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35110,6 +35201,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35131,6 +35223,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -35151,6 +35244,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -35171,6 +35265,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35268,6 +35363,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -35288,6 +35384,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -35308,6 +35405,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35329,6 +35427,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35350,6 +35449,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -35370,6 +35470,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35391,6 +35492,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -35497,6 +35599,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -35517,6 +35620,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -35537,6 +35641,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35558,6 +35663,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -35579,6 +35685,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -35599,6 +35706,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -35619,6 +35727,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -39797,6 +39906,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -39883,6 +39993,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -39903,6 +40014,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -39923,6 +40035,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -39944,6 +40057,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -39965,6 +40079,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -39985,6 +40100,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40006,6 +40122,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -40102,6 +40219,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -40122,6 +40240,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -40142,6 +40261,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40163,6 +40283,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40184,6 +40305,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -40204,6 +40326,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -40224,6 +40347,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40311,6 +40435,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -40331,6 +40456,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -40351,6 +40477,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40372,6 +40499,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_analysis_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40393,6 +40521,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -40413,6 +40542,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40510,6 +40640,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -40530,6 +40661,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -40550,6 +40682,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40571,6 +40704,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_analysis_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -40592,6 +40726,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -40612,6 +40747,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43519,6 +43655,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -43615,6 +43752,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -43635,6 +43773,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -43655,6 +43794,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43676,6 +43816,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43697,6 +43838,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -43717,6 +43859,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43738,6 +43881,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -43844,6 +43988,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -43864,6 +44009,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -43884,6 +44030,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43905,6 +44052,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -43926,6 +44074,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -43946,6 +44095,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -43966,6 +44116,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44063,6 +44214,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -44083,6 +44235,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -44103,6 +44256,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44124,6 +44278,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_analysis_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44145,6 +44300,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -44165,6 +44321,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44272,6 +44429,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -44292,6 +44450,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -44312,6 +44471,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44333,6 +44493,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_analysis_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -44354,6 +44515,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -44374,6 +44536,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48472,6 +48635,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -48568,6 +48732,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -48588,6 +48753,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -48608,6 +48774,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48629,6 +48796,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48650,6 +48818,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -48670,6 +48839,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48691,6 +48861,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -48792,6 +48963,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -48812,6 +48984,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -48832,6 +49005,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48853,6 +49027,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -48874,6 +49049,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -48894,6 +49070,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -48914,6 +49091,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49011,6 +49189,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -49031,6 +49210,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -49051,6 +49231,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49072,6 +49253,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49093,6 +49275,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -49113,6 +49296,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49134,6 +49318,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -49235,6 +49420,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -49255,6 +49441,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -49275,6 +49462,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49296,6 +49484,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -49317,6 +49506,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -49337,6 +49527,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -49357,6 +49548,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53024,6 +53216,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -53120,6 +53313,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -53140,6 +53334,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -53160,6 +53355,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53181,6 +53377,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53202,6 +53399,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -53222,6 +53420,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53243,6 +53442,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -53349,6 +53549,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -53369,6 +53570,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -53389,6 +53591,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53410,6 +53613,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53431,6 +53635,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -53451,6 +53656,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -53471,6 +53677,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53568,6 +53775,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_category_1_filter"
        placeholder="text"
        type="search"
@@ -53588,6 +53796,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_score_2_filter"
        placeholder="text"
        type="search"
@@ -53608,6 +53817,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53629,6 +53839,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53650,6 +53861,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -53670,6 +53882,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_SMT time_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53691,6 +53904,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
@@ -53797,6 +54011,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_category_1_filter"
        placeholder="text"
        type="search"
@@ -53817,6 +54032,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_score_2_filter"
        placeholder="text"
        type="search"
@@ -53837,6 +54053,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53858,6 +54075,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -53879,6 +54097,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -53899,6 +54118,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
@@ -53919,6 +54139,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_variable count_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -57751,6 +57972,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -57837,6 +58059,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -57858,6 +58081,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -57879,6 +58103,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -57966,6 +58191,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -57987,6 +58213,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58008,6 +58235,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58105,6 +58333,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58126,6 +58355,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58147,6 +58377,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58244,6 +58475,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58265,6 +58497,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -58286,6 +58519,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60261,6 +60495,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -60357,6 +60592,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60378,6 +60614,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60399,6 +60636,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60496,6 +60734,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60517,6 +60756,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60538,6 +60778,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60645,6 +60886,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60666,6 +60908,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60687,6 +60930,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60794,6 +61038,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60815,6 +61060,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -60836,6 +61082,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="3_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63282,6 +63529,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -63363,6 +63611,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63384,6 +63633,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63405,6 +63655,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63426,6 +63677,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Aliasing_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63447,6 +63699,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Arrays_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63468,6 +63721,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Boolean_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63489,6 +63743,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Composite types_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63510,6 +63765,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Config_8_filter"
        placeholder="text"
        type="search"
@@ -63530,6 +63786,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Floats_9_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63551,6 +63808,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_Loops_10_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -63572,6 +63830,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_host_11_filter"
        placeholder="text"
        type="search"
@@ -64897,6 +65156,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -64993,6 +65253,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -65014,6 +65275,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -65035,6 +65297,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -65132,6 +65395,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -65153,6 +65417,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -65174,6 +65439,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -66768,6 +67034,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -66864,6 +67131,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -66885,6 +67153,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -66906,6 +67175,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -67003,6 +67273,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -67024,6 +67295,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -67045,6 +67317,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -68529,6 +68802,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -68625,6 +68899,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -68645,6 +68920,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -68665,6 +68941,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_CPU Time_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -68686,6 +68963,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_setup_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -68707,6 +68985,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
@@ -69848,6 +70127,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -69944,6 +70224,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -69965,6 +70246,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_witness_2_filter"
        placeholder="text"
        type="search"
@@ -69985,6 +70267,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_benchexec_3_filter"
        placeholder="text"
        type="search"
@@ -71018,6 +71301,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -71114,6 +71398,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -71135,6 +71420,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -71156,6 +71442,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -72226,6 +72513,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -72322,6 +72610,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -72343,6 +72632,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime-h_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -72364,6 +72654,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -72385,6 +72676,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -72406,6 +72698,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory-GB_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -73846,6 +74139,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -73947,6 +74241,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -73967,6 +74262,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -73987,6 +74283,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -74008,6 +74305,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -74029,6 +74327,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -74131,6 +74430,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -74151,6 +74451,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -74171,6 +74472,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -74192,6 +74494,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -74213,6 +74516,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -75659,6 +75963,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -75770,6 +76075,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -75790,6 +76096,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_2_filter"
        placeholder="text"
        type="search"
@@ -75810,6 +76117,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -75831,6 +76139,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -75852,6 +76161,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -75954,6 +76264,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_category_1_filter"
        placeholder="text"
        type="search"
@@ -75974,6 +76285,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_score_2_filter"
        placeholder="text"
        type="search"
@@ -75994,6 +76306,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -76015,6 +76328,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -76036,6 +76350,7 @@ exports[`Render Summary for smt.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77702,6 +78017,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -77793,6 +78109,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77814,6 +78131,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77835,6 +78153,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77856,6 +78175,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cpuenergy_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77948,6 +78268,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77969,6 +78290,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -77990,6 +78312,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -78011,6 +78334,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cpuenergy_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80008,6 +80332,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -80094,6 +80419,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80115,6 +80441,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80136,6 +80463,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80233,6 +80561,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80254,6 +80583,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -80275,6 +80605,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -81337,6 +81668,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -81433,6 +81765,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_category_1_filter"
        placeholder="text"
        type="search"
@@ -81453,6 +81786,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -81474,6 +81808,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -81495,6 +81830,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -81516,6 +81852,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_exitcode_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -82702,6 +83039,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -82798,6 +83136,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -82819,6 +83158,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -82840,6 +83180,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -83857,6 +84198,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -83948,6 +84290,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -83969,6 +84312,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -83990,6 +84334,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -84011,6 +84356,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_score_4_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -84822,6 +85168,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -84918,6 +85265,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -84939,6 +85287,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -84960,6 +85309,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -85976,6 +86326,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -86077,6 +86428,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -86098,6 +86450,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -86119,6 +86472,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -87012,6 +87366,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -87113,6 +87468,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -87134,6 +87490,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -87155,6 +87512,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88206,6 +88564,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -88302,6 +88661,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88323,6 +88683,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88344,6 +88705,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88451,6 +88813,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88472,6 +88835,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -88493,6 +88857,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90072,6 +90437,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -90158,6 +90524,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90179,6 +90546,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90200,6 +90568,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90292,6 +90661,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90313,6 +90683,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -90334,6 +90705,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91312,6 +91684,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -91408,6 +91781,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91429,6 +91803,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91450,6 +91825,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91552,6 +91928,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91573,6 +91950,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -91594,6 +91972,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -92981,6 +93360,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -93067,6 +93447,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -93088,6 +93469,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -93109,6 +93491,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -93206,6 +93589,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -93227,6 +93611,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -93248,6 +93633,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94394,6 +94780,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -94490,6 +94877,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94511,6 +94899,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94532,6 +94921,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94639,6 +95029,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94660,6 +95051,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -94681,6 +95073,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96212,6 +96605,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -96308,6 +96702,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96329,6 +96724,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96350,6 +96746,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96437,6 +96834,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96458,6 +96856,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -96479,6 +96878,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97649,6 +98049,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -97755,6 +98156,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97776,6 +98178,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97797,6 +98200,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97894,6 +98298,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97915,6 +98320,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -97936,6 +98342,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99515,6 +99922,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -99601,6 +100009,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99622,6 +100031,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99643,6 +100053,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99740,6 +100151,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99761,6 +100173,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -99782,6 +100195,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -100952,6 +101366,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -101048,6 +101463,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -101069,6 +101485,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -101090,6 +101507,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -101197,6 +101615,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -101218,6 +101637,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -101239,6 +101659,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -102818,6 +103239,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -102904,6 +103326,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -102925,6 +103348,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -102946,6 +103370,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -103043,6 +103468,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -103064,6 +103490,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -103085,6 +103512,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104255,6 +104683,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -104351,6 +104780,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104372,6 +104802,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104393,6 +104824,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104500,6 +104932,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104521,6 +104954,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -104542,6 +104976,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106121,6 +106556,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -106207,6 +106643,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106228,6 +106665,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106249,6 +106687,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106346,6 +106785,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106367,6 +106807,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -106388,6 +106829,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107558,6 +108000,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -107654,6 +108097,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107675,6 +108119,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107696,6 +108141,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107803,6 +108249,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107824,6 +108271,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -107845,6 +108293,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109582,6 +110031,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -109668,6 +110118,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109689,6 +110140,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109710,6 +110162,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109807,6 +110260,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109828,6 +110282,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109849,6 +110304,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109936,6 +110392,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109957,6 +110414,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -109978,6 +110436,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111558,6 +112017,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -111654,6 +112114,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111675,6 +112136,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111696,6 +112158,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111803,6 +112266,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111824,6 +112288,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111845,6 +112310,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111942,6 +112408,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111963,6 +112430,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -111984,6 +112452,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="2_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -113983,6 +114452,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -114069,6 +114539,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -114090,6 +114561,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -114111,6 +114583,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -114208,6 +114681,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -114229,6 +114703,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -114250,6 +114725,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116056,6 +116532,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -116152,6 +116629,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116173,6 +116651,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116194,6 +116673,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116301,6 +116781,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116322,6 +116803,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -116343,6 +116825,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="1_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -118829,6 +119312,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -118925,6 +119409,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -118946,6 +119431,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -118967,6 +119453,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -119983,6 +120470,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="id_filter"
        placeholder="text"
        type="search"
@@ -120084,6 +120572,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_cputime_1_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -120105,6 +120594,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_walltime_2_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
@@ -120126,6 +120616,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
       tabIndex="-1"
      >
       <input
+       disabled={false}
        id="0_memory_3_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"

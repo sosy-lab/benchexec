@@ -48,21 +48,21 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
     <h4
       className="title"
     >
-      cputime
+      cputime 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
@@ -96,9 +96,9 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         className="rc-slider-track rc-slider-track-1"
         style={
           Object {
-            "left": "2.0999999999999996%",
+            "left": "1.9999999999999998%",
             "right": "auto",
-            "width": "19.6%",
+            "width": "20%",
           }
         }
       />
@@ -109,7 +109,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         aria-disabled={false}
         aria-valuemax={9001}
         aria-valuemin={1337}
-        aria-valuenow={1497.944}
+        aria-valuenow={1490.28}
         className="rc-slider-handle rc-slider-handle-1"
         onBlur={[Function]}
         onKeyDown={[Function]}
@@ -119,7 +119,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         role="slider"
         style={
           Object {
-            "left": "2.0999999999999996%",
+            "left": "1.9999999999999998%",
             "right": "auto",
             "transform": "translateX(-50%)",
           }
@@ -130,7 +130,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         aria-disabled={false}
         aria-valuemax={9001}
         aria-valuemin={1337}
-        aria-valuenow={3000.088}
+        aria-valuenow={3023.08}
         className="rc-slider-handle rc-slider-handle-2"
         onBlur={[Function]}
         onKeyDown={[Function]}
@@ -140,7 +140,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         role="slider"
         style={
           Object {
-            "left": "21.700000000000003%",
+            "left": "22%",
             "right": "auto",
             "transform": "translateX(-50%)",
           }
@@ -167,6 +167,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         maximum
       </label>
       <input
+        lang="en-US"
         name="inp-undefined-min"
         onChange={[Function]}
         step={7.664}
@@ -174,6 +175,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
         value={1500}
       />
       <input
+        lang="en-US"
         name="inp-undefined-max"
         onChange={[Function]}
         step={7.664}
@@ -195,21 +197,21 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
     <h4
       className="title"
     >
-      Status
+      Status 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
@@ -217,9 +219,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
   <div
     className="filter-card--body"
   >
-    <b>
-      Category
-    </b>
+    Category
     <ul
       className="filter-card--body--list"
     >
@@ -232,6 +232,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
         />
         <label
           htmlFor="cat-cat1"
+          onClick={[Function]}
         >
           cat1
         </label>
@@ -245,6 +246,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
         />
         <label
           htmlFor="cat-correct"
+          onClick={[Function]}
         >
           correct
         </label>
@@ -258,14 +260,13 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
         />
         <label
           htmlFor="cat-wrong"
+          onClick={[Function]}
         >
           wrong
         </label>
       </li>
     </ul>
-    <b>
-      Status
-    </b>
+    Status
     <ul
       className="filter-card--body--list"
     >
@@ -278,6 +279,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
         />
         <label
           htmlFor="stat-true"
+          onClick={[Function]}
         >
           true
         </label>
@@ -291,6 +293,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
         />
         <label
           htmlFor="stat-false(reach)"
+          onClick={[Function]}
         >
           false(reach)
         </label>
@@ -310,21 +313,21 @@ exports[`FilterCard tests FilterCard should correctly reflect already set text f
     <h4
       className="title"
     >
-      host
+      host 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
@@ -353,21 +356,21 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
     <h4
       className="title"
     >
-      Status
+      Status 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
@@ -375,9 +378,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
   <div
     className="filter-card--body"
   >
-    <b>
-      Category
-    </b>
+    Category
     <ul
       className="filter-card--body--list"
     >
@@ -390,6 +391,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
         />
         <label
           htmlFor="cat-cat1"
+          onClick={[Function]}
         >
           cat1
         </label>
@@ -403,6 +405,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
         />
         <label
           htmlFor="cat-correct"
+          onClick={[Function]}
         >
           correct
         </label>
@@ -416,14 +419,13 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
         />
         <label
           htmlFor="cat-wrong"
+          onClick={[Function]}
         >
           wrong
         </label>
       </li>
     </ul>
-    <b>
-      Status
-    </b>
+    Status
     <ul
       className="filter-card--body--list"
     >
@@ -436,6 +438,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
         />
         <label
           htmlFor="stat-true"
+          onClick={[Function]}
         >
           true
         </label>
@@ -449,6 +452,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
         />
         <label
           htmlFor="stat-false(reach)"
+          onClick={[Function]}
         >
           false(reach)
         </label>
@@ -468,21 +472,21 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
     <h4
       className="title"
     >
-      cputime
+      cputime 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
@@ -587,6 +591,7 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
         maximum
       </label>
       <input
+        lang="en-US"
         name="inp-undefined-min"
         onChange={[Function]}
         step={7.664}
@@ -594,6 +599,7 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
         value={1337}
       />
       <input
+        lang="en-US"
         name="inp-undefined-max"
         onChange={[Function]}
         step={7.664}
@@ -615,21 +621,21 @@ exports[`FilterCard tests FilterCard should display textbox for text filters 1`]
     <h4
       className="title"
     >
-      host
+      host 
     </h4>
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-times fa-w-11 delete-button"
-      data-icon="times"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
       data-prefix="fas"
       focusable="false"
       onClick={[Function]}
       role="img"
-      viewBox="0 0 352 512"
+      viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
         fill="currentColor"
       />
     </svg>
