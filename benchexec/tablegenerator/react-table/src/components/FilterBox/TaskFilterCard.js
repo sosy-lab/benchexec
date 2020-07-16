@@ -56,7 +56,7 @@ export default class TaskFilterCard extends React.PureComponent {
         const id = `text-task-${key}`;
         return (
           <div key={id} className="task-id-filters">
-            <label htmlFor={id}>{`Task id: ${key}`}</label>
+            <label htmlFor={id}>{key}</label>
             <br />
             <input
               type="text"
