@@ -173,7 +173,7 @@ export default function Table(props) {
   const createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
-    show: column.isVisible,
+    show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
     minWidth: determineColumnWidth(column, 10),
     accessor: (row) => row.results[runSetIdx].values[columnIdx],
     Cell: (cell) => {
@@ -278,7 +278,7 @@ export default function Table(props) {
     return {
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
-      show: column.isVisible,
+      show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
       minWidth: determineColumnWidth(column),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
       Cell: (cell) => (

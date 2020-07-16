@@ -328,11 +328,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         This function initializes the cgroups for the limitations and measurements.
         """
         self.cgroups = find_my_cgroups()
+        critical_cgroups = set()
 
         for subsystem in self._cgroup_subsystems:
             self.cgroups.require_subsystem(subsystem)
             if subsystem not in self.cgroups:
-                sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
+                critical_cgroups.add(subsystem)
+                logging.error(
+                    'Cgroup subsystem "%s" was required but is not available.',
+                    subsystem,
+                )
 
         # Feature is still experimental, do not warn loudly
         self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
@@ -345,7 +350,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups and not self._use_namespaces:
-            sys.exit(
+            critical_cgroups.add(FREEZER)
+            logging.error(
                 "Cannot reliably kill sub-processes without freezer cgroup "
                 "or container mode. Please enable at least one of them."
             )
@@ -372,9 +378,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             try:
                 self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
             except ValueError as e:
-                logging.warning(
-                    "Could not read available CPU cores from kernel: %s", e.strerror
-                )
+                logging.warning("Could not read available CPU cores from kernel: %s", e)
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
@@ -386,6 +390,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     "Could not read available memory nodes from kernel: %s", e.strerror
                 )
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
+
+        self.cgroups.handle_errors(critical_cgroups)
 
     # --- utility functions ---
 
@@ -511,7 +517,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment = {}
         else:
             run_environment = os.environ.copy()
-        for key, value in environments.get("keepEnv", {}).items():
+        for key in environments.get("keepEnv", {}).keys():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
         for key, value in environments.get("newEnv", {}).items():
@@ -664,18 +670,24 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         elif stdin is None:
             stdin = subprocess.DEVNULL
 
+        critical_cgroups = set()
+
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit("Invalid time limit {0}.".format(hardtimelimit))
             if CPUACCT not in self.cgroups:
-                sys.exit("Time limit cannot be specified without cpuacct cgroup.")
+                logging.error("Time limit cannot be specified without cpuacct cgroup.")
+                critical_cgroups.add(CPUACCT)
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
             if CPUACCT not in self.cgroups:
-                sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
+                logging.error(
+                    "Soft time limit cannot be specified without cpuacct cgroup."
+                )
+                critical_cgroups.add(CPUACCT)
 
         if walltimelimit is None:
             if hardtimelimit is not None:
@@ -688,10 +700,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if cores is not None:
             if self.cpus is None:
-                sys.exit("Cannot limit CPU cores without cpuset cgroup.")
-            if not cores:
+                logging.error("Cannot limit CPU cores without cpuset cgroup.")
+                critical_cgroups.add(CPUSET)
+            elif not cores:
                 sys.exit("Cannot execute run without any CPU core.")
-            if not set(cores).issubset(self.cpus):
+            elif not set(cores).issubset(self.cpus):
                 sys.exit(
                     "Cores {0} are not allowed to be used".format(
                         list(set(cores).difference(self.cpus))
@@ -702,16 +715,18 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
             if MEMORY not in self.cgroups:
-                sys.exit(
+                logging.error(
                     "Memory limit specified, but cannot be implemented without cgroup support."
                 )
+                critical_cgroups.add(MEMORY)
 
         if memory_nodes is not None:
             if self.memory_nodes is None:
-                sys.exit("Cannot restrict memory nodes without cpuset cgroup.")
-            if len(memory_nodes) == 0:
+                logging.error("Cannot restrict memory nodes without cpuset cgroup.")
+                critical_cgroups.add(CPUSET)
+            elif len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
-            if not set(memory_nodes).issubset(self.memory_nodes):
+            elif not set(memory_nodes).issubset(self.memory_nodes):
                 sys.exit(
                     "Memory nodes {0} are not allowed to be used".format(
                         list(set(memory_nodes).difference(self.memory_nodes))
@@ -727,6 +742,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 sys.exit(
                     "Permission denied for working directory {0}.".format(workingDir)
                 )
+
+        self.cgroups.handle_errors(critical_cgroups)
 
         for ((subsystem, option), _) in cgroupValues.items():
             if subsystem not in self._cgroup_subsystems:

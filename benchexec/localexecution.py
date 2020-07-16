@@ -78,9 +78,11 @@ def execute_benchmark(benchmark, output_handler):
 
     if CORELIMIT in benchmark.rlimits:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
-            sys.exit(
-                "Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes."
+            logging.error(
+                "Cgroup subsystem cpuset is required "
+                "for limiting the number of CPU cores/memory nodes."
             )
+            my_cgroups.handle_errors({cgroups.CPUSET})
         coreAssignment = resources.get_cpu_cores_per_run(
             benchmark.rlimits[CORELIMIT],
             benchmark.num_of_threads,

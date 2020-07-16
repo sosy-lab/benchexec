@@ -33,6 +33,9 @@ except ImportError:
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
+TIMESTAMP_FILENAME_FORMAT = "%Y-%m-%d_%H-%M-%S"
+"""Our standard timestamp format for file names (without colons etc.)"""
+
 
 def printOut(value, end="\n"):
     """
@@ -342,7 +345,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
         def onerror(*args):
             raise
 
-    for root, dirs, unused_files in os.walk(path):
+    for root, dirs, _unused_files in os.walk(path):
         for directory in dirs:
             try:
                 abs_directory = os.path.join(root, directory)

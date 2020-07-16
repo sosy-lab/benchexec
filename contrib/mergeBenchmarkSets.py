@@ -130,7 +130,7 @@ def main(argv=None):
                         statusWit, categoryWit = (status_from_verification, "correct")
                         category_from_verification = "correct"
                         scoreColumn = ElementTree.Element(
-                            "column", {"title": "score", "value": "1"}
+                            "column", title="score", value="1"
                         )
                         result_tag.append(scoreColumn)
                 elif result_tag.get("properties") == "coverage-branches":
@@ -149,8 +149,7 @@ def main(argv=None):
                     except ValueError:
                         continue
                     scoreColumn = ElementTree.Element(
-                        "column",
-                        {"title": "score", "value": str(coverage_float / 100)},
+                        "column", title="score", value=str(coverage_float / 100)
                     )
                     result_tag.append(scoreColumn)
                 else:

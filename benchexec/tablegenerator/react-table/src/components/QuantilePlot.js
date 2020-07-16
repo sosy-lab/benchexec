@@ -23,6 +23,7 @@ import {
   setParam,
   getHashSearch,
   stringAsBoolean,
+  getFirstVisibles,
 } from "../utils/utils";
 
 const defaultValues = {
@@ -42,7 +43,7 @@ export default class QuantilePlot extends React.Component {
   setup() {
     const queryProps = getHashSearch();
 
-    let { column, quantile, linear, correct } = {
+    let { selection, quantile, linear, correct } = {
       ...defaultValues,
       ...queryProps,
     };
@@ -51,35 +52,85 @@ export default class QuantilePlot extends React.Component {
     linear = stringAsBoolean(linear);
     correct = stringAsBoolean(correct);
 
-    const parameterSelection = column
-      ? this.props.tools
-          .map((tool) => tool.columns)
-          .flat()
-          .find((col) => col.display_title === column)
-      : this.props.preSelection;
+    const initialSelection = selection;
+    const toolIdxes = this.props.tools.map((tool) => tool.toolIdx).join("");
+    const runsetPattern = new RegExp("runset-[" + toolIdxes + "]");
 
-    const visibleColumn = parameterSelection.isVisible
-      ? parameterSelection
-      : this.props.tools
-          .map((tool) => tool.columns)
-          .flat()
-          .some((col) => col.isVisible);
+    const isValue = selection === undefined || !runsetPattern.test(selection);
+
+    if (isValue) {
+      let selectedCol = selection
+        ? this.props.tools
+            .map((tool) => tool.columns)
+            .flat()
+            .find((col) => col.display_title === selection)
+        : this.props.preSelection;
+
+      /* If the defined col does not match any of the columns of the runsets or is not visible in any of the runsets,
+         the first visible column that is not of the type status of the first visible runset will be shown instead. In case
+         there is no such column, the first column of the type status will be selected. */
+      if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
+        const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+          this.props.tools,
+          this.props.hiddenCols,
+        );
+        selectedCol =
+          firstVisibleTool !== undefined
+            ? this.props.tools
+                .find((tool) => tool.toolIdx === firstVisibleTool)
+                .columns.find((col) => col.colIdx === firstVisibleColumn)
+            : undefined;
+      }
+
+      selection = selectedCol && selectedCol.display_title;
+    } else {
+      let toolIdx = parseInt(selection.split("-")[1]);
+      const selectedTool = this.props.tools.find(
+        (tool) => tool.toolIdx === toolIdx,
+      );
+      const hasToolAnyVisibleCols = selectedTool.columns.some(
+        (col) => !this.props.hiddenCols[toolIdx].includes(col.colIdx),
+      );
+
+      /* If the selected runset has no visible cols, i.e. the runset itself is hidden, the first visible runset will be
+         shown instead. */
+      if (!hasToolAnyVisibleCols) {
+        toolIdx = getFirstVisibles(this.props.tools, this.props.hiddenCols)[0];
+      }
+      selection = toolIdx !== undefined ? "runset-" + toolIdx : undefined;
+    }
+
+    /* If there was an initial selection (= URl parameter) and there is still a selection (= a visible column/runset) and
+     they differ, then the initial selection was a hidden column/runset and therefore another column/runset was selected
+     to be shown. In this case, update the URL parameter to correctly define the selection that is actually being shown now. */
+    if (initialSelection && selection && initialSelection !== selection) {
+      setParam({ selection });
+    }
+
     return {
-      selection: visibleColumn && visibleColumn.display_title,
+      selection: selection,
       quantile: quantile,
       linear: linear,
       correct: correct,
-      isValue: true, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
+      isValue: isValue, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       isInvisible: [],
+      areAllColsHidden: selection === undefined,
     };
   }
 
-  static relevantColumn = (column) =>
-    column.isVisible && column.type !== "text" && column.type !== "status";
+  isColRelevantForTool = (colIdx, toolIdx) =>
+    !this.props.hiddenCols[toolIdx].includes(colIdx) &&
+    colIdx.type !== "text" &&
+    colIdx.type !== "status";
 
-  relevantRunSet = (tool) =>
-    tool.isVisible &&
-    tool.columns.some((c) => c.display_title === this.state.selection);
+  isToolRelevantForCol = (tool, colName) => {
+    const colInTool = tool.columns.find((col) => col.display_title === colName);
+    return (
+      tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length &&
+      colInTool &&
+      !this.props.hiddenCols[tool.toolIdx].includes(colInTool.colIdx)
+    );
+  };
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
@@ -103,11 +154,21 @@ export default class QuantilePlot extends React.Component {
     this.setState(this.setup());
   };
 
+  isColVisibleInAnyTool(column) {
+    return this.props.tools.some((tool) =>
+      tool.columns.some(
+        (col) =>
+          col.colIdx === column.colIdx &&
+          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
+      ),
+    );
+  }
+
   // --------------------rendering-----------------------------
   renderLegend = () => {
     if (this.state.isValue) {
       return this.props.tools
-        .filter(this.relevantRunSet)
+        .filter((tool) => this.isToolRelevantForCol(tool, this.state.selection))
         .map(getRunSetName)
         .map((c) => {
           return {
@@ -116,16 +177,21 @@ export default class QuantilePlot extends React.Component {
           };
         });
     } else {
-      return this.props.tools[this.state.selection.split("-")[1]].columns
-        .filter(QuantilePlot.relevantColumn)
-        .map((c) => {
-          return {
-            title: c.display_title,
-            disabled: this.state.isInvisible.some(
-              (el) => el === c.display_title,
-            ),
-          };
-        });
+      const tool = this.props.tools[this.state.selection.split("-")[1]];
+      return !this.state.areAllColsHidden
+        ? tool.columns
+            .filter((col) =>
+              this.isColRelevantForTool(col.colIdx, tool.toolIdx),
+            )
+            .map((c) => {
+              return {
+                title: c.display_title,
+                disabled: this.state.isInvisible.some(
+                  (el) => el === c.display_title,
+                ),
+              };
+            })
+        : [];
     }
   };
 
@@ -137,30 +203,40 @@ export default class QuantilePlot extends React.Component {
       this.props.tools.forEach((tool, i) => this.renderData(task, i, task + i));
     } else {
       //var 2: compare different values of one RunSet
-      const index = this.state.selection.split("-")[1];
-      this.props.tools[index].columns
-        .filter(QuantilePlot.relevantColumn)
-        .forEach((column) =>
-          this.renderData(column.display_title, index, column.display_title),
-        );
+      if (!this.state.areAllColsHidden) {
+        const index = this.state.selection.split("-")[1];
+        const tool = this.props.tools[index];
+        tool.columns
+          .filter(
+            (col) =>
+              this.isColRelevantForTool(col.colIdx, tool.toolIdx) &&
+              !this.props.hiddenCols[index].includes(col.colIdx),
+          )
+          .forEach((column) =>
+            this.renderData(column.display_title, index, column.display_title),
+          );
+      }
     }
   };
 
-  renderData = (column, tool, field) => {
+  renderData = (column, toolIdx, field) => {
     const isOrdinal = this.handleType() === "ordinal";
     let arrayY = [];
-    const index = this.props.tools[tool].columns.findIndex(
+    const colIdx = this.props.tools[toolIdx].columns.findIndex(
       (value) => value.display_title === column,
     );
 
-    if (!this.state.isValue || index >= 0) {
+    if (
+      !this.state.isValue ||
+      (colIdx >= 0 && !this.props.hiddenCols[toolIdx].includes(colIdx))
+    ) {
       arrayY = this.props.table.map((runSet) => {
         // Get y value if it should be shown and normalize it.
         // For correct x values, arrayY needs to have same length as table.
-        const runResult = runSet.results[tool];
+        const runResult = runSet.results[toolIdx];
         let value = null;
         if (!this.state.correct || runResult.category === "correct") {
-          value = runResult.values[index].raw;
+          value = runResult.values[colIdx].raw;
           if (value === undefined) {
             value = null;
           }
@@ -217,7 +293,7 @@ export default class QuantilePlot extends React.Component {
     this.props.tools.forEach((tool) => {
       tool.columns.forEach((column) => {
         if (
-          column.isVisible &&
+          !this.props.hiddenCols[tool.toolIdx].includes(column.colIdx) &&
           !this.possibleValues.some(
             (value) => value.display_title === column.display_title,
           )
@@ -251,7 +327,7 @@ export default class QuantilePlot extends React.Component {
       return this.props.tools
         .map((tool, i) => {
           // Cannot use filter() because we need original value of i
-          if (!this.relevantRunSet(tool)) {
+          if (!this.isToolRelevantForCol(tool, this.state.selection)) {
             return null;
           }
           const task = this.state.selection;
@@ -276,29 +352,31 @@ export default class QuantilePlot extends React.Component {
         })
         .filter((el) => !!el);
     } else {
-      const index = this.state.selection.split("-")[1];
+      if (!this.state.areAllColsHidden) {
+        const index = this.state.selection.split("-")[1];
+        const tool = this.props.tools[index];
+        return tool.columns
+          .filter((col) => this.isColRelevantForTool(col.colIdx, tool.toolIdx))
+          .map((column) => {
+            const data = this[column.display_title];
+            this.lineCount++;
 
-      return this.props.tools[index].columns
-        .filter(QuantilePlot.relevantColumn)
-        .map((column) => {
-          const data = this[column.display_title];
-          this.lineCount++;
-
-          return (
-            <LineMarkSeries
-              data={data}
-              key={column.display_title}
-              color={color()}
-              opacity={this.handleLineState(column.display_title)}
-              onValueMouseOver={(datapoint, event) =>
-                this.setState({ value: datapoint })
-              }
-              onValueMouseOut={(datapoint, event) =>
-                this.setState({ value: null })
-              }
-            />
-          );
-        });
+            return (
+              <LineMarkSeries
+                data={data}
+                key={column.display_title}
+                color={color()}
+                opacity={this.handleLineState(column.display_title)}
+                onValueMouseOver={(datapoint, event) =>
+                  this.setState({ value: datapoint })
+                }
+                onValueMouseOut={(datapoint, event) =>
+                  this.setState({ value: null })
+                }
+              />
+            );
+          });
+      }
     }
   };
   // ------------------------handeling----------------------------
@@ -307,31 +385,16 @@ export default class QuantilePlot extends React.Component {
   };
 
   handleColumn = (ev) => {
-    setParam({ column: ev.target.value });
-    this.setState({
-      selection: ev.target.value,
-      isValue: this.props.tools.some((tool) =>
-        tool.columns.some((value) => value.display_title === ev.target.value),
-      ),
-    });
+    setParam({ selection: ev.target.value });
   };
   toggleQuantile = () => {
     setParam({ quantile: !this.state.quantile });
-    this.setState((prevState) => ({
-      quantile: !prevState.quantile,
-    }));
   };
   toggleCorrect = () => {
     setParam({ correct: !this.state.correct });
-    this.setState((prevState) => ({
-      correct: !prevState.correct,
-    }));
   };
   toggleLinear = () => {
     setParam({ linear: !this.state.linear });
-    this.setState((prevState) => ({
-      linear: !prevState.linear,
-    }));
   };
   toggleShow = ({ target }) => {
     this.setState({
@@ -344,8 +407,8 @@ export default class QuantilePlot extends React.Component {
     const index = this.possibleValues.findIndex(
       (value) => value.display_title === selection,
     );
-    const type = this.state.isValue ? this.possibleValues[index].type : null;
-
+    const type =
+      this.state.isValue && index >= 0 ? this.possibleValues[index].type : null;
     return this.state.isValue && (type === "text" || type === "status")
       ? "ordinal"
       : this.state.linear
@@ -356,26 +419,29 @@ export default class QuantilePlot extends React.Component {
   render() {
     return (
       <div className="quantilePlot">
-        <select
-          name="Select Column"
-          value={this.state.selection}
-          onChange={this.handleColumn}
-        >
-          <optgroup label="Run sets">
-            {this.props.tools.map((runset, i) => {
-              return runset.isVisible ? (
-                <option
-                  key={"runset-" + i}
-                  value={"runset-" + i}
-                  name={"runset-" + i}
-                >
-                  {getRunSetName(runset)}
-                </option>
-              ) : null;
-            })}
-          </optgroup>
-          <optgroup label="Columns">{this.renderColumns()}</optgroup>
-        </select>
+        {!this.state.areAllColsHidden && (
+          <select
+            name="Select Column"
+            value={this.state.selection}
+            onChange={this.handleColumn}
+          >
+            <optgroup label="Run sets">
+              {this.props.tools.map((runset, i) => {
+                return runset.columns.length !==
+                  this.props.hiddenCols[runset.toolIdx].length ? (
+                  <option
+                    key={"runset-" + i}
+                    value={"runset-" + i}
+                    name={"runset-" + i}
+                  >
+                    {getRunSetName(runset)}
+                  </option>
+                ) : null;
+              })}
+            </optgroup>
+            <optgroup label="Columns">{this.renderColumns()}</optgroup>
+          </select>
+        )}
         <XYPlot
           height={window.innerHeight - 200}
           width={window.innerWidth - 100}
@@ -408,12 +474,16 @@ export default class QuantilePlot extends React.Component {
           />
           {this.renderLines()}
         </XYPlot>
-        {this.lineCount === 0 && (
-          <div className="plot__noresults">
-            {this.hasInvalidLog
-              ? "All results have undefined values"
-              : "No correct results"}
-          </div>
+        {this.state.areAllColsHidden ? (
+          <div className="plot__noresults">No columns to show!</div>
+        ) : (
+          this.lineCount === 0 && (
+            <div className="plot__noresults">
+              {this.hasInvalidLog
+                ? "All results have undefined values"
+                : "No correct results"}
+            </div>
+          )
         )}
         <button className="btn" onClick={this.toggleQuantile}>
           {this.state.quantile

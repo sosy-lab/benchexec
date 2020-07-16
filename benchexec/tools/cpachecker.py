@@ -66,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def _find_newest_mtime(self, path):
         mtime = 0
-        for root, dirs, files, rootfd in os.fwalk(path):
+        for _root, _dirs, files, rootfd in os.fwalk(path):
             for f in files:
                 mtime = max(mtime, os.stat(f, dir_fd=rootfd).st_mtime)
 
@@ -191,7 +191,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
                 if not status:
                     status = newStatus
-                elif newStatus != result.RESULT_UNKNOWN:
+                elif newStatus != result.RESULT_UNKNOWN and status != newStatus:
                     status = "{0} ({1})".format(status, newStatus)
             elif line == "Finished." and not status:
                 status = result.RESULT_DONE

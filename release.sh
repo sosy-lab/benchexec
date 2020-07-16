@@ -24,7 +24,7 @@ if [ "$VERSION" = "$OLD_VERSION" ]; then
   echo "Version already exists."
   exit 1
 fi
-if ! grep -q "BenchExec $VERSION" CHANGELOG.md; then
+if ! grep -q "^#* *BenchExec $VERSION" CHANGELOG.md; then
   echo "Cannot release version without changelog, please update CHANGELOG.md"
   exit 1
 fi
@@ -100,7 +100,7 @@ rm -rf "$TEMP_DEB"
 for f in "$DIST_DIR/"*; do
   gpg --detach-sign -a "$f"
 done
-git tag -s "$VERSION" -m "Relase $VERSION"
+git tag -s "$VERSION" -m "Release $VERSION"
 
 
 # Upload and finish

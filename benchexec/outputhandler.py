@@ -24,8 +24,8 @@ from benchexec import intel_cpu_energy
 from benchexec import result
 from benchexec import util
 
-RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 2.3//EN"
-RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-2.3.dtd"
+RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN"
+RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.0.dtd"
 
 # colors for column status in terminal
 COLOR_GREEN = "\033[32;1m{0}\033[m"
@@ -136,19 +136,17 @@ class OutputHandler(object):
             if systemInfo.attrib["hostname"] == hostname:
                 return
 
-        osElem = ElementTree.Element("os", {"name": opSystem})
+        osElem = ElementTree.Element("os", name=opSystem)
         cpuElem = ElementTree.Element(
             "cpu",
-            {
-                "model": cpu_model,
-                "cores": cpu_number_of_cores,
-                "frequency": str(cpu_max_frequency) + "Hz",
-            },
+            model=cpu_model,
+            cores=cpu_number_of_cores,
+            frequency=str(cpu_max_frequency) + "Hz",
         )
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
-        ramElem = ElementTree.Element("ram", {"size": str(memory) + "B"})
-        systemInfo = ElementTree.Element("systeminfo", {"hostname": hostname})
+        ramElem = ElementTree.Element("ram", size=str(memory) + "B")
+        systemInfo = ElementTree.Element("systeminfo", hostname=hostname)
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
@@ -160,7 +158,7 @@ class OutputHandler(object):
         if runSet:
             # insert before <run> tags to conform with DTD
             i = None
-            for i, elem in enumerate(runSet.xml):
+            for i, elem in enumerate(runSet.xml):  # noqa: B007
                 if elem.tag == "run":
                     break
             if i is None:
@@ -182,15 +180,13 @@ class OutputHandler(object):
         # store benchmarkInfo in XML
         self.xml_header = ElementTree.Element(
             "result",
-            {
-                "benchmarkname": self.benchmark.name,
-                "date": self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
-                "starttime": self.benchmark.start_time.isoformat(),
-                "tool": self.benchmark.tool_name,
-                "version": version,
-                "toolmodule": self.benchmark.tool_module,
-                "generator": "BenchExec " + benchexec.__version__,
-            },
+            benchmarkname=self.benchmark.name,
+            date=self.benchmark.start_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+            starttime=self.benchmark.start_time.isoformat(),
+            tool=self.benchmark.tool_name,
+            version=version,
+            toolmodule=self.benchmark.tool_module,
+            generator="BenchExec " + benchexec.__version__,
         )
         if self.benchmark.display_name:
             self.xml_header.set("displayName", self.benchmark.display_name)
@@ -209,11 +205,11 @@ class OutputHandler(object):
 
         # store columnTitles in XML, this are the default columns, that are shown in a default html-table from table-generator
         columntitlesElem = ElementTree.Element("columns")
-        columntitlesElem.append(ElementTree.Element("column", {"title": "status"}))
-        columntitlesElem.append(ElementTree.Element("column", {"title": "cputime"}))
-        columntitlesElem.append(ElementTree.Element("column", {"title": "walltime"}))
+        columntitlesElem.append(ElementTree.Element("column", title="status"))
+        columntitlesElem.append(ElementTree.Element("column", title="cputime"))
+        columntitlesElem.append(ElementTree.Element("column", title="walltime"))
         for column in self.benchmark.columns:
-            columnElem = ElementTree.Element("column", {"title": column.title})
+            columnElem = ElementTree.Element("column", title=column.title)
             columntitlesElem.append(columnElem)
         self.xml_header.append(columntitlesElem)
 
@@ -370,20 +366,25 @@ class OutputHandler(object):
                 adjusted_identifier = run.identifier
 
             # prepare XML structure for each run and runSet
-            run_attributes = {"name": adjusted_identifier}
+            run.xml = ElementTree.Element("run", name=adjusted_identifier)
             if run.sourcefiles:
-                adjusted_sourcefiles = [
+                adjusted_sourcefiles = (
                     util.relative_path(s, xml_file_name) for s in run.sourcefiles
-                ]
-                run_attributes["files"] = "[" + ", ".join(adjusted_sourcefiles) + "]"
-            run.xml = ElementTree.Element("run", run_attributes)
+                )
+                run.xml.set("files", "[" + ", ".join(adjusted_sourcefiles) + "]")
             if run.specific_options:
                 run.xml.set("options", " ".join(run.specific_options))
             if run.properties:
-                all_properties = [
-                    prop_name for prop in run.properties for prop_name in prop.names
-                ]
+                all_properties = (prop.name for prop in run.properties)
                 run.xml.set("properties", " ".join(sorted(all_properties)))
+            if len(run.properties) == 1:
+                prop = run.properties[0]
+                run.xml.set(
+                    "propertyFile", util.relative_path(prop.filename, xml_file_name)
+                )
+                expected_result = str(run.expected_results[prop.filename])
+                if expected_result:
+                    run.xml.set("expectedVerdict", expected_result)
 
         block_name = runSet.blocks[0].name if len(runSet.blocks) == 1 else None
         runSet.xml = self.runs_to_xml(runSet, runSet.runs, block_name)
@@ -735,11 +736,10 @@ class OutputHandler(object):
 
         value = "{}{}".format(value, value_suffix)
 
+        element = ElementTree.Element("column", title=title, value=value)
         if hidden:
-            attributes = {"title": title, "value": value, "hidden": "true"}
-        else:
-            attributes = {"title": title, "value": value}
-        xml.append(ElementTree.Element("column", attributes))
+            element.set("hidden", "true")
+        xml.append(element)
 
     def create_output_line(
         self,

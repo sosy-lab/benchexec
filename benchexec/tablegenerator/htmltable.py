@@ -157,7 +157,7 @@ def _prepare_benchmark_setup_data(
             property_row = dict(  # noqa: C408
                 id="property",
                 name="Properties",
-                content=[[common_property, sum(runSetWidths)]],
+                content=[[common_property.name, sum(runSetWidths)]],
             )
 
     return {
@@ -189,17 +189,17 @@ def _get_task_counts(rows):
     """Calculcate number of true/false tasks and maximum achievable score."""
     count_true = count_false = max_score = 0
     for row in rows:
-        if not row.property:
-            logging.info("Missing property for %s.", row.filename)
+        if not row.id.property:
+            logging.info("Missing property for task %s.", row.id)
             continue
-        expected_result = row.expected_result
+        expected_result = row.id.expected_result
         if not expected_result:
             continue
         if expected_result.result is True:
             count_true += 1
         elif expected_result.result is False:
             count_false += 1
-        max_score += row.property.max_score(expected_result)
+        max_score += row.id.property.max_score(expected_result)
 
     return max_score, count_true, count_false
 
@@ -426,7 +426,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     def clean_up_row(row):
         result = {}
         result["id"] = [
-            id_part
+            str(id_part)
             for id_part, relevant in zip(row.id, relevant_id_columns)
             if id_part and relevant
         ]
@@ -436,7 +436,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
 
         result["results"] = [clean_up_results(res) for res in row.results]
         if row.has_sourcefile:
-            result["href"] = _create_link(row.filename, base_dir)
+            result["href"] = _create_link(row.id.name, base_dir)
         return result
 
     return [clean_up_row(row) for row in rows]
@@ -469,7 +469,7 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
         )
 
     source_file = (
-        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
+        os.path.relpath(runResult.task_id.name, href_base or ".") if runResult else None
     )
 
     if util.is_url(href):

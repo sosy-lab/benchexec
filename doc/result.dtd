@@ -60,5 +60,7 @@ SPDX-License-Identifier: Apache-2.0
 <!ATTLIST run name CDATA #REQUIRED
               files CDATA #IMPLIED
               properties CDATA #IMPLIED
+              propertyFile CDATA #IMPLIED
+              expectedVerdict CDATA #IMPLIED
               options CDATA #IMPLIED
               logfile CDATA #IMPLIED>

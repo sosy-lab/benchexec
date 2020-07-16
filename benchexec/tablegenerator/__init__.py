@@ -279,27 +279,21 @@ def _get_columns_relevant_for_diff(columns_to_show):
         return cols
 
 
-def get_task_id(task, base_path_or_url):
-    """
-    Return a unique identifier for a given task.
-    @param task: the XML element that represents a task
-    @return a tuple with filename of task as first element
-    """
-    name = task.get("name")
-    if base_path_or_url:
-        if util.is_url(base_path_or_url):
-            name = urllib.parse.urljoin(base_path_or_url, name)
-        else:
-            name = os.path.normpath(
-                os.path.join(os.path.dirname(base_path_or_url), name)
-            )
-    task_id = [name, task.get("properties"), task.get("runset")]
-    return tuple(task_id)
+class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
+    """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    __slots__ = ()  # reduce per-instance memory consumption
+
+    def __str__(self):
+        return "'" + ", ".join(str(s) for s in self if s) + "'"
 
 
-def format_task_id(task_id):
-    """Create a human-readable representation of the task_id for log messages etc."""
-    return "'" + ", ".join(s for s in task_id if s) + "'"
+def normalize_path(path, base_path_or_url):
+    """Returns a normalized form of path, interpreted relative to base_path_or_url"""
+    if util.is_url(base_path_or_url):
+        return urllib.parse.urljoin(base_path_or_url, path)
+    else:
+        return os.path.normpath(os.path.join(os.path.dirname(base_path_or_url), path))
 
 
 loaded_tools = {}
@@ -693,9 +687,7 @@ def merge_tasks(runset_results):
         for task in runset.get_tasks():
             if task in currentresult_taskset:
                 logging.warning(
-                    "Task %s is present twice in '%s', skipping it.",
-                    format_task_id(task),
-                    runset,
+                    "Task %s is present twice in '%s', skipping it.", task, runset
                 )
             else:
                 currentresult_taskset.add(task)
@@ -724,9 +716,7 @@ def merge_task_lists(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                logging.info(
-                    "    No result for task %s in '%s'.", format_task_id(task), runset
-                )
+                logging.info("    No result for task %s in '%s'.", task, runset)
                 # create an empty dummy element
                 run_result = RunResult(
                     task,
@@ -852,6 +842,28 @@ class RunResult(object):
                     )
                     return []
 
+        sourcefiles = sourcefileTag.get("files")
+        if sourcefiles:
+            if not sourcefiles.startswith("["):
+                raise AssertionError("Unknown format for files tag:")
+            sourcefiles_exist = any(s.strip() for s in sourcefiles[1:-1].split(","))
+        else:
+            sourcefiles_exist = False
+
+        task_name = sourcefileTag.get("name")
+        if sourcefiles_exist:
+            # task_name is a path
+            task_name = normalize_path(task_name, result_file_or_url)
+
+        prop, expected_result = get_property_of_task(
+            task_name,
+            result_file_or_url,
+            sourcefileTag.get("properties"),
+            sourcefileTag.get("propertyFile"),
+            sourcefileTag.get("expectedVerdict"),
+        )
+        task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
+
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
         if not category:
@@ -860,9 +872,9 @@ class RunResult(object):
             else:  # probably everything is missing, special category for tables
                 category = "aborted"
 
-        score = result.score_for_task(
-            sourcefileTag.get("properties", "").split(), category, status
-        )
+        score = None
+        if prop:
+            score = prop.compute_score(category, status)
         logfileLines = None
 
         values = []
@@ -889,22 +901,8 @@ class RunResult(object):
                 value = str(score)
             values.append(value)
 
-        sourcefiles = sourcefileTag.get("files")
-        if sourcefiles:
-            if sourcefiles.startswith("["):
-                sourcefileList = [
-                    s.strip() for s in sourcefiles[1:-1].split(",") if s.strip()
-                ]
-                sourcefiles_exist = True if sourcefileList else False
-            else:
-                raise AssertionError("Unknown format for files tag:")
-        else:
-            sourcefiles_exist = False
-
         return RunResult(
-            get_task_id(
-                sourcefileTag, result_file_or_url if sourcefiles_exist else None
-            ),
+            task_id,
             status,
             category,
             score,
@@ -932,22 +930,33 @@ class Row(object):
         assert (
             len({r.task_id for r in results}) == 1
         ), "not all results are for same task"
-        self.filename = self.id[0]
-
-        self.property = None
-        self.expected_result = None
-        self.property, self.expected_result = get_property_of_task(self.id)
 
     def set_relative_path(self, common_prefix, base_dir):
         """
         generate output representation of rows
         """
-        self.short_filename = self.filename.replace(common_prefix, "", 1)
+        self.short_filename = self.id.name.replace(common_prefix, "", 1)
 
 
-def get_property_of_task(task_id):
-    task_name = task_id[0]
-    property_names = task_id[1].split() if task_id[1] else []
+def get_property_of_task(
+    task_name, base_path, property_string, property_file, expected_result
+):
+    if property_string is None:
+        return (None, None)
+
+    if property_file:
+        property_file = normalize_path(property_file, base_path)
+        try:
+            prop = result.Property.create(property_file)
+        except OSError as e:
+            logging.debug("Cannot read property file %s: %s", property_file, e)
+            prop = result.Property(property_file, False, property_string)
+
+        if expected_result is not None:
+            expected_result = result.ExpectedResult.from_str(expected_result)
+
+        return (prop, expected_result)
+
     if task_name.endswith(".yml"):
         # try to find property file of task and create Property object
         try:
@@ -958,8 +967,8 @@ def get_property_of_task(task_id):
                         prop_dict["property_file"], os.path.dirname(task_name)
                     )
                     if len(expanded) == 1:
-                        prop = result.Property.create(expanded[0], allow_unknown=True)
-                        if set(prop.names) == set(property_names):
+                        prop = result.Property.create(expanded[0])
+                        if prop.name == property_string:
                             expected_result = prop_dict.get("expected_verdict")
                             if isinstance(expected_result, bool):
                                 expected_result = result.ExpectedResult(
@@ -970,12 +979,8 @@ def get_property_of_task(task_id):
                             return (prop, expected_result)
         except BenchExecException as e:
             logging.debug("Could not load task-template file %s: %s", task_name, e)
-    elif property_names:
-        prop = result.Property.create_from_names(property_names)
-        expected_result = result.expected_results_of_file(task_name).get(prop.name)
-        return (prop, expected_result)
 
-    return (None, None)
+    return (result.Property(None, False, property_string), None)
 
 
 def rows_to_columns(rows):
@@ -1247,7 +1252,7 @@ def create_tables(
 
     # get common folder of sourcefiles
     # os.path.commonprefix can return a partial path component (does not truncate on /)
-    common_prefix = os.path.commonprefix([r.filename for r in rows])
+    common_prefix = os.path.commonprefix([r.id.name for r in rows])
     common_prefix = common_prefix[: common_prefix.rfind("/") + 1]
     for row in rows:
         Row.set_relative_path(row, common_prefix, outputPath)
@@ -1322,13 +1327,15 @@ def write_csv_table(
 ):
     num_id_columns = relevant_id_columns[1:].count(True)
 
-    def write_head_line(name, values, value_repetitions=itertools.repeat(1)):
+    def write_head_line(
+        name, values, value_repetitions=itertools.repeat(1)  # noqa: B008
+    ):
         if any(values):
             out.write(name)
-            for i in range(num_id_columns):
+            for i in range(num_id_columns):  # noqa: B007
                 out.write(sep)
             for value, count in zip(values, value_repetitions):
-                for i in range(count):
+                for i in range(count):  # noqa: B007
                     out.write(sep)
                     if value:
                         out.write(value)
@@ -1355,7 +1362,7 @@ def write_csv_table(
             if is_relevant:
                 out.write(sep)
                 if row_id is not None:
-                    out.write(row_id)
+                    out.write(str(row_id))
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
@@ -1575,7 +1582,7 @@ def main(args=None):
                 )
 
         except util.TableDefinitionError as e:
-            handle_error("Fault in %s: %s", options.xmltablefile, e.message)
+            handle_error("Fault in %s: %s", options.xmltablefile, e)
 
         if not name:
             name = basename_without_ending(options.xmltablefile)
@@ -1601,9 +1608,10 @@ def main(args=None):
                 outputFilePattern = "{name}.{ext}"
         else:
             if not name:
-                name = (
-                    NAME_START + "." + time.strftime("%Y-%m-%d_%H%M", time.localtime())
+                timestamp = time.strftime(
+                    benchexec.util.TIMESTAMP_FILENAME_FORMAT, time.localtime()
                 )
+                name = NAME_START + "." + timestamp
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])

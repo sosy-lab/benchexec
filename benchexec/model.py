@@ -90,6 +90,9 @@ def load_task_definition_file(task_def_file):
     except yaml.YAMLError as e:
         raise BenchExecException("Invalid task definition: " + str(e))
 
+    if not task_def:
+        raise BenchExecException(f"Invalid task definition: empty file {task_def_file}")
+
     if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
         raise BenchExecException(
             "Task-definition file {} specifies invalid format_version '{}'.".format(
@@ -211,7 +214,7 @@ class Benchmark(object):
                 )
 
         self.start_time = start_time
-        self.instance = start_time.strftime("%Y-%m-%d_%H%M")
+        self.instance = start_time.strftime(util.TIMESTAMP_FILENAME_FORMAT)
 
         self.output_base_name = config.output_path + self.name + "." + self.instance
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
@@ -699,13 +702,8 @@ class RunSet(object):
         if not run.propertyfile:
             return run
 
-        prop = result.Property.create(run.propertyfile, allow_unknown=False)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
-        expected_results = result.expected_results_of_file(input_file)
-        if prop.name in expected_results:
-            run.expected_results[prop.filename] = expected_results[prop.name]
-        # We do not check here if there is an expected result for the given propertyfile
-        # like we do in create_run_from_task_definition, to keep backwards compatibility.
 
         if run.propertytag.get("expectedverdict"):
             global _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER
@@ -773,7 +771,7 @@ class RunSet(object):
             return run
 
         # TODO: support "property_name" attribute in yaml
-        prop = result.Property.create(run.propertyfile, allow_unknown=True)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
 
         for prop_dict in task_def.get("properties", []):

@@ -25,7 +25,7 @@ bin_dir = os.path.join(base_dir, "bin")
 benchmarks_dir = here
 benchexec = os.path.join(bin_dir, "benchexec")
 result_dtd = os.path.join(base_dir, "doc", "result.dtd")
-result_dtd_public_id = "+//IDN sosy-lab.org//DTD BenchExec result 2.3//EN"
+result_dtd_public_id = "+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN"
 
 benchmark_test_name = "benchmark-example-rand"
 benchmark_test_file = os.path.join(here, "benchmark-example-rand.xml")
@@ -92,7 +92,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             "--outputpath",
             self.output_dir,
             "--startTime",
-            "2015-01-01 00:00",
+            "2015-01-01 00:00:00",
         ]
         try:
             output = subprocess.check_output(
@@ -145,9 +145,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
             expected_files += ["results." + rundef + xml_suffix for rundef in rundefs]
 
         if name is None:
-            basename = test_name + ".2015-01-01_0000."
+            basename = test_name + ".2015-01-01_00-00-00."
         else:
-            basename = test_name + "." + name + ".2015-01-01_0000."
+            basename = test_name + "." + name + ".2015-01-01_00-00-00."
 
         expected_files = set(map(lambda x: basename + x, expected_files))
         self.assertSetEqual(
@@ -332,7 +332,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             "--description-file",
             self.benchmark_test_file,
         )
-        basename = "benchmark-example-rand.2015-01-01_0000."
+        basename = "benchmark-example-rand.2015-01-01_00-00-00."
         xml_files = ["results.xml"] + [
             "results." + files + ".xml" for files in benchmark_test_tasks
         ]
@@ -369,7 +369,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         actual_xml = os.path.join(
             self.output_dir,
-            "benchmark-example-true.2015-01-01_0000.results.no options.xml",
+            "benchmark-example-true.2015-01-01_00-00-00.results.no options.xml",
         )
 
         self.assertSameRunResults(actual_xml, expected_xml)

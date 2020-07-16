@@ -33,5 +33,6 @@ test_snapshot_of("Render Summary", (overview) => (
     changeTab={overview.changeTab}
     statusValues={overview.statusValues}
     categoryValues={overview.categoryValues}
+    hiddenCols={overview.state.hiddenCols}
   />
 ));

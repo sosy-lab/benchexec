@@ -7,7 +7,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from getpass import getuser
 import logging
 import os
 import subprocess
@@ -70,13 +69,13 @@ class Benchmark(benchexec.benchexec.BenchExec):
                     os.path.expanduser("~"),
                     ".config",
                     "sv-comp-aws",
-                    getuser() + ".client.config",
+                    "aws.client.config",
                 )
             ):
                 sys.exit(
                     "AWS flag without a config specified, but could not find a "
                     "config file at the default location either "
-                    "(~/.config/sv-comp-aws/{}.client.config).".format(getuser())
+                    "(~/.config/sv-comp-aws/aws.client.config)."
                 )
             import aws.awsexecutor as executor
 
