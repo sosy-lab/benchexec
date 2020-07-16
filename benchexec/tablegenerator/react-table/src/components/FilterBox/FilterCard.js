@@ -168,7 +168,7 @@ export default class FilterCard extends React.PureComponent {
       if (type === "status") {
         body = (
           <>
-            <b>Category</b>
+            Category
             <ul className="filter-card--body--list">
               {categories.map((category) => {
                 const ref = React.createRef();
@@ -202,7 +202,7 @@ export default class FilterCard extends React.PureComponent {
                 );
               })}
             </ul>
-            <b>Status</b>
+            Status
             <ul className="filter-card--body--list">
               {statuses.map((status) => {
                 const ref = React.createRef();

@@ -99,21 +99,18 @@ export default class FilterContainer extends React.PureComponent {
     return (
       <div className="filterBox--container">
         <h4>{this.state.toolName}</h4>
-        {filters.length === 0
-          ? "No Filters set"
-          : filters.map((filter, idx) => (
-              <FilterCard
-                onFilterUpdate={(val) => this.setFilter(val, filter.idx)}
-                title={filter.display_title}
-                removeFilter={() =>
-                  this.removeFilter(filter.idx, filter.display_title)
-                }
-                filter={filter}
-                key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
-              />
-            ))}
-        <br />
-        <br />
+        {filters.length > 0 &&
+          filters.map((filter, idx) => (
+            <FilterCard
+              onFilterUpdate={(val) => this.setFilter(val, filter.idx)}
+              title={filter.display_title}
+              removeFilter={() =>
+                this.removeFilter(filter.idx, filter.display_title)
+              }
+              filter={filter}
+              key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
+            />
+          ))}
         {availableFilters.length && (
           <FilterCard
             availableFilters={availableFilters}
@@ -122,6 +119,7 @@ export default class FilterContainer extends React.PureComponent {
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
         )}
+        <br />
       </div>
     );
   }
