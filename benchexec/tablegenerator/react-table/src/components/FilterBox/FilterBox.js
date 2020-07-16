@@ -112,6 +112,8 @@ export default class FilterBox extends React.PureComponent {
   }
 
   render() {
+    console.log(this.props.hiddenCols);
+    const hiddenCols = this.props.hiddenCols || [];
     return (
       <div
         className={classNames("filterBox", {
@@ -146,6 +148,7 @@ export default class FilterBox extends React.PureComponent {
               currentFilters={this.state.filters[idx] || []}
               toolName={tool.name}
               filters={tool.columns}
+              hiddenCols={hiddenCols[idx]}
               key={`filtercontainer-${idx}`}
             />
           );

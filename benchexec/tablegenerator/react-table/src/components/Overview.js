@@ -213,6 +213,7 @@ export default class Overview extends React.Component {
               resetFilters={this.resetFilters}
               filtered={this.state.filtered}
               visible={this.state.filterBoxVisible}
+              hiddenCols={this.state.hiddenCols}
               hide={() => {
                 this.setState({ filterBoxVisible: false });
               }}
