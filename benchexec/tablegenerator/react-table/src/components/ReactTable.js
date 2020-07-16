@@ -236,7 +236,7 @@ export default function Table(props) {
               {selectedFilters
                 .map((x) => x.trim())
                 .filter((x) => x !== "all" && x !== emptyStateValue)
-                .join(", ") || "Empty Set"}
+                .join(", ") || "No filters selected"}
             </option>
           )}
           <option value="all ">Show all</option>
