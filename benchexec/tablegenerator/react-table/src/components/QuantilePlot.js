@@ -451,95 +451,188 @@ export default class QuantilePlot extends React.Component {
 
   render() {
     const FlexibleXYPlot = makeWidthFlexible(XYPlot);
-    const isLegendInPlot = [1, 2, 3].includes(parseInt(this.state.UIDesign));
-
+    const areSelectionsOnTheRight =
+      this.state.UIDesign > 3 && this.state.UIDesign < 6;
     return (
       <>
         <div className={"quantilePlot" + this.state.UIDesign}>
-          {!this.state.areAllColsHidden && (
-            <div className="settings-container">
-              <div className="setting">
-                <span className="setting-label">Selection:</span>
-                <select
-                  className="setting-select"
-                  name="Selection"
-                  value={this.state.selection}
-                  onChange={this.setSelection}
-                >
-                  <optgroup label="Runsets">
-                    {this.props.tools.map((runset, i) => {
-                      return runset.columns.length !==
-                        this.props.hiddenCols[runset.toolIdx].length ? (
-                        <option
-                          key={"runset-" + i}
-                          value={"runset-" + i}
-                          name={"Runset " + i}
-                        >
-                          {getRunSetName(runset)}
-                        </option>
-                      ) : null;
-                    })}
-                  </optgroup>
-                  <optgroup label="Columns">{this.renderColumns()}</optgroup>
-                </select>
+          {!this.state.areAllColsHidden &&
+            (areSelectionsOnTheRight ? (
+              <div className="settings-container">
+                <div className="setting">
+                  <span className="setting-label">Selection:</span>
+                  <select
+                    className="setting-select"
+                    name="Selection"
+                    value={this.state.selection}
+                    onChange={this.setSelection}
+                  >
+                    <optgroup label="Runsets">
+                      {this.props.tools.map((runset, i) => {
+                        return runset.columns.length !==
+                          this.props.hiddenCols[runset.toolIdx].length ? (
+                          <option
+                            key={"runset-" + i}
+                            value={"runset-" + i}
+                            name={"Runset " + i}
+                          >
+                            {getRunSetName(runset)}
+                          </option>
+                        ) : null;
+                      })}
+                    </optgroup>
+                    <optgroup label="Columns">{this.renderColumns()}</optgroup>
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">Plot:</span>
+                  <select
+                    className="setting-select"
+                    name="Plot"
+                    value={this.state.plot}
+                    onChange={this.setPlot}
+                  >
+                    {this.renderSettingOptions(plotOptions, "Plot")}
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">Scaling:</span>
+                  <select
+                    className="setting-select"
+                    name="Scaling"
+                    value={this.state.scaling}
+                    onChange={this.setScaling}
+                  >
+                    {this.renderSettingOptions(scalingOptions, "Scale")}
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">Results:</span>
+                  <select
+                    className="setting-select"
+                    name="Results"
+                    value={this.state.results}
+                    onChange={this.setResults}
+                  >
+                    {this.renderSettingOptions(resultsOptions, "Results")}
+                  </select>
+                </div>
+                <div className="setting">
+                  {parseInt(this.state.UIDesign) === 5 && (
+                    <span className="setting-label">Legend:</span>
+                  )}
+                  <DiscreteColorLegend
+                    colors={EXTENDED_DISCRETE_COLOR_RANGE}
+                    items={this.renderLegend()}
+                    orientation="horizontal"
+                    onItemClick={(Object, item) => {
+                      let line = "";
+                      line = Object.title.toString();
+                      if (this.state.isInvisible.indexOf(line) < 0) {
+                        this.setState({
+                          isInvisible: this.state.isInvisible.concat([line]),
+                        });
+                      } else {
+                        return this.setState({
+                          isInvisible: this.state.isInvisible.filter((l) => {
+                            return l !== line;
+                          }),
+                        });
+                      }
+                    }}
+                  />
+                </div>
               </div>
-              <div className="setting">
-                <span className="setting-label">Plot:</span>
-                <select
-                  className="setting-select"
-                  name="Plot"
-                  value={this.state.plot}
-                  onChange={this.setPlot}
-                >
-                  {this.renderSettingOptions(plotOptions, "Plot")}
-                </select>
+            ) : (
+              <div className="settings-container">
+                <div className="settings-subcontainer">
+                  <div className="setting">
+                    <span className="setting-label">Selection:</span>
+                    <select
+                      className="setting-select"
+                      name="Selection"
+                      value={this.state.selection}
+                      onChange={this.setSelection}
+                    >
+                      <optgroup label="Runsets">
+                        {this.props.tools.map((runset, i) => {
+                          return runset.columns.length !==
+                            this.props.hiddenCols[runset.toolIdx].length ? (
+                            <option
+                              key={"runset-" + i}
+                              value={"runset-" + i}
+                              name={"Runset " + i}
+                            >
+                              {getRunSetName(runset)}
+                            </option>
+                          ) : null;
+                        })}
+                      </optgroup>
+                      <optgroup label="Columns">
+                        {this.renderColumns()}
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div className="setting">
+                    <span className="setting-label">Plot:</span>
+                    <select
+                      className="setting-select"
+                      name="Plot"
+                      value={this.state.plot}
+                      onChange={this.setPlot}
+                    >
+                      {this.renderSettingOptions(plotOptions, "Plot")}
+                    </select>
+                  </div>
+                </div>
+                <div className="settings-subcontainer">
+                  <div className="setting">
+                    <span className="setting-label">Scaling:</span>
+                    <select
+                      className="setting-select"
+                      name="Scaling"
+                      value={this.state.scaling}
+                      onChange={this.setScaling}
+                    >
+                      {this.renderSettingOptions(scalingOptions, "Scale")}
+                    </select>
+                  </div>
+                  <div className="setting">
+                    <span className="setting-label">Results:</span>
+                    <select
+                      className="setting-select"
+                      name="Results"
+                      value={this.state.results}
+                      onChange={this.setResults}
+                    >
+                      {this.renderSettingOptions(resultsOptions, "Results")}
+                    </select>
+                  </div>
+                  <div className="setting">
+                    <DiscreteColorLegend
+                      colors={EXTENDED_DISCRETE_COLOR_RANGE}
+                      items={this.renderLegend()}
+                      orientation="horizontal"
+                      onItemClick={(Object, item) => {
+                        let line = "";
+                        line = Object.title.toString();
+                        if (this.state.isInvisible.indexOf(line) < 0) {
+                          this.setState({
+                            isInvisible: this.state.isInvisible.concat([line]),
+                          });
+                        } else {
+                          return this.setState({
+                            isInvisible: this.state.isInvisible.filter((l) => {
+                              return l !== line;
+                            }),
+                          });
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="setting">
-                <span className="setting-label">Scaling:</span>
-                <select
-                  className="setting-select"
-                  name="Scaling"
-                  value={this.state.scaling}
-                  onChange={this.setScaling}
-                >
-                  {this.renderSettingOptions(scalingOptions, "Scale")}
-                </select>
-              </div>
-              <div className="setting">
-                <span className="setting-label">Results:</span>
-                <select
-                  className="setting-select"
-                  name="Results"
-                  value={this.state.results}
-                  onChange={this.setResults}
-                >
-                  {this.renderSettingOptions(resultsOptions, "Results")}
-                </select>
-              </div>
-              {!isLegendInPlot && (
-                <DiscreteColorLegend
-                  colors={EXTENDED_DISCRETE_COLOR_RANGE}
-                  items={this.renderLegend()}
-                  orientation="horizontal"
-                  onItemClick={(Object, item) => {
-                    let line = "";
-                    line = Object.title.toString();
-                    if (this.state.isInvisible.indexOf(line) < 0) {
-                      this.setState({
-                        isInvisible: this.state.isInvisible.concat([line]),
-                      });
-                    } else {
-                      return this.setState({
-                        isInvisible: this.state.isInvisible.filter((l) => {
-                          return l !== line;
-                        }),
-                      });
-                    }
-                  }}
-                />
-              )}
-            </div>
-          )}
+            ))}
           <FlexibleXYPlot
             height={window.innerHeight - 200}
             margin={{ left: 90 }}
@@ -550,27 +643,6 @@ export default class QuantilePlot extends React.Component {
             <XAxis tickFormat={(value) => value} />
             <YAxis tickFormat={(value) => value} />
             {this.state.value ? <Hint value={this.state.value} /> : null}
-            {isLegendInPlot && (
-              <DiscreteColorLegend
-                colors={EXTENDED_DISCRETE_COLOR_RANGE}
-                items={this.renderLegend()}
-                onItemClick={(Object, item) => {
-                  let line = "";
-                  line = Object.title.toString();
-                  if (this.state.isInvisible.indexOf(line) < 0) {
-                    this.setState({
-                      isInvisible: this.state.isInvisible.concat([line]),
-                    });
-                  } else {
-                    return this.setState({
-                      isInvisible: this.state.isInvisible.filter((l) => {
-                        return l !== line;
-                      }),
-                    });
-                  }
-                }}
-              />
-            )}
             {this.renderLines()}
           </FlexibleXYPlot>
           {this.state.areAllColsHidden ? (
@@ -614,6 +686,8 @@ export default class QuantilePlot extends React.Component {
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
           </select>
         </div>
       </>

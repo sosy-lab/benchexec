@@ -300,77 +300,153 @@ export default class ScatterPlot extends React.Component {
     const isLinear = this.state.scaling === scalingOptions.linear;
     const FlexibleXYPlot = makeWidthFlexible(XYPlot);
     const showColon = [1, 2].includes(parseInt(this.state.UIDesign));
+    const areSelectionsOnTheRight =
+      this.state.UIDesign > 3 && this.state.UIDesign < 6;
 
     return (
       <>
         <div className={"scatterPlot" + this.state.UIDesign}>
-          <div className="settings-container">
-            <div className="setting">
-              <span className="setting-label">
-                X-Axis{showColon ? ":" : ""}
-              </span>
-              <select
-                className="setting-select"
-                name="X-Axis"
-                value={this.state.dataX}
-                onChange={(ev) => this.setAxis(ev, "X")}
-              >
-                {this.renderColumns()}
-              </select>
+          {areSelectionsOnTheRight ? (
+            <div className="settings-container">
+              <div className="setting">
+                <span className="setting-label">
+                  X-Axis{showColon ? ":" : ""}
+                </span>
+                <select
+                  className="setting-select"
+                  name="X-Axis"
+                  value={this.state.dataX}
+                  onChange={(ev) => this.setAxis(ev, "X")}
+                >
+                  {this.renderColumns()}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">
+                  Y-Axis{showColon ? ":" : ""}
+                </span>
+                <select
+                  className="setting-select"
+                  name="Y-Axis"
+                  value={this.state.dataY}
+                  onChange={(ev) => this.setAxis(ev, "Y")}
+                >
+                  {this.renderColumns()}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">
+                  Scaling{showColon ? ":" : ""}
+                </span>
+                <select
+                  className="setting-select"
+                  name="Scaling"
+                  value={this.state.scaling}
+                  onChange={this.setScaling}
+                >
+                  {this.renderSettingOptions(scalingOptions, "Scale")}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">
+                  Results{showColon ? ":" : ""}
+                </span>
+                <select
+                  className="setting-select"
+                  name="Results"
+                  value={this.state.results}
+                  onChange={this.setResults}
+                >
+                  {this.renderSettingOptions(resultsOptions, "Results")}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">
+                  Aux. Lines{showColon ? ":" : ""}
+                </span>
+                <select
+                  className="setting-select"
+                  name="Aux. Lines"
+                  value={this.state.line}
+                  onChange={this.setLine}
+                >
+                  {this.renderSettingOptions(lineOptions, "")}
+                </select>
+              </div>
             </div>
-            <div className="setting">
-              <span className="setting-label">
-                Y-Axis{showColon ? ":" : ""}
-              </span>
-              <select
-                className="setting-select"
-                name="Y-Axis"
-                value={this.state.dataY}
-                onChange={(ev) => this.setAxis(ev, "Y")}
-              >
-                {this.renderColumns()}
-              </select>
+          ) : (
+            <div className="settings-container">
+              <div className="settings-subcontainer">
+                <div className="setting">
+                  <span className="setting-label">
+                    X-Axis{showColon ? ":" : ""}
+                  </span>
+                  <select
+                    className="setting-select"
+                    name="X-Axis"
+                    value={this.state.dataX}
+                    onChange={(ev) => this.setAxis(ev, "X")}
+                  >
+                    {this.renderColumns()}
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">
+                    Y-Axis{showColon ? ":" : ""}
+                  </span>
+                  <select
+                    className="setting-select"
+                    name="Y-Axis"
+                    value={this.state.dataY}
+                    onChange={(ev) => this.setAxis(ev, "Y")}
+                  >
+                    {this.renderColumns()}
+                  </select>
+                </div>
+              </div>
+              <div className="settings-subcontainer">
+                <div className="setting">
+                  <span className="setting-label">
+                    Scaling{showColon ? ":" : ""}
+                  </span>
+                  <select
+                    className="setting-select"
+                    name="Scaling"
+                    value={this.state.scaling}
+                    onChange={this.setScaling}
+                  >
+                    {this.renderSettingOptions(scalingOptions, "Scale")}
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">
+                    Results{showColon ? ":" : ""}
+                  </span>
+                  <select
+                    className="setting-select"
+                    name="Results"
+                    value={this.state.results}
+                    onChange={this.setResults}
+                  >
+                    {this.renderSettingOptions(resultsOptions, "Results")}
+                  </select>
+                </div>
+                <div className="setting">
+                  <span className="setting-label">
+                    Aux. Lines{showColon ? ":" : ""}
+                  </span>
+                  <select
+                    className="setting-select"
+                    name="Aux. Lines"
+                    value={this.state.line}
+                    onChange={this.setLine}
+                  >
+                    {this.renderSettingOptions(lineOptions, "")}
+                  </select>
+                </div>
+              </div>
             </div>
-            <div className="setting">
-              <span className="setting-label">
-                Scaling{showColon ? ":" : ""}
-              </span>
-              <select
-                className="setting-select"
-                name="Scaling"
-                value={this.state.scaling}
-                onChange={this.setScaling}
-              >
-                {this.renderSettingOptions(scalingOptions, "Scale")}
-              </select>
-            </div>
-            <div className="setting">
-              <span className="setting-label">
-                Results{showColon ? ":" : ""}
-              </span>
-              <select
-                className="setting-select"
-                name="Results"
-                value={this.state.results}
-                onChange={this.setResults}
-              >
-                {this.renderSettingOptions(resultsOptions, "Results")}
-              </select>
-            </div>
-            <div className="setting">
-              <span className="setting-label">
-                Aux. Lines{showColon ? ":" : ""}
-              </span>
-              <select
-                className="setting-select"
-                name="Aux. Lines"
-                value={this.state.line}
-                onChange={this.setLine}
-              >
-                {this.renderSettingOptions(lineOptions, "")}
-              </select>
-            </div>
-          </div>
+          )}
           <FlexibleXYPlot
             className="scatterPlot__plot"
             height={this.state.height - 200}
@@ -519,6 +595,8 @@ export default class ScatterPlot extends React.Component {
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
           </select>
         </div>
       </>

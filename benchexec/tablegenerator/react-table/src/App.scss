@@ -358,12 +358,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     max-width: 50%;
   }
 
-  .rv-discrete-color-legend-item.clickable {
-    &:hover {
-      background: $hover-color;
-    }
-  }
-
   .settings-container {
     text-align: center;
     margin-bottom: 1em;
@@ -383,26 +377,35 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   margin: 20px;
   text-align: center;
 
-  .rv-discrete-color-legend {
-    padding: 0;
-    border: 1px solid rgb(186, 186, 186);
-    float: right;
-    max-width: 50%;
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
   }
 
   .rv-discrete-color-legend-item.clickable {
+    padding: 0 10px;
+
     &:hover {
       background: $hover-color;
     }
   }
 
   .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
   }
 
   .setting {
     display: inline-block;
-    margin: 0 1em;
+    margin: 0.5em 1em;
 
     &-label {
       margin-right: 0.5em;
@@ -414,36 +417,47 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   margin: 20px;
   text-align: center;
 
-  .rv-discrete-color-legend {
-    padding: 0;
-    border: 1px solid rgb(186, 186, 186);
-    float: right;
-    max-width: 50%;
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
   }
 
   .rv-discrete-color-legend-item.clickable {
+    padding: 0 10px;
+
     &:hover {
       background: $hover-color;
     }
   }
 
   .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
     margin-bottom: 1em;
   }
 
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
   .setting {
-    display: inline-block;
-    margin: 0 1em;
+    display: flex;
+    align-items: center;
+    margin: 0.5em 1em;
     background-color: $key-color;
     border: 1px solid rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
-    padding: 0.5em 1em;
 
     &-label {
-      margin-right: 0.5em;
+      padding: 0.7em 1em;
     }
 
     &-select {
+      margin: 0.7em 1em;
       background-color: rgba(255, 255, 255, 0.5);
     }
   }
@@ -452,14 +466,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .quantilePlot3 {
   margin: 20px;
 
-  .rv-discrete-color-legend {
-    padding: 0;
-    border: 1px solid rgb(186, 186, 186);
-    float: right;
-    max-width: 50%;
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
   }
 
   .rv-discrete-color-legend-item.clickable {
+    padding: 0 10px;
+    text-align: center;
+
     &:hover {
       background: $hover-color;
     }
@@ -467,13 +481,23 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .settings-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: stretch;
     margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
   }
 
   .setting {
     display: flex;
-    margin: 0 1em;
+    align-items: center;
+    margin: 0.5em 1em;
     border: 1px solid rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
 
@@ -498,8 +522,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   align-items: flex-start;
 
   .rv-discrete-color-legend {
-    padding: 0;
-    border: 1px solid rgb(186, 186, 186);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -554,8 +576,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   align-items: flex-start;
 
   .rv-discrete-color-legend {
-    padding: 0;
-    border: 1px solid rgb(186, 186, 186);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -605,6 +625,116 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 }
 
+.quantilePlot6 {
+  margin: 20px;
+  text-align: center;
+
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    padding: 0 10px;
+
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    display: flex;
+    align-items: center;
+    margin: 0.5em 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+    &-label {
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      margin: 0.7em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.quantilePlot7 {
+  margin: 20px;
+  text-align: center;
+
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    padding: 0 10px;
+
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    display: flex;
+    align-items: center;
+    margin: 0.5em 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      margin: 0.7em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
 .scatterPlot1 {
   text-align: center;
   margin: 20px;
@@ -626,12 +756,22 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 
   .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
   }
 
   .setting {
     display: inline-block;
-    margin: 0 1em;
+    margin: 0.5em 1em;
 
     &-label {
       margin-right: 0.5em;
@@ -660,12 +800,23 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 
   .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
     margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
   }
 
   .setting {
     display: inline-block;
-    margin: 0 1em;
+    margin: 0.5em 1em;
     background-color: $key-color;
     border: 1px solid rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
@@ -703,13 +854,22 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .settings-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: stretch;
     margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
   }
 
   .setting {
     display: flex;
-    margin: 0 1em;
+    margin: 0.5em 1em;
     border: 1px solid rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
 
@@ -827,6 +987,122 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       height: 25px;
       padding-left: 5px;
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.scatterPlot6 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0.5em 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+    &-label {
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      margin: 0.7em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.scatterPlot7 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    display: inline-block;
+    margin: 0.5em 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
+
+    &-label {
+      padding: 0.7em 1em;
+    }
+
+    &-select {
+      margin: 0.7em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
       border-radius: 3px;
       cursor: pointer;
     }
