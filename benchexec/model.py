@@ -91,7 +91,7 @@ def load_task_definition_file(task_def_file):
         raise BenchExecException("Invalid task definition: " + str(e))
 
     if not task_def:
-        raise BenchExecException(f"Invalid task definition: empty file {task_def_file}")
+        raise BenchExecException("Invalid task definition: empty file " + task_def_file)
 
     if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
         raise BenchExecException(
