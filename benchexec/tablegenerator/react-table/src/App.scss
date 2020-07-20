@@ -356,6 +356,12 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     border: 1px solid rgb(186, 186, 186);
     float: right;
     max-width: 50%;
+
+    &.horizontal {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
   }
 
   .settings-container {
@@ -379,6 +385,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .rv-discrete-color-legend.horizontal {
     padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .rv-discrete-color-legend-item.clickable {
@@ -419,6 +428,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .rv-discrete-color-legend.horizontal {
     padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .rv-discrete-color-legend-item.clickable {
@@ -468,6 +480,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .rv-discrete-color-legend.horizontal {
     padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .rv-discrete-color-legend-item.clickable {
@@ -527,7 +542,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     justify-content: center;
 
     .rv-discrete-color-legend-item {
-      min-width: 25%;
+      min-width: 13%;
     }
   }
 
@@ -543,6 +558,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     flex-direction: column;
     justify-content: center;
     text-align: center;
+    max-width: 30%;
   }
 
   .setting {
@@ -581,7 +597,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     justify-content: center;
 
     .rv-discrete-color-legend-item {
-      min-width: 25%;
+      min-width: 13%;
     }
   }
 
@@ -597,6 +613,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     flex-direction: column;
     justify-content: center;
     text-align: center;
+    max-width: 30%;
   }
 
   .setting {
@@ -631,6 +648,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .rv-discrete-color-legend.horizontal {
     padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .rv-discrete-color-legend-item.clickable {
@@ -685,6 +705,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .rv-discrete-color-legend.horizontal {
     padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .rv-discrete-color-legend-item.clickable {
