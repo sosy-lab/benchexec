@@ -46,6 +46,7 @@ const defaultValues = {
   scaling: scalingOptions.linear,
   results: resultsOptions.correct,
   UIDesign: 1,
+  legendPosition: 1,
 };
 
 export default class QuantilePlot extends React.Component {
@@ -59,7 +60,7 @@ export default class QuantilePlot extends React.Component {
   setup() {
     const queryProps = getHashSearch();
 
-    let { selection, plot, scaling, results, UIDesign } = {
+    let { selection, plot, scaling, results, UIDesign, legendPosition } = {
       ...defaultValues,
       ...queryProps,
     };
@@ -126,6 +127,7 @@ export default class QuantilePlot extends React.Component {
       results,
       isValue, //two versions of plot: one Value more RunSets => isValue:true; oneRunSet more Values => isValue:false
       UIDesign,
+      legendPosition,
       isInvisible: [],
       areAllColsHidden: selection === undefined,
     };
@@ -431,6 +433,10 @@ export default class QuantilePlot extends React.Component {
     setParam({ UIDesign: ev.target.value });
   };
 
+  setLegend = (ev) => {
+    setParam({ legendPosition: ev.target.value });
+  };
+
   toggleShow = ({ target }) => {
     this.setState({
       [target.name]: target.checked,
@@ -451,190 +457,13 @@ export default class QuantilePlot extends React.Component {
       : "log";
   };
 
-  render() {
+  renderPlot() {
     const FlexibleXYPlot = makeWidthFlexible(XYPlot);
     const areSelectionsOnTheRight =
       this.state.UIDesign > 3 && this.state.UIDesign < 6;
-    return (
-      <>
-        <div className={"quantilePlot" + this.state.UIDesign}>
-          {!this.state.areAllColsHidden &&
-            (areSelectionsOnTheRight ? (
-              <div className="settings-container">
-                <div className="setting">
-                  <span className="setting-label">Selection:</span>
-                  <select
-                    className="setting-select"
-                    name="Selection"
-                    value={this.state.selection}
-                    onChange={this.setSelection}
-                  >
-                    <optgroup label="Runsets">
-                      {this.props.tools.map((runset, i) => {
-                        return runset.columns.length !==
-                          this.props.hiddenCols[runset.toolIdx].length ? (
-                          <option
-                            key={"runset-" + i}
-                            value={"runset-" + i}
-                            name={"Runset " + i}
-                          >
-                            {getRunSetName(runset)}
-                          </option>
-                        ) : null;
-                      })}
-                    </optgroup>
-                    <optgroup label="Columns">{this.renderColumns()}</optgroup>
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">Plot:</span>
-                  <select
-                    className="setting-select"
-                    name="Plot"
-                    value={this.state.plot}
-                    onChange={this.setPlot}
-                  >
-                    {this.renderSettingOptions(plotOptions, "Plot")}
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">Scaling:</span>
-                  <select
-                    className="setting-select"
-                    name="Scaling"
-                    value={this.state.scaling}
-                    onChange={this.setScaling}
-                  >
-                    {this.renderSettingOptions(scalingOptions, "Scale")}
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">Results:</span>
-                  <select
-                    className="setting-select"
-                    name="Results"
-                    value={this.state.results}
-                    onChange={this.setResults}
-                  >
-                    {this.renderSettingOptions(resultsOptions, "Results")}
-                  </select>
-                </div>
-                <div className="setting">
-                  {parseInt(this.state.UIDesign) === 5 && (
-                    <span className="setting-label">Legend:</span>
-                  )}
-                  <DiscreteColorLegend
-                    colors={EXTENDED_DISCRETE_COLOR_RANGE}
-                    items={this.renderLegend()}
-                    orientation="horizontal"
-                    onItemClick={(Object, item) => {
-                      let line = "";
-                      line = Object.title.toString();
-                      if (this.state.isInvisible.indexOf(line) < 0) {
-                        this.setState({
-                          isInvisible: this.state.isInvisible.concat([line]),
-                        });
-                      } else {
-                        return this.setState({
-                          isInvisible: this.state.isInvisible.filter((l) => {
-                            return l !== line;
-                          }),
-                        });
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="settings-container">
-                <div className="settings-subcontainer">
-                  <div className="setting">
-                    <span className="setting-label">Selection:</span>
-                    <select
-                      className="setting-select"
-                      name="Selection"
-                      value={this.state.selection}
-                      onChange={this.setSelection}
-                    >
-                      <optgroup label="Runsets">
-                        {this.props.tools.map((runset, i) => {
-                          return runset.columns.length !==
-                            this.props.hiddenCols[runset.toolIdx].length ? (
-                            <option
-                              key={"runset-" + i}
-                              value={"runset-" + i}
-                              name={"Runset " + i}
-                            >
-                              {getRunSetName(runset)}
-                            </option>
-                          ) : null;
-                        })}
-                      </optgroup>
-                      <optgroup label="Columns">
-                        {this.renderColumns()}
-                      </optgroup>
-                    </select>
-                  </div>
-                  <div className="setting">
-                    <span className="setting-label">Plot:</span>
-                    <select
-                      className="setting-select"
-                      name="Plot"
-                      value={this.state.plot}
-                      onChange={this.setPlot}
-                    >
-                      {this.renderSettingOptions(plotOptions, "Plot")}
-                    </select>
-                  </div>
-                </div>
-                <div className="settings-subcontainer">
-                  <div className="setting">
-                    <span className="setting-label">Scaling:</span>
-                    <select
-                      className="setting-select"
-                      name="Scaling"
-                      value={this.state.scaling}
-                      onChange={this.setScaling}
-                    >
-                      {this.renderSettingOptions(scalingOptions, "Scale")}
-                    </select>
-                  </div>
-                  <div className="setting">
-                    <span className="setting-label">Results:</span>
-                    <select
-                      className="setting-select"
-                      name="Results"
-                      value={this.state.results}
-                      onChange={this.setResults}
-                    >
-                      {this.renderSettingOptions(resultsOptions, "Results")}
-                    </select>
-                  </div>
-                  <div className="setting">
-                    <DiscreteColorLegend
-                      colors={EXTENDED_DISCRETE_COLOR_RANGE}
-                      items={this.renderLegend()}
-                      orientation="horizontal"
-                      onItemClick={(Object, item) => {
-                        let line = "";
-                        line = Object.title.toString();
-                        if (this.state.isInvisible.indexOf(line) < 0) {
-                          this.setState({
-                            isInvisible: this.state.isInvisible.concat([line]),
-                          });
-                        } else {
-                          return this.setState({
-                            isInvisible: this.state.isInvisible.filter((l) => {
-                              return l !== line;
-                            }),
-                          });
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+    if (!areSelectionsOnTheRight && this.state.legendPosition == 3) {
+      return (
+        <div className="plot-and-legend-container">
           <FlexibleXYPlot
             height={window.innerHeight - 200}
             margin={{ left: 90 }}
@@ -647,6 +476,433 @@ export default class QuantilePlot extends React.Component {
             {this.state.value ? <Hint value={this.state.value} /> : null}
             {this.renderLines()}
           </FlexibleXYPlot>
+          <DiscreteColorLegend
+            colors={EXTENDED_DISCRETE_COLOR_RANGE}
+            items={this.renderLegend()}
+            onItemClick={(Object, item) => {
+              let line = "";
+              line = Object.title.toString();
+              if (this.state.isInvisible.indexOf(line) < 0) {
+                this.setState({
+                  isInvisible: this.state.isInvisible.concat([line]),
+                });
+              } else {
+                return this.setState({
+                  isInvisible: this.state.isInvisible.filter((l) => {
+                    return l !== line;
+                  }),
+                });
+              }
+            }}
+          />
+        </div>
+      );
+    } else if (!areSelectionsOnTheRight && this.state.legendPosition == 4) {
+      return (
+        <FlexibleXYPlot
+          height={window.innerHeight - 200}
+          margin={{ left: 90 }}
+          yType={this.handleType()}
+        >
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <XAxis tickFormat={(value) => value} />
+          <YAxis tickFormat={(value) => value} />
+          {this.state.value ? <Hint value={this.state.value} /> : null}
+          {this.renderLines()}
+          <DiscreteColorLegend
+            className="legend-in-plot"
+            colors={EXTENDED_DISCRETE_COLOR_RANGE}
+            items={this.renderLegend()}
+            onItemClick={(Object, item) => {
+              let line = "";
+              line = Object.title.toString();
+              if (this.state.isInvisible.indexOf(line) < 0) {
+                this.setState({
+                  isInvisible: this.state.isInvisible.concat([line]),
+                });
+              } else {
+                return this.setState({
+                  isInvisible: this.state.isInvisible.filter((l) => {
+                    return l !== line;
+                  }),
+                });
+              }
+            }}
+          />
+        </FlexibleXYPlot>
+      );
+    } else {
+      return (
+        <FlexibleXYPlot
+          height={window.innerHeight - 200}
+          margin={{ left: 90 }}
+          yType={this.handleType()}
+        >
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <XAxis tickFormat={(value) => value} />
+          <YAxis tickFormat={(value) => value} />
+          {this.state.value ? <Hint value={this.state.value} /> : null}
+          {this.renderLines()}
+        </FlexibleXYPlot>
+      );
+    }
+  }
+
+  renderSettings() {
+    const areSelectionsOnTheRight =
+      this.state.UIDesign > 3 && this.state.UIDesign < 6;
+    if (areSelectionsOnTheRight) {
+      return (
+        <div className="settings-container">
+          <div className="setting">
+            <span className="setting-label">Selection:</span>
+            <select
+              className="setting-select"
+              name="Selection"
+              value={this.state.selection}
+              onChange={this.setSelection}
+            >
+              <optgroup label="Runsets">
+                {this.props.tools.map((runset, i) => {
+                  return runset.columns.length !==
+                    this.props.hiddenCols[runset.toolIdx].length ? (
+                    <option
+                      key={"runset-" + i}
+                      value={"runset-" + i}
+                      name={"Runset " + i}
+                    >
+                      {getRunSetName(runset)}
+                    </option>
+                  ) : null;
+                })}
+              </optgroup>
+              <optgroup label="Columns">{this.renderColumns()}</optgroup>
+            </select>
+          </div>
+          <div className="setting">
+            <span className="setting-label">Plot:</span>
+            <select
+              className="setting-select"
+              name="Plot"
+              value={this.state.plot}
+              onChange={this.setPlot}
+            >
+              {this.renderSettingOptions(plotOptions, "Plot")}
+            </select>
+          </div>
+          <div className="setting">
+            <span className="setting-label">Scaling:</span>
+            <select
+              className="setting-select"
+              name="Scaling"
+              value={this.state.scaling}
+              onChange={this.setScaling}
+            >
+              {this.renderSettingOptions(scalingOptions, "Scale")}
+            </select>
+          </div>
+          <div className="setting">
+            <span className="setting-label">Results:</span>
+            <select
+              className="setting-select"
+              name="Results"
+              value={this.state.results}
+              onChange={this.setResults}
+            >
+              {this.renderSettingOptions(resultsOptions, "Results")}
+            </select>
+          </div>
+          <div className="setting">
+            {parseInt(this.state.UIDesign) === 5 && (
+              <span className="setting-label">Legend:</span>
+            )}
+            <DiscreteColorLegend
+              colors={EXTENDED_DISCRETE_COLOR_RANGE}
+              items={this.renderLegend()}
+              orientation="horizontal"
+              onItemClick={(Object, item) => {
+                let line = "";
+                line = Object.title.toString();
+                if (this.state.isInvisible.indexOf(line) < 0) {
+                  this.setState({
+                    isInvisible: this.state.isInvisible.concat([line]),
+                  });
+                } else {
+                  return this.setState({
+                    isInvisible: this.state.isInvisible.filter((l) => {
+                      return l !== line;
+                    }),
+                  });
+                }
+              }}
+            />
+          </div>
+        </div>
+      );
+    } else if (this.state.legendPosition == 2) {
+      return (
+        <div className="settings-container extracted-legend">
+          <div className="extracted-settings">
+            <div className="settings-subcontainer">
+              <div className="setting">
+                <span className="setting-label">Selection:</span>
+                <select
+                  className="setting-select"
+                  name="Selection"
+                  value={this.state.selection}
+                  onChange={this.setSelection}
+                >
+                  <optgroup label="Runsets">
+                    {this.props.tools.map((runset, i) => {
+                      return runset.columns.length !==
+                        this.props.hiddenCols[runset.toolIdx].length ? (
+                        <option
+                          key={"runset-" + i}
+                          value={"runset-" + i}
+                          name={"Runset " + i}
+                        >
+                          {getRunSetName(runset)}
+                        </option>
+                      ) : null;
+                    })}
+                  </optgroup>
+                  <optgroup label="Columns">{this.renderColumns()}</optgroup>
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">Plot:</span>
+                <select
+                  className="setting-select"
+                  name="Plot"
+                  value={this.state.plot}
+                  onChange={this.setPlot}
+                >
+                  {this.renderSettingOptions(plotOptions, "Plot")}
+                </select>
+              </div>
+            </div>
+            <div className="settings-subcontainer">
+              <div className="setting">
+                <span className="setting-label">Scaling:</span>
+                <select
+                  className="setting-select"
+                  name="Scaling"
+                  value={this.state.scaling}
+                  onChange={this.setScaling}
+                >
+                  {this.renderSettingOptions(scalingOptions, "Scale")}
+                </select>
+              </div>
+              <div className="setting">
+                <span className="setting-label">Results:</span>
+                <select
+                  className="setting-select"
+                  name="Results"
+                  value={this.state.results}
+                  onChange={this.setResults}
+                >
+                  {this.renderSettingOptions(resultsOptions, "Results")}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="extracted-legend">
+            <DiscreteColorLegend
+              colors={EXTENDED_DISCRETE_COLOR_RANGE}
+              items={this.renderLegend()}
+              onItemClick={(Object, item) => {
+                let line = "";
+                line = Object.title.toString();
+                if (this.state.isInvisible.indexOf(line) < 0) {
+                  this.setState({
+                    isInvisible: this.state.isInvisible.concat([line]),
+                  });
+                } else {
+                  return this.setState({
+                    isInvisible: this.state.isInvisible.filter((l) => {
+                      return l !== line;
+                    }),
+                  });
+                }
+              }}
+            />
+          </div>
+        </div>
+      );
+    } else if (
+      this.state.legendPosition == 3 ||
+      this.state.legendPosition == 4
+    ) {
+      return (
+        <div className="settings-container">
+          <div className="settings-subcontainer">
+            <div className="setting">
+              <span className="setting-label">Selection:</span>
+              <select
+                className="setting-select"
+                name="Selection"
+                value={this.state.selection}
+                onChange={this.setSelection}
+              >
+                <optgroup label="Runsets">
+                  {this.props.tools.map((runset, i) => {
+                    return runset.columns.length !==
+                      this.props.hiddenCols[runset.toolIdx].length ? (
+                      <option
+                        key={"runset-" + i}
+                        value={"runset-" + i}
+                        name={"Runset " + i}
+                      >
+                        {getRunSetName(runset)}
+                      </option>
+                    ) : null;
+                  })}
+                </optgroup>
+                <optgroup label="Columns">{this.renderColumns()}</optgroup>
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">Plot:</span>
+              <select
+                className="setting-select"
+                name="Plot"
+                value={this.state.plot}
+                onChange={this.setPlot}
+              >
+                {this.renderSettingOptions(plotOptions, "Plot")}
+              </select>
+            </div>
+          </div>
+          <div className="settings-subcontainer">
+            <div className="setting">
+              <span className="setting-label">Scaling:</span>
+              <select
+                className="setting-select"
+                name="Scaling"
+                value={this.state.scaling}
+                onChange={this.setScaling}
+              >
+                {this.renderSettingOptions(scalingOptions, "Scale")}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">Results:</span>
+              <select
+                className="setting-select"
+                name="Results"
+                value={this.state.results}
+                onChange={this.setResults}
+              >
+                {this.renderSettingOptions(resultsOptions, "Results")}
+              </select>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="settings-container">
+          <div className="settings-subcontainer">
+            <div className="setting">
+              <span className="setting-label">Selection:</span>
+              <select
+                className="setting-select"
+                name="Selection"
+                value={this.state.selection}
+                onChange={this.setSelection}
+              >
+                <optgroup label="Runsets">
+                  {this.props.tools.map((runset, i) => {
+                    return runset.columns.length !==
+                      this.props.hiddenCols[runset.toolIdx].length ? (
+                      <option
+                        key={"runset-" + i}
+                        value={"runset-" + i}
+                        name={"Runset " + i}
+                      >
+                        {getRunSetName(runset)}
+                      </option>
+                    ) : null;
+                  })}
+                </optgroup>
+                <optgroup label="Columns">{this.renderColumns()}</optgroup>
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">Plot:</span>
+              <select
+                className="setting-select"
+                name="Plot"
+                value={this.state.plot}
+                onChange={this.setPlot}
+              >
+                {this.renderSettingOptions(plotOptions, "Plot")}
+              </select>
+            </div>
+          </div>
+          <div className="settings-subcontainer">
+            <div className="setting">
+              <span className="setting-label">Scaling:</span>
+              <select
+                className="setting-select"
+                name="Scaling"
+                value={this.state.scaling}
+                onChange={this.setScaling}
+              >
+                {this.renderSettingOptions(scalingOptions, "Scale")}
+              </select>
+            </div>
+            <div className="setting">
+              <span className="setting-label">Results:</span>
+              <select
+                className="setting-select"
+                name="Results"
+                value={this.state.results}
+                onChange={this.setResults}
+              >
+                {this.renderSettingOptions(resultsOptions, "Results")}
+              </select>
+            </div>
+          </div>
+          <div className="settings-subcontainer">
+            <div className="setting">
+              <DiscreteColorLegend
+                colors={EXTENDED_DISCRETE_COLOR_RANGE}
+                orientation="horizontal"
+                items={this.renderLegend()}
+                onItemClick={(Object, item) => {
+                  let line = "";
+                  line = Object.title.toString();
+                  if (this.state.isInvisible.indexOf(line) < 0) {
+                    this.setState({
+                      isInvisible: this.state.isInvisible.concat([line]),
+                    });
+                  } else {
+                    return this.setState({
+                      isInvisible: this.state.isInvisible.filter((l) => {
+                        return l !== line;
+                      }),
+                    });
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  render() {
+    const areSelectionsOnTheRight =
+      this.state.UIDesign > 3 && this.state.UIDesign < 6;
+    return (
+      <>
+        <div className={"quantilePlot" + this.state.UIDesign}>
+          {!this.state.areAllColsHidden && this.renderSettings()}
+          {this.renderPlot()}
           {this.state.areAllColsHidden ? (
             <div className="plot__noresults">No columns to show!</div>
           ) : (
@@ -691,6 +947,30 @@ export default class QuantilePlot extends React.Component {
             <option value="6">6</option>
             <option value="7">7</option>
           </select>
+          {!areSelectionsOnTheRight && (
+            <span>
+              <span
+                style={{
+                  padding: "0 1em",
+                }}
+              >
+                Legend Position Selection:
+              </span>
+              <select
+                style={{
+                  fontSize: "1em",
+                }}
+                name="Legend"
+                value={this.state.legendPosition}
+                onChange={this.setLegend}
+              >
+                <option value="1">Inline with settings</option>
+                <option value="2">Upper right corner</option>
+                <option value="3">Next to plot</option>
+                <option value="4">Lower right corner</option>
+              </select>
+            </span>
+          )}
         </div>
       </>
     );

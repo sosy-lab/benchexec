@@ -757,6 +757,52 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 }
 
+.settings-container.extracted-legend {
+  flex-wrap: nowrap;
+
+  .extracted-settings {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-grow: 1;
+  }
+
+  .rv-discrete-color-legend {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
+    .rv-discrete-color-legend-item.clickable {
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+}
+
+.plot-and-legend-container {
+  display: flex;
+  align-items: flex-start;
+
+  .rv-discrete-color-legend {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin-left: 1em;
+    overflow-y: visible;
+
+    .rv-discrete-color-legend-item.clickable {
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+}
+
+.legend-in-plot {
+  text-align: left;
+  padding: 0;
+  border: 1px solid rgb(186, 186, 186);
+  float: right;
+  max-width: 50%;
+}
+
 .scatterPlot1 {
   text-align: center;
   margin: 20px;
