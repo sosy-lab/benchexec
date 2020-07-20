@@ -519,7 +519,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     &-label {
       background-color: $key-color;
       margin-right: 0.5em;
-      padding: 0.4em 1em;
+      padding: 0.5em 1em;
     }
 
     &-select {
@@ -756,8 +756,129 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 }
 
+.quantilePlot8 {
+  margin: 20px;
+  text-align: center;
+
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    padding: 3px 10px;
+
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin: 0 .5em 1em;
+  }
+
+  .setting {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0!important;
+
+    &-label {
+      padding: 0.4em 1em;
+    }
+
+    &-select {
+      margin: 0.4em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.quantilePlot9 {
+  margin: 20px;
+  text-align: center;
+
+  .rv-discrete-color-legend.horizontal {
+    padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rv-discrete-color-legend-item.clickable {
+    padding: 3px 10px;
+
+    &:hover {
+      background: $hover-color;
+    }
+  }
+
+  .settings-container {
+    margin-bottom: 1em;
+  }
+
+  .settings-border-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin: .5em 0;
+  }
+
+  .setting {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0!important;
+
+    &-label {
+      padding: 0.4em 1em;
+    }
+
+    &-select {
+      margin: 0.4em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
 .settings-container.extracted-legend {
+  display: flex;
   flex-wrap: nowrap;
+  align-content: space-between;
 
   .extracted-settings {
     display: flex;
@@ -770,6 +891,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       margin-top: 0;
       margin-bottom: 1em;
     }
+  }
+
+  .extracted-legend {
+    margin-left: 1em;
   }
 
   .rv-discrete-color-legend {
@@ -1176,8 +1301,124 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 }
 
+.scatterPlot8 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-subcontainer {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    margin: 0.5em 1em;
+  }
+
+  .settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    &-label {
+      padding: 0.4em 1em;
+    }
+
+    &-select {
+      margin: 0.4em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 3px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.scatterPlot9 {
+  text-align: center;
+  margin: 20px;
+
+  &__select select {
+    margin: 10px;
+  }
+
+  .middle-line .rv-xy-plot__axis__line {
+    stroke: $key-color;
+  }
+
+  &__plot {
+    margin: auto;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  .settings-subcontainer {
+    margin: 0.5em 1em;
+  }
+
+  .settings-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 1em;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .settings-subcontainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .setting {
+    &-label {
+      padding: 0.4em 1em;
+    }
+
+    &-select {
+      margin: 0.4em 1em;
+      margin-left: 0;
+      -moz-padding-start: calc(10px - 3px);
+      border: 1px solid #c3c3c3;
+      height: 25px;
+      padding-left: 3px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
 .setting-select {
-  max-width: 10vw;
+  max-width: 15vw;
 }
 
 .plot {
