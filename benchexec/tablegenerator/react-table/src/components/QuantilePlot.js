@@ -187,6 +187,7 @@ export default class QuantilePlot extends React.Component {
           return {
             title: c,
             disabled: this.state.isInvisible.some((el) => el === c),
+            strokeWidth: 4,
           };
         });
     } else {
@@ -202,6 +203,7 @@ export default class QuantilePlot extends React.Component {
                 disabled: this.state.isInvisible.some(
                   (el) => el === c.display_title,
                 ),
+                strokeWidth: 4,
               };
             })
         : [];
