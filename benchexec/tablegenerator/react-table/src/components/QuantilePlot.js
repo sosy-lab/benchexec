@@ -45,8 +45,8 @@ const defaultValues = {
   plot: plotOptions.quantile,
   scaling: scalingOptions.linear,
   results: resultsOptions.correct,
-  UIDesign: 1,
-  legendPosition: 1,
+  UIDesign: 6,
+  legendPosition: 2,
 };
 
 export default class QuantilePlot extends React.Component {
