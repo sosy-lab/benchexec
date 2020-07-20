@@ -764,9 +764,13 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    align-content: center;
+    align-items: flex-start;
     flex-grow: 1;
+
+    .setting {
+      margin-top: 0;
+      margin-bottom: 1em;
+    }
   }
 
   .rv-discrete-color-legend {
