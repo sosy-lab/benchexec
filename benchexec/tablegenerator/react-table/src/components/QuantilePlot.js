@@ -614,14 +614,13 @@ export default class QuantilePlot extends React.Component {
               {this.renderSettingOptions(resultsOptions, "Results")}
             </select>
           </div>
-          <div className="setting">
+          <div className="setting legend">
             {parseInt(this.state.UIDesign) === 5 && (
               <span className="setting-label">Legend:</span>
             )}
             <DiscreteColorLegend
               colors={EXTENDED_DISCRETE_COLOR_RANGE}
               items={this.renderLegend()}
-              orientation="horizontal"
               onItemClick={(Object, item) => {
                 let line = "";
                 line = Object.title.toString();
