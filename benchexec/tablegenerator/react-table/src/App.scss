@@ -738,19 +738,15 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     align-items: center;
     margin: 0.5em 1em;
     border: 1px solid rgba(0, 0, 0, 0.3);
-    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.28);
 
     &-label {
       padding: 0.4em 1em;
+      border-right: 1px solid rgba(0, 0, 0, 0.3);
     }
 
     &-select {
       margin: 0.4em 1em;
-      margin-left: 0;
-      -moz-padding-start: calc(10px - 3px);
-      border: 1px solid #c3c3c3;
-      height: 25px;
-      padding-left: 10px;
+      border: none;
       border-radius: 3px;
       cursor: pointer;
     }
