@@ -754,11 +754,10 @@ class TestRunExecutor(unittest.TestCase):
                 # Do not mark /home hidden, would fail with python from virtualenv
                 "/": containerexecutor.DIR_READ_ONLY,
                 "/tmp": containerexecutor.DIR_FULL_ACCESS,  # for inner_output_file
-                "/sys": containerexecutor.DIR_HIDDEN,
                 "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
             }
         )
-        inner_args = ["--hidden-dir", "/sys", "--", "/bin/echo", "TEST_TOKEN"]
+        inner_args = ["--", "/bin/echo", "TEST_TOKEN"]
 
         with tempfile.NamedTemporaryFile(
             mode="r", prefix="inner_output_", suffix=".log"
