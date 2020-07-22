@@ -20,6 +20,20 @@ class Tool(benchexec.tools.template.BaseTool):
         2. to serve as the tool info module for any generic coveritea program.
     """
 
+    # TODO: I am not sure about the following folders:
+    # 1. examples and config: should be included or not? It can also be dealt with the required files tag in the behchdef.
+    # 2. tools and toolinfocache: these are cache folders. Isn't it better just to wrap them in one folder called cache?
+    # To be resolved before the final merge.
+    REQUIRED_PATHS = [
+        "coveriteam",
+        "bin",
+        "lib",
+        "examples",
+        "config",
+        "tools",
+        "toolinfocache",
+    ]
+
     def __init__(self):
         super().__init__()
 
@@ -28,6 +42,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def version(self, executable):
         return self._version_from_tool(executable)
+
+    def program_files(self, executable):
+        return [executable] + self.REQUIRED_PATHS
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         """
