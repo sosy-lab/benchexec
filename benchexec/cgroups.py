@@ -21,7 +21,6 @@ from benchexec import util
 
 __all__ = [
     "find_my_cgroups",
-    "find_cgroups_of_process",
     "BLKIO",
     "CPUACCT",
     "CPUSET",
@@ -118,14 +117,6 @@ def find_my_cgroups(cgroup_paths=None):
             cgroupsParents[subsystem] = cgroupPath
 
     return Cgroup(cgroupsParents)
-
-
-def find_cgroups_of_process(pid):
-    """
-    Return a Cgroup object that represents the cgroups of a given process.
-    """
-    with open("/proc/{}/cgroup".format(pid), "rt") as cgroups_file:
-        return find_my_cgroups(cgroups_file)
 
 
 def _find_cgroup_mounts():
