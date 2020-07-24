@@ -101,7 +101,7 @@ export default class FilterContainer extends React.PureComponent {
     );
     return (
       <div className="filterBox--container">
-        <h4>{this.state.toolName}</h4>
+        <h4 className="section-header">{this.state.toolName}</h4>
         {filters.length > 0 &&
           filters.map((filter, idx) => (
             <FilterCard
