@@ -21,7 +21,6 @@ from benchexec import util
 
 __all__ = [
     "find_my_cgroups",
-    "find_cgroups_of_process",
     "BLKIO",
     "CPUACCT",
     "CPUSET",
@@ -87,7 +86,7 @@ Required cgroups are not available.
 If you are using BenchExec within a container, please make "/sys/fs/cgroup" available."""
 
 
-def find_my_cgroups(cgroup_paths=None):
+def find_my_cgroups(cgroup_paths=None, fallback=True):
     """
     Return a Cgroup object with the cgroups of the current process.
     Note that it is not guaranteed that all subsystems are available
@@ -96,6 +95,8 @@ def find_my_cgroups(cgroup_paths=None):
     A subsystem may also be present but we do not have the rights to create
     child cgroups, this can be checked with require_subsystem().
     @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
+    @param fallback: Whether to look for a default cgroup as fallback is our cgroup
+        is not accessible.
     """
     logging.debug(
         "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
@@ -113,19 +114,15 @@ def find_my_cgroups(cgroup_paths=None):
         if os.access(mount, os.F_OK):
             cgroupPath = os.path.join(mount, my_cgroups[subsystem])
             fallbackPath = os.path.join(mount, CGROUP_FALLBACK_PATH)
-            if not os.access(cgroupPath, os.W_OK) and os.path.isdir(fallbackPath):
+            if (
+                fallback
+                and not os.access(cgroupPath, os.W_OK)
+                and os.path.isdir(fallbackPath)
+            ):
                 cgroupPath = fallbackPath
             cgroupsParents[subsystem] = cgroupPath
 
     return Cgroup(cgroupsParents)
-
-
-def find_cgroups_of_process(pid):
-    """
-    Return a Cgroup object that represents the cgroups of a given process.
-    """
-    with open("/proc/{}/cgroup".format(pid), "rt") as cgroups_file:
-        return find_my_cgroups(cgroups_file)
 
 
 def _find_cgroup_mounts():

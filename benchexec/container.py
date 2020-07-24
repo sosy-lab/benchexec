@@ -472,6 +472,12 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 mountpoint.decode(),
                 original_mountpoint.decode(),
             )
+            # Creating the following directory will make original_mountpoint appear as
+            # empty directory in the container. This is useful because otherwise the
+            # kernel will show a mountpoint for a non-existing directory.
+            # This makes nesting containers work better (common example is
+            # /sys/kernel/debug/tracing).
+            os.makedirs(temp_base + original_mountpoint, exist_ok=True)
         else:
             logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
 
