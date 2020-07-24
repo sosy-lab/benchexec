@@ -358,6 +358,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       background: $hover-color;
     }
   }
+
+  .settings-legend-container {
+    justify-content: space-between;
+  }
+
+  .settings-container {
+    flex-grow: 0;
+  }
 }
 
 .scatterPlot {
