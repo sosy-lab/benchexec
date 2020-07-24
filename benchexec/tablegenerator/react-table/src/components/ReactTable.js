@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -36,7 +36,7 @@ const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
-export default function Table(props) {
+const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
@@ -413,4 +413,8 @@ export default function Table(props) {
       </ReactTableFixedColumns>
     </div>
   );
-}
+};
+
+const Table = memo(TableRender);
+
+export default Table;
