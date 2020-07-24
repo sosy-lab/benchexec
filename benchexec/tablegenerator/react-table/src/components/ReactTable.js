@@ -323,6 +323,26 @@ export default function Table(props) {
     return out;
   };
 
+  const selectAllStatusFields = ({ tool, name, column }) => {
+    const out = [];
+
+    for (const val of props.statusValues[tool][column]) {
+      const value = val;
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value,
+      });
+    }
+    for (const val of props.categoryValues[tool][column]) {
+      const value = `${val} `;
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value, // categories are identified by the trailing space
+      });
+    }
+    return out;
+  };
+
   return (
     <div className="mainTable">
       <ReactTableFixedColumns
@@ -340,11 +360,13 @@ export default function Table(props) {
             (filter) => !props.filtered.includes(filter),
           );
 
+          let filteredCopy = [...filtered];
+
           let additionalFilters = [];
 
           // We are only interested in applying additional filters based on status filters
-          const statusFilter = newFilters.filter(
-            ({ id, value }) => id.includes("status") && value.trim() !== "all",
+          const statusFilter = newFilters.filter(({ id, value }) =>
+            id.includes("status"),
           );
           if (statusFilter && statusFilter.length) {
             const parsed = statusFilter.map(({ id, value }) => {
@@ -358,16 +380,31 @@ export default function Table(props) {
             });
 
             for (const { tool, name, column, value } of parsed) {
-              const isCategory = value[value.length - 1] === " ";
-              additionalFilters = createAdditionalFilters({
-                tool,
-                name,
-                column,
-                isCategory,
-              });
+              if (value.trim() === "all") {
+                additionalFilters = selectAllStatusFields({
+                  tool,
+                  name,
+                  column,
+                });
+                filteredCopy = filteredCopy.filter(
+                  ({ id, value }) =>
+                    !(
+                      id === `${tool}_${name}_${column}` &&
+                      value.trim() === "all"
+                    ),
+                );
+              } else {
+                const isCategory = value[value.length - 1] === " ";
+                additionalFilters = createAdditionalFilters({
+                  tool,
+                  name,
+                  column,
+                  isCategory,
+                });
+              }
             }
           }
-          props.filterPlotData([...filtered, ...additionalFilters], true);
+          props.filterPlotData([...filteredCopy, ...additionalFilters], true);
         }}
       >
         {(_, makeTable) => {
