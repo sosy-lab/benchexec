@@ -21,6 +21,8 @@ import urllib.request
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
     """Uniquely identifies a task (name of input file, property, etc.)."""
 
+    field_names = ["Task name", "Property", "Expected verdict", "Run set"]
+
     __slots__ = ()  # reduce per-instance memory consumption
 
     def __str__(self):

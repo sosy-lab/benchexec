@@ -182,6 +182,11 @@ def _prepare_benchmark_setup_data(
         "options": get_row("Options", "{options}"),
         "property": property_row,
         "title": titleRow,
+        "task_id_names": [
+            name
+            for name, selected in zip(util.TaskId.field_names, relevant_id_columns)
+            if selected
+        ],
     }
 
 
