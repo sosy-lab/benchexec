@@ -58,8 +58,7 @@ const lineOptions = [
 const defaultValues = {
   scaling: scalingOptions.linear,
   results: resultsOptions.correct,
-  line: 10,
-  UIDesign: 1,
+  line: lineOptions[9],
 };
 
 export default class ScatterPlot extends React.Component {
@@ -76,7 +75,7 @@ export default class ScatterPlot extends React.Component {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let { results, scaling, toolX, toolY, columnX, columnY, line, UIDesign } = {
+    let { results, scaling, toolX, toolY, columnX, columnY, line } = {
       ...defaultValues,
       ...getHashSearch(),
     };
@@ -116,7 +115,7 @@ export default class ScatterPlot extends React.Component {
       scaling,
       toolX: 0,
       toolY: 0,
-      line: line || 10,
+      line,
       columnX: 1,
       columnY: 1,
       nameX: defaultName,
@@ -124,7 +123,6 @@ export default class ScatterPlot extends React.Component {
       value: false,
       height: window.innerHeight,
       areAllColsHidden,
-      UIDesign,
     };
 
     if (dataX && !areAllColsHidden) {
@@ -158,24 +156,6 @@ export default class ScatterPlot extends React.Component {
   };
 
   // --------------------rendering-----------------------------
-  renderColumns = () => {
-    return this.props.tools.map((runset, i) => (
-      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
-        {runset.columns.map((column, j) => {
-          return !this.props.hiddenCols[i].includes(column.colIdx) ? (
-            <option
-              key={i + column.display_title}
-              value={i + "-" + column.colIdx}
-              name={column.display_title}
-            >
-              {column.display_title}
-            </option>
-          ) : null;
-        })}
-      </optgroup>
-    ));
-  };
-
   renderData = () => {
     let array = [];
     this.hasInvalidLog = false;
@@ -241,6 +221,95 @@ export default class ScatterPlot extends React.Component {
     return min > 2 ? 1 : min;
   };
 
+  renderAllSettings() {
+    return (
+      <div className="settings-container">
+        <div className="settings-border-container">
+          <div className="settings-subcontainer">
+            {this.renderAxisSetting("X-Axis", this.state.dataX, (ev) =>
+              this.setAxis(ev, "X"),
+            )}
+            {this.renderAxisSetting("Y-Axis", this.state.dataX, (ev) =>
+              this.setAxis(ev, "Y"),
+            )}
+          </div>
+          <div className="settings-subcontainer">
+            {this.renderSetting(
+              "Scaling",
+              this.state.scaling,
+              this.setScaling,
+              scalingOptions,
+            )}
+            {this.renderSetting(
+              "Results",
+              this.state.results,
+              this.setResults,
+              resultsOptions,
+            )}
+            <div className="settings-subcontainer">
+              {this.renderSetting(
+                "Aux. Lines",
+                this.state.line,
+                this.setLine,
+                lineOptions,
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderSetting(name, value, changeHandler, options) {
+    return (
+      <div className="setting">
+        <span className="setting-label">{name}:</span>
+        <select
+          className="setting-select"
+          name={name}
+          value={value}
+          onChange={changeHandler}
+        >
+          {this.renderSettingOptions(options, name)}
+        </select>
+      </div>
+    );
+  }
+
+  renderAxisSetting(name, value, changeHandler) {
+    return (
+      <div className="setting">
+        <span className="setting-label">{name}:</span>
+        <select
+          className="setting-select"
+          name={name}
+          value={value}
+          onChange={changeHandler}
+        >
+          {this.renderColumns()}
+        </select>
+      </div>
+    );
+  }
+
+  renderColumns = () => {
+    return this.props.tools.map((runset, i) => (
+      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
+        {runset.columns.map((column, j) => {
+          return !this.props.hiddenCols[i].includes(column.colIdx) ? (
+            <option
+              key={i + column.display_title}
+              value={i + "-" + column.colIdx}
+              name={column.display_title}
+            >
+              {column.display_title}
+            </option>
+          ) : null;
+        })}
+      </optgroup>
+    ));
+  };
+
   renderSettingOptions = (options, name) =>
     Object.values(options).map((option) => (
       <option value={option} key={option} name={option + " " + name}>
@@ -291,317 +360,132 @@ export default class ScatterPlot extends React.Component {
     setParam({ results: ev.target.value });
   };
 
-  setUI = (ev) => {
-    setParam({ UIDesign: ev.target.value });
-  };
-
   render() {
     this.renderData();
     const isLinear = this.state.scaling === scalingOptions.linear;
     const FlexibleXYPlot = makeWidthFlexible(XYPlot);
-    const showColon = [1, 2].includes(parseInt(this.state.UIDesign));
-    const areSelectionsOnTheRight =
-      this.state.UIDesign > 3 && this.state.UIDesign < 6;
 
     return (
-      <>
-        <div className={"scatterPlot" + this.state.UIDesign}>
-          {areSelectionsOnTheRight ? (
-            <div className="settings-container">
-              <div className="setting">
-                <span className="setting-label">
-                  X-Axis{showColon ? ":" : ""}
-                </span>
-                <select
-                  className="setting-select"
-                  name="X-Axis"
-                  value={this.state.dataX}
-                  onChange={(ev) => this.setAxis(ev, "X")}
-                >
-                  {this.renderColumns()}
-                </select>
-              </div>
-              <div className="setting">
-                <span className="setting-label">
-                  Y-Axis{showColon ? ":" : ""}
-                </span>
-                <select
-                  className="setting-select"
-                  name="Y-Axis"
-                  value={this.state.dataY}
-                  onChange={(ev) => this.setAxis(ev, "Y")}
-                >
-                  {this.renderColumns()}
-                </select>
-              </div>
-              <div className="setting">
-                <span className="setting-label">
-                  Scaling{showColon ? ":" : ""}
-                </span>
-                <select
-                  className="setting-select"
-                  name="Scaling"
-                  value={this.state.scaling}
-                  onChange={this.setScaling}
-                >
-                  {this.renderSettingOptions(scalingOptions, "Scale")}
-                </select>
-              </div>
-              <div className="setting">
-                <span className="setting-label">
-                  Results{showColon ? ":" : ""}
-                </span>
-                <select
-                  className="setting-select"
-                  name="Results"
-                  value={this.state.results}
-                  onChange={this.setResults}
-                >
-                  {this.renderSettingOptions(resultsOptions, "Results")}
-                </select>
-              </div>
-              <div className="setting">
-                <span className="setting-label">
-                  Aux. Lines{showColon ? ":" : ""}
-                </span>
-                <select
-                  className="setting-select"
-                  name="Aux. Lines"
-                  value={this.state.line}
-                  onChange={this.setLine}
-                >
-                  {this.renderSettingOptions(lineOptions, "")}
-                </select>
-              </div>
-            </div>
-          ) : (
-            <div className="settings-container">
-              <div className="settings-subcontainer">
-                <div className="setting">
-                  <span className="setting-label">
-                    X-Axis{showColon ? ":" : ""}
-                  </span>
-                  <select
-                    className="setting-select"
-                    name="X-Axis"
-                    value={this.state.dataX}
-                    onChange={(ev) => this.setAxis(ev, "X")}
-                  >
-                    {this.renderColumns()}
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">
-                    Y-Axis{showColon ? ":" : ""}
-                  </span>
-                  <select
-                    className="setting-select"
-                    name="Y-Axis"
-                    value={this.state.dataY}
-                    onChange={(ev) => this.setAxis(ev, "Y")}
-                  >
-                    {this.renderColumns()}
-                  </select>
-                </div>
-              </div>
-              <div className="settings-subcontainer">
-                <div className="setting">
-                  <span className="setting-label">
-                    Scaling{showColon ? ":" : ""}
-                  </span>
-                  <select
-                    className="setting-select"
-                    name="Scaling"
-                    value={this.state.scaling}
-                    onChange={this.setScaling}
-                  >
-                    {this.renderSettingOptions(scalingOptions, "Scale")}
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">
-                    Results{showColon ? ":" : ""}
-                  </span>
-                  <select
-                    className="setting-select"
-                    name="Results"
-                    value={this.state.results}
-                    onChange={this.setResults}
-                  >
-                    {this.renderSettingOptions(resultsOptions, "Results")}
-                  </select>
-                </div>
-                <div className="setting">
-                  <span className="setting-label">
-                    Aux. Lines{showColon ? ":" : ""}
-                  </span>
-                  <select
-                    className="setting-select"
-                    name="Aux. Lines"
-                    value={this.state.line}
-                    onChange={this.setLine}
-                  >
-                    {this.renderSettingOptions(lineOptions, "")}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-          <FlexibleXYPlot
-            className="scatterPlot__plot"
-            height={this.state.height - 200}
-            margin={{ left: 90 }}
+      <div className="scatterPlot">
+        {!this.state.areAllColsHidden && this.renderAllSettings()}
+        <FlexibleXYPlot
+          className="scatterPlot__plot"
+          height={this.state.height - 200}
+          margin={{ left: 90 }}
+          yType={this.handleType(this.state.toolY, this.state.columnY)}
+          xType={this.handleType(this.state.toolX, this.state.columnX)}
+          xDomain={
+            this.handleType(this.state.toolX, this.state.columnX) !== "ordinal"
+              ? [this.minX, this.maxX]
+              : null
+          }
+          yDomain={
+            this.handleType(this.state.toolY, this.state.columnY) !== "ordinal"
+              ? [this.minY, this.maxY]
+              : null
+          }
+        >
+          <VerticalGridLines
             yType={this.handleType(this.state.toolY, this.state.columnY)}
             xType={this.handleType(this.state.toolX, this.state.columnX)}
-            xDomain={
-              this.handleType(this.state.toolX, this.state.columnX) !==
-              "ordinal"
-                ? [this.minX, this.maxX]
-                : null
-            }
-            yDomain={
-              this.handleType(this.state.toolY, this.state.columnY) !==
-              "ordinal"
-                ? [this.minY, this.maxY]
-                : null
-            }
-          >
-            <VerticalGridLines
-              yType={this.handleType(this.state.toolY, this.state.columnY)}
-              xType={this.handleType(this.state.toolX, this.state.columnX)}
-            />
-            <HorizontalGridLines
-              yType={this.handleType(this.state.toolY, this.state.columnY)}
-              xType={this.handleType(this.state.toolX, this.state.columnX)}
-            />
+          />
+          <HorizontalGridLines
+            yType={this.handleType(this.state.toolY, this.state.columnY)}
+            xType={this.handleType(this.state.toolX, this.state.columnX)}
+          />
 
-            <DecorativeAxis
-              className="middle-line"
-              axisStart={{
-                x: isLinear ? 0 : 1,
-                y: isLinear ? 0 : 1,
-              }}
-              axisEnd={{
-                x: this.maxX > this.maxY ? this.maxX : this.maxY,
-                y: this.maxX > this.maxY ? this.maxX : this.maxY,
-              }}
-              axisDomain={[0, 10000000000]}
-              style={{
-                ticks: { stroke: "#009440", opacity: 0 },
-                text: {
-                  stroke: "none",
-                  fill: "#009440",
-                  fontWeight: 600,
-                  opacity: 0,
-                },
-              }}
-            />
-            <DecorativeAxis
-              axisStart={{
-                x: isLinear ? 0 : this.state.line,
-                y: isLinear ? 0 : 1,
-              }}
-              axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
-              axisDomain={[0, 10000000000]}
-              style={{
-                ticks: { stroke: "#ADDDE1", opacity: 0 },
-                text: {
-                  stroke: "none",
-                  fill: "#6b6b76",
-                  fontWeight: 600,
-                  opacity: 0,
-                },
-              }}
-            />
-            <DecorativeAxis
-              axisStart={{
-                x: isLinear ? 0 : 1,
-                y: isLinear ? 0 : this.state.line,
-              }}
-              axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
-              axisDomain={[0, 10000000000]}
-              style={{
-                ticks: { stroke: "#ADDDE1", opacity: 0 },
-                text: {
-                  stroke: "none",
-                  fill: "#6b6b76",
-                  fontWeight: 600,
-                  opacity: 0,
-                },
-              }}
-            />
-            <XAxis
-              title={this.state.nameX}
-              tickFormat={(value) => value}
-              yType={this.handleType(this.state.toolY, this.state.columnY)}
-              xType={this.handleType(this.state.toolX, this.state.columnX)}
-            />
-            <YAxis
-              title={this.state.nameY}
-              tickFormat={(value) => value}
-              yType={this.handleType(this.state.toolY, this.state.columnY)}
-              xType={this.handleType(this.state.toolX, this.state.columnX)}
-            />
-            <MarkSeries
-              data={this.dataArray}
-              onValueMouseOver={(datapoint, event) =>
-                this.setState({ value: datapoint })
-              }
-              onValueMouseOut={(datapoint, event) =>
-                this.setState({ value: null })
-              }
-            />
-            {this.state.value ? <Hint value={this.state.value} /> : null}
-          </FlexibleXYPlot>
-          {this.state.areAllColsHidden ? (
-            <div className="plot__noresults">No columns to show!</div>
-          ) : (
-            this.lineCount === 0 && (
-              <div className="plot__noresults">
-                No {this.state.results === resultsOptions.correct && "correct"}{" "}
-                results
-                {this.props.table.length > 0 && " with valid data points"}
-                {this.hasInvalidLog &&
-                  " (negative values are not shown in logarithmic plot)"}
-              </div>
-            )
-          )}
-        </div>
-        <div
-          style={{
-            textAlign: "center",
-            padding: ".5em",
-            fontSize: "1.5em",
-            backgroundColor: "#71bcff",
-          }}
-        >
-          <span
-            style={{
-              paddingRight: "1em",
+          <DecorativeAxis
+            className="middle-line"
+            axisStart={{
+              x: isLinear ? 0 : 1,
+              y: isLinear ? 0 : 1,
             }}
-          >
-            UI Design Selection:
-          </span>
-          <select
-            style={{
-              fontSize: "1em",
+            axisEnd={{
+              x: this.maxX > this.maxY ? this.maxX : this.maxY,
+              y: this.maxX > this.maxY ? this.maxX : this.maxY,
             }}
-            name="UI"
-            value={this.state.UIDesign}
-            onChange={this.setUI}
-          >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-          </select>
-        </div>
-      </>
+            axisDomain={[0, 10000000000]}
+            style={{
+              ticks: { stroke: "#009440", opacity: 0 },
+              text: {
+                stroke: "none",
+                fill: "#009440",
+                fontWeight: 600,
+                opacity: 0,
+              },
+            }}
+          />
+          <DecorativeAxis
+            axisStart={{
+              x: isLinear ? 0 : this.state.line,
+              y: isLinear ? 0 : 1,
+            }}
+            axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
+            axisDomain={[0, 10000000000]}
+            style={{
+              ticks: { stroke: "#ADDDE1", opacity: 0 },
+              text: {
+                stroke: "none",
+                fill: "#6b6b76",
+                fontWeight: 600,
+                opacity: 0,
+              },
+            }}
+          />
+          <DecorativeAxis
+            axisStart={{
+              x: isLinear ? 0 : 1,
+              y: isLinear ? 0 : this.state.line,
+            }}
+            axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
+            axisDomain={[0, 10000000000]}
+            style={{
+              ticks: { stroke: "#ADDDE1", opacity: 0 },
+              text: {
+                stroke: "none",
+                fill: "#6b6b76",
+                fontWeight: 600,
+                opacity: 0,
+              },
+            }}
+          />
+          <XAxis
+            title={this.state.nameX}
+            tickFormat={(value) => value}
+            yType={this.handleType(this.state.toolY, this.state.columnY)}
+            xType={this.handleType(this.state.toolX, this.state.columnX)}
+          />
+          <YAxis
+            title={this.state.nameY}
+            tickFormat={(value) => value}
+            yType={this.handleType(this.state.toolY, this.state.columnY)}
+            xType={this.handleType(this.state.toolX, this.state.columnX)}
+          />
+          <MarkSeries
+            data={this.dataArray}
+            onValueMouseOver={(datapoint, event) =>
+              this.setState({ value: datapoint })
+            }
+            onValueMouseOut={(datapoint, event) =>
+              this.setState({ value: null })
+            }
+          />
+          {this.state.value ? <Hint value={this.state.value} /> : null}
+        </FlexibleXYPlot>
+        {this.state.areAllColsHidden ? (
+          <div className="plot__noresults">No columns to show!</div>
+        ) : (
+          this.lineCount === 0 && (
+            <div className="plot__noresults">
+              No {this.state.results === resultsOptions.correct && "correct"}{" "}
+              results
+              {this.props.table.length > 0 && " with valid data points"}
+              {this.hasInvalidLog &&
+                " (negative values are not shown in logarithmic plot)"}
+            </div>
+          )
+        )}
+      </div>
     );
   }
 }
