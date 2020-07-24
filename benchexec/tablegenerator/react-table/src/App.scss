@@ -134,9 +134,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         }
         &-input-fields {
           display: grid;
+          grid-gap: 1rem;
 
           input {
-            width: 100%;
+            width: 93%;
           }
 
           .range-input-fields--min {
@@ -150,6 +151,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         }
       }
       &--header {
+        min-height: 35px;
         width: 100%;
         display: flex;
         position: relative;
