@@ -297,6 +297,32 @@ export default function Table(props) {
       createRunSetColumns(runSet, runSetIdx, createColumn),
     )
     .flat();
+
+  /**
+   * This function automatically creates additional filters for status or category filters.
+   * This is due to the fact that status and category filters are AND connected.
+   * As only one status or category at a time can be selected in the Table view, this would
+   * result in Filters like
+   *      <Status X> AND <no categories>
+   *  or
+   *      <no status> AND <Category Y>
+   *
+   * which would always result in an empty result set.
+   *
+   */
+  const createAdditionalFilters = ({ tool, name, column, isCategory }) => {
+    const fill = isCategory ? props.statusValues : props.categoryValues;
+    const out = [];
+
+    for (const val of fill[tool][column]) {
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value: `${val}${isCategory ? "" : " "}`,
+      });
+    }
+    return out;
+  };
+
   return (
     <div className="mainTable">
       <ReactTableFixedColumns
@@ -309,7 +335,39 @@ export default function Table(props) {
         className="-highlight"
         minRows={0}
         onFilteredChange={(filtered) => {
-          props.filterPlotData(filtered, true);
+          // We only want to consider filters that were set by ReactTable on this update
+          const newFilters = filtered.filter(
+            (filter) => !props.filtered.includes(filter),
+          );
+
+          let additionalFilters = [];
+
+          // We are only interested in applying additional filters based on status filters
+          const statusFilter = newFilters.filter(
+            ({ id, value }) => id.includes("status") && value.trim() !== "all",
+          );
+          if (statusFilter && statusFilter.length) {
+            const parsed = statusFilter.map(({ id, value }) => {
+              const [tool, name, column] = id.split("_");
+              return {
+                tool,
+                name,
+                column,
+                value,
+              };
+            });
+
+            for (const { tool, name, column, value } of parsed) {
+              const isCategory = value[value.length - 1] === " ";
+              additionalFilters = createAdditionalFilters({
+                tool,
+                name,
+                column,
+                isCategory,
+              });
+            }
+          }
+          props.filterPlotData([...filtered, ...additionalFilters], true);
         }}
       >
         {(_, makeTable) => {
