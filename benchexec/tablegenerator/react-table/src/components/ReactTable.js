@@ -229,10 +229,10 @@ const TableRender = (props) => {
         <select
           onChange={(event) => onChange(event.target.value)}
           style={{ width: "100%" }}
-          value={selectValue}
+          value={(multipleSelected && "multiple") || selectValue}
         >
           {multipleSelected && (
-            <option value="multiple" disabled selected>
+            <option value="multiple" disabled>
               {selectedFilters
                 .map((x) => x.trim())
                 .filter((x) => x !== "all" && x !== emptyStateValue)
