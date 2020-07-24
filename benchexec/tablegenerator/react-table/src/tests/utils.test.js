@@ -12,6 +12,7 @@ import {
   getHashSearch,
   setHashSearch,
   NumberFormatterBuilder,
+  hasSameEntries,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -178,52 +179,99 @@ describe("NumberFormatterBuilder", () => {
   });
 });
 
-describe("textSortMethod", () => {
-  test("should evaluate order of objects with different values", () => {
-    const smaller = { raw: "a" };
-    const bigger = { raw: "b" };
-    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-  });
+describe(
+  "textSortMethod",
+  () => {
+    test("should evaluate order of objects with different values", () => {
+      const smaller = { raw: "a" };
+      const bigger = { raw: "b" };
+      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+    });
 
-  test("should sort strings with different values without case sensitivy", () => {
-    const smaller = { raw: "a" };
-    const bigger = { raw: "B" };
-    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-  });
+    test("should sort strings with different values without case sensitivy", () => {
+      const smaller = { raw: "a" };
+      const bigger = { raw: "B" };
+      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+    });
 
-  test("should evaluate order of objects with same values", () => {
-    const even1 = { raw: "a" };
-    const even2 = { raw: "a" };
-    expect(textSortMethod(even1, even2)).toBe(0);
-  });
+    test("should evaluate order of objects with same values", () => {
+      const even1 = { raw: "a" };
+      const even2 = { raw: "a" };
+      expect(textSortMethod(even1, even2)).toBe(0);
+    });
 
-  test("should sort strings with same values without case sensitivity", () => {
-    const even1 = { raw: "a" };
-    const even2 = { raw: "A" };
-    expect(textSortMethod(even1, even2)).toBe(0);
-  });
+    test("should sort strings with same values without case sensitivity", () => {
+      const even1 = { raw: "a" };
+      const even2 = { raw: "A" };
+      expect(textSortMethod(even1, even2)).toBe(0);
+    });
 
-  test("should sort empty value last", () => {
-    const bigger = { raw: "" };
-    const smaller = { raw: "a" };
-    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-  });
+    test("should sort empty value last", () => {
+      const bigger = { raw: "" };
+      const smaller = { raw: "a" };
+      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+    });
 
-  test("should order items without raw prop last", () => {
-    const testObject = { raw: "a" };
-    const objectWithoutProp = { fake: "a" };
-    expect(textSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
-    expect(textSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
-  });
+    test("should order items without raw prop last", () => {
+      const testObject = { raw: "a" };
+      const objectWithoutProp = { fake: "a" };
+      expect(textSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
+      expect(textSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
+    });
 
-  test("should be nil safe", () => {
-    const testObject = { raw: "a" };
-    expect(textSortMethod(null, testObject)).toBeGreaterThan(0);
-    expect(textSortMethod(undefined, testObject)).toBeGreaterThan(0);
-    expect(textSortMethod(testObject, null)).toBeLessThan(0);
-    expect(textSortMethod(testObject, undefined)).toBeLessThan(0);
-  });
-});
+    test("should be nil safe", () => {
+      const testObject = { raw: "a" };
+      expect(textSortMethod(null, testObject)).toBeGreaterThan(0);
+      expect(textSortMethod(undefined, testObject)).toBeGreaterThan(0);
+      expect(textSortMethod(testObject, null)).toBeLessThan(0);
+      expect(textSortMethod(testObject, undefined)).toBeLessThan(0);
+    });
+  },
+
+  describe("hasSameEntries", () => {
+    test("should return true if the same arrays are passed", () => {
+      const a = ["a", "b", "c"];
+      const b = ["a", "b", "c"];
+      expect(hasSameEntries(a, b)).toBe(true);
+    });
+
+    test("should return true if the same elements are present but in different order", () => {
+      const a = ["a", "b", "c"];
+      const b = ["c", "a", "b"];
+      expect(hasSameEntries(a, b)).toBe(true);
+    });
+
+    test("should return true if the second array is a subset of the first one", () => {
+      const a = ["a", "b", "c"];
+      const b = ["a", "b"];
+      expect(hasSameEntries(a, b)).toBe(true);
+    });
+
+    test("should return false if the second array has elements that are not in the first array", () => {
+      const a = ["a", "b", "c"];
+      const b = ["a", "b", "x"];
+      expect(hasSameEntries(a, b)).toBe(false);
+    });
+
+    test("should return false if the first array is a subset of the second one", () => {
+      const a = ["a", "b"];
+      const b = ["a", "b", "c"];
+      expect(hasSameEntries(a, b)).toBe(false);
+    });
+
+    test("should return false if the first array is empty", () => {
+      const a = [];
+      const b = ["a", "b", "c"];
+      expect(hasSameEntries(a, b)).toBe(false);
+    });
+
+    test("should return true if the second array is empty", () => {
+      const a = ["a", "b"];
+      const b = [];
+      expect(hasSameEntries(a, b)).toBe(true);
+    });
+  }),
+);

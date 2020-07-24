@@ -25,6 +25,7 @@ import {
   pathOr,
   emptyStateValue,
   isNil,
+  hasSameEntries,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -220,8 +221,17 @@ const TableRender = (props) => {
         ...selectedCategoryFilters,
         ...selectedStatusValues,
       ];
+
+      const allStatusValues = [
+        ...categoryValues.map((item) => `${item} `),
+        ...props.statusValues[runSetIdx][columnIdx],
+      ];
       const multipleSelected =
         selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
+
+      const allSelected = filter
+        ? hasSameEntries(selectedFilters, allStatusValues)
+        : true;
 
       const singleFilterValue = filter ? filter.value : "all ";
       const selectValue = multipleSelected ? "multiple" : singleFilterValue;
@@ -229,7 +239,11 @@ const TableRender = (props) => {
         <select
           onChange={(event) => onChange(event.target.value)}
           style={{ width: "100%" }}
-          value={(multipleSelected && "multiple") || selectValue}
+          value={
+            (allSelected && "all ") ||
+            (multipleSelected && "multiple") ||
+            selectValue
+          }
         >
           {multipleSelected && (
             <option value="multiple" disabled>

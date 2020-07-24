@@ -405,6 +405,30 @@ const getFirstVisibles = (tools, hiddenCols) => {
     : [undefined, undefined];
 };
 
+/**
+ * Checks if all distinct elements of the data param also
+ * exist in the compare param.
+ * Only to be used with primitives. Objects will be compared by reference.
+ *
+ *
+ * @param {Any[]} compare The array to compare elements to
+ * @param {Any[]} data The array to check
+ */
+const hasSameEntries = (compare, data) => {
+  const compareObj = {};
+
+  for (const elem of compare) {
+    compareObj[elem] = true;
+  }
+  for (const elem of data) {
+    if (isNil(compareObj[elem])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -431,4 +455,5 @@ export {
   emptyStateValue,
   getTaskIdParts,
   getFirstVisibles,
+  hasSameEntries,
 };
