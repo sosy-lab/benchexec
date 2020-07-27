@@ -319,7 +319,7 @@ export default class FilterCard extends React.PureComponent {
                     });
                   } else {
                     this.setState({
-                      currentmin: value,
+                      currentMin: value,
                       values: [`${value}:${this.state.currentMax}`],
                     });
                   }
