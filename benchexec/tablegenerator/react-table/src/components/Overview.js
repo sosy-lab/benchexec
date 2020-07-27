@@ -50,13 +50,21 @@ export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     //imported data
-    const { tableHeader, tools, columns, table, stats } = prepareTableData(
-      props.data,
-    );
+    console.log({ data: props.data });
+    const {
+      tableHeader,
+      taskIdNames,
+      tools,
+      columns,
+      table,
+      stats,
+    } = prepareTableData(props.data);
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
     this.originalTools = tools;
+
+    this.taskIdNames = taskIdNames;
 
     this.columns = columns;
     this.stats = stats;
@@ -217,7 +225,7 @@ export default class Overview extends React.Component {
               hide={() => {
                 this.setState({ filterBoxVisible: false });
               }}
-              ids={getTaskIdParts(this.originalTable)}
+              ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (

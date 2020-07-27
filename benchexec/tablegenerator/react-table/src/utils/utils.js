@@ -12,6 +12,7 @@ const emptyStateValue = "##########";
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
+    taskIdNames: head.task_id_names,
     tools: tools.map((tool, idx) => ({
       ...tool,
       toolIdx: idx,
@@ -228,9 +229,9 @@ const deepEquals = (a, b) => {
  *
  * @param {*} rows - the rows array of the dataset
  */
-const getTaskIdParts = (rows) =>
+const getTaskIdParts = (rows, taskIdNames) =>
   pathOr(["0", "id"], [], rows).reduce(
-    (acc, curr, idx) => ({ ...acc, [idx]: curr }),
+    (acc, curr, idx) => ({ ...acc, [taskIdNames[idx]]: curr }),
     {},
   );
 
