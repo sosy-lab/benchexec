@@ -226,6 +226,15 @@ const deepEquals = (a, b) => {
 // TODO Add extraction of human-readable task id part names once they are being exported from python
 /**
  * Function to extract the names of the task id parts and to provide a mapping for filtering.
+ * The returned array is of following form:
+ * [
+ *  {
+ *    label: "example",
+ *  }, {...}
+ * ]
+ *
+ * where the label will be displayed over the input field of the task id filter and
+ * the example value will be the input hint to further clarify the functionality.
  *
  * @param {*} rows - the rows array of the dataset
  */
