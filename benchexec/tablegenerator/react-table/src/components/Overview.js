@@ -50,7 +50,6 @@ export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     //imported data
-    console.log({ data: props.data });
     const {
       tableHeader,
       taskIdNames,
