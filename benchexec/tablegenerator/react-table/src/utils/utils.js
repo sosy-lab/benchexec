@@ -438,6 +438,13 @@ const hasSameEntries = (compare, data) => {
   return true;
 };
 
+/**
+ * Naive check if a filter value is a category (currently identifiable by a trailing " ")
+ * @param {string} item - the filter value
+ * @returns {boolean} True if value is a category, else false
+ */
+const isCategory = (item) => item && item[item.length - 1] === " ";
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -465,4 +472,5 @@ export {
   getTaskIdParts,
   getFirstVisibles,
   hasSameEntries,
+  isCategory,
 };

@@ -26,6 +26,7 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
+  isCategory,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -171,6 +172,43 @@ const TableRender = (props) => {
     ],
   });
 
+  /**
+   * @typedef {Object} RelevantFilterParam
+   * @property {string[]} categoryFilters - The category filters that are currently selected
+   * @property {string[]} statusFilters - The status filters that are currently selected
+   * @property {string[]} categoryFilterValues - All selectable category filter values
+   * @property {string[]} statusFilterValues - All selectable status filter values
+   */
+
+  /**
+   * Function to extract the label of relevant filters to display.
+   * If, for example, all category values are set and selected status values are "true" and "pass",
+   * then only these status values will be displayed to the user as the category values have no
+   * impact on filtering.
+   *
+   * @param {RelevantFilterParam} options
+   * @returns {string[]} The labels to display to the user
+   */
+  const createRelevantFilterLabel = ({
+    categoryFilters,
+    statusFilters,
+    categoryFilterValues,
+    statusFilterValues,
+  }) => {
+    let out = [];
+
+    if (!hasSameEntries(categoryFilters, categoryFilterValues)) {
+      //if categoryFilters is a superset of categoryFilterValues, we know that all categories are selected
+      out = categoryFilters;
+    }
+    if (!hasSameEntries(statusFilters, statusFilterValues)) {
+      //if statusFilters is a superset of statusFilterValues, we know that all statuses are selected
+      out = [...out, ...statusFilters];
+    }
+
+    return out;
+  };
+
   const createStatusColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: <StandardColumnHeader column={column} />,
@@ -217,21 +255,17 @@ const TableRender = (props) => {
         [],
         filteredColumnValues,
       );
-      const selectedFilters = [
-        ...selectedCategoryFilters,
-        ...selectedStatusValues,
-      ];
+      const selectedFilters = createRelevantFilterLabel({
+        categoryFilters: selectedCategoryFilters,
+        statusFilters: selectedStatusValues,
+        categoryFilterValues: categoryValues.map((item) => `${item} `),
+        statusFilterValues: props.statusValues[runSetIdx][columnIdx],
+      });
 
-      const allStatusValues = [
-        ...categoryValues.map((item) => `${item} `),
-        ...props.statusValues[runSetIdx][columnIdx],
-      ];
       const multipleSelected =
         selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
 
-      const allSelected = filter
-        ? hasSameEntries(selectedFilters, allStatusValues)
-        : true;
+      const allSelected = filter ? selectedFilters.length === 0 : true;
 
       const singleFilterValue = filter ? filter.value : "all ";
       const selectValue = multipleSelected ? "multiple" : singleFilterValue;
