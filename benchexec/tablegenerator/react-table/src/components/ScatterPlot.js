@@ -16,7 +16,7 @@ import {
   YAxis,
   Hint,
   DecorativeAxis,
-  makeWidthFlexible,
+  FlexibleXYPlot,
 } from "react-vis";
 import {
   getRunSetName,
@@ -25,6 +25,7 @@ import {
   isNil,
   getFirstVisibles,
 } from "../utils/utils";
+import { renderSetting } from "../utils/plot";
 
 const scalingOptions = {
   linear: "Linear",
@@ -196,7 +197,6 @@ export default class ScatterPlot extends React.Component {
     }
 
     this.setMinMaxValues(array);
-
     this.lineCount = array.length;
     this.dataArray = array;
   };
@@ -234,44 +234,28 @@ export default class ScatterPlot extends React.Component {
             )}
           </div>
           <div className="settings-subcontainer">
-            {this.renderSetting(
+            {renderSetting(
               "Scaling",
               this.state.scaling,
-              this.setScaling,
+              (ev) => setParam({ scaling: ev.target.value }),
               scalingOptions,
             )}
-            {this.renderSetting(
+            {renderSetting(
               "Results",
               this.state.results,
-              this.setResults,
+              (ev) => setParam({ results: ev.target.value }),
               resultsOptions,
             )}
             <div className="settings-subcontainer">
-              {this.renderSetting(
+              {renderSetting(
                 "Aux. Lines",
                 this.state.line,
-                this.setLine,
+                (ev) => setParam({ line: ev.target.value }),
                 lineOptions,
               )}
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  renderSetting(name, value, changeHandler, options) {
-    return (
-      <div className="setting">
-        <span className="setting-label">{name}:</span>
-        <select
-          className="setting-select"
-          name={name}
-          value={value}
-          onChange={changeHandler}
-        >
-          {this.renderSettingOptions(options, name)}
-        </select>
       </div>
     );
   }
@@ -310,13 +294,6 @@ export default class ScatterPlot extends React.Component {
     ));
   };
 
-  renderSettingOptions = (options, name) =>
-    Object.values(options).map((option) => (
-      <option value={option} key={option} name={option + " " + name}>
-        {option + " " + name}
-      </option>
-    ));
-
   // ------------------------handeling----------------------------
   handleType = (tool, column) => {
     const colType = this.props.tools[tool].columns[column].type;
@@ -348,22 +325,9 @@ export default class ScatterPlot extends React.Component {
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
 
-  setLine = (ev) => {
-    setParam({ line: ev.target.value });
-  };
-
-  setScaling = (ev) => {
-    setParam({ scaling: ev.target.value });
-  };
-
-  setResults = (ev) => {
-    setParam({ results: ev.target.value });
-  };
-
   render() {
     this.renderData();
     const isLinear = this.state.scaling === scalingOptions.linear;
-    const FlexibleXYPlot = makeWidthFlexible(XYPlot);
 
     return (
       <div className="scatterPlot">

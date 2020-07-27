@@ -16,7 +16,7 @@ import {
   YAxis,
   DiscreteColorLegend,
   Hint,
-  makeWidthFlexible,
+  FlexibleXYPlot,
 } from "react-vis";
 import {
   getRunSetName,
@@ -25,7 +25,7 @@ import {
   getHashSearch,
   getFirstVisibles,
 } from "../utils/utils";
-
+import { renderSetting } from "../utils/plot";
 const plotOptions = {
   quantile: "Quantile",
   direct: "Direct",
@@ -146,6 +146,15 @@ export default class QuantilePlot extends React.Component {
     );
   };
 
+  isColVisibleInAnyTool = (column) =>
+    this.props.tools.some((tool) =>
+      tool.columns.some(
+        (col) =>
+          col.colIdx === column.colIdx &&
+          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
+      ),
+    );
+
   // ----------------------resizer-------------------------------
   componentDidMount() {
     window.addEventListener("resize", this.updateDimensions);
@@ -159,7 +168,6 @@ export default class QuantilePlot extends React.Component {
 
   updateDimensions = () => {
     this.setState({
-      width: window.innerWidth,
       height: window.innerHeight,
     });
   };
@@ -167,16 +175,6 @@ export default class QuantilePlot extends React.Component {
   refreshUrlState = () => {
     this.setState(this.setup());
   };
-
-  isColVisibleInAnyTool(column) {
-    return this.props.tools.some((tool) =>
-      tool.columns.some(
-        (col) =>
-          col.colIdx === column.colIdx &&
-          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
-      ),
-    );
-  }
 
   // --------------------rendering-----------------------------
   renderLegend = () => {
@@ -412,7 +410,7 @@ export default class QuantilePlot extends React.Component {
                   className="setting-select"
                   name="Selection"
                   value={this.state.selection}
-                  onChange={this.setSelection}
+                  onChange={(ev) => setParam({ selection: ev.target.value })}
                 >
                   <optgroup label="Runsets">
                     {this.props.tools.map((runset, i) => {
@@ -431,24 +429,24 @@ export default class QuantilePlot extends React.Component {
                   <optgroup label="Columns">{this.renderColumns()}</optgroup>
                 </select>
               </div>
-              {this.renderSetting(
+              {renderSetting(
                 "Plot",
                 this.state.plot,
-                this.setPlot,
+                (ev) => setParam({ plot: ev.target.value }),
                 plotOptions,
               )}
             </div>
             <div className="settings-subcontainer">
-              {this.renderSetting(
+              {renderSetting(
                 "Scaling",
                 this.state.scaling,
-                this.setScaling,
+                (ev) => setParam({ scaling: ev.target.value }),
                 scalingOptions,
               )}
-              {this.renderSetting(
+              {renderSetting(
                 "Results",
                 this.state.results,
-                this.setResults,
+                (ev) => setParam({ results: ev.target.value }),
                 resultsOptions,
               )}
             </div>
@@ -479,48 +477,9 @@ export default class QuantilePlot extends React.Component {
     );
   }
 
-  renderSetting(name, value, changeHandler, options) {
-    return (
-      <div className="setting">
-        <span className="setting-label">{name}:</span>
-        <select
-          className="setting-select"
-          name={name}
-          value={value}
-          onChange={changeHandler}
-        >
-          {this.renderSettingOptions(options, name)}
-        </select>
-      </div>
-    );
-  }
-
-  renderSettingOptions = (options, name) =>
-    Object.values(options).map((option) => (
-      <option value={option} key={option} name={option + " " + name}>
-        {option + " " + name}
-      </option>
-    ));
-
   // ------------------------handeling----------------------------
   handleLineState = (line) => {
     return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;
-  };
-
-  setSelection = (ev) => {
-    setParam({ selection: ev.target.value });
-  };
-
-  setPlot = (ev) => {
-    setParam({ plot: ev.target.value });
-  };
-
-  setScaling = (ev) => {
-    setParam({ scaling: ev.target.value });
-  };
-
-  setResults = (ev) => {
-    setParam({ results: ev.target.value });
   };
 
   toggleShow = ({ target }) => {
@@ -544,7 +503,6 @@ export default class QuantilePlot extends React.Component {
   };
 
   render() {
-    const FlexibleXYPlot = makeWidthFlexible(XYPlot);
     return (
       <div className="quantilePlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}
