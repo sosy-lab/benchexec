@@ -26,7 +26,6 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
-  isCategory,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
