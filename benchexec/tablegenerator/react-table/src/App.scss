@@ -366,6 +366,11 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   .settings-container {
     flex-grow: 0;
   }
+
+  .settings-border-container,
+  .settings-subcontainer {
+    justify-content: left;
+  }
 }
 
 .scatterPlot {
