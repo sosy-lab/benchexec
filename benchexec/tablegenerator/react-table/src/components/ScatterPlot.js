@@ -34,7 +34,7 @@ const scalingOptions = {
 
 const resultsOptions = {
   all: "All",
-  correct: "Correct",
+  correct: "Correct only",
 };
 
 const lineOptions = [

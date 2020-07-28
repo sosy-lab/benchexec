@@ -19,7 +19,7 @@ const renderSetting = (name, value, changeHandler, options) => {
       >
         {Object.values(options).map((option) => (
           <option value={option} key={option} name={option + " " + name}>
-            {option + " " + name}
+            {option}
           </option>
         ))}
       </select>

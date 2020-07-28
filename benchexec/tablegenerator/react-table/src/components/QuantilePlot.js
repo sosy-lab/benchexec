@@ -27,8 +27,8 @@ import {
 } from "../utils/utils";
 import { renderSetting } from "../utils/plot";
 const plotOptions = {
-  quantile: "Quantile",
-  direct: "Direct",
+  quantile: "Quantile Plot",
+  direct: "Direct Plot",
 };
 
 const scalingOptions = {
@@ -38,7 +38,7 @@ const scalingOptions = {
 
 const resultsOptions = {
   all: "All",
-  correct: "Correct",
+  correct: "Correct only",
 };
 
 const defaultValues = {
