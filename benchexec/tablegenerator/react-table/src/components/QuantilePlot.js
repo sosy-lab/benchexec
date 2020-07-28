@@ -43,7 +43,7 @@ const resultsOptions = {
 
 const defaultValues = {
   plot: plotOptions.quantile,
-  scaling: scalingOptions.linear,
+  scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
 };
 

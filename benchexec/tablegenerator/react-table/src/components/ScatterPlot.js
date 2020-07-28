@@ -57,9 +57,9 @@ const lineOptions = [
 ];
 
 const defaultValues = {
-  scaling: scalingOptions.linear,
+  scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
-  line: lineOptions[9],
+  line: lineOptions[8],
 };
 
 export default class ScatterPlot extends React.Component {
@@ -229,7 +229,7 @@ export default class ScatterPlot extends React.Component {
             {this.renderAxisSetting("X-Axis", this.state.dataX, (ev) =>
               this.setAxis(ev, "X"),
             )}
-            {this.renderAxisSetting("Y-Axis", this.state.dataX, (ev) =>
+            {this.renderAxisSetting("Y-Axis", this.state.dataY, (ev) =>
               this.setAxis(ev, "Y"),
             )}
           </div>
