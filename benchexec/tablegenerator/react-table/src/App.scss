@@ -98,11 +98,13 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     height: 100vh;
     z-index: 9998;
     max-width: max-content;
+    min-width: min-content;
+    width: 40vw;
     background-color: white;
     box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
     transition: all 0.5s ease-in-out;
     .filter-card {
-      width: calc(100% - 50px);
+      width: 100%;
       box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
       margin-top: 18px;
       &--body {
@@ -185,10 +187,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       background-color: #88c7ff;
       display: flex;
       align-items: center;
-      padding: 5px;
+      padding: 5px 20px 5px 20px;
       &--icon {
         cursor: pointer;
-        margin: 15px;
+        margin-right: 15px;
       }
       &--reset {
         height: 100%;
@@ -197,7 +199,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         cursor: initial;
         &-icon {
           position: absolute;
-          right: 15px;
+          right: 20px;
           cursor: pointer;
         }
         &:disabled {
@@ -217,11 +219,12 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       flex-direction: column;
       align-items: center;
       text-align: center;
+      margin-left: 20px;
+      margin-right: 20px;
 
       h4 {
         margin-top: 2.5rem;
         margin-bottom: 0;
-        max-width: 90%;
         font-size: 18px;
       }
 
