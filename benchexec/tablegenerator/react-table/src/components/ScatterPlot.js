@@ -246,7 +246,7 @@ export default class ScatterPlot extends React.Component {
               (ev) => setParam({ results: ev.target.value }),
               resultsOptions,
             )}
-            <div className="settings-subcontainer">
+            <div className="settings-subcontainer" title="Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.">
               {renderSetting(
                 "Aux. Lines",
                 this.state.line,
