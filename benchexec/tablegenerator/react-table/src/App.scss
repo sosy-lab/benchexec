@@ -678,6 +678,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       justify-content: center;
     }
 
+    .settings-subcontainer,
     .setting,
     .setting-select {
       flex-grow: 1;
