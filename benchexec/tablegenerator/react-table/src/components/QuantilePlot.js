@@ -403,8 +403,8 @@ export default class QuantilePlot extends React.Component {
       <div className="settings-legend-container">
         <div className="settings-container">
           <div className="settings-border-container">
-            <div className="settings-subcontainer">
-              <div className="setting">
+            <div className="settings-subcontainer flexible-width">
+              <div className="setting flexible-width">
                 <span className="setting-label">Selection:</span>
                 <select
                   className="setting-select"

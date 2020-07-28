@@ -225,7 +225,7 @@ export default class ScatterPlot extends React.Component {
     return (
       <div className="settings-container">
         <div className="settings-border-container">
-          <div className="settings-subcontainer">
+          <div className="settings-subcontainer flexible-width">
             {this.renderAxisSetting("X-Axis", this.state.dataX, (ev) =>
               this.setAxis(ev, "X"),
             )}

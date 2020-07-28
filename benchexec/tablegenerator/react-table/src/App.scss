@@ -371,11 +371,36 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   .settings-container {
     flex-grow: 0;
+    // Necessary due to propagation for flex-shrinking property
+    min-width: 0;
   }
 
   .settings-border-container,
   .settings-subcontainer {
     justify-content: left;
+    // Necessary due to propagation for flex-shrinking property
+    min-width: 0;
+  }
+
+  /* Container of Selection dropdown of Quantile Plot
+     The container tries to take up to 50% of the container width, but at least the width of its content. If it is forced to take less,
+     the subcontainers will be wrapped into multiple rows. */
+  .settings-subcontainer.flexible-width {
+    flex: 1 1 50%;
+  }
+
+  /* Selection of Quantile Plot whose content is dependent on user input.
+     The setting tries to take up to 60% of the container width, while excessing content will be shrinked in the dropdown preview. */
+  .setting.flexible-width {
+    flex: 1 0 60%;
+    max-width: max-content;
+    // Necessary due to propagation for flex-shrinking property
+    min-width: 0;
+
+    // If the dropwdown of the selection is forced to take less than 120px, the dropdowns will be wrapped into multiple rows.
+    .setting-select {
+      min-width: 120px;
+    }
   }
 }
 
@@ -402,6 +427,28 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   .settings-container {
     margin-right: 0;
   }
+
+  /* Container of Y-Axis and X-Axis of Scatter Plot whose contents are dependent on user input.
+     The container tries to take up to 40% of the view width, but at least it's content width. If it is forced to take less,
+     the subcontainers will be wrapped into multiple rows. */
+  .settings-subcontainer.flexible-width {
+    flex: 1 1 40vw;
+    max-width: max-content;
+    // Necessary due to propagation for flex-shrinking property
+    min-width: 0;
+
+    /* Each settings tries to take up to 45% of the container width, but at least 250px and never more than the maximal content needs,
+      while excessing content will be shrinked in the dropdown preview. */
+    .setting {
+      flex: 1 1 45%;
+      min-width: 250px;
+      max-width: max-content;
+
+      .setting-select {
+        min-width: 150px;
+      }
+    }
+  }
 }
 
 .settings-legend-container {
@@ -422,6 +469,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   justify-content: center;
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 0.5em;
+  max-width: 100%;
 }
 
 .settings-subcontainer {
@@ -436,6 +484,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   &-label {
     padding: 0.4em 1em;
+    white-space: nowrap;
   }
 
   &-select {
@@ -446,7 +495,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     padding-left: 10px;
     border-radius: 3px;
     cursor: pointer;
-    max-width: 25vw;
   }
 }
 
@@ -630,17 +678,26 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       justify-content: center;
     }
 
+    .setting,
+    .setting-select {
+      flex-grow: 1;
+    }
+
+    .setting.flexible-width {
+      min-width: 18em;
+      max-width: 90vw;
+    }
+
+    .setting.flexible-width .setting-select {
+      max-width: 75vw;
+    }
+
     .settings-container {
       margin-right: 0;
     }
 
     .rv-discrete-color-legend {
       margin: 1em 0;
-    }
-
-    .settings-subcontainer,
-    .settings-border-container {
-      justify-content: center;
     }
 
     .rv-discrete-color-legend {
