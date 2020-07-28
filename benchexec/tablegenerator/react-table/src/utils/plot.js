@@ -7,6 +7,14 @@
 
 import React from "react";
 
+/**
+  * Renders a setting (= a dropdown menu with its label) for one of the plots.
+  *
+  * @param {String} name name of the dropdown that will be used for the label next to it
+  * @param {String} value default value that will be selected in the dropdown
+  * @param {function} changeHandler handler function that will be called when an option was selected
+  * @param {Object} options object containing the names of all options for the dropdown
+  **/
 const renderSetting = (name, value, changeHandler, options) => {
   return (
     <div className="setting">
