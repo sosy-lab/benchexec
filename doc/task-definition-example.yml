@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Required, string with format version of this file (currently only "1.0")
-format_version: "1.0"
+# Required, string with format version of this file
+format_version: "1.1"
 
 # Required, either a string or a list of strings with file-name patterns.
 # Relative paths interpreted as relative to this file.
@@ -31,5 +31,16 @@ properties:
     subproperty: valid-deref                     # optional string, contains violated subproperty
   - property_file: ../test/tasks/other.prp
     expected_verdict: true
+
+# Optional, contains dict with key-value pairs that
+# provide additional information about the context of the task definition.
+# If given, benchexec will pass this information to the tool.
+context:
+  # Machine model the task definition is defined for.
+  # Properties of this task definition are only guaranteed to be
+  # valid on the input_files for the machine model specified here.
+  #
+  # Values tools are expected to support: intel32 and intel64
+  - machine_model: intel32
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
