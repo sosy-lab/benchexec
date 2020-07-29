@@ -34,7 +34,7 @@ properties:
 
 # Optional, contains dict with key-value pairs that
 # provide additional information about the context of the task definition.
-# If given, benchexec will pass this information to the tool.
+# If given, benchexec will pass this information to the tool-info module.
 context:
   # Machine model the task definition is defined for.
   # Properties of this task definition are only guaranteed to be
