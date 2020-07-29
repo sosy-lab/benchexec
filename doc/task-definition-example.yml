@@ -35,12 +35,17 @@ properties:
 # Optional, contains dict with key-value pairs that
 # provide additional information about the context of the task definition.
 # If given, benchexec will pass this information to the tool-info module.
+#
+# Keys and their values are not interpreted by benchexec and may differ between application areas.
+# Because of this, they should be namespaced to avoid naming conflicts
+# and put their intended meaning in context (no pun intended; see below for an example).
 context:
+  # Example field for this dict.
   # Machine model the task definition is defined for.
   # Properties of this task definition are only guaranteed to be
   # valid on the input_files for the machine model specified here.
   #
   # Values tools are expected to support: linux32 and linux64
-  - machine_model: linux32
+  - com.github.sosy-lab.sv-benchmarks.machine_model: linux32
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
