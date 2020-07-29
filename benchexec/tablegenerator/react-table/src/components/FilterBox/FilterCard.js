@@ -11,12 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-import {
-  without,
-  pathOr,
-  NumberFormatterBuilder,
-  emptyStateValue,
-} from "../../utils/utils";
+import { without, pathOr, emptyStateValue, getStep } from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -92,8 +87,8 @@ export default class FilterCard extends React.PureComponent {
     };
     const [vMin, vMax] = value.split(":");
     return {
-      min: vMin.trim() !== "" ? Number(vMin) : propMin,
-      max: vMax.trim() !== "" ? Number(vMax) : propMax,
+      min: vMin.trim() !== "" ? vMin : propMin,
+      max: vMax.trim() !== "" ? vMax : propMax,
     };
   }
 
@@ -159,7 +154,6 @@ export default class FilterCard extends React.PureComponent {
         type,
         min,
         max,
-        number_of_significant_digits: significantDigits,
         categories,
         statuses,
         values = [],
@@ -256,10 +250,8 @@ export default class FilterCard extends React.PureComponent {
           />
         );
       } else {
-        const builder = new NumberFormatterBuilder(significantDigits);
-        builder.addDataItem(max.toString());
-        builder.addDataItem(min.toString());
-        const formatter = builder.build();
+        const step = getStep(min);
+        console.log(`using step ${step}`);
         body = (
           <>
             <div className="filter-card--range-container">
@@ -269,24 +261,20 @@ export default class FilterCard extends React.PureComponent {
             <Range
               min={min}
               max={max}
-              step={(max - min) / 100.0}
+              step={step}
               defaultValue={[min, max]}
               value={[this.state.currentMin, this.state.currentMax]}
               onChange={([nMin, nMax]) => {
-                const formattedMin = formatter(nMin.toString());
-                const formattedMax = formatter(nMax.toString());
                 this.setState({
-                  currentMin: formattedMin,
-                  currentMax: formattedMax,
+                  currentMin: nMin,
+                  currentMax: nMax,
                 });
               }}
               onAfterChange={([nMin, nMax]) => {
-                const formattedMin = formatter(nMin.toString());
-                const formattedMax = formatter(nMax.toString());
                 this.setState({
-                  currentMin: formattedMin,
-                  currentMax: formattedMax,
-                  values: [`${formattedMin}:${formattedMax}`],
+                  currentMin: nMin,
+                  currentMax: nMax,
+                  values: [`${nMin}:${nMax}`],
                 });
                 this.sendFilterUpdate([`${nMin}:${nMax}`]);
               }}
@@ -309,7 +297,7 @@ export default class FilterCard extends React.PureComponent {
                 name={`inp-${title}-min`}
                 value={this.state.currentMin}
                 lang="en-US"
-                step={(max - min) / 1000.0}
+                step={step}
                 onChange={({ target: { value } }) => {
                   if (value > this.state.currentMax) {
                     this.setState({
@@ -328,7 +316,7 @@ export default class FilterCard extends React.PureComponent {
               <input
                 type="number"
                 name={`inp-${title}-max`}
-                step={(max - min) / 1000.0}
+                step={step}
                 lang="en-US"
                 value={this.state.currentMax}
                 onChange={({ target: { value } }) => {

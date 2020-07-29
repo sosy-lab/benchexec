@@ -445,6 +445,30 @@ const hasSameEntries = (compare, data) => {
  */
 const isCategory = (item) => item && item[item.length - 1] === " ";
 
+/**
+ * This function uses string operations to get the smallest decimal part of a number.
+ * If a number is an integer, the return value will be 1
+ * A return type of string is used to prevent a small number to take the shape of
+ * a scientific notation, as they are incompatible with the "step" attribute of
+ * html inputs.
+ *
+ * @param {string} num - The number to check
+ * @returns {string} - The smallest step
+ */
+const getStep = (num) => {
+  const stringRep = num.toString();
+  const [, decimal] = stringRep.split(/,|\./);
+  if (isNil(decimal) || decimal.length === 0) {
+    return 1;
+  }
+  let out = ".";
+  for (let i = 0; i < decimal.length - 1; i += 1) {
+    out += "0";
+  }
+  out += "1";
+  return out;
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -473,4 +497,5 @@ export {
   getFirstVisibles,
   hasSameEntries,
   isCategory,
+  getStep,
 };
