@@ -40,7 +40,7 @@ context:
   # Properties of this task definition are only guaranteed to be
   # valid on the input_files for the machine model specified here.
   #
-  # Values tools are expected to support: intel32 and intel64
-  - machine_model: intel32
+  # Values tools are expected to support: linux32 and linux64
+  - machine_model: linux32
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
