@@ -71,7 +71,6 @@ export default class FilterCard extends React.PureComponent {
       prevProps.filter.values !== this.props.filter.values
     ) {
       const { values } = this.props.filter;
-      console.log("filtercard decided to update: ", values);
       const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value);
@@ -148,7 +147,6 @@ export default class FilterCard extends React.PureComponent {
       if (!filter) {
         return null;
       }
-      console.log({ filter });
       const {
         title,
         type,
@@ -251,7 +249,6 @@ export default class FilterCard extends React.PureComponent {
         );
       } else {
         const step = getStep(min);
-        console.log(`using step ${step}`);
         body = (
           <>
             <div className="filter-card--range-container">

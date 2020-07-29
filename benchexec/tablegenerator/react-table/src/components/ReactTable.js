@@ -243,7 +243,6 @@ const TableRender = (props) => {
     },
     Filter: ({ filter, onChange }) => {
       const categoryValues = props.categoryValues[runSetIdx][columnIdx];
-      console.log({ filter });
       const selectedCategoryFilters = pathOr(
         [runSetIdx, "categories"],
         [],
@@ -264,9 +263,9 @@ const TableRender = (props) => {
       const multipleSelected =
         selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
 
-      const allSelected = filter ? selectedFilters.length === 0 : true;
+      const allSelected = selectedFilters.length === 0;
 
-      const singleFilterValue = filter ? filter.value : "all ";
+      const singleFilterValue = selectedFilters && selectedFilters[0];
       const selectValue = multipleSelected ? "multiple" : singleFilterValue;
       return (
         <select
