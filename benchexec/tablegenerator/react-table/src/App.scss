@@ -92,7 +92,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   background: white;
 
   .filterBox {
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
     position: absolute;
     right: 0;
     height: 100vh;
@@ -113,6 +114,15 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       width: 100%;
       box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
       margin-top: 18px;
+      &--container {
+        overflow-y: scroll;
+        /*         
+        &::-webkit-scrollbar {
+          display: none;
+        }
+        -ms-overflow-style: none;
+        scrollbar-width: none; */
+      }
       &--body {
         text-align: left;
         margin-left: 25px;

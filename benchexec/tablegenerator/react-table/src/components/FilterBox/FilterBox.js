@@ -138,21 +138,23 @@ export default class FilterBox extends React.PureComponent {
           updateFilters={(data) => this.updateIdFilters(data)}
           resetFilterHook={this.resetFilterHook}
         />
-        {this.props.filterable.map((tool, idx) => {
-          return (
-            <FilterContainer
-              resetFilterHook={this.resetFilterHook}
-              updateFilters={(data, columnIndex) =>
-                this.updateFilters(idx, columnIndex, data)
-              }
-              currentFilters={this.state.filters[idx] || []}
-              toolName={tool.name}
-              filters={tool.columns}
-              hiddenCols={hiddenCols[idx]}
-              key={`filtercontainer-${idx}`}
-            />
-          );
-        })}
+        <div className="filter-card--container">
+          {this.props.filterable.map((tool, idx) => {
+            return (
+              <FilterContainer
+                resetFilterHook={this.resetFilterHook}
+                updateFilters={(data, columnIndex) =>
+                  this.updateFilters(idx, columnIndex, data)
+                }
+                currentFilters={this.state.filters[idx] || []}
+                toolName={tool.name}
+                filters={tool.columns}
+                hiddenCols={hiddenCols[idx]}
+                key={`filtercontainer-${idx}`}
+              />
+            );
+          })}
+        </div>
       </div>
     );
   }
