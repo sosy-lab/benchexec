@@ -133,12 +133,13 @@ export default class FilterBox extends React.PureComponent {
             onClick={() => this.resetAllContainers()}
           />
         </div>
-        <TaskFilterCard
-          ids={this.props.ids}
-          updateFilters={(data) => this.updateIdFilters(data)}
-          resetFilterHook={this.resetFilterHook}
-        />
+
         <div className="filter-card--container">
+          <TaskFilterCard
+            ids={this.props.ids}
+            updateFilters={(data) => this.updateIdFilters(data)}
+            resetFilterHook={this.resetFilterHook}
+          />
           {this.props.filterable.map((tool, idx) => {
             return (
               <FilterContainer
