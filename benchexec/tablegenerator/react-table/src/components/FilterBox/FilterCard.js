@@ -129,7 +129,7 @@ export default class FilterCard extends React.PureComponent {
         ) : (
           <>
             <h4 className="title">{`${filter.display_title} ${
-              filter.source_unit ? "(" + filter.source_unit + ")" : ""
+              filter.unit ? "(" + filter.unit + ")" : ""
             }`}</h4>
             <FontAwesomeIcon
               className="delete-button"
