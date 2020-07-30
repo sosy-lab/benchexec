@@ -118,6 +118,7 @@ export default class FilterContainer extends React.PureComponent {
           <FilterCard
             availableFilters={availableFilters}
             editable="true"
+            style={{ marginBottom: 20 }}
             addFilter={(idx) => this.addFilter(idx)}
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
