@@ -45,12 +45,12 @@ properties:
 context:
   # Example namespace
   com.github.sosy-lab.sv-benchmarks:
-      # Example field for this dict.
+      # Example context attribute in the above namespace:
       # Machine model the task definition is defined for.
       # Properties of this task definition are only guaranteed to be
       # valid on the input_files for the machine model specified here.
       #
-      # Values tools are expected to support: linux32, linux64
-      machine_model: linux32
+      # Values tools are expected to support: x86_32-unknown-linux, x86_64-unknown-linux
+      target_architecture: x86_32-unknown-linux
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
