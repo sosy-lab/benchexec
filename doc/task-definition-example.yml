@@ -46,6 +46,6 @@ context:
   # valid on the input_files for the machine model specified here.
   #
   # Values tools are expected to support: linux32 and linux64
-  - com.github.sosy-lab.sv-benchmarks.machine_model: linux32
+  com.github.sosy-lab.sv-benchmarks.machine_model: linux32
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
