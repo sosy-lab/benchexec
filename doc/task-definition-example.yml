@@ -33,19 +33,19 @@ properties:
     expected_verdict: true
 
 # Optional, contains dict that provides additional information
-# about the context of the task definition.
+# that is not interpreted by benchexec.
 # If given, benchexec will pass this information to the tool-info module.
 #
-# Each key in the dict defines a namespace for context attributes.
+# Each key in the dict defines a namespace for additional information.
 # Each namespace contains another dict with key-value pairs in that namespace.
-# These key-value pairs describe the concrete context.
+# These key-value pairs describe the concrete, additional information.
 #
-# Namespaces, context attributes and their values are not interpreted by benchexec
+# Namespaces, additional information and their values are not interpreted by benchexec
 # and may differ between application areas.
-context:
+additional_information:
   # Example namespace
   com.github.sosy-lab.sv-benchmarks:
-      # Example context attribute in the above namespace:
+      # Example information in the above namespace:
       # Machine model the task definition is defined for.
       # Properties of this task definition are only guaranteed to be
       # valid on the input_files for the machine model specified here.
