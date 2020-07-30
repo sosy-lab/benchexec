@@ -45,7 +45,7 @@ export default class TaskFilterCard extends React.PureComponent {
     const makeHeader = () => (
       <div className="filter-card--header">
         <>
-          <h4 className="title">Task name filter</h4>
+          <h4 className="title">Task filter</h4>
         </>
       </div>
     );

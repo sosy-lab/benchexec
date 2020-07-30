@@ -49,7 +49,7 @@ const TableRender = (props) => {
     let typingTimer;
 
     const textPlaceHolder = disableTaskText
-      ? "To edit, please clear task id filter in the sidebar"
+      ? "To edit, please clear task filter in the sidebar"
       : "text";
 
     const onChange = (event) => {
