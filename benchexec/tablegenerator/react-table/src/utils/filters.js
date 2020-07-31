@@ -45,26 +45,25 @@ const getFilterableData = ({ tools, rows }) => {
     };
 
     for (const row of rows) {
-      for (const result of row.results) {
-        // convention as of writing this commit is to postfix categories with a space character
-        columns[statusIdx].categories[`${result.category} `] = true;
+      const result = row.results[idx];
+      // convention as of writing this commit is to postfix categories with a space character
+      columns[statusIdx].categories[`${result.category} `] = true;
 
-        for (const colIdx in result.values) {
-          const col = result.values[colIdx];
-          const { raw } = col;
-          const filterCol = columns[colIdx];
-          if (!filterCol || isNil(raw)) {
-            continue;
-          }
+      for (const colIdx in result.values) {
+        const col = result.values[colIdx];
+        const { raw } = col;
+        const filterCol = columns[colIdx];
+        if (!filterCol || isNil(raw)) {
+          continue;
+        }
 
-          if (filterCol.type === "status") {
-            filterCol.statuses[raw] = true;
-          } else if (filterCol.type === "text") {
-            filterCol.distincts[raw] = true;
-          } else {
-            filterCol.min = Math.min(filterCol.min, Number(raw));
-            filterCol.max = Math.max(filterCol.max, Number(raw));
-          }
+        if (filterCol.type === "status") {
+          filterCol.statuses[raw] = true;
+        } else if (filterCol.type === "text") {
+          filterCol.distincts[raw] = true;
+        } else {
+          filterCol.min = Math.min(filterCol.min, Number(raw));
+          filterCol.max = Math.max(filterCol.max, Number(raw));
         }
       }
     }
