@@ -27,13 +27,14 @@ export default class FilterContainer extends React.PureComponent {
     const prevFilters = this.state.filters;
     prevFilters[idx].values = values;
     prevFilters[idx].filtering = filtering;
+    prevFilters[idx].touched += 1;
     this.setState({ filters: [...prevFilters] });
     this.props.updateFilters({ title, values }, idx);
   }
 
   addFilter(idx) {
     const { filters: newFilterState, numCards } = this.state;
-    const newFilter = { filtering: true, numCards };
+    const newFilter = { filtering: true, numCards, touched: 0 };
     if (newFilterState[idx].type === "status") {
       newFilter.values = [
         ...newFilterState[idx].categories,
@@ -80,14 +81,24 @@ export default class FilterContainer extends React.PureComponent {
     if (!equals(prevFilters, currentFilters)) {
       // update set filters
       console.log("updated container");
-      const { filters } = this.state;
+      let { filters } = this.state;
       for (const idx in currentFilters) {
         filters[idx] = {
           ...filters[idx],
           ...currentFilters[idx],
+          touched: filters[idx].touched + 1,
           filtering: true,
         };
       }
+      // remove all filters that are not currently filtered
+      filters = filters.map((filter, idx) => {
+        const toBeRemoved = currentFilters[idx] || filter.touched === 0;
+        return {
+          ...filter,
+          filtering: toBeRemoved,
+          values: toBeRemoved ? [] : filter.values,
+        };
+      });
       this.setState({ filters: [...filters] });
     }
   }
