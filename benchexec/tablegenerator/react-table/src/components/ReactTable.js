@@ -48,9 +48,10 @@ const TableRender = (props) => {
     let value;
     let typingTimer;
 
-    const textPlaceHolder = disableTaskText
-      ? "To edit, please clear task filter in the sidebar"
-      : "text";
+    const textPlaceHolder =
+      props.column.id === "id" && disableTaskText
+        ? "To edit, please clear task filter in the sidebar"
+        : "text";
 
     const onChange = (event) => {
       value = event.target.value;
