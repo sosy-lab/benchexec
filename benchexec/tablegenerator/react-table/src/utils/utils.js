@@ -273,12 +273,14 @@ class NumberFormatterBuilder {
 
   build() {
     return (number, whitespaceFormat = false) => {
+      let stringNumber =
+        typeof number === "string" ? number : number.toString();
       let significantPart = "";
       let addedNumbers = 0;
       let numsBeforeDecimal = 0;
       let positive = true;
       let foundFirstNonNull = false;
-      for (const num of number) {
+      for (const num of stringNumber) {
         const isDecimalPoint = num === "." || num === ",";
         if (isDecimalPoint) {
           positive = false;

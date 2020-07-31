@@ -11,7 +11,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-import { without, pathOr, emptyStateValue, getStep } from "../../utils/utils";
+import {
+  without,
+  pathOr,
+  emptyStateValue,
+  getStep,
+  NumberFormatterBuilder,
+} from "../../utils/utils";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -20,15 +26,22 @@ let debounceHandler = setTimeout(() => {}, 500);
 export default class FilterCard extends React.PureComponent {
   constructor(props) {
     super(props);
-    const { values, min, max, type } = props.filter || { values: [] };
+    const {
+      values,
+      min,
+      max,
+      type,
+      number_of_significant_digits: significantDigits,
+    } = props.filter || { values: [] };
     let currentMin = 0;
     let currentMax = 0;
     if (type === "measure" || type === "number") {
-      currentMin = min;
-      currentMax = max;
+      const builder = new NumberFormatterBuilder(significantDigits).build();
+      currentMin = builder(min);
+      currentMax = builder(max);
       const value = values && values[0];
       if (value && value.includes(":")) {
-        const res = this.handleMinMaxValue(value);
+        const res = this.handleMinMaxValue(value, significantDigits);
         currentMin = res.min;
         currentMax = res.max;
       }
@@ -70,24 +83,28 @@ export default class FilterCard extends React.PureComponent {
       !prevProps.filter ||
       prevProps.filter.values !== this.props.filter.values
     ) {
-      const { values } = this.props.filter;
+      const {
+        values,
+        number_of_significant_digits: significantDigits,
+      } = this.props.filter;
       const [value] = values;
       if (value && value.includes(":")) {
-        const { min, max } = this.handleMinMaxValue(value);
+        const { min, max } = this.handleMinMaxValue(value, significantDigits);
         this.setState({ currentMin: min, currentMax: max });
       }
     }
   }
 
-  handleMinMaxValue(value) {
+  handleMinMaxValue(value, significantDigits) {
+    const builder = new NumberFormatterBuilder(significantDigits).build();
     const { min: propMin, max: propMax } = this.props.filter || {
       min: 0,
       max: Infinity,
     };
     const [vMin, vMax] = value.split(":");
     return {
-      min: vMin.trim() !== "" ? vMin : propMin,
-      max: vMax.trim() !== "" ? vMax : propMax,
+      min: vMin.trim() !== "" ? builder(vMin) : builder(propMin),
+      max: vMax.trim() !== "" ? builder(vMax) : builder(propMax),
     };
   }
 
@@ -150,12 +167,12 @@ export default class FilterCard extends React.PureComponent {
       const {
         title,
         type,
-        min,
-        max,
+        number_of_significant_digits: significantDigits,
         categories,
         statuses,
         values = [],
       } = filter;
+      let { min, max } = filter;
       let body;
       if (type === "status") {
         body = (
@@ -248,7 +265,16 @@ export default class FilterCard extends React.PureComponent {
           />
         );
       } else {
-        const step = getStep(min);
+        const builder = new NumberFormatterBuilder(significantDigits).build();
+        min = builder(min);
+        max = builder(max);
+        const minStep = getStep(min);
+        const maxStep = getStep(max);
+
+        // get the smaller step
+        const step = minStep.length > maxStep.length ? maxStep : minStep;
+
+        //shift the decimal
         body = (
           <>
             <div className="filter-card--range-container">
@@ -256,24 +282,29 @@ export default class FilterCard extends React.PureComponent {
               <b>{max}</b>
             </div>
             <Range
-              min={min}
-              max={max}
+              min={Number(min)}
+              max={Number(max)}
               step={step}
-              defaultValue={[min, max]}
-              value={[this.state.currentMin, this.state.currentMax]}
+              defaultValue={[Number(min), Number(max)]}
+              value={[
+                Number(this.state.currentMin),
+                Number(this.state.currentMax),
+              ]}
               onChange={([nMin, nMax]) => {
                 this.setState({
-                  currentMin: nMin,
-                  currentMax: nMax,
+                  currentMin: builder(nMin),
+                  currentMax: builder(nMax),
                 });
               }}
               onAfterChange={([nMin, nMax]) => {
+                const fMin = builder(nMin);
+                const fMax = builder(nMax);
                 this.setState({
-                  currentMin: nMin,
-                  currentMax: nMax,
-                  values: [`${nMin}:${nMax}`],
+                  currentMin: fMin,
+                  currentMax: fMax,
+                  values: [`${fMin}:${fMax}`],
                 });
-                this.sendFilterUpdate([`${nMin}:${nMax}`]);
+                this.sendFilterUpdate([`${fMin}:${fMax}`]);
               }}
             />
             <div className="filter-card--range-input-fields">
