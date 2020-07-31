@@ -376,6 +376,9 @@ def _prepare_run_sets_for_js(run_sets):
         result = {k: v for k, v in column.__dict__.items() if v is not None}
         result["display_title"] = column.display_title or column.title
         result["type"] = column.type.type.name
+        number_of_significant_digits = column.get_number_of_significant_digits()
+        if number_of_significant_digits is not None:
+            result["number_of_significant_digits"] = number_of_significant_digits
         return result
 
     def prepare_run_set(attributes, columns):
