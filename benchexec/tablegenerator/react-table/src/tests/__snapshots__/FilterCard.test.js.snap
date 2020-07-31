@@ -596,7 +596,7 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
         onChange={[Function]}
         step={1}
         type="number"
-        value={1337}
+        value="1337"
       />
       <input
         lang="en-US"
@@ -604,7 +604,7 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
         onChange={[Function]}
         step={1}
         type="number"
-        value={9001}
+        value="9001"
       />
     </div>
   </div>
