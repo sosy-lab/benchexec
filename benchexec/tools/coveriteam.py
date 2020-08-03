@@ -16,7 +16,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     This class has 2 purposes:
         1. to serve as an abstract class for specific coveriteam programs like verifiers, validators, etc.
-        2. to serve as the tool info module for any generic coveritea program.
+        2. to serve as the tool info module for any generic coveriteam program.
     """
 
     # TODO: I am not sure about the following folders:
@@ -33,8 +33,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "toolinfocache",
     ]
 
-    def __init__(self):
-        super().__init__()
+    def name(self):
+        return "CoVeriTeam"
 
     def executable(self):
         return util.find_executable("bin/coveriteam")
@@ -43,12 +43,14 @@ class Tool(benchexec.tools.template.BaseTool):
         return self._version_from_tool(executable)
 
     def program_files(self, executable):
-        return [executable] + self.REQUIRED_PATHS
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         """
-        CoVeriTeam in general, wouldn't be used on its own.
-        Instead, we expect a tool to inherit from this class and that be executed.
-        That tool should define its own cmdline method.
+        In case when someone wants to run a generic CoVeriTeam program.
+        In this case the caller has to set the inputs in the options field,
+        because we do not know what would be the inputs to a generic CoVeriTeam program.
         """
         return [executable] + options

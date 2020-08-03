@@ -7,6 +7,7 @@
 
 import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
+import sys
 
 
 class Tool(coveriteam.Tool):
@@ -23,10 +24,14 @@ class Tool(coveriteam.Tool):
         """
         Prepare command for the example coveriteam program for a verifier.
         """
-        spec = (
-            ["--input", "spec_path=" + propertyfile] if propertyfile is not None else []
-        )
-        # We don't support more than one tasks at the moment.
+        # We expect one tasks and a propertyfile.
+        if len(tasks) != 1 or not propertyfile:
+            sys.exit(
+                "Can't execute CoVeriTeam-Verifier-Validator."
+                "Either propertyfile is missing or the number of tasks is not 1."
+            )
+
+        spec = ["--input", "spec_path=" + propertyfile]
         prog = ["--input", "prog_path=" + tasks[0]]
         additional_options = prog + spec
 
@@ -34,9 +39,9 @@ class Tool(coveriteam.Tool):
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
-        This function will be useful in case of a verifier and a validator.
         It assumes that any verifier or validator implemented in CoVeriTeam
-        will print out the produced aftifacts in the end.
+        will print out the produced aftifacts.
+        If more than one dict is printed, the last one is taken.
         """
         res = {}
         for line in output:
