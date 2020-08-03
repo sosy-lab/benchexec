@@ -27,10 +27,14 @@ exports[`FilterCard tests FilterCard should allow selection of available filters
       >
         Column
       </option>
-      <option>
+      <option
+        value={0}
+      >
         Filter1
       </option>
-      <option>
+      <option
+        value={1}
+      >
         Filter2
       </option>
     </select>

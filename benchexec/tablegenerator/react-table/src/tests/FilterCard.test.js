@@ -16,8 +16,8 @@ const createFilterCard = (props) => <FilterCard {...props} />;
 describe("FilterCard tests", () => {
   test("FilterCard should allow selection of available filters", () => {
     const availableFilters = [
-      { display_title: "Filter1" },
-      { display_title: "Filter2" },
+      { display_title: "Filter1", idx: 0 },
+      { display_title: "Filter2", idx: 1 },
     ];
     const Card = createFilterCard({ availableFilters, editable: true });
 
