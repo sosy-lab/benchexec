@@ -243,6 +243,9 @@ const getTaskIdParts = (rows, taskIdNames) =>
     {},
   );
 
+const punctuationSpaceHtml = "&#x2008;";
+const characterSpaceHtml = "&#x2007;";
+
 /**
  * Builds and configures a formatting function that can format a number based on
  * the significant digits of the dataset for its column.
@@ -259,6 +262,8 @@ class NumberFormatterBuilder {
     this.maxNegativeDecimalPosition = -1;
   }
 
+  _defaultOptions = { whitespaceFormat: false, html: false };
+
   addDataItem(item) {
     const [positive, negative] = item.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
@@ -272,59 +277,97 @@ class NumberFormatterBuilder {
   }
 
   build() {
-    return (number, whitespaceFormat = false) => {
-      let stringNumber =
-        typeof number === "string" ? number : number.toString();
-      let significantPart = "";
-      let addedNumbers = 0;
-      let numsBeforeDecimal = 0;
-      let positive = true;
-      let foundFirstNonNull = false;
-      for (const num of stringNumber) {
-        const isDecimalPoint = num === "." || num === ",";
-        if (isDecimalPoint) {
-          positive = false;
-          significantPart += ".";
-          continue;
-        }
-        significantPart += num;
-        if (num !== "0") {
-          if (!foundFirstNonNull) {
-            foundFirstNonNull = true;
-          }
-        }
-        if (foundFirstNonNull) {
-          if (positive) {
-            numsBeforeDecimal += 1;
-          }
-          addedNumbers += 1;
-        }
-        if (!positive && addedNumbers >= this.significantDigits) {
-          break;
-        }
+    return (number, options = {}) => {
+      if (isNil(this.significantDigits)) {
+        return number.toString();
       }
-      if (!numsBeforeDecimal) {
-        significantPart = `.${significantPart.split(/\.|,/)[1]}`;
+      const { whitespaceFormat, html } = {
+        ...this._defaultOptions,
+        ...options,
+      };
+      const stringNumber = number.toString();
+      let prefix = "";
+      let postfix = "";
+      let pointer = 0;
+      let addedNums = 0;
+      let firstNonZero = false;
+      let decimal = false;
+      const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
+      while (
+        addedNums < this.significantDigits - 1 &&
+        stringNumber.length > pointer
+      ) {
+        const current = stringNumber[pointer];
+        if (current === "." || current === ",") {
+          prefix += ".";
+          decimal = true;
+        } else {
+          if (!firstNonZero) {
+            if (current === "0") {
+              pointer += 1;
+              if (decimal) {
+                prefix += current;
+              }
+              continue;
+            }
+            firstNonZero = true;
+          }
+          prefix += current;
+          addedNums += 1;
+        }
+        pointer += 1;
+      }
+      if (prefix[0] === ".") {
+        prefix = `0${prefix}`;
+      }
+      postfix = stringNumber.substring(pointer);
+
+      if (postfix) {
+        // hacky trickery
+        // we force the postfix to turn into a decimal value with one leading integer
+        // e.g. 5432 -> 5.432
+        // this way we can round up to the first digit of the string
+        const attachDecimal = postfix[0] === ".";
+        postfix = postfix.replace(/\./, "");
+        postfix = `${postfix[0]}.${postfix.substr(1)}`;
+        postfix = Math.round(Number(postfix));
+        postfix = isNaN(postfix) ? "" : postfix.toString();
+        if (attachDecimal) {
+          postfix = `.${postfix}`;
+        }
+        // fill up integer number;
+        let end = decimalPos;
+        if (decimalPos === -1) {
+          end = stringNumber.length;
+        }
+        while (prefix.length + postfix.length < end) {
+          postfix += "0";
+        }
       }
 
+      const out = `${prefix}${postfix}`;
       if (whitespaceFormat) {
-        const [positivePart, negativePart] = significantPart.split(/\.|,/);
-        const deltaNeg =
-          this.maxNegativeDecimalPosition -
-          (negativePart ? negativePart.length : 0);
-        const deltaPos =
-          this.maxPositiveDecimalPosition -
-          (positivePart ? positivePart.length : 0);
-
-        const spacesPositive = " ".repeat(deltaPos);
-        let spacesNegative = " ".repeat(deltaNeg);
-        if (positive) {
-          spacesNegative += " "; // in case we don't have a decimal point
+        const decSpace = html ? punctuationSpaceHtml : " ";
+        let [integer, decimal] = out.split(/\.|,/);
+        if (integer === "0") {
+          integer = "";
         }
-        significantPart = `${spacesPositive}${significantPart}${spacesNegative}`;
+        integer = integer || "";
+        decimal = decimal || "";
+        const decimalPoint = decimal ? "." : decSpace;
+        while (integer.length < this.maxPositiveDecimalPosition) {
+          integer = ` ${integer}`;
+        }
+        while (decimal.length < this.maxNegativeDecimalPosition) {
+          decimal += " ";
+        }
+        if (html) {
+          integer = integer.replace(/ /g, characterSpaceHtml);
+          decimal = decimal.replace(/ /g, characterSpaceHtml);
+        }
+        return `${integer}${decimalPoint}${decimal}`;
       }
-
-      return significantPart;
+      return out;
     };
   }
 }

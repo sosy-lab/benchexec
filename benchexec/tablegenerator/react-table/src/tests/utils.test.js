@@ -117,12 +117,20 @@ describe("NumberFormatterBuilder", () => {
     expect(formatter(number)).toBe("12.30");
   });
 
-  test("should prefix numbers without a leading integral with a single dot", () => {
+  test("should handle if postfix has a decimal point", () => {
     const formatter = builder.build();
 
-    const number = "0.1337";
+    const number = "1234.342";
 
-    expect(formatter(number)).toBe(".1337");
+    expect(formatter(number)).toBe("1234");
+  });
+
+  test("should handle if postfix has a leading decimal point", () => {
+    const formatter = builder.build();
+
+    const number = "12345.342";
+
+    expect(formatter(number)).toBe("12350");
   });
 
   test("in fractions below 1, should add all zeros before the first non-zero digit", () => {
@@ -130,7 +138,7 @@ describe("NumberFormatterBuilder", () => {
 
     const number = "0.000001234";
 
-    expect(formatter(number)).toBe(".000001234");
+    expect(formatter(number)).toBe("0.000001234");
   });
 
   test("should identify comma and dots as decimal points", () => {
@@ -143,8 +151,23 @@ describe("NumberFormatterBuilder", () => {
     expect(formatter(numberComma)).toBe("12.34");
   });
 
-  test("should keep whole integer numbers", () => {
+  test("should round whole integer numbers after significant digits have been reached", () => {
     const formatter = builder.build();
+    const number = "123456789";
+
+    expect(formatter(number)).toBe("123500000");
+  });
+
+  test("should round fractions after significant digits have been reached", () => {
+    const formatter = builder.build();
+    const number = "0.123456789";
+
+    expect(formatter(number)).toBe("0.1235");
+  });
+
+  test("should return number without rounding if no significant digits were provided", () => {
+    const newBuilder = new NumberFormatterBuilder();
+    const formatter = newBuilder.build();
     const number = "123456789";
 
     expect(formatter(number)).toBe("123456789");
@@ -167,10 +190,38 @@ describe("NumberFormatterBuilder", () => {
     const expected3 = "    .123  ";
     const expected4 = "    .01337";
 
-    const actual1 = formatter(number1, true);
-    const actual2 = formatter(number2, true);
-    const actual3 = formatter(number3, true);
-    const actual4 = formatter(number4, true);
+    const actual1 = formatter(number1, { whitespaceFormat: true });
+    const actual2 = formatter(number2, { whitespaceFormat: true });
+    const actual3 = formatter(number3, { whitespaceFormat: true });
+    const actual4 = formatter(number4, { whitespaceFormat: true });
+
+    expect(actual1).toBe(expected1);
+    expect(actual2).toBe(expected2);
+    expect(actual3).toBe(expected3);
+    expect(actual4).toBe(expected4);
+  });
+
+  test("should format whitespaces with html", () => {
+    builder.addDataItem("1234");
+    builder.addDataItem("0.12345");
+
+    const formatter = builder.build();
+
+    // we have 4 digits before and 5 digits after the decimal point
+    const number1 = "23";
+    const number2 = "23.1";
+    const number3 = "0.123";
+    const number4 = "0.01337";
+
+    const expected1 = "  23&#x2008;     ".replace(/ /g, "&#x2007;");
+    const expected2 = "  23.1    ".replace(/ /g, "&#x2007;");
+    const expected3 = "    .123  ".replace(/ /g, "&#x2007;");
+    const expected4 = "    .01337".replace(/ /g, "&#x2007;");
+
+    const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
+    const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
+    const actual3 = formatter(number3, { whitespaceFormat: true, html: true });
+    const actual4 = formatter(number4, { whitespaceFormat: true, html: true });
 
     expect(actual1).toBe(expected1);
     expect(actual2).toBe(expected2);
