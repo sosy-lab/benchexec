@@ -7,7 +7,6 @@
 
 import benchexec.tools.template
 import benchexec.util as util
-import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool):
@@ -53,20 +52,3 @@ class Tool(benchexec.tools.template.BaseTool):
         That tool should define its own cmdline method.
         """
         return [executable] + options
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        """
-        This function will be useful in case of a verifier and a validator.
-        It assumes that any verifier or validator implemented in CoVeriTeam
-        will print out the produced aftifacts in the end.
-        """
-
-        # Assumption: the result dict is printed last
-        s = output[-1].rstrip().strip("{}")
-        # Reconstruct the dict from the printed string. Simple literal_eval does not work.
-        res = {}
-        for x in s.split(","):
-            k = x.split(":")[0].strip("\"' ")
-            v = x.split(":")[1].strip("\"' ")
-            res[k] = v
-        return res.get("verdict", result.RESULT_ERROR)
