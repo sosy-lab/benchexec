@@ -112,7 +112,6 @@ export default class FilterBox extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.hiddenCols);
     const hiddenCols = this.props.hiddenCols || [];
     return (
       <div

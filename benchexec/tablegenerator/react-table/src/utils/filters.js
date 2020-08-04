@@ -85,7 +85,7 @@ const getFilterableData = ({ tools, rows }) => {
       }),
     };
   });
-  console.log({ mapped, creationTime: `${Date.now() - start} ms` });
+  console.log(`filterableData:creationTime:${Date.now() - start} ms`);
   return mapped;
 };
 

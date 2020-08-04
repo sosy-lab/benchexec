@@ -105,7 +105,6 @@ export default class FilterContainer extends React.PureComponent {
 
   render() {
     const filters = this.getActiveFilters();
-    console.log("container rendered");
     const hiddenCols = this.props.hiddenCols || [];
     const availableFilters = this.state.filters.filter(
       (i, idx) => !i.filtering && !hiddenCols.includes(idx),
