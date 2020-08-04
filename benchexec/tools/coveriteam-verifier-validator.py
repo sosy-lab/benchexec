@@ -7,7 +7,7 @@
 
 import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
-import sys
+from benchexec.tools.template import UnsupportedFeatureException
 
 
 class Tool(coveriteam.Tool):
@@ -22,14 +22,11 @@ class Tool(coveriteam.Tool):
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         """
-        Prepare command for the example coveriteam program for a verifier.
+        Prepare command for the coveriteam program for a verifier or a validator.
+        These two programs are shipped with the CoVeriTeam package,
+        and can be used with multiple verifiers and validators.
         """
-        # We expect one tasks and a propertyfile.
-        if len(tasks) != 1 or not propertyfile:
-            sys.exit(
-                "Can't execute CoVeriTeam-Verifier-Validator."
-                "Either propertyfile is missing or the number of tasks is not 1."
-            )
+        self.check_inputs(tasks, propertyfile)
 
         spec = ["--input", "spec_path=" + propertyfile]
         prog = ["--input", "prog_path=" + tasks[0]]
@@ -55,3 +52,21 @@ class Tool(coveriteam.Tool):
                     v = x.split(":")[1].strip("\"' ")
                     res[k] = v
         return res.get("verdict", result.RESULT_ERROR)
+
+    def check_inputs(self, tasks, propertyfile):
+        # We expect one tasks and a propertyfile.
+        if not tasks:
+            raise UnsupportedFeatureException(
+                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Input program is missing."
+            )
+        if len(tasks) > 1:
+            raise UnsupportedFeatureException(
+                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Too many input files to analyze"
+            )
+        if not propertyfile:
+            raise UnsupportedFeatureException(
+                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Specification is missing."
+            )
