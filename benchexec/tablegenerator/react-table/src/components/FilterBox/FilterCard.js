@@ -299,12 +299,14 @@ export default class FilterCard extends React.PureComponent {
               onAfterChange={([nMin, nMax]) => {
                 const fMin = builder(nMin);
                 const fMax = builder(nMax);
+                const stringRepMin = fMin === min ? "" : fMin;
+                const stringRepMax = fMax === max ? "" : fMax;
                 this.setState({
                   currentMin: fMin,
                   currentMax: fMax,
-                  values: [`${fMin}:${fMax}`],
+                  values: [`${stringRepMin}:${stringRepMax}`],
                 });
-                this.sendFilterUpdate([`${fMin}:${fMax}`]);
+                this.sendFilterUpdate([`${stringRepMin}:${stringRepMax}`]);
               }}
             />
             <div className="filter-card--range-input-fields">
@@ -327,16 +329,21 @@ export default class FilterCard extends React.PureComponent {
                 lang="en-US"
                 step={step}
                 onChange={({ target: { value } }) => {
+                  const { currentMin, currentMax } = this.state;
                   if (value > this.state.currentMax) {
+                    const stringRepMin = currentMin === min ? "" : currentMin;
+                    const stringRepMax = value === max ? "" : value;
                     this.setState({
                       currentMax: value,
                       currentMin: this.state.currentMax,
-                      values: [`${this.state.currentMax}:${value}`],
+                      values: [`${stringRepMin}:${stringRepMax}`],
                     });
                   } else {
+                    const stringRepMin = value === min ? "" : value;
+                    const stringRepMax = currentMax === max ? "" : currentMax;
                     this.setState({
                       currentMin: value,
-                      values: [`${value}:${this.state.currentMax}`],
+                      values: [`${stringRepMin}:${stringRepMax}`],
                     });
                   }
                 }}
@@ -348,16 +355,21 @@ export default class FilterCard extends React.PureComponent {
                 lang="en-US"
                 value={this.state.currentMax}
                 onChange={({ target: { value } }) => {
+                  const { currentMin, currentMax } = this.state;
                   if (value < this.state.currentMin) {
+                    const stringRepMin = value === min ? "" : value;
+                    const stringRepMax = currentMax === max ? "" : currentMax;
                     this.setState({
                       currentMax: this.state.currentMin,
                       currentMin: value,
-                      values: [`${value}:${this.state.currentMin}`],
+                      values: [`${stringRepMin}:${stringRepMax}`],
                     });
                   } else {
+                    const stringRepMin = currentMin === min ? "" : currentMin;
+                    const stringRepMax = value === max ? "" : value;
                     this.setState({
                       currentMax: value,
-                      values: [`${this.state.currentMin}:${value}`],
+                      values: [`${stringRepMin}:${stringRepMax}`],
                     });
                   }
                 }}
