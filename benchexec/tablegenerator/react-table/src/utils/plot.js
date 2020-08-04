@@ -36,4 +36,43 @@ const renderSetting = (name, value, changeHandler, options, tooltip) => {
   );
 };
 
-export { renderSetting };
+/**
+ * Renders a setting (= a dropdown menu with its label) for one of the plots.
+ *
+ * @param {String} name name of the dropdown that will be used for the label next to it
+ * @param {String} value default value that will be selected in the dropdown
+ * @param {function} changeHandler handler function that will be called when an option was selected
+ * @param {Object} options object containing the name of the optgroup as key and an array of the selections as value
+ * @param {String} tooltip [OPTIONAL] tooltip for the whole setting
+ **/
+const renderOptgroupsSetting = (
+  name,
+  value,
+  changeHandler,
+  options,
+  tooltip,
+) => {
+  return (
+    <div className="setting" title={tooltip}>
+      <span className="setting-label">{name}:</span>
+      <select
+        className="setting-select"
+        name={name}
+        value={value}
+        onChange={changeHandler}
+      >
+        {Object.entries(options).map(([optgroup, selections]) => (
+          <optgroup label={optgroup}>
+            {selections.map((option) => (
+              <option value={option} key={option} name={option + " " + name}>
+                {option}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+export { renderSetting, renderOptgroupsSetting };

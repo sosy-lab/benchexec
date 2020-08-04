@@ -24,7 +24,7 @@ import {
   isNil,
   getFirstVisibles,
 } from "../utils/utils";
-import { renderSetting } from "../utils/plot";
+import { renderSetting, renderOptgroupsSetting } from "../utils/plot";
 
 const scalingOptions = {
   linear: "Linear",
@@ -36,24 +36,26 @@ const resultsOptions = {
   correct: "Correct only",
 };
 
-const lineOptions = [
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  100,
-  1000,
-  10000,
-  100000,
-  1000000,
-  10000000,
-  100000000,
-];
+const lineOptions = {
+  "f(x) = cx and f(x) = x/c": [
+    "c = 2",
+    "c = 3",
+    "c = 4",
+    "c = 5",
+    "c = 6",
+    "c = 7",
+    "c = 8",
+    "c = 9",
+    "c = 10",
+    "c = 100",
+    "c = 1000",
+    "c = 10000",
+    "c = 100000",
+    "c = 1000000",
+    "c = 10000000",
+    "c = 100000000",
+  ],
+};
 
 const defaultValues = {
   scaling: scalingOptions.logarithmic,
@@ -246,7 +248,7 @@ export default class ScatterPlot extends React.Component {
               resultsOptions,
             )}
             <div className="settings-subcontainer">
-              {renderSetting(
+              {renderOptgroupsSetting(
                 "Aux. Lines",
                 this.state.line,
                 (ev) => setParam({ line: ev.target.value }),
