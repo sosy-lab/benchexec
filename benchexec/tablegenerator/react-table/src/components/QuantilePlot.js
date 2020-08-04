@@ -448,6 +448,7 @@ export default class QuantilePlot extends React.Component {
                 this.state.results,
                 (ev) => setParam({ results: ev.target.value }),
                 resultsOptions,
+                "In addition to which results are selected here, any filters will still be applied.",
               )}
             </div>
           </div>
