@@ -92,11 +92,11 @@ export default class FilterContainer extends React.PureComponent {
       }
       // remove all filters that are not currently filtered
       filters = filters.map((filter, idx) => {
-        const toBeRemoved = currentFilters[idx] || filter.touched === 0;
+        const toBeRemoved = !!(currentFilters[idx] || filter.touched === 0);
         return {
           ...filter,
           filtering: toBeRemoved,
-          values: toBeRemoved ? [] : filter.values,
+          values: toBeRemoved ? filter.values : [],
         };
       });
       this.setState({ filters: [...filters] });
