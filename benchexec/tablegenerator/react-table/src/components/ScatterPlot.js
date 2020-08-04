@@ -36,31 +36,31 @@ const resultsOptions = {
   correct: "Correct only",
 };
 
-const lineOptions = {
+const lineOptgroupOptions = {
   "f(x) = cx and f(x) = x/c": [
-    "c = 2",
-    "c = 3",
-    "c = 4",
-    "c = 5",
-    "c = 6",
-    "c = 7",
-    "c = 8",
-    "c = 9",
-    "c = 10",
-    "c = 100",
-    "c = 1000",
-    "c = 10000",
-    "c = 100000",
-    "c = 1000000",
-    "c = 10000000",
-    "c = 100000000",
+    { name: "c = 2", value: 2 },
+    { name: "c = 3", value: 3 },
+    { name: "c = 4", value: 4 },
+    { name: "c = 5", value: 5 },
+    { name: "c = 6", value: 6 },
+    { name: "c = 7", value: 7 },
+    { name: "c = 8", value: 8 },
+    { name: "c = 9", value: 9 },
+    { name: "c = 10", value: 10 },
+    { name: "c = 100", value: 100 },
+    { name: "c = 1000", value: 1000 },
+    { name: "c = 10000", value: 10000 },
+    { name: "c = 100000", value: 100000 },
+    { name: "c = 1000000", value: 1000000 },
+    { name: "c = 10000000", value: 10000000 },
+    { name: "c = 100000000", value: 100000000 },
   ],
 };
 
 const defaultValues = {
   scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
-  line: lineOptions[8],
+  line: Object.values(lineOptgroupOptions)[0][8].value,
 };
 
 export default class ScatterPlot extends React.Component {
@@ -223,15 +223,33 @@ export default class ScatterPlot extends React.Component {
   };
 
   renderAllSettings() {
+    const axisOptions = this.props.tools.reduce(
+      (acc, runset, runsetIdx) =>
+        Object.assign(acc, {
+          [getRunSetName(runset)]: runset.columns
+            .filter((col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx))
+            .map((col, j) => ({
+              name: col.display_title,
+              value: runsetIdx + "-" + col.colIdx,
+            })),
+        }),
+      {},
+    );
     return (
       <div className="settings-container">
         <div className="settings-border-container">
           <div className="settings-subcontainer flexible-width">
-            {this.renderAxisSetting("X-Axis", this.state.dataX, (ev) =>
-              this.setAxis(ev, "X"),
+            {renderOptgroupsSetting(
+              "X-Axis",
+              this.state.dataX,
+              (ev) => this.setAxis(ev, "X"),
+              axisOptions,
             )}
-            {this.renderAxisSetting("Y-Axis", this.state.dataY, (ev) =>
-              this.setAxis(ev, "Y"),
+            {renderOptgroupsSetting(
+              "Y-Axis",
+              this.state.dataY,
+              (ev) => this.setAxis(ev, "Y"),
+              axisOptions,
             )}
           </div>
           <div className="settings-subcontainer">
@@ -252,7 +270,7 @@ export default class ScatterPlot extends React.Component {
                 "Aux. Lines",
                 this.state.line,
                 (ev) => setParam({ line: ev.target.value }),
-                lineOptions,
+                lineOptgroupOptions,
                 "Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.",
               )}
             </div>
@@ -261,40 +279,6 @@ export default class ScatterPlot extends React.Component {
       </div>
     );
   }
-
-  renderAxisSetting(name, value, changeHandler) {
-    return (
-      <div className="setting">
-        <span className="setting-label">{name}:</span>
-        <select
-          className="setting-select"
-          name={name}
-          value={value}
-          onChange={changeHandler}
-        >
-          {this.renderColumns()}
-        </select>
-      </div>
-    );
-  }
-
-  renderColumns = () => {
-    return this.props.tools.map((runset, i) => (
-      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
-        {runset.columns.map((column, j) => {
-          return !this.props.hiddenCols[i].includes(column.colIdx) ? (
-            <option
-              key={i + column.display_title}
-              value={i + "-" + column.colIdx}
-              name={column.display_title}
-            >
-              {column.display_title}
-            </option>
-          ) : null;
-        })}
-      </optgroup>
-    ));
-  };
 
   // ------------------------handeling----------------------------
   handleType = (tool, column) => {

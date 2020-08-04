@@ -42,7 +42,8 @@ const renderSetting = (name, value, changeHandler, options, tooltip) => {
  * @param {String} name name of the dropdown that will be used for the label next to it
  * @param {String} value default value that will be selected in the dropdown
  * @param {function} changeHandler handler function that will be called when an option was selected
- * @param {Object} options object containing the name of the optgroup as key and an array of the selections as value
+ * @param {Object} options object containing the name of the optgroup as key and an array of objects representing the selections
+   with their display name and their value property
  * @param {String} tooltip [OPTIONAL] tooltip for the whole setting
  **/
 const renderOptgroupsSetting = (
@@ -62,10 +63,14 @@ const renderOptgroupsSetting = (
         onChange={changeHandler}
       >
         {Object.entries(options).map(([optgroup, selections]) => (
-          <optgroup label={optgroup}>
-            {selections.map((option) => (
-              <option value={option} key={option} name={option + " " + name}>
-                {option}
+          <optgroup label={optgroup} key={optgroup}>
+            {selections.map((optionObj) => (
+              <option
+                value={optionObj.value}
+                key={optionObj.value}
+                name={optionObj.name + " " + name}
+              >
+                {optionObj.name}
               </option>
             ))}
           </optgroup>
