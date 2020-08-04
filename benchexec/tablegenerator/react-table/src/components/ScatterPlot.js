@@ -227,7 +227,9 @@ export default class ScatterPlot extends React.Component {
       (acc, runset, runsetIdx) =>
         Object.assign(acc, {
           [getRunSetName(runset)]: runset.columns
-            .filter((col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx))
+            .filter(
+              (col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
+            )
             .map((col, j) => ({
               name: col.display_title,
               value: runsetIdx + "-" + col.colIdx,
@@ -264,7 +266,7 @@ export default class ScatterPlot extends React.Component {
               this.state.results,
               (ev) => setParam({ results: ev.target.value }),
               resultsOptions,
-              "In addition to which results are selected here, any filters will still be applied."
+              "In addition to which results are selected here, any filters will still be applied.",
             )}
             <div className="settings-subcontainer">
               {renderOptgroupsSetting(
