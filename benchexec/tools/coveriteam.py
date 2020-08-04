@@ -19,14 +19,10 @@ class Tool(benchexec.tools.template.BaseTool):
         2. to serve as the tool info module for any generic coveriteam program.
     """
 
-    # TODO: I am not sure about the following folders:
-    # tools and toolinfocache: these are cache folders. Isn't it better just to wrap them in one folder called cache?
     REQUIRED_PATHS = [
         "coveriteam",
         "bin",
         "lib",
-        "tools",
-        "toolinfocache",
     ]
 
     def name(self):
