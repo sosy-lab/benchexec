@@ -85,7 +85,9 @@ const getFilterableData = ({ tools, rows }) => {
       }),
     };
   });
-  console.log(`filterableData:creationTime:${Date.now() - start} ms`);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`filterableData:creationTime:${Date.now() - start} ms`);
+  }
   return mapped;
 };
 
