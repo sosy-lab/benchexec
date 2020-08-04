@@ -64,11 +64,15 @@ class Dependency extends React.Component {
         </>
       )}
       License: <>{this.linkifyLicenses(this.props.licenses)}</>
-      <br />
-      <details>
-        <summary>Full text of license</summary>
-        <pre>{dependencies.licenses[this.props.licenseId]}</pre>
-      </details>
+      {this.props.licenseId !== undefined && (
+        <>
+          <br />
+          <details>
+            <summary>Full text of license</summary>
+            <pre>{dependencies.licenses[this.props.licenseId]}</pre>
+          </details>
+        </>
+      )}
     </div>
   );
 }
