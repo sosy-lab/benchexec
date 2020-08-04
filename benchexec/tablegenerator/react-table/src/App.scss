@@ -19,7 +19,6 @@ body {
 // $key-color: #009440;
 $key-color: #71bcff;
 $border-color: rgb(173, 173, 173);
-$table-border: 1px solid $border-color;
 $hover-color: darken(white, 20%);
 
 //------------------common------------------
@@ -389,7 +388,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
     .rt-tr {
       &-group {
-        border-bottom: $table-border !important;
+        border-bottom: 1px solid $border-color !important;
       }
     }
     .columns {
@@ -470,10 +469,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       color: #484848;
     }
     .rt-td {
-      padding: 2px;
+      padding: 1px;
       text-align: right;
       > * {
-        padding: 6px 2px;
+        padding: 5px 3px;
         height: 100%;
       }
     }
@@ -486,11 +485,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         color: black;
       }
     }
-    .rt-tr-group {
-      border-bottom: $table-border !important;
-    }
     .rt-tr-group:last-child {
-      border-bottom: 1px solid lightgrey;
+      // re-add same border as react-table does to last row, where it would be missing
+      border-bottom: solid 1px rgba(0, 0, 0, 0.05) !important;
     }
   }
 
