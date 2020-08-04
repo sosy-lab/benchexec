@@ -72,6 +72,13 @@ checker.init(
       Object.keys(packages).forEach(key => {
         const dependency = packages[key];
 
+        if (key === "regenerator-runtime@0.11.1") {
+          // old package without proper metadata, take data from new package
+          const depWithProperData = packages["regenerator-runtime@0.13.5"];
+          dependency.licenseText = depWithProperData.licenseText;
+          dependency.copyright = depWithProperData.copyright;
+        }
+
         var license = dependency.licenseText;
 
         // Replace windows specific line endings with unix based ones so the bundled
@@ -81,6 +88,17 @@ checker.init(
         if (dependency.licenses === "(MIT OR GPL-3.0)") {
           // Trim long GPL from dual-licenses dependency, we choose MIT anyway
           license = stripUpTo(license, "GPL version 3", false);
+        }
+
+        // fix some other metadata issues
+        if (dependency.licenses === "MIT*") {
+          dependency.licenses = "MIT";
+        }
+        if (dependency.copyright === "") {
+          const copyright = license.match(/\n(Copyright[^\n]*)\n/);
+          if (copyright !== null) {
+            dependency.copyright = copyright[1];
+          }
         }
 
         // For dependencies that have no license file but only a readme,
@@ -96,14 +114,17 @@ checker.init(
         [
           "The ISC License",
           "MIT License",
+          "The MIT License",
           "The MIT License (MIT)",
           "(The MIT License)",
+          "MIT",
           "(MIT)",
           "This software is released under the MIT license:",
           "Software License Agreement (BSD License)",
           "========================================",
           "BSD License",
           "For React software",
+          "# " + dependency.name,
           // plus each sentence of copyright
           ...dependency.copyright.split(/(\.)\.?[ *]/)
         ].forEach(prefix => (license = stripPrefix(license, prefix)));
@@ -117,7 +138,7 @@ checker.init(
         var licenseId;
         if (normalizedLicense in licenseTextMapping) {
           licenseId = licenseTextMapping[normalizedLicense];
-        } else {
+        } else if (license) {
           licenseId = licenseTexts.push(license) - 1;
           licenseTextMapping[normalizedLicense] = licenseId;
 

@@ -9,12 +9,24 @@
 This module contains some useful functions for Strings, Files and Lists.
 """
 
+import collections
 from decimal import Decimal
 import glob
 import io
 import logging
 import os
 import urllib.request
+
+
+class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
+    """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    field_names = ["Task name", "Property", "Expected verdict", "Run set"]
+
+    __slots__ = ()  # reduce per-instance memory consumption
+
+    def __str__(self):
+        return "'" + ", ".join(str(s) for s in self if s) + "'"
 
 
 def get_file_list(shortFile):
