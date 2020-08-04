@@ -271,8 +271,8 @@ export default class FilterCard extends React.PureComponent {
         const minStep = getStep(min);
         const maxStep = getStep(max);
 
-        // get the smaller step
-        const step = minStep.length > maxStep.length ? maxStep : minStep;
+        // get the bigger step by length of string (== smaller step)
+        const step = minStep.length > maxStep.length ? minStep : maxStep;
 
         //shift the decimal
         body = (
