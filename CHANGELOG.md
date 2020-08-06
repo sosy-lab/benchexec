@@ -9,6 +9,30 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.1
+
+- Fix our `benchexec.check_cgroups` installation check,
+  which showed invalid warnings since BenchExec 2.7.
+- Improve handling of inaccessible mountpoints in containers.
+  This should make it possible to use nested containers on most systems
+  using the default arguments (e.g., no need for `--hidden-dir /sys`).
+- Improved row filters of HTML tables (thanks to @DennisSimon).
+  In addition to filtering via drop-down fields in the table header,
+  it is now also possible to define filters on a separate overlay,
+  which can be opened from all tabs via a button in the top-right corner
+  (e.g., also while looking at plots).
+  The filters for status and category in the filter overlay are more flexible
+  because several values can be selected for status and category.
+  This allows to define filters like
+  `category = "correct" AND (status = "false" OR status = "false(unreach-call)")`.
+  Furthermore, the filter overlay allows to filter the parts of the task id
+  (left-most column) individually and makes it easier to define filters
+  with numeric ranges.
+- Redesigned UI for changing the plot settings of quantile and scatter plots
+  in the HTML tables (thanks to @lachnerm).
+- Hiding columns in HTML tables is now reflected in the URL.
+  This makes it possible to create links to tables that hide columns.
+
 ## BenchExec 3.0
 
 This release contains only one new feature compared to BenchExec 2.7:
