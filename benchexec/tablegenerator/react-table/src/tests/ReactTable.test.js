@@ -10,10 +10,6 @@ import Table from "../components/ReactTable.js";
 
 import { test_snapshot_of } from "./utils.js";
 
-// mock uniqid to have consistent names
-// https://stackoverflow.com/a/44538270/396730
-jest.mock("uniqid", () => (i) => i + "uniqid");
-
 // Add a serializer that removes title attributes (irrelevant in our table)
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
@@ -35,6 +31,8 @@ test_snapshot_of("Render Summary", (overview) => (
     filtered={overview.state.filtered}
     toggleLinkOverlay={overview.toggleLinkOverlay}
     changeTab={overview.changeTab}
+    statusValues={overview.statusValues}
+    categoryValues={overview.categoryValues}
     hiddenCols={overview.state.hiddenCols}
   />
 ));

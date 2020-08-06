@@ -7,9 +7,12 @@
 
 import React from "react";
 
+const emptyStateValue = "##########";
+
 const prepareTableData = ({ head, tools, rows, stats, props }) => {
   return {
     tableHeader: head,
+    taskIdNames: head.task_id_names,
     tools: tools.map((tool, idx) => ({
       ...tool,
       toolIdx: idx,
@@ -27,39 +30,6 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
 
 const isNumericColumn = (column) =>
   column.type === "count" || column.type === "measure";
-
-const applyNumericFilter = (filter, row, cell) => {
-  const raw = getRawOrDefault(row[filter.id]);
-  if (raw === undefined) {
-    // empty cells never match
-    return;
-  }
-  const filterParams = filter.value.split(":");
-
-  if (filterParams.length === 2) {
-    const [start, end] = filterParams;
-
-    const numRaw = Number(raw);
-    const numStart = start ? Number(start) : -Infinity;
-    const numEnd = end ? Number(end) : Infinity;
-
-    return numRaw >= numStart && numRaw <= numEnd;
-  }
-
-  if (filterParams.length === 1) {
-    return raw.startsWith(filterParams[0]);
-  }
-  return false;
-};
-
-const applyTextFilter = (filter, row, cell) => {
-  const raw = getRawOrDefault(row[filter.id]);
-  if (raw === undefined) {
-    // empty cells never match
-    return;
-  }
-  return raw.includes(filter.value);
-};
 
 const isNil = (data) => data === undefined || data === null;
 
@@ -88,6 +58,24 @@ const isOkStatus = (status) => {
   return status === 0 || status === 200;
 };
 
+const omit = (keys, data) => {
+  const newKeys = Object.keys(data).filter((key) => !keys.includes(key));
+  return newKeys.reduce((acc, key) => {
+    acc[key] = data[key];
+    return acc;
+  }, {});
+};
+
+const without = (value, array) => {
+  const out = [];
+  for (const item of array) {
+    if (item !== value) {
+      out.push(item);
+    }
+  }
+  return out;
+};
+
 // Best-effort attempt for calculating a meaningful column width
 const determineColumnWidth = (column, min_width, max_width) => {
   let width = column.max_width; // number of chars in column
@@ -102,6 +90,23 @@ const determineColumnWidth = (column, min_width, max_width) => {
   }
 
   return width * 8 + 20;
+};
+
+const path = (pathArr, data) => {
+  let last = data;
+  for (const p of pathArr) {
+    last = last[p];
+    if (isNil(last)) {
+      return undefined;
+    }
+  }
+  return last;
+};
+
+const pathOr = (pathArr, fallback, data) => {
+  const pathRes = path(pathArr, data);
+
+  return pathRes === undefined ? fallback : pathRes;
 };
 
 const formatColumnTitle = (column) =>
@@ -197,6 +202,175 @@ const setParam = (param) => {
 
 const stringAsBoolean = (str) => str === "true";
 
+const deepEquals = (a, b) => {
+  for (const key in a) {
+    if (typeof a[key] === "function" && typeof b[key] === "function") {
+      continue;
+    }
+    if (typeof a[key] !== typeof b[key]) {
+      return false;
+    } else if (Array.isArray(a[key]) || typeof a[key] === "object") {
+      if (!deepEquals(a[key], b[key])) {
+        return false;
+      }
+    } else {
+      if (a[key] !== b[key]) {
+        console.log(`${a[key]} !== ${b[key]}`);
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+/**
+ * Function to extract the names of the task id parts and to provide a mapping for filtering.
+ * The returned array is of following form:
+ * [
+ *  {
+ *    label: "example",
+ *  }, {...}
+ * ]
+ *
+ * where the label will be displayed over the input field of the task id filter and
+ * the example value will be the input hint to further clarify the functionality.
+ *
+ * @param {*} rows - the rows array of the dataset
+ */
+const getTaskIdParts = (rows, taskIdNames) =>
+  pathOr(["0", "id"], [], rows).reduce(
+    (acc, curr, idx) => ({ ...acc, [taskIdNames[idx]]: curr }),
+    {},
+  );
+
+const punctuationSpaceHtml = "&#x2008;";
+const characterSpaceHtml = "&#x2007;";
+
+/**
+ * Builds and configures a formatting function that can format a number based on
+ * the significant digits of the dataset for its column.
+ * If whitespaceFormat in the returned function is set to true, the number will be
+ * whitespace formatted as described on Page 24 in
+ * https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf
+ *
+ * @param {Number} significantDigits - Number of significant digits for this column
+ */
+class NumberFormatterBuilder {
+  constructor(significantDigits) {
+    this.significantDigits = significantDigits;
+    this.maxPositiveDecimalPosition = -1;
+    this.maxNegativeDecimalPosition = -1;
+  }
+
+  _defaultOptions = { whitespaceFormat: false, html: false };
+
+  addDataItem(item) {
+    const [positive, negative] = item.split(/\.|,/);
+    this.maxPositiveDecimalPosition = Math.max(
+      this.maxPositiveDecimalPosition,
+      positive ? positive.length : 0,
+    );
+    this.maxNegativeDecimalPosition = Math.max(
+      this.maxNegativeDecimalPosition,
+      negative ? negative.length : 0,
+    );
+  }
+
+  build() {
+    return (number, options = {}) => {
+      if (isNil(this.significantDigits)) {
+        return number.toString();
+      }
+      const { whitespaceFormat, html } = {
+        ...this._defaultOptions,
+        ...options,
+      };
+      const stringNumber = number.toString();
+      let prefix = "";
+      let postfix = "";
+      let pointer = 0;
+      let addedNums = 0;
+      let firstNonZero = false;
+      let decimal = false;
+      const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
+      while (
+        addedNums < this.significantDigits - 1 &&
+        stringNumber.length > pointer
+      ) {
+        const current = stringNumber[pointer];
+        if (current === "." || current === ",") {
+          prefix += ".";
+          decimal = true;
+        } else {
+          if (!firstNonZero) {
+            if (current === "0") {
+              pointer += 1;
+              if (decimal) {
+                prefix += current;
+              }
+              continue;
+            }
+            firstNonZero = true;
+          }
+          prefix += current;
+          addedNums += 1;
+        }
+        pointer += 1;
+      }
+      if (prefix[0] === ".") {
+        prefix = `0${prefix}`;
+      }
+      postfix = stringNumber.substring(pointer);
+
+      if (postfix) {
+        // hacky trickery
+        // we force the postfix to turn into a decimal value with one leading integer
+        // e.g. 5432 -> 5.432
+        // this way we can round up to the first digit of the string
+        const attachDecimal = postfix[0] === ".";
+        postfix = postfix.replace(/\./, "");
+        postfix = `${postfix[0]}.${postfix.substr(1)}`;
+        postfix = Math.round(Number(postfix));
+        postfix = isNaN(postfix) ? "" : postfix.toString();
+        if (attachDecimal) {
+          postfix = `.${postfix}`;
+        }
+        // fill up integer number;
+        let end = decimalPos;
+        if (decimalPos === -1) {
+          end = stringNumber.length;
+        }
+        while (prefix.length + postfix.length < end) {
+          postfix += "0";
+        }
+      }
+
+      const out = `${prefix}${postfix}`;
+      if (whitespaceFormat) {
+        const decSpace = html ? punctuationSpaceHtml : " ";
+        let [integer, decimal] = out.split(/\.|,/);
+        if (integer === "0") {
+          integer = "";
+        }
+        integer = integer || "";
+        decimal = decimal || "";
+        const decimalPoint = decimal ? "." : decSpace;
+        while (integer.length < this.maxPositiveDecimalPosition) {
+          integer = ` ${integer}`;
+        }
+        while (decimal.length < this.maxNegativeDecimalPosition) {
+          decimal += " ";
+        }
+        if (html) {
+          integer = integer.replace(/ /g, characterSpaceHtml);
+          decimal = decimal.replace(/ /g, characterSpaceHtml);
+        }
+        return `${integer}${decimalPoint}${decimal}`;
+      }
+      return out;
+    };
+  }
+}
 /**
  * Creates an object with an entry for each of the tools, identified by the index of the tool, that stores the hidden columns defined in the URL.
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
@@ -285,12 +459,65 @@ const getFirstVisibles = (tools, hiddenCols) => {
     : [undefined, undefined];
 };
 
+/**
+ * Checks if all distinct elements of the data param also
+ * exist in the compare param.
+ * Only to be used with primitives. Objects will be compared by reference.
+ *
+ *
+ * @param {Any[]} compare The array to compare elements to
+ * @param {Any[]} data The array to check
+ */
+const hasSameEntries = (compare, data) => {
+  const compareObj = {};
+
+  for (const elem of compare) {
+    compareObj[elem] = true;
+  }
+  for (const elem of data) {
+    if (isNil(compareObj[elem])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
+ * Naive check if a filter value is a category (currently identifiable by a trailing " ")
+ * @param {string} item - the filter value
+ * @returns {boolean} True if value is a category, else false
+ */
+const isCategory = (item) => item && item[item.length - 1] === " ";
+
+/**
+ * This function uses string operations to get the smallest decimal part of a number.
+ * If a number is an integer, the return value will be 1
+ * A return type of string is used to prevent a small number to take the shape of
+ * a scientific notation, as they are incompatible with the "step" attribute of
+ * html inputs.
+ *
+ * @param {string} num - The number to check
+ * @returns {string} - The smallest step
+ */
+const getStep = (num) => {
+  const stringRep = num.toString();
+  const [, decimal] = stringRep.split(/,|\./);
+  if (isNil(decimal) || decimal.length === 0) {
+    return 1;
+  }
+  let out = ".";
+  for (let i = 0; i < decimal.length - 1; i += 1) {
+    out += "0";
+  }
+  out += "1";
+  return out;
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
   isNumericColumn,
-  applyNumericFilter,
-  applyTextFilter,
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
@@ -304,5 +531,16 @@ export {
   setParam,
   createHiddenColsFromURL,
   stringAsBoolean,
+  without,
+  pathOr,
+  path,
+  omit,
+  deepEquals,
+  NumberFormatterBuilder,
+  emptyStateValue,
+  getTaskIdParts,
   getFirstVisibles,
+  hasSameEntries,
+  isCategory,
+  getStep,
 };

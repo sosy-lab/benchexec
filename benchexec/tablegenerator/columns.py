@@ -167,6 +167,13 @@ class Column(object):
             self.type.type == ColumnType.measure or self.type.type == ColumnType.count
         )
 
+    def get_number_of_significant_digits(self, format_target=None):
+        number_of_significant_digits = self.number_of_significant_digits
+        if self.type.type == ColumnType.measure:
+            if number_of_significant_digits is None and format_target != "csv":
+                number_of_significant_digits = DEFAULT_TIME_PRECISION
+        return number_of_significant_digits
+
     def format_title(self):
         title = self.display_title or self.title
         if self.is_numeric() and (self.unit or self.source_unit):
@@ -212,18 +219,18 @@ class Column(object):
         if self.scale_factor is not None:
             number *= self.scale_factor
 
-        number_of_significant_digits = self.number_of_significant_digits
-        max_dec_digits = 0
         if (
-            number_of_significant_digits is None
+            self.number_of_significant_digits is None
             and format_target == "tooltip_stochastic"
         ):
             return str(round(number, DEFAULT_TOOLTIP_PRECISION))
 
-        elif self.type.type == ColumnType.measure:
-            if number_of_significant_digits is None and format_target != "csv":
-                number_of_significant_digits = DEFAULT_TIME_PRECISION
-            max_dec_digits = self.type.max_decimal_digits
+        number_of_significant_digits = self.get_number_of_significant_digits(
+            format_target
+        )
+        max_dec_digits = (
+            self.type.max_decimal_digits if self.type.type == ColumnType.measure else 0
+        )
 
         if number_of_significant_digits is not None:
             current_significant_digits = _get_significant_digits(number_str)

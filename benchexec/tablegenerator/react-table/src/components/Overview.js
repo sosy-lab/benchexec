@@ -13,10 +13,20 @@ import Info from "./Info.js";
 import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
+import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
-import Reset from "./Reset.js";
-import { prepareTableData } from "../utils/utils";
 import classNames from "classnames";
+import FilterInfoButton from "./FilterInfoButton.js";
+import {
+  prepareTableData,
+  getRawOrDefault,
+  getTaskIdParts,
+} from "../utils/utils";
+import {
+  getFilterableData,
+  buildMatcher,
+  applyMatcher,
+} from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { createHiddenColsFromURL } from "../utils/utils";
@@ -40,12 +50,20 @@ export default class Overview extends React.Component {
   constructor(props) {
     super(props);
     //imported data
-    const { tableHeader, tools, columns, table, stats } = prepareTableData(
-      props.data,
-    );
+    const {
+      tableHeader,
+      taskIdNames,
+      tools,
+      columns,
+      table,
+      stats,
+    } = prepareTableData(props.data);
 
+    const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
     this.originalTools = tools;
+
+    this.taskIdNames = taskIdNames;
 
     this.columns = columns;
     this.stats = stats;
@@ -58,12 +76,12 @@ export default class Overview extends React.Component {
     this.state = {
       tools,
       table,
-
+      filterable,
       showSelectColumns: false,
       showLinkOverlay: false,
       filtered: [],
       tabIndex: 0,
-
+      filterBoxVisible: false,
       active: (
         menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
@@ -71,6 +89,15 @@ export default class Overview extends React.Component {
       quantilePreSelection: tools[0].columns[1],
       hiddenCols: createHiddenColsFromURL(tools),
     };
+    // Collect all status and category values for filter drop-down
+    this.statusValues = this.findAllValuesOfColumn(
+      (_tool, column) => column.type === "status",
+      (_runResult, value) => getRawOrDefault(value),
+    );
+    this.categoryValues = this.findAllValuesOfColumn(
+      (_tool, column) => column.type === "status",
+      (runResult, _value) => runResult.category,
+    );
   }
 
   componentDidMount() {
@@ -105,12 +132,22 @@ export default class Overview extends React.Component {
   };
 
   // -----------------------Filter-----------------------
-  setFilter = (filteredData) => {
+  setFilter = (filteredData, raw = false) => {
+    console.log({ filteredData });
+    if (raw) {
+      this.filteredData = filteredData;
+      return;
+    }
     this.filteredData = filteredData.map((row) => {
       return row._original;
     });
   };
-  filterPlotData = (filter) => {
+  filterPlotData = (filter, runFilterLogic = true) => {
+    console.log({ filter });
+    if (runFilterLogic) {
+      const matcher = buildMatcher(filter);
+      this.setFilter(applyMatcher(matcher)(this.originalTable), true);
+    }
     this.setState({
       table: this.filteredData,
       filtered: filter,
@@ -123,6 +160,20 @@ export default class Overview extends React.Component {
     });
   };
 
+  // --------------React Table Setup -------------------------
+  findAllValuesOfColumn = (columnFilter, valueAccessor) =>
+    this.originalTools.map((tool, j) =>
+      tool.columns.map((column, i) => {
+        if (!columnFilter(tool, column)) {
+          return undefined;
+        }
+        const values = this.originalTable
+          .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
+          .filter(Boolean);
+        return [...new Set(values)].sort();
+      }),
+    );
+
   // -----------------------Common Functions-----------------------
   getRowName = (row) => row.id.filter((s) => s).join(" | ");
 
@@ -134,6 +185,18 @@ export default class Overview extends React.Component {
   };
 
   render() {
+    const reset = ({ className, isReset = false, onClick, enabled }) => (
+      <FilterInfoButton
+        className={className}
+        showFilterText={isReset}
+        onClick={onClick}
+        enabled={enabled}
+        isFiltered={!!this.state.filtered.length}
+        resetFilters={this.resetFilters}
+        filteredCount={this.state.table.length}
+        totalCount={this.originalTable.length}
+      />
+    );
     let urlParams = document.location.href.split("?")[1] || "";
     urlParams = urlParams
       .split("&")
@@ -143,6 +206,26 @@ export default class Overview extends React.Component {
       <Router>
         <div className="overview">
           <div className="overview-container">
+            <FilterBox
+              headerComponent={reset({
+                className: "filterBox--header--reset",
+                isReset: true,
+                enabled: false,
+              })}
+              tableHeader={this.tableHeader}
+              tools={this.state.tools}
+              selectColumn={this.toggleSelectColumns}
+              filterable={this.state.filterable}
+              setFilter={this.filterPlotData}
+              resetFilters={this.resetFilters}
+              filtered={this.state.filtered}
+              visible={this.state.filterBoxVisible}
+              hiddenCols={this.state.hiddenCols}
+              hide={() => {
+                this.setState({ filterBoxVisible: false });
+              }}
+              ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
+            />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
                 <Link
@@ -156,12 +239,13 @@ export default class Overview extends React.Component {
                   {title} {icon || ""}
                 </Link>
               ))}
-              <Reset
-                isFiltered={!!this.state.filtered.length}
-                resetFilters={this.resetFilters}
-                filteredCount={this.state.table.length}
-                totalCount={this.originalTable.length}
-              />
+              {reset({
+                className: "reset tooltip",
+                enabled: true,
+                onClick: () => {
+                  this.setState({ filterBoxVisible: true });
+                },
+              })}
             </div>
             <div className="route-container">
               <Switch>
@@ -179,7 +263,7 @@ export default class Overview extends React.Component {
                 <Route path="/table">
                   <Table
                     tableHeader={this.tableHeader}
-                    data={this.originalTable}
+                    data={this.state.table}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
                     setFilter={this.setFilter}
@@ -187,6 +271,8 @@ export default class Overview extends React.Component {
                     filtered={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
                     changeTab={this.changeTab}
+                    statusValues={this.statusValues}
+                    categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}
                   />
                 </Route>

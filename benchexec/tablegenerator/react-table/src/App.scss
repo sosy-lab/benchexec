@@ -7,6 +7,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+body {
+  overflow-x: hidden;
+}
+
 .App {
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,
@@ -15,7 +19,6 @@
 // $key-color: #009440;
 $key-color: #71bcff;
 $border-color: rgb(173, 173, 173);
-$table-border: 1px solid $border-color;
 $hover-color: darken(white, 20%);
 
 //------------------common------------------
@@ -87,6 +90,182 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .overview {
   background: white;
 
+  .filterBox {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    height: 100vh;
+    z-index: 9998;
+    max-width: max-content;
+    min-width: min-content;
+    width: 40vw;
+    background-color: white;
+    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
+    transition: all 0.5s ease-in-out;
+    .filter-card {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      width: 100%;
+      box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
+      margin-top: 18px;
+      &--container {
+        overflow-y: scroll;
+        margin-bottom: 8px;
+        /*         
+        &::-webkit-scrollbar {
+          display: none;
+        }
+        -ms-overflow-style: none;
+        scrollbar-width: none; */
+      }
+      &--body {
+        text-align: left;
+        margin-left: 25px;
+        margin-right: 25px;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        &--list {
+          list-style: none;
+        }
+        .task-id-filters {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          input {
+            margin-bottom: 15px;
+          }
+        }
+      }
+      &--range {
+        &-container {
+          display: flex;
+          justify-content: space-between;
+        }
+        &-input-fields {
+          display: grid;
+          grid-gap: 1rem;
+
+          input {
+            width: 93%;
+          }
+
+          .range-input-fields--min {
+            grid-column-start: 1;
+            grid-column-end: 2;
+          }
+          .range-input-fields--max {
+            grid-column-start: 2;
+            grid-column-end: 3;
+          }
+        }
+      }
+      &--header {
+        min-height: 35px;
+        width: 100%;
+        display: flex;
+        position: relative;
+        align-items: center;
+        background-color: #b8ddff;
+        .filter-selection {
+          margin-left: 25px;
+        }
+        .check-button {
+          margin-left: 15px;
+          color: green;
+        }
+        .delete-button {
+          position: absolute;
+          right: 12px;
+          cursor: pointer;
+        }
+        .title {
+          margin: 0;
+          margin-left: 25px;
+          font-size: 18px;
+          padding: 3px;
+        }
+      }
+    }
+    &--hidden {
+      right: -100vw;
+    }
+    &--header {
+      height: 35px;
+      background-color: #88c7ff;
+      display: flex;
+      align-items: center;
+      padding: 5px 20px 5px 20px;
+      &--icon {
+        cursor: pointer;
+        margin-right: 15px;
+      }
+      &--reset {
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: none;
+        cursor: initial;
+        &-icon {
+          position: absolute;
+          right: 20px;
+          cursor: pointer;
+        }
+        &:disabled {
+          display: inline-block;
+          background: none;
+          border: none;
+          color: black;
+          font-weight: 600;
+          .hide {
+            display: none;
+          }
+        }
+      }
+    }
+    &--container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-left: 20px;
+      margin-right: 20px;
+
+      h4 {
+        margin-top: 2.5rem;
+        margin-bottom: 0;
+        font-size: 18px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .filter-add-button {
+        background-color: #71bcff;
+        border-radius: 28px;
+        color: white;
+        padding: 5px;
+        transition: all 0.5s ease-in-out;
+        min-height: 23px;
+        min-width: 23px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+      }
+    }
+  }
+
   .menu {
     display: flex;
     width: calc(100% - 20px);
@@ -131,6 +310,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       border: none;
       font-size: 12px;
       color: black;
+      .filter-icon {
+        margin-left: 10px;
+        margin-right: 5px;
+      }
       .highlight {
         font-weight: bold;
       }
@@ -205,7 +388,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
     .rt-tr {
       &-group {
-        border-bottom: $table-border !important;
+        border-bottom: 1px solid $border-color !important;
       }
     }
     .columns {
@@ -286,10 +469,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       color: #484848;
     }
     .rt-td {
-      padding: 2px;
+      padding: 1px;
       text-align: right;
       > * {
-        padding: 6px 2px;
+        padding: 5px 3px;
         height: 100%;
       }
     }
@@ -302,11 +485,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         color: black;
       }
     }
-    .rt-tr-group {
-      border-bottom: $table-border !important;
-    }
     .rt-tr-group:last-child {
-      border-bottom: 1px solid lightgrey;
+      // re-add same border as react-table does to last row, where it would be missing
+      border-bottom: solid 1px rgba(0, 0, 0, 0.05) !important;
     }
   }
 
@@ -413,8 +594,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 
   .middle-line .rv-xy-plot__axis__line {
-    stroke: $key-color;
-  }
+      stroke: $key-color;
+    }
 
   &__plot {
     margin: auto;
@@ -669,6 +850,56 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 }
 .ReactTable {
   border: none !important;
+}
+
+/* https://www.w3schools.com/howto/howto_css_tooltip.asp */
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  z-index: 10;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 999999;
+  width: 120px;
+  top: 100%;
+  left: 50%;
+  margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%; /* At the top of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
 
 @media only screen and (max-width: 700px) {

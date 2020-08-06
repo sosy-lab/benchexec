@@ -12,6 +12,8 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "@fortawesome/react-fontawesome": "^0.1.11",
     "classnames": "^2.2.6",
+    "deep-equal": "^2.0.3",
+    "rc-slider": "^9.2.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",
@@ -62,7 +64,11 @@
   "jest": {
     "moduleNameMapper": {
       "@data": "<rootDir>/src/data/data.json"
-    }
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>src/tests/setup/setup.js",
+      "<rootDir>src/tests/utils.js"
+    ]
   },
   "devDependencies": {
     "enzyme": "^3.11.0",

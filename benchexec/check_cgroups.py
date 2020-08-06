@@ -59,7 +59,7 @@ def check_cgroup_availability(wait=1):
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)
-    task_cgroups = find_my_cgroups(lines)
+    task_cgroups = find_my_cgroups(lines, fallback=False)
 
     fail = False
     for subsystem in CPUACCT, CPUSET, MEMORY, FREEZER:

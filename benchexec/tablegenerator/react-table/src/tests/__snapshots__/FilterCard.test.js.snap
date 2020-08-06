@@ -1,0 +1,658 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterCard tests FilterCard should allow selection of available filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <span
+      style={
+        Object {
+          "marginLeft": "12px",
+        }
+      }
+    >
+      Add filter for: 
+    </span>
+    <select
+      className="filter-selection"
+      defaultValue="-1"
+      onChange={[Function]}
+    >
+      <option
+        disabled={true}
+        value="-1"
+      >
+        Column
+      </option>
+      <option
+        value={0}
+      >
+        Filter1
+      </option>
+      <option
+        value={1}
+      >
+        Filter2
+      </option>
+    </select>
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should correctly reflect already set number filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      cputime 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    <div
+      className="filter-card--range-container"
+    >
+      <b>
+        1337
+      </b>
+      <b>
+        9001
+      </b>
+    </div>
+    <div
+      className="rc-slider"
+      onBlur={[Function]}
+      onFocus={[Function]}
+      onKeyDown={[Function]}
+      onMouseDown={[Function]}
+      onMouseUp={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="rc-slider-rail"
+      />
+      <div
+        className="rc-slider-track rc-slider-track-1"
+        style={
+          Object {
+            "left": "2.1268267223382047%",
+            "right": "auto",
+            "width": "19.572025052192064%",
+          }
+        }
+      />
+      <div
+        className="rc-slider-step"
+      />
+      <div
+        aria-disabled={false}
+        aria-valuemax={9001}
+        aria-valuemin={1337}
+        aria-valuenow={1500}
+        className="rc-slider-handle rc-slider-handle-1"
+        onBlur={[Function]}
+        onKeyDown={[Function]}
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        role="slider"
+        style={
+          Object {
+            "left": "2.1268267223382047%",
+            "right": "auto",
+            "transform": "translateX(-50%)",
+          }
+        }
+        tabIndex={0}
+      />
+      <div
+        aria-disabled={false}
+        aria-valuemax={9001}
+        aria-valuemin={1337}
+        aria-valuenow={3000}
+        className="rc-slider-handle rc-slider-handle-2"
+        onBlur={[Function]}
+        onKeyDown={[Function]}
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        role="slider"
+        style={
+          Object {
+            "left": "21.69885177453027%",
+            "right": "auto",
+            "transform": "translateX(-50%)",
+          }
+        }
+        tabIndex={0}
+      />
+      <div
+        className="rc-slider-mark"
+      />
+    </div>
+    <div
+      className="filter-card--range-input-fields"
+    >
+      <label
+        className="range-input-fields--min"
+        htmlFor="inp-undefined-min"
+      >
+        minimum
+      </label>
+      <label
+        className="range-input-fields--max"
+        htmlFor="inp-undefined-max"
+      >
+        maximum
+      </label>
+      <input
+        lang="en-US"
+        name="inp-undefined-min"
+        onChange={[Function]}
+        step={1}
+        type="number"
+        value="1500"
+      />
+      <input
+        lang="en-US"
+        name="inp-undefined-max"
+        onChange={[Function]}
+        step={1}
+        type="number"
+        value="3000"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should correctly reflect already set status filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      Status 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    Category
+    <ul
+      className="filter-card--body--list"
+    >
+      <li>
+        <input
+          checked={false}
+          name="cat-cat1"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-cat1"
+          onClick={[Function]}
+        >
+          cat1
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="cat-correct"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-correct"
+          onClick={[Function]}
+        >
+          correct
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="cat-wrong"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-wrong"
+          onClick={[Function]}
+        >
+          wrong
+        </label>
+      </li>
+    </ul>
+    Status
+    <ul
+      className="filter-card--body--list"
+    >
+      <li>
+        <input
+          checked={true}
+          name="stat-true"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-true"
+          onClick={[Function]}
+        >
+          true
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="stat-false(reach)"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-false(reach)"
+          onClick={[Function]}
+        >
+          false(reach)
+        </label>
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should correctly reflect already set text filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      host 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    <input
+      name="text-undefined"
+      onChange={[Function]}
+      placeholder="Search for value"
+      type="text"
+      value="node-"
+    />
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should display checkboxes for status filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      Status 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    Category
+    <ul
+      className="filter-card--body--list"
+    >
+      <li>
+        <input
+          checked={false}
+          name="cat-cat1"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-cat1"
+          onClick={[Function]}
+        >
+          cat1
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="cat-correct"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-correct"
+          onClick={[Function]}
+        >
+          correct
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="cat-wrong"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="cat-wrong"
+          onClick={[Function]}
+        >
+          wrong
+        </label>
+      </li>
+    </ul>
+    Status
+    <ul
+      className="filter-card--body--list"
+    >
+      <li>
+        <input
+          checked={false}
+          name="stat-true"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-true"
+          onClick={[Function]}
+        >
+          true
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="stat-false(reach)"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-false(reach)"
+          onClick={[Function]}
+        >
+          false(reach)
+        </label>
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should display range slider for number filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      cputime 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    <div
+      className="filter-card--range-container"
+    >
+      <b>
+        1337
+      </b>
+      <b>
+        9001
+      </b>
+    </div>
+    <div
+      className="rc-slider"
+      onBlur={[Function]}
+      onFocus={[Function]}
+      onKeyDown={[Function]}
+      onMouseDown={[Function]}
+      onMouseUp={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="rc-slider-rail"
+      />
+      <div
+        className="rc-slider-track rc-slider-track-1"
+        style={
+          Object {
+            "left": "0%",
+            "right": "auto",
+            "width": "100%",
+          }
+        }
+      />
+      <div
+        className="rc-slider-step"
+      />
+      <div
+        aria-disabled={false}
+        aria-valuemax={9001}
+        aria-valuemin={1337}
+        aria-valuenow={1337}
+        className="rc-slider-handle rc-slider-handle-1"
+        onBlur={[Function]}
+        onKeyDown={[Function]}
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        role="slider"
+        style={
+          Object {
+            "left": "0%",
+            "right": "auto",
+            "transform": "translateX(-50%)",
+          }
+        }
+        tabIndex={0}
+      />
+      <div
+        aria-disabled={false}
+        aria-valuemax={9001}
+        aria-valuemin={1337}
+        aria-valuenow={9001}
+        className="rc-slider-handle rc-slider-handle-2"
+        onBlur={[Function]}
+        onKeyDown={[Function]}
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        role="slider"
+        style={
+          Object {
+            "left": "100%",
+            "right": "auto",
+            "transform": "translateX(-50%)",
+          }
+        }
+        tabIndex={0}
+      />
+      <div
+        className="rc-slider-mark"
+      />
+    </div>
+    <div
+      className="filter-card--range-input-fields"
+    >
+      <label
+        className="range-input-fields--min"
+        htmlFor="inp-undefined-min"
+      >
+        minimum
+      </label>
+      <label
+        className="range-input-fields--max"
+        htmlFor="inp-undefined-max"
+      >
+        maximum
+      </label>
+      <input
+        lang="en-US"
+        name="inp-undefined-min"
+        onChange={[Function]}
+        step={1}
+        type="number"
+        value="1337"
+      />
+      <input
+        lang="en-US"
+        name="inp-undefined-max"
+        onChange={[Function]}
+        step={1}
+        type="number"
+        value="9001"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`FilterCard tests FilterCard should display textbox for text filters 1`] = `
+<div
+  className="filter-card"
+>
+  <div
+    className="filter-card--header"
+  >
+    <h4
+      className="title"
+    >
+      host 
+    </h4>
+    <svg
+      aria-hidden="true"
+      className="svg-inline--fa fa-trash fa-w-14 delete-button"
+      data-icon="trash"
+      data-prefix="fas"
+      focusable="false"
+      onClick={[Function]}
+      role="img"
+      viewBox="0 0 448 512"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+        fill="currentColor"
+      />
+    </svg>
+  </div>
+  <div
+    className="filter-card--body"
+  >
+    <input
+      name="text-undefined"
+      onChange={[Function]}
+      placeholder="Search for value"
+      type="text"
+    />
+  </div>
+</div>
+`;
