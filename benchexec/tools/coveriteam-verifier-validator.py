@@ -8,6 +8,7 @@
 import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
 from benchexec.tools.template import UnsupportedFeatureException
+import ast
 
 
 class Tool(coveriteam.Tool):
@@ -38,20 +39,19 @@ class Tool(coveriteam.Tool):
         """
         It assumes that any verifier or validator implemented in CoVeriTeam
         will print out the produced aftifacts.
-        If more than one dict is printed, the last one is taken.
+        If more than one dict is printed, the first matching one.
         """
-        res = {}
         for line in output:
             line = line.strip()
             if "verdict" in line:
-                s = line.rstrip().strip("{}")
-                # TODO find a better way to do it.
-                # Reconstruct the dict from the printed string. Simple literal_eval does not work.
-                for x in s.split(","):
-                    k = x.split(":")[0].strip("\"' ")
-                    v = x.split(":")[1].strip("\"' ")
-                    res[k] = v
-        return res.get("verdict", result.RESULT_ERROR)
+                # CoVeriTeam outputs benchexec result categories as verdicts.
+                try:
+                    d = ast.literal_eval(line)
+                    if isinstance(d, dict):
+                        return d.get("verdict", result.RESULT_ERROR)
+                except SyntaxError:
+                    pass
+        return result.RESULT_ERROR
 
     def check_inputs(self, tasks, propertyfile):
         # We expect one tasks and a propertyfile.
