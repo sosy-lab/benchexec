@@ -69,11 +69,12 @@ export default class FilterBox extends React.PureComponent {
   }
 
   sendFilters({ filter, idFilter }) {
-    const filters = filter.filter((i) => i !== null && i !== undefined);
-
     const newFilter = [
-      ...filters
+      ...filter
         .map((tool, toolIdx) => {
+          if (tool === null || tool === undefined) {
+            return null;
+          }
           return tool.map((col, colIdx) => {
             return col.values.map((val) => ({
               id: `${toolIdx}_${col.title}_${colIdx}`,
