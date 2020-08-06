@@ -8,7 +8,6 @@
 import React from "react";
 import "../../node_modules/react-vis/dist/style.css";
 import {
-  XYPlot,
   MarkSeries,
   VerticalGridLines,
   HorizontalGridLines,
@@ -16,20 +15,52 @@ import {
   YAxis,
   Hint,
   DecorativeAxis,
+  FlexibleXYPlot,
 } from "react-vis";
 import {
   getRunSetName,
   setParam,
   getHashSearch,
   isNil,
-  stringAsBoolean,
   getFirstVisibles,
 } from "../utils/utils";
+import { renderSetting, renderOptgroupsSetting } from "../utils/plot";
+
+const scalingOptions = {
+  linear: "Linear",
+  logarithmic: "Logarithmic",
+};
+
+const resultsOptions = {
+  all: "All",
+  correct: "Correct only",
+};
+
+const lineOptgroupOptions = {
+  "f(x) = cx and f(x) = x/c": [
+    { name: "c = 2", value: 2 },
+    { name: "c = 3", value: 3 },
+    { name: "c = 4", value: 4 },
+    { name: "c = 5", value: 5 },
+    { name: "c = 6", value: 6 },
+    { name: "c = 7", value: 7 },
+    { name: "c = 8", value: 8 },
+    { name: "c = 9", value: 9 },
+    { name: "c = 10", value: 10 },
+    { name: "c = 100", value: 100 },
+    { name: "c = 1000", value: 1000 },
+    { name: "c = 10000", value: 10000 },
+    { name: "c = 100000", value: 100000 },
+    { name: "c = 1000000", value: 1000000 },
+    { name: "c = 10000000", value: 10000000 },
+    { name: "c = 100000000", value: 100000000 },
+  ],
+};
 
 const defaultValues = {
-  correct: "true",
-  linear: "false",
-  line: 10,
+  scaling: scalingOptions.logarithmic,
+  results: resultsOptions.correct,
+  line: Object.values(lineOptgroupOptions)[0][8].value,
 };
 
 export default class ScatterPlot extends React.Component {
@@ -37,25 +68,6 @@ export default class ScatterPlot extends React.Component {
     super(props);
 
     this.state = this.setup();
-
-    this.lineValues = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      100,
-      1000,
-      10000,
-      100000,
-      1000000,
-      10000000,
-      100000000,
-    ];
     this.maxX = "";
     this.minX = "";
     this.lineCount = 1;
@@ -65,13 +77,10 @@ export default class ScatterPlot extends React.Component {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let { correct, linear, toolX, toolY, columnX, columnY, line } = {
+    let { results, scaling, toolX, toolY, columnX, columnY, line } = {
       ...defaultValues,
       ...getHashSearch(),
     };
-
-    correct = stringAsBoolean(correct);
-    linear = stringAsBoolean(linear);
 
     let dataX, dataY, areAllColsHidden;
 
@@ -104,17 +113,16 @@ export default class ScatterPlot extends React.Component {
     let out = {
       dataX,
       dataY,
-      correct: typeof correct === "boolean" ? correct : true,
-      linear: linear || false,
+      results,
+      scaling,
       toolX: 0,
       toolY: 0,
-      line: line || 10,
+      line,
       columnX: 1,
       columnY: 1,
       nameX: defaultName,
       nameY: defaultName,
       value: false,
-      width: window.innerWidth,
       height: window.innerHeight,
       areAllColsHidden,
     };
@@ -141,7 +149,6 @@ export default class ScatterPlot extends React.Component {
 
   updateDimensions = () => {
     this.setState({
-      width: window.innerWidth,
       height: window.innerHeight,
     });
   };
@@ -151,24 +158,6 @@ export default class ScatterPlot extends React.Component {
   };
 
   // --------------------rendering-----------------------------
-  renderColumns = () => {
-    return this.props.tools.map((runset, i) => (
-      <optgroup key={"runset" + i} label={getRunSetName(runset)}>
-        {runset.columns.map((column, j) => {
-          return !this.props.hiddenCols[i].includes(column.colIdx) ? (
-            <option
-              key={i + column.display_title}
-              value={i + "-" + column.colIdx}
-              name={column.display_title}
-            >
-              {column.display_title}
-            </option>
-          ) : null;
-        })}
-      </optgroup>
-    ));
-  };
-
   renderData = () => {
     let array = [];
     this.hasInvalidLog = false;
@@ -181,15 +170,19 @@ export default class ScatterPlot extends React.Component {
         const y = resY.values[this.state.columnY].raw;
         const hasValues =
           x !== undefined && x !== null && y !== undefined && y !== null;
+        const areOnlyCorrectResults =
+          this.state.results === resultsOptions.correct;
 
         if (
           hasValues &&
-          (!this.state.correct ||
-            (this.state.correct &&
+          (!areOnlyCorrectResults ||
+            (areOnlyCorrectResults &&
               resX.category === "correct" &&
               resY.category === "correct"))
         ) {
-          const isLogAndInvalid = !this.state.linear && (x <= 0 || y <= 0);
+          const isLogAndInvalid =
+            this.state.scaling === scalingOptions.logarithmic &&
+            (x <= 0 || y <= 0);
 
           if (isLogAndInvalid) {
             this.hasInvalidLog = true;
@@ -205,7 +198,6 @@ export default class ScatterPlot extends React.Component {
     }
 
     this.setMinMaxValues(array);
-
     this.lineCount = array.length;
     this.dataArray = array;
   };
@@ -230,22 +222,77 @@ export default class ScatterPlot extends React.Component {
     return min > 2 ? 1 : min;
   };
 
+  renderAllSettings() {
+    const axisOptions = this.props.tools.reduce(
+      (acc, runset, runsetIdx) =>
+        Object.assign(acc, {
+          [getRunSetName(runset)]: runset.columns
+            .filter(
+              (col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
+            )
+            .map((col, j) => ({
+              name: col.display_title,
+              value: runsetIdx + "-" + col.colIdx,
+            })),
+        }),
+      {},
+    );
+    return (
+      <div className="settings-container">
+        <div className="settings-border-container">
+          <div className="settings-subcontainer flexible-width">
+            {renderOptgroupsSetting(
+              "X-Axis",
+              this.state.dataX,
+              (ev) => this.setAxis(ev, "X"),
+              axisOptions,
+            )}
+            {renderOptgroupsSetting(
+              "Y-Axis",
+              this.state.dataY,
+              (ev) => this.setAxis(ev, "Y"),
+              axisOptions,
+            )}
+          </div>
+          <div className="settings-subcontainer">
+            {renderSetting(
+              "Scaling",
+              this.state.scaling,
+              (ev) => setParam({ scaling: ev.target.value }),
+              scalingOptions,
+            )}
+            {renderSetting(
+              "Results",
+              this.state.results,
+              (ev) => setParam({ results: ev.target.value }),
+              resultsOptions,
+              "In addition to which results are selected here, any filters will still be applied.",
+            )}
+            <div className="settings-subcontainer">
+              {renderOptgroupsSetting(
+                "Aux. Lines",
+                this.state.line,
+                (ev) => setParam({ line: ev.target.value }),
+                lineOptgroupOptions,
+                "Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.",
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ------------------------handeling----------------------------
   handleType = (tool, column) => {
-    if (
-      this.props.tools[tool].columns[column].type === "text" ||
-      this.props.tools[tool].columns[column].type === "status"
-    ) {
+    const colType = this.props.tools[tool].columns[column].type;
+    if (colType === "text" || colType === "status") {
       return "ordinal";
     } else {
-      return this.state.linear ? "linear" : "log";
+      return this.state.scaling === scalingOptions.logarithmic
+        ? "log"
+        : "linear";
     }
-  };
-  toggleCorrectResults = () => {
-    setParam({ correct: !this.state.correct });
-  };
-  toggleLinear = () => {
-    setParam({ linear: !this.state.linear });
   };
 
   extractAxisInfoByName = (val, axis) => {
@@ -259,56 +306,24 @@ export default class ScatterPlot extends React.Component {
       ).display_title,
     };
   };
-  handleAxis = (ev, axis) => {
+
+  setAxis = (ev, axis) => {
     this.array = [];
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
-  handleLine = ({ target }) => {
-    setParam({ line: target.value });
-  };
 
   render() {
     this.renderData();
+    const isLinear = this.state.scaling === scalingOptions.linear;
+
     return (
       <div className="scatterPlot">
-        <div className="scatterPlot__select">
-          <span> X: </span>
-          <select
-            name="Value XAxis"
-            value={this.state.dataX}
-            onChange={(ev) => this.handleAxis(ev, "X")}
-          >
-            {this.renderColumns()}
-          </select>
-          <span> Y: </span>
-          <select
-            name="Value YAxis"
-            value={this.state.dataY}
-            onChange={(ev) => this.handleAxis(ev, "Y")}
-          >
-            {this.renderColumns()}
-          </select>
-          <span>Line:</span>
-          <select
-            name="Line"
-            value={this.state.line}
-            onChange={this.handleLine}
-          >
-            {this.lineValues.map((value) => {
-              return (
-                <option key={value} name={value} value={value}>
-                  {value}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-        <XYPlot
+        {!this.state.areAllColsHidden && this.renderAllSettings()}
+        <FlexibleXYPlot
           className="scatterPlot__plot"
           height={this.state.height - 200}
-          width={this.state.width - 100}
           margin={{ left: 90 }}
           yType={this.handleType(this.state.toolY, this.state.columnY)}
           xType={this.handleType(this.state.toolX, this.state.columnX)}
@@ -335,8 +350,8 @@ export default class ScatterPlot extends React.Component {
           <DecorativeAxis
             className="middle-line"
             axisStart={{
-              x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : 1,
+              x: isLinear ? 0 : 1,
+              y: isLinear ? 0 : 1,
             }}
             axisEnd={{
               x: this.maxX > this.maxY ? this.maxX : this.maxY,
@@ -355,8 +370,8 @@ export default class ScatterPlot extends React.Component {
           />
           <DecorativeAxis
             axisStart={{
-              x: this.state.linear ? 0 : this.state.line,
-              y: this.state.linear ? 0 : 1,
+              x: isLinear ? 0 : this.state.line,
+              y: isLinear ? 0 : 1,
             }}
             axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
             axisDomain={[0, 10000000000]}
@@ -372,8 +387,8 @@ export default class ScatterPlot extends React.Component {
           />
           <DecorativeAxis
             axisStart={{
-              x: this.state.linear ? 0 : 1,
-              y: this.state.linear ? 0 : this.state.line,
+              x: isLinear ? 0 : 1,
+              y: isLinear ? 0 : this.state.line,
             }}
             axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
             axisDomain={[0, 10000000000]}
@@ -409,29 +424,20 @@ export default class ScatterPlot extends React.Component {
             }
           />
           {this.state.value ? <Hint value={this.state.value} /> : null}
-        </XYPlot>
+        </FlexibleXYPlot>
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (
           this.lineCount === 0 && (
             <div className="plot__noresults">
-              No {this.state.correct && "correct"} results
+              No {this.state.results === resultsOptions.correct && "correct"}{" "}
+              results
               {this.props.table.length > 0 && " with valid data points"}
               {this.hasInvalidLog &&
                 " (negative values are not shown in logarithmic plot)"}
             </div>
           )
         )}
-        <button className="btn" onClick={this.toggleLinear}>
-          {this.state.linear
-            ? "Switch to Logarithmic Scale"
-            : "Switch to Linear Scale"}
-        </button>
-        <button className="btn" onClick={this.toggleCorrectResults}>
-          {this.state.correct
-            ? "Switch to All Results"
-            : "Switch to Correct Results Only"}
-        </button>
       </div>
     );
   }
