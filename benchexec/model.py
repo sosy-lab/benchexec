@@ -137,6 +137,10 @@ def load_tool_info(tool_name, config):
                 tool_name, ae
             )
         )
+    except TypeError as te:
+        sys.exit(
+            'Unsupported tool "{0}" specified. TypeError: {1}'.format(tool_name, te)
+        )
     return tool_module, tool
 
 

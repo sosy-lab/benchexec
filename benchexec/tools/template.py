@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from abc import ABCMeta, abstractmethod
 import os
 import logging
 import subprocess
@@ -22,7 +23,7 @@ class UnsupportedFeatureException(benchexec.BenchExecException):
     pass
 
 
-class BaseTool2(object):
+class BaseTool2(object, metaclass=ABCMeta):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -43,6 +44,7 @@ class BaseTool2(object):
 
     # Methods that provide general (run-independent) information about the tool
 
+    @abstractmethod
     def name(self):
         """
         Return the name of the tool, formatted for humans.
@@ -51,6 +53,7 @@ class BaseTool2(object):
         """
         return "UNKOWN"
 
+    @abstractmethod
     def executable(self):
         """
         Find the path to the executable file that will get executed.
