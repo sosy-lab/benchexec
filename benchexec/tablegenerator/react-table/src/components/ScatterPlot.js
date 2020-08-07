@@ -301,9 +301,13 @@ export default class ScatterPlot extends React.Component {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: colIdx,
-      [`name${axis}`]: this.props.tools[toolIndex].columns.find(
-        (col) => col.colIdx === parseInt(colIdx),
-      ).display_title,
+      [`name${axis}`]:
+        this.props.tools[toolIndex].columns.find(
+          (col) => col.colIdx === parseInt(colIdx),
+        ).display_title +
+        " (" +
+        getRunSetName(this.props.tools[toolIndex]) +
+        ")",
     };
   };
 
