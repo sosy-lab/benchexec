@@ -7,6 +7,7 @@
 
 import React from "react";
 import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { enqueue } from "../workers/workerDirector";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -58,6 +59,44 @@ export default class Overview extends React.Component {
       table,
       stats,
     } = prepareTableData(props.data);
+
+    const test = async () => {
+      const start = Date.now();
+      const bucket = [];
+      for (const line of table) {
+        for (const toolIdx in line.results) {
+          const tool = line.results[toolIdx];
+          const columns = tool.values;
+          if (!bucket[toolIdx]) {
+            bucket[toolIdx] = [];
+          }
+          for (const idx in columns) {
+            if (!bucket[toolIdx][idx]) {
+              bucket[toolIdx][idx] = [];
+            }
+            const item = columns[idx].raw;
+            if (!item || isNaN(Number(item))) {
+              continue;
+            }
+
+            bucket[toolIdx][idx].push(Number(columns[idx].raw));
+          }
+        }
+      }
+      for (const toolIdx in bucket) {
+        const tool = bucket[toolIdx];
+        for (const columns of tool) {
+          if (!columns) {
+            continue;
+          }
+          const res = await enqueue({ name: "stats", data: columns });
+          console.log({ toolIdx, res });
+        }
+      }
+      console.log(`Calculation took ${Date.now() - start}ms`);
+    };
+
+    test();
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
