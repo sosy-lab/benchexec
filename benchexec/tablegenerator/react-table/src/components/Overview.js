@@ -63,6 +63,7 @@ export default class Overview extends React.Component {
     const test = async () => {
       const start = Date.now();
       const bucket = [];
+      const promises = [];
       for (const line of table) {
         for (const toolIdx in line.results) {
           const tool = line.results[toolIdx];
@@ -89,10 +90,11 @@ export default class Overview extends React.Component {
           if (!columns) {
             continue;
           }
-          const res = await enqueue({ name: "stats", data: columns });
-          console.log({ toolIdx, res });
+          promises.push(enqueue({ name: "stats", data: columns }));
         }
       }
+      const res = Promise.all(promises);
+      console.log({ res });
       console.log(`Calculation took ${Date.now() - start}ms`);
     };
 
