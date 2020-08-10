@@ -131,10 +131,11 @@ def load_tool_info(tool_name, config):
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
         )
-    except AttributeError:
+    except AttributeError as ae:
         sys.exit(
-            'The module "{0}" does not define the necessary class "Tool", '
-            "it cannot be used as tool info for BenchExec.".format(tool_module)
+            'Unsupported tool "{0}" specified, class "Tool" is missing: {1}'.format(
+                tool_name, ae
+            )
         )
     return tool_module, tool
 
