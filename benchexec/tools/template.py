@@ -5,6 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+This module provides base classes from which tool-info modules need to inherit.
+New tool-info modules should inherit from the latest class (BaseTool2),
+other base classes are provided for compatibility with older tool-info modules.
+The class that a tool-info module provides always has to have the name "Tool".
+
+For more information, please refer to
+https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
+"""
+
 from abc import ABCMeta, abstractmethod
 import os
 import logging
@@ -31,9 +41,15 @@ class BaseTool2(object, metaclass=ABCMeta):
     the necessary methods (always executable() and name(),
     usually determine_result(), cmdline(), and version(),
     and maybe working_directory() and get_value_from_output(), too).
-    The class for each specific tool need to be named "Tool".
-    For more information, please refer to
-    https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
+
+    In special circumstances, it can make sense to not inherit from this class.
+    In such cases the tool-info module's class needs to implement all the methods
+    defined here and BaseTool2.register needs to be called with the respective class
+    (cf. documentation of abc.ABCMeta.register) to declare compatibility with BaseTool2.
+    Note that we might add optional methods (with default implementations) to BaseTool2
+    at any time.
+
+    This class is supported since BenchExec 3.2.
     """
 
     REQUIRED_PATHS = []
@@ -277,13 +293,15 @@ class BaseTool(object):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
-    For writing a new tool info, inherit from this class and override
+    However, for writing a new tool info, it is recommended to inherit from the latest
+    class in this module instead of this class.
+    Classes that inherit from this class need to override
     the necessary methods (always executable() and name(),
     usually determine_result(), cmdline(), and version(),
     and maybe working_directory() and get_value_from_output(), too).
-    The class for each specific tool need to be named "Tool".
-    For more information, please refer to
-    https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
+
+    Support for tool-info modules based on this class might be dropped in BenchExec 4.0
+    or later.
     """
 
     REQUIRED_PATHS = []

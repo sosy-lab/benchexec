@@ -40,11 +40,15 @@ a [pull request](https://github.com/sosy-lab/benchexec/pulls) with it
 such that we can include it in BenchExec.
 
 Tool-info modules need to define a class named `Tool`
-that inherits from `benchexec.tools.template.BaseTool`.
-This base class also contains the [documentation](../benchexec/tools/template.py)
+that inherits from one of the classes in the module `benchexec.tools.template`.
+For compatibility with older tool-info modules, several such classes exist,
+but new tool-info modules should inherit from the latest class,
+`benchexec.tools.template.BaseTool2`.
+
+The `template` module also contains the full [documentation](../benchexec/tools/template.py)
 on how to write such a tool-info module.
-You can also look at the other files in this directory to see examples
-of existing tool infos.
+In the following we provide a short summary.
+You can also look at the other [existing tool-info modules](../benchexec/tools/) to see examples.
 
 A minimal tool info needs to overwrite the functions `executable` and `name`.
 If the tool gives `true` / `false` answers or customized errors should be shown,

@@ -16,7 +16,9 @@ from xml.etree import ElementTree
 from benchexec import BenchExecException
 from benchexec import intel_cpu_energy
 from benchexec import result
+from benchexec import tooladapter
 from benchexec import util
+
 
 MEMLIMIT = "memlimit"
 TIMELIMIT = "timelimit"
@@ -119,6 +121,7 @@ def load_tool_info(tool_name, config):
             tool = containerized_tool.ContainerizedTool(tool_module, config)
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            tool = tooladapter.adapt_to_current_version(tool)
             # Provide dummy close method
             tool.close = lambda: None
     except ImportError as ie:
@@ -141,6 +144,7 @@ def load_tool_info(tool_name, config):
         sys.exit(
             'Unsupported tool "{0}" specified. TypeError: {1}'.format(tool_name, te)
         )
+    assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
 
