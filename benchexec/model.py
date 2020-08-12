@@ -278,7 +278,6 @@ class Benchmark(object):
                     )
 
         self.rlimits = {}
-        keys = list(rootTag.keys())
         handle_limit_value(
             "Time", TIMELIMIT, config.timelimit, util.parse_timespan_value
         )
@@ -306,8 +305,7 @@ class Benchmark(object):
             else:
                 self.rlimits[TIMELIMIT] = hardtimelimit
 
-        # get number of threads, default value is 1
-        self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
+        self.num_of_threads = int(rootTag.get("threads", 1))
         if config.num_of_threads is not None:
             self.num_of_threads = config.num_of_threads
         if self.num_of_threads < 1:
