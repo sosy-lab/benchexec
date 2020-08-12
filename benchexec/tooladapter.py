@@ -11,6 +11,8 @@ import inspect
 
 from benchexec.tools.template import BaseTool, BaseTool2
 
+import benchexec.model
+
 
 CURRENT_BASETOOL = BaseTool2
 """Alias for the latest base-tool class in benchexec.tools.template"""
@@ -29,7 +31,6 @@ class Tool1To2(object):
         "program_files",
         "version",
         "name",
-        "cmdline",
         "determine_result",
         "get_value_from_output",
         "working_directory",
@@ -37,6 +38,7 @@ class Tool1To2(object):
     ]
 
     def __init__(self, wrapped):
+        self._wrapped = wrapped
         for method in Tool1To2._FORWARDED_METHODS:
             # This binds wrapped to the first argument of the method
             # such that when the method is called it can properly access its instance.
@@ -44,6 +46,26 @@ class Tool1To2(object):
             setattr(self, method, getattr(wrapped, method))
 
         self.__doc__ = inspect.getdoc(wrapped)
+
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+        rlimits_dict = {}
+
+        def copy_limit_if_present(field, key):
+            value = getattr(rlimits, field)
+            if value:
+                rlimits_dict[key] = value
+
+        if rlimits.cputime != rlimits.cputime_hard:
+            # in old API, soft time limit only exists if different from time limit
+            copy_limit_if_present("cputime", benchexec.model.SOFTTIMELIMIT)
+        copy_limit_if_present("cputime_hard", benchexec.model.TIMELIMIT)
+        copy_limit_if_present("walltime", benchexec.model.WALLTIMELIMIT)
+        copy_limit_if_present("memory", benchexec.model.MEMLIMIT)
+        copy_limit_if_present("cpu_cores", benchexec.model.CORELIMIT)
+
+        return self._wrapped.cmdline(
+            executable, options, tasks, propertyfile, rlimits_dict
+        )
 
 
 def adapt_to_current_version(tool):

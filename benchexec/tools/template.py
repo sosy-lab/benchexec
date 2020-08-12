@@ -16,6 +16,7 @@ https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
 """
 
 from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 import os
 import logging
 import subprocess
@@ -235,7 +236,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
     # Methods for handling individual runs and their results
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         """
         Compose the command line to execute from the name of the executable,
         the user-specified options, and the inputfile to analyze.
@@ -249,10 +250,8 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param options: a list of options, in the same order as given in the XML-file.
         @param tasks: a list of tasks, that should be analysed with the tool in one run.
                             A typical run has only one input file, but there can be more than one.
-        @param propertyfile: contains a specification for the verifier (optional, not always present).
-        @param rlimits: This dictionary contains resource-limits for a run,
-                        for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
-                        All entries in rlimits are optional, so check for existence before usage!
+        @param propertyfile: contains a specification for the verifier (optional, may be None).
+        @param rlimits: An instance of class ResourceLimits with the limits for this run
         @return a list of strings that represent the command line to execute
         """
         return [executable] + options + tasks
@@ -287,6 +286,46 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
+
+    # Classes that are used in parameters above
+
+    class ResourceLimits(
+        namedtuple(
+            "ResourceLimits",
+            ["cputime", "cputime_hard", "walltime", "memory", "cpu_cores"],
+        )
+    ):
+        """
+        Represent resource limits of a run. While this class is technically a tuple,
+        this should be seen as an implementation detail and the order of elements in the
+        tuple should not be considered. New fields may be added in the future.
+        Each field contains a positive int or None, which means no limit.
+
+        Explanation of fields:
+        cputime: CPU-time limit in seconds after which the tool will receive
+            a termination signal and the result will be counted as timeout
+        cputime_hard: CPU-time limit in seconds after which the tool will be killed
+            forcibly (always greater or equal than cputime)
+        walltime: Wall-time limit in seconds after which the tool will be killed
+        memory: Memory limit in bytes
+        cpu_cores: Number of CPU cores allowed to be used
+
+        The CPU-time limits will either both have a value of both be None.
+        """
+
+        def __new__(
+            cls,
+            cputime=None,
+            cputime_hard=None,
+            walltime=None,
+            memory=None,
+            cpu_cores=None,
+        ):
+            return super().__new__(
+                cls, cputime, cputime_hard, walltime, memory, cpu_cores
+            )
+
+        pass
 
 
 class BaseTool(object):

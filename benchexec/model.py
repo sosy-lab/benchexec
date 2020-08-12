@@ -154,6 +154,16 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     def relpath(path):
         return path if os.path.isabs(path) else os.path.relpath(path, working_directory)
 
+    def create_ResourceLimits(rlimits):
+        hard_timelimit = rlimits.get(TIMELIMIT)
+        return tooladapter.CURRENT_BASETOOL.ResourceLimits(
+            cputime=rlimits.get(SOFTTIMELIMIT, hard_timelimit),
+            cputime_hard=hard_timelimit,
+            walltime=rlimits.get(WALLTIMELIMIT),
+            memory=rlimits.get(MEMLIMIT),
+            cpu_cores=rlimits.get(CORELIMIT),
+        )
+
     rel_executable = relpath(executable)
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
@@ -162,7 +172,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
         list(options),
         list(map(relpath, sourcefiles)),
         relpath(propertyfile) if propertyfile else None,
-        rlimits.copy(),
+        create_ResourceLimits(rlimits),
     )
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]

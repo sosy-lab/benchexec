@@ -16,6 +16,7 @@ import benchexec
 import benchexec.benchexec
 from benchexec import model
 from benchexec import util
+from benchexec.tooladapter import CURRENT_BASETOOL
 import benchexec.tools.template
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -174,17 +175,21 @@ def print_tool_info(tool):
             environment,
         )
 
+    no_limits = CURRENT_BASETOOL.ResourceLimits()
+
     with log_if_unsupported(
         "tasks without options, property file, and resource limits"
     ):
-        cmdline = model.cmdline_for_run(tool, executable, [], ["INPUT.FILE"], None, {})
+        cmdline = model.cmdline_for_run(
+            tool, executable, [], ["INPUT.FILE"], None, no_limits,
+        )
         print_list("Minimal command line", cmdline)
         if "INPUT.FILE" not in " ".join(cmdline):
             logging.warning("Tool module ignores input file.")
 
     with log_if_unsupported("tasks with command-line options"):
         cmdline = model.cmdline_for_run(
-            tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, {}
+            tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, no_limits,
         )
         print_list("Command line with parameter", cmdline)
         if "-SOME_OPTION" not in cmdline:
@@ -192,7 +197,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with property file"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], "PROPERTY.PRP", {}
+            tool, executable, [], ["INPUT.FILE"], "PROPERTY.PRP", no_limits,
         )
         print_list("Command line with property file", cmdline)
         if "PROPERTY.PRP" not in " ".join(cmdline):
@@ -200,7 +205,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with multiple input files"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, {}
+            tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, no_limits,
         )
         print_list("Command line with multiple input files", cmdline)
         if "INPUT1.FILE" in " ".join(cmdline) and "INPUT2.FILE" not in " ".join(
@@ -210,7 +215,12 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with CPU-time limit"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], None, {model.SOFTTIMELIMIT: 123}
+            tool,
+            executable,
+            [],
+            ["INPUT.FILE"],
+            None,
+            CURRENT_BASETOOL.ResourceLimits(cputime=123),
         )
         print_list("Command line CPU-time limit", cmdline)
 
