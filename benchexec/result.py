@@ -143,10 +143,18 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         @param propertyfile: A file name of a property file
         """
         with open(propertyfile) as f:
-            # SV-COMP property files have every non-empty line start with CHECK
-            is_svcomp = all(
-                line.startswith("CHECK") for line in f.readlines() if line.rstrip()
-            )
+            # SV-COMP property files have every non-empty line start with CHECK,
+            # and there needs to be at least one such line.
+            is_svcomp = False
+            for line in f.readlines():
+                if line.rstrip():
+                    if line.startswith("CHECK"):
+                        # Found line with CHECK, might be an SV-COMP property
+                        is_svcomp = True
+                    else:
+                        # Found line without CHECK, definitely not an SV-COMP property
+                        is_svcomp = False
+                        break
 
         name = os.path.splitext(os.path.basename(propertyfile))[0]
 

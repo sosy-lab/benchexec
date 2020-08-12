@@ -91,7 +91,13 @@ class TestResult(unittest.TestCase):
             )
 
     def test_Property_from_non_standard_file(self):
+        self._test_Property_from_file("", False)
+        self._test_Property_from_file("  ", False)
+        self._test_Property_from_file("  CHECK( init(main()), LTL(G p) )", False)
         self._test_Property_from_file("test property", False)
+        self._test_Property_from_file("CHECK( init(main()), LTL(G p) )\ntest", False)
+
+    def test_Property_from_sv_comp_file(self):
         self._test_Property_from_file("CHECK( init(main()), LTL(G p) )", True)
         self._test_Property_from_file(
             "CHECK( init(main()), LTL(G p) )\n\nCHECK( init(main()), LTL(F end) )", True
