@@ -154,16 +154,6 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     def relpath(path):
         return path if os.path.isabs(path) else os.path.relpath(path, working_directory)
 
-    def create_ResourceLimits(rlimits):
-        hard_timelimit = rlimits.get(TIMELIMIT)
-        return tooladapter.CURRENT_BASETOOL.ResourceLimits(
-            cputime=rlimits.get(SOFTTIMELIMIT, hard_timelimit),
-            cputime_hard=hard_timelimit,
-            walltime=rlimits.get(WALLTIMELIMIT),
-            memory=rlimits.get(MEMLIMIT),
-            cpu_cores=rlimits.get(CORELIMIT),
-        )
-
     rel_executable = relpath(executable)
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
@@ -172,7 +162,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
         list(options),
         list(map(relpath, sourcefiles)),
         relpath(propertyfile) if propertyfile else None,
-        create_ResourceLimits(rlimits),
+        rlimits,
     )
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
@@ -273,8 +263,10 @@ class Benchmark(object):
                     "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
                 )
 
-        def handle_limit_value(name, key, cmdline_value, parse_fn):
-            value = rootTag.get(key, None)
+        rlimits = {}
+
+        def handle_limit_value(name, from_key, to_key, cmdline_value, parse_fn):
+            value = rootTag.get(from_key, None)
             # override limit from XML with values from command line
             if cmdline_value is not None:
                 if cmdline_value.strip() == "-1":  # infinity
@@ -284,10 +276,10 @@ class Benchmark(object):
 
             if value is not None:
                 try:
-                    self.rlimits[key] = parse_fn(value)
+                    rlimits[to_key] = parse_fn(value)
                 except ValueError as e:
                     sys.exit("Invalid value for {} limit: {}".format(name.lower(), e))
-                if self.rlimits[key] <= 0:
+                if rlimits[to_key] <= 0:
                     sys.exit(
                         '{} limit "{}" is invalid, it needs to be a positive number '
                         "(or -1 on the command line for disabling it).".format(
@@ -295,33 +287,48 @@ class Benchmark(object):
                         )
                     )
 
-        self.rlimits = {}
         handle_limit_value(
-            "Time", TIMELIMIT, config.timelimit, util.parse_timespan_value
+            "Time", TIMELIMIT, "cputime", config.timelimit, util.parse_timespan_value
         )
         handle_limit_value(
-            "Hard time", HARDTIMELIMIT, config.timelimit, util.parse_timespan_value
+            "Hard time",
+            HARDTIMELIMIT,
+            "cputime_hard",
+            config.timelimit,
+            util.parse_timespan_value,
         )
         handle_limit_value(
-            "Wall time", WALLTIMELIMIT, config.walltimelimit, util.parse_timespan_value
+            "Wall time",
+            WALLTIMELIMIT,
+            "walltime",
+            config.walltimelimit,
+            util.parse_timespan_value,
         )
-        handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
-        handle_limit_value("Core", CORELIMIT, config.corelimit, int)
+        handle_limit_value(
+            "Memory", MEMLIMIT, "memory", config.memorylimit, parse_memory_limit
+        )
+        handle_limit_value("Core", CORELIMIT, "cpu_cores", config.corelimit, int)
 
-        if HARDTIMELIMIT in self.rlimits:
-            hardtimelimit = self.rlimits.pop(HARDTIMELIMIT)
-            if TIMELIMIT in self.rlimits:
-                if hardtimelimit < self.rlimits[TIMELIMIT]:
+        self.rlimits = tooladapter.CURRENT_BASETOOL.ResourceLimits(**rlimits)
+
+        if self.rlimits.cputime:
+            if self.rlimits.cputime_hard:
+                # if both cputime and cputime_hard are given, might need to adjust
+                if self.rlimits.cputime_hard < self.rlimits.cputime:
                     logging.warning(
                         "Hard timelimit %d is smaller than timelimit %d, ignoring the former.",
-                        hardtimelimit,
-                        self.rlimits[TIMELIMIT],
+                        self.rlimits.cputime_hard,
+                        self.rlimits.cputime,
                     )
-                elif hardtimelimit > self.rlimits[TIMELIMIT]:
-                    self.rlimits[SOFTTIMELIMIT] = self.rlimits[TIMELIMIT]
-                    self.rlimits[TIMELIMIT] = hardtimelimit
+                    self.rlimits = self.rlimits._replace(
+                        cputime_hard=self.rlimits.cputime
+                    )
             else:
-                self.rlimits[TIMELIMIT] = hardtimelimit
+                # if only cputime is given, set cputime_hard to same value
+                self.rlimits = self.rlimits._replace(cputime_hard=self.rlimits.cputime)
+        elif self.rlimits.cputime_hard:
+            # if only cputime_hard is given, set cputime to same value
+            self.rlimits = self.rlimits._replace(cputime=self.rlimits.cputime_hard)
 
         self.num_of_threads = int(rootTag.get("threads", 1))
         if config.num_of_threads is not None:
@@ -1151,27 +1158,12 @@ class Run(object):
 
     def _is_timeout(self):
         """ try to find out whether the tool terminated because of a timeout """
-        if self.values.get("cputime") is None:
-            is_cpulimit = False
-        else:
-            rlimits = self.runSet.benchmark.rlimits
-            if SOFTTIMELIMIT in rlimits:
-                limit = rlimits[SOFTTIMELIMIT]
-            elif TIMELIMIT in rlimits:
-                limit = rlimits[TIMELIMIT]
-            else:
-                limit = float("inf")
-            is_cpulimit = self.values["cputime"] > limit
+        rlimits = self.runSet.benchmark.rlimits
+        cputime = self.values.get("cputime")
+        walltime = self.values.get("walltime")
 
-        if self.values.get("walltime") is None:
-            is_walllimit = False
-        else:
-            rlimits = self.runSet.benchmark.rlimits
-            if WALLTIMELIMIT in rlimits:
-                limit = rlimits[WALLTIMELIMIT]
-            else:
-                limit = float("inf")
-            is_walllimit = self.values["walltime"] > limit
+        is_cpulimit = cputime and rlimits.cputime and cputime > rlimits.cputime
+        is_walllimit = walltime and rlimits.walltime and walltime > rlimits.walltime
 
         return is_cpulimit or is_walllimit
 
@@ -1238,10 +1230,10 @@ class Requirements(object):
         # TODO check, if we have enough requirements to reach the limits
         # TODO is this really enough? we need some overhead!
         if self.cpu_cores is None:
-            self.cpu_cores = rlimits.get(CORELIMIT, None)
+            self.cpu_cores = rlimits.cpu_cores
 
         if self.memory is None:
-            self.memory = rlimits.get(MEMLIMIT, None)
+            self.memory = rlimits.memory
 
         if hasattr(config, "cpu_model") and config.cpu_model is not None:
             # user-given model -> override value

@@ -13,7 +13,6 @@ import sys
 import threading
 import time
 
-from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import BenchExecException
 from benchexec import cgroups
 from benchexec import containerexecutor
@@ -60,8 +59,8 @@ def execute_benchmark(benchmark, output_handler):
 
     if (
         benchmark.requirements.cpu_model
-        or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None)
-        or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None)
+        or benchmark.requirements.cpu_cores != benchmark.rlimits.cpu_cores
+        or benchmark.requirements.memory != benchmark.rlimits.memory
     ):
         logging.warning(
             "Ignoring specified resource requirements in local-execution mode, "
@@ -76,7 +75,7 @@ def execute_benchmark(benchmark, output_handler):
     pqos = Pqos(show_warnings=True)  # The pqos class instance for cache allocation
     pqos.reset_monitoring()
 
-    if CORELIMIT in benchmark.rlimits:
+    if benchmark.rlimits.cpu_cores:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
             logging.error(
                 "Cgroup subsystem cpuset is required "
@@ -84,7 +83,7 @@ def execute_benchmark(benchmark, output_handler):
             )
             my_cgroups.handle_errors({cgroups.CPUSET})
         coreAssignment = resources.get_cpu_cores_per_run(
-            benchmark.rlimits[CORELIMIT],
+            benchmark.rlimits.cpu_cores,
             benchmark.num_of_threads,
             benchmark.config.use_hyperthreading,
             my_cgroups,
@@ -104,10 +103,10 @@ def execute_benchmark(benchmark, output_handler):
             "Please limit the number of cores first if you also want to limit the set of available cores."
         )
 
-    if MEMLIMIT in benchmark.rlimits:
+    if benchmark.rlimits.memory:
         # check whether we have enough memory in the used memory banks for all runs
         resources.check_memory_size(
-            benchmark.rlimits[MEMLIMIT],
+            benchmark.rlimits.memory,
             benchmark.num_of_threads,
             memoryAssignment,
             my_cgroups,
@@ -279,8 +278,6 @@ class _Worker(threading.Thread):
         self.output_handler.output_before_run(run)
         benchmark = self.benchmark
 
-        memlimit = benchmark.rlimits.get(MEMLIMIT)
-
         args = run.cmdline()
         logging.debug("Command line of run is %s", args)
         pqos = Pqos()
@@ -291,12 +288,12 @@ class _Worker(threading.Thread):
             output_filename=run.log_file,
             output_dir=run.result_files_folder,
             result_files_patterns=benchmark.result_files_patterns,
-            hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
-            softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
-            walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
+            hardtimelimit=benchmark.rlimits.cputime_hard,
+            softtimelimit=benchmark.rlimits.cputime,
+            walltimelimit=benchmark.rlimits.walltime,
             cores=self.my_cpus,
             memory_nodes=self.my_memory_nodes,
-            memlimit=memlimit,
+            memlimit=benchmark.rlimits.memory,
             environments=benchmark.environment(),
             workingDir=benchmark.working_directory(),
             maxLogfileSize=benchmark.config.maxLogfileSize,
