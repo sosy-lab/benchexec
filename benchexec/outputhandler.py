@@ -926,7 +926,7 @@ class Statistics(object):
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
         for prop in run.properties:
-            self.score += prop.compute_score(run.category, run.status)
+            self.score += prop.compute_score(run.category, run.status) or 0
             self.max_score += prop.max_score(run.expected_results.get(prop.filename))
 
     def __str__(self):
