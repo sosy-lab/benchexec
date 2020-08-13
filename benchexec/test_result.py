@@ -112,11 +112,11 @@ class TestResult(unittest.TestCase):
 
     def test_Property_max_score_not_available(self):
         self.assertEqual(0, self.prop_call.max_score(ExpectedResult(None, None)))
-        self.assertEqual(0, self.prop_call.max_score(None))
+        self.assertEqual(None, self.prop_call.max_score(None))
 
     def test_Property_max_score_smt(self):
-        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(True, None)))
-        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(False, None)))
+        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(True, None)))
+        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(False, None)))
 
     def test_Property_max_score_svcomp(self):
         self.assertEqual(

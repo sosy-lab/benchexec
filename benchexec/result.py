@@ -121,7 +121,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
             an ExpectedResult indicating whether the property is expected to hold for the task
         """
         if not self.is_svcomp or not expected_result:
-            return 0
+            return None
         return _svcomp_max_score(expected_result.result)
 
     @property
