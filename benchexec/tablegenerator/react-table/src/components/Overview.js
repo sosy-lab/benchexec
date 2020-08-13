@@ -60,40 +60,74 @@ export default class Overview extends React.Component {
       stats,
     } = prepareTableData(props.data);
 
-    const test = async () => {
-      const start = Date.now();
-      const bucket = [];
-      const promises = [];
-      for (const line of table) {
-        for (const toolIdx in line.results) {
-          const tool = line.results[toolIdx];
-          const columns = tool.values;
-          if (!bucket[toolIdx]) {
-            bucket[toolIdx] = [];
-          }
-          for (const idx in columns) {
-            if (!bucket[toolIdx][idx]) {
-              bucket[toolIdx][idx] = [];
-            }
-            const item = columns[idx].raw;
-            if (!item || isNaN(Number(item))) {
-              continue;
-            }
+    const prepareRows = (rows, toolIdx, categoryAccessor, statusAccessor) => {
+      const categoryMapping = {
+        correct: "correct",
+        "correct-unconfirmed": "correctUnconfirmed",
+        wrong: "wrong",
+        unknown: "unknown",
+        error: "error",
+        missing: "missing",
+      };
 
-            bucket[toolIdx][idx].push(Number(columns[idx].raw));
-          }
+      const resultMapping = {
+        true: "true",
+        false: "false",
+      };
+
+      return rows.map((row) => {
+        const cat = categoryAccessor(toolIdx, row);
+        const stat = statusAccessor(toolIdx, row);
+
+        const mappedCat = categoryMapping[cat] || "other";
+        const mappedRes = resultMapping[stat] || "other";
+
+        return {
+          categoryType: mappedCat,
+          resultType: mappedRes,
+          row: row.results[toolIdx].values,
+        };
+      });
+    };
+
+    const splitColumnsWithMeta = (preppedRows) => {
+      const out = [];
+      for (const { row, categoryType, resultType } of preppedRows) {
+        for (const columnIdx in row) {
+          const column = Number(row[columnIdx].raw) || undefined;
+          const curr = out[columnIdx] || [];
+          curr.push({ categoryType, resultType, column });
+          out[columnIdx] = curr;
         }
       }
-      for (const toolIdx in bucket) {
-        const tool = bucket[toolIdx];
-        for (const columns of tool) {
-          if (!columns) {
-            continue;
-          }
-          promises.push(enqueue({ name: "stats", data: columns }));
-        }
+      return out;
+    };
+
+    const test = async () => {
+      const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
+      const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
+      const start = Date.now();
+      const promises = [];
+
+      const splitRows = [];
+
+      for (const toolIdx in tools) {
+        splitRows.push(prepareRows(table, toolIdx, catAccessor, statAccessor));
       }
-      const res = Promise.all(promises);
+
+      const preparedData = splitRows.map(splitColumnsWithMeta);
+
+      for (const toolDataIdx in preparedData) {
+        const toolData = preparedData[toolDataIdx];
+        const subPromises = [];
+        for (const columns of toolData) {
+          subPromises.push(enqueue({ name: "stats", data: columns }));
+        }
+        promises[toolDataIdx] = subPromises;
+      }
+
+      const allPromises = promises.map((p) => Promise.all(p));
+      const res = await Promise.all(allPromises);
       console.log({ res });
       console.log(`Calculation took ${Date.now() - start}ms`);
     };

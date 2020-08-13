@@ -1,44 +1,80 @@
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
-  let sum = 0;
-  let stdev = 0;
-  let avg = 0;
-  let max = 0;
-  let min = 0;
-  let median = 0;
+  const defaultObj = {
+    sum: 0,
+    stdev: 0,
+    avg: 0,
+    max: 0,
+    min: Infinity,
+    median: 0,
+    variance: 0,
+    items: [],
+  };
 
   const copy = [...data];
-  copy.sort((a, b) => a - b);
+  const buckets = {};
+  copy.sort((a, b) => a.column - b.column);
 
-  max = copy[copy.length - 1];
-  min = copy[0];
+  const total = { ...defaultObj };
+
+  total.max = copy[copy.length - 1].column;
+  total.min = copy[0].column;
 
   // calculation
   for (const item of copy) {
-    sum += item;
+    const key = `${item.categoryType}-${item.resultType}`;
+    const bucket = buckets[key] || {
+      ...defaultObj,
+    };
+    bucket.sum += item.column;
+    bucket.max = Math.max(bucket.max, item.column);
+    bucket.min = Math.min(bucket.min, item.column);
+    bucket.items.push(item);
+    total.sum += item.column;
+    buckets[key] = bucket;
   }
-  avg = sum / copy.length;
+  for (const [bucket, values] of Object.entries(buckets)) {
+    values.avg = values.sum / values.items.length;
+    if (values.items.length % 2 === 0) {
+      const idx = values.items.length / 2;
+      values.median =
+        (values.items[idx - 1].column + values.items[idx].column) / 2.0;
+    } else {
+      values.median =
+        values.items[Math.floor(values.items.length / 2.0)].column;
+    }
+    buckets[bucket] = values;
+  }
+  total.avg = total.sum / copy.length;
   if (copy.length % 2 === 0) {
     // even, we need an extra step to calculate the median
     const idx = copy.length / 2;
-    median = (copy[idx - 1] + copy[idx]) / 2.0;
+    total.median = (copy[idx - 1].column + copy[idx].column) / 2.0;
   } else {
     // ezpz
-    median = copy[Math.floor(copy.length / 2.0)];
+    total.median = copy[Math.floor(copy.length / 2.0)].column;
   }
-
-  // standard deviation
-  let variance = 0;
 
   for (const item of copy) {
-    const diff = item - avg;
-    variance += Math.pow(diff, 2);
+    const bucket = buckets[`${item.categoryType}-${item.resultType}`];
+    const diffBucket = item.column - bucket.avg;
+    const diffTotal = item.column - total.avg;
+    total.variance += Math.pow(diffTotal, 2);
+    bucket.variance += Math.pow(diffBucket, 2);
   }
 
-  stdev = Math.sqrt(variance / copy.length);
+  total.stdev = Math.sqrt(total.variance / copy.length);
 
-  const result = { min, max, sum, avg, median, stdev };
+  for (const [bucket, values] of Object.entries(buckets)) {
+    values.stdev = Math.sqrt(values.variance / values.items.length);
+    // clearing memory
+    delete values.items;
+    delete values.variance;
+    buckets[bucket] = values;
+  }
+
+  const result = { total, ...buckets };
 
   postMessage({ result, transaction });
 };
