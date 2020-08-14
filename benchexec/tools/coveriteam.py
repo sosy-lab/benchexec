@@ -38,11 +38,3 @@ class Tool(benchexec.tools.template.BaseTool):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
-
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        """
-        In case when someone wants to run a generic CoVeriTeam program.
-        In this case the caller has to set the inputs in the options field,
-        because we do not know what would be the inputs to a generic CoVeriTeam program.
-        """
-        return [executable] + options
