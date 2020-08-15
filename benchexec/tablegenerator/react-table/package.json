@@ -27,8 +27,9 @@
     "node": ">=12.0.0"
   },
   "scripts": {
-    "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
-    "build": "node scripts/dependencies.js && react-app-rewired build",
+    "injectWorkers": " node scripts/workerDataUrls.js && eslint --fix ./src/workers/dataUrls.js",
+    "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && node scripts/start.js",
+    "build": "node scripts/dependencies.js && npm run injectWorkers  && react-app-rewired build",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && react-app-rewired test",
     "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
     "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
