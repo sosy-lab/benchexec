@@ -16,9 +16,9 @@ for (const worker of workerFiles) {
   workerNames.push(workerName);
   const workerPath = path.join(workerFilePath, worker);
   output += "\n";
-  output += `const ${workerName} = "${template}${Buffer.from(
-    fs.readFileSync(workerPath).toString(),
-  ).toString("base64")}";`;
+  output += `const ${workerName} = "${template}${fs
+    .readFileSync(workerPath)
+    .toString("base64")}";`;
 }
 output += "\n\n\n";
 output += `export { ${workerNames.join(", ")} };`;
