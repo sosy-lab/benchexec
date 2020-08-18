@@ -148,7 +148,9 @@ def load_tool_info(tool_name, config):
     return tool_module, tool
 
 
-def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
+def cmdline_for_run(
+    tool, executable, options, sourcefiles, identifier, propertyfile, rlimits
+):
     working_directory = tool.working_directory(executable)
 
     def relpath(path):
@@ -160,7 +162,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     args = tool.cmdline(
         rel_executable,
         list(options),
-        list(map(relpath, sourcefiles)),
+        list(map(relpath, sourcefiles)) or [identifier],  # identifier for <withoutfile>
         relpath(propertyfile) if propertyfile else None,
         rlimits,
     )
@@ -1038,7 +1040,8 @@ class Run(object):
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
             self.options,
-            self.sourcefiles or [self.identifier],  # identifier for <withoutfile>
+            self.sourcefiles,
+            self.identifier,
             self.propertyfile,
             self.runSet.benchmark.rlimits,
         )

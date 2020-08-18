@@ -181,7 +181,7 @@ def print_tool_info(tool):
         "tasks without options, property file, and resource limits"
     ):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], None, no_limits,
+            tool, executable, [], ["INPUT.FILE"], None, None, no_limits,
         )
         print_list("Minimal command line", cmdline)
         if "INPUT.FILE" not in " ".join(cmdline):
@@ -189,7 +189,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with command-line options"):
         cmdline = model.cmdline_for_run(
-            tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, no_limits,
+            tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, None, no_limits,
         )
         print_list("Command line with parameter", cmdline)
         if "-SOME_OPTION" not in cmdline:
@@ -197,7 +197,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with property file"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], "PROPERTY.PRP", no_limits,
+            tool, executable, [], ["INPUT.FILE"], None, "PROPERTY.PRP", no_limits,
         )
         print_list("Command line with property file", cmdline)
         if "PROPERTY.PRP" not in " ".join(cmdline):
@@ -205,7 +205,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with multiple input files"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, no_limits,
+            tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, None, no_limits,
         )
         print_list("Command line with multiple input files", cmdline)
         if "INPUT1.FILE" in " ".join(cmdline) and "INPUT2.FILE" not in " ".join(
@@ -219,6 +219,7 @@ def print_tool_info(tool):
             executable,
             [],
             ["INPUT.FILE"],
+            None,
             None,
             CURRENT_BASETOOL.ResourceLimits(cputime=123),
         )
