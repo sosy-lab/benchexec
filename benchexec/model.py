@@ -159,13 +159,14 @@ def cmdline_for_run(
     rel_executable = relpath(executable)
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
-    args = tool.cmdline(
-        rel_executable,
-        list(options),
-        list(map(relpath, sourcefiles)) or [identifier],  # identifier for <withoutfile>
-        relpath(propertyfile) if propertyfile else None,
-        rlimits,
+
+    task = tooladapter.CURRENT_BASETOOL.Task(
+        input_files=map(relpath, sourcefiles),
+        identifier=None if sourcefiles else identifier,  # only for <withoutfile>
+        property_file=relpath(propertyfile) if propertyfile else None,
     )
+
+    args = tool.cmdline(rel_executable, list(options), task, rlimits)
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]

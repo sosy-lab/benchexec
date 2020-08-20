@@ -236,25 +236,23 @@ class BaseTool2(object, metaclass=ABCMeta):
 
     # Methods for handling individual runs and their results
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Compose the command line to execute from the name of the executable,
         the user-specified options, and the inputfile to analyze.
         This method can get overridden, if, for example, some options should
         be enabled or if the order of arguments must be changed.
 
-        All paths passed to this method (executable, tasks, and propertyfile)
+        All paths passed to this method (executable and fields of task)
         are either absolute or have been made relative to the designated working directory.
 
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
-        @param tasks: a list of tasks, that should be analysed with the tool in one run.
-                            A typical run has only one input file, but there can be more than one.
-        @param propertyfile: contains a specification for the verifier (optional, may be None).
+        @param task: An instance of of class Task, e.g., with the input files
         @param rlimits: An instance of class ResourceLimits with the limits for this run
         @return a list of strings that represent the command line to execute
         """
-        return [executable] + options + tasks
+        return [executable, *options, *task.input_files_or_identifier]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """
@@ -288,6 +286,69 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
 
     # Classes that are used in parameters above
+
+    class Task(
+        namedtuple("Task", ["input_files_or_empty", "identifier", "property_file"])
+    ):
+        """
+        Represent the task for which the tool should be executed in a run.
+        While this class is technically a tuple,
+        this should be seen as an implementation detail and the order of elements in the
+        tuple should not be considered. New fields may be added in the future.
+
+        Explanation of fields:
+        input_files_or_empty: ordered sequence of paths to input files (or directories),
+            each relative to the tool's working directory;
+            guaranteed to be of type collections.abc.Sequence;
+            it is recommended to access input_files or input_files_or_identifier instead
+        identifier: name of task when <withoutfile> is used to define the task,
+            i.e., when the list of input files is empty, None otherwise
+        property_file: path to property file if one is used (relative to the tool's
+            working directory) or None otherwise
+        """
+
+        def __new__(cls, input_files, identifier, property_file):
+            input_files = tuple(input_files)  # make input_files immutable
+            assert bool(input_files) != bool(identifier), (
+                "exactly one is required: input_files=%r identifier=%r"
+                % (input_files, identifier)
+            )
+            return super().__new__(cls, input_files, identifier, property_file)
+
+        @classmethod
+        def with_files(cls, input_files, *, property_file=None):
+            return cls(
+                input_files=input_files, identifier=None, property_file=property_file
+            )
+
+        @classmethod
+        def without_files(cls, identifier, *, property_file=None):
+            return cls(
+                input_files=[], identifier=identifier, property_file=property_file
+            )
+
+        @property
+        def input_files(self):
+            self.require_input_files()
+            return self.input_files_or_empty
+
+        @property
+        def input_files_or_identifier(self):
+            """
+            Return either the sequence of input files or a one-element sequence with the
+            identifier. Useful for adding either to the command line arguments.
+            """
+            return self.input_files_or_empty or tuple(self.identifier)
+
+        def require_input_files(self):
+            """
+            Check that there is at least one path in input_files and raise appropriate
+            exception otherwise
+            """
+            if not self.input_files_or_empty:
+                raise UnsupportedFeatureException(
+                    "Tool does not support tasks without input files"
+                )
 
     class ResourceLimits(
         namedtuple(

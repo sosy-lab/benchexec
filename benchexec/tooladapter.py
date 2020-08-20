@@ -47,7 +47,7 @@ class Tool1To2(object):
 
         self.__doc__ = inspect.getdoc(wrapped)
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         rlimits_dict = {}
 
         def copy_limit_if_present(field, key):
@@ -64,7 +64,11 @@ class Tool1To2(object):
         copy_limit_if_present("cpu_cores", benchexec.model.CORELIMIT)
 
         return self._wrapped.cmdline(
-            executable, options, tasks, propertyfile, rlimits_dict
+            executable,
+            options,
+            list(task.input_files_or_identifier),
+            task.property_file,
+            rlimits_dict,
         )
 
 
