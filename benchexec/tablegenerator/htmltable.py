@@ -425,7 +425,11 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             column.href for column in res.columns if column.title.endswith("status")
         )
         toolHref = next(hrefs, None) or res.log_file
-        result = {k: getattr(res, k) for k in results_include_keys if getattr(res, k) != None}
+        result = {
+            k: getattr(res, k)
+            for k in results_include_keys
+            if getattr(res, k) is not None
+        }
         if toolHref:
             result["href"] = _create_link(toolHref, base_dir, res, href_base)
         result["values"] = values
