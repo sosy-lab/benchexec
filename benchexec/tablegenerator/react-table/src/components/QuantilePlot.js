@@ -25,40 +25,45 @@ import {
   getFirstVisibles,
 } from "../utils/utils";
 import { renderSetting } from "../utils/plot";
-const plotOptions = {
-  quantile: "Quantile Plot",
-  direct: "Direct Plot",
-};
-
-const scalingOptions = {
-  linear: "Linear",
-  logarithmic: "Logarithmic",
-};
-
-const resultsOptions = {
-  all: "All",
-  correct: "Correct only",
-};
-
-const defaultValues = {
-  plot: plotOptions.quantile,
-  scaling: scalingOptions.logarithmic,
-  results: resultsOptions.correct,
-};
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.setup();
+
+    this.plotOptions = {
+      quantile: "Quantile Plot",
+      direct: "Direct Plot",
+    };
+
+    this.scalingOptions = {
+      linear: "Linear",
+      logarithmic: "Logarithmic",
+    };
+
+    this.resultsOptions = {
+      all: "All",
+      correct: "Correct only",
+    };
+
+    this.defaultValues = {
+      plot: this.plotOptions.quantile,
+      scaling: this.scalingOptions.logarithmic,
+      results: this.resultsOptions.correct,
+    };
+
+    this.checkForScoreBasedPlot();
+
     this.possibleValues = [];
     this.lineCount = 1;
+
+    this.state = this.setup();
   }
 
   setup() {
     const queryProps = getHashSearch();
 
     let { selection, plot, scaling, results } = {
-      ...defaultValues,
+      ...this.defaultValues,
       ...queryProps,
     };
 
@@ -69,48 +74,29 @@ export default class QuantilePlot extends React.Component {
     /* There are two versions of the plot:
        1. One columns of multiple runsets => isValue: true
        2. One Runset with all its columns => isValue: false */
-    const isValue = selection === undefined || !runsetPattern.test(selection);
+    let isValue = selection === undefined || !runsetPattern.test(selection);
+    selection = isValue
+      ? this.getColumnSelection(selection)
+      : this.getRunsetSelection(selection);
 
-    if (isValue) {
-      let selectedCol = selection
-        ? this.props.tools
-            .map((tool) => tool.columns)
-            .flat()
-            .find((col) => col.display_title === selection)
-        : this.props.preSelection;
-
-      /* If the defined col does not match any of the columns of the runsets or is not visible in any of the runsets,
-         the first visible column that is not of the type status of the first visible runset will be shown instead. In case
-         there is no such column, the first column of the type status will be selected. */
-      if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
-        const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
-          this.props.tools,
-          this.props.hiddenCols,
-        );
-        selectedCol =
-          firstVisibleTool !== undefined
-            ? this.props.tools
-                .find((tool) => tool.toolIdx === firstVisibleTool)
-                .columns.find((col) => col.colIdx === firstVisibleColumn)
-            : undefined;
-      }
-
-      selection = selectedCol && selectedCol.display_title;
-    } else {
-      let toolIdx = parseInt(selection.split("-")[1]);
-      const selectedTool = this.props.tools.find(
-        (tool) => tool.toolIdx === toolIdx,
+    /* If the plot is score-based and the current selection doesn't support scores, select the next visible column of a visible
+     runset that does support scores instead. In cases where the URL was manually changed and the component did not correctly
+     update, it's possible there is no column that can be chosen. In this case the initial selection will be kept and an error
+     message shown instead of the plot. This will be updated when selecting any new value. */
+    if (
+      plot === this.plotOptions.scoreBased &&
+      ((isValue && !this.isInVisibleRunsetSupportingScore(selection)) ||
+        (!isValue &&
+          !this.props.tools.find(
+            (tool) => tool.toolIdx === parseInt(selection.split("-")[1]),
+          ).scoreBased))
+    ) {
+      this.setPossibleValues();
+      const possibleCol = this.possibleValues.find((col) =>
+        this.isInVisibleRunsetSupportingScore(col.display_title),
       );
-      const hasToolAnyVisibleCols = selectedTool.columns.some(
-        (col) => !this.props.hiddenCols[toolIdx].includes(col.colIdx),
-      );
-
-      /* If the selected runset has no visible cols, i.e. the runset itself is hidden, the first visible runset will be
-         shown instead. */
-      if (!hasToolAnyVisibleCols) {
-        toolIdx = getFirstVisibles(this.props.tools, this.props.hiddenCols)[0];
-      }
-      selection = toolIdx !== undefined ? "runset-" + toolIdx : undefined;
+      selection = possibleCol ? possibleCol.display_title : selection;
+      isValue = true;
     }
 
     /* If there was an initial selection (= URl parameter) and there is still a selection (= a visible column/runset) and
@@ -128,20 +114,86 @@ export default class QuantilePlot extends React.Component {
       isValue,
       isInvisible: [],
       areAllColsHidden: selection === undefined,
+      isResultSelectionDisabled: plot === this.plotOptions.scoreBased,
     };
   }
 
+  /** Returns the column that will be shown in the plot. If the selection defined in the URL is valid and is visible in
+      any of the visible runsets, this selection will be returned. Otherwise the first visible column that is not of the
+      type status of the first visible runset will be returned instead. In case there is no such column, the first column
+      of the type status will be selected. */
+  getColumnSelection(selection) {
+    let selectedCol = selection
+      ? this.props.tools
+          .map((tool) => tool.columns)
+          .flat()
+          .find((col) => col.display_title === selection)
+      : this.props.preSelection;
+
+    if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
+      const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        this.props.tools,
+        this.props.hiddenCols,
+      );
+      selectedCol =
+        firstVisibleTool !== undefined
+          ? this.props.tools
+              .find((tool) => tool.toolIdx === firstVisibleTool)
+              .columns.find((col) => col.colIdx === firstVisibleColumn)
+          : undefined;
+    }
+
+    return selectedCol && selectedCol.display_title;
+  }
+
+  /** Returns the runset that will be shown in the plot. If the selected runset has no visible columns, i.e. the runset
+      itself is hidden, the first visible runset will be returned instead. */
+  getRunsetSelection(selection) {
+    let toolIdx = parseInt(selection.split("-")[1]);
+    const selectedTool = this.props.tools.find(
+      (tool) => tool.toolIdx === toolIdx,
+    );
+    const hasToolAnyVisibleCols = selectedTool.columns.some((col) =>
+      this.isColVisible(toolIdx, col.colIdx),
+    );
+
+    if (!hasToolAnyVisibleCols) {
+      toolIdx = getFirstVisibles(this.props.tools, this.props.hiddenCols)[0];
+    }
+    return toolIdx !== undefined ? "runset-" + toolIdx : undefined;
+  }
+
+  /* Checks whether any of the visible runsets supports a score based plot and adds the score-based option to the
+    dropdown if applicable. In case all visible runsets support a score based plot, the score-based quantile plot
+    will be set as default. */
+  checkForScoreBasedPlot() {
+    if (
+      this.props.tools.some(
+        (tool) => tool.scoreBased && this.isToolVisible(tool),
+      )
+    ) {
+      this.plotOptions.scoreBased = "Score-based Quantile Plot";
+      if (
+        this.props.tools.every(
+          (tool) => tool.scoreBased && this.isToolVisible(tool),
+        )
+      ) {
+        this.defaultValues.plot = this.plotOptions.scoreBased;
+      }
+    }
+  }
+
   isColRelevantForTool = (colIdx, toolIdx) =>
-    !this.props.hiddenCols[toolIdx].includes(colIdx) &&
+    this.isColVisible(toolIdx, colIdx) &&
     colIdx.type !== "text" &&
     colIdx.type !== "status";
 
   isToolRelevantForCol = (tool, colName) => {
     const colInTool = tool.columns.find((col) => col.display_title === colName);
     return (
-      tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length &&
+      this.isToolVisible(tool) &&
       colInTool &&
-      !this.props.hiddenCols[tool.toolIdx].includes(colInTool.colIdx)
+      this.isColVisible(tool.toolIdx, colInTool.colIdx)
     );
   };
 
@@ -150,9 +202,25 @@ export default class QuantilePlot extends React.Component {
       tool.columns.some(
         (col) =>
           col.colIdx === column.colIdx &&
-          !this.props.hiddenCols[tool.toolIdx].includes(col.colIdx),
+          this.isColVisible(tool.toolIdx, col.colIdx),
       ),
     );
+
+  // Checks whether the given column (defined by its display title) is part of any visible runset that supports a scoring scheme.
+  isInVisibleRunsetSupportingScore = (colTitle) =>
+    this.props.tools
+      .filter((tool) => this.isToolVisible(tool))
+      .some(
+        (tool) =>
+          tool.scoreBased &&
+          tool.columns.some((col) => col.display_title === colTitle),
+      );
+
+  isToolVisible = (tool) =>
+    tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length;
+
+  isColVisible = (toolIdx, colIdx) =>
+    !this.props.hiddenCols[toolIdx].includes(colIdx);
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
@@ -212,10 +280,17 @@ export default class QuantilePlot extends React.Component {
     const task = this.state.selection;
 
     if (this.state.isValue) {
-      //var 1: compare different RunSets on one value
-      this.props.tools.forEach((tool, i) => this.renderData(task, i, task + i));
+      /* Option 1: Compare different runsets on one value.
+         If the score-based plot is selected, only runsets that support scoring schemes are shown. */
+      const tools =
+        this.state.plot === this.plotOptions.scoreBased
+          ? this.props.tools.filter((tool) => tool.scoreBased)
+          : this.props.tools;
+      tools.forEach((tool) =>
+        this.renderData(task, tool.toolIdx, task + tool.toolIdx),
+      );
     } else {
-      //var 2: compare different values of one RunSet
+      /* Option 2: Compare different values on one runset. */
       if (!this.state.areAllColsHidden) {
         const index = this.state.selection.split("-")[1];
         const tool = this.props.tools[index];
@@ -223,7 +298,7 @@ export default class QuantilePlot extends React.Component {
           .filter(
             (col) =>
               this.isColRelevantForTool(col.colIdx, tool.toolIdx) &&
-              !this.props.hiddenCols[index].includes(col.colIdx),
+              this.isColVisible(tool.toolIdx, col.colIdx),
           )
           .forEach((column) =>
             this.renderData(column.display_title, index, column.display_title),
@@ -232,16 +307,17 @@ export default class QuantilePlot extends React.Component {
     }
   };
 
-  renderData = (column, toolIdx, field) => {
+  renderData = (colTitle, toolIdx, field) => {
     const isOrdinal = this.handleType() === "ordinal";
-    let arrayY = [];
     const colIdx = this.props.tools[toolIdx].columns.findIndex(
-      (value) => value.display_title === column,
+      (value) => value.display_title === colTitle,
     );
+    let arrayY = [];
+    let scoreOfIncorrectResults = 0;
 
     if (
       !this.state.isValue ||
-      (colIdx >= 0 && !this.props.hiddenCols[toolIdx].includes(colIdx))
+      (colIdx >= 0 && this.isColVisible(toolIdx, colIdx))
     ) {
       arrayY = this.props.table.map((runSet) => {
         // Get y value if it should be shown and normalize it.
@@ -249,42 +325,50 @@ export default class QuantilePlot extends React.Component {
         const runResult = runSet.results[toolIdx];
         let value = null;
         if (
-          this.state.results !== resultsOptions.correct ||
-          runResult.category === "correct"
+          runResult.category === "correct" ||
+          (!this.state.isResultSelectionDisabled &&
+            this.state.results !== this.resultsOptions.correct)
         ) {
-          value = runResult.values[colIdx].raw;
-          if (value === undefined) {
-            value = null;
-          }
+          value = runResult.values[colIdx].raw || null;
           if (!isOrdinal && value !== null) {
-            value = +value;
-            if (!isFinite(value)) {
-              value = null;
-            }
+            value = isFinite(+value) ? +value : null;
           }
+        } else if (
+          this.state.plot === this.plotOptions.scoreBased &&
+          runResult.score &&
+          runResult.category !== "correct"
+        ) {
+          scoreOfIncorrectResults += runResult.score;
         }
-        return [value, this.props.getRowName(runSet)];
+        return {
+          value,
+          rowName: this.props.getRowName(runSet),
+          score: runResult.score,
+        };
       });
 
-      if (this.state.plot === plotOptions.quantile) {
-        arrayY = arrayY.filter((element) => element[0] !== null);
-        arrayY = this.sortArray(arrayY, column);
+      if (this.state.plot !== this.plotOptions.direct) {
+        arrayY = arrayY.filter((dataObj) => dataObj.value !== null);
+        arrayY = this.sortArray(arrayY, colTitle);
       }
     }
 
     this.hasInvalidLog = false;
     const newArray = [];
-
-    arrayY.forEach((el, i) => {
-      const value = el[0];
+    let xPositionCounter = scoreOfIncorrectResults;
+    arrayY.forEach(({ value, rowName, score }, i) => {
       const isLogAndInvalid =
-        this.state.scaling === scalingOptions.logarithmic && value <= 0;
+        this.state.scaling === this.scalingOptions.logarithmic && value <= 0;
+      let xPosition =
+        this.state.plot === this.plotOptions.scoreBased
+          ? (xPositionCounter += score)
+          : i + 1;
 
       if (value !== null && !isLogAndInvalid) {
         newArray.push({
-          x: i + 1,
+          x: xPosition,
           y: value,
-          info: el[1],
+          info: rowName,
         });
       }
 
@@ -292,7 +376,6 @@ export default class QuantilePlot extends React.Component {
         this.hasInvalidLog = true;
       }
     });
-
     this[field] = newArray;
   };
 
@@ -302,30 +385,39 @@ export default class QuantilePlot extends React.Component {
     );
 
     return this.state.isValue && ["text", "status"].includes(currentValue.type)
-      ? array.sort((a, b) => (a[0] > b[0] ? 1 : b[0] > a[0] ? -1 : 0))
-      : array.sort((a, b) => +a[0] - +b[0]);
+      ? array.sort((a, b) =>
+          a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
+        )
+      : array.sort((a, b) => +a.value - +b.value);
   };
 
-  renderColumns = () => {
+  setPossibleValues() {
     this.props.tools.forEach((tool) => {
-      tool.columns.forEach((column) => {
+      tool.columns.forEach((col) => {
         if (
-          !this.props.hiddenCols[tool.toolIdx].includes(column.colIdx) &&
+          this.isColVisible(tool.toolIdx, col.colIdx) &&
           !this.possibleValues.some(
-            (value) => value.display_title === column.display_title,
+            (value) => value.display_title === col.display_title,
           )
         ) {
-          this.possibleValues.push(column);
+          this.possibleValues.push(col);
         }
       });
     });
-    this.renderAll();
+  }
+
+  renderColumns = () => {
     return this.possibleValues.map((value) => {
+      const isDisabled =
+        this.state.plot === this.plotOptions.scoreBased &&
+        !this.isInVisibleRunsetSupportingScore(value.display_title);
       return (
         <option
           key={value.display_title}
           value={value.display_title}
           name={value.display_title}
+          disabled={isDisabled}
+          className={isDisabled ? "disabled" : ""}
         >
           {value.display_title}
         </option>
@@ -341,49 +433,28 @@ export default class QuantilePlot extends React.Component {
       ];
 
     if (this.state.isValue) {
-      return this.props.tools
-        .map((tool, i) => {
+      return (
+        this.props.tools
           // Cannot use filter() because we need original value of i
-          if (!this.isToolRelevantForCol(tool, this.state.selection)) {
-            return null;
-          }
-          const task = this.state.selection;
-          const data = this[task + i];
-          const id = getRunSetName(tool);
-          this.lineCount++;
-
-          return (
-            <LineMarkSeries
-              data={data}
-              key={id}
-              color={color()}
-              opacity={this.handleLineState(id)}
-              onValueMouseOver={(datapoint, event) =>
-                this.setState({ value: datapoint })
-              }
-              onValueMouseOut={(datapoint, event) =>
-                this.setState({ value: null })
-              }
-            />
-          );
-        })
-        .filter((el) => !!el);
-    } else {
-      if (!this.state.areAllColsHidden) {
-        const index = this.state.selection.split("-")[1];
-        const tool = this.props.tools[index];
-        return tool.columns
-          .filter((col) => this.isColRelevantForTool(col.colIdx, tool.toolIdx))
-          .map((column) => {
-            const data = this[column.display_title];
+          .map((tool, i) => {
+            if (
+              !this.isToolRelevantForCol(tool, this.state.selection) ||
+              (this.state.plot === this.plotOptions.scoreBased &&
+                !tool.scoreBased)
+            ) {
+              return null;
+            }
+            const task = this.state.selection;
+            const data = this[task + i];
+            const id = getRunSetName(tool);
             this.lineCount++;
 
             return (
               <LineMarkSeries
                 data={data}
-                key={column.display_title}
+                key={id}
                 color={color()}
-                opacity={this.handleLineState(column.display_title)}
+                opacity={this.handleLineState(id)}
                 onValueMouseOver={(datapoint, event) =>
                   this.setState({ value: datapoint })
                 }
@@ -392,8 +463,33 @@ export default class QuantilePlot extends React.Component {
                 }
               />
             );
-          });
-      }
+          })
+          .filter((el) => !!el)
+      );
+    } else if (!this.state.areAllColsHidden) {
+      const index = this.state.selection.split("-")[1];
+      const tool = this.props.tools[index];
+      return tool.columns
+        .filter((col) => this.isColRelevantForTool(col.colIdx, tool.toolIdx))
+        .map((column) => {
+          const data = this[column.display_title];
+          this.lineCount++;
+
+          return (
+            <LineMarkSeries
+              data={data}
+              key={column.display_title}
+              color={color()}
+              opacity={this.handleLineState(column.display_title)}
+              onValueMouseOver={(datapoint, event) =>
+                this.setState({ value: datapoint })
+              }
+              onValueMouseOut={(datapoint, event) =>
+                this.setState({ value: null })
+              }
+            />
+          );
+        });
     }
   };
 
@@ -412,15 +508,19 @@ export default class QuantilePlot extends React.Component {
                   onChange={(ev) => setParam({ selection: ev.target.value })}
                 >
                   <optgroup label="Runsets">
-                    {this.props.tools.map((runset, i) => {
-                      return runset.columns.length !==
-                        this.props.hiddenCols[runset.toolIdx].length ? (
+                    {this.props.tools.map((tool, i) => {
+                      const isDisabled =
+                        this.state.plot === this.plotOptions.scoreBased &&
+                        !tool.scoreBased;
+                      return this.isToolVisible(tool) ? (
                         <option
                           key={"runset-" + i}
                           value={"runset-" + i}
                           name={"Runset " + i}
+                          disabled={isDisabled}
+                          className={isDisabled ? "disabled" : ""}
                         >
-                          {getRunSetName(runset)}
+                          {getRunSetName(tool)}
                         </option>
                       ) : null;
                     })}
@@ -432,7 +532,7 @@ export default class QuantilePlot extends React.Component {
                 "Plot",
                 this.state.plot,
                 (ev) => setParam({ plot: ev.target.value }),
-                plotOptions,
+                this.plotOptions,
               )}
             </div>
             <div className="settings-subcontainer">
@@ -440,14 +540,15 @@ export default class QuantilePlot extends React.Component {
                 "Scaling",
                 this.state.scaling,
                 (ev) => setParam({ scaling: ev.target.value }),
-                scalingOptions,
+                this.scalingOptions,
               )}
               {renderSetting(
                 "Results",
                 this.state.results,
                 (ev) => setParam({ results: ev.target.value }),
-                resultsOptions,
+                this.resultsOptions,
                 "In addition to which results are selected here, any filters will still be applied.",
+                this.state.isResultSelectionDisabled,
               )}
             </div>
           </div>
@@ -497,12 +598,14 @@ export default class QuantilePlot extends React.Component {
       this.state.isValue && index >= 0 ? this.possibleValues[index].type : null;
     return this.state.isValue && (type === "text" || type === "status")
       ? "ordinal"
-      : this.state.scaling === scalingOptions.linear
+      : this.state.scaling === this.scalingOptions.linear
       ? "linear"
       : "log";
   };
 
   render() {
+    this.setPossibleValues();
+    this.renderAll();
     return (
       <div className="quantilePlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}

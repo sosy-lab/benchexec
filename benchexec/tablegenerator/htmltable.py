@@ -392,7 +392,7 @@ def _prepare_run_sets_for_js(run_sets):
 
 
 def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
-    results_include_keys = ["category"]
+    results_include_keys = ["category", "score"]
 
     def prepare_value(column, value, run_result):
         """
@@ -425,7 +425,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             column.href for column in res.columns if column.title.endswith("status")
         )
         toolHref = next(hrefs, None) or res.log_file
-        result = {k: getattr(res, k) for k in results_include_keys}
+        result = {k: getattr(res, k) for k in results_include_keys if getattr(res, k) != None}
         if toolHref:
             result["href"] = _create_link(toolHref, base_dir, res, href_base)
         result["values"] = values

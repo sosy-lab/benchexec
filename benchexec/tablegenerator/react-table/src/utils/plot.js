@@ -15,22 +15,38 @@ import React from "react";
  * @param {function} changeHandler handler function that will be called when an option was selected
  * @param {Object} options object containing the names of all options for the dropdown
  * @param {String} tooltip [OPTIONAL] tooltip for the whole setting
+ * @param {boolean} isDisabled [OPTIONAL] whether or not the dropdown is disabled
  **/
-const renderSetting = (name, value, changeHandler, options, tooltip) => {
+const renderSetting = (
+  name,
+  value,
+  changeHandler,
+  options,
+  tooltip,
+  isDisabled,
+) => {
   return (
-    <div className="setting" title={tooltip}>
+    <div className={`setting${isDisabled ? " disabled" : ""}`} title={tooltip}>
       <span className="setting-label">{name}:</span>
       <select
         className="setting-select"
         name={name}
-        value={value}
+        value={isDisabled ? "disabled" : value}
         onChange={changeHandler}
+        disabled={isDisabled}
       >
         {Object.values(options).map((option) => (
           <option value={option} key={option} name={option + " " + name}>
             {option}
           </option>
         ))}
+        {isDisabled ? (
+          <option value="disabled" name="disabled">
+            -----
+          </option>
+        ) : (
+          ""
+        )}
       </select>
     </div>
   );
