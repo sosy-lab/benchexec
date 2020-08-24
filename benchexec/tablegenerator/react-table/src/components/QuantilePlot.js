@@ -79,19 +79,28 @@ export default class QuantilePlot extends React.Component {
       ? this.getColumnSelection(selection)
       : this.getRunsetSelection(selection);
 
-    /* If the plot is score-based and a runset is selected or the current selection doesn't support scores, select the next
-     visible column of a visible runset that does support scores instead. In cases where the URL was manually changed and the
-     component did not correctly update, it's possible there is no column that can be chosen. In this case the initial selection
-     will be kept and an error message shown instead of the plot. This will be updated when selecting any new value. */
+    /* If the plot is score-based and a runset is selected or the current selection doesn't support scores, select the first
+       visible column that is not of the type status of the first visible runset that does support scores instead. If there is
+       no such column, columns of the type status of such a runset will be taken into consideration too.
+       In cases where the URL was manually changed and the component did not correctly update, it's possible there is no column
+       that can be chosen. In this case the initial selection will be kept and an error message shown instead of the plot.
+       This will be updated when selecting any new value. */
     if (
       plot === this.plotOptions.scoreBased &&
       ((isValue && !this.isInVisibleRunsetSupportingScore(selection)) ||
         !isValue)
     ) {
       this.setPossibleValues();
-      const possibleCol = this.possibleValues.find((col) =>
-        this.isInVisibleRunsetSupportingScore(col.display_title),
+      let possibleCol = this.possibleValues.find(
+        (col) =>
+          col.type !== "status" &&
+          this.isInVisibleRunsetSupportingScore(col.display_title),
       );
+      if (!possibleCol) {
+        possibleCol = this.possibleValues.find((col) =>
+          this.isInVisibleRunsetSupportingScore(col.display_title),
+        );
+      }
       selection = possibleCol ? possibleCol.display_title : selection;
       isValue = true;
     }
