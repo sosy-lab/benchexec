@@ -42,7 +42,7 @@ const renderSetting = (
         ))}
         {isDisabled ? (
           <option value="disabled" name="disabled">
-            -----
+            ⸺
           </option>
         ) : (
           ""
