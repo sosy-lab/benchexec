@@ -17,6 +17,7 @@ https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
 
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
+import copy
 import os
 import logging
 import subprocess
@@ -288,7 +289,9 @@ class BaseTool2(object, metaclass=ABCMeta):
     # Classes that are used in parameters above
 
     class Task(
-        namedtuple("Task", ["input_files_or_empty", "identifier", "property_file"])
+        namedtuple(
+            "Task", ["input_files_or_empty", "identifier", "property_file", "options"]
+        )
     ):
         """
         Represent the task for which the tool should be executed in a run.
@@ -305,26 +308,34 @@ class BaseTool2(object, metaclass=ABCMeta):
             i.e., when the list of input files is empty, None otherwise
         property_file: path to property file if one is used (relative to the tool's
             working directory) or None otherwise
+        options: content of the "options" key in the task-definition file (if present)
         """
 
-        def __new__(cls, input_files, identifier, property_file):
+        def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
             assert bool(input_files) != bool(identifier), (
                 "exactly one is required: input_files=%r identifier=%r"
                 % (input_files, identifier)
             )
-            return super().__new__(cls, input_files, identifier, property_file)
+            options = copy.deepcopy(options)  # defensive copy because not immutable
+            return super().__new__(cls, input_files, identifier, property_file, options)
 
         @classmethod
-        def with_files(cls, input_files, *, property_file=None):
+        def with_files(cls, input_files, *, property_file=None, options=None):
             return cls(
-                input_files=input_files, identifier=None, property_file=property_file
+                input_files=input_files,
+                identifier=None,
+                property_file=property_file,
+                options=options,
             )
 
         @classmethod
-        def without_files(cls, identifier, *, property_file=None):
+        def without_files(cls, identifier, *, property_file=None, options=None):
             return cls(
-                input_files=[], identifier=identifier, property_file=property_file
+                input_files=[],
+                identifier=identifier,
+                property_file=property_file,
+                options=options,
             )
 
         @property

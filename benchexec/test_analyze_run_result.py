@@ -53,7 +53,11 @@ class TestResult(unittest.TestCase):
         runSet.benchmark.tool.determine_result = determine_result
 
         return Run(
-            identifier="test.c", sourcefiles=["test.c"], fileOptions=[], runSet=runSet
+            identifier="test.c",
+            sourcefiles=["test.c"],
+            task_options=None,
+            fileOptions=[],
+            runSet=runSet,
         )
 
     def test_simple(self):

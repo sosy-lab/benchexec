@@ -95,11 +95,18 @@ def load_task_definition_file(task_def_file):
     if not task_def:
         raise BenchExecException("Invalid task definition: empty file " + task_def_file)
 
-    if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
+    format_version = str(task_def.get("format_version"))
+    if format_version not in ["0.1", "1.0", "1.1"]:
         raise BenchExecException(
             "Task-definition file {} specifies invalid format_version '{}'.".format(
                 task_def_file, task_def.get("format_version")
             )
+        )
+
+    if format_version != "1.1" and "options" in task_def:
+        raise BenchExecException(
+            "Task-definition file {} specifies invalid key 'options', "
+            "format_version needs to be at least 1.1 for this.".format(task_def_file)
         )
 
     return task_def
@@ -149,7 +156,14 @@ def load_tool_info(tool_name, config):
 
 
 def cmdline_for_run(
-    tool, executable, options, sourcefiles, identifier, propertyfile, rlimits
+    tool,
+    executable,
+    options,
+    sourcefiles,
+    identifier,
+    propertyfile,
+    task_options,
+    rlimits,
 ):
     working_directory = tool.working_directory(executable)
 
@@ -164,6 +178,7 @@ def cmdline_for_run(
         input_files=map(relpath, sourcefiles),
         identifier=None if sourcefiles else identifier,  # only for <withoutfile>
         property_file=relpath(propertyfile) if propertyfile else None,
+        options=task_options,
     )
 
     args = tool.cmdline(rel_executable, list(options), task, rlimits)
@@ -608,6 +623,7 @@ class RunSet(object):
                     Run(
                         run.text,
                         [],
+                        None,
                         fileOptions,
                         self,
                         local_propertytag,
@@ -720,6 +736,7 @@ class RunSet(object):
         run = Run(
             input_file,
             util.get_files(input_files),  # expand directories to get their sub-files
+            None,
             options,
             self,
             local_propertytag,
@@ -785,6 +802,7 @@ class RunSet(object):
         run = Run(
             task_def_file,
             input_files,
+            task_def.get("options"),
             options,
             self,
             local_propertytag,
@@ -926,6 +944,7 @@ class Run(object):
         self,
         identifier,
         sourcefiles,
+        task_options,
         fileOptions,
         runSet,
         local_propertytag=None,
@@ -937,6 +956,7 @@ class Run(object):
         assert identifier
         self.identifier = identifier
         self.sourcefiles = sourcefiles
+        self.task_options = task_options
         self.runSet = runSet
         self.specific_options = fileOptions  # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
@@ -1044,6 +1064,7 @@ class Run(object):
             self.sourcefiles,
             self.identifier,
             self.propertyfile,
+            self.task_options,
             self.runSet.benchmark.rlimits,
         )
 
