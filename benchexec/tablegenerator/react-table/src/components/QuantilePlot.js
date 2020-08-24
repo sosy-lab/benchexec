@@ -495,6 +495,10 @@ export default class QuantilePlot extends React.Component {
   };
 
   renderAllSettings() {
+    const resultsTooltip =
+      this.state.plot === this.plotOptions.scoreBased
+        ? "Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
+        : "In addition to which results are selected here, any defined filters will still be applied.";
     return (
       <div className="settings-legend-container">
         <div className="settings-container">
@@ -548,7 +552,7 @@ export default class QuantilePlot extends React.Component {
                 this.state.results,
                 (ev) => setParam({ results: ev.target.value }),
                 this.resultsOptions,
-                "In addition to which results are selected here, any filters will still be applied.",
+                resultsTooltip,
                 this.state.isResultSelectionDisabled,
               )}
             </div>
