@@ -919,15 +919,17 @@ class Statistics(object):
         self.dic = collections.defaultdict(int)
         self.counter = 0
         self.score = 0
-        self.max_score = 0
+        self.max_score = None
 
     def add_result(self, run):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
         for prop in run.properties:
-            self.score += prop.compute_score(run.category, run.status)
-            self.max_score += prop.max_score(run.expected_results.get(prop.filename))
+            self.score += prop.compute_score(run.category, run.status) or 0
+            max_score = prop.max_score(run.expected_results.get(prop.filename))
+            if max_score is not None:
+                self.max_score = max_score + (self.max_score or 0)
 
     def __str__(self):
         correct = self.dic[result.CATEGORY_CORRECT]
@@ -952,7 +954,7 @@ class Statistics(object):
                 self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]
             ).rjust(width),
         ]
-        if self.max_score:
+        if self.max_score is not None:
             output.append(
                 "  Score:            "
                 + str(self.score).rjust(width)

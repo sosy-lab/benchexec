@@ -192,7 +192,8 @@ def _prepare_benchmark_setup_data(
 
 def _get_task_counts(rows):
     """Calculcate number of true/false tasks and maximum achievable score."""
-    count_true = count_false = max_score = 0
+    count_true = count_false = 0
+    max_score = None
     for row in rows:
         if not row.id.property:
             logging.info("Missing property for task %s.", row.id)
@@ -204,7 +205,9 @@ def _get_task_counts(rows):
             count_true += 1
         elif expected_result.result is False:
             count_false += 1
-        max_score += row.id.property.max_score(expected_result)
+        row_max_score = row.id.property.max_score(expected_result)
+        if row_max_score is not None:
+            max_score = row_max_score + (max_score or 0)
 
     return max_score, count_true, count_false
 
@@ -355,7 +358,7 @@ def _prepare_stats(all_column_stats, rows, columns):
             )
         )
 
-    if max_score:
+    if max_score is not None:
         stat_rows.append(
             dict(  # noqa: C408
                 id="score",
