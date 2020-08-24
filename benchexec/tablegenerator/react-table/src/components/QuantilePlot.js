@@ -308,6 +308,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   renderData = (colTitle, toolIdx, field) => {
+    const isPlotScoreBased = this.state.plot === this.plotOptions.scoreBased;
     const isOrdinal = this.handleType() === "ordinal";
     const colIdx = this.props.tools[toolIdx].columns.findIndex(
       (value) => value.display_title === colTitle,
@@ -334,7 +335,7 @@ export default class QuantilePlot extends React.Component {
             value = isFinite(+value) ? +value : null;
           }
         } else if (
-          this.state.plot === this.plotOptions.scoreBased &&
+          isPlotScoreBased &&
           runResult.score &&
           runResult.category !== "correct"
         ) {
@@ -355,14 +356,11 @@ export default class QuantilePlot extends React.Component {
 
     this.hasInvalidLog = false;
     const newArray = [];
-    let xPositionCounter = scoreOfIncorrectResults;
-    arrayY.forEach(({ value, rowName, score }, i) => {
+    let xPosition = isPlotScoreBased ? scoreOfIncorrectResults : 0;
+    arrayY.forEach(({ value, rowName, score }) => {
       const isLogAndInvalid =
         this.state.scaling === this.scalingOptions.logarithmic && value <= 0;
-      let xPosition =
-        this.state.plot === this.plotOptions.scoreBased
-          ? (xPositionCounter += score)
-          : i + 1;
+      xPosition = xPosition + (isPlotScoreBased ? score : 1);
 
       if (value !== null && !isLogAndInvalid) {
         newArray.push({
