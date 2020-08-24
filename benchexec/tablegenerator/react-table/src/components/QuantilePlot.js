@@ -79,17 +79,14 @@ export default class QuantilePlot extends React.Component {
       ? this.getColumnSelection(selection)
       : this.getRunsetSelection(selection);
 
-    /* If the plot is score-based and the current selection doesn't support scores, select the next visible column of a visible
-     runset that does support scores instead. In cases where the URL was manually changed and the component did not correctly
-     update, it's possible there is no column that can be chosen. In this case the initial selection will be kept and an error
-     message shown instead of the plot. This will be updated when selecting any new value. */
+    /* If the plot is score-based and a runset is selected or the current selection doesn't support scores, select the next
+     visible column of a visible runset that does support scores instead. In cases where the URL was manually changed and the
+     component did not correctly update, it's possible there is no column that can be chosen. In this case the initial selection
+     will be kept and an error message shown instead of the plot. This will be updated when selecting any new value. */
     if (
       plot === this.plotOptions.scoreBased &&
       ((isValue && !this.isInVisibleRunsetSupportingScore(selection)) ||
-        (!isValue &&
-          !this.props.tools.find(
-            (tool) => tool.toolIdx === parseInt(selection.split("-")[1]),
-          ).scoreBased))
+        !isValue)
     ) {
       this.setPossibleValues();
       const possibleCol = this.possibleValues.find((col) =>
@@ -515,8 +512,7 @@ export default class QuantilePlot extends React.Component {
                   <optgroup label="Runsets">
                     {this.props.tools.map((tool, i) => {
                       const isDisabled =
-                        this.state.plot === this.plotOptions.scoreBased &&
-                        !tool.scoreBased;
+                        this.state.plot === this.plotOptions.scoreBased;
                       return this.isToolVisible(tool) ? (
                         <option
                           key={"runset-" + i}
