@@ -172,7 +172,10 @@ export default class QuantilePlot extends React.Component {
         (tool) => tool.scoreBased && this.isToolVisible(tool),
       )
     ) {
-      this.plotOptions.scoreBased = "Score-based Quantile Plot";
+      this.plotOptions = {
+        scoreBased: "Score-based Quantile Plot",
+        ...this.plotOptions,
+      };
       if (
         this.props.tools.every(
           (tool) => tool.scoreBased && this.isToolVisible(tool),
