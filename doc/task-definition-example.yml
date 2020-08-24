@@ -32,25 +32,24 @@ properties:
   - property_file: ../test/tasks/other.prp
     expected_verdict: true
 
-# Optional, contains dict that provides additional information
-# that is not interpreted by benchexec.
-# If given, benchexec will pass this information to the tool-info module.
+# Optional data structure with arbitrary additional information or context
+# about the task that is not interpreted by benchexec itself.
+# However, benchexec will pass any content of this key to the tool-info module.
+# This can be used for example to define options that the tool needs to know
+# in order to correctly interpret the task, for example the format or language
+# of the input files.
 #
-# Each key in the dict defines a namespace for additional information.
-# Each namespace contains another dict with key-value pairs in that namespace.
-# These key-value pairs describe the concrete, additional information.
-#
-# Namespaces, additional information and their values are not interpreted by benchexec
-# and may differ between application areas.
-additional_information:
+# Apart from being valid YAML, benchexec does not impose any restrictions
+# on the content of this key. However, it is recommended to use a dict of dicts
+# as content in order to avoid confusion and conflicts between the data used by
+# different communities and application areas. The outer dict would contain keys
+# whose names form globally unique namespaces, and each inner dict would contain
+# the data for one use case, defined by some user community
+# (similar to how XML namespaces are used).
+options:
   # Example namespace
-  com.github.sosy-lab.sv-benchmarks:
-      # Example information in the above namespace:
-      # Machine model the task definition is defined for.
-      # Properties of this task definition are only guaranteed to be
-      # valid on the input_files for the machine model specified here.
-      #
-      # Values tools are expected to support: x86_32-unknown-linux, x86_64-unknown-linux
-      target_architecture: x86_32-unknown-linux
+  com.example:
+    # Definition of data here should be available on https://example.com
+    some_key: some_data
 
 # All other keys in the global dict and in the properties dict are reserved for future use.
