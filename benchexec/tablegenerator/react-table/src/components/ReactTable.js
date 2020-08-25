@@ -107,8 +107,6 @@ const TableRender = (props) => {
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
     setFilteredColumnValues(newFilteredColumnValues);
-
-    console.log({ newFilteredColumnValues });
   }, [props]);
 
   const handleFixedInputChange = ({ target }) => {

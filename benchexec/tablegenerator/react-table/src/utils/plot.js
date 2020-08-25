@@ -30,7 +30,7 @@ const renderSetting = (
       <span className="setting-label">{name}:</span>
       <select
         className="setting-select"
-        name={name}
+        name={"setting-" + name}
         value={isDisabled ? "disabled" : value}
         onChange={changeHandler}
         disabled={isDisabled}
@@ -73,8 +73,9 @@ const renderOptgroupsSetting = (
     <div className="setting" title={tooltip}>
       <span className="setting-label">{name}:</span>
       <select
+        id={"setting-" + name}
         className="setting-select"
-        name={name}
+        name={"setting-" + name}
         value={value}
         onChange={changeHandler}
       >
