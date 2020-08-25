@@ -61,7 +61,7 @@ const lineOptgroupOptions = {
 const defaultValues = {
   scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
-  line: Object.values(lineOptgroupOptions)[0][8].value,
+  line: Object.values(lineOptgroupOptions)[0][11].value,
 };
 
 export default class ScatterPlot extends React.Component {
