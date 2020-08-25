@@ -393,8 +393,7 @@ class OutputHandler(object):
         elif not self.benchmark.config.start_time:
             runSet.xml.set("starttime", util.read_local_time().isoformat())
 
-        # write (empty) results to txt_file and XML
-        self.txt_file.append(self.run_set_to_text(runSet), False)
+        # write (empty) results to XML
         runSet.xml_file_name = xml_file_name
         self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
         runSet.xml_file_last_modified_time = time.monotonic()
@@ -551,7 +550,7 @@ class OutputHandler(object):
                 )
 
             # write result in txt_file and XML
-            self.txt_file.append(self.run_set_to_text(run.runSet), False)
+            self.txt_file.append(run.resultline + "\n", keep=False)
             self.statistics.add_result(run)
 
             # we don't want to write this file to often, it can slow down the whole script,
@@ -594,7 +593,8 @@ class OutputHandler(object):
         elif not self.benchmark.config.start_time:
             runSet.xml.set("endtime", util.read_local_time().isoformat())
 
-        # write results to files
+        # Write results to files. This overwrites the intermediate files written
+        # from output_after_run with the proper results.
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
@@ -837,6 +837,7 @@ class OutputHandler(object):
         if self.compress_results:
             with self.log_zip_lock:
                 self.log_zip.close()
+        self.txt_file.close()
 
     def get_filename(self, runSetName, fileExtension):
         """
