@@ -606,11 +606,9 @@ class OutputHandler(object):
                     block_xml.set("endtime", runSet.xml.get("endtime"))
                 self._write_pretty_result_xml_to_file(block_xml, blockFileName)
 
-        self.txt_file.append(
-            self.run_set_to_text(runSet, True, cputime, walltime, energy)
-        )
+        self.txt_file.append(self.run_set_to_text(runSet, cputime, walltime, energy))
 
-    def run_set_to_text(self, runSet, finished=False, cputime=0, walltime=0, energy={}):
+    def run_set_to_text(self, runSet, cputime=0, walltime=0, energy={}):
         lines = []
 
         # store values of each run
@@ -620,25 +618,20 @@ class OutputHandler(object):
         lines.append(runSet.simpleLine)
 
         # write endline into txt_file
-        if finished:
-            endline = "Run set {0}".format(runSet.index)
+        endline = "Run set {0}".format(runSet.index)
 
-            # format time, type is changed from float to string!
-            cputime_str = (
-                "None"
-                if cputime is None
-                else util.format_number(cputime, TIME_PRECISION)
+        # format time, type is changed from float to string!
+        cputime_str = (
+            "None" if cputime is None else util.format_number(cputime, TIME_PRECISION)
+        )
+        walltime_str = (
+            "None" if walltime is None else util.format_number(walltime, TIME_PRECISION)
+        )
+        lines.append(
+            self.create_output_line(
+                runSet, endline, "done", cputime_str, walltime_str, "-", []
             )
-            walltime_str = (
-                "None"
-                if walltime is None
-                else util.format_number(walltime, TIME_PRECISION)
-            )
-            lines.append(
-                self.create_output_line(
-                    runSet, endline, "done", cputime_str, walltime_str, "-", []
-                )
-            )
+        )
 
         return "\n".join(lines) + "\n"
 
