@@ -112,6 +112,34 @@ def load_task_definition_file(task_def_file):
     return task_def
 
 
+def handle_files_from_task_definition(patterns, task_def_file):
+    """
+    Handle content of a key like input_files in a task-definition file and return list
+    of matching files.
+    @param patterns: the content of such a key (None, list, or string)
+    @param task_def_file: name of task-definition file
+    """
+    if patterns is None:
+        return []
+    result = []
+    if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
+        # accept single string in addition to list of strings
+        patterns = [patterns]
+    for pattern in patterns:
+        expanded = util.expand_filename_pattern(
+            str(pattern), os.path.dirname(task_def_file)
+        )
+        if not expanded:
+            raise BenchExecException(
+                "Pattern '{}' in task-definition file {} did not match any paths.".format(
+                    pattern, task_def_file
+                )
+            )
+        expanded.sort()
+        result.extend(expanded)
+    return result
+
+
 def load_tool_info(tool_name, config):
     """
     Load the tool-info class.
@@ -768,36 +796,18 @@ class RunSet(object):
         """Create a Run from a task definition in yaml format"""
         task_def = load_task_definition_file(task_def_file)
 
-        def expand_patterns_from_tag(tag):
-            result = []
-            patterns = task_def.get(tag, [])
-            if isinstance(patterns, str) or not isinstance(
-                patterns, collections.Iterable
-            ):
-                # accept single string in addition to list of strings
-                patterns = [patterns]
-            for pattern in patterns:
-                expanded = util.expand_filename_pattern(
-                    str(pattern), os.path.dirname(task_def_file)
-                )
-                if not expanded:
-                    raise BenchExecException(
-                        "Pattern '{}' in task-definition file {} did not match any paths.".format(
-                            pattern, task_def_file
-                        )
-                    )
-                expanded.sort()
-                result.extend(expanded)
-            return result
-
-        input_files = expand_patterns_from_tag("input_files")
+        input_files = handle_files_from_task_definition(
+            task_def.get("input_files"), task_def_file
+        )
         if not input_files:
             raise BenchExecException(
                 "Task-definition file {} does not define any input files.".format(
                     task_def_file
                 )
             )
-        required_files = expand_patterns_from_tag("required_files")
+        required_files = handle_files_from_task_definition(
+            task_def.get("required_files"), task_def_file
+        )
 
         run = Run(
             task_def_file,
