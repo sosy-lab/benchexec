@@ -39,7 +39,6 @@ class FileWriter(object):
     def _truncate(self):
         """Remove any temporary content that was added with append(keep=False)"""
         if self._pos is not None:
-            print("Truncating to " + str(self._pos))
             self._file.seek(self._pos)
             self._file.truncate()
             self._pos = None
