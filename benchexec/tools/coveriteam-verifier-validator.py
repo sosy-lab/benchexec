@@ -57,16 +57,16 @@ class Tool(coveriteam.Tool):
         # We expect one tasks and a propertyfile.
         if not tasks:
             raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Can't execute CoVeriTeam-Verifier-Validator: "
                 "Input program is missing."
             )
         if len(tasks) > 1:
             raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Can't execute CoVeriTeam-Verifier-Validator: "
                 "Too many input files to analyze"
             )
         if not propertyfile:
             raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator:"
+                "Can't execute CoVeriTeam-Verifier-Validator: "
                 "Specification is missing."
             )
