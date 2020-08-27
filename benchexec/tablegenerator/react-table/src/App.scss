@@ -116,7 +116,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       &--container {
         overflow-y: scroll;
         margin-bottom: 8px;
-        /*         
+        /*
         &::-webkit-scrollbar {
           display: none;
         }
@@ -676,6 +676,15 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     padding-left: 10px;
     border-radius: 3px;
     cursor: pointer;
+  }
+
+  &.disabled,
+  .disabled {
+    color: rgba(0, 0, 0, 0.4);
+
+    .setting-select {
+      cursor: not-allowed;
+    }
   }
 }
 

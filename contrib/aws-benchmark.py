@@ -79,9 +79,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
                 )
             import aws.awsexecutor as executor
 
-            logging.debug(
-                "Running benchexec %s using Amazon AWS.", __version__,
-            )
+            logging.debug("Running benchexec %s using Amazon AWS.", __version__)
         else:
             logging.warning(
                 "AWS flag was not specified. Benchexec will be executed only on the local machine."
@@ -99,7 +97,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
                 base_dir = os.path.join(os.path.dirname(script), os.path.pardir)
                 build_file = os.path.join(base_dir, "build.xml")
                 if os.path.exists(build_file) and subprocess.call(
-                    ["ant", "-q", "jar"], cwd=base_dir, shell=False,
+                    ["ant", "-q", "jar"], cwd=base_dir, shell=False
                 ):
                     sys.exit("Failed to build CPAchecker, please fix the build first.")
 

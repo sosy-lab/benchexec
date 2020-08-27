@@ -60,7 +60,7 @@ def execute_benchmark(benchmark, output_handler):
         benchmark.config.aws_config
         if benchmark.config.aws_config is not None
         else os.path.join(
-            os.path.expanduser("~"), ".config", "sv-comp-aws", "aws.client.config",
+            os.path.expanduser("~"), ".config", "sv-comp-aws", "aws.client.config"
         )
     )
     with open(conf_file_path, "r") as conf_file:
@@ -90,7 +90,7 @@ def execute_benchmark(benchmark, output_handler):
         ) as tempfile_verifier:
             logging.info("Building archive for verifier-tool...")
             _createArchiveFile(
-                tempfile_verifier, toolpaths["absBaseDir"], toolpaths["absToolpaths"],
+                tempfile_verifier, toolpaths["absBaseDir"], toolpaths["absToolpaths"]
             )
 
             tempfile_verifier.seek(0)  # resets the file pointer
@@ -126,7 +126,7 @@ def execute_benchmark(benchmark, output_handler):
         ) as tempfile_tasks:
             logging.info("Building archive for the tasks...")
             _createArchiveFile(
-                tempfile_tasks, toolpaths["absBaseDir"], toolpaths["absSourceFiles"],
+                tempfile_tasks, toolpaths["absBaseDir"], toolpaths["absSourceFiles"]
             )
 
             tempfile_tasks.seek(0)  # resets the file pointer

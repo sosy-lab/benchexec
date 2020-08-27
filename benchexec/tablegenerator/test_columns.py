@@ -257,20 +257,20 @@ class ColumnsTest(unittest.TestCase):
         self.assertEqual(formatted_value, "-Inf")
 
     def test_format_value_tooltip_explicit_sigs(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "9999.125s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("9999.125s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "9999")
 
     def test_format_value_tooltip_explicit_sigs2(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "0.125s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("0.125s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.125")
 
     def test_format_value_tooltip_explicit_sigs3(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "0.125999s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("0.125999s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.1260")
 

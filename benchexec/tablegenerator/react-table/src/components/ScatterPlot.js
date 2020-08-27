@@ -38,6 +38,9 @@ const resultsOptions = {
 
 const lineOptgroupOptions = {
   "f(x) = cx and f(x) = x/c": [
+    { name: "c = 1.1", value: 1.1 },
+    { name: "c = 1.2", value: 1.2 },
+    { name: "c = 1.5", value: 1.5 },
     { name: "c = 2", value: 2 },
     { name: "c = 3", value: 3 },
     { name: "c = 4", value: 4 },
@@ -52,15 +55,13 @@ const lineOptgroupOptions = {
     { name: "c = 10000", value: 10000 },
     { name: "c = 100000", value: 100000 },
     { name: "c = 1000000", value: 1000000 },
-    { name: "c = 10000000", value: 10000000 },
-    { name: "c = 100000000", value: 100000000 },
   ],
 };
 
 const defaultValues = {
   scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
-  line: Object.values(lineOptgroupOptions)[0][8].value,
+  line: Object.values(lineOptgroupOptions)[0][11].value,
 };
 
 export default class ScatterPlot extends React.Component {
