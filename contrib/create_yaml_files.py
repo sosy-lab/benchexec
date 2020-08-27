@@ -24,7 +24,7 @@ NAME_TO_PROP_AND_SUBPROP = {
     "valid-memsafety": ("valid-memsafety.prp", None),
     "valid-deref": ("valid-memsafety.prp", "valid-deref"),
     "valid-free": ("valid-memsafety.prp", "valid-free"),
-    "valid-memtrack": ("valid-memsafety.prp", "valid-memtrack",),
+    "valid-memtrack": ("valid-memsafety.prp", "valid-memtrack"),
     "def-behavior": ("def-behavior.prp", None),
 }
 

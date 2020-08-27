@@ -129,7 +129,7 @@ def get_stats_of_run_set(runResults, correct_only):
         col_type = column.type.type
         if col_type != ColumnType.text:
             if col_type == ColumnType.status:
-                column_stats = _get_stats_of_status_column(runResults, index,)
+                column_stats = _get_stats_of_status_column(runResults, index)
 
             else:
                 assert column.is_numeric()
