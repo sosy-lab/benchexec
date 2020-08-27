@@ -7,10 +7,12 @@
 
 import argparse
 import contextlib
+import copy
 import logging
 import inspect
 import os
 import sys
+import yaml
 
 import benchexec
 import benchexec.benchexec
@@ -115,6 +117,7 @@ def log_if_unsupported(msg):
 
 
 def print_tool_info(tool):
+    """Print standard info from tool-info module"""
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
     print_value("Name of tool", tool.name())
@@ -175,6 +178,11 @@ def print_tool_info(tool):
             environment,
         )
 
+    return executable
+
+
+def print_standard_task_cmdlines(tool, executable):
+    """Print command lines resulting from a few different dummy tasks"""
     no_limits = CURRENT_BASETOOL.ResourceLimits()
 
     with log_if_unsupported(
@@ -240,7 +248,40 @@ def print_tool_info(tool):
         )
         print_list("Command line CPU-time limit", cmdline)
 
-    return tool
+
+def print_task_cmdline(tool, executable, task_def_file):
+    """Print command lines resulting for tasks from the given task-definition file."""
+    no_limits = CURRENT_BASETOOL.ResourceLimits()
+
+    task = yaml.safe_load(task_def_file)
+    input_files = model.handle_files_from_task_definition(
+        task.get("input_files"), task_def_file.name
+    )
+
+    def print_cmdline(task_description, property_file):
+        task_description = task_def_file.name + " " + task_description
+        with log_if_unsupported("task from " + task_description):
+            cmdline = model.cmdline_for_run(
+                tool,
+                executable,
+                [],
+                input_files,
+                task_def_file.name,
+                property_file,
+                copy.deepcopy(task.get("options")),
+                no_limits,
+            )
+            print_list("Command line for " + task_description, cmdline)
+
+    print_cmdline("without property file", None)
+
+    for prop in task.get("properties", []):
+        property_file = prop.get("property_file")
+        if property_file:
+            property_file = util.expand_filename_pattern(
+                property_file, os.path.dirname(task_def_file.name)
+            )[0]
+            print_cmdline("with property " + property_file, property_file)
 
 
 def analyze_tool_output(tool, file):
@@ -287,6 +328,14 @@ def main(argv=None):
         type=argparse.FileType("r"),
         help="optional names of text files with example outputs of a tool run",
     )
+    parser.add_argument(
+        "--task-definition",
+        metavar="TASK_DEF_FILE",
+        nargs="+",
+        default=[],
+        type=argparse.FileType("r"),
+        help="optional name of task-definition files to test the module with",
+    )
     benchexec.benchexec.add_container_args(parser)
 
     options = parser.parse_args(argv[1:])
@@ -299,7 +348,10 @@ def main(argv=None):
         tool_module, tool = model.load_tool_info(options.tool, options)
         try:
             print_value("Full name of tool module", tool_module)
-            print_tool_info(tool)
+            executable = print_tool_info(tool)
+            print_standard_task_cmdlines(tool, executable)
+            for task_def_file in options.task_definition:
+                print_task_cmdline(tool, executable, task_def_file)
 
             if options.tool_output:
                 for file in options.tool_output:
