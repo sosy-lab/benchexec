@@ -272,7 +272,7 @@ class OutputHandler(object):
         header += (
             "resource limits:\n"
             + format_byte("- memory", self.benchmark.rlimits.memory)
-            + format_time("- time", self.benchmark.rlimits.cputime,)
+            + format_time("- time", self.benchmark.rlimits.cputime)
             + format_line("- cpu cores", self.benchmark.rlimits.cpu_cores)
         )
 
