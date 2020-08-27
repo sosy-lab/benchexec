@@ -39,7 +39,7 @@ def _get_prop(property_file, property_dir, task_dir):
 
 
 def handle_c(task_file, args) -> Tuple[str, dict]:
-    """ Create yml task definition for the given file.
+    """Create yml task definition for the given file.
     Return a tuple of a recommended new task name and the yml info as dictionary.
 
     """

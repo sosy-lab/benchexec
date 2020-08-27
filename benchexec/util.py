@@ -655,9 +655,9 @@ def activate_debug_shell_on_signal():
 
 def get_capability(filename):
     """
-        Get names of capabilities and the corresponding capability set for given filename.
+    Get names of capabilities and the corresponding capability set for given filename.
 
-            @filename: The complete path to the file
+        @filename: The complete path to the file
     """
     res = {"capabilities": [], "set": [], "error": False}
     try:
@@ -680,8 +680,8 @@ def get_capability(filename):
 
 def check_msr():
     """
-        Checks if the msr driver is loaded and if the user executing
-        benchexec has the read and write permissions for msr.
+    Checks if the msr driver is loaded and if the user executing
+    benchexec has the read and write permissions for msr.
     """
     res = {"loaded": False, "write": False, "read": False}
     loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")

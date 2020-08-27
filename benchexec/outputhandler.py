@@ -431,11 +431,13 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
-            runSet.index,
-            len(self.benchmark.run_sets),
-            " ".join(runSet.options),
-            util.text_or_none(runSet.propertytag),
+        runSetInfo += (
+            "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
+                runSet.index,
+                len(self.benchmark.run_sets),
+                " ".join(runSet.options),
+                util.text_or_none(runSet.propertytag),
+            )
         )
 
         titleLine = self.create_output_line(
