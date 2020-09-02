@@ -15,6 +15,7 @@ import shutil
 import sys
 import tempfile
 from threading import Event
+import urllib
 import zipfile
 
 import benchexec.util
@@ -255,9 +256,11 @@ def execute_benchmark(benchmark, output_handler):
         logging.debug("Sending http-request for collecting the results: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
-        for url in http_response.json()["urls"]:
-            logging.debug("Downloading file from url: %s", url)
-            result_file = requests.get(url)
+        for aws_s3_link in http_response.json()["urls"]:
+            logging.debug("Handling url: %s", aws_s3_link)
+            aws_s3_link_encoded = urllib.parse.quote(aws_s3_link, safe=":/")
+            logging.debug("Downloading file from url: %s", aws_s3_link_encoded)
+            result_file = requests.get(aws_s3_link_encoded)
             with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
                 zipf.extractall(benchmark.log_folder)
     except KeyboardInterrupt:
