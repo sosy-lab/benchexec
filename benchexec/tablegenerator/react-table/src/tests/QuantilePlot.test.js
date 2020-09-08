@@ -10,6 +10,7 @@ import QuantilePlot from "../components/QuantilePlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
 import { setParam } from "../utils/utils";
+import { getPlotOptions } from "./utils.js";
 const fs = require("fs");
 
 const testDir = "../test_integration/expected/";
@@ -36,38 +37,47 @@ fs.readdirSync(testDir)
       );
       const plot = renderer.create(quantilePlotJSX);
       const plotInstance = plot.getInstance();
-      const selectionOptions = plot.root
-        .findAllByType("select")
-        .find((selection) => selection.props.name === "setting-Selection")
-        .findAllByType("option")
-        .map((option) => option.props.value);
+
+      const selectionOptions = getPlotOptions(plot, "Selection");
+      const resultOptions = getPlotOptions(plot, "Results");
+
+      // Array of pairs of selection and shown results that will be chosen for a test of the plot
+      const selectionResultInput = selectionOptions.flatMap((selection) =>
+        resultOptions.map((result) => [selection, result]),
+      );
 
       describe("Quantile Plot should match HTML snapshot", () => {
         plotInstance.setState({ plot: plotInstance.plotOptions.quantile });
 
-        it.each(selectionOptions)("with selection %s", (option) => {
-          setParam({ selection: option });
-          plotInstance.refreshUrlState();
-          expect(plot).toMatchSnapshot();
-        });
+        it.each(selectionResultInput)(
+          "with selection %p and %p results",
+          (selection, results) => {
+            setParam({ selection, results });
+            plotInstance.refreshUrlState();
+            expect(plot).toMatchSnapshot();
+          },
+        );
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
         plotInstance.setState({ plot: plotInstance.plotOptions.direct });
 
-        it.each(selectionOptions)("with selection %s", (option) => {
-          setParam({ selection: option });
-          plotInstance.refreshUrlState();
-          expect(plot).toMatchSnapshot();
-        });
+        it.each(selectionResultInput)(
+          "with selection %p and %p results",
+          (selection, results) => {
+            setParam({ selection, results });
+            plotInstance.refreshUrlState();
+            expect(plot).toMatchSnapshot();
+          },
+        );
       });
 
-      describe("Score-based Quantile Plot should match HTML snapshot if it exists", () => {
+      describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
         if (plotInstance.plotOptions.scoreBased) {
           plotInstance.setState({ plot: plotInstance.plotOptions.scoreBased });
 
-          it.each(selectionOptions)("with selection %s", (option) => {
-            setParam({ selection: option });
+          it.each(selectionOptions)("with selection %p", (selection) => {
+            setParam({ selection });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           });

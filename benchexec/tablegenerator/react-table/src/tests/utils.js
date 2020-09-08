@@ -108,4 +108,12 @@ const test_snapshot_of = (name, component_func) => {
     });
 };
 
-export { test_snapshot_of };
+const getPlotOptions = (plot, options) =>
+  plot.root
+    .findAllByType("select")
+    .find((selection) => selection.props.name === "setting-" + options)
+    .findAllByType("option")
+    .filter((option) => !option.disabled)
+    .map((option) => option.props.value);
+
+export { test_snapshot_of, getPlotOptions };
