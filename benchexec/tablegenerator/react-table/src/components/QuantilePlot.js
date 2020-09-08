@@ -640,7 +640,6 @@ export default class QuantilePlot extends React.Component {
           {this.state.value ? <Hint value={this.state.value} /> : null}
           {this.renderLines()}
         </Plot>
-        }
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (
