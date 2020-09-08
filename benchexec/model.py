@@ -41,6 +41,8 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
 _EXPECTED_RESULT_FILTER_VALUES = {True: "true", False: "false", None: "unknown"}
 _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = False
 
+_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "1.1"])
+
 
 def substitute_vars(oldList, runSet=None, task_file=None):
     """
@@ -96,7 +98,7 @@ def load_task_definition_file(task_def_file):
         raise BenchExecException("Invalid task definition: empty file " + task_def_file)
 
     format_version = str(task_def.get("format_version"))
-    if format_version not in ["0.1", "1.0", "1.1"]:
+    if format_version not in _TASK_DEF_VERSIONS:
         raise BenchExecException(
             "Task-definition file {} specifies invalid format_version '{}'.".format(
                 task_def_file, task_def.get("format_version")

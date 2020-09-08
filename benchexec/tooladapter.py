@@ -5,7 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Utilities for adapting older tool-info modules to the currently expected API."""
+"""
+Utilities for adapting older tool-info modules to the currently expected API.
+
+This is an internal module for BenchExec and not to be used by tool-info modules.
+"""
 
 import inspect
 
@@ -21,7 +25,7 @@ CURRENT_BASETOOL = BaseTool2
 # We do not let Tool1To2 actually inherit from BaseTool2 because we do not want to
 # inherit any default implementations, but we still declare it as a subclass.
 @BaseTool2.register
-class Tool1To2(object):
+class Tool1To2:
     """
     Adapter for making subclasses of BaseTool confirm to the API of BaseTool2
     """

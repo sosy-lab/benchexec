@@ -399,8 +399,6 @@ class BaseTool2(object, metaclass=ABCMeta):
                 cls, cputime, cputime_hard, walltime, memory, cpu_cores
             )
 
-        pass
-
 
 class BaseTool(object):
     """
