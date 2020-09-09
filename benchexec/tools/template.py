@@ -66,21 +66,27 @@ class BaseTool2(object, metaclass=ABCMeta):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This function should always be overriden.
+        This method always needs to be overriden, and typically just contains
+
+        return "My Toolname"
+
         @return a non-empty string
         """
-        return "UNKOWN"
+        raise NotImplementedError()
 
     @abstractmethod
     def executable(self):
         """
         Find the path to the executable file that will get executed.
         This method always needs to be overridden,
-        and most implementations will look similar to this one.
+        and should typically delegate to our utility method find_executable. Example:
+
+        return benchexec.util.find_executable("mytool")
+
         The path returned should be relative to the current directory.
         @return a string pointing to an executable file
         """
-        return util.find_executable("tool")
+        raise NotImplementedError()
 
     def version(self, executable):
         """
