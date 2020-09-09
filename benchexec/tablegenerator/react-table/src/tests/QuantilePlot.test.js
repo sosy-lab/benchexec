@@ -38,7 +38,25 @@ fs.readdirSync(testDir)
       const plot = renderer.create(quantilePlotJSX);
       const plotInstance = plot.getInstance();
 
-      const selectionOptions = getPlotOptions(plot, "Selection");
+      /* Objects of all first occuring columns with an unique type attribute as well as all runsets and their
+         corresponding types. Overriding of toString() method is used for better identifying test cases. */
+      const selectionOptions = plotInstance.possibleValues
+        .filter(
+          (col, index, self) =>
+            self.map((col2) => col2.type).indexOf(col.type) === index,
+        )
+        .map((col) => ({
+          value: col.display_title,
+          type: col.type,
+          toString: () => col.type,
+        }))
+        .concat(
+          plotInstance.props.tools.map((tool) => ({
+            value: "runset-" + tool.toolIdx,
+            type: "runset",
+            toString: () => "runset",
+          })),
+        );
       const resultOptions = getPlotOptions(plot, "Results");
 
       // Array of pairs of selection and shown results that will be chosen for a test of the plot
@@ -47,12 +65,12 @@ fs.readdirSync(testDir)
       );
 
       describe("Quantile Plot should match HTML snapshot", () => {
-        plotInstance.setState({ plot: plotInstance.plotOptions.quantile });
+        setParam({ plot: plotInstance.plotOptions.quantile });
 
         it.each(selectionResultInput)(
-          "with selection %p and %p results",
+          "with selection of the type %s and %s results",
           (selection, results) => {
-            setParam({ selection, results });
+            setParam({ selection: selection.value, results });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           },
@@ -60,12 +78,12 @@ fs.readdirSync(testDir)
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
-        plotInstance.setState({ plot: plotInstance.plotOptions.direct });
+        setParam({ plot: plotInstance.plotOptions.direct });
 
         it.each(selectionResultInput)(
-          "with selection %p and %p results",
+          "with selection of the type %s and %s results",
           (selection, results) => {
-            setParam({ selection, results });
+            setParam({ selection: selection.value, results });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           },
@@ -74,10 +92,12 @@ fs.readdirSync(testDir)
 
       describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
         if (plotInstance.plotOptions.scoreBased) {
-          plotInstance.setState({ plot: plotInstance.plotOptions.scoreBased });
+          setParam({ plot: plotInstance.plotOptions.scoreBased });
 
-          it.each(selectionOptions)("with selection %p", (selection) => {
-            setParam({ selection });
+          it.each(
+            selectionOptions.filter((selection) => selection.type !== "runset"),
+          )("with selection of the type %s", (selection) => {
+            setParam({ selection: selection.value });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           });

@@ -38,10 +38,27 @@ fs.readdirSync(testDir)
       const plot = renderer.create(scatterPlotJSX);
       const plotInstance = plot.getInstance();
 
-      const selectionOptions = getPlotOptions(plot, "X-Axis");
+      // Store a reference of the tool the column belongs to in the column for later use
+      const colsWithToolReference = plotInstance.props.tools.flatMap((tool) =>
+        tool.columns.map((col) => ({ ...col, toolIdx: tool.toolIdx })),
+      );
+
+      /* Objects of all first occuring columns with an unique type attribute of the format {runsetIdx}-{colIdx} and
+         its corresponding type. Overriding of toString() method is used for better identifying test cases. */
+      const selectionOptions = colsWithToolReference
+        .filter(
+          (col, index, self) =>
+            self.map((col2) => col2.type).indexOf(col.type) === index,
+        )
+        .map((col) => ({
+          value: col.toolIdx + "-" + col.colIdx,
+          type: col.type,
+          toString: () => col.type,
+        }));
       const resultOptions = getPlotOptions(plot, "Results");
 
-      // Array of triples of the selection for the x-axis, y-axis and shown results that will be chosen for a test of the plot
+      /* Array of triples of the selection for the x-axis, y-axis and shown results that will be chosen for a test
+         of the plot. Contains all combinations of the first columns of different types with all result options. */
       const selectionResultInput = selectionOptions.flatMap((xAxis, i) =>
         selectionOptions
           .slice(i)
@@ -52,10 +69,10 @@ fs.readdirSync(testDir)
 
       describe("Scatter Plot should match HTML snapshot", () => {
         it.each(selectionResultInput)(
-          "with X-Axis %p and Y-Axis %p and %p results",
+          "with X-Axis of the type %s and Y-Axis of the type %s and %s results",
           (xSelection, ySelection, results) => {
-            let [toolX, columnX] = xSelection.split("-");
-            let [toolY, columnY] = ySelection.split("-");
+            let [toolX, columnX] = xSelection.value.split("-");
+            let [toolY, columnY] = ySelection.value.split("-");
             columnX = columnX.replace("___", "-");
             columnY = columnY.replace("___", "-");
 
