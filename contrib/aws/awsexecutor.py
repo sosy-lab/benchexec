@@ -504,7 +504,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
 
             if os.path.exists(data_file) and os.path.exists(run.log_file):
                 try:
-                    values = parseAWSRunResultFile(data_file)
+                    values = parse_aws_run_result_file(data_file)
                     if not benchmark.config.debug:
                         os.remove(data_file)
                 except OSError as e:
@@ -517,6 +517,18 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
                     output_handler.set_error("missing results", run_set)
                     executed_all_runs = False
                 else:
+                    output_handler.store_system_info(
+                        values.get("aws_instance_os"),  # opSystem
+                        values.get("aws_instance_cpu_name"),  # cpuModel
+                        values.get("aws_instance_cores"),  # numCores
+                        values.get("aws_instance_frequency"),  # max freq
+                        values.get("aws_instance_memory"),  # memory
+                        values.get("aws_instance_type"),  # hostname
+                        run_set,  # runset
+                        {},  # environment
+                        None,  # cpu turboboost
+                    )
+
                     output_handler.output_before_run(run)
                     run.set_result(values, ["host"])
                     output_handler.output_after_run(run)
@@ -557,17 +569,17 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         )
 
 
-def parseAWSRunResultFile(filePath):
+def parse_aws_run_result_file(file_path):
     def read_items():
-        with open(filePath, "rt") as file:
+        with open(file_path, "rt") as file:
             for line in file:
                 key, value = line.split("=", 1)
                 yield key, value
 
-    return parse_cloud_run_result(read_items())
+    return parse_aws_run_result(read_items())
 
 
-def parse_cloud_run_result(values):
+def parse_aws_run_result(values):
     result_values = collections.OrderedDict()
 
     def parse_time_value(s):
@@ -603,6 +615,15 @@ def parse_cloud_run_result(values):
             or key.startswith("energy-")
             or key.startswith("cputime-cpu")
         ):
+            result_values[key] = value
+        elif key in [
+            "aws_instance_os",
+            "aws_instance_cpu_name",
+            "aws_instance_cores",
+            "aws_instance_frequency",
+            "aws_instance_memory",
+            "aws_instance_type",
+        ]:
             result_values[key] = value
 
     return result_values
