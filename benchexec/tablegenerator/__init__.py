@@ -797,7 +797,10 @@ class RunResult(object):
                 )
             )
             path_in_zip = urllib.parse.unquote(
-                os.path.relpath(url_parts.path, os.path.dirname(log_zip_path))
+                # os.path.relpath creates os-dependant paths, but windows separators can produce errors with zipfile lib
+                util.fix_path_if_on_windows(
+                    os.path.relpath(url_parts.path, os.path.dirname(log_zip_path))
+                )
             )
             if log_zip_url.startswith("file:///") and not log_zip_path.startswith("/"):
                 # Replace file:/// with file: for relative paths,
@@ -1245,7 +1248,8 @@ def create_tables(
     # get common folder of sourcefiles
     # os.path.commonprefix can return a partial path component (does not truncate on /)
     common_prefix = os.path.commonprefix([r.id.name for r in rows])
-    common_prefix = common_prefix[: common_prefix.rfind("/") + 1]
+    separator = "/" if "://" in common_prefix else os.sep
+    common_prefix = common_prefix[: common_prefix.rfind(separator) + 1]
     for row in rows:
         Row.set_relative_path(row, common_prefix, outputPath)
 
@@ -1323,7 +1327,8 @@ def write_csv_table(
         name, values, value_repetitions=itertools.repeat(1)  # noqa: B008
     ):
         if any(values):
-            out.write(name)
+            # name may contain paths, so standardize the output across OSs
+            out.write(util.fix_path_if_on_windows(name))
             for i in range(num_id_columns):  # noqa: B007
                 out.write(sep)
             for value, count in zip(values, value_repetitions):
@@ -1349,7 +1354,8 @@ def write_csv_table(
     )
 
     for row in rows:
-        out.write(row.short_filename)
+        # row.short_filename may contain paths, so standardize the output across OSs
+        out.write(util.fix_path_if_on_windows(row.short_filename))
         for row_id, is_relevant in zip(row.id[1:], relevant_id_columns[1:]):
             if is_relevant:
                 out.write(sep)
