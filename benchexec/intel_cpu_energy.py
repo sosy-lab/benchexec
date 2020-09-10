@@ -11,7 +11,7 @@ import os
 import subprocess
 import signal
 import re
-from benchexec.util import find_executable
+from benchexec.util import find_executable2
 from decimal import Decimal
 
 DOMAIN_PACKAGE = "package"
@@ -27,9 +27,7 @@ class EnergyMeasurement(object):
 
     @classmethod
     def create_if_supported(cls):
-        executable = find_executable(
-            "cpu-energy-meter", exitOnError=False, use_current_dir=False
-        )
+        executable = find_executable2("cpu-energy-meter")
         if executable is None:  # not available on current system
             logging.debug(
                 "Energy measurement not available because cpu-energy-meter binary could not be found."

@@ -16,7 +16,7 @@ import json
 import grp
 from signal import SIGINT
 from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
-from benchexec.util import find_executable, get_capability, check_msr
+from benchexec.util import find_executable2, get_capability, check_msr
 
 
 class Pqos(object):
@@ -30,9 +30,7 @@ class Pqos(object):
         self.reset_required = False
         self.show_warnings = show_warnings
         self.mon_process = None
-        self.executable_path = find_executable(
-            "pqos_wrapper", exitOnError=False, use_current_dir=False
-        )
+        self.executable_path = find_executable2("pqos_wrapper")
         if self.executable_path is None:
             if self.show_warnings:
                 logging.info(

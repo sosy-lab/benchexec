@@ -150,7 +150,7 @@ class TestPqos(unittest.TestCase):
     def setUpClass(cls):
         logging.disable(logging.CRITICAL)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     def test_pqos_init(self, mock_find_executable):
         """
         Test for initialisation of pqos module
@@ -159,7 +159,7 @@ class TestPqos(unittest.TestCase):
         self.assertIsInstance(pqos, Pqos)
         self.assertIsNotNone(pqos.executable_path, True)
 
-    @patch("benchexec.pqos.find_executable", return_value=None)
+    @patch("benchexec.pqos.find_executable2", return_value=None)
     def test_pqos_init_error(self, mock_find_executable):
         """
         Test for initialisation of pqos module when pqos_wrapper CLI is not present
@@ -169,7 +169,7 @@ class TestPqos(unittest.TestCase):
         self.assertIsInstance(pqos, Pqos)
         self.assertIsNone(pqos.executable_path, False)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
     def test_pqos_execute_command(
@@ -194,7 +194,7 @@ class TestPqos(unittest.TestCase):
         )
         self.assertEqual(ret, True)
 
-    @patch("benchexec.pqos.find_executable", return_value=None)
+    @patch("benchexec.pqos.find_executable2", return_value=None)
     def test_pqos_execute_command_cli_non_existent(self, mock_find_executable):
         """
         Test for Pqos.execute_command function when pqos_wrapper CLI is not present.
@@ -215,7 +215,7 @@ class TestPqos(unittest.TestCase):
         )
         self.assertEqual(ret, False)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output_error)
     def test_pqos_execute_command_cli_error(
         self, mock_find_executable, mock_check_output
@@ -235,7 +235,7 @@ class TestPqos(unittest.TestCase):
         ret = pqos.execute_command("l3ca", "reset_resources", True, "-r")
         self.assertEqual(ret, False)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
     def test_pqos_allocate_l3ca(self, mock_find_executable, mock_check_output):
         """
@@ -245,7 +245,7 @@ class TestPqos(unittest.TestCase):
         pqos.allocate_l3ca([[0, 1], [2, 3]])
         self.assertEqual(pqos.reset_required, True)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch(
         "benchexec.pqos.check_output", side_effect=mock_check_output_capability_error
     )
@@ -259,7 +259,7 @@ class TestPqos(unittest.TestCase):
         self.assertEqual(pqos.reset_required, False)
         pqos.reset_resources.assert_called_once_with()
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
     def test_pqos_stop_monitoring(
@@ -282,7 +282,7 @@ class TestPqos(unittest.TestCase):
         self.assertDictEqual(ret, flatten_mon_data)
         self.assertEqual(pqos.mon_process, None)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
     def test_pqos_stop_monitoring_not_started(self, mock_find_executable, mock_popen):
         """
@@ -293,7 +293,7 @@ class TestPqos(unittest.TestCase):
         self.assertDictEqual(ret, {})
         self.assertEqual(pqos.mon_process, None)
 
-    @patch("benchexec.pqos.find_executable", return_value="/path/to/pqos_wrapper/lib")
+    @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
     def test_pqos_stop_monitoring_error(
