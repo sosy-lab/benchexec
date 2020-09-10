@@ -9,6 +9,27 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.2
+
+- The HTML tables produced by `table-generator` now provide a score-based
+  quantile plot in addition to the regular quantile plot if scores are used.
+  If available, it is shown by default on the tab for quantile plots.
+  Score-based quantile plots are for example used by SV-COMP to visualize results.
+- Better axis labels in scatter plot of HTML tables.
+- More auxiliary lines available in scatter plot of HTML tables.
+- New tool-info module added.
+
+Bug fixes:
+
+- Fix crash in `benchexec` if a non-SV-COMP property was used.
+- Fix for empty property files being treated as SV-COMP properties.
+- Fix unnecessarily large I/O for text file with results of `benchexec`
+  during benchmarking. The `.results.txt` file is now written incrementally.
+- Fix incorrect handling of `<withoutfile>` tasks if the tool-info module
+  declared a non-standard working directory.
+- Small fix for the new filter overlay in the HTML tables
+  when the first run set has no filter.
+
 ## BenchExec 3.1
 
 - Fix our `benchexec.check_cgroups` installation check,

@@ -24,7 +24,7 @@ NAME_TO_PROP_AND_SUBPROP = {
     "valid-memsafety": ("valid-memsafety.prp", None),
     "valid-deref": ("valid-memsafety.prp", "valid-deref"),
     "valid-free": ("valid-memsafety.prp", "valid-free"),
-    "valid-memtrack": ("valid-memsafety.prp", "valid-memtrack",),
+    "valid-memtrack": ("valid-memsafety.prp", "valid-memtrack"),
     "def-behavior": ("def-behavior.prp", None),
 }
 
@@ -39,7 +39,7 @@ def _get_prop(property_file, property_dir, task_dir):
 
 
 def handle_c(task_file, args) -> Tuple[str, dict]:
-    """ Create yml task definition for the given file.
+    """Create yml task definition for the given file.
     Return a tuple of a recommended new task name and the yml info as dictionary.
 
     """
