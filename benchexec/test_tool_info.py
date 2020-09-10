@@ -127,6 +127,12 @@ def print_tool_info(tool):
             "Path to executable is absolute, this might be problematic "
             "in scenarios where runs are distributed to other machines."
         )
+    if os.path.isdir(executable):
+        logging.warning("Designated executable is a directory.")
+    elif not os.path.isfile(executable):
+        logging.warning("Designated executable does not exist.")
+    elif not os.access(executable, os.X_OK):
+        logging.warning("Designated executable is not marked as executable.")
 
     try:
         print_value("Version", tool.version(executable))
