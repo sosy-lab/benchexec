@@ -14,22 +14,29 @@ import { getPlotOptions } from "./utils.js";
 const fs = require("fs");
 
 const testDir = "../test_integration/expected/";
+const files = ["big-table.diff.html", "rows-with-scores.html"];
+files
+  .map((fileName) => ({
+    fileName,
+    content: fs.readFileSync(testDir + fileName, {
+      encoding: "UTF-8",
+    }),
+  }))
+  .forEach((fileData) => {
+    describe("Quantile Plot tests for file " + fileData.fileName, () => {
+      const data = JSON.parse(fileData.content);
+      const overviewInstance = renderer
+        .create(<Overview data={data} />)
+        .getInstance();
 
-fs.readdirSync(testDir)
-  .filter((file) => file.endsWith(".html"))
-  .filter((file) => fs.statSync(testDir + file).size < 100000)
-  .forEach((file) => {
-    describe("Quantile Plot tests for " + file, () => {
-      const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-      const data = JSON.parse(content);
-      const overview = renderer.create(<Overview data={data} />).getInstance();
+      // Fixed width and height because the FlexibleXYPlot doesn't work well with the react-test-renderer
       const quantilePlotJSX = (
         <QuantilePlot
-          table={overview.state.table}
-          tools={overview.state.tools}
-          preSelection={overview.state.quantilePreSelection}
-          getRowName={overview.getRowName}
-          hiddenCols={overview.state.hiddenCols}
+          table={overviewInstance.state.table}
+          tools={overviewInstance.state.tools}
+          preSelection={overviewInstance.state.quantilePreSelection}
+          getRowName={overviewInstance.getRowName}
+          hiddenCols={overviewInstance.state.hiddenCols}
           isFlexible={false}
           fixedWidth={1500}
           fixedHeight={1000}
@@ -38,28 +45,24 @@ fs.readdirSync(testDir)
       const plot = renderer.create(quantilePlotJSX);
       const plotInstance = plot.getInstance();
 
-      /* Objects of all first occuring columns with an unique type attribute as well as all runsets and their
-         corresponding types. Overriding of toString() method is used for better identifying test cases. */
+      const typesOfCols = plotInstance.possibleValues.map((col) => col.type);
+      /* Objects of all first occuring columns with an unique type attribute as well as all runsets.
+         Overriding of toString() method is used for better identifying test cases. */
       const selectionOptions = plotInstance.possibleValues
-        .filter(
-          (col, index, self) =>
-            self.map((col2) => col2.type).indexOf(col.type) === index,
-        )
+        .filter((col, index, self) => typesOfCols.indexOf(col.type) === index)
         .map((col) => ({
           value: col.display_title,
-          type: col.type,
           toString: () => col.type,
         }))
         .concat(
           plotInstance.props.tools.map((tool) => ({
             value: "runset-" + tool.toolIdx,
-            type: "runset",
             toString: () => "runset",
           })),
         );
       const resultOptions = getPlotOptions(plot, "Results");
 
-      // Array of pairs of selection and shown results that will be chosen for a test of the plot
+      // Array of pairs of selection and shown results as test data
       const selectionResultInput = selectionOptions.flatMap((selection) =>
         resultOptions.map((result) => [selection, result]),
       );
@@ -90,18 +93,22 @@ fs.readdirSync(testDir)
         );
       });
 
-      describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
-        if (plotInstance.plotOptions.scoreBased) {
+      // Score based plot isn't available if the data doesn't support a scoring scheme
+      if (plotInstance.plotOptions.scoreBased) {
+        describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
           setParam({ plot: plotInstance.plotOptions.scoreBased });
 
+          // Only test with columns as runsets can't be selected for score-based plots
           it.each(
-            selectionOptions.filter((selection) => selection.type !== "runset"),
+            selectionOptions.filter(
+              (selection) => selection.toString() !== "runset",
+            ),
           )("with selection of the type %s", (selection) => {
             setParam({ selection: selection.value });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           });
-        }
-      });
+        });
+      }
     });
   });
