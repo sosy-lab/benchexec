@@ -382,7 +382,7 @@ class OutputHandler(object):
                 run.xml.set(
                     "propertyFile", util.relative_path(prop.filename, xml_file_name)
                 )
-                expected_result = str(run.expected_results[prop.filename])
+                expected_result = str(run.expected_results.get(prop.filename, ""))
                 if expected_result:
                     run.xml.set("expectedVerdict", expected_result)
 
@@ -393,8 +393,7 @@ class OutputHandler(object):
         elif not self.benchmark.config.start_time:
             runSet.xml.set("starttime", util.read_local_time().isoformat())
 
-        # write (empty) results to txt_file and XML
-        self.txt_file.append(self.run_set_to_text(runSet), False)
+        # write (empty) results to XML
         runSet.xml_file_name = xml_file_name
         self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
         runSet.xml_file_last_modified_time = time.monotonic()
@@ -432,11 +431,13 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
-            runSet.index,
-            len(self.benchmark.run_sets),
-            " ".join(runSet.options),
-            util.text_or_none(runSet.propertytag),
+        runSetInfo += (
+            "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
+                runSet.index,
+                len(self.benchmark.run_sets),
+                " ".join(runSet.options),
+                util.text_or_none(runSet.propertytag),
+            )
         )
 
         titleLine = self.create_output_line(
@@ -551,7 +552,7 @@ class OutputHandler(object):
                 )
 
             # write result in txt_file and XML
-            self.txt_file.append(self.run_set_to_text(run.runSet), False)
+            self.txt_file.append(run.resultline + "\n", keep=False)
             self.statistics.add_result(run)
 
             # we don't want to write this file to often, it can slow down the whole script,
@@ -594,7 +595,8 @@ class OutputHandler(object):
         elif not self.benchmark.config.start_time:
             runSet.xml.set("endtime", util.read_local_time().isoformat())
 
-        # write results to files
+        # Write results to files. This overwrites the intermediate files written
+        # from output_after_run with the proper results.
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
@@ -606,11 +608,9 @@ class OutputHandler(object):
                     block_xml.set("endtime", runSet.xml.get("endtime"))
                 self._write_pretty_result_xml_to_file(block_xml, blockFileName)
 
-        self.txt_file.append(
-            self.run_set_to_text(runSet, True, cputime, walltime, energy)
-        )
+        self.txt_file.append(self.run_set_to_text(runSet, cputime, walltime, energy))
 
-    def run_set_to_text(self, runSet, finished=False, cputime=0, walltime=0, energy={}):
+    def run_set_to_text(self, runSet, cputime=0, walltime=0, energy={}):
         lines = []
 
         # store values of each run
@@ -620,25 +620,20 @@ class OutputHandler(object):
         lines.append(runSet.simpleLine)
 
         # write endline into txt_file
-        if finished:
-            endline = "Run set {0}".format(runSet.index)
+        endline = "Run set {0}".format(runSet.index)
 
-            # format time, type is changed from float to string!
-            cputime_str = (
-                "None"
-                if cputime is None
-                else util.format_number(cputime, TIME_PRECISION)
+        # format time, type is changed from float to string!
+        cputime_str = (
+            "None" if cputime is None else util.format_number(cputime, TIME_PRECISION)
+        )
+        walltime_str = (
+            "None" if walltime is None else util.format_number(walltime, TIME_PRECISION)
+        )
+        lines.append(
+            self.create_output_line(
+                runSet, endline, "done", cputime_str, walltime_str, "-", []
             )
-            walltime_str = (
-                "None"
-                if walltime is None
-                else util.format_number(walltime, TIME_PRECISION)
-            )
-            lines.append(
-                self.create_output_line(
-                    runSet, endline, "done", cputime_str, walltime_str, "-", []
-                )
-            )
+        )
 
         return "\n".join(lines) + "\n"
 
@@ -837,6 +832,7 @@ class OutputHandler(object):
         if self.compress_results:
             with self.log_zip_lock:
                 self.log_zip.close()
+        self.txt_file.close()
 
     def get_filename(self, runSetName, fileExtension):
         """
@@ -919,15 +915,17 @@ class Statistics(object):
         self.dic = collections.defaultdict(int)
         self.counter = 0
         self.score = 0
-        self.max_score = 0
+        self.max_score = None
 
     def add_result(self, run):
         self.counter += 1
         self.dic[run.category] += 1
         self.dic[(run.category, result.get_result_classification(run.status))] += 1
         for prop in run.properties:
-            self.score += prop.compute_score(run.category, run.status)
-            self.max_score += prop.max_score(run.expected_results.get(prop.filename))
+            self.score += prop.compute_score(run.category, run.status) or 0
+            max_score = prop.max_score(run.expected_results.get(prop.filename))
+            if max_score is not None:
+                self.max_score = max_score + (self.max_score or 0)
 
     def __str__(self):
         correct = self.dic[result.CATEGORY_CORRECT]
@@ -952,7 +950,7 @@ class Statistics(object):
                 self.dic[result.CATEGORY_UNKNOWN] + self.dic[result.CATEGORY_ERROR]
             ).rjust(width),
         ]
-        if self.max_score:
+        if self.max_score is not None:
             output.append(
                 "  Score:            "
                 + str(self.score).rjust(width)

@@ -131,15 +131,18 @@ def load_tool_info(tool_name, config):
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
         )
-    except AttributeError:
+    except AttributeError as ae:
         sys.exit(
-            'The module "{0}" does not define the necessary class "Tool", '
-            "it cannot be used as tool info for BenchExec.".format(tool_module)
+            'Unsupported tool "{0}" specified, class "Tool" is missing: {1}'.format(
+                tool_name, ae
+            )
         )
     return tool_module, tool
 
 
-def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
+def cmdline_for_run(
+    tool, executable, options, sourcefiles, identifier, propertyfile, rlimits
+):
     working_directory = tool.working_directory(executable)
 
     def relpath(path):
@@ -151,7 +154,7 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     args = tool.cmdline(
         rel_executable,
         list(options),
-        list(map(relpath, sourcefiles)),
+        list(map(relpath, sourcefiles)) or [identifier],  # identifier for <withoutfile>
         relpath(propertyfile) if propertyfile else None,
         rlimits.copy(),
     )
@@ -277,7 +280,6 @@ class Benchmark(object):
                     )
 
         self.rlimits = {}
-        keys = list(rootTag.keys())
         handle_limit_value(
             "Time", TIMELIMIT, config.timelimit, util.parse_timespan_value
         )
@@ -305,8 +307,7 @@ class Benchmark(object):
             else:
                 self.rlimits[TIMELIMIT] = hardtimelimit
 
-        # get number of threads, default value is 1
-        self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
+        self.num_of_threads = int(rootTag.get("threads", 1))
         if config.num_of_threads is not None:
             self.num_of_threads = config.num_of_threads
         if self.num_of_threads < 1:
@@ -1014,7 +1015,8 @@ class Run(object):
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
             self.options,
-            self.sourcefiles or [self.identifier],  # identifier for <withoutfile>
+            self.sourcefiles,
+            self.identifier,
             self.propertyfile,
             self.runSet.benchmark.rlimits,
         )

@@ -91,7 +91,13 @@ class TestResult(unittest.TestCase):
             )
 
     def test_Property_from_non_standard_file(self):
+        self._test_Property_from_file("", False)
+        self._test_Property_from_file("  ", False)
+        self._test_Property_from_file("  CHECK( init(main()), LTL(G p) )", False)
         self._test_Property_from_file("test property", False)
+        self._test_Property_from_file("CHECK( init(main()), LTL(G p) )\ntest", False)
+
+    def test_Property_from_sv_comp_file(self):
         self._test_Property_from_file("CHECK( init(main()), LTL(G p) )", True)
         self._test_Property_from_file(
             "CHECK( init(main()), LTL(G p) )\n\nCHECK( init(main()), LTL(F end) )", True
@@ -106,11 +112,11 @@ class TestResult(unittest.TestCase):
 
     def test_Property_max_score_not_available(self):
         self.assertEqual(0, self.prop_call.max_score(ExpectedResult(None, None)))
-        self.assertEqual(0, self.prop_call.max_score(None))
+        self.assertEqual(None, self.prop_call.max_score(None))
 
     def test_Property_max_score_smt(self):
-        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(True, None)))
-        self.assertEqual(0, self.prop_sat.max_score(ExpectedResult(False, None)))
+        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(True, None)))
+        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(False, None)))
 
     def test_Property_max_score_svcomp(self):
         self.assertEqual(
