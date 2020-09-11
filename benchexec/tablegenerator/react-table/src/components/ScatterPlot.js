@@ -15,6 +15,7 @@ import {
   YAxis,
   Hint,
   DecorativeAxis,
+  XYPlot,
   FlexibleXYPlot,
 } from "react-vis";
 import {
@@ -124,7 +125,6 @@ export default class ScatterPlot extends React.Component {
       nameX: defaultName,
       nameY: defaultName,
       value: false,
-      height: window.innerHeight,
       areAllColsHidden,
     };
 
@@ -139,20 +139,12 @@ export default class ScatterPlot extends React.Component {
 
   // ----------------------resizer-------------------------------
   componentDidMount() {
-    window.addEventListener("resize", this.updateDimensions);
     window.addEventListener("popstate", this.refreshUrlState);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions);
     window.removeEventListener("popstate", this.refreshUrlState);
   }
-
-  updateDimensions = () => {
-    this.setState({
-      height: window.innerHeight,
-    });
-  };
 
   refreshUrlState = () => {
     this.setState(this.setup());
@@ -322,13 +314,20 @@ export default class ScatterPlot extends React.Component {
   render() {
     this.renderData();
     const isLinear = this.state.scaling === scalingOptions.linear;
-
+    const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
+    const plotDimensions = this.props.isFlexible
+      ? {
+          height: window.innerHeight - 200,
+        }
+      : {
+          height: this.props.fixedHeight,
+          width: this.props.fixedWidth,
+        };
     return (
       <div className="scatterPlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}
-        <FlexibleXYPlot
+        <Plot
           className="scatterPlot__plot"
-          height={this.state.height - 200}
           margin={{ left: 90 }}
           yType={this.handleType(this.state.toolY, this.state.columnY)}
           xType={this.handleType(this.state.toolX, this.state.columnX)}
@@ -342,6 +341,7 @@ export default class ScatterPlot extends React.Component {
               ? [this.minY, this.maxY]
               : null
           }
+          {...plotDimensions}
         >
           <VerticalGridLines
             yType={this.handleType(this.state.toolY, this.state.columnY)}
@@ -429,7 +429,7 @@ export default class ScatterPlot extends React.Component {
             }
           />
           {this.state.value ? <Hint value={this.state.value} /> : null}
-        </FlexibleXYPlot>
+        </Plot>
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (
