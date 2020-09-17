@@ -261,7 +261,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return [executable, *options, *task.input_files_or_identifier]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, exit_code, output, isTimeout):
         """
         Parse the output of the tool and extract the verification result.
         If the tool gave a result, this method needs to return one of the
@@ -273,8 +273,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         can be returned (this is also the default implementation).
         BenchExec will then automatically add some more information
         if the tool was killed due to a timeout, segmentation fault, etc.
-        @param returncode: the exit code of the program, 0 if the program was killed
-        @param returnsignal: the signal that killed the program, 0 if program exited itself
+        @param exit_code: an instance of class benchexec.util.ProcessExitCode
         @param output: a list of strings of output lines of the tool (both stdout and stderr)
         @param isTimeout: whether the result is a timeout
         (useful to distinguish between program killed because of error and timeout)

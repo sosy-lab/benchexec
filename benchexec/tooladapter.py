@@ -35,7 +35,6 @@ class Tool1To2:
         "program_files",
         "version",
         "name",
-        "determine_result",
         "get_value_from_output",
         "working_directory",
         "environment",
@@ -73,6 +72,11 @@ class Tool1To2:
             list(task.input_files_or_identifier),
             task.property_file,
             rlimits_dict,
+        )
+
+    def determine_result(self, exit_code, output, isTimeout):
+        return self._wrapped.determine_result(
+            exit_code.value or 0, exit_code.signal or 0, output, isTimeout
         )
 
 

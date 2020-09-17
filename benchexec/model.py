@@ -1151,7 +1151,7 @@ class Run(object):
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
             tool_status = self.runSet.benchmark.tool.determine_result(
-                exitcode.value or 0, exitcode.signal or 0, output, isTimeout
+                exitcode, output, isTimeout
             )
 
             if tool_status in result.RESULT_LIST_OTHER:

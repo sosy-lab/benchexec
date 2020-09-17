@@ -47,7 +47,7 @@ class TestResult(unittest.TestCase):
         runSet.benchmark.rlimits = {}
         runSet.benchmark.tool = BaseTool()
 
-        def determine_result(self, returncode, returnsignal, output, isTimeout=False):
+        def determine_result(self, exit_code, output, isTimeout=False):
             return info_result
 
         runSet.benchmark.tool.determine_result = determine_result

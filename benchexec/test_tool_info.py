@@ -298,8 +298,9 @@ def analyze_tool_output(tool, file):
         return
 
     try:
+        exit_code = util.ProcessExitCode.create(value=0)
         result = tool.determine_result(
-            returncode=0, returnsignal=0, output=output, isTimeout=False
+            exit_code=exit_code, output=output, isTimeout=False
         )
         print_value(
             "Result of analyzing tool output in “" + file.name + "”",
