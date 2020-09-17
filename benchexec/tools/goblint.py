@@ -16,6 +16,10 @@ class Tool(benchexec.tools.template.BaseTool):
     URL: https://goblint.in.tum.de/
     """
 
+    REQUIRED_PATHS = [
+        "includes/sv-comp.c"
+    ]
+
     def executable(self):
         return util.find_executable("goblint")
 
