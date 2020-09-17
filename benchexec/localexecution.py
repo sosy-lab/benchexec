@@ -20,6 +20,7 @@ from benchexec import resources
 from benchexec.runexecutor import RunExecutor
 from benchexec.pqos import Pqos
 from benchexec import systeminfo
+from benchexec import tooladapter
 from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
 
@@ -43,7 +44,8 @@ def init(config, benchmark):
             )
     config.containerargs["use_namespaces"] = config.container
 
-    benchmark.executable = benchmark.tool.executable()
+    tool_locator = tooladapter.create_tool_locator(config)
+    benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
 
