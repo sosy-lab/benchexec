@@ -32,6 +32,7 @@ except ImportError:
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
+_FREQUENCY_FACTOR = 1000  # Hz in kHz
 
 TIMESTAMP_FILENAME_FORMAT = "%Y-%m-%d_%H-%M-%S"
 """Our standard timestamp format for file names (without colons etc.)"""
@@ -219,6 +220,25 @@ def parse_timespan_value(s):
         return number * 24 * 60 * 60
     else:
         raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
+
+
+def parse_frequency_value(s):
+    """Parse a string that contains a frequency, optionally with a unit like Hz.
+    @return the number of frequency encoded by the string
+    """
+    number, unit = split_number_and_unit(s)
+    if not unit or unit == "Hz":
+        return number
+    elif unit == "kHz":
+        return number * _FREQUENCY_FACTOR
+    elif unit == "MHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    elif unit == "GHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    else:
+        raise ValueError(
+            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
+        )
 
 
 def expand_filename_pattern(pattern, base_dir):
