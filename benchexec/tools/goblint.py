@@ -24,6 +24,6 @@ class Tool(benchexec.tools.template.BaseTool):
             if line == "SV-COMP (unreach-call): true":
                 return result.RESULT_TRUE_PROP
             elif line == "SV-COMP (unreach-call): false":
-                return result.RESULT_FALSE_PROP
+                return result.RESULT_FALSE_REACH
 
         return result.RESULT_UNKNOWN
