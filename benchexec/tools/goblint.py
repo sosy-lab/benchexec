@@ -8,6 +8,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def executable(self):
         return util.find_executable("goblint")
 
+    def version(self, executable):
+        return self._version_from_tool(executable, line_prefix="Goblint version: ")
+
     def name(self):
         return "Goblint"
 
