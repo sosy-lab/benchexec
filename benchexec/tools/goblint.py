@@ -4,6 +4,10 @@ import benchexec.util as util
 
 
 class Tool(benchexec.tools.template.BaseTool):
+    """
+    Tool info for Goblint.
+    URL: https://goblint.in.tum.de/
+    """
 
     def executable(self):
         return util.find_executable("goblint")
