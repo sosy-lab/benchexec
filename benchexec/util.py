@@ -18,7 +18,7 @@ import glob
 import logging
 import os
 import shutil
-import signal
+import signal as _signal
 import stat
 import subprocess
 import sys
@@ -555,7 +555,8 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
 def kill_process(pid, sig=None):
     """Try to send signal to given process."""
     if sig is None:
-        sig = signal.SIGKILL  # set default lazily, otherwise importing fails on Windows
+        # set default lazily, otherwise importing fails on Windows
+        sig = _signal.SIGKILL
     try:
         os.kill(pid, sig)
     except OSError as e:
@@ -705,7 +706,7 @@ def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces
     and gives an interactive debugging shell.
     """
-    signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler
+    _signal.signal(_signal.SIGUSR1, _debug_current_process)  # Register handler
 
 
 def get_capability(filename):
