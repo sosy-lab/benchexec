@@ -376,7 +376,7 @@ class OutputHandler(object):
                 run.xml.set(
                     "propertyFile", util.relative_path(prop.filename, xml_file_name)
                 )
-                expected_result = str(run.expected_results[prop.filename])
+                expected_result = str(run.expected_results.get(prop.filename, ""))
                 if expected_result:
                     run.xml.set("expectedVerdict", expected_result)
 

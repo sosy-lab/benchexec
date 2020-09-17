@@ -15,6 +15,7 @@ import {
   YAxis,
   DiscreteColorLegend,
   Hint,
+  XYPlot,
   FlexibleXYPlot,
 } from "react-vis";
 import {
@@ -56,10 +57,10 @@ export default class QuantilePlot extends React.Component {
     this.possibleValues = [];
     this.lineCount = 1;
 
-    this.state = this.setup();
+    this.state = this.setPlotData();
   }
 
-  setup() {
+  setPlotData() {
     const queryProps = getHashSearch();
 
     let { selection, plot, scaling, results } = {
@@ -135,7 +136,6 @@ export default class QuantilePlot extends React.Component {
           .flat()
           .find((col) => col.display_title === selection)
       : this.props.preSelection;
-
     if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
         this.props.tools,
@@ -249,7 +249,7 @@ export default class QuantilePlot extends React.Component {
   };
 
   refreshUrlState = () => {
-    this.setState(this.setup());
+    this.setState(this.setPlotData());
   };
 
   // --------------------rendering-----------------------------
@@ -514,7 +514,7 @@ export default class QuantilePlot extends React.Component {
                 <span className="setting-label">Selection:</span>
                 <select
                   className="setting-select"
-                  name="Selection"
+                  name="setting-Selection"
                   value={this.state.selection}
                   onChange={(ev) => setParam({ selection: ev.target.value })}
                 >
@@ -616,13 +616,22 @@ export default class QuantilePlot extends React.Component {
   render() {
     this.setPossibleValues();
     this.renderAll();
+    const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
+    const plotDimensions = this.props.isFlexible
+      ? {
+          height: window.innerHeight - 200,
+        }
+      : {
+          height: this.props.fixedHeight,
+          width: this.props.fixedWidth,
+        };
     return (
       <div className="quantilePlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}
-        <FlexibleXYPlot
-          height={window.innerHeight - 200}
+        <Plot
           margin={{ left: 90 }}
           yType={this.handleType()}
+          {...plotDimensions}
         >
           <VerticalGridLines />
           <HorizontalGridLines />
@@ -630,7 +639,7 @@ export default class QuantilePlot extends React.Component {
           <YAxis tickFormat={(value) => value} />
           {this.state.value ? <Hint value={this.state.value} /> : null}
           {this.renderLines()}
-        </FlexibleXYPlot>
+        </Plot>
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (

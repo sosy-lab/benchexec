@@ -283,6 +283,7 @@ export default class Overview extends React.Component {
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
+                    isFlexible={true}
                   />
                 </Route>
                 <Route path="/scatter">
@@ -292,6 +293,7 @@ export default class Overview extends React.Component {
                     tools={this.state.tools}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
+                    isFlexible={true}
                   />
                 </Route>
                 <Route path="/info">

@@ -273,7 +273,8 @@ def substitute_vars(template, replacements):
 
 
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
-    dirs = os.environ["PATH"].split(os.path.pathsep)
+    """Deprecated, prefer find_executable2"""
+    dirs = get_path()
     if use_current_dir:
         dirs.append(os.path.curdir)
 
@@ -305,6 +306,31 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
             )
     else:
         return fallback
+
+
+def find_executable2(name, dirs=None, required_mode=os.X_OK):
+    """
+    Search for an executable file either in PATH or in given directories.
+
+    @param name: The name of the executable to search
+    @param dirs: The directories where to search (PATH will be used by default)
+    @param required_mode: A valid mode parameter for os.access as filter criterion
+    @return None or the path to the executable
+    """
+    if dirs is None:
+        dirs = get_path()
+
+    for candidate_dir in dirs:
+        candidate = os.path.join(candidate_dir, name)
+        if os.path.isfile(candidate) and os.access(candidate, required_mode):
+            return candidate
+
+    return None
+
+
+def get_path():
+    """Get list of directories in PATH environment variable."""
+    return os.environ["PATH"].split(os.path.pathsep)
 
 
 def common_base_dir(paths):

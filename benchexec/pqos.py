@@ -16,7 +16,7 @@ import json
 import grp
 from signal import SIGINT
 from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
-from benchexec.util import find_executable, get_capability, check_msr
+from benchexec.util import find_executable2, get_capability, check_msr
 
 
 class Pqos(object):
@@ -24,20 +24,14 @@ class Pqos(object):
     The Pqos class defines methods to interact with pqos_wrapper cli.
     """
 
-    CMD = "pqos_wrapper"
     CAP_SYS_RAWIO = "cap_sys_rawio"
 
     def __init__(self, show_warnings=False):
         self.reset_required = False
-        self.cli_exists = False
         self.show_warnings = show_warnings
         self.mon_process = None
-        self.executable_path = find_executable(
-            "pqos_wrapper", exitOnError=False, use_current_dir=False
-        )
-        if self.executable_path is not None:
-            self.cli_exists = True
-        else:
+        self.executable_path = find_executable2("pqos_wrapper")
+        if self.executable_path is None:
             if self.show_warnings:
                 logging.info(
                     "Unable to find pqos_wrapper, please install it for "
@@ -53,8 +47,8 @@ class Pqos(object):
             @function_name: The name of the function being executed in pqos_wrapper
             @suppress_warning: A boolean to decide wether to print warning on failing execution
         """
-        if self.cli_exists:
-            args_list = [self.CMD] + list(args)
+        if self.executable_path:
+            args_list = [self.executable_path] + list(args)
             try:
                 if "-m" in args_list:
                     self.mon_process = Popen(args_list, stdout=PIPE, stderr=PIPE)
