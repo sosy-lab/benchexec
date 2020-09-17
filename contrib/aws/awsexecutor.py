@@ -609,25 +609,14 @@ def parse_aws_run_result(values):
             set_exitcode(benchexec.util.ProcessExitCode.create(signal=int(value)))
         elif key == "aws_instance_frequency":
             result_values[key] = benchexec.util.parse_frequency_value(value)
-        elif (
-            key
-            in [
-                "host",
-                "terminationreason",
-                "cpuCores",
-                "memoryNodes",
-                "starttime",
-                "aws_instance_os",
-                "aws_instance_cpu_name",
-                "aws_instance_cores",
-                "aws_instance_memory",
-                "aws_instance_type",
-            ]
-            or key.startswith("blkio-")
-            or key.startswith("cpuenergy")
-            or key.startswith("energy-")
-            or key.startswith("cputime-cpu")
-        ):
+        elif key in [
+            "starttime",
+            "aws_instance_os",
+            "aws_instance_cpu_name",
+            "aws_instance_cores",
+            "aws_instance_memory",
+            "aws_instance_type",
+        ]:
             result_values[key] = value
 
     return result_values
