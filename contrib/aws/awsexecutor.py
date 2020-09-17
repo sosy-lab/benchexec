@@ -600,7 +600,7 @@ def parse_aws_run_result(values):
         if key in ["cputime", "walltime"]:
             result_values[key] = parse_time_value(value)
         elif key == "memory":
-            result_values["memory"] = int(value.strip("B"))
+            result_values["memory"] = benchexec.util.parse_memory_value(value)
         elif key == "exitcode":
             set_exitcode(benchexec.util.ProcessExitCode.from_raw(int(value)))
         elif key == "returnvalue":
