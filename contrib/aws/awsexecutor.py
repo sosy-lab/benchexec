@@ -343,7 +343,6 @@ def _zipdir(path, zipfile, abs_base_dir):
 
 
 def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
-
     with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file in abs_paths:
             if not os.path.exists(file):
@@ -587,6 +586,25 @@ def parse_aws_run_result(values):
             raise ValueError('Cannot parse "{0}" as a time value.'.format(s))
         return float(s[:-1])
 
+    def parse_frequency_value(number):
+        if not number:
+            return number
+        number = number.strip()
+        if number.endswith("GHz"):
+            return int(number[:-3]) * 1000 * 1000 * 1000
+        elif number.endswith("MHz"):
+            return int(number[:-3]) * 1000 * 1000
+        elif number.endswith("KHz"):
+            return int(number[:-3]) * 1000
+        elif number.endswith("Hz"):
+            return int(number[:-2])
+        elif number.isdigit():
+            return int(number)
+        else:
+            raise ValueError(
+                "unknown unit: {} (allowed are Hz, KHz, MHz, and GHz)".format(number)
+            )
+
     def set_exitcode(new):
         if "exitcode" in result_values:
             old = result_values["exitcode"]
@@ -608,22 +626,27 @@ def parse_aws_run_result(values):
             set_exitcode(benchexec.util.ProcessExitCode.create(value=int(value)))
         elif key == "exitsignal":
             set_exitcode(benchexec.util.ProcessExitCode.create(signal=int(value)))
+        elif key == "aws_instance_frequency":
+            result_values[key] = parse_frequency_value(value)
         elif (
-            key in ["host", "terminationreason", "cpuCores", "memoryNodes", "starttime"]
+            key
+            in [
+                "host",
+                "terminationreason",
+                "cpuCores",
+                "memoryNodes",
+                "starttime",
+                "aws_instance_os",
+                "aws_instance_cpu_name",
+                "aws_instance_cores",
+                "aws_instance_memory",
+                "aws_instance_type",
+            ]
             or key.startswith("blkio-")
             or key.startswith("cpuenergy")
             or key.startswith("energy-")
             or key.startswith("cputime-cpu")
         ):
-            result_values[key] = value
-        elif key in [
-            "aws_instance_os",
-            "aws_instance_cpu_name",
-            "aws_instance_cores",
-            "aws_instance_frequency",
-            "aws_instance_memory",
-            "aws_instance_type",
-        ]:
             result_values[key] = value
 
     return result_values
