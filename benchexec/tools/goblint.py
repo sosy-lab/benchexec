@@ -9,6 +9,8 @@ import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
+import re
+
 
 class Tool(benchexec.tools.template.BaseTool):
     """
@@ -36,6 +38,12 @@ class Tool(benchexec.tools.template.BaseTool):
                 return result.RESULT_TRUE_PROP
             elif line == "SV-COMP (unreach-call): false":
                 return result.RESULT_FALSE_REACH
+            elif line.startswith("Fatal error"):
+                m = re.match(r"^Fatal error: exception ([A-Za-z.]+)", line)
+                if m:
+                    return "EXCEPTION ({})".format(m.group(1))
+                else:
+                    return "EXCEPTION"
 
         if isTimeout:
             return "TIMEOUT"
