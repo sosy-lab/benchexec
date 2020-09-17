@@ -37,4 +37,9 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line == "SV-COMP (unreach-call): false":
                 return result.RESULT_FALSE_REACH
 
-        return result.RESULT_UNKNOWN
+        if isTimeout:
+            return "TIMEOUT"
+        elif returncode != 0:
+            return result.RESULT_ERROR
+        else:
+            return result.RESULT_UNKNOWN
