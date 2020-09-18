@@ -366,9 +366,11 @@ def getBenchmarkData(benchmark):
     r = benchmark.requirements
     # These values are currently not used internally, but the goal is
     # to eventually integrate them in a later stage.
-    if r.cpu_cores is None or r.cpu_model is None or r.memory is None:
+    if r.cpu_model is None:
+        r.cpu_model = "AmazonAWS"
+    if r.cpu_cores is None or r.memory is None:
         raise BenchExecException(
-            "The entry for either the amount of used cpu cores, model, or memory "
+            "The entry for either the amount of used cpu cores or memory "
             "is missing from the benchmark definition"
         )
     requirements = {
