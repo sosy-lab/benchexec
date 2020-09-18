@@ -16,15 +16,25 @@ import {
   SelectColumnsButton,
 } from "./TableComponents.js";
 import { determineColumnWidth, isNumericColumn } from "../utils/utils";
+import { buildFormatter, processData } from "../utils/stats.js";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
+
+const isTestEnv = process.env.NODE_ENV === "test";
+
+const types = ["sum", "avg", "median", "stdev", "min", "max"];
 
 export default class Summary extends React.Component {
   constructor(props) {
     super(props);
 
+    this.formatter = buildFormatter(props.tools, types);
+
+    this.skipStats = isTestEnv && !props.onStatsReady;
+
     this.state = {
       fixed: true,
+      stats: props.stats,
     };
     this.infos = [
       "displayName",
@@ -46,7 +56,9 @@ export default class Summary extends React.Component {
   renderTooltip = (cell) =>
     Object.keys(cell)
       .filter((key) => cell[key] && key !== "sum")
-      .map((key) => `${key}: ${cell[key]}`)
+      .map(
+        (key) => `${key}: ${cell[key].replace(/(&#x2007;)|(&#x2008;)/g, "")}`,
+      )
       .join(", ") || undefined;
 
   //fix columns
@@ -118,6 +130,10 @@ export default class Summary extends React.Component {
     ],
   });
 
+  componentDidMount() {
+    this.updateStats();
+  }
+
   createColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: (
@@ -142,12 +158,62 @@ export default class Summary extends React.Component {
         <div
           dangerouslySetInnerHTML={{ __html: cell.value.sum }}
           className="cell"
-          title={this.renderTooltip(cell.value)}
+          title={
+            column.type !== "status"
+              ? this.renderTooltip(cell.value)
+              : undefined
+          }
         ></div>
       ) : (
         <div className="cell">-</div>
       ),
   });
+
+  transformStatsFromWorkers(stats) {
+    // our stats template to steal from
+
+    console.log({ stats });
+
+    const selector = {
+      0: "total",
+      2: "correct-total",
+      3: "correct-true",
+      4: "correct-false",
+      5: "wrong-total",
+      6: "wrong-true",
+      7: "wrong-false",
+    };
+    const templ = this.state.stats;
+
+    const transformed = templ.map((row, rowIdx) => {
+      row.content = row.content.map((tool, toolIdx) => {
+        const key = selector[rowIdx];
+        if (!key || !stats[toolIdx]) {
+          return tool;
+        }
+        return stats[toolIdx].map((col) => col[key]);
+      });
+      return row;
+    });
+
+    this.setState({ stats: transformed });
+  }
+
+  async updateStats(oldStats) {
+    const { tools, data: table, onStatsReady } = this.props;
+    const res = this.skipStats
+      ? {}
+      : await processData({ tools, table, formatter: this.formatter });
+
+    this.transformStatsFromWorkers(res);
+
+    if (onStatsReady) {
+      console.log("calling onStatsReady");
+      onStatsReady();
+    } else {
+      console.log("onStatsReady not found");
+    }
+  }
 
   render() {
     const statColumns = this.props.tools
@@ -179,7 +245,7 @@ export default class Summary extends React.Component {
         <div id="statistics">
           <h2>Statistics</h2>
           <ReactTableFixedColumns
-            data={this.props.stats}
+            data={this.state.stats}
             columns={[this.createRowTitleColumn()].concat(statColumns)}
             showPagination={false}
             className="-highlight"
