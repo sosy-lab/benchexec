@@ -299,6 +299,7 @@ def analyze_tool_output(tool, file):
 
     try:
         exit_code = util.ProcessExitCode.create(value=0)
+        output = CURRENT_BASETOOL.RunOutput(output)
         result = tool.determine_result(
             exit_code=exit_code, output=output, isTimeout=False
         )

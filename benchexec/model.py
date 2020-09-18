@@ -1122,6 +1122,7 @@ class Run(object):
         except OSError as e:
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
+        output = tooladapter.CURRENT_BASETOOL.RunOutput(output)
 
         self.status = self._analyze_result(exitcode, output, termination_reason)
         self.category = result.get_result_category(

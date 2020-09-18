@@ -35,7 +35,6 @@ class Tool1To2:
         "program_files",
         "version",
         "name",
-        "get_value_from_output",
         "working_directory",
         "environment",
     ]
@@ -76,8 +75,11 @@ class Tool1To2:
 
     def determine_result(self, exit_code, output, isTimeout):
         return self._wrapped.determine_result(
-            exit_code.value or 0, exit_code.signal or 0, output, isTimeout
+            exit_code.value or 0, exit_code.signal or 0, output._lines, isTimeout
         )
+
+    def get_value_from_output(self, output, identifier):
+        return self._wrapped.get_value_from_output(output._lines, identifier)
 
 
 def adapt_to_current_version(tool):
