@@ -38,11 +38,11 @@ class Tool(benchexec.tools.template.BaseTool):
                 return result.RESULT_TRUE_PROP
             elif line == "SV-COMP (unreach-call): false":
                 return result.RESULT_FALSE_REACH
-            elif line.startswith("Fatal error"):
+            elif "Fatal error" in line:
                 if "Assertion failed" in line:
                     return "ASSERTION"
                 else:
-                    m = re.match(r"^Fatal error: exception ([A-Za-z._]+)", line)
+                    m = re.search(r"Fatal error: exception ([A-Za-z._]+)", line)
                     if m:
                         return "EXCEPTION ({})".format(m.group(1))
                     else:
