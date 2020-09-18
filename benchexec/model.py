@@ -1144,9 +1144,8 @@ class Run(object):
         tool_status = None
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
-            isTimeout = termination_reason in ["cputime", "cputime-soft", "walltime"]
             tool_status = self.runSet.benchmark.tool.determine_result(
-                exitcode, output, isTimeout
+                tooladapter.CURRENT_BASETOOL.Run(exitcode, output, termination_reason)
             )
 
             if tool_status in result.RESULT_LIST_OTHER:

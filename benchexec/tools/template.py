@@ -262,7 +262,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return [executable, *options, *task.input_files_or_identifier]
 
-    def determine_result(self, exit_code, output, isTimeout):
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         If the tool gave a result, this method needs to return one of the
@@ -274,10 +274,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         can be returned (this is also the default implementation).
         BenchExec will then automatically add some more information
         if the tool was killed due to a timeout, segmentation fault, etc.
-        @param exit_code: an instance of class benchexec.util.ProcessExitCode
-        @param output: The output of the tool as instance of class RunOutput.
-        @param isTimeout: whether the result is a timeout
-        (useful to distinguish between program killed because of error and timeout)
+        @param run: information about the run as instanceof of class Run
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
         return result.RESULT_DONE
@@ -404,6 +401,17 @@ class BaseTool2(object, metaclass=ABCMeta):
             return super().__new__(
                 cls, cputime, cputime_hard, walltime, memory, cpu_cores
             )
+
+    class Run(namedtuple("Run", ["exit_code", "output", "termination_reason"])):
+        @property
+        def was_terminated(self):
+            """Returns whether the tool was terminated by BenchExec due to limits."""
+            return bool(self.termination_reason)
+
+        @property
+        def was_timeout(self):
+            """Returns whether the tool was terminated by BenchExec due to limits."""
+            return self.termination_reason in ["cputime", "cputime-soft", "walltime"]
 
     class RunOutput(collections.abc.Sequence):
         """

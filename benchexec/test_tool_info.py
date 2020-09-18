@@ -300,9 +300,8 @@ def analyze_tool_output(tool, file):
     try:
         exit_code = util.ProcessExitCode.create(value=0)
         output = CURRENT_BASETOOL.RunOutput(output)
-        result = tool.determine_result(
-            exit_code=exit_code, output=output, isTimeout=False
-        )
+        run = CURRENT_BASETOOL.Run(exit_code, output, None)
+        result = tool.determine_result(run)
         print_value(
             "Result of analyzing tool output in “" + file.name + "”",
             result,

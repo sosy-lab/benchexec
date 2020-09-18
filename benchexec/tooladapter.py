@@ -73,9 +73,12 @@ class Tool1To2:
             rlimits_dict,
         )
 
-    def determine_result(self, exit_code, output, isTimeout):
+    def determine_result(self, run):
         return self._wrapped.determine_result(
-            exit_code.value or 0, exit_code.signal or 0, output._lines, isTimeout
+            run.exit_code.value or 0,
+            run.exit_code.signal or 0,
+            run.output._lines,
+            run.was_timeout,
         )
 
     def get_value_from_output(self, output, identifier):
