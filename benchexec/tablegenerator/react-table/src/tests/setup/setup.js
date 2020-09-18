@@ -13,4 +13,30 @@ import Adapter from "enzyme-adapter-react-16";
 // https://stackoverflow.com/a/44538270/396730
 jest.mock("uniqid", () => (i) => i + "uniqid");
 
+/**
+ * Worker mock
+ */
+class Worker {
+  constructor(dataUrl) {
+    this.url = dataUrl;
+    const b = Buffer.from(dataUrl.split(",")[1], "base64");
+    let onmessage;
+    this.mockedPostMessage = (data) => this.cb({ data });
+    eval(b.toString()); //new Function("data", b.toString);
+    this.onmessageImpl = onmessage;
+  }
+
+  mockedPostMessage(data) {
+    this.cb({ data });
+  }
+  postMessage(msg) {
+    this.onmessageImpl({ data: { ...msg } });
+  }
+
+  set onmessage(cb) {
+    this.cb = cb;
+    this.mockedPostMessage = (data) => this.cb({ data });
+  }
+}
+window.Worker = Worker;
 configure({ adapter: new Adapter() });
