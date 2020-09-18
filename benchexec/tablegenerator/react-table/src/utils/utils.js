@@ -263,13 +263,17 @@ class NumberFormatterBuilder {
     this.maxNegativeDecimalPosition = -1;
   }
 
-  _defaultOptions = { whitespaceFormat: false, html: false };
+  _defaultOptions = {
+    whitespaceFormat: false,
+    html: false,
+    leadingZero: true,
+  };
 
   addDataItem(item) {
-    const [positive, negative] = item.split(/\.|,/);
+    const [positive, negative] = this.format(item).split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
       this.maxPositiveDecimalPosition,
-      positive ? positive.length : 0,
+      positive && positive !== "0" ? positive.length : 0,
     );
     this.maxNegativeDecimalPosition = Math.max(
       this.maxNegativeDecimalPosition,
@@ -277,80 +281,102 @@ class NumberFormatterBuilder {
     );
   }
 
+  format(number) {
+    const stringNumber = number.toString();
+    let prefix = "";
+    let postfix = "";
+    let pointer = 0;
+    let addedNums = 0;
+    let firstNonZero = false;
+    let decimal = false;
+    const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
+    while (
+      addedNums < this.significantDigits - 1 &&
+      stringNumber.length > pointer
+    ) {
+      const current = stringNumber[pointer];
+      if (current === "." || current === ",") {
+        prefix += ".";
+        decimal = true;
+      } else {
+        if (!firstNonZero) {
+          if (current === "0") {
+            pointer += 1;
+            if (decimal) {
+              prefix += current;
+            }
+            continue;
+          }
+          firstNonZero = true;
+        }
+        prefix += current;
+        addedNums += 1;
+      }
+      pointer += 1;
+    }
+    if (prefix[0] === ".") {
+      prefix = `0${prefix}`;
+    }
+    postfix = stringNumber.substring(pointer);
+
+    if (postfix) {
+      // hacky trickery
+      // we force the postfix to turn into a decimal value with one leading integer
+      // e.g. 5432 -> 5.432
+      // this way we can round up to the first digit of the string
+      const attachDecimal = postfix[0] === ".";
+      postfix = postfix.replace(/\./, "");
+      postfix = `${postfix[0]}.${postfix.substr(1)}`;
+      postfix = Math.round(Number(postfix));
+      postfix = isNaN(postfix) ? "" : postfix.toString();
+      if (attachDecimal) {
+        postfix = `.${postfix}`;
+      }
+      //handle overflow
+      if (postfix.length > 1) {
+        const overflow = postfix[0];
+        postfix = postfix[1];
+        const oldLength = prefix.length;
+        const [, decPart] = prefix.split(".");
+        let decimalLength = (decPart && decPart.length - 1) || 0;
+        let toAdd = decimalLength ? "0." : "";
+        while (decimalLength > 0) {
+          toAdd += "0";
+          decimalLength -= 1;
+        }
+        toAdd += overflow;
+        prefix = (Number(prefix) + Number(toAdd)).toString();
+        while (prefix.length < oldLength) {
+          prefix += "0";
+        }
+      }
+      // fill up integer number;
+      let end = decimalPos;
+      if (decimalPos === -1) {
+        end = stringNumber.length;
+      }
+      while (prefix.length + postfix.length < end) {
+        postfix += "0";
+      }
+    }
+    return `${prefix}${postfix}`;
+  }
+
   build() {
     return (number, options = {}) => {
       if (isNil(this.significantDigits)) {
         return number.toString();
       }
-      const { whitespaceFormat, html } = {
+      const { whitespaceFormat, html, leadingZero } = {
         ...this._defaultOptions,
         ...options,
       };
-      const stringNumber = number.toString();
-      let prefix = "";
-      let postfix = "";
-      let pointer = 0;
-      let addedNums = 0;
-      let firstNonZero = false;
-      let decimal = false;
-      const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
-      while (
-        addedNums < this.significantDigits - 1 &&
-        stringNumber.length > pointer
-      ) {
-        const current = stringNumber[pointer];
-        if (current === "." || current === ",") {
-          prefix += ".";
-          decimal = true;
-        } else {
-          if (!firstNonZero) {
-            if (current === "0") {
-              pointer += 1;
-              if (decimal) {
-                prefix += current;
-              }
-              continue;
-            }
-            firstNonZero = true;
-          }
-          prefix += current;
-          addedNums += 1;
-        }
-        pointer += 1;
-      }
-      if (prefix[0] === ".") {
-        prefix = `0${prefix}`;
-      }
-      postfix = stringNumber.substring(pointer);
+      const out = this.format(number);
 
-      if (postfix) {
-        // hacky trickery
-        // we force the postfix to turn into a decimal value with one leading integer
-        // e.g. 5432 -> 5.432
-        // this way we can round up to the first digit of the string
-        const attachDecimal = postfix[0] === ".";
-        postfix = postfix.replace(/\./, "");
-        postfix = `${postfix[0]}.${postfix.substr(1)}`;
-        postfix = Math.round(Number(postfix));
-        postfix = isNaN(postfix) ? "" : postfix.toString();
-        if (attachDecimal) {
-          postfix = `.${postfix}`;
-        }
-        // fill up integer number;
-        let end = decimalPos;
-        if (decimalPos === -1) {
-          end = stringNumber.length;
-        }
-        while (prefix.length + postfix.length < end) {
-          postfix += "0";
-        }
-      }
-
-      const out = `${prefix}${postfix}`;
       if (whitespaceFormat) {
         const decSpace = html ? punctuationSpaceHtml : " ";
         let [integer, decimal] = out.split(/\.|,/);
-        if (integer === "0") {
+        if (integer === "0" && !leadingZero) {
           integer = "";
         }
         integer = integer || "";
@@ -367,6 +393,9 @@ class NumberFormatterBuilder {
           decimal = decimal.replace(/ /g, characterSpaceHtml);
         }
         return `${integer}${decimalPoint}${decimal}`;
+      }
+      if (!leadingZero && out.startsWith("0.")) {
+        return out.substr(1);
       }
       return out;
     };
@@ -515,6 +544,8 @@ const getStep = (num) => {
   return out;
 };
 
+const identity = (x) => x;
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -544,4 +575,5 @@ export {
   hasSameEntries,
   isCategory,
   getStep,
+  identity,
 };

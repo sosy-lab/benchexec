@@ -20,7 +20,7 @@ class App extends Component {
     return (
       <div className="App">
         <main>
-          <Overview data={window.data} />
+          <Overview data={window.data} onStatsReady={this.props.onStatsReady} />
           {/* imports the component Overview with all subcomponents */}
         </main>
       </div>

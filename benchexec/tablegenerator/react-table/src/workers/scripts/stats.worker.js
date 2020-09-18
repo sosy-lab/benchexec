@@ -5,16 +5,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+const maybeAdd = (a, b) => {
+  if (Number(b)) {
+    return a + b;
+  }
+  return a + 1;
+};
+
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
   const defaultObj = {
     sum: 0,
-    stdev: 0,
     avg: 0,
     max: 0,
-    min: Infinity,
     median: 0,
+    min: Infinity,
+    stdev: 0,
     variance: 0,
     items: [],
   };
@@ -31,15 +38,23 @@ onmessage = function (e) {
   // calculation
   for (const item of copy) {
     const key = `${item.categoryType}-${item.resultType}`;
+    const totalKey = `${item.categoryType}-total`;
     const bucket = buckets[key] || {
       ...defaultObj,
     };
-    bucket.sum += item.column;
+    const subTotalBucket = buckets[totalKey] || { ...defaultObj };
+    bucket.sum = maybeAdd(bucket.sum, item.column);
     bucket.max = Math.max(bucket.max, item.column);
     bucket.min = Math.min(bucket.min, item.column);
     bucket.items.push(item);
-    total.sum += item.column;
+
+    subTotalBucket.sum = maybeAdd(subTotalBucket.sum, item.column);
+    subTotalBucket.max = Math.max(subTotalBucket.max, item.column);
+    subTotalBucket.min = Math.min(subTotalBucket.min, item.column);
+    subTotalBucket.items.push(item);
+    total.sum = maybeAdd(total.sum, item.column);
     buckets[key] = bucket;
+    buckets[totalKey] = subTotalBucket;
   }
   for (const [bucket, values] of Object.entries(buckets)) {
     values.avg = values.sum / values.items.length;
@@ -65,10 +80,14 @@ onmessage = function (e) {
 
   for (const item of copy) {
     const bucket = buckets[`${item.categoryType}-${item.resultType}`];
+    const totalKey = `${item.categoryType}-total`;
+    const subTotalBucket = buckets[totalKey];
     const diffBucket = item.column - bucket.avg;
+    const diffSubTotal = item.column - subTotalBucket.avg;
     const diffTotal = item.column - total.avg;
     total.variance += Math.pow(diffTotal, 2);
     bucket.variance += Math.pow(diffBucket, 2);
+    subTotalBucket.variance += Math.pow(diffSubTotal, 2);
   }
 
   total.stdev = Math.sqrt(total.variance / copy.length);
@@ -81,7 +100,19 @@ onmessage = function (e) {
     buckets[bucket] = values;
   }
 
+  delete total.items;
+  delete total.variance;
+
   const result = { total, ...buckets };
 
+  // handling of tests
+  // console.log({
+  //   evaluation: !!this.mockedPostMessage,
+  //   value: this.mockedPostMessage,
+  // });
+  if (this.mockedPostMessage) {
+    this.mockedPostMessage({ result, transaction });
+    return;
+  }
   postMessage({ result, transaction });
 };

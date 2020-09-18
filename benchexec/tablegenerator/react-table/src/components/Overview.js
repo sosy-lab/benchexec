@@ -7,7 +7,6 @@
 
 import React from "react";
 import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { enqueue } from "../workers/workerDirector";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -59,80 +58,6 @@ export default class Overview extends React.Component {
       table,
       stats,
     } = prepareTableData(props.data);
-
-    const prepareRows = (rows, toolIdx, categoryAccessor, statusAccessor) => {
-      const categoryMapping = {
-        correct: "correct",
-        "correct-unconfirmed": "correctUnconfirmed",
-        wrong: "wrong",
-        unknown: "unknown",
-        error: "error",
-        missing: "missing",
-      };
-
-      const resultMapping = {
-        true: "true",
-        false: "false",
-      };
-
-      return rows.map((row) => {
-        const cat = categoryAccessor(toolIdx, row);
-        const stat = statusAccessor(toolIdx, row);
-
-        const mappedCat = categoryMapping[cat] || "other";
-        const mappedRes = resultMapping[stat] || "other";
-
-        return {
-          categoryType: mappedCat,
-          resultType: mappedRes,
-          row: row.results[toolIdx].values,
-        };
-      });
-    };
-
-    const splitColumnsWithMeta = (preppedRows) => {
-      const out = [];
-      for (const { row, categoryType, resultType } of preppedRows) {
-        for (const columnIdx in row) {
-          const column = Number(row[columnIdx].raw) || undefined;
-          const curr = out[columnIdx] || [];
-          curr.push({ categoryType, resultType, column });
-          out[columnIdx] = curr;
-        }
-      }
-      return out;
-    };
-
-    const test = async () => {
-      const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
-      const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
-      const start = Date.now();
-      const promises = [];
-
-      const splitRows = [];
-
-      for (const toolIdx in tools) {
-        splitRows.push(prepareRows(table, toolIdx, catAccessor, statAccessor));
-      }
-
-      const preparedData = splitRows.map(splitColumnsWithMeta);
-
-      for (const toolDataIdx in preparedData) {
-        const toolData = preparedData[toolDataIdx];
-        const subPromises = [];
-        for (const columns of toolData) {
-          subPromises.push(enqueue({ name: "stats", data: columns }));
-        }
-        promises[toolDataIdx] = subPromises;
-      }
-
-      const allPromises = promises.map((p) => Promise.all(p));
-      const res = await Promise.all(allPromises);
-      console.log({ res });
-      console.log(`Calculation took ${Date.now() - start}ms`);
-    };
-
-    test();
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
@@ -327,10 +252,12 @@ export default class Overview extends React.Component {
                 <Route exact path="/">
                   <Summary
                     tools={this.state.tools}
+                    data={this.state.table}
                     tableHeader={this.tableHeader}
                     version={this.props.data.version}
                     selectColumn={this.toggleSelectColumns}
                     stats={this.stats}
+                    onStatsReady={this.props.onStatsReady}
                     changeTab={this.changeTab}
                     hiddenCols={this.state.hiddenCols}
                   />
