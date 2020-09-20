@@ -44,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 if "Assertion failed" in line:
                     return "ASSERTION"
                 else:
-                    m = re.search(r"Fatal error: exception ([A-Za-z._]+)", line)
+                    m = re.search(r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z._]+)", line)
                     if m:
                         return "EXCEPTION ({})".format(m.group(1))
                     else:
