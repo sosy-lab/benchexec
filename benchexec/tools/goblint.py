@@ -36,6 +36,8 @@ class Tool(benchexec.tools.template.BaseTool):
                 return result.RESULT_TRUE_PROP
             elif line == "SV-COMP (unreach-call): false":
                 return result.RESULT_FALSE_REACH
+            elif "Fixpoint not reached" in line:
+                return result.RESULT_ERROR + " (fixpoint)"
             elif "Fatal error" in line:
                 if "Assertion failed" in line:
                     return "ASSERTION"
