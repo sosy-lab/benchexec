@@ -30,7 +30,11 @@ class Tool(benchexec.tools.template.BaseTool):
         return "Goblint"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        property_options = ["--sets", "ana.specification", propertyfile] if propertyfile is not None else []
+        property_options = (
+            ["--sets", "ana.specification", propertyfile]
+            if propertyfile is not None
+            else []
+        )
         return [executable] + options + property_options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
@@ -48,7 +52,10 @@ class Tool(benchexec.tools.template.BaseTool):
                 if "Assertion failed" in line:
                     return "ASSERTION"
                 else:
-                    m = re.search(r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z._]+)", line)
+                    m = re.search(
+                        r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z._]+)",
+                        line,
+                    )
                     if m:
                         return "EXCEPTION ({})".format(m.group(1))
                     else:
