@@ -29,6 +29,10 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "Goblint"
 
+    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        property_options = ["--sets", "ana.specification", propertyfile] if propertyfile is not None else []
+        return [executable] + options + property_options + tasks
+
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         for line in output:
             line = line.strip()
