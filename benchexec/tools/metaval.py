@@ -8,6 +8,7 @@
 import argparse
 import benchexec.util as util
 import benchexec.tools.template
+from benchexec.tools.template import BaseTool, BaseTool2
 import contextlib
 import os
 import re
@@ -15,7 +16,7 @@ import sys
 import threading
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This is the tool info module for MetaVal.
 
@@ -42,8 +43,8 @@ class Tool(benchexec.tools.template.BaseTool):
         self.lock = threading.Lock()
         self.wrappedTools = {}
 
-    def executable(self):
-        return util.find_executable("metaval.sh")
+    def executable(self, toolLocator):
+        return toolLocator.find_executable("metaval.sh")
 
     def name(self):
         return "metaval"
@@ -77,12 +78,19 @@ class Tool(benchexec.tools.template.BaseTool):
         ):
             return "METAVAL ERROR"
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
-        with self._in_tool_directory(verifierName):
-            return self.wrappedTools[verifierName].determine_result(
-                returncode, returnsignal, output, isTimeout
-            )
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        tool = self.wrappedTools[verifierName]
+        if isinstance(tool, BaseTool2):
+            return tool.determine_result(returncode, returnsignal, output, isTimeout)
+        elif isinstance(tool, BaseTool):
+            with self._in_tool_directory(verifierName):
+                return tool.determine_result(
+                    returncode, returnsignal, output, isTimeout
+                )
+        else:
+            sys.exit("ERROR: unknown BaseTool version.")
+
+    def cmdline(self, executable, options, task, rlimits):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
         parser.add_argument("--metavalVerifierBackend", required=True)
@@ -108,14 +116,32 @@ class Tool(benchexec.tools.template.BaseTool):
                 ).Tool()
 
         if verifierName in self.wrappedTools:
-            with self._in_tool_directory(verifierName) as oldcwd:
+            tool = self.wrappedTools[verifierName]
+            if isinstance(tool, BaseTool2):
+                wrapped_executable = self.wrappedTools[verifierName].executable(
+                    BaseTool2.ToolLocator(
+                        tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
+                    )
+                )
                 wrappedOptions = self.wrappedTools[verifierName].cmdline(
-                    self.wrappedTools[verifierName].executable(),
+                    wrapped_executable,
                     options,
-                    [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                    os.path.relpath(os.path.join(oldcwd, propertyfile)),
+                    [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
                     rlimits,
                 )
+            elif isinstance(tool, BaseTool):
+                with self._in_tool_directory(verifierName) as oldcwd:
+                    wrapped_executable = self.wrappedTools[verifierName].executable()
+                    wrappedOptions = self.wrappedTools[verifierName].cmdline(
+                        wrapped_executable,
+                        options,
+                        [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
+                        os.path.relpath(os.path.join(oldcwd, task.property_file)),
+                        rlimits,
+                    )
+            else:
+                sys.exit("ERROR: unknown BaseTool version.")
+
             return (
                 [
                     executable,
@@ -126,7 +152,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 ]
                 + additionalPathArgument
                 + witnessTypeArgument
-                + tasks
+                + list(task.input_files_or_empty)
                 + ["--"]
                 + wrappedOptions
             )
