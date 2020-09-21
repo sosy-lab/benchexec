@@ -49,6 +49,10 @@ class Tool(benchexec.tools.template.BaseTool):
                         return "EXCEPTION ({})".format(m.group(1))
                     else:
                         return "EXCEPTION"
+            else:
+                m = re.match(r"SV-COMP result: (.*)", line)
+                if m:
+                    return m.group(1)
 
         if isTimeout:
             return "TIMEOUT"
