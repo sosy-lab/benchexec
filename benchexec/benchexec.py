@@ -126,6 +126,14 @@ class BenchExec(object):
         )
 
         parser.add_argument(
+            "--tool-directory",
+            help="Use benchmarked tool from given directory "
+            "instead of looking in PATH and the current directory",
+            metavar="DIR",
+            type=util.non_empty_str,
+        )
+
+        parser.add_argument(
             "-n",
             "--name",
             dest="name",

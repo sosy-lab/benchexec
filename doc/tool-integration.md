@@ -20,9 +20,13 @@ Simply use the name of the tool-info module (without `.py` suffix)
 as the value of the `tool` attribute of the `<benchmark>` tag.
 
 Note that BenchExec needs to be able to find the executable of the tool, of course.
-By default, it searches in the directories of the `PATH` environment variable and in the current directory.
-Thus the easiest way is to run BenchExec directly inside the directory of the tool,
-or to adjust `PATH` accordingly:
+The easiest way to achieve this is to specify the directory of the tool
+with the parameter `--tool-directory` on the command line.
+If this parameter is not given,
+BenchExec searches in the directories of the `PATH` environment variable
+and in the current directory.
+Thus one can also execute BenchExec directly inside the directory of the tool,
+or adjust `PATH` accordingly:
 
     PATH=/path/to/tool/directory:$PATH benchexec ...
 

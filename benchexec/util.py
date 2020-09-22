@@ -9,6 +9,7 @@
 This module contains some useful functions for Strings, XML or Lists.
 """
 
+import argparse
 import collections
 import datetime
 import errno
@@ -221,6 +222,14 @@ def parse_timespan_value(s):
         raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
 
 
+def non_empty_str(s):
+    """Utility for requiring a non-empty string value as command-line parameter."""
+    s = str(s)
+    if not s:
+        raise argparse.ArgumentTypeError("empty string not allowed")
+    return s
+
+
 def expand_filename_pattern(pattern, base_dir):
     """
     Expand a file name pattern containing wildcards, environment variables etc.
@@ -295,14 +304,14 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if exitOnError:
         if found_non_executable:
             sys.exit(  # noqa: R503 always raises
-                "ERROR: Could not find '{0}' executable, "
+                "Could not find '{0}' executable, "
                 "but found file '{1}' that is not executable.".format(
                     program, found_non_executable[0]
                 )
             )
         else:
             sys.exit(  # noqa: R503 always raises
-                "ERROR: Could not find '{0}' executable.".format(program)
+                "Could not find '{0}' executable.".format(program)
             )
     else:
         return fallback
