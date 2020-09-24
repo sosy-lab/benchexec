@@ -403,14 +403,35 @@ class BaseTool2(object, metaclass=ABCMeta):
             )
 
     class Run(namedtuple("Run", ["exit_code", "output", "termination_reason"])):
+        """
+        Represent a run (one tool execution) and its result. While this class is
+        technically a tuple, this should be seen as an implementation detail
+        and the order of elements in the tuple should not be considered.
+        New fields may be added in the future.
+
+        Explanation of files:
+        @param exit_code: an instance of class benchexec.util.ProcessExitCode
+            (contains return code or the signal that led to termination)
+        @param output: the output of the tool as instance of class RunOutput
+        @param termination_reason: reason why BenchExec terminated the run, if any
+            (cf. https://github.com/sosy-lab/benchexec/blob/master/doc/run-results.md,
+            useful to distinguish between program killed because of error and timeout)
+        """
+
         @property
         def was_terminated(self):
-            """Returns whether the tool was terminated by BenchExec due to limits."""
+            """
+            Returns whether the tool was terminated by BenchExec due to a violation
+            of a resource limit or some other reason.
+            """
             return bool(self.termination_reason)
 
         @property
         def was_timeout(self):
-            """Returns whether the tool was terminated by BenchExec due to limits."""
+            """
+            Returns whether the tool was terminated by BenchExec due to a violation
+            of some time limit.
+            """
             return self.termination_reason in ["cputime", "cputime-soft", "walltime"]
 
     class RunOutput(collections.abc.Sequence):
