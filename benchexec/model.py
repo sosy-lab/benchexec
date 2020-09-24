@@ -1072,7 +1072,7 @@ class Run(object):
         assert (
             self.runSet.benchmark.executable is not None
         ), "executor needs to set tool executable"
-        return cmdline_for_run(
+        self._cmdline = cmdline_for_run(
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
             self.options,
@@ -1082,6 +1082,7 @@ class Run(object):
             self.task_options,
             self.runSet.benchmark.rlimits,
         )
+        return self._cmdline
 
     def set_result(self, values, visible_columns={}):
         """Set the result of this run.
@@ -1145,7 +1146,9 @@ class Run(object):
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
             tool_status = self.runSet.benchmark.tool.determine_result(
-                tooladapter.CURRENT_BASETOOL.Run(exitcode, output, termination_reason)
+                tooladapter.CURRENT_BASETOOL.Run(
+                    self._cmdline, exitcode, output, termination_reason
+                )
             )
 
             if tool_status in result.RESULT_LIST_OTHER:

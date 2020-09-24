@@ -457,7 +457,9 @@ class BaseTool2(object, metaclass=ABCMeta):
                 cls, cputime, cputime_hard, walltime, memory, cpu_cores
             )
 
-    class Run(namedtuple("Run", ["exit_code", "output", "termination_reason"])):
+    class Run(
+        namedtuple("Run", ["cmdline", "exit_code", "output", "termination_reason"])
+    ):
         """
         Represent a run (one tool execution) and its result. While this class is
         technically a tuple, this should be seen as an implementation detail
@@ -472,6 +474,10 @@ class BaseTool2(object, metaclass=ABCMeta):
             (cf. https://github.com/sosy-lab/benchexec/blob/master/doc/run-results.md,
             useful to distinguish between program killed because of error and timeout)
         """
+
+        def __new__(cls, cmdline, exit_code, output, termination_reason):
+            cmdline = tuple(cmdline)  # make cmdline immutable
+            return super().__new__(cls, cmdline, exit_code, output, termination_reason)
 
         @property
         def was_terminated(self):

@@ -52,13 +52,15 @@ class TestResult(unittest.TestCase):
 
         runSet.benchmark.tool.determine_result = determine_result
 
-        return Run(
+        run = Run(
             identifier="test.c",
             sourcefiles=["test.c"],
             task_options=None,
             fileOptions=[],
             runSet=runSet,
         )
+        run._cmdline = ["dummy.bin", "test.c"]
+        return run
 
     def test_simple(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
