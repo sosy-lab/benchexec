@@ -467,6 +467,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         New fields may be added in the future.
 
         Explanation of files:
+        @param cmdline: command line as executed (as sequence of strings)
         @param exit_code: an instance of class benchexec.util.ProcessExitCode
             (contains return code or the signal that led to termination)
         @param output: the output of the tool as instance of class RunOutput
