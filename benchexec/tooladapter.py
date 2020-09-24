@@ -13,7 +13,7 @@ This is an internal module for BenchExec and not to be used by tool-info modules
 
 import inspect
 
-from benchexec.tools.template import BaseTool, BaseTool2
+from benchexec.tools.template import BaseTool, BaseTool2, ToolNotFoundException
 
 import benchexec.model
 
@@ -31,7 +31,6 @@ class Tool1To2:
     """
 
     _FORWARDED_METHODS = [
-        "executable",
         "program_files",
         "version",
         "name",
@@ -48,6 +47,22 @@ class Tool1To2:
             setattr(self, method, getattr(wrapped, method))
 
         self.__doc__ = inspect.getdoc(wrapped)
+
+    def executable(self, tool_locator):
+        if tool_locator.tool_directory:
+            raise ToolNotFoundException(
+                "Tool-info module for {} does not support parameter --tool-directory. "
+                "Instead, you can add the tool to PATH, "
+                "execute benchexec from the tool directory, "
+                "or upgrade the tool-info module.".format(self.name())
+            )
+
+        assert tool_locator.use_path and tool_locator.use_current
+        # This is the behavior that old tool-info modules are expected to have.
+        try:
+            return self._wrapped.executable()
+        except SystemExit as e:
+            raise ToolNotFoundException(str(e)) from e
 
     def cmdline(self, executable, options, task, rlimits):
         rlimits_dict = {}
@@ -99,3 +114,14 @@ def adapt_to_current_version(tool):
             "{} is not a subclass of one of the expected base classes "
             "in benchexec.tools.template".format(tool.__class__)
         )
+
+
+def create_tool_locator(config):
+    """
+    Create an instance of ToolLocator with the standard behavior based on the given
+    command-line options.
+    """
+    if config.tool_directory:
+        return CURRENT_BASETOOL.ToolLocator(tool_directory=config.tool_directory)
+    else:
+        return CURRENT_BASETOOL.ToolLocator(use_path=True, use_current=True)

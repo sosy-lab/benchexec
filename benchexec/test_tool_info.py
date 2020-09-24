@@ -17,6 +17,7 @@ import yaml
 import benchexec
 import benchexec.benchexec
 from benchexec import model
+from benchexec import tooladapter
 from benchexec import util
 from benchexec.tooladapter import CURRENT_BASETOOL
 import benchexec.tools.template
@@ -116,13 +117,13 @@ def log_if_unsupported(msg):
         )
 
 
-def print_tool_info(tool):
+def print_tool_info(tool, tool_locator):
     """Print standard info from tool-info module"""
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
     print_value("Name of tool", tool.name())
 
-    executable = tool.executable()
+    executable = tool.executable(tool_locator)
     print_value("Executable", executable)
     if not os.path.isabs(executable):
         print_value("Executable (absolute path)", os.path.abspath(executable))
@@ -137,6 +138,11 @@ def print_tool_info(tool):
         logging.warning("Designated executable does not exist.")
     elif not os.access(executable, os.X_OK):
         logging.warning("Designated executable is not marked as executable.")
+    if tool_locator.tool_directory:
+        abs_directory = os.path.abspath(tool_locator.tool_directory)
+        abs_executable = os.path.abspath(executable)
+        if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
+            logging.warning("Executable is not within specified tool directory.")
 
     try:
         print_value("Version", tool.version(executable))
@@ -329,6 +335,12 @@ def main(argv=None):
     )
     parser.add_argument("tool", metavar="TOOL", help="name of tool info to test")
     parser.add_argument(
+        "--tool-directory",
+        help="look for tool in given directory",
+        metavar="DIR",
+        type=benchexec.util.non_empty_str,
+    )
+    parser.add_argument(
         "--tool-output",
         metavar="OUTPUT_FILE",
         nargs="+",
@@ -349,13 +361,14 @@ def main(argv=None):
     logging.basicConfig(
         format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
     )
+    tool_locator = tooladapter.create_tool_locator(options)
 
     print_value("Name of tool module", options.tool)
     try:
         tool_module, tool = model.load_tool_info(options.tool, options)
         try:
             print_value("Full name of tool module", tool_module)
-            executable = print_tool_info(tool)
+            executable = print_tool_info(tool, tool_locator)
             print_standard_task_cmdlines(tool, executable)
             for task_def_file in options.task_definition:
                 print_task_cmdline(tool, executable, task_def_file)
@@ -367,7 +380,7 @@ def main(argv=None):
             tool.close()
 
     except benchexec.BenchExecException as e:
-        sys.exit(str(e))
+        sys.exit("Error: " + str(e))
 
 
 if __name__ == "__main__":

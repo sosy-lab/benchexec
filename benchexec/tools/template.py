@@ -28,6 +28,14 @@ import benchexec.result as result
 import benchexec.util as util
 
 
+class ToolNotFoundException(benchexec.BenchExecException):
+    """
+    Raised when a tool's executable cannot be found.
+    """
+
+    pass
+
+
 class UnsupportedFeatureException(benchexec.BenchExecException):
     """
     Raised when a tool or its tool-info module does not support a requested feature.
@@ -76,15 +84,16 @@ class BaseTool2(object, metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def executable(self):
+    def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.
         This method always needs to be overridden,
         and should typically delegate to our utility method find_executable. Example:
 
-        return benchexec.util.find_executable("mytool")
+        return tool_locator.find_executable("mytool")
 
         The path returned should be relative to the current directory.
+        @param tool_locator: an instance of class ToolLocator
         @return a string pointing to an executable file
         """
         raise NotImplementedError()
@@ -290,6 +299,52 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
 
     # Classes that are used in parameters above
+
+    class ToolLocator(
+        namedtuple("ToolLocator", ["tool_directory", "use_path", "use_current"])
+    ):
+        def find_executable(self, executable_name, subdir=""):
+            assert (
+                os.path.basename(executable_name) == executable_name
+            ), "Executable needs to be a simple file name"
+            dirs = []
+            if self.tool_directory:
+                # join automatically handles the case where subdir is the empty string
+                dirs.append(os.path.join(self.tool_directory, subdir))
+            if self.use_path:
+                dirs.extend(benchexec.util.get_path())
+            if self.use_current:
+                dirs.append(os.curdir)
+                if subdir:
+                    dirs.append(subdir)
+
+            executable = benchexec.util.find_executable2(executable_name, dirs)
+            if executable:
+                return executable
+
+            other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
+            if other_file:
+                raise ToolNotFoundException(
+                    "Could not find executable '{}', but found file '{}' "
+                    "that is not executable.".format(executable_name, other_file)
+                )
+
+            msg = "Could not find executable '{}'. The searched directories were: {}".format(
+                executable_name, "".join("\n  " + d for d in dirs)
+            )
+            if not self.tool_directory:
+                msg += "\nYou can specify the tool's directory with --tool-directory."
+
+            raise ToolNotFoundException(msg)
+
+        def __new__(cls, tool_directory=None, use_path=False, use_current=False):
+            """
+            Create instance. All parameters have default values that do nothing and
+            at least one parameter needs to be given, otherwise the instance could not
+            do anything.
+            """
+            assert tool_directory or use_path or use_current
+            return super().__new__(cls, tool_directory, use_path, use_current)
 
     class Task(
         namedtuple(
