@@ -501,13 +501,14 @@ class BaseTool2(object, metaclass=ABCMeta):
         This class is basically an immutable list of strings
         and supports all the usual list operations (indexing, iterating, etc.)
         as well as a few other utility methods.
+        Each list entry is one line of the tool's output without line separator.
         """
 
         @property
         def text(self):
             """Return the full output as a single string (with line separators)."""
             if self._text is None:
-                self._text = os.linesep.join(self._lines)
+                self._text = "".join(self._lines)
             return self._text
 
         def any_line_contains(self, substr):
@@ -516,11 +517,13 @@ class BaseTool2(object, metaclass=ABCMeta):
             return any(substr in line for line in self._lines)
 
         def __init__(self, lines):
+            # We keep the original line separators in _lines because then we can
+            # recreate _text exactly and it makes tooladapter.Tool1To2's job easier.
             self._lines = lines
             self._text = None
 
         def __getitem__(self, index):
-            return self._lines[index]
+            return self._lines[index].rstrip(os.linesep)
 
         def __len__(self):
             return len(self._lines)
