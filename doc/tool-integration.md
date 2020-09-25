@@ -47,7 +47,9 @@ Tool-info modules need to define a class named `Tool`
 that inherits from one of the classes in the module `benchexec.tools.template`.
 For compatibility with older tool-info modules, several such classes exist,
 but new tool-info modules should inherit from the latest class,
-`benchexec.tools.template.BaseTool2`.
+`benchexec.tools.template.BaseTool2`
+(for updating older tool-info modules, cf. our
+[migration guide](#migrating-tool-info-modules-to-new-api)) at the end of this document.
 
 The `template` module also contains the full [documentation](../benchexec/tools/template.py)
 on how to write such a tool-info module.
@@ -146,3 +148,73 @@ This assumes that the package `tools` is already in your Python search path,
 for example because it is inside the current directory.
 If not, you can extend the search path by specifying the *parent* directory
 of the package directory in the `PYTHONPATH` environment variable.
+
+
+### Migrating Tool-Info Modules to new API
+It is recommended to upgrade tool-info modules that do not yet inherit from `BaseTool2`
+in order to be able to take advantage of new features like `--tool-directory`.
+Upgrading should be straight forward in most cases
+because the general structure of the APIs defined by `BaseTool` and `BaseTool2`
+is the same.
+The following assumes familiarity with the API of `BaseTool`
+and explains the differences of `BaseTool2`,
+it can serve as a step-by-step migration guide.
+Everything not mentioned does not need to be changed.
+
+- **General remarks**: Tool-info modules should not rely on any part of BenchExec
+  except for what is defined within the `BaseTool2` class
+  and the necessary `benchexec.result.RESULT_*` constants.
+  Everything else is subject to change.
+  In particular, `benchexec.util` should no longer be imported.
+- **Class definition**: The tool-info module's class now needs to inherit from
+  `benchexec.tools.template.BaseTool2`.
+- **Method `executable`**:
+  This method now has one parameter, `tool_locator`.
+  Instead of calling `benchexec.util.find_executable()`,
+  call `tool_locator.find_executable()`.
+  If the executable is expected in a subdirectory like `bin`,
+  pass the executable name on its own and use the parameter `subdir`
+  (Example: `tool_locator.find_executable("foo", subdir="bin")`
+  instead of `util.find_executable("foo", "bin/foo")`.)
+  If the executable cannot be found,
+  `executable` should raise `ToolNotFoundException` now
+  (`tool_locator.find_executable()` does that automatically).
+- **Method `cmdline`**:
+  Previously it was common to have default values for some parameters,
+  this is no longer recommended.
+  - The parameters `tasks` and `propertyfile` have been replaced with
+    one parameter `task` that contains an instance of `BaseTool2.Task`.
+    An exact replacement of `tasks` is `list(task.input_files_or_identifier)`,
+    though many tool-info modules can use `task.input_files` instead
+    to automatically fail if the current task has no input files.
+    The property file is available as `task.property_file`.
+  - Task-definition files can now contain additional arbitrary information
+    in a key named `options`.
+    Whatever is contained in this key is passed to the method `cmdline`
+    as `task.options`, whereas the parameter `options`
+    continues to contain the parameters defined in the benchmark definition
+    within `<option>` tags.
+  - The parameter `rlimits` is now a proper object instead of a dict,
+    cf. documentation of `BaseTool2.ResourceLimits`.
+- **Method `determine_result`**:
+  There is now only a single parameter `run` that contains
+  an instance of `BaseTool2.Run`.
+  - The command line of the run is now available as `run.cmdline`.
+  - The parameter `returncode` was replaced by `run.exit_code.value`,
+    which is `None` instead of `0` if the tool was terminated by a signal.
+  - The parameter `returnsignal` was replaced by `run.exit_code.signal`,
+    which is `None` instead of `0` if the tool terminated itself.
+  - The parameter `output` was replaced by an instance of `BaseTool2.RunOutput`
+    in `run.output`.
+    This is still a sequence of strings, but without line separators,
+    so calling `strip()` while iterating through it is often no longer necessary
+    and code like `"result line" in run.output` works as expected.
+    `RunOutput` also has additional utility methods.
+  - The parameter `isTimeout` was replaced by `run.was_timeout`,
+    but more information is now available
+    as `run.was_terminated` and `run.termination_reason`.
+- **Method `get_value_from_output`**:
+  The parameter `lines` (list of strings with line separators) was replaced
+  by the parameter `output` that contains an instance of `BaseTool2.RunOutput`
+  (list of strings without line separators plus utility methods)
+  like for `determine_result`.

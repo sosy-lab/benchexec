@@ -53,6 +53,16 @@ class BaseTool2(object, metaclass=ABCMeta):
     usually determine_result(), cmdline(), and version(),
     and maybe working_directory() and get_value_from_output(), too).
 
+    BenchExec will then instantiate the tool-info module's class
+    and call the methods that return general information about the tool first.
+    Afterwards, the run-specific methods will be called.
+    Apart from this, no guarantee is made about which methods are called
+    and in which order. In particular, the class must not assume that determine_result()
+    will be called for a run result immediately after cmdline() was called for that run.
+    It is guaranteed, however, that one instance of the class will only be used for
+    one instance of the tool (in one location), so for example the result from version()
+    may be stored in an attribute and other methods can safely rely on this.
+
     In special circumstances, it can make sense to not inherit from this class.
     In such cases the tool-info module's class needs to implement all the methods
     defined here and BaseTool2.register needs to be called with the respective class
@@ -60,7 +70,9 @@ class BaseTool2(object, metaclass=ABCMeta):
     Note that we might add optional methods (with default implementations) to BaseTool2
     at any time.
 
-    This class is supported since BenchExec 3.2.
+    This class is supported since BenchExec 3.3.
+    For older tool-info modules that still inherit from BaseTool we provide a
+    [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
     """
 
     REQUIRED_PATHS = []
@@ -292,6 +304,11 @@ class BaseTool2(object, metaclass=ABCMeta):
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
         It may contain HTML code, which will be rendered appropriately in the HTML tables.
+
+        Note that this method may be called without any of the other methods called
+        before it and without any existing installation of the tool on this machine
+        (because table-generator uses this method).
+
         @param output: The output of the tool as instance of class RunOutput.
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
@@ -543,8 +560,10 @@ class BaseTool(object):
     usually determine_result(), cmdline(), and version(),
     and maybe working_directory() and get_value_from_output(), too).
 
-    Support for tool-info modules based on this class might be dropped in BenchExec 4.0
-    or later.
+    Note that tool-info modules that inherit from this class cannot make use of all of
+    BenchExec's features and that we may drop support for such modules in BenchExec 4.0.
+    It is thus recommended to upgrade all such tool-info modules to BaseTool2, cf. our
+    [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
     """
 
     REQUIRED_PATHS = []
