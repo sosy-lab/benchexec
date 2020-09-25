@@ -65,27 +65,12 @@ class Tool1To2:
             raise ToolNotFoundException(str(e)) from e
 
     def cmdline(self, executable, options, task, rlimits):
-        rlimits_dict = {}
-
-        def copy_limit_if_present(field, key):
-            value = getattr(rlimits, field)
-            if value:
-                rlimits_dict[key] = value
-
-        if rlimits.cputime != rlimits.cputime_hard:
-            # in old API, soft time limit only exists if different from time limit
-            copy_limit_if_present("cputime", benchexec.model.SOFTTIMELIMIT)
-        copy_limit_if_present("cputime_hard", benchexec.model.TIMELIMIT)
-        copy_limit_if_present("walltime", benchexec.model.WALLTIMELIMIT)
-        copy_limit_if_present("memory", benchexec.model.MEMLIMIT)
-        copy_limit_if_present("cpu_cores", benchexec.model.CORELIMIT)
-
         return self._wrapped.cmdline(
             executable,
             options,
             list(task.input_files_or_identifier),
             task.property_file,
-            rlimits_dict,
+            convert_resource_limits_to_dict(rlimits),
         )
 
     def determine_result(self, run):
@@ -125,3 +110,25 @@ def create_tool_locator(config):
         return CURRENT_BASETOOL.ToolLocator(tool_directory=config.tool_directory)
     else:
         return CURRENT_BASETOOL.ToolLocator(use_path=True, use_current=True)
+
+
+def convert_resource_limits_to_dict(rlimits):
+    """
+    Convert an instance of ResourceLimits to the equivalent dict as used previously.
+    """
+    rlimits_dict = {}
+
+    def copy_limit_if_present(field, key):
+        value = getattr(rlimits, field)
+        if value:
+            rlimits_dict[key] = value
+
+    if rlimits.cputime != rlimits.cputime_hard:
+        # in old API, soft time limit only exists if different from time limit
+        copy_limit_if_present("cputime", benchexec.model.SOFTTIMELIMIT)
+    copy_limit_if_present("cputime_hard", benchexec.model.TIMELIMIT)
+    copy_limit_if_present("walltime", benchexec.model.WALLTIMELIMIT)
+    copy_limit_if_present("memory", benchexec.model.MEMLIMIT)
+    copy_limit_if_present("cpu_cores", benchexec.model.CORELIMIT)
+
+    return rlimits_dict
