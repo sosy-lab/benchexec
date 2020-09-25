@@ -84,16 +84,16 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def _get_additional_options(self, existing_options, propertyfile, rlimits):
         options = []
-        if rlimits.cputime:
-            if "-timelimit" not in existing_options:
-                options = options + ["-timelimit", str(rlimits.cputime) + "s"]
+        if rlimits.cputime and "-timelimit" not in existing_options:
+            options += ["-timelimit", str(rlimits.cputime) + "s"]
 
         if "-stats" not in existing_options:
-            options = options + ["-stats"]
+            options += ["-stats"]
 
-        spec = ["-spec", propertyfile] if propertyfile is not None else []
+        if propertyfile:
+            options += ["-spec", propertyfile]
 
-        return options + spec
+        return options
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(
