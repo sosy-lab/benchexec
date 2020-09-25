@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Required, string with format version of this file
-format_version: "1.1"
+format_version: "2.0"
 
 # Required, either a string or a list of strings with file-name patterns.
 # Relative paths interpreted as relative to this file.
