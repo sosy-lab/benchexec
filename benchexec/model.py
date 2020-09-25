@@ -31,6 +31,9 @@ WALLTIMELIMIT = "walltimelimit"
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 _ERROR_RESULTS_FOR_TERMINATION_REASON = {
+    "cputime": "TIMEOUT",
+    "cputime-soft": "TIMEOUT",
+    "walltime": "TIMEOUT",
     "memory": "OUT OF MEMORY",
     "killed": "KILLED",
     "failed": "FAILED",
@@ -1069,7 +1072,7 @@ class Run(object):
         assert (
             self.runSet.benchmark.executable is not None
         ), "executor needs to set tool executable"
-        return cmdline_for_run(
+        self._cmdline = cmdline_for_run(
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
             self.options,
@@ -1079,6 +1082,7 @@ class Run(object):
             self.task_options,
             self.runSet.benchmark.rlimits,
         )
+        return self._cmdline
 
     def set_result(self, values, visible_columns={}):
         """Set the result of this run.
@@ -1110,14 +1114,6 @@ class Run(object):
 
         termination_reason = values.get("terminationreason")
 
-        # Termination reason was not fully precise for timeouts, so we guess "timeouts"
-        # if time is too high. Since removal of ulimit time limit this should not be
-        # necessary, but also does not harm. We might reconsider this in the future.
-        isTimeout = (
-            termination_reason in ["cputime", "cputime-soft", "walltime"]
-            or self._is_timeout()
-        )
-
         # read output
         try:
             with open(self.log_file, "rt", errors="ignore") as outputFile:
@@ -1127,10 +1123,9 @@ class Run(object):
         except OSError as e:
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
+        output = tooladapter.CURRENT_BASETOOL.RunOutput(output)
 
-        self.status = self._analyze_result(
-            exitcode, output, isTimeout, termination_reason
-        )
+        self.status = self._analyze_result(exitcode, output, termination_reason)
         self.category = result.get_result_category(
             self.expected_results, self.status, self.properties
         )
@@ -1143,7 +1138,7 @@ class Run(object):
                 output, substitutedColumnText
             )
 
-    def _analyze_result(self, exitcode, output, isTimeout, termination_reason):
+    def _analyze_result(self, exitcode, output, termination_reason):
         """Return status according to result and output of tool."""
 
         # Ask tool info.
@@ -1151,7 +1146,9 @@ class Run(object):
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
             tool_status = self.runSet.benchmark.tool.determine_result(
-                exitcode.value or 0, exitcode.signal or 0, output, isTimeout
+                tooladapter.CURRENT_BASETOOL.Run(
+                    self._cmdline, exitcode, output, termination_reason
+                )
             )
 
             if tool_status in result.RESULT_LIST_OTHER:
@@ -1175,7 +1172,10 @@ class Run(object):
         # so we do this only if the result is a "normal" one like TRUE/FALSE
         # or an unspecific one like UNKNOWN/ERROR.
         status = None
-        if isTimeout:
+        if self._is_timeout():
+            # Termination reason was not fully precise for timeouts, so we double check
+            # the consumed time against the limits. Since removal of ulimit time limit
+            # this should not be necessary, but also does not harm.
             status = "TIMEOUT"
         elif termination_reason:
             status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(

@@ -17,6 +17,7 @@ https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
 
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
+import collections
 import copy
 import os
 import logging
@@ -270,7 +271,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return [executable, *options, *task.input_files_or_identifier]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         If the tool gave a result, this method needs to return one of the
@@ -282,21 +283,17 @@ class BaseTool2(object, metaclass=ABCMeta):
         can be returned (this is also the default implementation).
         BenchExec will then automatically add some more information
         if the tool was killed due to a timeout, segmentation fault, etc.
-        @param returncode: the exit code of the program, 0 if the program was killed
-        @param returnsignal: the signal that killed the program, 0 if program exited itself
-        @param output: a list of strings of output lines of the tool (both stdout and stderr)
-        @param isTimeout: whether the result is a timeout
-        (useful to distinguish between program killed because of error and timeout)
+        @param run: information about the run as instanceof of class Run
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
         return result.RESULT_DONE
 
-    def get_value_from_output(self, lines, identifier):
+    def get_value_from_output(self, output, identifier):
         """
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
         It may contain HTML code, which will be rendered appropriately in the HTML tables.
-        @param lines: The output of the tool as list of lines.
+        @param output: The output of the tool as instance of class RunOutput.
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
@@ -459,6 +456,81 @@ class BaseTool2(object, metaclass=ABCMeta):
             return super().__new__(
                 cls, cputime, cputime_hard, walltime, memory, cpu_cores
             )
+
+    class Run(
+        namedtuple("Run", ["cmdline", "exit_code", "output", "termination_reason"])
+    ):
+        """
+        Represent a run (one tool execution) and its result. While this class is
+        technically a tuple, this should be seen as an implementation detail
+        and the order of elements in the tuple should not be considered.
+        New fields may be added in the future.
+
+        Explanation of files:
+        @param cmdline: command line as executed (as sequence of strings)
+        @param exit_code: an instance of class benchexec.util.ProcessExitCode
+            (contains return code or the signal that led to termination)
+        @param output: the output of the tool as instance of class RunOutput
+        @param termination_reason: reason why BenchExec terminated the run, if any
+            (cf. https://github.com/sosy-lab/benchexec/blob/master/doc/run-results.md,
+            useful to distinguish between program killed because of error and timeout)
+        """
+
+        def __new__(cls, cmdline, exit_code, output, termination_reason):
+            cmdline = tuple(cmdline)  # make cmdline immutable
+            return super().__new__(cls, cmdline, exit_code, output, termination_reason)
+
+        @property
+        def was_terminated(self):
+            """
+            Returns whether the tool was terminated by BenchExec due to a violation
+            of a resource limit or some other reason.
+            """
+            return bool(self.termination_reason)
+
+        @property
+        def was_timeout(self):
+            """
+            Returns whether the tool was terminated by BenchExec due to a violation
+            of some time limit.
+            """
+            return self.termination_reason in ["cputime", "cputime-soft", "walltime"]
+
+    class RunOutput(collections.abc.Sequence):
+        """
+        Represent the output (stdin and stdout) of a run, separated into lines.
+        This class is basically an immutable list of strings
+        and supports all the usual list operations (indexing, iterating, etc.)
+        as well as a few other utility methods.
+        Each list entry is one line of the tool's output without line separator.
+        """
+
+        @property
+        def text(self):
+            """Return the full output as a single string (with line separators)."""
+            if self._text is None:
+                self._text = "".join(self._lines)
+            return self._text
+
+        def any_line_contains(self, substr):
+            """Check whether at least one line in the output contains substr."""
+            assert "\n" not in substr  # would never match
+            return any(substr in line for line in self._lines)
+
+        def __init__(self, lines):
+            # We keep the original line separators in _lines because then we can
+            # recreate _text exactly and it makes tooladapter.Tool1To2's job easier.
+            self._lines = lines
+            self._text = None
+
+        def __getitem__(self, index):
+            return self._lines[index].rstrip(os.linesep)
+
+        def __len__(self):
+            return len(self._lines)
+
+        def __str__(self):
+            return self.text
 
 
 class BaseTool(object):

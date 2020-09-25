@@ -260,6 +260,9 @@ def print_standard_task_cmdlines(tool, executable):
         )
         print_list("Command line CPU-time limit", cmdline)
 
+    # This will return the last command line that did not trigger an exception
+    return cmdline
+
 
 def print_task_cmdline(tool, executable, task_def_file):
     """Print command lines resulting for tasks from the given task-definition file."""
@@ -296,7 +299,7 @@ def print_task_cmdline(tool, executable, task_def_file):
             print_cmdline("with property " + property_file, property_file)
 
 
-def analyze_tool_output(tool, file):
+def analyze_tool_output(tool, file, dummy_cmdline):
     try:
         output = file.readlines()
     except (OSError, UnicodeDecodeError) as e:
@@ -304,9 +307,10 @@ def analyze_tool_output(tool, file):
         return
 
     try:
-        result = tool.determine_result(
-            returncode=0, returnsignal=0, output=output, isTimeout=False
-        )
+        exit_code = util.ProcessExitCode.create(value=0)
+        output = CURRENT_BASETOOL.RunOutput(output)
+        run = CURRENT_BASETOOL.Run(dummy_cmdline, exit_code, output, None)
+        result = tool.determine_result(run)
         print_value(
             "Result of analyzing tool output in “" + file.name + "”",
             result,
@@ -368,13 +372,13 @@ def main(argv=None):
         try:
             print_value("Full name of tool module", tool_module)
             executable = print_tool_info(tool, tool_locator)
-            print_standard_task_cmdlines(tool, executable)
+            dummy_cmdline = print_standard_task_cmdlines(tool, executable)
             for task_def_file in options.task_definition:
                 print_task_cmdline(tool, executable, task_def_file)
 
             if options.tool_output:
                 for file in options.tool_output:
-                    analyze_tool_output(tool, file)
+                    analyze_tool_output(tool, file, dummy_cmdline)
         finally:
             tool.close()
 

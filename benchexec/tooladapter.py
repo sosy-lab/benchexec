@@ -34,8 +34,6 @@ class Tool1To2:
         "program_files",
         "version",
         "name",
-        "determine_result",
-        "get_value_from_output",
         "working_directory",
         "environment",
     ]
@@ -89,6 +87,17 @@ class Tool1To2:
             task.property_file,
             rlimits_dict,
         )
+
+    def determine_result(self, run):
+        return self._wrapped.determine_result(
+            run.exit_code.value or 0,
+            run.exit_code.signal or 0,
+            run.output._lines,
+            run.was_timeout,
+        )
+
+    def get_value_from_output(self, output, identifier):
+        return self._wrapped.get_value_from_output(output._lines, identifier)
 
 
 def adapt_to_current_version(tool):
