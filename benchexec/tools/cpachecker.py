@@ -82,7 +82,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "CPAchecker"
 
-    def _get_additional_options(self, existing_options, propertyfile, rlimits):
+    def _get_additional_options(self, existing_options, task, rlimits):
         options = []
         if rlimits.cputime and "-timelimit" not in existing_options:
             options += ["-timelimit", str(rlimits.cputime) + "s"]
@@ -90,15 +90,27 @@ class Tool(benchexec.tools.template.BaseTool2):
         if "-stats" not in existing_options:
             options += ["-stats"]
 
-        if propertyfile:
-            options += ["-spec", propertyfile]
+        if task.property_file:
+            options += ["-spec", task.property_file]
+
+        if isinstance(task.options, dict) and task.options.get("language") == "C":
+            data_model = task.options.get("data_model")
+            if data_model:
+                data_model_option = {"ILP32": "-32", "LP64": "-64"}.get(data_model)
+                if data_model_option:
+                    if data_model_option not in existing_options:
+                        options += [data_model_option]
+                else:
+                    raise benchexec.tools.template.UnsupportedFeatureException(
+                        "Unsupported data_model '{}' defined for task '{}'".format(
+                            data_model, task
+                        )
+                    )
 
         return options
 
     def cmdline(self, executable, options, task, rlimits):
-        additional_options = self._get_additional_options(
-            options, task.property_file, rlimits
-        )
+        additional_options = self._get_additional_options(options, task, rlimits)
         return (
             [executable]
             + options
