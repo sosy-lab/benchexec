@@ -342,7 +342,6 @@ def _zipdir(path, zipfile, abs_base_dir):
 
 
 def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
-
     with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file in abs_paths:
             if not os.path.exists(file):
@@ -366,9 +365,11 @@ def getBenchmarkData(benchmark):
     r = benchmark.requirements
     # These values are currently not used internally, but the goal is
     # to eventually integrate them in a later stage.
-    if r.cpu_cores is None or r.cpu_model is None or r.memory is None:
+    if r.cpu_model is None:
+        r.cpu_model = "AmazonAWS"
+    if r.cpu_cores is None or r.memory is None:
         raise BenchExecException(
-            "The entry for either the amount of used cpu cores, model, or memory "
+            "The entry for either the amount of used cpu cores or memory "
             "is missing from the benchmark definition"
         )
     requirements = {
@@ -600,26 +601,20 @@ def parse_aws_run_result(values):
         if key in ["cputime", "walltime"]:
             result_values[key] = parse_time_value(value)
         elif key == "memory":
-            result_values["memory"] = int(value.strip("B"))
+            result_values["memory"] = benchexec.util.parse_memory_value(value)
         elif key == "exitcode":
             set_exitcode(benchexec.util.ProcessExitCode.from_raw(int(value)))
         elif key == "returnvalue":
             set_exitcode(benchexec.util.ProcessExitCode.create(value=int(value)))
         elif key == "exitsignal":
             set_exitcode(benchexec.util.ProcessExitCode.create(signal=int(value)))
-        elif (
-            key in ["host", "terminationreason", "cpuCores", "memoryNodes", "starttime"]
-            or key.startswith("blkio-")
-            or key.startswith("cpuenergy")
-            or key.startswith("energy-")
-            or key.startswith("cputime-cpu")
-        ):
-            result_values[key] = value
+        elif key == "aws_instance_frequency":
+            result_values[key] = benchexec.util.parse_frequency_value(value)
         elif key in [
+            "starttime",
             "aws_instance_os",
             "aws_instance_cpu_name",
             "aws_instance_cores",
-            "aws_instance_frequency",
             "aws_instance_memory",
             "aws_instance_type",
         ]:
