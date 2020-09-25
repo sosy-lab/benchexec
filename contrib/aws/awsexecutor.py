@@ -379,7 +379,7 @@ def getBenchmarkData(benchmark):
     }
 
     # get limits and number of runs
-    time_limit = benchmark.rlimits.cputime
+    time_limit = benchmark.rlimits.cputime_hard
     mem_limit = bytes_to_mb(benchmark.rlimits.memory)
     if time_limit is None or mem_limit is None:
         raise BenchExecException(
