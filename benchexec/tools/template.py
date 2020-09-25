@@ -110,8 +110,8 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return ""
 
+    @staticmethod
     def _version_from_tool(
-        self,
         executable,
         arg="--version",
         use_stderr=False,
@@ -220,9 +220,8 @@ class BaseTool2(object, metaclass=ABCMeta):
             executable, self.REQUIRED_PATHS
         )
 
-    def _program_files_from_executable(
-        self, executable, required_paths, parent_dir=False
-    ):
+    @staticmethod
+    def _program_files_from_executable(executable, required_paths, parent_dir=False):
         """
         Get a list of program files by expanding a list of path patterns
         and interpreting it as relative to the executable.
