@@ -260,6 +260,19 @@ def print_standard_task_cmdlines(tool, executable):
         )
         print_list("Command line CPU-time limit", cmdline)
 
+    with log_if_unsupported("SV-Benchmarks task"):
+        cmdline = model.cmdline_for_run(
+            tool,
+            executable,
+            [],
+            ["INPUT.FILE"],
+            None,
+            "PROPERTY.PRP",
+            {"language": "C", "data_model": "ILP32"},
+            CURRENT_BASETOOL.ResourceLimits(cputime=900, cputime_hard=1000),
+        )
+        print_list("Command line SV-Benchmarks task", cmdline)
+
     # This will return the last command line that did not trigger an exception
     return cmdline
 
