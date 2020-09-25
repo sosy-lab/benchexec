@@ -579,27 +579,9 @@ class BaseTool(object):
             executable, self.REQUIRED_PATHS
         )
 
-    def _program_files_from_executable(
-        self, executable, required_paths, parent_dir=False
-    ):
-        """
-        Get a list of program files by expanding a list of path patterns
-        and interpreting it as relative to the executable.
-        This method can be used as helper for implementing the method program_files().
-        Contrary to the default implementation of program_files(), this method does not explicitly
-        add the executable to the list of returned files, it assumes that required_paths
-        contains a path that covers the executable.
-        @param executable: the path to the executable of the tool (typically the result of executable())
-        @param required_paths: a list of required path patterns
-        @param parent_dir: whether required_paths are relative to the directory of executable or the parent directory
-        @return a list of paths as strings, suitable for result of program_files()
-        """
-        base_dir = os.path.dirname(executable)
-        if parent_dir:
-            base_dir = os.path.join(base_dir, os.path.pardir)
-        return util.flatten(
-            util.expand_filename_pattern(path, base_dir) for path in required_paths
-        )
+    def _program_files_from_executable(self, *args, **kwargs):
+        # Just delegate to same method in BaseTool2 to avoid duplicate code.
+        return BaseTool2._program_files_from_executable(*args, **kwargs)
 
     def version(self, executable):
         """
@@ -613,59 +595,9 @@ class BaseTool(object):
         """
         return ""
 
-    def _version_from_tool(
-        self,
-        executable,
-        arg="--version",
-        use_stderr=False,
-        ignore_stderr=False,
-        line_prefix=None,
-    ):
-        """
-        Get version of a tool by executing it with argument "--version"
-        and returning stdout.
-        @param executable: the path to the executable of the tool (typically the result of executable())
-        @param arg: an argument to pass to the tool to let it print its version
-        @param use_stderr: True if the tool prints version on stderr, False for stdout
-        @param line_prefix: if given, search line with this prefix and return only the rest of this line
-        @return a (possibly empty) string of output of the tool
-        """
-        try:
-            process = subprocess.Popen(
-                [executable, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            (stdout, stderr) = process.communicate()
-        except OSError as e:
-            logging.warning(
-                "Cannot run {0} to determine version: {1}".format(
-                    executable, e.strerror
-                )
-            )
-            return ""
-        if stderr and not use_stderr and not ignore_stderr:
-            logging.warning(
-                "Cannot determine {0} version, error output: {1}".format(
-                    executable, util.decode_to_string(stderr)
-                )
-            )
-            return ""
-        if process.returncode:
-            logging.warning(
-                "Cannot determine {0} version, exit code {1}".format(
-                    executable, process.returncode
-                )
-            )
-            return ""
-
-        output = util.decode_to_string(stderr if use_stderr else stdout).strip()
-        if line_prefix:
-            matches = (
-                line[len(line_prefix) :].strip()
-                for line in output.splitlines()
-                if line.startswith(line_prefix)
-            )
-            output = next(matches, "")
-        return output
+    def _version_from_tool(self, *args, **kwargs):
+        # Just delegate to same method in BaseTool2 to avoid duplicate code.
+        return BaseTool2._version_from_tool(*args, **kwargs)
 
     def name(self):
         """
