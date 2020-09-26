@@ -9,6 +9,40 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.3
+
+- New API for tool-info modules (needed by `benchexec` for getting information
+  about the benchmarked tool). The new API is defined by class
+  [`benchexec.tools.template.BaseTool2`](https://github.com/sosy-lab/benchexec/blob/master/benchexec/tools/template.py)
+  and is similar to the old API, but more convenient to use and provides more
+  useful information to the tool-info module.
+  The old API is still supported
+  and will be removed no sooner than in BenchExec 4.0. We also provide a
+  [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
+- A new parameter `--tool-directory` for `benchexec` allows to specify
+  the installation directory of the benchmarked tool easily
+  without having to modify `PATH` or change into the tool's directory.
+  Note that this only works if the respective tool-info module
+  makes use of the new `BaseTool2` API.
+- New version 2.0 of the
+  [task-definition format](https://github.com/sosy-lab/benchexec/blob/master/doc/benchexec.md#task-definition-files)
+  for `benchexec`.
+  This format allows to specify arbitrary additional information in a key
+  named `options` and `benchexec` will pass everything in this key
+  to the tool-info module, but note that this only works
+  if the respective tool-info module makes use of the new `BaseTool2` API.
+  This is useful to add domain-specific information about tasks, for example
+  in the [SV-Benchmarks](https://github.com/sosy-lab/sv-benchmarks#task-definitions)
+  repository it is used to declare the program language.
+  BenchExec also still supports version 1.0 of the format.
+
+- `table-generator` is now defined to work on Windows
+  and we test this in continuous integration.
+  Previously, it probably was working on Windows most of the time
+  but we did not systematically test this.
+- Fix a crash in `benchexec` for task with property
+  but without task-definition file.
+
 ## BenchExec 3.2
 
 - The HTML tables produced by `table-generator` now provide a score-based
