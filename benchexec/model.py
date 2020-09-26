@@ -44,7 +44,7 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
 _EXPECTED_RESULT_FILTER_VALUES = {True: "true", False: "false", None: "unknown"}
 _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = False
 
-_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "1.1"])
+_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "2.0"])
 
 
 def substitute_vars(oldList, runSet=None, task_file=None):
@@ -108,10 +108,10 @@ def load_task_definition_file(task_def_file):
             )
         )
 
-    if format_version != "1.1" and "options" in task_def:
+    if format_version != "2.0" and "options" in task_def:
         raise BenchExecException(
             "Task-definition file {} specifies invalid key 'options', "
-            "format_version needs to be at least 1.1 for this.".format(task_def_file)
+            "format_version needs to be at least 2.0 for this.".format(task_def_file)
         )
 
     return task_def
