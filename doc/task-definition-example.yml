@@ -5,6 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# The official definition of this format is at
+# https://gitlab.com/sosy-lab/software/task-definition-format
+
 # Required, string with format version of this file
 format_version: "2.0"
 
