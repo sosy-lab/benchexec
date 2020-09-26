@@ -21,7 +21,6 @@ import zipfile
 import benchexec.util
 
 from benchexec import BenchExecException
-from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -380,15 +379,15 @@ def getBenchmarkData(benchmark):
     }
 
     # get limits and number of runs
-    time_limit = benchmark.rlimits.get(TIMELIMIT, None)
-    mem_limit = bytes_to_mb(benchmark.rlimits.get(MEMLIMIT, None))
+    time_limit = benchmark.rlimits.cputime_hard
+    mem_limit = bytes_to_mb(benchmark.rlimits.memory)
     if time_limit is None or mem_limit is None:
         raise BenchExecException(
             "An entry for either the time- or memory-limit is missing "
             "in the benchmark definition"
         )
 
-    core_limit = benchmark.rlimits.get(CORELIMIT, None)
+    core_limit = benchmark.rlimits.cpu_cores
     number_of_runs = sum(
         len(run_set.runs)
         for run_set in benchmark.run_sets

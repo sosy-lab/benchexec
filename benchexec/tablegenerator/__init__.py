@@ -27,6 +27,7 @@ from xml.etree import ElementTree
 from benchexec import __version__, BenchExecException
 import benchexec.model as model
 import benchexec.result as result
+import benchexec.tooladapter as tooladapter
 import benchexec.util
 from benchexec.tablegenerator import htmltable, statistics, util
 from benchexec.tablegenerator.columns import Column
@@ -306,7 +307,8 @@ def load_tool(result):
             return None
         try:
             logging.debug("Loading %s", tool_module)
-            return __import__(tool_module, fromlist=["Tool"]).Tool()
+            tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            return tooladapter.adapt_to_current_version(tool)
         except ImportError as ie:
             logging.warning(
                 'Missing module "%s", cannot extract values from log files (ImportError: %s).',
@@ -318,6 +320,13 @@ def load_tool(result):
                 'The module "%s" does not define the necessary class Tool, '
                 "cannot extract values from log files.",
                 tool_module,
+            )
+        except TypeError as te:
+            logging.warning(
+                'Unsupported module "%s", cannot extract values from log files '
+                "(TypeError: %s).",
+                tool_module,
+                te,
             )
         return None
 
@@ -392,7 +401,8 @@ class RunSetResult(object):
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
-            return load_tool(self).get_value_from_output(lines, identifier)
+            output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)
+            return load_tool(self).get_value_from_output(output, identifier)
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}

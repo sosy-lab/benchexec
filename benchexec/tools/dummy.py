@@ -7,10 +7,9 @@
 
 import benchexec.tools.template
 import benchexec.result as result
-import benchexec.util as util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This tool is an imaginary tool that can be made to output any result.
     It may be useful for debugging.
@@ -21,23 +20,23 @@ class Tool(benchexec.tools.template.BaseTool):
     picks the first line that looks like a result).
     """
 
-    def executable(self):
-        return util.find_executable("shuf")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("shuf")
 
     def name(self):
         return "DummyTool"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         return (
             [executable, "--echo", "--"]
             + options
-            + ["Input file: " + f for f in tasks]
-            + ["Property file: " + (propertyfile or "None")]
+            + ["Input file: " + f for f in task.input_files_or_empty]
+            + ["Property file: " + (task.property_file or "None")]
+            + (["Task options: " + repr(task.options)] if task.options else [])
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        for line in output:
-            line = line.strip()
+    def determine_result(self, run):
+        for line in run.output:
             if result.get_result_classification(line) != result.RESULT_CLASS_OTHER:
                 return line
         return result.RESULT_UNKNOWN
