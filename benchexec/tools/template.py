@@ -425,7 +425,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             Return either the sequence of input files or a one-element sequence with the
             identifier. Useful for adding either to the command line arguments.
             """
-            return self.input_files_or_empty or tuple(self.identifier)
+            return self.input_files_or_empty or (self.identifier,)
 
         def require_input_files(self):
             """
