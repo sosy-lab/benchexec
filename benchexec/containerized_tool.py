@@ -17,12 +17,20 @@ import signal
 import socket
 import tempfile
 
-from benchexec import BenchExecException, container, containerexecutor, libc, util
-import benchexec.tools.template
+from benchexec import (
+    BenchExecException,
+    container,
+    containerexecutor,
+    libc,
+    tooladapter,
+    util,
+)
 
 
-class ContainerizedTool(benchexec.tools.template.BaseTool):
-    """Wrapper for an instance of any subclass of benchexec.tools.template.BaseTool.
+@tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
+class ContainerizedTool(object):
+    """Wrapper for an instance of any subclass of one of the base-tool classes in
+    benchexec.tools.template.
     The module and the subclass instance will be loaded in a subprocess that has been
     put into a container. This means, for example, that the code of this module cannot
     make network connections and that any changes made to files on disk have no effect.
@@ -74,10 +82,15 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
 
         setattr(cls, member_name, proxy_function)
 
-    # All methods inherited from BaseTool will be overwritten by the following loop
 
-
-for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunction):
+# The following will automatically add forwarding methods for all methods defined by the
+# current tool-info API. This should work without any version-specific adjustments,
+# so we declare compatibility with the latest version with @CURRENT_BASETOOL.register.
+# We do not inherit from a BaseTool class to ensure that no default methods will be used
+# accidentally.
+for member_name, member in inspect.getmembers(
+    tooladapter.CURRENT_BASETOOL, inspect.isfunction
+):
     if member_name[0] == "_" or member_name == "close":
         continue
     ContainerizedTool._add_proxy_function(member_name, member)
@@ -195,6 +208,7 @@ def _load_tool(tool_module):
     logging.debug("Loading tool-info module %s in container", tool_module)
     global tool
     tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+    tool = tooladapter.adapt_to_current_version(tool)
     return tool.__doc__
 
 

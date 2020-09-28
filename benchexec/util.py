@@ -9,6 +9,7 @@
 This module contains some useful functions for Strings, XML or Lists.
 """
 
+import argparse
 import collections
 import datetime
 import errno
@@ -32,6 +33,7 @@ except ImportError:
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
+_FREQUENCY_FACTOR = 1000  # Hz in kHz
 
 TIMESTAMP_FILENAME_FORMAT = "%Y-%m-%d_%H-%M-%S"
 """Our standard timestamp format for file names (without colons etc.)"""
@@ -221,6 +223,33 @@ def parse_timespan_value(s):
         raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
 
 
+def parse_frequency_value(s):
+    """Parse a string that contains a frequency, optionally with a unit like Hz.
+    @return the number of frequency encoded by the string
+    """
+    number, unit = split_number_and_unit(s)
+    if not unit or unit == "Hz":
+        return number
+    elif unit == "kHz":
+        return number * _FREQUENCY_FACTOR
+    elif unit == "MHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    elif unit == "GHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    else:
+        raise ValueError(
+            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
+        )
+
+
+def non_empty_str(s):
+    """Utility for requiring a non-empty string value as command-line parameter."""
+    s = str(s)
+    if not s:
+        raise argparse.ArgumentTypeError("empty string not allowed")
+    return s
+
+
 def expand_filename_pattern(pattern, base_dir):
     """
     Expand a file name pattern containing wildcards, environment variables etc.
@@ -273,7 +302,8 @@ def substitute_vars(template, replacements):
 
 
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
-    dirs = os.environ["PATH"].split(os.path.pathsep)
+    """Deprecated, prefer find_executable2"""
+    dirs = get_path()
     if use_current_dir:
         dirs.append(os.path.curdir)
 
@@ -294,17 +324,42 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if exitOnError:
         if found_non_executable:
             sys.exit(  # noqa: R503 always raises
-                "ERROR: Could not find '{0}' executable, "
+                "Could not find '{0}' executable, "
                 "but found file '{1}' that is not executable.".format(
                     program, found_non_executable[0]
                 )
             )
         else:
             sys.exit(  # noqa: R503 always raises
-                "ERROR: Could not find '{0}' executable.".format(program)
+                "Could not find '{0}' executable.".format(program)
             )
     else:
         return fallback
+
+
+def find_executable2(name, dirs=None, required_mode=os.X_OK):
+    """
+    Search for an executable file either in PATH or in given directories.
+
+    @param name: The name of the executable to search
+    @param dirs: The directories where to search (PATH will be used by default)
+    @param required_mode: A valid mode parameter for os.access as filter criterion
+    @return None or the path to the executable
+    """
+    if dirs is None:
+        dirs = get_path()
+
+    for candidate_dir in dirs:
+        candidate = os.path.join(candidate_dir, name)
+        if os.path.isfile(candidate) and os.access(candidate, required_mode):
+            return candidate
+
+    return None
+
+
+def get_path():
+    """Get list of directories in PATH environment variable."""
+    return os.environ["PATH"].split(os.path.pathsep)
 
 
 def common_base_dir(paths):

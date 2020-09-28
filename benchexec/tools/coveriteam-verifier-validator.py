@@ -18,9 +18,6 @@ class Tool(coveriteam.Tool):
     URL: https://gitlab.com/sosy-lab/software/coveriteam.
     """
 
-    def name(self):
-        return "CoVeriTeam-Verifier-Validator"
-
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         """
         Prepare command for the coveriteam program for a verifier or a validator.

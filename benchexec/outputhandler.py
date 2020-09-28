@@ -18,7 +18,7 @@ from xml.etree import ElementTree
 import zipfile
 
 import benchexec
-from benchexec.model import MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, CORELIMIT
+from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
 from benchexec import filewriter
 from benchexec import intel_cpu_energy
 from benchexec import result
@@ -84,14 +84,12 @@ class OutputHandler(object):
         memlimit = None
         timelimit = None
         corelimit = None
-        if MEMLIMIT in self.benchmark.rlimits:
-            memlimit = str(self.benchmark.rlimits[MEMLIMIT]) + "B"
-        if SOFTTIMELIMIT in self.benchmark.rlimits:
-            timelimit = str(self.benchmark.rlimits[SOFTTIMELIMIT]) + "s"
-        elif TIMELIMIT in self.benchmark.rlimits:
-            timelimit = str(self.benchmark.rlimits[TIMELIMIT]) + "s"
-        if CORELIMIT in self.benchmark.rlimits:
-            corelimit = str(self.benchmark.rlimits[CORELIMIT])
+        if self.benchmark.rlimits.memory:
+            memlimit = str(self.benchmark.rlimits.memory) + "B"
+        if self.benchmark.rlimits.cputime:
+            timelimit = str(self.benchmark.rlimits.cputime) + "s"
+        if self.benchmark.rlimits.cpu_cores:
+            corelimit = str(self.benchmark.rlimits.cpu_cores)
 
         # create folder for file-specific log-files.
         os.makedirs(benchmark.log_folder, exist_ok=True)
@@ -273,13 +271,9 @@ class OutputHandler(object):
 
         header += (
             "resource limits:\n"
-            + format_byte("- memory", self.benchmark.rlimits.get(MEMLIMIT))
-            + format_time(
-                "- time",
-                self.benchmark.rlimits.get(SOFTTIMELIMIT)
-                or self.benchmark.rlimits.get(TIMELIMIT),
-            )
-            + format_line("- cpu cores", self.benchmark.rlimits.get(CORELIMIT))
+            + format_byte("- memory", self.benchmark.rlimits.memory)
+            + format_time("- time", self.benchmark.rlimits.cputime)
+            + format_line("- cpu cores", self.benchmark.rlimits.cpu_cores)
         )
 
         header += (
