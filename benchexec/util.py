@@ -52,10 +52,6 @@ def is_comment(line):
     return not line or line.startswith("#") or line.startswith("//")
 
 
-def remove_all(list_, elemToRemove):
-    return [elem for elem in list_ if elem != elemToRemove]
-
-
 def flatten(iterable, exclude=[]):
     return [value for sublist in iterable for value in sublist if value not in exclude]
 

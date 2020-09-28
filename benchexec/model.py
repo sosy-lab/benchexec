@@ -712,16 +712,27 @@ class RunSet(object):
 
         # remove excluded sourcefiles
         for excludedFiles in sourcefilesTag.findall("exclude"):
-            excludedFilesList = self.expand_filename_pattern(
-                excludedFiles.text, base_dir
+            excluded_files = set(
+                self.expand_filename_pattern(excludedFiles.text, base_dir)
             )
-            for excludedFile in excludedFilesList:
-                sourcefiles = util.remove_all(sourcefiles, excludedFile)
+            if excluded_files.intersection(sourcefiles):
+                sourcefiles = [f for f in sourcefiles if f not in excluded_files]
+            else:
+                logging.warning(
+                    "The exclude pattern '%s' did not match any of the included tasks.",
+                    excludedFiles.text,
+                )
 
         for excludesFilesFile in sourcefilesTag.findall("excludesfile"):
             for file in self.expand_filename_pattern(excludesFilesFile.text, base_dir):
-                for excludedFile in _read_set_file(file):
-                    sourcefiles = util.remove_all(sourcefiles, excludedFile)
+                excluded_files = set(_read_set_file(file))
+                if excluded_files.intersection(sourcefiles):
+                    sourcefiles = [f for f in sourcefiles if f not in excluded_files]
+                else:
+                    logging.warning(
+                        "The exclude file '%s' did not match any of the included tasks.",
+                        file,
+                    )
 
         return sourcefiles
 
