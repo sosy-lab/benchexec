@@ -48,19 +48,6 @@ def printOut(value, end="\n"):
     sys.stdout.flush()
 
 
-def is_code(filename):
-    """
-    This function returns True, if  a line of the file contains bracket '{'.
-    """
-    with open(filename, "r") as file:
-        for line in file:
-            # ignore comments and empty lines
-            if not is_comment(line) and "{" in line:  # <-- simple indicator for code
-                if "${" not in line:  # <-- ${abc} variable to substitute
-                    return True
-    return False
-
-
 def is_comment(line):
     return not line or line.startswith("#") or line.startswith("//")
 

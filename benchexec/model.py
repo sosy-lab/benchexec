@@ -702,18 +702,13 @@ class RunSet(object):
         for includesFilesFile in sourcefilesTag.findall("includesfile"):
 
             for file in self.expand_filename_pattern(includesFilesFile.text, base_dir):
-
-                # check for code (if somebody confuses 'include' and 'includesfile')
-                if util.is_code(file):
-                    logging.error(
-                        "'%s' seems to contain code instead of a set of source file names.\n"
-                        "Please check your benchmark definition file "
-                        "or remove bracket '{' from this file.",
-                        file,
+                input_files_in_set = list(_read_set_file(file))
+                if not input_files_in_set:
+                    sys.exit(
+                        "Error: Nothing in includes file '{}' "
+                        "matches existing files.".format(file)
                     )
-                    sys.exit()
-
-                sourcefiles += _read_set_file(file)
+                sourcefiles += input_files_in_set
 
         # remove excluded sourcefiles
         for excludedFiles in sourcefilesTag.findall("exclude"):
