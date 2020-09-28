@@ -685,6 +685,15 @@ class RunSet(object):
         """
         sourcefiles = []
 
+        def _read_set_file(filename):
+            dirname = os.path.dirname(filename)
+            with open(filename, "rt") as f:
+                for line in f:
+                    line = line.strip()  # necessary to remove line separator
+                    # ignore comments and empty lines
+                    if not util.is_comment(line):
+                        yield from self.expand_filename_pattern(line, dirname)
+
         # get included sourcefiles
         for includedFiles in sourcefilesTag.findall("include"):
             sourcefiles += self.expand_filename_pattern(includedFiles.text, base_dir)
@@ -704,20 +713,7 @@ class RunSet(object):
                     )
                     sys.exit()
 
-                # read files from list
-                fileWithList = open(file, "rt")
-                for line in fileWithList:
-
-                    # strip() removes 'newline' behind the line
-                    line = line.strip()
-
-                    # ignore comments and empty lines
-                    if not util.is_comment(line):
-                        sourcefiles += self.expand_filename_pattern(
-                            line, os.path.dirname(file)
-                        )
-
-                fileWithList.close()
+                sourcefiles += _read_set_file(file)
 
         # remove excluded sourcefiles
         for excludedFiles in sourcefilesTag.findall("exclude"):
@@ -729,22 +725,8 @@ class RunSet(object):
 
         for excludesFilesFile in sourcefilesTag.findall("excludesfile"):
             for file in self.expand_filename_pattern(excludesFilesFile.text, base_dir):
-                # read files from list
-                fileWithList = open(file, "rt")
-                for line in fileWithList:
-
-                    # strip() removes 'newline' behind the line
-                    line = line.strip()
-
-                    # ignore comments and empty lines
-                    if not util.is_comment(line):
-                        excludedFilesList = self.expand_filename_pattern(
-                            line, os.path.dirname(file)
-                        )
-                        for excludedFile in excludedFilesList:
-                            sourcefiles = util.remove_all(sourcefiles, excludedFile)
-
-                fileWithList.close()
+                for excludedFile in _read_set_file(file):
+                    sourcefiles = util.remove_all(sourcefiles, excludedFile)
 
         return sourcefiles
 
