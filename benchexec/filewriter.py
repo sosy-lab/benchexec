@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
+from pathlib import Path
 
 
 class FileWriter(object):
@@ -16,7 +17,7 @@ class FileWriter(object):
         The constructor of FileWriter creates the file.
         If the file exist, it will be OVERWRITTEN without a message!
         """
-
+        Path(filename).parents[0].mkdir(parents=True, exist_ok=True)
         self._file = open(filename, "w")
         self._pos = None
         self.append(content)
