@@ -5,14 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
 import re
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Goblint.
     URL: https://goblint.in.tum.de/
@@ -20,8 +19,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = ["includes/sv-comp.c"]
 
-    def executable(self):
-        return util.find_executable("goblint")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("goblint")
 
     def version(self, executable):
         return self._version_from_tool(executable, line_prefix="Goblint version: ")
@@ -29,17 +28,32 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "Goblint"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        property_options = (
-            ["--sets", "ana.specification", propertyfile]
-            if propertyfile is not None
-            else []
-        )
-        return [executable] + options + property_options + tasks
+    _DATA_MODELS = {
+        "ILP32": "32bit",
+        "LP64": "64bit"
+    }
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        for line in output:
-            line = line.strip()
+    def cmdline(self, executable, options, task, rlimits):
+        additional_options = []
+
+        if task.property_file:
+            additional_options += ["--sets", "ana.specification", task.property_file]
+
+        if task.options:
+            data_model = task.options.get("data_model")
+            if data_model:
+                data_model_option = self._DATA_MODELS.get(data_model)
+                if data_model_option:
+                    additional_options += ["--sets", "exp.architecture", data_model_option]
+                else:
+                    raise benchexec.tools.template.UnsupportedFeatureException(
+                        "Unsupported data_model '{}'".format(data_model)
+                    )
+
+        return [executable, *options, *additional_options, *task.input_files_or_identifier]
+
+    def determine_result(self, run):
+        for line in run.output:
             if line == "SV-COMP (unreach-call): true":
                 return result.RESULT_TRUE_PROP
             elif line == "SV-COMP (unreach-call): false":
@@ -65,9 +79,9 @@ class Tool(benchexec.tools.template.BaseTool):
                 if m:
                     return m.group(1)
 
-        if isTimeout:
+        if run.was_timeout:
             return "TIMEOUT"
-        elif returncode != 0:
+        elif run.exit_code.value != 0:
             return result.RESULT_ERROR
         else:
             return result.RESULT_UNKNOWN
