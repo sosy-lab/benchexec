@@ -666,6 +666,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   &-label {
     padding: 0.4em 1em;
     white-space: nowrap;
+
+    &.with-tooltip {
+      text-decoration: underline;
+
+      &:hover {
+        cursor: help;
+      }
+    }
   }
 
   &-select {

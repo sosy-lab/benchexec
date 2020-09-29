@@ -21,6 +21,7 @@
     "react-table": "6.11.4",
     "react-table-hoc-fixed-columns": "^2.3.1",
     "react-vis": "^1.11.7",
+    "regression": "^2.0.1",
     "yaml": "^1.10.0"
   },
   "engines": {
