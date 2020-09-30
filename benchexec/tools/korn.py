@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "eld.jar",
     ]
 
-    def executable(self,tool_locator):
+    def executable(self, tool_locator):
         return tool_locator.find_executable("run")
 
     def version(self, executable):
