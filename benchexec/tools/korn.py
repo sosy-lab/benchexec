@@ -12,7 +12,7 @@ import benchexec.result as result
 import benchexec.tools.template
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Korn, a software verifier based on Horn-clauses.
     URL: https://github.com/gernst/korn
@@ -26,8 +26,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "eld.jar",
     ]
 
-    def executable(self):
-        return util.find_executable("run")
+    def executable(self,tool_locator):
+        return tool_locator.find_executable("run")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -35,12 +35,12 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "Korn"
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         This is literally the output from the underlying CHC solver
         """
 
-        for line in output:
+        for line in run.output:
             line = line.strip()
             if line == "unsat":
                 return result.RESULT_FALSE_PROP
