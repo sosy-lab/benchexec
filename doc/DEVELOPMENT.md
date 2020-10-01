@@ -123,11 +123,25 @@ please raise an issue.
 
         DEBFULLNAME="<YOUR_NAME>" DEBEMAIL="<YOUR_EMAIL>" dch -v <DEB_VERSION>-1
 
- * Build the package:
+ * For manually distributed packages:
+   * Build the package:
 
-        dpkg-buildpackage -us -uc
+          dpkg-buildpackage --build=binary --no-sign
 
- * Sign the package with GPG and upload it to GitHub as part of the release.
+   * Sign the package with GPG and upload it to GitHub as part of the release.
+
+ * For our [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+   * Build the package:
+
+          dpkg-buildpackage --build=source -sa
+
+     This needs to find a GPG key that is added to your Launchpad account, you can explicitly specify it with `--sign-key=...`.
+
+   * Upload the package with
+
+          dput ppa:sosy-lab/benchmarking ../benchexec_<DEB_VERSION>-1_source.changes
+
+     Launchpad will build the package and publish it after a few minutes. If there are build errors you get an email.
 
  * Copy the file `debian/changelog` back into the repository and it commit it there,
    to keep track of it.
