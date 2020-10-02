@@ -540,6 +540,10 @@ class BaseTool2(object, metaclass=ABCMeta):
             self._text = None
 
         def __getitem__(self, index):
+            if isinstance(index, slice):
+                # We wrap the result in an RunOutput instance again such that
+                # all features also work on slices of the original instance.
+                return self.__class__(self._lines[index])
             return self._lines[index].rstrip(os.linesep)
 
         def __len__(self):
