@@ -246,6 +246,27 @@ describe("NumberFormatterBuilder", () => {
 
     expect(actual).toBe("0");
   });
+
+  test("should handle rounding up to the first decimal digit", () => {
+    const num = 2.1968865394592285;
+
+    const b = new NumberFormatterBuilder(3);
+    const formatter = b.build();
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("2.20");
+  });
+
+  test("should handle rounding up with integer carry", () => {
+    const num = 10.960994243621826;
+
+    const b = new NumberFormatterBuilder(3);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("11.0");
+  });
 });
 
 describe(

@@ -334,9 +334,6 @@ class NumberFormatterBuilder {
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
       postfix = Math.round(Number(postfix));
       postfix = isNaN(postfix) ? "" : postfix.toString();
-      if (attachDecimal) {
-        postfix = `.${postfix}`;
-      }
       //handle overflow
       if (postfix.length > 1 && postfix[0] !== ".") {
         const overflow = postfix[0];
@@ -344,11 +341,12 @@ class NumberFormatterBuilder {
         const oldLength = prefix.length;
         const [, decPart] = prefix.split(".");
         let decimalLength = (decPart && decPart.length - 1) || 0;
-        let toAdd = decimalLength ? "0." : "";
+        let toAdd = decPart ? "0." : "";
         while (decimalLength > 0) {
           toAdd += "0";
           decimalLength -= 1;
         }
+
         toAdd += overflow;
         prefix = (Number(prefix) + Number(toAdd)).toString();
         while (prefix.length < oldLength) {
@@ -357,6 +355,10 @@ class NumberFormatterBuilder {
       }
       // fill up integer number;
       let end = decimalPos;
+      if (attachDecimal) {
+        postfix = `.${postfix}`;
+      }
+
       if (decimalPos === -1) {
         end = stringNumber.length;
       }
