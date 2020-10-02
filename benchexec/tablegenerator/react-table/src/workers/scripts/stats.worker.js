@@ -5,11 +5,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-const maybeAdd = (a, b) => {
+const maybeAdd = (a, b, type) => {
   if (Number(b)) {
-    return a + b;
+    return a + Number(b);
   }
-  return a + 1;
+  if (type === "status") {
+    return a + 1;
+  }
+  return a;
 };
 
 onmessage = function (e) {
@@ -42,29 +45,46 @@ onmessage = function (e) {
     const bucket = buckets[key] || {
       ...defaultObj,
     };
-    const subTotalBucket = buckets[totalKey] || { ...defaultObj };
-    bucket.sum = maybeAdd(bucket.sum, item.column);
-    bucket.max = Math.max(bucket.max, item.column);
-    bucket.min = Math.min(bucket.min, item.column);
-    bucket.items.push(item);
+    const { columnType: type, column } = item;
 
-    subTotalBucket.sum = maybeAdd(subTotalBucket.sum, item.column);
-    subTotalBucket.max = Math.max(subTotalBucket.max, item.column);
-    subTotalBucket.min = Math.min(subTotalBucket.min, item.column);
+    const subTotalBucket = buckets[totalKey] || { ...defaultObj };
+
+    bucket.sum = maybeAdd(bucket.sum, column, type);
+    subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
+
+    if (!isNaN(Number(column))) {
+      const numCol = Number(column);
+      bucket.max = Math.max(bucket.max, numCol);
+      bucket.min = Math.min(bucket.min, numCol);
+      subTotalBucket.max = Math.max(subTotalBucket.max, numCol);
+      subTotalBucket.min = Math.min(subTotalBucket.min, numCol);
+    } else {
+      //console.log(`Skipping ${column}`);
+    }
+
+    total.sum = maybeAdd(total.sum, column, type);
+
+    bucket.items.push(item);
     subTotalBucket.items.push(item);
-    total.sum = maybeAdd(total.sum, item.column);
+
     buckets[key] = bucket;
     buckets[totalKey] = subTotalBucket;
   }
+
   for (const [bucket, values] of Object.entries(buckets)) {
+    // console.log({ values });
     values.avg = values.sum / values.items.length;
+
     if (values.items.length % 2 === 0) {
       const idx = values.items.length / 2;
       values.median =
-        (values.items[idx - 1].column + values.items[idx].column) / 2.0;
+        (Number(values.items[idx - 1].column) +
+          Number(values.items[idx].column)) /
+        2.0;
     } else {
-      values.median =
-        values.items[Math.floor(values.items.length / 2.0)].column;
+      values.median = Number(
+        values.items[Math.floor(values.items.length / 2.0)].column,
+      );
     }
     buckets[bucket] = values;
   }
@@ -72,19 +92,25 @@ onmessage = function (e) {
   if (copy.length % 2 === 0) {
     // even, we need an extra step to calculate the median
     const idx = copy.length / 2;
-    total.median = (copy[idx - 1].column + copy[idx].column) / 2.0;
+    total.median =
+      (Number(copy[idx - 1].column) + Number(copy[idx].column)) / 2.0;
   } else {
     // ezpz
-    total.median = copy[Math.floor(copy.length / 2.0)].column;
+    total.median = Number(copy[Math.floor(copy.length / 2.0)].column);
   }
 
   for (const item of copy) {
+    const { column } = item;
+    if (isNaN(Number(column))) {
+      continue;
+    }
+    const numCol = Number(column);
     const bucket = buckets[`${item.categoryType}-${item.resultType}`];
     const totalKey = `${item.categoryType}-total`;
     const subTotalBucket = buckets[totalKey];
-    const diffBucket = item.column - bucket.avg;
-    const diffSubTotal = item.column - subTotalBucket.avg;
-    const diffTotal = item.column - total.avg;
+    const diffBucket = numCol - bucket.avg;
+    const diffSubTotal = numCol - subTotalBucket.avg;
+    const diffTotal = numCol - total.avg;
     total.variance += Math.pow(diffTotal, 2);
     bucket.variance += Math.pow(diffBucket, 2);
     subTotalBucket.variance += Math.pow(diffSubTotal, 2);
@@ -105,11 +131,7 @@ onmessage = function (e) {
 
   const result = { total, ...buckets };
 
-  // handling of tests
-  // console.log({
-  //   evaluation: !!this.mockedPostMessage,
-  //   value: this.mockedPostMessage,
-  // });
+  // handling in tests
   if (this.mockedPostMessage) {
     this.mockedPostMessage({ result, transaction });
     return;

@@ -22,13 +22,11 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
-const types = ["sum", "avg", "median", "stdev", "min", "max"];
-
 export default class Summary extends React.Component {
   constructor(props) {
     super(props);
 
-    this.formatter = buildFormatter(props.tools, types);
+    this.formatter = buildFormatter(props.tools);
 
     this.skipStats = isTestEnv && !props.onStatsReady;
 
@@ -171,8 +169,6 @@ export default class Summary extends React.Component {
 
   transformStatsFromWorkers(stats) {
     // our stats template to steal from
-
-    console.log({ stats });
 
     const selector = {
       0: "total",
