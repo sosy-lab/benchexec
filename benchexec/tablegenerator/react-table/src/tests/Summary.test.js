@@ -8,21 +8,31 @@
 import React from "react";
 import Summary from "../components/Summary.js";
 
-import { test_snapshot_of } from "./utils.js";
+import { test_snapshot_of_async } from "./utils.js";
 
 // mock uniqid to have consistent names
 // https://stackoverflow.com/a/44538270/396730
 jest.mock("uniqid", () => (i) => i + "uniqid");
 
-test_snapshot_of("Render Summary", (overview) => (
-  <Summary
-    tools={overview.originalTools}
-    tableHeader={overview.tableHeader}
-    version={overview.props.data.version}
-    selectColumn={overview.toggleSelectColumns}
-    stats={overview.stats}
-    prepareTableValues={overview.prepareTableValues}
-    changeTab={overview.changeTab}
-    hiddenCols={overview.state.hiddenCols}
-  />
-));
+test_snapshot_of_async("Render Summary", (overview) => {
+  let statsResolver;
+  const StatsReadyPromise = new Promise((resolve) => {
+    statsResolver = resolve;
+  });
+  const out = (
+    <Summary
+      tools={overview.originalTools}
+      tableHeader={overview.tableHeader}
+      version={overview.data.version}
+      selectColumn={overview.toggleSelectColumns}
+      stats={overview.stats}
+      data={overview.table}
+      prepareTableValues={overview.prepareTableValues}
+      changeTab={overview.changeTab}
+      onStatsReady={statsResolver}
+      hiddenCols={overview.hiddenCols}
+    />
+  );
+
+  return { component: out, promise: StatsReadyPromise };
+});

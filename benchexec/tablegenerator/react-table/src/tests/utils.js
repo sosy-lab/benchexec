@@ -9,6 +9,18 @@ import React from "react";
 import ReactDOM from "react-dom";
 import renderer from "react-test-renderer";
 import Overview from "../components/Overview";
+import {
+  prepareTableData,
+  getRawOrDefault,
+  getTaskIdParts,
+  createHiddenColsFromURL,
+} from "../utils/utils";
+
+import {
+  getFilterableData,
+  buildMatcher,
+  applyMatcher,
+} from "../utils/filters";
 const fs = require("fs");
 
 // We use jest snapshots for integration tests, and they become quite large.
@@ -89,23 +101,91 @@ ReactDOM.createPortal = (dom) => {
   return dom;
 };
 
-const test_snapshot_of = (name, component_func) => {
+/**
+ * Function to get all props that can be passed by the Overview component to its
+ * children, without invoking a render
+ * @param {object} data
+ */
+const getOverviewProps = (data) => {
+  const {
+    tableHeader,
+    taskIdNames,
+    tools,
+    columns,
+    table,
+    stats,
+  } = prepareTableData(data);
+
+  const filterable = getFilterableData(data);
+  const originalTable = table;
+  const originalTools = tools;
+
+  const filteredData = [];
+
+  const hiddenCols = createHiddenColsFromURL(tools);
+
+  return {
+    taskIdNames,
+    tools,
+    columns,
+    table,
+    filteredData,
+    filterable,
+    hiddenCols,
+    tableHeader,
+    stats,
+    originalTable,
+    originalTools,
+    data,
+  };
+};
+
+const test_snapshot_of_async = (name, component_func) => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
     .filter((file) => fs.statSync(testDir + file).size < 100000)
     .forEach((file) => {
-      it(name + " for " + file, () => {
+      it(name + " for " + file, async () => {
         const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
         const data = JSON.parse(content);
+        const overview = getOverviewProps(data);
+        const { component: c, promise } = component_func(overview);
+        const component = renderer.create(c);
 
-        const overview = renderer
-          .create(<Overview data={data} />)
-          .getInstance();
-        const component = renderer.create(component_func(overview));
+        await promise;
 
         expect(component).toMatchSnapshot();
       });
     });
 };
 
-export { test_snapshot_of };
+const test_snapshot_of = (name, component_func) => {
+  fs.readdirSync(testDir)
+    .filter((file) => file.endsWith(".html"))
+    .filter((file) => fs.statSync(testDir + file).size < 100000)
+    .some((file) => {
+      it(name + " for " + file, async () => {
+        const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
+        const data = JSON.parse(content);
+
+        let statsResolver;
+        const StatsPromise = new Promise(
+          (resolve) => (statsResolver = resolve),
+        );
+
+        const overview = renderer
+          .create(<Overview data={data} />)
+          .getInstance();
+        const component = renderer.create(
+          component_func(overview, statsResolver),
+        );
+
+        await StatsPromise;
+
+        expect(component).toMatchSnapshot();
+      });
+      return true;
+    });
+};
+
+export { test_snapshot_of, test_snapshot_of_async };
