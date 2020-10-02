@@ -176,6 +176,7 @@ describe("NumberFormatterBuilder", () => {
   test("should format whitespaces according to dataset context", () => {
     builder.addDataItem("1234");
     builder.addDataItem("0.12345");
+    builder.addDataItem("0.02345");
 
     const formatter = builder.build();
 
@@ -187,8 +188,8 @@ describe("NumberFormatterBuilder", () => {
 
     const expected1 = "  23      ";
     const expected2 = "  23.1    ";
-    const expected3 = "    .123  ";
-    const expected4 = "    .01337";
+    const expected3 = "   0.123  ";
+    const expected4 = "   0.01337";
 
     const actual1 = formatter(number1, { whitespaceFormat: true });
     const actual2 = formatter(number2, { whitespaceFormat: true });
@@ -204,6 +205,7 @@ describe("NumberFormatterBuilder", () => {
   test("should format whitespaces with html", () => {
     builder.addDataItem("1234");
     builder.addDataItem("0.12345");
+    builder.addDataItem("0.02345");
 
     const formatter = builder.build();
 
@@ -215,8 +217,8 @@ describe("NumberFormatterBuilder", () => {
 
     const expected1 = "  23&#x2008;     ".replace(/ /g, "&#x2007;");
     const expected2 = "  23.1    ".replace(/ /g, "&#x2007;");
-    const expected3 = "    .123  ".replace(/ /g, "&#x2007;");
-    const expected4 = "    .01337".replace(/ /g, "&#x2007;");
+    const expected3 = "   0.123  ".replace(/ /g, "&#x2007;");
+    const expected4 = "   0.01337".replace(/ /g, "&#x2007;");
 
     const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
     const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
@@ -227,6 +229,22 @@ describe("NumberFormatterBuilder", () => {
     expect(actual2).toBe(expected2);
     expect(actual3).toBe(expected3);
     expect(actual4).toBe(expected4);
+  });
+
+  test("should correctly round very precise numbers", () => {
+    const num = 0.010974345997965429;
+    const nBuilder = new NumberFormatterBuilder(3);
+
+    expect(nBuilder.build()(num)).toBe("0.0110");
+  });
+
+  test("should handle 0 correctly", () => {
+    const num = 0;
+
+    const formatter = builder.build();
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0");
   });
 });
 

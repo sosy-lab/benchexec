@@ -257,10 +257,11 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits) {
+  constructor(significantDigits, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
+    this.name = name;
   }
 
   _defaultOptions = {
@@ -270,7 +271,8 @@ class NumberFormatterBuilder {
   };
 
   addDataItem(item) {
-    const [positive, negative] = this.format(item).split(/\.|,/);
+    const formatted = this.format(item);
+    const [positive, negative] = formatted.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
       this.maxPositiveDecimalPosition,
       positive && positive !== "0" ? positive.length : 0,
@@ -314,6 +316,9 @@ class NumberFormatterBuilder {
       }
       pointer += 1;
     }
+    if (prefix === "" && postfix === "") {
+      prefix = "0";
+    }
     if (prefix[0] === ".") {
       prefix = `0${prefix}`;
     }
@@ -333,7 +338,7 @@ class NumberFormatterBuilder {
         postfix = `.${postfix}`;
       }
       //handle overflow
-      if (postfix.length > 1) {
+      if (postfix.length > 1 && postfix[0] !== ".") {
         const overflow = postfix[0];
         postfix = postfix[1];
         const oldLength = prefix.length;
@@ -392,6 +397,7 @@ class NumberFormatterBuilder {
           integer = integer.replace(/ /g, characterSpaceHtml);
           decimal = decimal.replace(/ /g, characterSpaceHtml);
         }
+
         return `${integer}${decimalPoint}${decimal}`;
       }
       if (!leadingZero && out.startsWith("0.")) {
