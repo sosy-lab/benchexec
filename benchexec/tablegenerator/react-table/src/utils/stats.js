@@ -10,54 +10,60 @@ export const buildFormatter = (tools) =>
   );
 
 export const cleanupStats = (stats, formatter) => {
-  return stats.map((tool, toolIdx) =>
-    tool.map((column, columnIdx) => {
-      const out = {};
-      for (const [resultKey, result] of Object.entries(column)) {
-        const rowRes = {};
+  const cleaned = stats.map((tool, toolIdx) =>
+    tool
+      .map((column, columnIdx) => {
+        const out = {};
+        if (column.total === undefined) {
+          return undefined;
+        }
+        for (const [resultKey, result] of Object.entries(column)) {
+          const rowRes = {};
 
-        for (const [key, value] of Object.entries(result)) {
-          if (!isNil(value) && !isNaN(value) && formatter[toolIdx][columnIdx]) {
-            try {
-              if (key === "sum") {
-                rowRes[key] = formatter[toolIdx][columnIdx](value, {
-                  leadingZero: false,
-                  whitespaceFormat: true,
-                  html: true,
-                });
-              } else {
-                rowRes[key] = formatter[toolIdx][columnIdx](value, {
-                  leadingZero: true,
-                  whitespaceFormat: false,
-                  html: false,
+          for (let [key, value] of Object.entries(result)) {
+            if (key === "title") {
+              out.title = value;
+              continue;
+            }
+            if (
+              !isNil(value) &&
+              !isNaN(value) &&
+              formatter[toolIdx][columnIdx]
+            ) {
+              try {
+                if (key === "sum") {
+                  rowRes[key] = formatter[toolIdx][columnIdx](value, {
+                    leadingZero: false,
+                    whitespaceFormat: true,
+                    html: true,
+                  });
+                } else {
+                  rowRes[key] = formatter[toolIdx][columnIdx](value, {
+                    leadingZero: true,
+                    whitespaceFormat: false,
+                    html: false,
+                  });
+                }
+              } catch (e) {
+                console.error({
+                  key,
+                  value,
+                  formatter: formatter[toolIdx][columnIdx][key],
                 });
               }
-            } catch (e) {
-              console.error({
-                key,
-                value,
-                formatter: formatter[toolIdx][columnIdx][key],
-              });
             }
           }
+
+          out[resultKey] = rowRes;
         }
 
-        out[resultKey] = rowRes;
-      }
-
-      return out;
-    }),
+        return out;
+      })
+      .filter((i) => !isNil(i)),
   );
+  return cleaned;
 };
 
-// possible run results (output of a tool)
-const RESULT_DONE = "done";
-//tool terminated properly and true/false does not make sense
-const RESULT_UNKNOWN = "unknown";
-//tool could not find out an answer due to incompleteness"""
-const RESULT_ERROR = "ERROR"; // or any other value not listed here
-//tool could not complete due to an error
-//(it is recommended to instead use a string with more details about the error)
 const RESULT_TRUE_PROP = "true";
 //property holds
 const RESULT_FALSE_PROP = "false";
@@ -66,15 +72,6 @@ const RESULT_FALSE_PROP = "false";
 const RESULT_CLASS_TRUE = "true";
 const RESULT_CLASS_FALSE = "false";
 const RESULT_CLASS_OTHER = "other";
-
-const categoryMapping = {
-  correct: "correct",
-  "correct-unconfirmed": "correctUnconfirmed",
-  wrong: "wrong",
-  unknown: "unknown",
-  error: "error",
-  missing: "missing",
-};
 
 const classifyResult = (result) => {
   if (isNil(result)) {
@@ -91,19 +88,6 @@ const classifyResult = (result) => {
   }
 
   return RESULT_CLASS_OTHER;
-};
-
-const getResultCategory = (result) => {
-  const resultClass = classifyResult(result);
-  if (resultClass === RESULT_CLASS_OTHER) {
-    if (result === RESULT_UNKNOWN) {
-      return categoryMapping.unknown;
-    } else if (result === RESULT_DONE) {
-      return categoryMapping.missing;
-    } else {
-      return categoryMapping.error;
-    }
-  }
 };
 
 export const prepareRows = (
@@ -140,12 +124,12 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
   for (const { row, categoryType, resultType } of preppedRows) {
     for (const columnIdx in row) {
       const column = row[columnIdx].raw;
-      if (column === undefined) {
-        continue;
-      }
       const curr = out[columnIdx] || [];
-      const columnType = tools[toolIdx].columns[columnIdx].type;
-      curr.push({ categoryType, resultType, column, columnType });
+      const { type: columnType, title: columnTitle } = tools[toolIdx].columns[
+        columnIdx
+      ];
+
+      curr.push({ categoryType, resultType, column, columnType, columnTitle });
       out[columnIdx] = curr;
     }
   }
@@ -159,16 +143,19 @@ export const processData = async ({ tools, table, formatter }) => {
   const promises = [];
 
   const splitRows = [];
-
   for (const toolIdx in tools) {
     splitRows.push(
       prepareRows(table, toolIdx, catAccessor, statAccessor, formatter),
     );
   }
-
   const columnSplitter = splitColumnsWithMeta(tools);
 
   const preparedData = splitRows.map(columnSplitter);
+
+  // filter out non-relevant rows
+  for (const toolIdx in preparedData) {
+    preparedData[toolIdx] = preparedData[toolIdx].filter((i) => !isNil(i));
+  }
 
   for (const toolDataIdx in preparedData) {
     const toolData = preparedData[toolDataIdx];

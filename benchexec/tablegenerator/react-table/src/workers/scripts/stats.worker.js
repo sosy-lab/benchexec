@@ -28,7 +28,15 @@ onmessage = function (e) {
     variance: 0,
   };
 
-  const copy = [...data];
+  const copy = [...data].filter(
+    (i) => i && i.column !== undefined && i.column !== null,
+  );
+
+  if (copy.length === 0) {
+    postResult({ total: undefined }, transaction);
+    return;
+  }
+
   const buckets = {};
   copy.sort((a, b) => a.column - b.column);
 
@@ -41,14 +49,16 @@ onmessage = function (e) {
   for (const item of copy) {
     const key = `${item.categoryType}-${item.resultType}`;
     const totalKey = `${item.categoryType}-total`;
+    const { columnType: type, column, columnTitle: title } = item;
     const bucket = buckets[key] || {
       ...defaultObj,
+      title,
       items: [],
     };
-    const { columnType: type, column } = item;
 
     const subTotalBucket = buckets[totalKey] || {
       ...defaultObj,
+      title,
       items: [],
     };
 
@@ -132,6 +142,11 @@ onmessage = function (e) {
 
   const result = { total, ...buckets };
 
+  // handling in tests
+  postResult(result, transaction);
+};
+
+const postResult = (result, transaction) => {
   // handling in tests
   if (this.mockedPostMessage) {
     this.mockedPostMessage({ result, transaction });

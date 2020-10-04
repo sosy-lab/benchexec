@@ -15,7 +15,7 @@ import {
   StandardColumnHeader,
   SelectColumnsButton,
 } from "./TableComponents.js";
-import { determineColumnWidth, isNumericColumn } from "../utils/utils";
+import { determineColumnWidth, isNumericColumn, isNil } from "../utils/utils";
 import { buildFormatter, processData } from "../utils/stats.js";
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
@@ -152,7 +152,7 @@ export default class Summary extends React.Component {
     ),
     accessor: (row) => row.content[runSetIdx][columnIdx],
     Cell: (cell) =>
-      cell.value ? (
+      !isNil(cell.value) ? (
         <div
           dangerouslySetInnerHTML={{ __html: cell.value.sum }}
           className="cell"
@@ -197,9 +197,35 @@ export default class Summary extends React.Component {
 
   async updateStats(oldStats) {
     const { tools, data: table, onStatsReady } = this.props;
-    const res = this.skipStats
+    let res = this.skipStats
       ? {}
       : await processData({ tools, table, formatter: this.formatter });
+
+    // fill up stat array to match column mapping
+
+    res = res.map((tool, toolIdx) => {
+      const out = [];
+      const toolColumns = this.props.tools[toolIdx].columns;
+      let pointer = 0;
+      let curr = toolColumns[pointer];
+
+      for (const col of tool) {
+        const { title } = col;
+        while (pointer < toolColumns.length && title !== curr.title) {
+          out.push({});
+          pointer++;
+          curr = toolColumns[pointer];
+        }
+        if (pointer >= toolColumns.length) {
+          break;
+        }
+        out.push(col);
+        pointer++;
+        curr = toolColumns[pointer];
+      }
+
+      return out;
+    });
 
     this.transformStatsFromWorkers(res);
 
