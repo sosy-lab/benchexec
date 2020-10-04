@@ -1802,7 +1802,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1310&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"1310&#x2008;&#x2007;"}
          title="avg: 42.3, max: 62.5, median: 43.2, min: 19.3, stdev: 11.5"
         />
        </div>
@@ -1821,7 +1821,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"877&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"877&#x2008;&#x2007;"}
          title="avg: 28.3, max: 43.9, median: 27.7, min: 12.2, stdev: 9.03"
         />
        </div>
@@ -1840,7 +1840,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"22400"}
+         dangerouslySetInnerHTML={"22400&#x2008;"}
          title="avg: 723, max: 993, median: 692, min: 649, stdev: 76.8"
         />
        </div>
@@ -1966,7 +1966,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"2010&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"2010&#x2008;&#x2007;"}
          title="avg: 60.9, max: 65.8, median: 62.1, min: 42.6, stdev: 4.39"
         />
        </div>
@@ -1985,7 +1985,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"2020&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"2020&#x2008;&#x2007;"}
          title="avg: 61.3, max: 65.8, median: 62.4, min: 42.5, stdev: 4.53"
         />
        </div>
@@ -2004,7 +2004,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"22600"}
+         dangerouslySetInnerHTML={"22600&#x2008;"}
          title="avg: 685, max: 836, median: 672, min: 636, stdev: 46.5"
         />
        </div>
@@ -2054,7 +2054,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1830&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"1830&#x2008;&#x2007;"}
          title="avg: 55.6, max: 63.3, median: 61.5, min: 28.0, stdev: 10.0"
         />
        </div>
@@ -2073,7 +2073,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1370&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"1370&#x2008;&#x2007;"}
          title="avg: 41.5, max: 61.8, median: 42.1, min: 17.6, stdev: 11.7"
         />
        </div>
@@ -2092,7 +2092,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"23200"}
+         dangerouslySetInnerHTML={"23200&#x2008;"}
          title="avg: 704, max: 843, median: 693, min: 651, stdev: 43.1"
         />
        </div>
@@ -2635,7 +2635,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"28800"}
+         dangerouslySetInnerHTML={"28800&#x2008;"}
          title="avg: 626, max: 3500, median: 614, min: 104, stdev: 564"
         />
        </div>
@@ -3919,7 +3919,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -4007,7 +4007,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -4095,7 +4095,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"389"}
+         dangerouslySetInnerHTML={"389&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.838"
         />
        </div>
@@ -4183,7 +4183,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"262"}
+         dangerouslySetInnerHTML={"262&#x2008;"}
          title="avg: 131, max: 131, median: 131, min: 131, stdev: 0.115"
         />
        </div>
@@ -5351,7 +5351,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -5439,7 +5439,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -5527,7 +5527,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"648"}
+         dangerouslySetInnerHTML={"648&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.671"
         />
        </div>
@@ -5577,7 +5577,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -5615,7 +5615,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"516"}
+         dangerouslySetInnerHTML={"516&#x2008;"}
          title="avg: 129, max: 131, median: 131, min: 123, stdev: 3.51"
         />
        </div>
@@ -7226,7 +7226,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"2.90"}
-         title="avg: 1.45, max: 1.49, median: 1.45, min: 1.41, stdev: 0.041"
+         title="avg: 1.45, max: 1.49, median: 1.45, min: 1.41, stdev: 0.0410"
         />
        </div>
        <div
@@ -7333,7 +7333,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".036"}
-         title="avg: 0.012, max: 0.015, median: 0.015, min: 0.006, stdev: 0.00424"
+         title="avg: 0.0120, max: 0.015, median: 0.015, min: 0.006, stdev: 0.00424"
         />
        </div>
        <div
@@ -7402,7 +7402,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"2.41"}
-         title="avg: 1.20, max: 1.21, median: 1.20, min: 1.20, stdev: 0.0025"
+         title="avg: 1.20, max: 1.21, median: 1.20, min: 1.20, stdev: 0.00240"
         />
        </div>
        <div
@@ -8653,7 +8653,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"5.71"}
+         dangerouslySetInnerHTML={"5.72"}
          title="avg: 1.43, max: 1.49, median: 1.42, min: 1.38, stdev: 0.0419"
         />
        </div>
@@ -8673,7 +8673,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
        <div
@@ -8810,7 +8810,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -8849,7 +8849,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
       </div>
@@ -10463,7 +10463,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"2.90"}
-         title="avg: 1.45, max: 1.49, median: 1.45, min: 1.41, stdev: 0.041"
+         title="avg: 1.45, max: 1.49, median: 1.45, min: 1.41, stdev: 0.0410"
         />
        </div>
        <div
@@ -10570,7 +10570,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".036"}
-         title="avg: 0.012, max: 0.015, median: 0.015, min: 0.006, stdev: 0.00424"
+         title="avg: 0.0120, max: 0.015, median: 0.015, min: 0.006, stdev: 0.00424"
         />
        </div>
        <div
@@ -10639,7 +10639,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".331"}
-         title="avg: 0.166, max: 0.167, median: 0.166, min: 0.164, stdev: 0.0015"
+         title="avg: 0.166, max: 0.167, median: 0.166, min: 0.164, stdev: 0.00150"
         />
        </div>
        <div
@@ -11890,7 +11890,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"5.71"}
+         dangerouslySetInnerHTML={"5.72"}
          title="avg: 1.43, max: 1.49, median: 1.42, min: 1.38, stdev: 0.0419"
         />
        </div>
@@ -11910,7 +11910,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
        <div
@@ -11979,7 +11979,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".255"}
-         title="avg: 0.051, max: 0.091, median: 0.037, min: 0.024, stdev: 0.0253"
+         title="avg: 0.0510, max: 0.091, median: 0.037, min: 0.024, stdev: 0.0253"
         />
        </div>
        <div
@@ -12047,7 +12047,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -12086,7 +12086,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
       </div>
@@ -13630,7 +13630,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={".070"}
+         dangerouslySetInnerHTML={".07&#x2007;"}
          title="avg: 0.0175, max: 0.032, median: 0.019, min: 0.000, stdev: 0.0114"
         />
        </div>
@@ -13699,7 +13699,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"5.71"}
+         dangerouslySetInnerHTML={"5.72"}
          title="avg: 1.43, max: 1.49, median: 1.42, min: 1.38, stdev: 0.0419"
         />
        </div>
@@ -13719,7 +13719,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
        <div
@@ -13856,7 +13856,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -13895,7 +13895,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
       </div>
@@ -15127,7 +15127,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"5.71"}
+         dangerouslySetInnerHTML={"5.72"}
          title="avg: 1.43, max: 1.49, median: 1.42, min: 1.38, stdev: 0.0419"
         />
        </div>
@@ -15147,7 +15147,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
        <div
@@ -15284,7 +15284,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -15323,7 +15323,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"212"}
-         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.79869280115049655695465610"
+         title="avg: 53, max: 212, median: 0, min: 0, stdev: 91.7986928011505"
         />
        </div>
       </div>
@@ -16895,7 +16895,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -16983,7 +16983,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"389"}
+         dangerouslySetInnerHTML={"389&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.838"
         />
        </div>
@@ -17071,7 +17071,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -17159,7 +17159,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"262"}
+         dangerouslySetInnerHTML={"262&#x2008;"}
          title="avg: 131, max: 131, median: 131, min: 131, stdev: 0.115"
         />
        </div>
@@ -18351,7 +18351,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -18439,7 +18439,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"648"}
+         dangerouslySetInnerHTML={"648&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.671"
         />
        </div>
@@ -18527,7 +18527,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -18577,7 +18577,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.20"}
+         dangerouslySetInnerHTML={"7.10"}
          title="avg: 1.80, max: 1.82, median: 1.81, min: 1.75, stdev: 0.0300"
         />
        </div>
@@ -18615,7 +18615,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"516"}
+         dangerouslySetInnerHTML={"516&#x2008;"}
          title="avg: 129, max: 131, median: 131, min: 123, stdev: 3.51"
         />
        </div>
@@ -19714,7 +19714,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"24.9&#x2007;"}
-         title="avg: 8.30, max: 8.30, median: 8.30, min: 8.30, stdev: 0"
+         title="avg: 8.20, max: 8.20, median: 8.20, min: 8.20, stdev: 0"
         />
        </div>
        <div
@@ -19732,7 +19732,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1670"}
+         dangerouslySetInnerHTML={"1670&#x2008;"}
          title="avg: 556, max: 556, median: 556, min: 556, stdev: 0"
         />
        </div>
@@ -19751,8 +19751,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"NaN"}
-         title="avg: NaN, max: Inf, median: 1, min: -Inf, stdev: NaN"
+         dangerouslySetInnerHTML={"1&#x2008;"}
+         title="avg: 0.333, min: 1, stdev: 0.385"
         />
        </div>
        <div
@@ -19789,8 +19789,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"-Inf"}
-         title="avg: -Inf, max: 0, median: 0, min: -Inf, stdev: Inf"
+         dangerouslySetInnerHTML={"&#x2008;"}
+         title="avg: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
        <div
@@ -19827,8 +19827,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"NaN"}
-         title="avg: NaN, max: NaN, median: NaN, min: NaN, stdev: NaN"
+         dangerouslySetInnerHTML={"2000&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: 667, max: 2000, median: 0.00000001, stdev: 861"
         />
        </div>
        <div
@@ -19846,8 +19846,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"Inf"}
-         title="avg: Inf, max: Inf, median: 1, min: 1, stdev: Inf"
+         dangerouslySetInnerHTML={"2&#x2008;"}
+         title="avg: 0.667, max: 1, min: 1, stdev: 0.272"
         />
        </div>
       </div>
@@ -20847,7 +20847,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -20935,7 +20935,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"648"}
+         dangerouslySetInnerHTML={"648&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.671"
         />
        </div>
@@ -21908,7 +21908,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"648"}
+         dangerouslySetInnerHTML={"648&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.671"
         />
        </div>
@@ -21996,7 +21996,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -23867,7 +23867,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"10.9&#x2007;"}
-         title="avg: 2.18, max: 2.27, median: 2.19, min: 2.06, stdev: 0.0719"
+         title="avg: 2.18, max: 2.27, median: 2.19, min: 2.06, stdev: 0.0709"
         />
        </div>
        <div
@@ -23886,7 +23886,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"11&#x2008;&#x2007;"}
-         title="avg: 2.2, max: 2.3, median: 2.2, min: 2.1, stdev: 0.072"
+         title="avg: 2.2, max: 2.3, median: 2.2, min: 2.1, stdev: 0.063"
         />
        </div>
        <div
@@ -23904,8 +23904,8 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645270000"}
-         title="avg: 129050000, max: 132340000, median: 129120000, min: 126310000, stdev: 1975800"
+         dangerouslySetInnerHTML={"645270000&#x2008;"}
+         title="avg: 129050000, max: 132340000, median: 129120000, min: 126310000, stdev: 1977500"
         />
        </div>
       </div>
@@ -24601,8 +24601,8 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"10900"}
-         title="avg: 2180, max: 2270, median: 2190, min: 2060, stdev: 71.9"
+         dangerouslySetInnerHTML={"10900&#x2008;"}
+         title="avg: 2180, max: 2270, median: 2190, min: 2060, stdev: 70.9"
         />
        </div>
        <div
@@ -24621,7 +24621,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".003033&#x2007;"}
-         title="avg: 0.0006066, max: 0.0006312, median: 0.0006083, min: 0.0005718, stdev: 0.00001996"
+         title="avg: 0.0006066, max: 0.0006312, median: 0.0006083, min: 0.0005718, stdev: 0.00001998"
         />
        </div>
        <div
@@ -24640,7 +24640,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000011&#x2007;"}
-         title="avg: 0.00000020, max: 0.00000020, median: 0.00000020, min: 0.00000020, stdev: 0.00"
+         title="avg: 0.0000002, max: 0.00000023, median: 0.0000002, min: 0.00000021, stdev: 0.000000006"
         />
        </div>
        <div
@@ -24659,7 +24659,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"645.27"}
-         title="avg: 129.05, max: 132.34, median: 129.12, min: 126.31, stdev: 1.9758"
+         title="avg: 129.05, max: 132.34, median: 129.12, min: 126.31, stdev: 1.9775"
         />
        </div>
        <div
@@ -24678,7 +24678,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".64527"}
-         title="avg: 0.12905, max: 0.13234, median: 0.12912, min: 0.12631, stdev: 0.0019758"
+         title="avg: 0.12905, max: 0.13234, median: 0.12912, min: 0.12631, stdev: 0.0019775"
         />
        </div>
       </div>
@@ -25559,7 +25559,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"26992640"}
-         title="avg: 8997546.666666666666666666667, max: 19525632, median: 4583424, min: 2883584, stdev: 7476755.071368921664235748621"
+         title="avg: 8997546.666666666, max: 19525632, median: 4583424, min: 2883584, stdev: 7476755.071368922"
         />
        </div>
        <div
@@ -25647,7 +25647,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"115314688"}
-         title="avg: 38438229.33333333333333333333, max: 46264320, median: 45228032, min: 23822336, stdev: 10343652.69632442539094751832"
+         title="avg: 38438229.333333336, max: 46264320, median: 45228032, min: 23822336, stdev: 10343652.696324425"
         />
        </div>
       </div>
@@ -26375,7 +26375,7 @@ exports[`Render Summary for smt.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"32505856"}
-         title="avg: 8126464, max: 19525632, median: 5048320, min: 2883584, stdev: 6648515.235331269059270664423"
+         title="avg: 8126464, max: 19525632, median: 5048320, min: 2883584, stdev: 6648515.235331269"
         />
        </div>
        <div
@@ -26463,7 +26463,7 @@ exports[`Render Summary for smt.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"139300864"}
-         title="avg: 34825216, max: 46264320, median: 34607104, min: 23822336, stdev: 10927257.63250633713180414298"
+         title="avg: 34825216, max: 46264320, median: 34607104, min: 23822336, stdev: 10927257.632506337"
         />
        </div>
       </div>
@@ -27583,7 +27583,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0208&#x2007;"}
-         title="avg: 0.00347, max: 0.00808, median: 0.00265, min: 0.00161, stdev: 0.00220"
+         title="avg: 0.00347, max: 0.00808, median: 0.00265, min: 0.00161, stdev: 0.00210"
         />
        </div>
        <div
@@ -27995,8 +27995,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td separator"
@@ -28101,7 +28102,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
@@ -28237,8 +28238,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td separator"
@@ -28343,7 +28345,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
@@ -28404,8 +28406,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -28511,8 +28514,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -28791,7 +28795,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={".0140&#x2007;"}
+         dangerouslySetInnerHTML={".0130&#x2007;"}
          title="avg: 0.00349, max: 0.00808, median: 0.00213, min: 0.00161, stdev: 0.00267"
         />
        </div>
@@ -28829,7 +28833,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
@@ -29034,7 +29038,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={".0140&#x2007;"}
+         dangerouslySetInnerHTML={".0130&#x2007;"}
          title="avg: 0.00349, max: 0.00808, median: 0.00213, min: 0.00161, stdev: 0.00267"
         />
        </div>
@@ -29072,7 +29076,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
@@ -29133,8 +29137,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -29240,8 +29245,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -30316,7 +30322,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -30404,7 +30410,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -30991,7 +30997,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -31704,7 +31710,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"388"}
+         dangerouslySetInnerHTML={"388&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 2.46"
         />
        </div>
@@ -32304,7 +32310,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"389"}
+         dangerouslySetInnerHTML={"389&#x2008;"}
          title="avg: 130, max: 132, median: 129, min: 128, stdev: 1.83"
         />
        </div>
@@ -32323,7 +32329,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.5&#x2007;"}
+         dangerouslySetInnerHTML={"&#x2007;7.5"}
          title="avg: 2.5, max: 10, median: 0, min: -2.5, stdev: 5.40"
         />
        </div>
@@ -32882,7 +32888,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -33557,7 +33563,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -34232,7 +34238,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -35106,7 +35112,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -35194,7 +35200,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -36117,7 +36123,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"4.40"}
+         dangerouslySetInnerHTML={"4.30"}
          title="avg: 2.20, max: 2.23, median: 2.20, min: 2.17, stdev: 0.0302"
         />
        </div>
@@ -36155,7 +36161,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"260"}
+         dangerouslySetInnerHTML={"260&#x2008;"}
          title="avg: 130, max: 132, median: 130, min: 128, stdev: 2.15"
         />
        </div>
@@ -36243,7 +36249,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -37001,7 +37007,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"519"}
+         dangerouslySetInnerHTML={"519&#x2008;"}
          title="avg: 130, max: 132, median: 129, min: 128, stdev: 1.59"
         />
        </div>
@@ -37089,7 +37095,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -37847,7 +37853,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"259"}
+         dangerouslySetInnerHTML={"259&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 3.01"
         />
        </div>
@@ -37935,7 +37941,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"134"}
+         dangerouslySetInnerHTML={"134&#x2008;"}
          title="avg: 134, max: 134, median: 134, min: 134, stdev: 0"
         />
        </div>
@@ -38693,7 +38699,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"388"}
+         dangerouslySetInnerHTML={"388&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 2.46"
         />
        </div>
@@ -38781,7 +38787,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"265"}
+         dangerouslySetInnerHTML={"265&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 131, stdev: 1.23"
         />
        </div>
@@ -39539,7 +39545,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -39627,7 +39633,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -40385,7 +40391,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -40473,7 +40479,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -41434,7 +41440,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -41522,7 +41528,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -42280,7 +42286,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -42368,7 +42374,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -43329,7 +43335,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -43417,7 +43423,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -44175,7 +44181,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -44263,7 +44269,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -45021,7 +45027,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -45109,7 +45115,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -45867,7 +45873,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -45955,7 +45961,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -46924,7 +46930,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"387"}
+         dangerouslySetInnerHTML={"387&#x2008;"}
          title="avg: 129, max: 132, median: 128, min: 126, stdev: 2.53"
         />
        </div>
@@ -47012,7 +47018,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"264"}
+         dangerouslySetInnerHTML={"264&#x2008;"}
          title="avg: 132, max: 134, median: 132, min: 130, stdev: 1.64"
         />
        </div>
@@ -47100,7 +47106,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"389"}
+         dangerouslySetInnerHTML={"389&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.838"
         />
        </div>
@@ -48069,7 +48075,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -48157,7 +48163,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
@@ -48245,7 +48251,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"648"}
+         dangerouslySetInnerHTML={"648&#x2008;"}
          title="avg: 130, max: 131, median: 130, min: 129, stdev: 0.671"
         />
        </div>
@@ -49295,7 +49301,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"776"}
+         dangerouslySetInnerHTML={"776&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.92"
         />
        </div>
@@ -49365,7 +49371,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"7.98"}
-         title="avg: 2.00, max: 2.21, median: 1.98, min: 1.82, stdev: 0.177"
+         title="avg: 2000, max: 2.21, median: 1.98, min: 1.82, stdev: 0.177"
         />
        </div>
        <div
@@ -49383,7 +49389,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"526"}
+         dangerouslySetInnerHTML={"526&#x2008;"}
          title="avg: 131, max: 134, median: 131, min: 130, stdev: 1.27"
         />
        </div>
@@ -50141,7 +50147,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1290"}
+         dangerouslySetInnerHTML={"1290&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.51"
         />
        </div>
@@ -50229,7 +50235,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1040"}
+         dangerouslySetInnerHTML={"1040&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 123, stdev: 3.19"
         />
        </div>
@@ -50788,7 +50794,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"645"}
+         dangerouslySetInnerHTML={"645&#x2008;"}
          title="avg: 129, max: 132, median: 129, min: 126, stdev: 1.98"
         />
        </div>
@@ -51347,7 +51353,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"521"}
+         dangerouslySetInnerHTML={"521&#x2008;"}
          title="avg: 130, max: 134, median: 131, min: 126, stdev: 2.65"
         />
        </div>
