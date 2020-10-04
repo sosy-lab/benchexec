@@ -41,6 +41,10 @@ if [ -z "$DEBEMAIL" ]; then
   echo "Please define environment variable DEBEMAIL with your name you want to use for the Debian package."
   exit 1
 fi
+if [ -z "$DEBKEY" ]; then
+  echo "Please define environment variable DEBKEY with your key ID you want to use for signing the Debian package."
+  exit 1
+fi
 if ! which twine > /dev/null; then
   echo 'Please install twine>=1.11.0, e.g. with "pipx install twine" or "pip3 install --user twine".'
   exit 1
@@ -92,13 +96,14 @@ cd "BenchExec-$VERSION"
 
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
-dpkg-buildpackage -us -uc
+dpkg-buildpackage --build=binary --no-sign
+dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
 popd
-cp "$TEMP_DEB/benchexec_$VERSION-1_all.deb" "$DIST_DIR"
+cp "$TEMP_DEB/benchexec_$VERSION"{.orig.tar.gz,-1_all.deb,-1.dsc,-1.debian.tar.xz,-1_source.buildinfo,-1_source.changes} "$DIST_DIR"
 rm -rf "$TEMP_DEB"
 
-for f in "$DIST_DIR/"*; do
-  gpg --detach-sign -a "$f"
+for f in "$DIST_DIR/BenchExec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
+  gpg --detach-sign -a -u "$DEBKEY" "$f"
 done
 git tag -s "$VERSION" -m "Release $VERSION"
 
@@ -112,6 +117,7 @@ fi
 
 git push --tags
 twine upload "$DIST_DIR/BenchExec"*
+dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
 read -p "Please enter next version number:  " -r
 sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
@@ -119,5 +125,6 @@ git commit benchexec/__init__.py -m"Prepare version number for next development 
 
 
 echo
-echo "Please create a release on GitHub and add content from CHANGELOG.md and files from $DIST_DIR/:"
-echo "https://github.com/sosy-lab/benchexec/releases"
+echo "Please create a release on GitHub and add content from CHANGELOG.md and the following files:"
+ls -1 "$DIST_DIR/BenchExec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
+echo "=> https://github.com/sosy-lab/benchexec/releases/new?tag=$VERSION&title=Release%20$VERSION"

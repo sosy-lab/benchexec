@@ -146,7 +146,8 @@ def _prepare_benchmark_setup_data(
     runSetWidths1 = [1] * sum(runSetWidths)
     titleRow = dict(  # noqa: C408
         id="columnTitles",
-        name=commonFileNamePrefix,
+        # commonFileNamePrefix may contain paths, so standardize the output across OSs
+        name=util.fix_path_if_on_windows(commonFileNamePrefix),
         content=list(zip(titles, runSetWidths1)),
     )
 
@@ -377,6 +378,9 @@ def _prepare_run_sets_for_js(run_sets):
 
     def prepare_column(column):
         result = {k: v for k, v in column.__dict__.items() if v is not None}
+        if "href" in result:
+            # href may contain an url created from an os-dependant path, so standardize it between OSs
+            result["href"] = util.fix_path_if_on_windows(result["href"])
         result["display_title"] = column.display_title or column.title
         result["type"] = column.type.type.name
         number_of_significant_digits = column.get_number_of_significant_digits()
@@ -447,7 +451,8 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         ]
         # Replace first part of id (task name, which is always shown) with short name
         assert relevant_id_columns[0]
-        result["id"][0] = row.short_filename
+        # row.short_filename may contain paths, so standardize the output across OSs
+        result["id"][0] = util.fix_path_if_on_windows(row.short_filename)
 
         result["results"] = [clean_up_results(res) for res in row.results]
         if row.has_sourcefile:
@@ -484,7 +489,12 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
         )
 
     source_file = (
-        os.path.relpath(runResult.task_id.name, href_base or ".") if runResult else None
+        # os.path.relpath creates os-dependant paths, so standardize the output between OSs
+        util.fix_path_if_on_windows(
+            os.path.relpath(runResult.task_id.name, href_base or ".")
+        )
+        if runResult
+        else None
     )
 
     if util.is_url(href):
@@ -497,4 +507,5 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
     # quote special characters everywhere (but not twice in source_file!)
     if source_file:
         href = benchexec.util.substitute_vars(href, get_replacements(source_file))
-    return url_quote(os.path.relpath(href, base_dir))
+    # os.path.relpath creates os-dependant paths, so standardize the output between OSs
+    return url_quote(util.fix_path_if_on_windows(os.path.relpath(href, base_dir)))

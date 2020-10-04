@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 11),
                python3 (>= 3.5),
                python3-setuptools,
                python3-lxml,
+               python3-yaml (>= 3.12),
                python3-nose
 Standards-Version: 3.9.6.1
 X-Python3-Version: >= 3.5

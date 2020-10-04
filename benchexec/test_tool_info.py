@@ -7,15 +7,19 @@
 
 import argparse
 import contextlib
+import copy
 import logging
 import inspect
 import os
 import sys
+import yaml
 
 import benchexec
 import benchexec.benchexec
 from benchexec import model
+from benchexec import tooladapter
 from benchexec import util
+from benchexec.tooladapter import CURRENT_BASETOOL
 import benchexec.tools.template
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -113,12 +117,13 @@ def log_if_unsupported(msg):
         )
 
 
-def print_tool_info(tool):
+def print_tool_info(tool, tool_locator):
+    """Print standard info from tool-info module"""
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
     print_value("Name of tool", tool.name())
 
-    executable = tool.executable()
+    executable = tool.executable(tool_locator)
     print_value("Executable", executable)
     if not os.path.isabs(executable):
         print_value("Executable (absolute path)", os.path.abspath(executable))
@@ -127,6 +132,17 @@ def print_tool_info(tool):
             "Path to executable is absolute, this might be problematic "
             "in scenarios where runs are distributed to other machines."
         )
+    if os.path.isdir(executable):
+        logging.warning("Designated executable is a directory.")
+    elif not os.path.isfile(executable):
+        logging.warning("Designated executable does not exist.")
+    elif not os.access(executable, os.X_OK):
+        logging.warning("Designated executable is not marked as executable.")
+    if tool_locator.tool_directory:
+        abs_directory = os.path.abspath(tool_locator.tool_directory)
+        abs_executable = os.path.abspath(executable)
+        if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
+            logging.warning("Executable is not within specified tool directory.")
 
     try:
         print_value("Version", tool.version(executable))
@@ -174,11 +190,18 @@ def print_tool_info(tool):
             environment,
         )
 
+    return executable
+
+
+def print_standard_task_cmdlines(tool, executable):
+    """Print command lines resulting from a few different dummy tasks"""
+    no_limits = CURRENT_BASETOOL.ResourceLimits()
+
     with log_if_unsupported(
         "tasks without options, property file, and resource limits"
     ):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], None, None, {}
+            tool, executable, [], ["INPUT.FILE"], None, None, None, no_limits
         )
         print_list("Minimal command line", cmdline)
         if "INPUT.FILE" not in " ".join(cmdline):
@@ -186,7 +209,14 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with command-line options"):
         cmdline = model.cmdline_for_run(
-            tool, executable, ["-SOME_OPTION"], ["INPUT.FILE"], None, None, {}
+            tool,
+            executable,
+            ["-SOME_OPTION"],
+            ["INPUT.FILE"],
+            None,
+            None,
+            None,
+            no_limits,
         )
         print_list("Command line with parameter", cmdline)
         if "-SOME_OPTION" not in cmdline:
@@ -194,7 +224,7 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with property file"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], None, "PROPERTY.PRP", {}
+            tool, executable, [], ["INPUT.FILE"], None, "PROPERTY.PRP", None, no_limits
         )
         print_list("Command line with property file", cmdline)
         if "PROPERTY.PRP" not in " ".join(cmdline):
@@ -202,7 +232,14 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with multiple input files"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT1.FILE", "INPUT2.FILE"], None, None, {}
+            tool,
+            executable,
+            [],
+            ["INPUT1.FILE", "INPUT2.FILE"],
+            None,
+            None,
+            None,
+            no_limits,
         )
         print_list("Command line with multiple input files", cmdline)
         if "INPUT1.FILE" in " ".join(cmdline) and "INPUT2.FILE" not in " ".join(
@@ -212,14 +249,70 @@ def print_tool_info(tool):
 
     with log_if_unsupported("tasks with CPU-time limit"):
         cmdline = model.cmdline_for_run(
-            tool, executable, [], ["INPUT.FILE"], None, None, {model.SOFTTIMELIMIT: 123}
+            tool,
+            executable,
+            [],
+            ["INPUT.FILE"],
+            None,
+            None,
+            None,
+            CURRENT_BASETOOL.ResourceLimits(cputime=123),
         )
         print_list("Command line CPU-time limit", cmdline)
 
-    return tool
+    with log_if_unsupported("SV-Benchmarks task"):
+        cmdline = model.cmdline_for_run(
+            tool,
+            executable,
+            [],
+            ["INPUT.FILE"],
+            None,
+            "PROPERTY.PRP",
+            {"language": "C", "data_model": "ILP32"},
+            CURRENT_BASETOOL.ResourceLimits(cputime=900, cputime_hard=1000),
+        )
+        print_list("Command line SV-Benchmarks task", cmdline)
+
+    # This will return the last command line that did not trigger an exception
+    return cmdline
 
 
-def analyze_tool_output(tool, file):
+def print_task_cmdline(tool, executable, task_def_file):
+    """Print command lines resulting for tasks from the given task-definition file."""
+    no_limits = CURRENT_BASETOOL.ResourceLimits()
+
+    task = yaml.safe_load(task_def_file)
+    input_files = model.handle_files_from_task_definition(
+        task.get("input_files"), task_def_file.name
+    )
+
+    def print_cmdline(task_description, property_file):
+        task_description = task_def_file.name + " " + task_description
+        with log_if_unsupported("task from " + task_description):
+            cmdline = model.cmdline_for_run(
+                tool,
+                executable,
+                [],
+                input_files,
+                task_def_file.name,
+                property_file,
+                copy.deepcopy(task.get("options")),
+                no_limits,
+            )
+            print_list("Command line for " + task_description, cmdline)
+
+    print_cmdline("without property file", None)
+
+    for prop in task.get("properties", []):
+        property_file = prop.get("property_file")
+        if property_file:
+            property_file = util.expand_filename_pattern(
+                property_file, os.path.dirname(task_def_file.name)
+            )[0]
+            print_cmdline("with property " + property_file, property_file)
+
+
+def analyze_tool_output(tool, file, dummy_cmdline):
     try:
         output = file.readlines()
     except (OSError, UnicodeDecodeError) as e:
@@ -227,9 +320,10 @@ def analyze_tool_output(tool, file):
         return
 
     try:
-        result = tool.determine_result(
-            returncode=0, returnsignal=0, output=output, isTimeout=False
-        )
+        exit_code = util.ProcessExitCode.create(value=0)
+        output = CURRENT_BASETOOL.RunOutput(output)
+        run = CURRENT_BASETOOL.Run(dummy_cmdline, exit_code, output, None)
+        result = tool.determine_result(run)
         print_value(
             "Result of analyzing tool output in “" + file.name + "”",
             result,
@@ -257,11 +351,25 @@ def main(argv=None):
     )
     parser.add_argument("tool", metavar="TOOL", help="name of tool info to test")
     parser.add_argument(
+        "--tool-directory",
+        help="look for tool in given directory",
+        metavar="DIR",
+        type=benchexec.util.non_empty_str,
+    )
+    parser.add_argument(
         "--tool-output",
         metavar="OUTPUT_FILE",
         nargs="+",
         type=argparse.FileType("r"),
         help="optional names of text files with example outputs of a tool run",
+    )
+    parser.add_argument(
+        "--task-definition",
+        metavar="TASK_DEF_FILE",
+        nargs="+",
+        default=[],
+        type=argparse.FileType("r"),
+        help="optional name of task-definition files to test the module with",
     )
     benchexec.benchexec.add_container_args(parser)
 
@@ -269,22 +377,26 @@ def main(argv=None):
     logging.basicConfig(
         format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
     )
+    tool_locator = tooladapter.create_tool_locator(options)
 
     print_value("Name of tool module", options.tool)
     try:
         tool_module, tool = model.load_tool_info(options.tool, options)
         try:
             print_value("Full name of tool module", tool_module)
-            print_tool_info(tool)
+            executable = print_tool_info(tool, tool_locator)
+            dummy_cmdline = print_standard_task_cmdlines(tool, executable)
+            for task_def_file in options.task_definition:
+                print_task_cmdline(tool, executable, task_def_file)
 
             if options.tool_output:
                 for file in options.tool_output:
-                    analyze_tool_output(tool, file)
+                    analyze_tool_output(tool, file, dummy_cmdline)
         finally:
             tool.close()
 
     except benchexec.BenchExecException as e:
-        sys.exit(str(e))
+        sys.exit("Error: " + str(e))
 
 
 if __name__ == "__main__":

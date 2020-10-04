@@ -7673,6 +7673,317 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
 </div>
 `;
 
+exports[`Render SelectColumn for rows-with-scores.html 1`] = `
+<div
+ className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ style={
+  Object {
+   "backgroundColor": "rgba(255, 255, 255, 0.75)",
+   "bottom": 0,
+   "left": 0,
+   "position": "fixed",
+   "right": 0,
+   "top": 0,
+  }
+ }
+>
+ <div
+  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  role="dialog"
+  tabIndex="-1"
+ >
+  <div
+   className="link-overlay-header-container"
+  >
+   <svg
+    aria-hidden="true"
+    className="svg-inline--fa fa-times fa-w-11 closing"
+    data-icon="times"
+    data-prefix="fas"
+    focusable="false"
+    role="img"
+    viewBox="0 0 352 512"
+    xmlns="http://www.w3.org/2000/svg"
+   >
+    <path
+     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+     fill="currentColor"
+    />
+   </svg>
+  </div>
+  <h1>
+   Select the columns to display
+  </h1>
+  <table
+   className="selectRows"
+  >
+   <tbody>
+    <tr
+     className="selectColumn_all"
+    >
+     <th />
+     <th
+      className="checked"
+      id="td-all-status"
+     >
+      <label>
+       status
+       <input
+        checked={true}
+        name="status"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-cputime"
+     >
+      <label>
+       cputime
+       <input
+        checked={true}
+        name="cputime"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-walltime"
+     >
+      <label>
+       walltime
+       <input
+        checked={true}
+        name="walltime"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-memory"
+     >
+      <label>
+       memory
+       <input
+        checked={true}
+        name="memory"
+        type="checkbox"
+       />
+      </label>
+     </th>
+     <th
+      className="checked"
+      id="td-all-cpuenergy"
+     >
+      <label>
+       cpuenergy
+       <input
+        checked={true}
+        name="cpuenergy"
+        type="checkbox"
+       />
+      </label>
+     </th>
+    </tr>
+    <tr
+     id="DummyTool 2019-12-20 15:32:33 CET 0"
+    >
+     <td
+      className="checked"
+      id="DummyTool 2019-12-20 15:32:33 CET 0"
+     >
+      <label>
+       DummyTool 2019-12-20 15:32:33 CET 0
+       <input
+        checked={true}
+        name="DummyTool 2019-12-20 15:32:33 CET 0--0"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0status"
+     >
+      <label>
+       status
+       <input
+        checked={true}
+        id="0--status"
+        name="0--status"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0cputime"
+     >
+      <label>
+       cputime
+       <input
+        checked={true}
+        id="0--cputime"
+        name="0--cputime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0walltime"
+     >
+      <label>
+       walltime
+       <input
+        checked={true}
+        id="0--walltime"
+        name="0--walltime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0memory"
+     >
+      <label>
+       memory
+       <input
+        checked={true}
+        id="0--memory"
+        name="0--memory"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td0cpuenergy"
+     >
+      <label>
+       cpuenergy
+       <input
+        checked={true}
+        id="0--cpuenergy"
+        name="0--cpuenergy"
+        type="checkbox"
+       />
+      </label>
+     </td>
+    </tr>
+    <tr
+     id="DummyTool 2020-06-10 09:17:06 CEST 0"
+    >
+     <td
+      className="checked"
+      id="DummyTool 2020-06-10 09:17:06 CEST 0"
+     >
+      <label>
+       DummyTool 2020-06-10 09:17:06 CEST 0
+       <input
+        checked={true}
+        name="DummyTool 2020-06-10 09:17:06 CEST 0--1"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td1status"
+     >
+      <label>
+       status
+       <input
+        checked={true}
+        id="1--status"
+        name="1--status"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td1cputime"
+     >
+      <label>
+       cputime
+       <input
+        checked={true}
+        id="1--cputime"
+        name="1--cputime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td1walltime"
+     >
+      <label>
+       walltime
+       <input
+        checked={true}
+        id="1--walltime"
+        name="1--walltime"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td1memory"
+     >
+      <label>
+       memory
+       <input
+        checked={true}
+        id="1--memory"
+        name="1--memory"
+        type="checkbox"
+       />
+      </label>
+     </td>
+     <td
+      className="checked"
+      id="td1cpuenergy"
+     >
+      <label>
+       cpuenergy
+       <input
+        checked={true}
+        id="1--cpuenergy"
+        name="1--cpuenergy"
+        type="checkbox"
+       />
+      </label>
+     </td>
+    </tr>
+   </tbody>
+  </table>
+  <div
+   className="overlay__buttons"
+  >
+   <button
+    className="btn"
+   >
+    Deselect all
+   </button>
+   <button
+    className="btn btn-apply"
+    disabled={false}
+   >
+    Apply and close
+   </button>
+   <input />
+  </div>
+ </div>
+</div>
+`;
+
 exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
 <div
  className="ReactModal__Overlay ReactModal__Overlay--after-open"

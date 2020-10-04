@@ -24,13 +24,17 @@ The following packages are optional but recommended dependencies:
 
 ### Debian/Ubuntu
 
-For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
-that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
+For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+
+    sudo add-apt-repository ppa:sosy-lab/benchmarking
+    sudo apt install benchexec
+
+Alternatively, you can download our `.deb` package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
+and install manually (note that the leading `./` is important, otherwise `apt` will not find the package):
 
     apt install --install-recommends ./benchexec_*.deb
 
-Note that the leading `./` is important, otherwise `apt` will not find the package.
-This package also automatically configures the necessary cgroup permissions.
+Our package automatically configures the necessary cgroup permissions.
 Just add the users that should be able to use BenchExec to the group `benchexec`
 (group membership will be effective after the next login of the respective user):
 
@@ -219,7 +223,7 @@ to mount the cgroup hierarchy within the container when starting it:
 
 Note that you additionally need the `--privileged` flag for container mode.
 However, this gives your Docker container full root access to the host,
-so please also add the `--cpa-drop=all` flag,
+so please also add the `--cap-drop=all` flag,
 make sure to use this only with trusted images,
 and configure your Docker container such that everything in it
 is executed under a different user account, not as root.

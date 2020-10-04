@@ -1,0 +1,25 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python37"
+    - PYTHON: "C:\\Python38"
+
+build: off
+
+install:
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  # The package installation via our setup.py file uses easy_install, which fails to correctly install lxml.
+  # As some Python environments don't have lxml preinstalled, install it here to avoid errors during the execution in those cases.
+  - python -m pip install lxml
+  - python -m pip install --user .
+
+test_script:
+  - python setup.py nosetests --test benchexec.tablegenerator

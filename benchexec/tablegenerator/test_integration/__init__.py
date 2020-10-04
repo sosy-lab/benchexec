@@ -15,13 +15,14 @@ import unittest
 
 import benchexec
 import benchexec.util
+import benchexec.tablegenerator.util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")
 bin_dir = os.path.join(base_dir, "bin")
-tablegenerator = os.path.join(bin_dir, "table-generator")
+tablegenerator = [sys.executable, os.path.join(bin_dir, "table-generator")]
 
 # Set to True to let tests overwrite the expected result with the actual result
 # instead of letting them fail.
@@ -73,7 +74,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         output_path=None,
     ):
         output = self.run_cmd(
-            *[tablegenerator] + list(args) + ["--outputpath", output_path or self.tmp]
+            *tablegenerator + list(args) + ["--outputpath", output_path or self.tmp]
         )
         generated_files = {os.path.join(self.tmp, x) for x in os.listdir(self.tmp)}
 
@@ -159,6 +160,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         if expected_counts:
             # output of table-generator should end with statistics about regressions
             counts = output[output.find("REGRESSIONS") :].strip()
+            # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
+            counts = benchexec.tablegenerator.util.normalize_line_endings(counts)
             self.assertMultiLineEqual(expected_counts, counts)
         else:
             self.assertNotIn("REGRESSIONS", output)
@@ -188,14 +191,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         self.assertEqual(
             1,
             subprocess.call(
-                [tablegenerator], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             ),
             "expected error return code",
         )
 
     def test_files_and_table_definition_given(self):
         cmdline = [
-            tablegenerator,
+            *tablegenerator,
             "-x",
             os.path.join(here, "simple-table.xml"),
             result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
@@ -207,7 +210,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_empty_table_definition_given(self):
-        cmdline = [tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
+        cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
             subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -418,14 +421,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
             ],
             table_prefix="test.2015-03-03_1613.results.predicateAnalysis",
-            expected_counts="REGRESSIONS 0\nSTATS\n3 1 0",  # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
+            # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
+            expected_counts="REGRESSIONS 0\nSTATS\n3 1 0",
         )
 
     def test_dump_count_single_table2(self):
         self.generate_tables_and_compare_content(
             ["--dump", result_file("test.2015-03-03_1613.results.valueAnalysis.xml")],
             table_prefix="test.2015-03-03_1613.results.valueAnalysis",
-            expected_counts="REGRESSIONS 0\nSTATS\n2 0 1",  # 2 correct, 0 incorrect, 1 unknown
+            # 2 correct, 0 incorrect, 1 unknown
+            expected_counts="REGRESSIONS 0\nSTATS\n2 0 1",
         )
 
     def test_dump_count_multi_table(self):
@@ -649,7 +654,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         expected = benchexec.util.read_file(
             here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
         )
-        self.assertMultiLineEqual(output.strip(), expected)
+        # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
+        output = benchexec.tablegenerator.util.normalize_line_endings(output.strip())
+        self.assertMultiLineEqual(output, expected)
 
     def test_format_csv(self):
         self.generate_tables_and_check_produced_files(
