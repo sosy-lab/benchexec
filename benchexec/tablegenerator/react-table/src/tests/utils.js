@@ -163,7 +163,7 @@ const test_snapshot_of = (name, component_func) => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
     .filter((file) => fs.statSync(testDir + file).size < 100000)
-    .some((file) => {
+    .forEach((file) => {
       it(name + " for " + file, async () => {
         const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
         const data = JSON.parse(content);
@@ -184,7 +184,6 @@ const test_snapshot_of = (name, component_func) => {
 
         expect(component).toMatchSnapshot();
       });
-      return true;
     });
 };
 
