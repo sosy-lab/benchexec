@@ -284,13 +284,20 @@ class NumberFormatterBuilder {
   }
 
   format(number) {
-    const stringNumber = number.toString();
+    let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
     let pointer = 0;
     let addedNums = 0;
     let firstNonZero = false;
     let decimal = false;
+
+    // handling exponential formatting of large (or small) numbers in javascript
+    if (stringNumber.includes("e")) {
+      const exponent = stringNumber.split("-")[1];
+      stringNumber = number.toFixed(exponent);
+    }
+
     const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
     while (
       addedNums < this.significantDigits - 1 &&
@@ -348,7 +355,9 @@ class NumberFormatterBuilder {
         }
 
         toAdd += overflow;
-        prefix = (Number(prefix) + Number(toAdd)).toString();
+        prefix = (Number(prefix) + Number(toAdd))
+          .toString()
+          .substr(0, oldLength);
         while (prefix.length < oldLength) {
           prefix += "0";
         }

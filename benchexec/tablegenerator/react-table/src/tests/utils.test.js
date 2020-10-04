@@ -267,6 +267,39 @@ describe("NumberFormatterBuilder", () => {
 
     expect(actual).toBe("11.0");
   });
+
+  test("handle carry in very precise numbers", () => {
+    const num = 0.013950547000604274;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.014");
+  });
+
+  test("should correctly round number with one integer digit", () => {
+    const num = 2.0000001;
+
+    const b = new NumberFormatterBuilder(4);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("2.000");
+  });
+
+  test("should correctly handle numbers in scientific notation", () => {
+    const num = 2.2e-7;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.0000002");
+  });
 });
 
 describe(
