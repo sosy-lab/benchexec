@@ -26,14 +26,13 @@ onmessage = function (e) {
     min: Infinity,
     stdev: 0,
     variance: 0,
-    items: [],
   };
 
   const copy = [...data];
   const buckets = {};
   copy.sort((a, b) => a.column - b.column);
 
-  const total = { ...defaultObj };
+  const total = { ...defaultObj, items: [] };
 
   total.max = copy[copy.length - 1].column;
   total.min = copy[0].column;
@@ -44,10 +43,14 @@ onmessage = function (e) {
     const totalKey = `${item.categoryType}-total`;
     const bucket = buckets[key] || {
       ...defaultObj,
+      items: [],
     };
     const { columnType: type, column } = item;
 
-    const subTotalBucket = buckets[totalKey] || { ...defaultObj };
+    const subTotalBucket = buckets[totalKey] || {
+      ...defaultObj,
+      items: [],
+    };
 
     bucket.sum = maybeAdd(bucket.sum, column, type);
     subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
@@ -59,7 +62,6 @@ onmessage = function (e) {
       subTotalBucket.max = Math.max(subTotalBucket.max, numCol);
       subTotalBucket.min = Math.min(subTotalBucket.min, numCol);
     } else {
-      //console.log(`Skipping ${column}`);
     }
 
     total.sum = maybeAdd(total.sum, column, type);
@@ -72,7 +74,6 @@ onmessage = function (e) {
   }
 
   for (const [bucket, values] of Object.entries(buckets)) {
-    // console.log({ values });
     values.avg = values.sum / values.items.length;
 
     if (values.items.length % 2 === 0) {
