@@ -25,6 +25,8 @@ import {
   isNil,
   getFirstVisibles,
 } from "../utils/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 import { renderSetting, renderOptgroupsSetting } from "../utils/plot";
 
 const scalingOptions = {
@@ -240,6 +242,12 @@ export default class ScatterPlot extends React.Component {
               (ev) => this.setAxis(ev, "X"),
               axisOptions,
             )}
+            <span className="setting icon">
+              <FontAwesomeIcon
+                icon={faExchangeAlt}
+                onClick={() => this.swapAxes()}
+              />
+            </span>
             {renderOptgroupsSetting(
               "Y-Axis",
               this.state.dataY,
@@ -309,6 +317,16 @@ export default class ScatterPlot extends React.Component {
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
+  };
+
+  swapAxes = () => {
+    this.array = [];
+    setParam({
+      toolX: this.state.toolY,
+      toolY: this.state.toolX,
+      columnX: this.state.columnY,
+      columnY: this.state.columnX,
+    });
   };
 
   render() {
