@@ -8,6 +8,7 @@
 import React from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
+import equals from "deep-equal";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import "react-table-hoc-fixed-columns/lib/styles.css";
 import {
@@ -22,11 +23,9 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
-export default class Summary extends React.Component {
+export default class Summary extends React.PureComponent {
   constructor(props) {
     super(props);
-
-    this.formatter = buildFormatter(props.tools);
 
     this.skipStats = isTestEnv && !props.onStatsReady;
 
@@ -132,6 +131,12 @@ export default class Summary extends React.Component {
     this.updateStats();
   }
 
+  componentDidUpdate(prevProps) {
+    if (!equals(prevProps.data, this.props.data)) {
+      this.updateStats();
+    }
+  }
+
   createColumn = (runSetIdx, column, columnIdx) => ({
     id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
     Header: (
@@ -192,14 +197,18 @@ export default class Summary extends React.Component {
       return row;
     });
 
-    this.setState({ stats: transformed });
+    this.setState({
+      stats: transformed,
+      statUpdateCycle: this.state.statUpdateCycle + 1,
+    });
   }
 
   async updateStats(oldStats) {
     const { tools, data: table, onStatsReady } = this.props;
+    const formatter = buildFormatter(this.props.tools);
     let res = this.skipStats
       ? {}
-      : await processData({ tools, table, formatter: this.formatter });
+      : await processData({ tools, table, formatter });
 
     // fill up stat array to match column mapping
 
