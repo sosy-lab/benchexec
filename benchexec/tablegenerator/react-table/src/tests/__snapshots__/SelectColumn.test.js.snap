@@ -22,21 +22,9 @@ exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -246,21 +234,9 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -747,21 +723,9 @@ exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = 
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -944,21 +908,9 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -1360,21 +1312,9 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -1776,21 +1716,9 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -2468,21 +2396,9 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -3160,21 +3076,9 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -3843,21 +3747,9 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -4526,21 +4418,9 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -5218,21 +5098,9 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -5910,21 +5778,9 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -6326,21 +6182,9 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -6742,21 +6586,9 @@ exports[`Render SelectColumn for nan_and_inf.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -7155,21 +6987,9 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -7425,21 +7245,9 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -7695,21 +7503,9 @@ exports[`Render SelectColumn for rows-with-scores.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -8006,21 +7802,9 @@ exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -8257,21 +8041,9 @@ exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -8454,21 +8226,9 @@ exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`]
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -8651,21 +8411,9 @@ exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -8902,21 +8650,9 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -9254,21 +8990,9 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -9606,21 +9330,9 @@ exports[`Render SelectColumn for task-def-files.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -9917,21 +9629,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -10187,21 +9887,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -10438,21 +10126,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -10635,21 +10311,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -10859,21 +10523,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -11056,21 +10708,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -11253,21 +10893,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.tabl
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -11450,21 +11078,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -11720,21 +11336,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -11990,21 +11594,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -12260,21 +11852,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -12530,21 +12110,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -12800,21 +12368,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -13070,21 +12626,9 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -13340,21 +12884,9 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -13610,21 +13142,9 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -13880,21 +13400,9 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -14150,21 +13658,9 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -14420,21 +13916,9 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -14690,21 +14174,9 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -14960,21 +14432,9 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -15303,21 +14763,9 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -15646,21 +15094,9 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -15916,21 +15352,9 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -16186,21 +15610,9 @@ exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = 
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
@@ -16383,21 +15795,9 @@ exports[`Render SelectColumn for union-table-valueAnalysis.table.html 1`] = `
   <div
    className="link-overlay-header-container"
   >
-   <svg
-    aria-hidden="true"
-    className="svg-inline--fa fa-times fa-w-11 closing"
-    data-icon="times"
-    data-prefix="fas"
-    focusable="false"
-    role="img"
-    viewBox="0 0 352 512"
-    xmlns="http://www.w3.org/2000/svg"
-   >
-    <path
-     d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-     fill="currentColor"
-    />
-   </svg>
+   <i
+    className="fa times"
+   />
   </div>
   <h1>
    Select the columns to display
