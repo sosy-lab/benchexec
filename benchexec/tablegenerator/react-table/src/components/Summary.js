@@ -53,9 +53,7 @@ export default class Summary extends React.PureComponent {
   renderTooltip = (cell) =>
     Object.keys(cell)
       .filter((key) => cell[key] && key !== "sum")
-      .map(
-        (key) => `${key}: ${cell[key].replace(/(&#x2007;)|(&#x2008;)/g, "")}`,
-      )
+      .map((key) => `${key}: ${cell[key]}`)
       .join(", ") || undefined;
 
   //fix columns
@@ -160,7 +158,7 @@ export default class Summary extends React.PureComponent {
       !isNil(cell.value) ? (
         <div
           dangerouslySetInnerHTML={{
-            __html: Number.isInteger(cell.value.sum)
+            __html: Number.isInteger(Number(cell.value.sum))
               ? Number(cell.value.sum)
               : cell.value.sum,
           }}
