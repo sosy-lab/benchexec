@@ -301,7 +301,7 @@ describe("NumberFormatterBuilder", () => {
     expect(actual).toBe("0.0000002");
   });
 
-  test("should not insert unnecessary spacings", () => {
+  test("should not insert unnecessary decimal spacings", () => {
     const num = 2.0;
 
     const b = new NumberFormatterBuilder(1);
@@ -311,6 +311,18 @@ describe("NumberFormatterBuilder", () => {
     const actual = formatter(num, { whitespaceFormat: true, html: true });
 
     expect(actual).toBe("2");
+  });
+
+  test("decimal spacings should not count towards number of character spacings", () => {
+    const num = 2.0;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(2.01);
+    const formatter = b.build();
+
+    const actual = formatter(num, { whitespaceFormat: true, html: true });
+
+    expect(actual).toBe("2&#x2008;&#x2007;&#x2007;");
   });
 });
 
