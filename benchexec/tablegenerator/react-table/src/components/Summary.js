@@ -159,7 +159,11 @@ export default class Summary extends React.PureComponent {
     Cell: (cell) =>
       !isNil(cell.value) ? (
         <div
-          dangerouslySetInnerHTML={{ __html: cell.value.sum }}
+          dangerouslySetInnerHTML={{
+            __html: Number.isInteger(cell.value.sum)
+              ? Number(cell.value.sum)
+              : cell.value.sum,
+          }}
           className="cell"
           title={
             column.type !== "status"

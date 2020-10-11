@@ -323,15 +323,15 @@ class NumberFormatterBuilder {
       }
       pointer += 1;
     }
+    postfix = stringNumber.substring(pointer);
     if (prefix === "" && postfix === "") {
-      prefix = "0";
+      prefix = stringNumber;
     }
     if (prefix[0] === ".") {
       prefix = `0${prefix}`;
     }
-    postfix = stringNumber.substring(pointer);
 
-    if (postfix) {
+    if (postfix !== "") {
       // hacky trickery
       // we force the postfix to turn into a decimal value with one leading integer
       // e.g. 5432 -> 5.432
@@ -409,7 +409,7 @@ class NumberFormatterBuilder {
           decimal = decimal.replace(/ /g, characterSpaceHtml);
         }
 
-        return `${integer}${decimalPoint}${decimal}`;
+        return `${integer}${decimal ? decimalPoint : ""}${decimal}`;
       }
       if (!leadingZero && out.startsWith("0.")) {
         return out.substr(1);

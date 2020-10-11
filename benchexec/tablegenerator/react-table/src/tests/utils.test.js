@@ -300,6 +300,18 @@ describe("NumberFormatterBuilder", () => {
 
     expect(actual).toBe("0.0000002");
   });
+
+  test("should not insert unnecessary spacings", () => {
+    const num = 2.0;
+
+    const b = new NumberFormatterBuilder(1);
+    b.addDataItem(num);
+    const formatter = b.build();
+
+    const actual = formatter(num, { whitespaceFormat: true, html: true });
+
+    expect(actual).toBe("2");
+  });
 });
 
 describe(
