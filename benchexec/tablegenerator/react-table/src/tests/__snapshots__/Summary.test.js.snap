@@ -24910,7 +24910,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={-126}
+         dangerouslySetInnerHTML={-70}
         />
        </div>
        <div
@@ -25017,7 +25017,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={-126}
+         dangerouslySetInnerHTML={-46}
         />
        </div>
        <div

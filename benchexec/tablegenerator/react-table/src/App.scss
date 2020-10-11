@@ -628,6 +628,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       .setting-select {
         min-width: 150px;
       }
+
+      &.icon {
+        min-width: 0;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
     }
   }
 }
