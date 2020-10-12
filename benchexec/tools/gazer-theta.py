@@ -29,9 +29,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        assert len(list(task.input_files)) == 1
         # possible option: --output (default value if flag isn't used: working directory)
-        return [executable] + options + list(task.input_files)
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
