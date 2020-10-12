@@ -27,7 +27,7 @@ export const cleanupStats = (stats, formatter) => {
             }
             if (
               !isNil(value) &&
-              !isNaN(value) &&
+              (!isNaN(value) || value === "NaN") &&
               formatter[toolIdx][columnIdx]
             ) {
               try {
@@ -48,7 +48,8 @@ export const cleanupStats = (stats, formatter) => {
                 console.error({
                   key,
                   value,
-                  formatter: formatter[toolIdx][columnIdx][key],
+                  formatter: formatter[toolIdx][columnIdx],
+                  e,
                 });
               }
             }

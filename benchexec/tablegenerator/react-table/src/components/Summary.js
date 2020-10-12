@@ -213,7 +213,6 @@ export default class Summary extends React.PureComponent {
     let res = this.skipStats
       ? {}
       : await processData({ tools, table, formatter });
-
     // fill up stat array to match column mapping
 
     res = res.map((tool, toolIdx) => {

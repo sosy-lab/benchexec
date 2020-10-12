@@ -19751,8 +19751,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"1"}
-         title="avg: 0.333, min: 1, stdev: 0.385"
+         dangerouslySetInnerHTML={"NaN"}
+         title="avg: NaN, max: Inf, median: NaN, min: -Inf, stdev: NaN"
         />
        </div>
        <div
@@ -19789,8 +19789,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={""}
-         title="avg: 0, median: 0, min: 0, stdev: 0"
+         dangerouslySetInnerHTML={"-Inf"}
+         title="avg: -Inf, max: 0, median: -Inf, min: -Inf, stdev: NaN"
         />
        </div>
        <div
@@ -19827,8 +19827,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"2000&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;"}
-         title="avg: 667, max: 2000, median: 0.00000001, stdev: 861"
+         dangerouslySetInnerHTML={"&#x2007;NaN&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         title="avg: NaN, max: NaN, median: NaN, min: NaN, stdev: NaN"
         />
        </div>
        <div
@@ -19846,8 +19846,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"2"}
-         title="avg: 0.667, max: 1, min: 1, stdev: 0.272"
+         dangerouslySetInnerHTML={"Inf"}
+         title="avg: Inf, max: Inf, median: Inf, min: 1, stdev: NaN"
         />
        </div>
       </div>

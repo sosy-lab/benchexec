@@ -292,10 +292,17 @@ class NumberFormatterBuilder {
     let firstNonZero = false;
     let decimal = false;
 
+    if (stringNumber === "NaN") {
+      return "NaN";
+    }
+    if (stringNumber.endsWith("Infinity")) {
+      return stringNumber.replace("Infinity", "Inf");
+    }
+
     // handling exponential formatting of large (or small) numbers in javascript
     if (stringNumber.includes("e")) {
       const exponent = stringNumber.split("-")[1];
-      stringNumber = number.toFixed(exponent);
+      stringNumber = Number(number).toFixed(exponent);
     }
 
     const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");

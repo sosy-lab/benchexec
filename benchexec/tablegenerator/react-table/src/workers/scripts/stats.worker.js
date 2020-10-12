@@ -15,6 +15,46 @@ const maybeAdd = (a, b, type) => {
   return a;
 };
 
+const calculateMedian = (values, allItems) => {
+  const numMin = Number(values.min);
+  const numMax = Number(values.max);
+  if (numMin === -Infinity && numMax === Infinity) {
+    values.median = "NaN";
+  } else if (numMin === -Infinity) {
+    values.median = "-Infinity";
+  } else if (numMax === Infinity) {
+    values.median = "Infinity";
+  } else {
+    if (allItems.length % 2 === 0) {
+      const idx = allItems.length / 2;
+      values.median =
+        (Number(allItems[idx - 1].column) + Number(allItems[idx].column)) / 2.0;
+    } else {
+      values.median = Number(
+        allItems[Math.floor(allItems.length / 2.0)].column,
+      );
+    }
+  }
+};
+
+const parsePythonInfinityValues = (data) =>
+  data.map((item) => {
+    if (item.columnType === "status" || !item.column.endsWith("Inf")) {
+      return item;
+    }
+    // We have a python Infinity value that we want to transfer to a string
+    // that can be interpreted as a JavaScript Infinity value
+    item.column = item.column.replace("Inf", "Infinity");
+    return item;
+  });
+
+const shouldSkipBucket = (bucketMeta, key) => {
+  if (bucketMeta[key] && bucketMeta[key].hasNaN) {
+    return true;
+  }
+  return false;
+};
+
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
@@ -28,24 +68,43 @@ onmessage = function (e) {
     variance: 0,
   };
 
-  const copy = [...data].filter(
+  const nanObj = { ...defaultObj };
+  for (const objKey of Object.keys(nanObj)) {
+    nanObj[objKey] = "NaN";
+  }
+
+  let copy = [...data].filter(
     (i) => i && i.column !== undefined && i.column !== null,
   );
+  copy = parsePythonInfinityValues(copy);
 
   if (copy.length === 0) {
     postResult({ total: undefined }, transaction);
     return;
   }
 
-  const buckets = {};
   copy.sort((a, b) => a.column - b.column);
 
-  const total = { ...defaultObj, items: [] };
+  const buckets = {};
+  const bucketMeta = {}; // used to store various properties of buckets
+
+  let total = { ...defaultObj, items: [] };
 
   total.max = copy[copy.length - 1].column;
   total.min = copy[0].column;
 
-  // calculation
+  const totalMeta = {
+    hasNaN: copy.some((item) => {
+      if (item.columnType !== "status" && isNaN(item.column)) {
+        return true;
+      }
+      return false;
+    }),
+    hasPosInf: total.max === Infinity,
+    hasNegInf: total.min === -Infinity,
+  };
+
+  // Bucket setup with sum and min/max
   for (const item of copy) {
     const key = `${item.categoryType}-${item.resultType}`;
     const totalKey = `${item.categoryType}-total`;
@@ -62,52 +121,80 @@ onmessage = function (e) {
       items: [],
     };
 
-    bucket.sum = maybeAdd(bucket.sum, column, type);
-    subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
+    const itemIsNaN = type !== "status" && isNaN(column);
+
+    // if one item is NaN we store that info so we can default all
+    // calculated values for this bucket to NaN
+    if (itemIsNaN) {
+      bucketMeta[key] = { hasNaN: true };
+      bucketMeta[totalKey] = { hasNaN: true };
+
+      // set all values for this bucket to NaN
+      buckets[key] = { ...nanObj, title };
+      buckets[totalKey] = { ...nanObj, title };
+      continue;
+    }
+
+    // we check if we should skip calculation for these buckets
+    const skipBucket = shouldSkipBucket(bucketMeta, key);
+    const skipSubTotal = shouldSkipBucket(bucketMeta, totalKey);
+
+    if (!skipBucket) {
+      bucket.sum = maybeAdd(bucket.sum, column, type);
+    }
+    if (!skipSubTotal) {
+      subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
+    }
+    if (!totalMeta.hasNaN) {
+      total.sum = maybeAdd(total.sum, column, type);
+    }
 
     if (!isNaN(Number(column))) {
       const numCol = Number(column);
-      bucket.max = Math.max(bucket.max, numCol);
-      bucket.min = Math.min(bucket.min, numCol);
-      subTotalBucket.max = Math.max(subTotalBucket.max, numCol);
-      subTotalBucket.min = Math.min(subTotalBucket.min, numCol);
-    } else {
+      if (!skipBucket) {
+        bucket.max = Math.max(bucket.max, numCol);
+        bucket.min = Math.min(bucket.min, numCol);
+      }
+      if (!skipSubTotal) {
+        subTotalBucket.max = Math.max(subTotalBucket.max, numCol);
+        subTotalBucket.min = Math.min(subTotalBucket.min, numCol);
+      }
     }
-
-    total.sum = maybeAdd(total.sum, column, type);
-
-    bucket.items.push(item);
-    subTotalBucket.items.push(item);
+    if (!skipBucket) {
+      try {
+        bucket.items.push(item);
+      } catch (e) {
+        console.e({ bucket, bucketMeta, key });
+      }
+    }
+    if (!skipSubTotal) {
+      try {
+        subTotalBucket.items.push(item);
+      } catch (e) {
+        console.e({ subTotalBucket, bucketMeta, totalKey });
+      }
+    }
 
     buckets[key] = bucket;
     buckets[totalKey] = subTotalBucket;
   }
 
   for (const [bucket, values] of Object.entries(buckets)) {
+    if (shouldSkipBucket(bucketMeta, bucket)) {
+      continue;
+    }
     values.avg = values.sum / values.items.length;
 
-    if (values.items.length % 2 === 0) {
-      const idx = values.items.length / 2;
-      values.median =
-        (Number(values.items[idx - 1].column) +
-          Number(values.items[idx].column)) /
-        2.0;
-    } else {
-      values.median = Number(
-        values.items[Math.floor(values.items.length / 2.0)].column,
-      );
-    }
+    calculateMedian(values, values.items);
     buckets[bucket] = values;
   }
-  total.avg = total.sum / copy.length;
-  if (copy.length % 2 === 0) {
-    // even, we need an extra step to calculate the median
-    const idx = copy.length / 2;
-    total.median =
-      (Number(copy[idx - 1].column) + Number(copy[idx].column)) / 2.0;
+  const totalHasNaN = totalMeta.hasNaN;
+
+  if (totalHasNaN) {
+    total = { ...nanObj };
   } else {
-    // ezpz
-    total.median = Number(copy[Math.floor(copy.length / 2.0)].column);
+    total.avg = total.sum / copy.length;
+    calculateMedian(total, copy);
   }
 
   for (const item of copy) {
@@ -116,8 +203,9 @@ onmessage = function (e) {
       continue;
     }
     const numCol = Number(column);
-    const bucket = buckets[`${item.categoryType}-${item.resultType}`];
+    const key = `${item.categoryType}-${item.resultType}`;
     const totalKey = `${item.categoryType}-total`;
+    const bucket = buckets[key];
     const subTotalBucket = buckets[totalKey];
     const diffBucket = numCol - bucket.avg;
     const diffSubTotal = numCol - subTotalBucket.avg;
@@ -130,11 +218,26 @@ onmessage = function (e) {
   total.stdev = Math.sqrt(total.variance / copy.length);
 
   for (const [bucket, values] of Object.entries(buckets)) {
+    if (shouldSkipBucket(bucketMeta, bucket)) {
+      for (const [key, val] of Object.entries(values)) {
+        values[key] = val.toString();
+      }
+      buckets[bucket] = values;
+      continue;
+    }
     values.stdev = Math.sqrt(values.variance / values.items.length);
+
+    for (const [key, val] of Object.entries(values)) {
+      values[key] = val.toString();
+    }
     // clearing memory
     delete values.items;
     delete values.variance;
     buckets[bucket] = values;
+  }
+
+  for (const [key, value] of Object.entries(total)) {
+    total[key] = value.toString();
   }
 
   delete total.items;
