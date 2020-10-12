@@ -8,6 +8,7 @@
 import benchexec.result as result
 import benchexec.tools.template
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for gazer-theta
@@ -40,7 +41,11 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "Result of gazer-theta run: TRUE" in line:
                 status = result.RESULT_TRUE_PROP
 
-        if not run.was_timeout and status == result.RESULT_UNKNOWN and run.exit_code.value != 0:
+        if (
+            not run.was_timeout
+            and status == result.RESULT_UNKNOWN
+            and run.exit_code.value != 0
+        ):
             status = result.RESULT_ERROR
 
         return status
