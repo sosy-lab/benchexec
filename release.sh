@@ -128,3 +128,4 @@ echo
 echo "Please create a release on GitHub and add content from CHANGELOG.md and the following files:"
 ls -1 "$DIST_DIR/BenchExec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
 echo "=> https://github.com/sosy-lab/benchexec/releases/new?tag=$VERSION&title=Release%20$VERSION"
+echo "Please also copy the binary PPA packages to all newer supported Ubuntu versions after they have been built by going to https://launchpad.net/%7Esosy-lab/+archive/ubuntu/benchmarking/+copy-packages"

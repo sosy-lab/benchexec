@@ -68,8 +68,9 @@ please raise an issue.
    `https://www.sosy-lab.org/benchexec/{benchmark,result,table}-<VERSION>.dtd`,
    and update the version number in all references to this DTD in BenchExec.
 
- * The remaining steps can also be automated with the script
-   [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh).
+ * The remaining steps can also be mostly automated with the script
+   [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh)
+   (make sure to follow the instructions printed at the end).
 
  * Update version number in field `__version__` of `benchexec/__init__.py`,
    e.g., from `1.1-dev` to `1.1` and commit.
@@ -142,6 +143,11 @@ please raise an issue.
           dput ppa:sosy-lab/benchmarking ../benchexec_<DEB_VERSION>-1_source.changes
 
      Launchpad will build the package and publish it after a few minutes. If there are build errors you get an email.
+
+   * Copy the package from the Ubuntu version for which it was built
+     to all newer supported Ubuntu versions
+     on [this Launchpad page](https://launchpad.net/%7Esosy-lab/+archive/ubuntu/benchmarking/+copy-packages).
+     Copying the binary package is enough.
 
  * Copy the file `debian/changelog` back into the repository and it commit it there,
    to keep track of it.
