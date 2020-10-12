@@ -8,7 +8,6 @@
 import benchexec.result as result
 import benchexec.tools.template
 
-
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for gazer-theta
@@ -17,10 +16,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     https://github.com/ftsrg/theta
     """
 
-    REQUIRED_PATHS = ["gazer", "gazer/tools/gazer-bmc", "gazer/tools/gazer-theta"]
+    REQUIRED_PATHS = [".."]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("gazer_starter.py", subdir="gazer/scripts")
+        return tool_locator.find_executable("gazer_starter.py", subdir="scripts")
 
     def name(self):
         return "gazer-theta"
@@ -29,22 +28,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        assert len(list(task.input_files_or_identifier)) == 1
+        assert len(list(task.input_files)) == 1
         # possible option: --output (default value if flag isn't used: working directory)
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
-        if run.was_timeout:
-            status = "TIMEOUT"
-        else:
-            for line in run.output:
-                if "Result of gazer-theta run: FALSE" in line:
-                    status = result.RESULT_FALSE_REACH
-                elif "Result of gazer-theta run: TRUE" in line:
-                    status = result.RESULT_TRUE_PROP
+        for line in run.output:
+            if "Result of gazer-theta run: FALSE" in line:
+                status = result.RESULT_FALSE_REACH
+            elif "Result of gazer-theta run: TRUE" in line:
+                status = result.RESULT_TRUE_PROP
 
-        if status == result.RESULT_UNKNOWN and run.exit_code.value != 0:
+        if not run.was_timeout and status == result.RESULT_UNKNOWN and run.exit_code.value != 0:
             status = result.RESULT_ERROR
 
         return status
