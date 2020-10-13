@@ -21,8 +21,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "witnesslint"
 
+    def version(self, executable):
+        version_string = self._version_from_tool(executable)
+        return version_string.partition("version")[2].strip().split(" ")[0]
+
     def determine_result(self, run):
         if run.exit_code.value == 0:
             return result.RESULT_TRUE_PROP
-        else:
+        elif run.exit_code.value == 1:
             return result.RESULT_FALSE_PROP
+        else:
+            return result.RESULT_ERROR
