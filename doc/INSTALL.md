@@ -111,6 +111,9 @@ In container mode, BenchExec uses two main kernel features:
   so the system administrator needs to enable it
   with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
+  On CentOS it can be necessary to enable this feature with
+  `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
+  in `/etc/sysctl.conf` (the exact value is not important).
 
 - **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
   (kernel option `CONFIG_OVERLAY_FS`).

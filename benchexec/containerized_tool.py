@@ -168,8 +168,18 @@ def _init_container(
         ):
             raise BenchExecException(
                 "Unprivileged user namespaces forbidden on this system, please "
-                "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                "enable them with 'sysctl -w kernel.unprivileged_userns_clone=1' "
                 "or disable container mode"
+            )
+        elif (
+            e.errno in {errno.ENOSPC, errno.EINVAL}
+            and util.try_read_file("/proc/sys/user/max_user_namespaces") == "0"
+        ):
+            # Ubuntu has ENOSPC, Centos seems to produce EINVAL in this case
+            raise BenchExecException(
+                "Unprivileged user namespaces forbidden on this system, please "
+                "enable by using 'sysctl -w user.max_user_namespaces=10000' "
+                "(or another value) or disable container mode"
             )
         else:
             raise BenchExecException(
