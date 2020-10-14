@@ -10,10 +10,9 @@ import os
 
 import benchexec.result as result
 import benchexec.tools.template
-import benchexec.util as util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for the NITWIT Validator, an interpreter-based violation witness validator.
     URL: https://github.com/moves-rwth/nitwit-validator
@@ -22,8 +21,8 @@ class Tool(benchexec.tools.template.BaseTool):
     REQUIRED_PATHS = []
     BIN_DIR = "bin"
 
-    def executable(self):
-        executable = util.find_executable("nitwit.sh")
+    def executable(self, tool_locator):
+        executable = tool_locator.find_executable("nitwit.sh")
         bin_path = os.path.join(os.path.dirname(executable), self.BIN_DIR)
         if (
             not os.path.isdir(bin_path)
@@ -48,30 +47,27 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "Nitwit"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        if propertyfile:
-            options = options + ["-p", propertyfile]
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options = options + ["-p", task.property_file]
+        return [executable] + options + list(task.input_files_or_identifier)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         See README.md at https://github.com/moves-rwth/nitwit-validator for information
         about result codes.
-        @param returncode: code returned
-        @param returnsignal: signal, which terminated validator
-        @param output: the std output
         @return: status of validator after executing a run
         """
-        if returnsignal == 0 and (returncode == 0 or returncode == 245):
+        if run.exit_code.signal is None and (run.exit_code.value == 0 or run.exit_code.value == 245):
             status = result.RESULT_FALSE_REACH
-        elif returncode is None or returncode in [-9, 9]:
+        elif run.exit_code.value is None or run.exit_code.value in [-9, 9]:
             status = "TIMEOUT"
-        elif returncode in [4, 5, 241, 242, 243, 250]:
+        elif run.exit_code.value in [4, 5, 241, 242, 243, 250]:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
 
-        if "Out of memory" in output or returncode == 251:
+        if run.output.any_line_contains("Out of memory") or (run.exit_code.value == 251):
             status = "OUT OF MEMORY"
 
         if not status:
