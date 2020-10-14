@@ -5,6 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[build-system]
+requires = [
+    'setuptools',
+    'wheel',
+]
+build-backend = 'setuptools.build_meta'
+
 [tool.black]
 include = 'bin|\.py$'
 exclude = 'node_modules|\.eggs'
