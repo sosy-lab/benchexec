@@ -28,10 +28,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "Goblint"
 
-    _DATA_MODELS = {
-        "ILP32": "32bit",
-        "LP64": "64bit"
-    }
+    _DATA_MODELS = {"ILP32": "32bit", "LP64": "64bit"}
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = []
@@ -44,13 +41,22 @@ class Tool(benchexec.tools.template.BaseTool2):
             if data_model:
                 data_model_option = self._DATA_MODELS.get(data_model)
                 if data_model_option:
-                    additional_options += ["--sets", "exp.architecture", data_model_option]
+                    additional_options += [
+                        "--sets",
+                        "exp.architecture",
+                        data_model_option,
+                    ]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
                         "Unsupported data_model '{}'".format(data_model)
                     )
 
-        return [executable, *options, *additional_options, *task.input_files_or_identifier]
+        return [
+            executable,
+            *options,
+            *additional_options,
+            *task.input_files_or_identifier,
+        ]
 
     def determine_result(self, run):
         for line in run.output:
