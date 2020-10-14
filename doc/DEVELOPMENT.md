@@ -58,7 +58,7 @@ please raise an issue.
 
 ## Releasing a new Version
 
- * You need `twine>=1.11.0` to be installed.
+ * You need `pip>=10.0` and `twine>=1.11.0` to be installed.
 
  * Define next version number, e.g., from `1.1-dev` to `1.1`.
    Add an according entry to `CHANGELOG.md` and commit.

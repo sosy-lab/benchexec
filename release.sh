@@ -74,8 +74,8 @@ virtualenv -p /usr/bin/python3 "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
+pip install "pip >= 10.0"
 pip install -e "."
-pip install 'wheel>=0.32.0' 'setuptools>=42.0.0'
 python setup.py nosetests
 python setup.py sdist bdist_wheel
 popd
