@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
   sudo
 
 RUN pip install \
-  coverage \
+  "coverage[toml] >= 5.0" \
   lxml \
   nose \
   pyyaml
