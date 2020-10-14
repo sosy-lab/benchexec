@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.cpachecker as cpachecker
-import benchexec.util as util
 
 
 class Tool(cpachecker.Tool):
@@ -14,12 +13,10 @@ class Tool(cpachecker.Tool):
     Tool info for CPA-witness2test.
     """
 
-    def executable(self):
+    def executable(self, tool_locator):
         # Makes sure that CPAchecker can be called, shows a warning otherwise
-        super(Tool, self).executable()
-        return util.find_executable(
-            "cpa_witness2test.py", "scripts/cpa_witness2test.py"
-        )
+        super(Tool, self).executable(tool_locator)
+        return tool_locator.find_executable("cpa_witness2test.py", subdir="scripts")
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "-version")
@@ -29,9 +26,7 @@ class Tool(cpachecker.Tool):
     def name(self):
         return "CPA-witness2test"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        additional_options = self._get_additional_options(
-            options, propertyfile, rlimits
-        )
+    def cmdline(self, executable, options, task, rlimits):
+        additional_options = self._get_additional_options(options, task, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
-        return [executable] + additional_options + options + tasks
+        return [executable] + additional_options + options + [task.single_input_file]
