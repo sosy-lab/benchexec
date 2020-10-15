@@ -58,16 +58,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         about result codes.
         @return: status of validator after executing a run
         """
-        if run.exit_code.signal is None and (run.exit_code.value == 0 or run.exit_code.value == 245):
+        if run.exit_code.value in [0, 245]:
             status = result.RESULT_FALSE_REACH
-        elif run.exit_code.value is None or run.exit_code.value in [-9, 9]:
+        elif (run.exit_code.signal == 9) or run.exit_code.value == 9:
             status = "TIMEOUT"
         elif run.exit_code.value in [4, 5, 241, 242, 243, 250]:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
 
-        if run.output.any_line_contains("Out of memory") or (run.exit_code.value == 251):
+        if ("out of memory!".lower() in (line.lower() for line in run.output)) or (run.exit_code.value == 251):
             status = "OUT OF MEMORY"
 
         if not status:
