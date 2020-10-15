@@ -58,7 +58,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         else:
             status = result.RESULT_ERROR
 
-        if ("out of memory!".lower() in (line.lower() for line in run.output)) or (run.exit_code.value == 251):
+        if ("out of memory!".lower() in (line.lower() for line in run.output)) or (
+            run.exit_code.value == 251
+        ):
             status = "OUT OF MEMORY"
 
         if not status:
