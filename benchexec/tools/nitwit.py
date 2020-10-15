@@ -18,7 +18,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     URL: https://github.com/moves-rwth/nitwit-validator
     """
 
-    REQUIRED_PATHS = []
+    REQUIRED_PATHS = ["bin/nitwit32", "bin/nitwit64"]
     BIN_DIR = "bin"
 
     def executable(self, tool_locator):
@@ -33,13 +33,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                 "Required binary files for Nitwit not found in {0}.".format(bin_path)
             )
         return executable
-
-    def program_files(self, executable):
-        return [
-            executable,
-            os.path.join(self.BIN_DIR, "nitwit32"),
-            os.path.join(self.BIN_DIR, "nitwit64"),
-        ]
 
     def version(self, executable):
         return self._version_from_tool(executable, "--version")
