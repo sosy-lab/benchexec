@@ -43,7 +43,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options = options + ["-p", task.property_file]
-        return [executable] + options + task.single_input_file
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         """
