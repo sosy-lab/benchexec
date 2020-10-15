@@ -11,7 +11,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for Legion (https://github.com/Alan32Liu/Principes).
+    Tool info for Legion (https://github.com/Alan32Liu/Legion).
     """
 
     REQUIRED_PATHS = [
