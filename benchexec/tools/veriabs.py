@@ -10,7 +10,7 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriAbs
     """
@@ -31,8 +31,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "supportFiles",
     ]
 
-    def executable(self):
-        return util.find_executable("scripts/veriabs")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("scripts/veriabs")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -45,9 +45,9 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "VeriAbs"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        if propertyfile:
-            options = options + ["--property-file", propertyfile]
+    def cmdline(self, executable, options, tasks, rlimits):
+        if tasks.property_file:
+            options += ["--property-file", task.property_file]
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
