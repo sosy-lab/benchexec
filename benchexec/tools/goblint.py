@@ -59,6 +59,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         ]
 
     def determine_result(self, run):
+        status = None
+
         for line in run.output:
             if "Fatal error" in line:
                 if "Assertion failed" in line:
@@ -75,7 +77,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             else:
                 m = re.match(r"SV-COMP result: (.*)", line)
                 if m:
-                    return m.group(1)
+                    status = m.group(1)
+
+        if status:
+            return status
 
         if run.was_timeout:
             return "TIMEOUT"
