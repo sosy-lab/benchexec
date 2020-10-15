@@ -16,7 +16,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("witnesslint.py")
+        return tool_locator.find_executable("witnesslinter.py")
 
     def name(self):
         return "witnesslint"
