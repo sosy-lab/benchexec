@@ -11,15 +11,7 @@ import benchexec.tools.cpachecker as cpachecker
 class Tool(cpachecker.Tool):
     """Tool info for PeSCo."""
 
-    REQUIRED_PATHS = [
-        "lib/java/runtime",
-        "lib/*.jar",
-        "lib/native/x86_64-linux",
-        "scripts",
-        "cpachecker.jar",
-        "config",
-        "resources",
-    ]
+    REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
     def name(self):
         return "PeSCo"
