@@ -63,7 +63,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         ):
             status = "OUT OF MEMORY"
 
-        if not status:
-            status = result.RESULT_ERROR
-
         return status
