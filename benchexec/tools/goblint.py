@@ -60,9 +60,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         for line in run.output:
-            if "Fixpoint not reached" in line:
-                return result.RESULT_ERROR + " (fixpoint)"
-            elif "Fatal error" in line:
+            if "Fatal error" in line:
                 if "Assertion failed" in line:
                     return "ASSERTION"
                 else:
