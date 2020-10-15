@@ -45,7 +45,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "VeriAbs"
 
-    def cmdline(self, executable, options, tasks, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         if tasks.property_file:
             options += ["--property-file", task.property_file]
         return [executable] + options + tasks
