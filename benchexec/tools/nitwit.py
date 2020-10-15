@@ -53,8 +53,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if run.exit_code.value in [0, 245]:
             status = result.RESULT_FALSE_REACH
-        elif (run.exit_code.signal == 9) or run.exit_code.value == 9:
-            status = "TIMEOUT"
         elif run.exit_code.value in [4, 5, 241, 242, 243, 250]:
             status = result.RESULT_UNKNOWN
         else:
