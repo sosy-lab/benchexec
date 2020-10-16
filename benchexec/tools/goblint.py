@@ -82,9 +82,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if status:
             return status
 
-        if run.was_timeout:
-            return "TIMEOUT"
-        elif run.exit_code.value != 0:
+        if run.exit_code.value != 0:
             return result.RESULT_ERROR
         else:
             return result.RESULT_UNKNOWN
