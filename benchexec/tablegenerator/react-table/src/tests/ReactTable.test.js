@@ -23,16 +23,16 @@ test_snapshot_of("Render Summary", (overview) => (
   <Table
     tableHeader={overview.tableHeader}
     data={overview.originalTable}
-    tools={overview.state.tools}
+    tools={overview.tools}
     selectColumn={overview.toggleSelectColumns}
     prepareTableValues={overview.prepareTableValues}
     setFilter={overview.setFilter}
     filterPlotData={overview.filterPlotData}
-    filtered={overview.state.filtered}
+    filtered={overview.filtered}
     toggleLinkOverlay={overview.toggleLinkOverlay}
     changeTab={overview.changeTab}
     statusValues={overview.statusValues}
     categoryValues={overview.categoryValues}
-    hiddenCols={overview.state.hiddenCols}
+    hiddenCols={overview.hiddenCols}
   />
 ));

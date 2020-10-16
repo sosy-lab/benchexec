@@ -116,6 +116,19 @@ const getOverviewProps = (data) => {
     stats,
   } = prepareTableData(data);
 
+  const findAllValuesOfColumn = (columnFilter, valueAccessor) =>
+    tools.map((tool, j) =>
+      tool.columns.map((column, i) => {
+        if (!columnFilter(tool, column)) {
+          return undefined;
+        }
+        const values = table
+          .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
+          .filter(Boolean);
+        return [...new Set(values)].sort();
+      }),
+    );
+
   const filterable = getFilterableData(data);
   const originalTable = table;
   const originalTools = tools;
@@ -123,6 +136,15 @@ const getOverviewProps = (data) => {
   const filteredData = [];
 
   const hiddenCols = createHiddenColsFromURL(tools);
+
+  const statusValues = findAllValuesOfColumn(
+    (_tool, column) => column.type === "status",
+    (_runResult, value) => getRawOrDefault(value),
+  );
+  const categoryValues = findAllValuesOfColumn(
+    (_tool, column) => column.type === "status",
+    (runResult, _value) => runResult.category,
+  );
 
   return {
     taskIdNames,
@@ -137,6 +159,9 @@ const getOverviewProps = (data) => {
     originalTable,
     originalTools,
     data,
+    statusValues,
+    categoryValues,
+    filtered: [],
   };
 };
 
@@ -168,23 +193,13 @@ const test_snapshot_of = (name, component_func) => {
     .filter((file) => file.endsWith(".html"))
     .filter((file) => fs.statSync(testDir + file).size < 100000)
     .forEach((file) => {
-      it(name + " for " + file, async () => {
+      it(name + " for " + file, () => {
         const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
         const data = JSON.parse(content);
 
-        let statsResolver;
-        const StatsPromise = new Promise(
-          (resolve) => (statsResolver = resolve),
-        );
+        const overview = getOverviewProps(data);
 
-        const overview = renderer
-          .create(<Overview data={data} />)
-          .getInstance();
-        const component = renderer.create(
-          component_func(overview, statsResolver),
-        );
-
-        await StatsPromise;
+        const component = renderer.create(component_func(overview));
 
         expect(component).toMatchSnapshot();
       });
