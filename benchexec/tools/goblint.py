@@ -55,7 +55,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             executable,
             *options,
             *additional_options,
-            *task.input_files_or_identifier,
+            *task.input_files,
         ]
 
     def determine_result(self, run):
