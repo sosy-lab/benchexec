@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
+#import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -46,17 +46,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "VeriAbs"
 
     def cmdline(self, executable, options, task, rlimits):
-        if tasks.property_file:
+        if task.property_file:
             options += ["--property-file", task.property_file]
-        return [executable] + options + tasks
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        lines = " ".join(output)
-        if "VERIABS_VERIFICATION_SUCCESSFUL" in lines:
-            return result.RESULT_TRUE_PROP
-        elif "VERIABS_VERIFICATION_FAILED" in lines:
-            return result.RESULT_FALSE_REACH
-        elif "NOT SUPPORTED" in lines or "VERIABS_UNKNOWN" in lines:
-            return result.RESULT_UNKNOWN
-        else:
-            return result.RESULT_ERROR
+        return [executable] + options + [task.single_input_file]
+    
+    def determine_result(self, run):
+        for line in run.output:
+            if "VERIABS_VERIFICATION_SUCCESSFUL" in line:
+                return result.RESULT_TRUE_PROP
+            elif "VERIABS_VERIFICATION_FAILED" in line:
+                return result.RESULT_FALSE_REACH
+            elif "NOT SUPPORTED" in line or "VERIABS_UNKNOWN" in line:
+                return result.RESULT_UNKNOWN
+            else:
+                return result.RESULT_ERROR
+        
+        
