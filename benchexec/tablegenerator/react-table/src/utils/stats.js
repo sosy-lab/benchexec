@@ -152,9 +152,6 @@ export const processData = async ({ tools, table, formatter }) => {
   const columnSplitter = splitColumnsWithMeta(tools);
 
   const preparedData = splitRows.map(columnSplitter);
-
-  console.log({ preparedData });
-
   // filter out non-relevant rows
   for (const toolIdx in preparedData) {
     preparedData[toolIdx] = preparedData[toolIdx].filter((i) => !isNil(i));

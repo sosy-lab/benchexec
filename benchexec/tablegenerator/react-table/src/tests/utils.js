@@ -150,9 +150,13 @@ const test_snapshot_of_async = (name, component_func) => {
         const data = JSON.parse(content);
         const overview = getOverviewProps(data);
         const { component: c, promise } = component_func(overview);
-        const component = renderer.create(c);
 
-        await promise;
+        let component;
+
+        await renderer.act(async () => {
+          component = renderer.create(c);
+          await promise;
+        });
 
         expect(component).toMatchSnapshot();
       });
