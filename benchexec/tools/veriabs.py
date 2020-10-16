@@ -5,12 +5,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
+#import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriAbs
     """
@@ -31,8 +31,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "supportFiles",
     ]
 
-    def executable(self):
-        return util.find_executable("scripts/veriabs")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("veriabs", subdir="scripts")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -45,11 +45,12 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "VeriAbs"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        if propertyfile:
-            options = options + ["--property-file", propertyfile]
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options += ["--property-file", task.property_file]
+        return [executable] + options + [task.single_input_file]
 
+    '''
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         lines = " ".join(output)
         if "VERIABS_VERIFICATION_SUCCESSFUL" in lines:
@@ -58,5 +59,17 @@ class Tool(benchexec.tools.template.BaseTool):
             return result.RESULT_FALSE_REACH
         elif "NOT SUPPORTED" in lines or "VERIABS_UNKNOWN" in lines:
             return result.RESULT_UNKNOWN
+        else:
+            return result.RESULT_ERROR
+    '''
+
+    def determine_result(self, run):
+        for line in run.output:
+            if "VERIABS_VERIFICATION_SUCCESSFUL" in line:
+                return result.RESULT_TRUE_PROP
+            elif "VERIABS_VERIFICATION_FAILED" in line:
+                return result.RESULT_FALSE_REACH
+            elif "NOT SUPPORTED" in line or "VERIABS_UNKNOWN" in line:
+                return result.RESULT_UNKNOWN
         else:
             return result.RESULT_ERROR
