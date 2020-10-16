@@ -49,7 +49,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             options += ["--property-file", task.property_file]
         return [executable] + options + [task.single_input_file]
 
-    
     def determine_result(self, run):
         for line in run.output:
             if "VERIABS_VERIFICATION_SUCCESSFUL" in line:
