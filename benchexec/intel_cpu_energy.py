@@ -1,25 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import logging
@@ -27,7 +11,7 @@ import os
 import subprocess
 import signal
 import re
-from benchexec.util import find_executable
+from benchexec.util import find_executable2
 from decimal import Decimal
 
 DOMAIN_PACKAGE = "package"
@@ -43,9 +27,7 @@ class EnergyMeasurement(object):
 
     @classmethod
     def create_if_supported(cls):
-        executable = find_executable(
-            "cpu-energy-meter", exitOnError=False, use_current_dir=False
-        )
+        executable = find_executable2("cpu-energy-meter")
         if executable is None:  # not available on current system
             logging.debug(
                 "Energy measurement not available because cpu-energy-meter binary could not be found."
@@ -115,9 +97,7 @@ def format_energy_results(energy):
         for domain, value in domains.items():
             if domain == DOMAIN_PACKAGE:
                 cpuenergy += value
-                result["cpuenergy-pkg{}".format(pkg)] = value
-            else:
-                result["cpuenergy-pkg{}-{}".format(pkg, domain)] = value
+            result["cpuenergy-pkg{}-{}".format(pkg, domain)] = value
     result["cpuenergy"] = cpuenergy
     result = collections.OrderedDict(sorted(result.items()))
     return result

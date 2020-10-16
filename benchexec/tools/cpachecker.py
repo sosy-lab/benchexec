@@ -1,45 +1,31 @@
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
 
-Copyright (C) 2007-2015  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
 import logging
 import sys
 import os
 import re
 
 import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.template
-from benchexec.model import SOFTTIMELIMIT
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CPAchecker, the Configurable Software-Verification Platform.
     URL: https://cpachecker.sosy-lab.org/
 
     Both binary and source distributions of CPAchecker are supported.
-    If the source of CPAchecker is present,
-    it is automatically compiled before benchmarks are executed.
+    If the source of CPAchecker is present, it is checked wether the compiled binaries
+    are outdated and need to be regenerated.
     Additional statistics can be extracted from the output of CPAchecker
     and added to the result tables.
     For this reason, the parameter -stats is always added to the command line.
-    Furthermore, if a soft time limit is specified for BenchExec,
+    Furthermore, if a CPU-time limit is specified for BenchExec,
     it is passed to CPAchecker using the parameter -timelimit.
     This allows for proper termination of CPAchecker and statistics output
     even in cases of a timeout.
@@ -54,8 +40,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "config",
     ]
 
-    def executable(self):
-        executable = util.find_executable("cpa.sh", "scripts/cpa.sh")
+    def executable(self, tool_locator):
+        executable = tool_locator.find_executable("cpa.sh", subdir="scripts")
         base_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
         jar_file = os.path.join(base_dir, "cpachecker.jar")
         bin_dir = os.path.join(base_dir, "bin")
@@ -78,7 +64,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def _find_newest_mtime(self, path):
         mtime = 0
-        for root, dirs, files, rootfd in os.fwalk(path):
+        for _root, _dirs, files, rootfd in os.fwalk(path):
             for f in files:
                 mtime = max(mtime, os.stat(f, dir_fd=rootfd).st_mtime)
 
@@ -90,51 +76,50 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def version(self, executable):
-        stdout = self._version_from_tool(executable, "-help")
-        line = next(l for l in stdout.splitlines() if l.startswith("CPAchecker"))
-        line = line.replace("CPAchecker", "")
-        line = line.split("(")[0]
-        return line.strip()
+        version = self._version_from_tool(executable, "-help", line_prefix="CPAchecker")
+        return version.split("(")[0].strip()
 
     def name(self):
         return "CPAchecker"
 
-    def _get_additional_options(self, existing_options, propertyfile, rlimits):
+    def _get_additional_options(self, existing_options, task, rlimits):
         options = []
-        if SOFTTIMELIMIT in rlimits:
-            if "-timelimit" in existing_options:
-                logging.warning(
-                    "Time limit already specified in command-line options, not adding time limit from benchmark definition to the command line."
-                )
-            else:
-                options = options + [
-                    "-timelimit",
-                    str(rlimits[SOFTTIMELIMIT]) + "s",
-                ]  # benchmark-xml uses seconds as unit
-
-        # if data.MEMLIMIT in rlimits:
-        #     if "-heap" not in existing_options:
-        #         heapsize = rlimits[MEMLIMIT]*0.8 # 20% overhead for non-java-memory
-        #         options = options + ["-heap", str(int(heapsize))]
+        if rlimits.cputime and "-timelimit" not in existing_options:
+            options += ["-timelimit", str(rlimits.cputime) + "s"]
 
         if "-stats" not in existing_options:
-            options = options + ["-stats"]
+            options += ["-stats"]
 
-        spec = ["-spec", propertyfile] if propertyfile is not None else []
+        if task.property_file:
+            options += ["-spec", task.property_file]
 
-        return options + spec
+        if isinstance(task.options, dict) and task.options.get("language") == "C":
+            data_model = task.options.get("data_model")
+            if data_model:
+                data_model_option = {"ILP32": "-32", "LP64": "-64"}.get(data_model)
+                if data_model_option:
+                    if data_model_option not in existing_options:
+                        options += [data_model_option]
+                else:
+                    raise benchexec.tools.template.UnsupportedFeatureException(
+                        "Unsupported data_model '{}' defined for task '{}'".format(
+                            data_model, task
+                        )
+                    )
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        additional_options = self._get_additional_options(
-            options, propertyfile, rlimits
+        return options
+
+    def cmdline(self, executable, options, task, rlimits):
+        additional_options = self._get_additional_options(options, task, rlimits)
+        return (
+            [executable]
+            + options
+            + additional_options
+            + list(task.input_files_or_identifier)
         )
-        return [executable] + options + additional_options + tasks
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
-        @param returncode: code returned by CPAchecker
-        @param returnsignal: signal, which terminated CPAchecker
-        @param output: the output of CPAchecker
         @return: status of CPAchecker after executing a run
         """
 
@@ -148,8 +133,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         status = None
 
-        for line in output:
-            line = line.strip()
+        for line in run.output:
             if "java.lang.OutOfMemoryError" in line:
                 status = "OUT OF JAVA MEMORY"
             elif isOutOfNativeMemory(line):
@@ -162,13 +146,10 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = "OUT OF MEMORY"
             elif "SIGSEGV" in line:
                 status = "SEGMENTATION FAULT"
-            elif (
-                returncode == 0 or returncode == 1
-            ) and "java.lang.AssertionError" in line:
+            elif "java.lang.AssertionError" in line:
                 status = "ASSERTION"
             elif (
-                (returncode == 0 or returncode == 1)
-                and ("Exception:" in line or line.startswith("Exception in thread"))
+                ("Exception:" in line or line.startswith("Exception in thread"))
                 # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
                 and not line.startswith("cbmc")
             ):
@@ -197,7 +178,7 @@ class Tool(benchexec.tools.template.BaseTool):
                     "For your information: CPAchecker is currently hanging at"
                 )
                 and not status
-                and isTimeout
+                and run.was_timeout
             ):
                 status = "TIMEOUT"
 
@@ -218,30 +199,29 @@ class Tool(benchexec.tools.template.BaseTool):
 
                 if not status:
                     status = newStatus
-                elif newStatus != result.RESULT_UNKNOWN:
+                elif newStatus != result.RESULT_UNKNOWN and status != newStatus:
                     status = "{0} ({1})".format(status, newStatus)
             elif line == "Finished." and not status:
                 status = result.RESULT_DONE
 
         if (
             (not status or status == result.RESULT_UNKNOWN)
-            and isTimeout
-            and returncode in [15, 143]
+            and run.was_timeout
+            and run.exit_code.value in [15, 143]
         ):
-            # The JVM sets such an returncode if it receives signal 15
-            # (143 is 15+128)
+            # The JVM sets such an returncode if it receives signal 15 (143 is 15+128)
             status = "TIMEOUT"
 
         if not status:
             status = result.RESULT_ERROR
         return status
 
-    def get_value_from_output(self, lines, identifier):
+    def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
         # search the first line, that starts with the searched text
         # warn if there are more lines (multiple statistics from sequential analysis?)
         match = None
-        for line in lines:
+        for line in output:
             if line.lstrip().startswith(identifier):
                 startPosition = line.find(":") + 1
                 endPosition = line.find("(", startPosition)

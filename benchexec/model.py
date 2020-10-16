@@ -1,28 +1,14 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import logging
 import os
-import time
+import re
 import sys
 import yaml
 from xml.etree import ElementTree
@@ -30,7 +16,9 @@ from xml.etree import ElementTree
 from benchexec import BenchExecException
 from benchexec import intel_cpu_energy
 from benchexec import result
+from benchexec import tooladapter
 from benchexec import util
+
 
 MEMLIMIT = "memlimit"
 TIMELIMIT = "timelimit"
@@ -40,17 +28,23 @@ SOFTTIMELIMIT = "softtimelimit"
 HARDTIMELIMIT = "hardtimelimit"
 WALLTIMELIMIT = "walltimelimit"
 
-PROPERTY_TAG = "propertyfile"
-
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 _ERROR_RESULTS_FOR_TERMINATION_REASON = {
+    "cputime": "TIMEOUT",
+    "cputime-soft": "TIMEOUT",
+    "walltime": "TIMEOUT",
     "memory": "OUT OF MEMORY",
     "killed": "KILLED",
     "failed": "FAILED",
     "files-count": "FILES-COUNT LIMIT",
     "files-size": "FILES-SIZE LIMIT",
 }
+
+_EXPECTED_RESULT_FILTER_VALUES = {True: "true", False: "false", None: "unknown"}
+_WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = False
+
+_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "2.0"])
 
 
 def substitute_vars(oldList, runSet=None, task_file=None):
@@ -103,14 +97,52 @@ def load_task_definition_file(task_def_file):
     except yaml.YAMLError as e:
         raise BenchExecException("Invalid task definition: " + str(e))
 
-    if str(task_def.get("format_version")) not in ["0.1", "1.0"]:
+    if not task_def:
+        raise BenchExecException("Invalid task definition: empty file " + task_def_file)
+
+    format_version = str(task_def.get("format_version"))
+    if format_version not in _TASK_DEF_VERSIONS:
         raise BenchExecException(
             "Task-definition file {} specifies invalid format_version '{}'.".format(
                 task_def_file, task_def.get("format_version")
             )
         )
 
+    if format_version != "2.0" and "options" in task_def:
+        raise BenchExecException(
+            "Task-definition file {} specifies invalid key 'options', "
+            "format_version needs to be at least 2.0 for this.".format(task_def_file)
+        )
+
     return task_def
+
+
+def handle_files_from_task_definition(patterns, task_def_file):
+    """
+    Handle content of a key like input_files in a task-definition file and return list
+    of matching files.
+    @param patterns: the content of such a key (None, list, or string)
+    @param task_def_file: name of task-definition file
+    """
+    if patterns is None:
+        return []
+    result = []
+    if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
+        # accept single string in addition to list of strings
+        patterns = [patterns]
+    for pattern in patterns:
+        expanded = util.expand_filename_pattern(
+            str(pattern), os.path.dirname(task_def_file)
+        )
+        if not expanded:
+            raise BenchExecException(
+                "Pattern '{}' in task-definition file {} did not match any paths.".format(
+                    pattern, task_def_file
+                )
+            )
+        expanded.sort()
+        result.extend(expanded)
+    return result
 
 
 def load_tool_info(tool_name, config):
@@ -129,19 +161,43 @@ def load_tool_info(tool_name, config):
             tool = containerized_tool.ContainerizedTool(tool_module, config)
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            tool = tooladapter.adapt_to_current_version(tool)
+            # Provide dummy close method
+            tool.close = lambda: None
     except ImportError as ie:
+        logging.debug(
+            "Did not find module '%s'. "
+            "Python probably looked for it in one of the following paths:\n  %s",
+            tool_module,
+            "\n  ".join(path or "." for path in sys.path),
+        )
         sys.exit(
             'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
         )
-    except AttributeError:
+    except AttributeError as ae:
         sys.exit(
-            'The module "{0}" does not define the necessary class "Tool", '
-            "it cannot be used as tool info for BenchExec.".format(tool_module)
+            'Unsupported tool "{0}" specified, class "Tool" is missing: {1}'.format(
+                tool_name, ae
+            )
         )
+    except TypeError as te:
+        sys.exit(
+            'Unsupported tool "{0}" specified. TypeError: {1}'.format(tool_name, te)
+        )
+    assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
 
-def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimits):
+def cmdline_for_run(
+    tool,
+    executable,
+    options,
+    sourcefiles,
+    identifier,
+    propertyfile,
+    task_options,
+    rlimits,
+):
     working_directory = tool.working_directory(executable)
 
     def relpath(path):
@@ -150,17 +206,37 @@ def cmdline_for_run(tool, executable, options, sourcefiles, propertyfile, rlimit
     rel_executable = relpath(executable)
     if os.path.sep not in rel_executable:
         rel_executable = os.path.join(os.curdir, rel_executable)
-    args = tool.cmdline(
-        rel_executable,
-        list(options),
-        list(map(relpath, sourcefiles)),
-        relpath(propertyfile) if propertyfile else None,
-        rlimits.copy(),
+
+    task = tooladapter.CURRENT_BASETOOL.Task(
+        input_files=map(relpath, sourcefiles),
+        identifier=None if sourcefiles else identifier,  # only for <withoutfile>
+        property_file=relpath(propertyfile) if propertyfile else None,
+        options=task_options,
     )
+
+    args = tool.cmdline(rel_executable, list(options), task, rlimits)
     assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
     return args
+
+
+def get_propertytag(parent):
+    tag = util.get_single_child_from_xml(parent, "propertyfile")
+    if tag is None:
+        return None
+    expected_verdict = tag.get("expectedverdict")
+    if (
+        expected_verdict is not None
+        and expected_verdict not in _EXPECTED_RESULT_FILTER_VALUES.values()
+        and not re.match("false(.*)", expected_verdict)
+    ):
+        raise BenchExecException(
+            "Invalid value '{}' for expectedverdict of <propertyfile> in tag <{}>: "
+            "Only 'true', 'false', 'false(<subproperty>)' and 'unknown' "
+            "are allowed!".format(expected_verdict, parent.tag)
+        )
+    return tag
 
 
 class Benchmark(object):
@@ -186,8 +262,19 @@ class Benchmark(object):
         if config.name:
             self.name += "." + config.name
 
+        self.description = None
+        if config.description_file is not None:
+            try:
+                self.description = util.read_file(config.description_file)
+            except (OSError, UnicodeDecodeError) as e:
+                raise BenchExecException(
+                    "File '{}' given for description could not be read: {}".format(
+                        config.description_file, e
+                    )
+                )
+
         self.start_time = start_time
-        self.instance = time.strftime("%Y-%m-%d_%H%M", self.start_time)
+        self.instance = start_time.strftime(util.TIMESTAMP_FILENAME_FORMAT)
 
         self.output_base_name = config.output_path + self.name + "." + self.instance
         self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
@@ -216,8 +303,6 @@ class Benchmark(object):
         self.executable = None
         self.display_name = rootTag.get("displayName")
 
-        logging.debug("The tool to be benchmarked is %s.", self.tool_name)
-
         def parse_memory_limit(value):
             # In a future BenchExec version, we could treat unit-less limits as bytes
             try:
@@ -229,8 +314,10 @@ class Benchmark(object):
                     "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
                 )
 
-        def handle_limit_value(name, key, cmdline_value, parse_fn):
-            value = rootTag.get(key, None)
+        rlimits = {}
+
+        def handle_limit_value(name, from_key, to_key, cmdline_value, parse_fn):
+            value = rootTag.get(from_key, None)
             # override limit from XML with values from command line
             if cmdline_value is not None:
                 if cmdline_value.strip() == "-1":  # infinity
@@ -240,10 +327,10 @@ class Benchmark(object):
 
             if value is not None:
                 try:
-                    self.rlimits[key] = parse_fn(value)
+                    rlimits[to_key] = parse_fn(value)
                 except ValueError as e:
                     sys.exit("Invalid value for {} limit: {}".format(name.lower(), e))
-                if self.rlimits[key] <= 0:
+                if rlimits[to_key] <= 0:
                     sys.exit(
                         '{} limit "{}" is invalid, it needs to be a positive number '
                         "(or -1 on the command line for disabling it).".format(
@@ -251,37 +338,50 @@ class Benchmark(object):
                         )
                     )
 
-        self.rlimits = {}
-        keys = list(rootTag.keys())
         handle_limit_value(
-            "Time", TIMELIMIT, config.timelimit, util.parse_timespan_value
+            "Time", TIMELIMIT, "cputime", config.timelimit, util.parse_timespan_value
         )
         handle_limit_value(
-            "Hard time", HARDTIMELIMIT, config.timelimit, util.parse_timespan_value
+            "Hard time",
+            HARDTIMELIMIT,
+            "cputime_hard",
+            config.timelimit,
+            util.parse_timespan_value,
         )
         handle_limit_value(
-            "Wall time", WALLTIMELIMIT, config.walltimelimit, util.parse_timespan_value
+            "Wall time",
+            WALLTIMELIMIT,
+            "walltime",
+            config.walltimelimit,
+            util.parse_timespan_value,
         )
-        handle_limit_value("Memory", MEMLIMIT, config.memorylimit, parse_memory_limit)
-        handle_limit_value("Core", CORELIMIT, config.corelimit, int)
+        handle_limit_value(
+            "Memory", MEMLIMIT, "memory", config.memorylimit, parse_memory_limit
+        )
+        handle_limit_value("Core", CORELIMIT, "cpu_cores", config.corelimit, int)
 
-        if HARDTIMELIMIT in self.rlimits:
-            hardtimelimit = self.rlimits.pop(HARDTIMELIMIT)
-            if TIMELIMIT in self.rlimits:
-                if hardtimelimit < self.rlimits[TIMELIMIT]:
+        self.rlimits = tooladapter.CURRENT_BASETOOL.ResourceLimits(**rlimits)
+
+        if self.rlimits.cputime:
+            if self.rlimits.cputime_hard:
+                # if both cputime and cputime_hard are given, might need to adjust
+                if self.rlimits.cputime_hard < self.rlimits.cputime:
                     logging.warning(
                         "Hard timelimit %d is smaller than timelimit %d, ignoring the former.",
-                        hardtimelimit,
-                        self.rlimits[TIMELIMIT],
+                        self.rlimits.cputime_hard,
+                        self.rlimits.cputime,
                     )
-                elif hardtimelimit > self.rlimits[TIMELIMIT]:
-                    self.rlimits[SOFTTIMELIMIT] = self.rlimits[TIMELIMIT]
-                    self.rlimits[TIMELIMIT] = hardtimelimit
+                    self.rlimits = self.rlimits._replace(
+                        cputime_hard=self.rlimits.cputime
+                    )
             else:
-                self.rlimits[TIMELIMIT] = hardtimelimit
+                # if only cputime is given, set cputime_hard to same value
+                self.rlimits = self.rlimits._replace(cputime_hard=self.rlimits.cputime)
+        elif self.rlimits.cputime_hard:
+            # if only cputime_hard is given, set cputime to same value
+            self.rlimits = self.rlimits._replace(cputime=self.rlimits.cputime_hard)
 
-        # get number of threads, default value is 1
-        self.num_of_threads = int(rootTag.get("threads")) if ("threads" in keys) else 1
+        self.num_of_threads = int(rootTag.get("threads", 1))
         if config.num_of_threads is not None:
             self.num_of_threads = config.num_of_threads
         if self.num_of_threads < 1:
@@ -290,9 +390,7 @@ class Benchmark(object):
 
         # get global options and property file
         self.options = util.get_list_from_xml(rootTag)
-        self.propertyfile = util.text_or_none(
-            util.get_single_child_from_xml(rootTag, PROPERTY_TAG)
-        )
+        self.propertytag = get_propertytag(rootTag)
 
         # get columns
         self.columns = Benchmark.load_columns(rootTag.find("columns"))
@@ -440,12 +538,9 @@ class RunSet(object):
 
         # get all run-set-specific options from rundefinitionTag
         self.options = benchmark.options + util.get_list_from_xml(rundefinitionTag)
-        self.propertyfile = (
-            util.text_or_none(
-                util.get_single_child_from_xml(rundefinitionTag, PROPERTY_TAG)
-            )
-            or benchmark.propertyfile
-        )
+        self.propertytag = get_propertytag(rundefinitionTag)
+        if self.propertytag is None:
+            self.propertytag = benchmark.propertytag
 
         # get run-set specific required files
         required_files_pattern = {
@@ -524,9 +619,7 @@ class RunSet(object):
 
             # get file-specific options for filenames
             fileOptions = util.get_list_from_xml(sourcefilesTag)
-            propertyfile = util.text_or_none(
-                util.get_single_child_from_xml(sourcefilesTag, PROPERTY_TAG)
-            )
+            local_propertytag = get_propertytag(sourcefilesTag)
 
             # some runs need more than one sourcefile,
             # the first sourcefile is a normal 'include'-file, we use its name as identifier
@@ -541,13 +634,16 @@ class RunSet(object):
                             "Cannot combine <append> and task-definition files in the same <tasks> tag."
                         )
                     run = self.create_run_from_task_definition(
-                        identifier, fileOptions, propertyfile, required_files_pattern
+                        identifier,
+                        fileOptions,
+                        local_propertytag,
+                        required_files_pattern,
                     )
                 else:
                     run = self.create_run_for_input_file(
                         identifier,
                         fileOptions,
-                        propertyfile,
+                        local_propertytag,
                         required_files_pattern,
                         appendFileTags,
                     )
@@ -560,9 +656,10 @@ class RunSet(object):
                     Run(
                         run.text,
                         [],
+                        None,
                         fileOptions,
                         self,
-                        propertyfile,
+                        local_propertytag,
                         required_files_pattern,
                     )
                 )
@@ -655,7 +752,7 @@ class RunSet(object):
         self,
         input_file,
         options,
-        property_file,
+        local_propertytag,
         required_files_pattern,
         append_file_tags,
     ):
@@ -672,67 +769,58 @@ class RunSet(object):
         run = Run(
             input_file,
             util.get_files(input_files),  # expand directories to get their sub-files
+            None,
             options,
             self,
-            property_file,
+            local_propertytag,
             required_files_pattern,
         )
 
         if not run.propertyfile:
             return run
 
-        prop = result.Property.create(run.propertyfile, allow_unknown=False)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
-        expected_results = result.expected_results_of_file(input_file)
-        if prop.name in expected_results:
-            run.expected_results[prop.filename] = expected_results[prop.name]
-        # We do not check here if there is an expected result for the given propertyfile
-        # like we do in create_run_from_task_definition, to keep backwards compatibility.
+
+        if run.propertytag.get("expectedverdict"):
+            global _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER
+            if not _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER:
+                _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = True
+                logging.warning(
+                    "Ignoring filter based on expected verdict "
+                    "for tasks without task-definition file. "
+                    "Expected verdicts for such tasks will be removed in BenchExec 3.0 "
+                    "(cf. https://github.com/sosy-lab/benchexec/issues/439)."
+                )
+
         return run
 
     def create_run_from_task_definition(
-        self, task_def_file, options, propertyfile, required_files_pattern
+        self, task_def_file, options, local_propertytag, required_files_pattern
     ):
         """Create a Run from a task definition in yaml format"""
         task_def = load_task_definition_file(task_def_file)
 
-        def expand_patterns_from_tag(tag):
-            result = []
-            patterns = task_def.get(tag, [])
-            if isinstance(patterns, str) or not isinstance(
-                patterns, collections.Iterable
-            ):
-                # accept single string in addition to list of strings
-                patterns = [patterns]
-            for pattern in patterns:
-                expanded = util.expand_filename_pattern(
-                    str(pattern), os.path.dirname(task_def_file)
-                )
-                if not expanded:
-                    raise BenchExecException(
-                        "Pattern '{}' in task-definition file {} did not match any paths.".format(
-                            pattern, task_def_file
-                        )
-                    )
-                expanded.sort()
-                result.extend(expanded)
-            return result
-
-        input_files = expand_patterns_from_tag("input_files")
+        input_files = handle_files_from_task_definition(
+            task_def.get("input_files"), task_def_file
+        )
         if not input_files:
             raise BenchExecException(
                 "Task-definition file {} does not define any input files.".format(
                     task_def_file
                 )
             )
-        required_files = expand_patterns_from_tag("required_files")
+        required_files = handle_files_from_task_definition(
+            task_def.get("required_files"), task_def_file
+        )
 
         run = Run(
             task_def_file,
             input_files,
+            task_def.get("options"),
             options,
             self,
-            propertyfile,
+            local_propertytag,
             required_files_pattern,
             required_files,
         )
@@ -743,7 +831,7 @@ class RunSet(object):
             return run
 
         # TODO: support "property_name" attribute in yaml
-        prop = result.Property.create(run.propertyfile, allow_unknown=True)
+        prop = result.Property.create(run.propertyfile)
         run.properties = [prop]
 
         for prop_dict in task_def.get("properties", []):
@@ -794,8 +882,30 @@ class RunSet(object):
                     prop.filename, task_def_file
                 )
             )
-        else:
-            return run
+        assert len(run.expected_results) == 1
+
+        expected_result_filter = run.propertytag.get("expectedverdict")
+        # Valid value of expected_result_filter has been confirmed before.
+        if expected_result_filter is not None:
+            expected_result = next(iter(run.expected_results.values()))
+            expected_result_str = _EXPECTED_RESULT_FILTER_VALUES[expected_result.result]
+            if (
+                expected_result.result is False
+                and expected_result.subproperty
+                and "(" in expected_result_filter
+            ):
+                expected_result_str += "(" + expected_result.subproperty + ")"
+            if expected_result_str != expected_result_filter:
+                logging.debug(
+                    "Ignoring run '%s' because "
+                    "it does not have the expected verdict '%s' for %s.",
+                    run.identifier,
+                    expected_result_filter,
+                    prop,
+                )
+                return None
+
+        return run
 
     def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
         """
@@ -849,9 +959,10 @@ class Run(object):
         self,
         identifier,
         sourcefiles,
+        task_options,
         fileOptions,
         runSet,
-        propertyfile=None,
+        local_propertytag=None,
         required_files_patterns=[],
         required_files=[],
         expected_results={},
@@ -860,6 +971,7 @@ class Run(object):
         assert identifier
         self.identifier = identifier
         self.sourcefiles = sourcefiles
+        self.task_options = task_options
         self.runSet = runSet
         self.specific_options = fileOptions  # options that are specific for this run
         self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
@@ -889,11 +1001,14 @@ class Run(object):
         if substitutedOptions != self.options:
             self.options = substitutedOptions  # for less memory again
 
-        self.propertyfile = propertyfile or runSet.propertyfile
+        self.propertytag = (
+            local_propertytag if local_propertytag is not None else runSet.propertytag
+        )
+        self.propertyfile = util.text_or_none(self.propertytag)
         self.properties = []  # filled externally
 
         def log_property_file_once(msg):
-            if not self.propertyfile in _logged_missing_property_files:
+            if self.propertyfile not in _logged_missing_property_files:
                 _logged_missing_property_files.add(self.propertyfile)
                 logging.warning(msg)
 
@@ -957,14 +1072,17 @@ class Run(object):
         assert (
             self.runSet.benchmark.executable is not None
         ), "executor needs to set tool executable"
-        return cmdline_for_run(
+        self._cmdline = cmdline_for_run(
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
             self.options,
-            self.sourcefiles or [self.identifier],  # identifier for <withoutfile>
+            self.sourcefiles,
+            self.identifier,
             self.propertyfile,
+            self.task_options,
             self.runSet.benchmark.rlimits,
         )
+        return self._cmdline
 
     def set_result(self, values, visible_columns={}):
         """Set the result of this run.
@@ -996,27 +1114,18 @@ class Run(object):
 
         termination_reason = values.get("terminationreason")
 
-        # Termination reason was not fully precise for timeouts, so we guess "timeouts"
-        # if time is too high. Since removal of ulimit time limit this should not be
-        # necessary, but also does not harm. We might reconsider this in the future.
-        isTimeout = (
-            termination_reason in ["cputime", "cputime-soft", "walltime"]
-            or self._is_timeout()
-        )
-
         # read output
         try:
             with open(self.log_file, "rt", errors="ignore") as outputFile:
                 output = outputFile.readlines()
                 # first 6 lines are for logging, rest is output of subprocess, see runexecutor.py for details
                 output = output[6:]
-        except IOError as e:
+        except OSError as e:
             logging.warning("Cannot read log file: %s", e.strerror)
             output = []
+        output = tooladapter.CURRENT_BASETOOL.RunOutput(output)
 
-        self.status = self._analyze_result(
-            exitcode, output, isTimeout, termination_reason
-        )
+        self.status = self._analyze_result(exitcode, output, termination_reason)
         self.category = result.get_result_category(
             self.expected_results, self.status, self.properties
         )
@@ -1029,7 +1138,7 @@ class Run(object):
                 output, substitutedColumnText
             )
 
-    def _analyze_result(self, exitcode, output, isTimeout, termination_reason):
+    def _analyze_result(self, exitcode, output, termination_reason):
         """Return status according to result and output of tool."""
 
         # Ask tool info.
@@ -1037,7 +1146,9 @@ class Run(object):
         if exitcode is not None:
             logging.debug("My subprocess returned %s.", exitcode)
             tool_status = self.runSet.benchmark.tool.determine_result(
-                exitcode.value or 0, exitcode.signal or 0, output, isTimeout
+                tooladapter.CURRENT_BASETOOL.Run(
+                    self._cmdline, exitcode, output, termination_reason
+                )
             )
 
             if tool_status in result.RESULT_LIST_OTHER:
@@ -1051,7 +1162,7 @@ class Run(object):
                 elif exitcode.signal:
                     tool_status = "KILLED BY SIGNAL " + str(exitcode.signal)
 
-                elif exitcode.value:
+                elif exitcode.value and tool_status != result.RESULT_UNKNOWN:
                     tool_status = "{} ({})".format(result.RESULT_ERROR, exitcode.value)
 
         # Tools sometimes produce a result even after violating a resource limit.
@@ -1061,7 +1172,10 @@ class Run(object):
         # so we do this only if the result is a "normal" one like TRUE/FALSE
         # or an unspecific one like UNKNOWN/ERROR.
         status = None
-        if isTimeout:
+        if self._is_timeout():
+            # Termination reason was not fully precise for timeouts, so we double check
+            # the consumed time against the limits. Since removal of ulimit time limit
+            # this should not be necessary, but also does not harm.
             status = "TIMEOUT"
         elif termination_reason:
             status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(
@@ -1081,27 +1195,12 @@ class Run(object):
 
     def _is_timeout(self):
         """ try to find out whether the tool terminated because of a timeout """
-        if self.values.get("cputime") is None:
-            is_cpulimit = False
-        else:
-            rlimits = self.runSet.benchmark.rlimits
-            if SOFTTIMELIMIT in rlimits:
-                limit = rlimits[SOFTTIMELIMIT]
-            elif TIMELIMIT in rlimits:
-                limit = rlimits[TIMELIMIT]
-            else:
-                limit = float("inf")
-            is_cpulimit = self.values["cputime"] > limit
+        rlimits = self.runSet.benchmark.rlimits
+        cputime = self.values.get("cputime")
+        walltime = self.values.get("walltime")
 
-        if self.values.get("walltime") is None:
-            is_walllimit = False
-        else:
-            rlimits = self.runSet.benchmark.rlimits
-            if WALLTIMELIMIT in rlimits:
-                limit = rlimits[WALLTIMELIMIT]
-            else:
-                limit = float("inf")
-            is_walllimit = self.values["walltime"] > limit
+        is_cpulimit = cputime and rlimits.cputime and cputime > rlimits.cputime
+        is_walllimit = walltime and rlimits.walltime and walltime > rlimits.walltime
 
         return is_cpulimit or is_walllimit
 
@@ -1168,10 +1267,10 @@ class Requirements(object):
         # TODO check, if we have enough requirements to reach the limits
         # TODO is this really enough? we need some overhead!
         if self.cpu_cores is None:
-            self.cpu_cores = rlimits.get(CORELIMIT, None)
+            self.cpu_cores = rlimits.cpu_cores
 
         if self.memory is None:
-            self.memory = rlimits.get(MEMLIMIT, None)
+            self.memory = rlimits.memory
 
         if hasattr(config, "cpu_model") and config.cpu_model is not None:
             # user-given model -> override value

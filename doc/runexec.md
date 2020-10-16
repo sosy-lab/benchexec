@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec: runexec
 ## Benchmarking a Single Run
 
@@ -56,12 +65,12 @@ To do so, simply use the `runexec` command in your benchmarking framework
 as a wrapper around the actual command, and pass the appropriate command-line flags
 for resource limits and read the resource measurements from the output.
 If you want to bundle BenchExec with your framework,
-you only need to use the `.egg` file for BenchExec,
+you only need to use the `.whl` file for BenchExec,
 no external dependencies are required.
-You can also execute `runexec` directly from the `.egg` file with the following command
+You can also execute `runexec` directly from the `.whl` file with the following command
 (no separate start script or installation is necessary):
 
-    PYTHONPATH=path/to/BenchExec.egg python3 -m benchexec.runexecutor ...
+    PYTHONPATH=path/to/BenchExec.whl python3 -m benchexec.runexecutor ...
 
 From within Python, BenchExec can be used to execute a command as in the following example:
 
@@ -91,15 +100,3 @@ signal.signal(signal.SIGINT, stop_run)
 
 result = executor.execute_run(args=[<TOOL_CMD>], ...)
 ```
-
-## Python 2 Compatibility
-
-While BenchExec in general requires at least Python 3.4,
-`runexec` should also work with Python 2.7,
-both when run as a stand-alone tool and when used as a Python module.
-This is also true for the `benchexc.check_cgroups` command
-that can be used to verify the [cgroups setup](INSTALL.md#setting-up-cgroups).
-
-*Compatibility with Python 2 will be removed in BenchExec 3.0 in January 2020.*
-Please add a comment to [#438](https://github.com/sosy-lab/benchexec/issues/438)
-if this is a problem for you.

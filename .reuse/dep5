@@ -1,0 +1,23 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: BenchExec
+Source: https://github.com/sosy-lab/benchexec
+
+Files: benchexec/tablegenerator/test_integration/expected/*.html
+ benchexec/tablegenerator/test_integration/expected/*.csv
+ benchexec/tablegenerator/test_integration/results/*
+ benchexec/test_integration/expected/*
+Copyright: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+License: Apache-2.0
+
+Files: benchexec/tablegenerator/react-table/src/tests/__snapshots__/*.snap
+ benchexec/tablegenerator/react-table/build/bundle.min.*
+Copyright: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+License: Apache-2.0
+
+Files: benchexec/tablegenerator/react-table/build/vendors.min.*
+Copyright: various authors (full list is bundled and shown on Info tab)
+License: BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC
+
+Files: debian/*
+Copyright: 2015-2020 Dirk Beyer <https://www.sosy-lab.org>
+License: Apache-2.0

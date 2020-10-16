@@ -1,0 +1,19 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+format_version: "1.0"
+
+input_files:
+  - <span>false_other_sub_task.<b>yml</b></span>
+  - <div>false_other_sub_task.yml</div>
+
+<button style="padding-right:3px" onClick="console.log("This should not work")"></button>: <button>test</button>
+
+properties:
+  - property_file: <a href="github.com">test.prp</a>
+    expected_verdict: false
+    broken_list: <ul> <li> item </li> </li> <li> </ul> </ul>

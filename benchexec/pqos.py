@@ -1,20 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """
     This module contains the Pqos class which is used to interact with pqos_wrapper cli
@@ -27,28 +16,22 @@ import json
 import grp
 from signal import SIGINT
 from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
-from benchexec.util import find_executable, get_capability, check_msr
+from benchexec.util import find_executable2, get_capability, check_msr
 
 
 class Pqos(object):
     """
-        The Pqos class defines methods to interact with pqos_wrapper cli.
+    The Pqos class defines methods to interact with pqos_wrapper cli.
     """
 
-    CMD = "pqos_wrapper"
     CAP_SYS_RAWIO = "cap_sys_rawio"
 
     def __init__(self, show_warnings=False):
         self.reset_required = False
-        self.cli_exists = False
         self.show_warnings = show_warnings
         self.mon_process = None
-        self.executable_path = find_executable(
-            "pqos_wrapper", exitOnError=False, use_current_dir=False
-        )
-        if self.executable_path is not None:
-            self.cli_exists = True
-        else:
+        self.executable_path = find_executable2("pqos_wrapper")
+        if self.executable_path is None:
             if self.show_warnings:
                 logging.info(
                     "Unable to find pqos_wrapper, please install it for "
@@ -58,14 +41,14 @@ class Pqos(object):
 
     def execute_command(self, __type, function, suppress_warning, *args):
         """
-            Execute a given pqos_wrapper command and log the output
+        Execute a given pqos_wrapper command and log the output
 
-                @__type: The type of command being executed (monitoring or l3ca)
-                @function_name: The name of the function being executed in pqos_wrapper
-                @suppress_warning: A boolean to decide wether to print warning on failing execution
+            @__type: The type of command being executed (monitoring or l3ca)
+            @function_name: The name of the function being executed in pqos_wrapper
+            @suppress_warning: A boolean to decide wether to print warning on failing execution
         """
-        if self.cli_exists:
-            args_list = [self.CMD] + list(args)
+        if self.executable_path:
+            args_list = [self.executable_path] + list(args)
             try:
                 if "-m" in args_list:
                     self.mon_process = Popen(args_list, stdout=PIPE, stderr=PIPE)
@@ -80,11 +63,11 @@ class Pqos(object):
 
     def print_error_message(self, err, __type, args_list):
         """
-            Prints error message returned from pqos_wrapper
+        Prints error message returned from pqos_wrapper
 
-                @err: The error output returned by pqos_wrapper
-                @__type: The type of command being executed (monitoring or l3ca)
-                @args_list: The command being executed as a list
+            @err: The error output returned by pqos_wrapper
+            @__type: The type of command being executed (monitoring or l3ca)
+            @args_list: The command being executed as a list
         """
         msg_prefix = {
             "mon": "Could not monitor events",
@@ -103,9 +86,9 @@ class Pqos(object):
 
     def check_capacity(self, technology):
         """
-            Check if given intel rdt is supported.
+        Check if given intel rdt is supported.
 
-                @technology: The intel rdt to be tested
+            @technology: The intel rdt to be tested
         """
         return self.execute_command(
             technology, "check_capability", False, "-c", technology
@@ -114,9 +97,9 @@ class Pqos(object):
     @staticmethod
     def convert_core_list(core_assignment):
         """
-            Convert a double list to a string.
+        Convert a double list to a string.
 
-                @core_assignment: The double list of cores
+            @core_assignment: The double list of cores
         """
         ret = []
         for benchmark in core_assignment:
@@ -125,10 +108,10 @@ class Pqos(object):
 
     def allocate_l3ca(self, core_assignment):
         """
-            This method checks if L3CAT is available and calls pqos_wrapper to
-            allocate equal cache to each thread.
+        This method checks if L3CAT is available and calls pqos_wrapper to
+        allocate equal cache to each thread.
 
-                @core_assignment: The list of cores assigned to each run
+            @core_assignment: The list of cores assigned to each run
         """
         if self.check_capacity("l3ca"):
             core_string = self.convert_core_list(core_assignment)
@@ -141,10 +124,10 @@ class Pqos(object):
 
     def start_monitoring(self, core_assignment):
         """
-            This method checks if monitoring capability is available and calls pqos_wrapper to
-            monitor events on given lists of cores.
+        This method checks if monitoring capability is available and calls pqos_wrapper to
+        monitor events on given lists of cores.
 
-                @core_assignment: The list of cores assigned to each run
+            @core_assignment: The list of cores assigned to each run
         """
         if self.check_capacity("mon"):
             core_string = self.convert_core_list(core_assignment)
@@ -152,8 +135,8 @@ class Pqos(object):
 
     def stop_monitoring(self):
         """
-            This method stops monitoring by sending SIGINT to the monitoring process
-            and resets the RMID for monitored cores to 0
+        This method stops monitoring by sending SIGINT to the monitoring process
+        and resets the RMID for monitored cores to 0
         """
         ret = {}
         if self.mon_process:
@@ -179,17 +162,17 @@ class Pqos(object):
 
     def reset_monitoring(self):
         """
-            Reset monitoring RMID to 0 for all cores
+        Reset monitoring RMID to 0 for all cores
         """
         self.execute_command("mon", "reset_monitoring", True, "-rm")
 
     @staticmethod
     def flatten_mon_data(mon_data):
         """
-            Converts the monitoring data array received from pqos_wrapper
-            to a flattened dictionary
+        Converts the monitoring data array received from pqos_wrapper
+        to a flattened dictionary
 
-                @mon_data: The array of data received from pqos_wrapper monitoring cli
+            @mon_data: The array of data received from pqos_wrapper monitoring cli
         """
         flatten_dict = {}
         for data in mon_data:
@@ -215,7 +198,7 @@ class Pqos(object):
 
     def reset_resources(self):
         """
-            This method resets all resources to default.
+        This method resets all resources to default.
         """
         if self.reset_required:
             self.execute_command("l3ca", "reset_resources", True, "-r")
@@ -223,10 +206,10 @@ class Pqos(object):
 
     def check_for_errors(self):
         """
-            This method logs a detailed error on a failed pqos_error command.
+        This method logs a detailed error on a failed pqos_error command.
         """
         cap = get_capability(self.executable_path)
-        if cap["error"] == False:
+        if cap["error"] is False:
             if self.CAP_SYS_RAWIO in cap["capabilities"]:
                 if not all(x in cap["set"] for x in ["e", "p"]):
                     logging.warning(

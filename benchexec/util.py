@@ -1,43 +1,27 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """
 This module contains some useful functions for Strings, XML or Lists.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
-
-import bz2
+import argparse
 import collections
+import datetime
 import errno
 import fnmatch
 import glob
 import logging
 import os
 import shutil
-import signal
+import signal as _signal
 import stat
 import subprocess
 import sys
-import time
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
@@ -48,27 +32,11 @@ except ImportError:
     from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
-try:
-    read_monotonic_time = time.monotonic  # does not exist on Python 2
-except AttributeError:
-    # TODO Should probably warn about wall time affected by changing system clock
-    read_monotonic_time = time.time
-
-
-try:
-    glob.iglob("/", recursive=True)
-except TypeError:
-
-    def maybe_recursive_iglob(pathname, recursive=False):
-        """Workaround for glob.iglob not accepting parameter recursive on Python <= 3.4"""
-        return glob.iglob(pathname)
-
-
-else:
-    maybe_recursive_iglob = glob.iglob
-
-
 _BYTE_FACTOR = 1000  # byte in kilobyte
+_FREQUENCY_FACTOR = 1000  # Hz in kHz
+
+TIMESTAMP_FILENAME_FORMAT = "%Y-%m-%d_%H-%M-%S"
+"""Our standard timestamp format for file names (without colons etc.)"""
 
 
 def printOut(value, end="\n"):
@@ -102,7 +70,7 @@ def remove_all(list_, elemToRemove):
 
 
 def flatten(iterable, exclude=[]):
-    return [value for sublist in iterable for value in sublist if not value in exclude]
+    return [value for sublist in iterable for value in sublist if value not in exclude]
 
 
 def get_list_from_xml(elem, tag="option", attributes=["name"]):
@@ -255,6 +223,33 @@ def parse_timespan_value(s):
         raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
 
 
+def parse_frequency_value(s):
+    """Parse a string that contains a frequency, optionally with a unit like Hz.
+    @return the number of frequency encoded by the string
+    """
+    number, unit = split_number_and_unit(s)
+    if not unit or unit == "Hz":
+        return number
+    elif unit == "kHz":
+        return number * _FREQUENCY_FACTOR
+    elif unit == "MHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    elif unit == "GHz":
+        return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
+    else:
+        raise ValueError(
+            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
+        )
+
+
+def non_empty_str(s):
+    """Utility for requiring a non-empty string value as command-line parameter."""
+    s = str(s)
+    if not s:
+        raise argparse.ArgumentTypeError("empty string not allowed")
+    return s
+
+
 def expand_filename_pattern(pattern, base_dir):
     """
     Expand a file name pattern containing wildcards, environment variables etc.
@@ -307,7 +302,8 @@ def substitute_vars(template, replacements):
 
 
 def find_executable(program, fallback=None, exitOnError=True, use_current_dir=True):
-    dirs = os.environ["PATH"].split(os.path.pathsep)
+    """Deprecated, prefer find_executable2"""
+    dirs = get_path()
     if use_current_dir:
         dirs.append(os.path.curdir)
 
@@ -327,21 +323,48 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
 
     if exitOnError:
         if found_non_executable:
-            sys.exit(
-                "ERROR: Could not find '{0}' executable, "
+            sys.exit(  # noqa: R503 always raises
+                "Could not find '{0}' executable, "
                 "but found file '{1}' that is not executable.".format(
                     program, found_non_executable[0]
                 )
             )
         else:
-            sys.exit("ERROR: Could not find '{0}' executable.".format(program))
+            sys.exit(  # noqa: R503 always raises
+                "Could not find '{0}' executable.".format(program)
+            )
     else:
         return fallback
 
 
-def common_base_dir(l):
+def find_executable2(name, dirs=None, required_mode=os.X_OK):
+    """
+    Search for an executable file either in PATH or in given directories.
+
+    @param name: The name of the executable to search
+    @param dirs: The directories where to search (PATH will be used by default)
+    @param required_mode: A valid mode parameter for os.access as filter criterion
+    @return None or the path to the executable
+    """
+    if dirs is None:
+        dirs = get_path()
+
+    for candidate_dir in dirs:
+        candidate = os.path.join(candidate_dir, name)
+        if os.path.isfile(candidate) and os.access(candidate, required_mode):
+            return candidate
+
+    return None
+
+
+def get_path():
+    """Get list of directories in PATH environment variable."""
+    return os.environ["PATH"].split(os.path.pathsep)
+
+
+def common_base_dir(paths):
     # os.path.commonprefix returns the common prefix, not the common directory
-    return os.path.dirname(os.path.commonprefix(l))
+    return os.path.dirname(os.path.commonprefix(paths))
 
 
 def relative_path(destination, start):
@@ -365,21 +388,6 @@ def log_rmtree_error(func, arg, exc_info):
     logging.warning("Failure during '%s(%s)': %s", func.__name__, arg, exc_info[1])
 
 
-def makedirs(name, exist_ok=False):
-    """create a leaf directory and all intermediate ones Works like os.mkdirs, except
-    that no OSError is raised in case the target directory already exists and exist_ok
-    is set to True.
-    """
-    try:
-        os.makedirs(name)
-    except OSError:
-        # Cannot rely on checking for EEXIST on windows machines, since the operating
-        # system could give priority to other errors like EACCES or EROFS.
-        # See https://bugs.python.org/issue25583 for more information.
-        if not exist_ok or not os.path.isdir(name):
-            raise
-
-
 def rmtree(path, ignore_errors=False, onerror=None):
     """Same as shutil.rmtree, but supports directories without write or execute permissions."""
     if ignore_errors:
@@ -392,12 +400,12 @@ def rmtree(path, ignore_errors=False, onerror=None):
         def onerror(*args):
             raise
 
-    for root, dirs, unused_files in os.walk(path):
+    for root, dirs, _unused_files in os.walk(path):
         for directory in dirs:
             try:
                 abs_directory = os.path.join(root, directory)
                 os.chmod(abs_directory, stat.S_IRWXU)
-            except EnvironmentError as e:
+            except OSError as e:
                 onerror(os.chmod, abs_directory, e)
     shutil.rmtree(path, ignore_errors=ignore_errors, onerror=onerror)
 
@@ -474,7 +482,7 @@ def try_read_file(*path):
     try:
         return read_file(*path).strip()
     except OSError:
-        return NOne
+        return None
 
 
 def read_key_value_pairs_from_file(*path):
@@ -498,7 +506,7 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
     def from_raw(cls, exitcode):
         if not (0 <= exitcode < 2 ** 16):
             raise ValueError("invalid exitcode " + str(exitcode))
-        # calculation: exitcode == (returnvalue * 256) + exitsignal
+        # calculation is: exitcode == (returnvalue * 256) + exitsignal
         # highest bit of exitsignal shows only whether a core file was produced, we clear it
         exitsignal = exitcode & 0x7F
         returnvalue = exitcode >> 8
@@ -544,8 +552,11 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
         return self.__bool__()
 
 
-def kill_process(pid, sig=signal.SIGKILL):
+def kill_process(pid, sig=None):
     """Try to send signal to given process."""
+    if sig is None:
+        # set default lazily, otherwise importing fails on Windows
+        sig = _signal.SIGKILL
     try:
         os.kill(pid, sig)
     except OSError as e:
@@ -640,14 +651,30 @@ def wildcard_match(word, wildcard):
     return word and fnmatch.fnmatch(word, wildcard)
 
 
-def setup_logging(format="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
-    """Setup the logging framework with a basic configuration"""
-    try:
-        import coloredlogs
+def read_local_time():
+    """Get "aware" datetime.datetime instance with local time (including time zone)."""
+    # On Python 3.6+ can be simplified (cf. test case in test_util.py)
+    return datetime.datetime.now(datetime.timezone.utc).astimezone()
 
-        coloredlogs.install(fmt=format, level=level)
-    except ImportError:
-        logging.basicConfig(format=format, level=level)
+
+def should_color_output():
+    """Determine whether we want colored output to stdout."""
+    # cf. https://no-color.org/
+    return sys.stdout.isatty() and "NO_COLOR" not in os.environ
+
+
+def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
+    """Setup the logging framework with a basic configuration"""
+    if should_color_output():
+        try:
+            import coloredlogs
+
+            coloredlogs.install(fmt=fmt, level=level)
+            return
+        except ImportError:
+            pass
+
+    logging.basicConfig(format=fmt, level=level)
 
 
 def _debug_current_process(sig, current_frame):
@@ -655,7 +682,7 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code, traceback, readline, threading  # noqa: F401 @UnresolvedImport @UnusedImport
+    import code, traceback, readline, threading  # noqa: E401, F401 @UnresolvedImport @UnusedImport
 
     d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global
@@ -679,14 +706,14 @@ def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces
     and gives an interactive debugging shell.
     """
-    signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler
+    _signal.signal(_signal.SIGUSR1, _debug_current_process)  # Register handler
 
 
 def get_capability(filename):
     """
-        Get names of capabilities and the corresponding capability set for given filename.
+    Get names of capabilities and the corresponding capability set for given filename.
 
-            @filename: The complete path to the file
+        @filename: The complete path to the file
     """
     res = {"capabilities": [], "set": [], "error": False}
     try:
@@ -700,28 +727,28 @@ def get_capability(filename):
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
-    if cap_object != None:
+    if cap_object is not None:
         cap_string = cap_object.decode("utf-8")
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
-        res["set"] = [char for char in (cap_string.split("+")[1])]
+        res["set"] = list(cap_string.split("+")[1])
     return res
 
 
 def check_msr():
     """
-        Checks if the msr driver is loaded and if the user executing
-        benchexec has the read and write permissions for msr.
+    Checks if the msr driver is loaded and if the user executing
+    benchexec has the read and write permissions for msr.
     """
     res = {"loaded": False, "write": False, "read": False}
     loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
 
-    if any(["msr" in module for module in loaded_modules]):
+    if any("msr" in module for module in loaded_modules):
         res["loaded"] = True
     if res["loaded"]:
         cpu_dirs = os.listdir("/dev/cpu")
         cpu_dirs.remove("microcode")
-        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs]):
+        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs):
             res["read"] = True
-        if all([os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs]):
+        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res

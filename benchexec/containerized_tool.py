@@ -1,20 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2016  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 import contextlib
@@ -25,14 +14,23 @@ import logging
 import multiprocessing
 import os
 import signal
+import socket
 import tempfile
 
-from benchexec import BenchExecException, container, containerexecutor, libc, util
-import benchexec.tools.template
+from benchexec import (
+    BenchExecException,
+    container,
+    containerexecutor,
+    libc,
+    tooladapter,
+    util,
+)
 
 
-class ContainerizedTool(benchexec.tools.template.BaseTool):
-    """Wrapper for an instance of any subclass of benchexec.tools.template.BaseTool.
+@tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
+class ContainerizedTool(object):
+    """Wrapper for an instance of any subclass of one of the base-tool classes in
+    benchexec.tools.template.
     The module and the subclass instance will be loaded in a subprocess that has been
     put into a container. This means, for example, that the code of this module cannot
     make network connections and that any changes made to files on disk have no effect.
@@ -58,11 +56,17 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
                 [tool_module, temp_dir],
                 container_options,
             )
+        except BaseException as e:
+            self._pool.terminate()
+            raise e
         finally:
             # Outside the container, the temp_dir is just an empty directory, because
             # the tmpfs mount is only visible inside. We can remove it immediately.
             with contextlib.suppress(OSError):
                 os.rmdir(temp_dir)
+
+    def close(self):
+        self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
         """Call given method indirectly on the tool instance in the container."""
@@ -78,11 +82,16 @@ class ContainerizedTool(benchexec.tools.template.BaseTool):
 
         setattr(cls, member_name, proxy_function)
 
-    # All methods inherited from BaseTool will be overwritten by the following loop
 
-
-for member_name, member in inspect.getmembers(ContainerizedTool, inspect.isfunction):
-    if member_name[0] == "_":
+# The following will automatically add forwarding methods for all methods defined by the
+# current tool-info API. This should work without any version-specific adjustments,
+# so we declare compatibility with the latest version with @CURRENT_BASETOOL.register.
+# We do not inherit from a BaseTool class to ensure that no default methods will be used
+# accidentally.
+for member_name, member in inspect.getmembers(
+    tooladapter.CURRENT_BASETOOL, inspect.isfunction
+):
+    if member_name[0] == "_" or member_name == "close":
         continue
     ContainerizedTool._add_proxy_function(member_name, member)
 
@@ -104,7 +113,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     """Initialize container for the current process and load given tool-info module."""
     try:
         _init_container(*args, **kwargs)
-    except EnvironmentError as e:
+    except OSError as e:
         raise BenchExecException("Failed to configure container: " + str(e))
     return _load_tool(tool_module)
 
@@ -159,8 +168,18 @@ def _init_container(
         ):
             raise BenchExecException(
                 "Unprivileged user namespaces forbidden on this system, please "
-                "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                "enable them with 'sysctl -w kernel.unprivileged_userns_clone=1' "
                 "or disable container mode"
+            )
+        elif (
+            e.errno in {errno.ENOSPC, errno.EINVAL}
+            and util.try_read_file("/proc/sys/user/max_user_namespaces") == "0"
+        ):
+            # Ubuntu has ENOSPC, Centos seems to produce EINVAL in this case
+            raise BenchExecException(
+                "Unprivileged user namespaces forbidden on this system, please "
+                "enable by using 'sysctl -w user.max_user_namespaces=10000' "
+                "(or another value) or disable container mode"
             )
         else:
             raise BenchExecException(
@@ -171,7 +190,7 @@ def _init_container(
     container.setup_user_mapping(os.getpid(), uid, gid)
     _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
     if container_system_config:
-        libc.sethostname(container.CONTAINER_HOSTNAME)
+        socket.sethostname(container.CONTAINER_HOSTNAME)
     if not network_access:
         container.activate_network_interface("lo")
 
@@ -199,6 +218,7 @@ def _load_tool(tool_module):
     logging.debug("Loading tool-info module %s in container", tool_module)
     global tool
     tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+    tool = tooladapter.adapt_to_current_version(tool)
     return tool.__doc__
 
 
@@ -221,7 +241,7 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
         mount_tmpfs = mount_base + path
         if os.path.isdir(mount_tmpfs):
             temp_tmpfs = temp_base + path
-            util.makedirs(temp_tmpfs, exist_ok=True)
+            os.makedirs(temp_tmpfs, exist_ok=True)
             container.make_bind_mount(temp_tmpfs, mount_tmpfs)
 
     make_tmpfs_dir(b"/dev/shm")

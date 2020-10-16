@@ -1,24 +1,11 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+import json
 import os
 import shutil
 import subprocess
@@ -26,14 +13,16 @@ import sys
 import tempfile
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
+import benchexec
+import benchexec.util
+import benchexec.tablegenerator.util
 
-from benchexec import util
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")
 bin_dir = os.path.join(base_dir, "bin")
-tablegenerator = os.path.join(bin_dir, "table-generator")
+tablegenerator = [sys.executable, os.path.join(bin_dir, "table-generator")]
 
 # Set to True to let tests overwrite the expected result with the actual result
 # instead of letting them fail.
@@ -85,7 +74,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         output_path=None,
     ):
         output = self.run_cmd(
-            *[tablegenerator] + list(args) + ["--outputpath", output_path or self.tmp]
+            *tablegenerator + list(args) + ["--outputpath", output_path or self.tmp]
         )
         generated_files = {os.path.join(self.tmp, x) for x in os.listdir(self.tmp)}
 
@@ -141,18 +130,24 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 (result_diff_prefix or diff_prefix) + "." + ending,
             ]
 
-        output, html_file, html_diff_file, csv_file, csv_diff_file = self.generate_tables_and_check_produced_files(
+        (
+            output,
+            html_file,
+            html_diff_file,
+            csv_file,
+            csv_diff_file,
+        ) = self.generate_tables_and_check_produced_files(
             args, table_prefix, diff_prefix
         )
 
-        generated_csv = util.read_file(csv_file)
+        generated_csv = benchexec.util.read_file(csv_file)
         self.assert_file_content_equals(generated_csv, expected_file_name("csv"))
 
         generated_html = self.read_table_from_html(html_file)
         self.assert_file_content_equals(generated_html, expected_file_name("html"))
 
         if diff_prefix:
-            generated_csv_diff = util.read_file(csv_diff_file)
+            generated_csv_diff = benchexec.util.read_file(csv_diff_file)
             self.assert_file_content_equals(
                 generated_csv_diff, expected_diff_file_name("csv")
             )
@@ -165,6 +160,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         if expected_counts:
             # output of table-generator should end with statistics about regressions
             counts = output[output.find("REGRESSIONS") :].strip()
+            # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
+            counts = benchexec.tablegenerator.util.normalize_line_endings(counts)
             self.assertMultiLineEqual(expected_counts, counts)
         else:
             self.assertNotIn("REGRESSIONS", output)
@@ -172,30 +169,36 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
     def assert_file_content_equals(self, content, file):
         if OVERWRITE_MODE:
-            util.write_file(content, *file)
+            benchexec.util.write_file(content, *file)
         else:
-            self.assertMultiLineEqual(content, util.read_file(*file))
+            self.assertMultiLineEqual(content, benchexec.util.read_file(*file))
 
     def read_table_from_html(self, file):
-        content = util.read_file(file)
+        content = benchexec.util.read_file(file)
         # only keep table
         content = content[
-            content.index('<table id="dataTable">') : content.index("</table>") + 8
+            content.index("const data = {") + 13 : content.index("\n};") + 2
         ]
+        # Pretty-print JSON for better diffs
+        content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
+        content = content.replace(
+            '\n "version": "{}"\n'.format(benchexec.__version__),
+            '\n "version": "(test)"\n',
+        )
         return content
 
     def test_no_files_given(self):
         self.assertEqual(
             1,
             subprocess.call(
-                [tablegenerator], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             ),
             "expected error return code",
         )
 
     def test_files_and_table_definition_given(self):
         cmdline = [
-            tablegenerator,
+            *tablegenerator,
             "-x",
             os.path.join(here, "simple-table.xml"),
             result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
@@ -207,7 +210,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_empty_table_definition_given(self):
-        cmdline = [tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
+        cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
             subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -279,6 +282,20 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         self.generate_tables_and_compare_content(
             ["-x", os.path.join(here, "simple-table-with-scaling.xml")],
             "simple-table-with-scaling.table",
+        )
+
+    def test_simple_table_with_taskdef_files(self):
+        self.generate_tables_and_compare_content(
+            [
+                "--name",
+                "task-def-files",
+                # old set of results does not have propertyFile attributes,
+                # table-generator needs to parse yaml files
+                result_file("benchmark.test.2019-12-20_1532.results.xml.bz2"),
+                # new set of results has more metadata like propertyFile in results
+                result_file("benchmark.test.2020-06-10_09-17-06.results.xml.bz2"),
+            ],
+            table_prefix="task-def-files.table",
         )
 
     def test_multi_table(self):
@@ -385,19 +402,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_all_columns(self):
-        self.generate_tables_and_check_produced_files(
+        self.generate_tables_and_compare_content(
             [
                 result_file(
                     "integration-predicateAnalysis.2015-10-20_1355.results.xml.bz2"
                 ),
-                "-f",
-                "html",
                 "--all-columns",
                 "-n",
                 "integration-predicateAnalysis.2015-10-20_1355.all-columns",
             ],
             table_prefix="integration-predicateAnalysis.2015-10-20_1355.all-columns",
-            formats=["html"],
         )
 
     def test_dump_count_single_table(self):
@@ -407,14 +421,16 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
             ],
             table_prefix="test.2015-03-03_1613.results.predicateAnalysis",
-            expected_counts="REGRESSIONS 0\nSTATS\n3 1 0",  # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
+            # 3 correct, 1 incorrect, 0 unknown (1 without property is ignored)
+            expected_counts="REGRESSIONS 0\nSTATS\n3 1 0",
         )
 
     def test_dump_count_single_table2(self):
         self.generate_tables_and_compare_content(
             ["--dump", result_file("test.2015-03-03_1613.results.valueAnalysis.xml")],
             table_prefix="test.2015-03-03_1613.results.valueAnalysis",
-            expected_counts="REGRESSIONS 0\nSTATS\n2 0 1",  # 2 correct, 0 incorrect, 1 unknown
+            # 2 correct, 0 incorrect, 1 unknown
+            expected_counts="REGRESSIONS 0\nSTATS\n2 0 1",
         )
 
     def test_dump_count_multi_table(self):
@@ -530,14 +546,14 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 "-x",
                 os.path.join(here, "table-only-columns.xml"),
                 "--name",
-                "multi-table-with-columns",
+                "multi-table-only-columns",
                 result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
                 result_file("test.2015-03-03_1613.results.valueAnalysis.xml"),
                 result_file("test.2015-03-03_1815.results.predicateAnalysis.xml"),
                 result_file("test.2015-03-03_1815.results.valueAnalysis.xml"),
             ],
-            table_prefix="multi-table-with-columns.table",
-            diff_prefix="multi-table-with-columns.diff",
+            table_prefix="multi-table-only-columns.table",
+            diff_prefix="multi-table-only-columns.diff",
         )
 
     def test_union_table(self):
@@ -635,10 +651,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             formats=[],
             output_path="-",
         )
-        expected = util.read_file(
+        expected = benchexec.util.read_file(
             here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
         )
-        self.assertMultiLineEqual(output.strip(), expected)
+        # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
+        output = benchexec.tablegenerator.util.normalize_line_endings(output.strip())
+        self.assertMultiLineEqual(output, expected)
 
     def test_format_csv(self):
         self.generate_tables_and_check_produced_files(
@@ -676,10 +694,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_table_with_nan_and_infinity(self):
-        self.generate_tables_and_check_produced_files(
-            [result_file("nan_and_inf.xml"), "-f", "csv", "-f", "html"],
-            table_prefix="nan_and_inf",
-            formats=["csv", "html"],
+        self.generate_tables_and_compare_content(
+            [result_file("nan_and_inf.xml")], table_prefix="nan_and_inf"
         )
 
     def test_smt_results(self):
@@ -687,6 +703,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             ["-x", os.path.join(here, "smt.xml")],
             table_prefix="smt.table",
             diff_prefix="smt.diff",
+        )
+
+    def test_tasks_without_file(self):
+        benchmark_name = "benchmark-example-true.2019-11-06_0932.results.no options"
+        self.generate_tables_and_compare_content(
+            [result_file(benchmark_name + ".xml.bz2")], table_prefix=benchmark_name
         )
 
     def test_results_via_url(self):

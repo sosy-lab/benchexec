@@ -1,4 +1,250 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec Changelog
+
+## BenchExec 3.3
+
+- New API for tool-info modules (needed by `benchexec` for getting information
+  about the benchmarked tool). The new API is defined by class
+  [`benchexec.tools.template.BaseTool2`](https://github.com/sosy-lab/benchexec/blob/master/benchexec/tools/template.py)
+  and is similar to the old API, but more convenient to use and provides more
+  useful information to the tool-info module.
+  The old API is still supported
+  and will be removed no sooner than in BenchExec 4.0. We also provide a
+  [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
+- A new parameter `--tool-directory` for `benchexec` allows to specify
+  the installation directory of the benchmarked tool easily
+  without having to modify `PATH` or change into the tool's directory.
+  Note that this only works if the respective tool-info module
+  makes use of the new `BaseTool2` API.
+- New version 2.0 of the
+  [task-definition format](https://github.com/sosy-lab/benchexec/blob/master/doc/benchexec.md#task-definition-files)
+  for `benchexec`.
+  This format allows to specify arbitrary additional information in a key
+  named `options` and `benchexec` will pass everything in this key
+  to the tool-info module, but note that this only works
+  if the respective tool-info module makes use of the new `BaseTool2` API.
+  This is useful to add domain-specific information about tasks, for example
+  in the [SV-Benchmarks](https://github.com/sosy-lab/sv-benchmarks#task-definitions)
+  repository it is used to declare the program language.
+  BenchExec also still supports version 1.0 of the format.
+
+- `table-generator` is now defined to work on Windows
+  and we test this in continuous integration.
+  Previously, it probably was working on Windows most of the time
+  but we did not systematically test this.
+- Fix a crash in `benchexec` for task with property
+  but without task-definition file.
+
+## BenchExec 3.2
+
+- The HTML tables produced by `table-generator` now provide a score-based
+  quantile plot in addition to the regular quantile plot if scores are used.
+  If available, it is shown by default on the tab for quantile plots.
+  Score-based quantile plots are for example used by SV-COMP to visualize results.
+- Better axis labels in scatter plot of HTML tables.
+- More auxiliary lines available in scatter plot of HTML tables.
+- New tool-info module added.
+
+Bug fixes:
+
+- Fix crash in `benchexec` if a non-SV-COMP property was used.
+- Fix for empty property files being treated as SV-COMP properties.
+- Fix unnecessarily large I/O for text file with results of `benchexec`
+  during benchmarking. The `.results.txt` file is now written incrementally.
+- Fix incorrect handling of `<withoutfile>` tasks if the tool-info module
+  declared a non-standard working directory.
+- Small fix for the new filter overlay in the HTML tables
+  when the first run set has no filter.
+
+## BenchExec 3.1
+
+- Fix our `benchexec.check_cgroups` installation check,
+  which showed invalid warnings since BenchExec 2.7.
+- Improve handling of inaccessible mountpoints in containers.
+  This should make it possible to use nested containers on most systems
+  using the default arguments (e.g., no need for `--hidden-dir /sys`).
+- Improved row filters of HTML tables (thanks to @DennisSimon).
+  In addition to filtering via drop-down fields in the table header,
+  it is now also possible to define filters on a separate overlay,
+  which can be opened from all tabs via a button in the top-right corner
+  (e.g., also while looking at plots).
+  The filters for status and category in the filter overlay are more flexible
+  because several values can be selected for status and category.
+  This allows to define filters like
+  `category = "correct" AND (status = "false" OR status = "false(unreach-call)")`.
+  Furthermore, the filter overlay allows to filter the parts of the task id
+  (left-most column) individually and makes it easier to define filters
+  with numeric ranges.
+- Redesigned UI for changing the plot settings of quantile and scatter plots
+  in the HTML tables (thanks to @lachnerm).
+- Hiding columns in HTML tables is now reflected in the URL.
+  This makes it possible to create links to tables that hide columns.
+
+## BenchExec 3.0
+
+This release contains only one new feature compared to BenchExec 2.7:
+
+- Tables produced by `table-generator` now show the expected verdict of each task,
+  if it is known and it is not the same for all rows.
+
+However, there are several deprecated features removed
+and other backwards-incompatible changes
+to make BenchExec more consistent and user-friendly:
+
+- Support for Python 2.7 and 3.4 is removed,
+  the minimal Python version is now 3.5 for all components of BenchExec.
+  We plan to remove support for Python 3.5
+  after Ubuntu 16.04 goes out of support in 2021.
+- If a tool-info module returns `UNKNOWN` for a run result,
+  BenchExec will no longer overwrite that if it thinks the tool terminated
+  abnormally. It will continue to do so if `ERROR` is returned.
+- Result values named `cpuenergy-pkg[0-9]+` are renamed to `cpuenergy-pkg[0-9]+-package`
+  because these are not a sum of all the other CPU-energy measurements.
+- Names of result files produced by `benchexec` now contain timestamps
+  with seconds in order to avoid problems when starting `benchexec`
+  in quick succession.
+- Support for generating the old-style static HTML tables
+  (with `table-generator --static-table`) is removed.
+  Only the modern tables that are available since BenchExec 2.3
+  and CSV tables can be generated.
+- More metadata are stored in result files of `benchexec`,
+  so `table-generator` no longer needs access to the task-definition files,
+  and changes to the expected verdict that are made after benchmarking
+  will not be reflected in tables.
+- The Python library Tempita is no longer a dependency of BenchExec.
+- We do not create and distribute `.egg` packages for BenchExec releases anymore,
+  only the more modern `.whl` packages,
+  as well as Debian/Ubuntu packages and Tar archives.
+
+Furthermore, BenchExec no longer contains hard-coded knowledge about any specific property,
+all properties are treated in the same way.
+(The only exception is that score computation is enabled for SV-COMP properties.)
+This simplification implies several more changes:
+
+- For checking expected verdicts and computing scores it is now required that
+  task-definition files are used.
+  Expected verdicts encoded in the task name are no longer supported.
+- Tool-info modules need to return results `true` or `false`,
+  the results `sat` and `unsat` are no longer supported
+  (these were allowed only for the property `SATISFIABLE`).
+- There is no special handling for composite properties like SV-COMP's property
+  for memory safety anymore. Previously this property would be represented as
+  a collection of its subproperties, now it is treated as one property.
+  Task-definition files can still contain a violated subproperty,
+  and `benchexec` will continue to use this information for checking the tool result,
+  but this does not depend on which property is used.
+- Score computation is fixed for tables where property files have uncommon names.
+  The name of property files is now no longer relevant (as it should have been).
+  Because of this, `table-generator` needs to have access to
+  the property files that were used during benchmarking.
+
+
+## BenchExec 2.7
+
+- The supplied file `benchexec-cgroup.service` for cgroup configuration
+  on systems with systemd now works with systemd 240 or newer
+  (e.g., on Ubuntu 20.04).
+  This also affects the Debian package of BenchExec.
+- Error messages about failed cgroup access were improved.
+- Buttons below plots in the HTML table do not need to be clicked twice.
+- Directly opening the quantile tab of HTML tables via the URL works now.
+- First line of logs shown in overlay of HTML tables is selectable again.
+
+## BenchExec 2.6
+
+This release brings several improvements for the new kind of HTML tables
+produced by `table-generator`, in particular:
+
+- Add hash routing, i.e., the possibility to navigate to certain parts
+  of the application directly by adding a suffix to the URL.
+  For example, opening `...table.html#/table` will directly open the table.
+  While navigating through the application, the URL automatically adjusts.
+  This also means that it is possible to use the "Back" button of the browser
+  for going back to previously opened tabs or for closing an overlay window.
+  Thanks @DennisSimon for this!
+- Make references to files in task-definition files clickable.
+  When clicking on a cell in the first column of table,
+  it shows the task-definition file in an overlay.
+  Now the file's YAML content is parsed and links to input files are added.
+  Thanks @lachnerm for this!
+- Fix filtering of negative values in half-open intervals.
+- More tooltips and hover effects on table headers to improve usability.
+- The table tab now appropriately adjusts if the browser window is resized.
+- Fix legend of quantile plot if some columns are empty/missing,
+  and show disabled columns in gray.
+- Fix scatter plot if not all data points have valid values.
+- Fix layout of column-selection dialog in case not all columns are present
+  for all run sets.
+- Fix scrolling behavior of close button of overlay windows.
+- In case the property is the same for all tasks of a table,
+  it was not shown so far in the table. Now we show it on the summary tab.
+- Improve position of scroll bars across all tabs.
+
+There are also a few changes in other parts of BenchExec:
+
+- Fix mount problems in container mode if mount points with unusual characters
+  (like `:`) or bind mounts over files exist.
+  The latter is for example relevant when nesting containers
+  (inside another BenchExec or Docker container).
+- Several new tool-info modules and small improvements to existing ones.
+- `runexec` now creates parent directories of output files if necessary.
+- `table-generator` now works if environment variable `LANG` is missing.
+- `table-generator` should now work on Windows.
+- It is possible to turn off colored output on stdout by setting the
+  environment variable `NO_COLOR` (cf. https://no-color.org/).
+- In the `contrib` folder, we now provide a script for generating
+  task-definition files in YAML format for old-style tasks.
+
+
+## BenchExec 2.5.1
+
+This release does not contain any changes to BenchExec itself,
+just for a script in the `contrib` directory.
+
+## BenchExec 2.5
+
+This release contains only a small improvement of one tool-info module.
+
+## BenchExec 2.4
+
+(not released)
+
+## BenchExec 2.3
+
+- A complete rewrite of the HTML tables produced by `table-generator`.
+  The tables are now based on [React](https://reactjs.org/), load much faster,
+  and provide features like pagination, sorting, and more intuitive filters.
+  More information can be found in [PR #477](https://github.com/sosy-lab/benchexec/pull/477).
+  Thanks @bschor for this!
+  Note that the tables are not usable without JavaScript anymore.
+  The old kind of HTML tables can still be produced with the command-line flag
+  `--static-table`, but this is deprecated and will be removed in BenchExec 3.0
+  in January 2020 (cf. [#479](https://github.com/sosy-lab/benchexec/issues/479)).
+- Recursively clean up cgroups after a run.
+  This enables nesting `runexec` in itself,
+  but only if `--full-access-dir /sys/fs/cgroup` is passed to the outer `runexec`,
+  which means that the processes in the outer container have full access
+  to the cgroup hierarchy and could use this to circumvent resource limits.
+- `benchexec` filters the tasks to execute depending on the expected verdict,
+  if `<propertyfile expectedverdict="...">` in used the benchmark definition.
+- BenchExec now stores a timestamp for the start time of each run,
+  and timestamps for start and end of reach run set.
+- `benchexec` will store arbitrary user-defined text as benchmark description
+  together with the results if specified with `benchexec --description-file ...`.
+- Support for execution on Python 3.8.
+- Fix crash in `runexec` if the tool's stdout/stderr contain invalid UTF-8.
+- Fix hanging `benchexec` in container mode if tool cannot be executed
+  (e.g., if executable is missing).
+- New tool-info modules and updates for SV-COMP'20 and Test-Comp'20.
+
 
 ## BenchExec 2.2
 

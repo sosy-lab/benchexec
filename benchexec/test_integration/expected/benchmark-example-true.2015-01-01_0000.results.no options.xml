@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE result
-  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.9//EN'
-  'https://www.sosy-lab.org/benchexec/result-1.9.dtd'>
-<result benchmarkname="benchmark-example-true" date="2015-01-01 00:00:00 " generator="BenchExec 1.17-dev" name="no options" options="true" tool="DummyTool" toolmodule="benchexec.tools.dummy" version="">
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.18.dtd'>
+<result benchmarkname="benchmark-example-true" date="2015-01-01 00:00:00 " generator="BenchExec 2.3-dev" name="no options" options="true" starttime="2015-01-01T00:00:00" tool="DummyTool" toolmodule="benchexec.tools.dummy" version="">
   <columns>
     <column title="status"/>
     <column title="cputime"/>
@@ -232,6 +232,25 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
+  <run files="[../../../doc/properties.md]" name="../../../doc/properties.md">
+    <column title="cpuenergy" value="0.004700J"/>
+    <column title="cputime" value="0.001850767s"/>
+    <column title="memory" value="262144B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="0.0031071800040081143s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="0.001709J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="0.001404J"/>
+    <column hidden="true" title="cpuenergy-pkg0-package" value="0.004700J"/>
+    <column hidden="true" title="cpuenergy-pkg0-psys" value="0.022888J"/>
+    <column hidden="true" title="cpuenergy-pkg0-uncore" value="0.000183J"/>
+    <column hidden="true" title="cputime-cpu0" value="0.001771838s"/>
+    <column hidden="true" title="cputime-cpu3" value="7.8929e-05s"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="starttime" value="2020-06-12T13:03:05.487583+02:00"/>
+  </run>
   <run files="[../../../doc/resources.md]" name="../../../doc/resources.md">
     <column title="cpuenergy" value="0.004456J"/>
     <column title="cputime" value="0.00375404s"/>
@@ -435,7 +454,7 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]" name="../../../doc/task-definition-example.yml">
+  <run files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/properties.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]" name="../../../doc/task-definition-example.yml">
     <column title="cpuenergy" value="0.011597J"/>
     <column title="cputime" value="0.004660596s"/>
     <column title="memUsage" value="385024"/>

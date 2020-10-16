@@ -1,23 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
 import os
@@ -25,15 +11,16 @@ import queue
 import resource
 import sys
 import threading
+import time
 
-from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT, SOFTTIMELIMIT, WALLTIMELIMIT
 from benchexec import BenchExecException
 from benchexec import cgroups
 from benchexec import containerexecutor
-from benchexec.resources import *
+from benchexec import resources
 from benchexec.runexecutor import RunExecutor
 from benchexec.pqos import Pqos
 from benchexec import systeminfo
+from benchexec import tooladapter
 from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
 
@@ -46,9 +33,19 @@ def init(config, benchmark):
     config.containerargs = {}
     if config.container:
         config.containerargs = containerexecutor.handle_basic_container_args(config)
+        if config.containerargs["container_tmpfs"] and (
+            config.filesCountLimit or config.filesSizeLimit
+        ):
+            sys.exit(
+                "Files-count limit and files-size limit are not supported "
+                "if tmpfs is used in container. "
+                "Use --no-tmpfs to make these limits work or disable them "
+                "(typically they are unnecessary if a tmpfs is used)."
+            )
     config.containerargs["use_namespaces"] = config.container
 
-    benchmark.executable = benchmark.tool.executable()
+    tool_locator = tooladapter.create_tool_locator(config)
+    benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
 
@@ -64,8 +61,8 @@ def execute_benchmark(benchmark, output_handler):
 
     if (
         benchmark.requirements.cpu_model
-        or benchmark.requirements.cpu_cores != benchmark.rlimits.get(CORELIMIT, None)
-        or benchmark.requirements.memory != benchmark.rlimits.get(MEMLIMIT, None)
+        or benchmark.requirements.cpu_cores != benchmark.rlimits.cpu_cores
+        or benchmark.requirements.memory != benchmark.rlimits.memory
     ):
         logging.warning(
             "Ignoring specified resource requirements in local-execution mode, "
@@ -80,22 +77,26 @@ def execute_benchmark(benchmark, output_handler):
     pqos = Pqos(show_warnings=True)  # The pqos class instance for cache allocation
     pqos.reset_monitoring()
 
-    if CORELIMIT in benchmark.rlimits:
+    if benchmark.rlimits.cpu_cores:
         if not my_cgroups.require_subsystem(cgroups.CPUSET):
-            sys.exit(
-                "Cgroup subsystem cpuset is required for limiting the number of CPU cores/memory nodes."
+            logging.error(
+                "Cgroup subsystem cpuset is required "
+                "for limiting the number of CPU cores/memory nodes."
             )
-        coreAssignment = get_cpu_cores_per_run(
-            benchmark.rlimits[CORELIMIT],
+            my_cgroups.handle_errors({cgroups.CPUSET})
+        coreAssignment = resources.get_cpu_cores_per_run(
+            benchmark.rlimits.cpu_cores,
             benchmark.num_of_threads,
             benchmark.config.use_hyperthreading,
             my_cgroups,
             benchmark.config.coreset,
         )
         pqos.allocate_l3ca(coreAssignment)
-        memoryAssignment = get_memory_banks_per_run(coreAssignment, my_cgroups)
+        memoryAssignment = resources.get_memory_banks_per_run(
+            coreAssignment, my_cgroups
+        )
         cpu_packages = {
-            get_cpu_package_for_core(core)
+            resources.get_cpu_package_for_core(core)
             for cores_of_run in coreAssignment
             for core in cores_of_run
         }
@@ -104,10 +105,10 @@ def execute_benchmark(benchmark, output_handler):
             "Please limit the number of cores first if you also want to limit the set of available cores."
         )
 
-    if MEMLIMIT in benchmark.rlimits:
+    if benchmark.rlimits.memory:
         # check whether we have enough memory in the used memory banks for all runs
-        check_memory_size(
-            benchmark.rlimits[MEMLIMIT],
+        resources.check_memory_size(
+            benchmark.rlimits.memory,
             benchmark.num_of_threads,
             memoryAssignment,
             my_cgroups,
@@ -142,7 +143,7 @@ def execute_benchmark(benchmark, output_handler):
             # get times before runSet
             energy_measurement = EnergyMeasurement.create_if_supported()
             ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
-            walltime_before = util.read_monotonic_time()
+            walltime_before = time.monotonic()
             if energy_measurement:
                 energy_measurement.start()
 
@@ -185,7 +186,7 @@ def execute_benchmark(benchmark, output_handler):
             assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
 
             # get times after runSet
-            walltime_after = util.read_monotonic_time()
+            walltime_after = time.monotonic()
             energy = energy_measurement.stop() if energy_measurement else None
             usedWallTime = walltime_after - walltime_before
             ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -266,7 +267,7 @@ class _Worker(threading.Thread):
                 logging.critical(e)
             except BenchExecException as e:
                 logging.critical(e)
-            except BaseException as e:
+            except BaseException:
                 logging.exception("Exception during run execution")
             self.run_finished_callback()
             _Worker.working_queue.task_done()
@@ -279,8 +280,6 @@ class _Worker(threading.Thread):
         self.output_handler.output_before_run(run)
         benchmark = self.benchmark
 
-        memlimit = benchmark.rlimits.get(MEMLIMIT)
-
         args = run.cmdline()
         logging.debug("Command line of run is %s", args)
         pqos = Pqos()
@@ -291,12 +290,12 @@ class _Worker(threading.Thread):
             output_filename=run.log_file,
             output_dir=run.result_files_folder,
             result_files_patterns=benchmark.result_files_patterns,
-            hardtimelimit=benchmark.rlimits.get(TIMELIMIT),
-            softtimelimit=benchmark.rlimits.get(SOFTTIMELIMIT),
-            walltimelimit=benchmark.rlimits.get(WALLTIMELIMIT),
+            hardtimelimit=benchmark.rlimits.cputime_hard,
+            softtimelimit=benchmark.rlimits.cputime,
+            walltimelimit=benchmark.rlimits.walltime,
             cores=self.my_cpus,
             memory_nodes=self.my_memory_nodes,
-            memlimit=memlimit,
+            memlimit=benchmark.rlimits.memory,
             environments=benchmark.environment(),
             workingDir=benchmark.working_directory(),
             maxLogfileSize=benchmark.config.maxLogfileSize,
@@ -329,6 +328,7 @@ class _Worker(threading.Thread):
 
         run.set_result(run_result)
         self.output_handler.output_after_run(run)
+        return None
 
     def stop(self):
         # asynchronous call to runexecutor,

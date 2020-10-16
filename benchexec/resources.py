@@ -1,27 +1,13 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """
 This module contains functions for computing assignments of resources to runs.
 """
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
 import itertools
@@ -306,7 +292,7 @@ def _get_cpu_cores_per_run0(
             for core in cores_of_unit[unit]:
                 if core not in cores:
                     cores.extend(
-                        c for c in siblings_of_core[core] if not c in used_cores
+                        c for c in siblings_of_core[core] if c not in used_cores
                     )
                 if len(cores) >= coreLimit:
                     break

@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec: benchexec
 ## Benchmarking a Collection of Runs
 
@@ -28,8 +37,8 @@ The tasks are defined in nested `<tasks>` tags,
 which are explained in the next section.
 Command-line arguments for the tool are given with `<option>` tags,
 which can appear directly inside the root tag (always effective),
-inside a `<rundefinition>` tag (affective for this configuration),
-or inside a `<tasks>` tag (affective only for this subset of tasks for all configurations).
+inside a `<rundefinition>` tag (effective for this configuration),
+or inside a `<tasks>` tag (effective only for this subset of tasks for all configurations).
 Note that you need to use a separate `<option>` tag for each argument,
 putting multiple arguments separated by spaces into a single tag will not have the desired effect.
 
@@ -37,13 +46,6 @@ Which tool should be benchmarked by BenchExec is indicated by
 the attribute `tool` of the tag `<benchmark>`.
 It's value is the name of a so-called *tool-info module*
 described in more detail under [Tool Integration](tool-integration.md).
-
-BenchExec allows to check whether the output of the tool matches the expected result
-for a given task, and to categorize the results accordingly.
-To do so, it needs to be given a [property file](properties/INDEX.md)
-with the tag `<propertyfile>`
-and the name of the input file needs to encode the expected result
-for the given property.
 
 Inside the `<option>` tag and other tags some variables can be used
 that will be expanded by BenchExec. The following variables are supported:
@@ -81,7 +83,7 @@ The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 (only supported if [container mode](container.md) is not turned off).
 
 ### Defining Tasks for BenchExec
-Typically tasks for `benchexec` correspond to an input file of the benchmarked tool.
+Typically, tasks for `benchexec` correspond to an input file of the benchmarked tool.
 The easiest way to specify tasks inside a `<tasks>` tag is with the `<include>` tag,
 which contains a file-name pattern.
 If the file-name patterns point to `.yml` files in the task-definition format of BenchExec,
@@ -112,19 +114,34 @@ Such files can be used to specify more complex tasks,
 such as tasks with several input files
 or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
-and their structure is explained in the our [example file doc/task-definition-example.yml](task-definition-example.yml).
+and their structure needs to adhere to the
+[task-definition format](https://gitlab.com/sosy-lab/software/task-definition-format)
+(cf. also our [example file doc/task-definition-example.yml](task-definition-example.yml)).
+BenchExec supports versions 1.0 and 2.0 of the format.
+For creating task-definition files for existing tasks
+that use the legacy way of encoding expected verdicts in the file name
+we provide a [helper script](../contrib/create_yaml_files.py).
 
 If no property file is given in the benchmark XML definition,
 one task is created for each task-definition file using the input files defined therein,
 and any information on properties and expected results is ignored.
 
-If a [property file](properties/INDEX.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
+If a [property file](properties.md) is given in the benchmark XML definition with the `<propertyfile>` tag,
 `benchexec` looks for an item in the `properties` entry of the task definition
 that has the same property file listed as `property_file` (symlinks are allowed).
 If none is found, the task defined by this task definition is ignored.
 Otherwise a task is created using the set of input files from the task definition
 and the given property, also using an expected verdict if given for that property.
 All other properties defined in the task definition are ignored.
+If the `<propertyfile>` tag has an attribute `expectedverdict`
+with one of the values `true`, `false`, `unknown`,
+or `false(subproperty)` for some `subproperty`,
+`benchexec` will ignore tasks where the expected verdict
+that is declared in the task-definition file does not match.
+
+The `options` dictionary can optionally contain parameters or information about the task
+in an application-specified format.
+BenchExec passes the dictionary to tool-info modules as is, without further checks.
 
 ### Starting benchexec
 To use `benchexec`, simply call it with an XML file with a benchmark definition:

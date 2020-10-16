@@ -1,28 +1,13 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2016  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import errno
+import glob
 import logging
 import os
 import collections
@@ -33,10 +18,12 @@ try:
 except ImportError:
     import pickle
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
 
+from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec.cgroups import Cgroup
@@ -53,8 +40,6 @@ from benchexec.container import (
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
 
 
 def add_basic_container_args(argument_parser):
@@ -272,6 +257,7 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options, parser)
+    logging.debug("This is containerexec %s.", __version__)
     container_options = handle_basic_container_args(options, parser)
     container_output_options = handle_container_output_args(options, parser)
 
@@ -424,7 +410,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
-        environ=os.environ.copy(),
+        environ=None,
     ):
         """
         This method executes the command line and waits for the termination of it,
@@ -449,6 +435,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         temp_dir = None
         if rootDir is None:
             temp_dir = tempfile.mkdtemp(prefix="BenchExec_run_")
+        if environ is None:
+            environ = os.environ.copy()
 
         pid = None
         returnvalue = 0
@@ -534,7 +522,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 memory_nodes=memory_nodes,
                 result_files_patterns=result_files_patterns,
                 *args,
-                **kwargs
+                **kwargs,
             )
 
     # --- container implementation with namespaces ---
@@ -681,7 +669,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if self._container_system_config:
                         # A standard hostname increases reproducibility.
-                        libc.sethostname(container.CONTAINER_HOSTNAME)
+                        socket.sethostname(container.CONTAINER_HOSTNAME)
 
                     if not self._allow_network:
                         container.activate_network_interface("lo")
@@ -710,13 +698,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     # http://man7.org/linux/man-pages/man5/proc.5.html
                     # It needs to be done after MARKER_USER_MAPPING_COMPLETED.
                     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.critical("Failed to configure container: %s", e)
                     return CHILD_OSERROR
 
                 try:
                     os.chdir(cwd)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.critical(
                         "Cannot change into working directory inside container: %s", e
                     )
@@ -734,7 +722,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         close_fds=False,
                         preexec_fn=grandchild,
                     )
-                except (EnvironmentError, RuntimeError) as e:
+                except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
 
@@ -753,15 +741,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # (because we are PID 1, there is a special signal handling otherwise).
                 # cf. dumb-init project: https://github.com/Yelp/dumb-init
                 # Also wait for grandchild and return its result.
-                if _HAS_SIGWAIT:
-                    grandchild_result = container.wait_for_child_and_forward_signals(
-                        grandchild_proc.pid, args[0]
-                    )
-                else:
-                    container.forward_all_signals_async(grandchild_proc.pid, args[0])
-                    grandchild_result = self._wait_for_process(
-                        grandchild_proc.pid, args[0]
-                    )
+                grandchild_result = container.wait_for_child_and_forward_signals(
+                    grandchild_proc.pid, args[0]
+                )
 
                 logging.debug(
                     "Child: process %s terminated with exit code %d.",
@@ -788,7 +770,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.close(from_parent)
 
                 return 0
-            except EnvironmentError:
+            except OSError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
             except:  # noqa: E722
@@ -810,8 +792,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 ):
                     raise BenchExecException(
                         "Unprivileged user namespaces forbidden on this system, please "
-                        "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                        "enable them with 'sysctl -w kernel.unprivileged_userns_clone=1' "
                         "or disable container mode"
+                    )
+                elif (
+                    e.errno in {errno.ENOSPC, errno.EINVAL}
+                    and util.try_read_file("/proc/sys/user/max_user_namespaces") == "0"
+                ):
+                    # Ubuntu has ENOSPC, Centos seems to produce EINVAL in this case
+                    raise BenchExecException(
+                        "Unprivileged user namespaces forbidden on this system, please "
+                        "enable by using 'sysctl -w user.max_user_namespaces=10000' "
+                        "(or another value) or disable container mode"
                     )
                 else:
                     raise BenchExecException(
@@ -1001,7 +993,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 return  # explicitly configured by user
             mount_tmpfs = mount_base + path
             temp_tmpfs = temp_base + path
-            util.makedirs(temp_tmpfs, exist_ok=True)
+            os.makedirs(temp_tmpfs, exist_ok=True)
             if os.path.isdir(mount_tmpfs):
                 # If we already have a tmpfs, we can just bind mount it,
                 # otherwise we need one
@@ -1035,7 +1027,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # below, and luckily temp_dir fulfills all requirements (because we have
             # just created it as fresh drectory ourselves).
             # So we mount temp_base outside of the container to temp_dir inside.
-            util.makedirs(mount_base + temp_dir, exist_ok=True)
+            os.makedirs(mount_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base, mount_base + temp_dir, read_only=True)
             # And the following if branch will automatically hide the bind
             # mount below an empty directory.
@@ -1044,7 +1036,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # hide the directory where we store our files from processes in the container
         # by mounting an empty directory over it.
         if os.path.exists(mount_base + temp_dir):
-            util.makedirs(temp_base + temp_dir, exist_ok=True)
+            os.makedirs(temp_base + temp_dir, exist_ok=True)
             container.make_bind_mount(temp_base + temp_dir, mount_base + temp_dir)
 
         # Now we make mount_base the new root directory.
@@ -1063,10 +1055,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # Create an empty proc folder into the root dir. The grandchild still needs a
         # view of the old /proc, therefore we do not mount a fresh /proc here.
         proc_base = os.path.join(root_dir, b"proc")
-        util.makedirs(proc_base, exist_ok=True)
+        os.makedirs(proc_base, exist_ok=True)
 
         dev_base = os.path.join(root_dir, b"dev")
-        util.makedirs(dev_base, exist_ok=True)
+        os.makedirs(dev_base, exist_ok=True)
 
         # Create a copy of the host's dev- and proc-mountpoints.
         # They are marked as private in order to not being changed
@@ -1086,7 +1078,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param output_dir: the directory where to write result files
         @param patterns: a list of patterns of files to retrieve as result files
         """
-        assert output_dir and patterns
+        assert output_dir
+        assert patterns
         if any(os.path.isabs(pattern) for pattern in patterns):
             base_dir = tool_output_dir
         else:
@@ -1107,16 +1100,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             ):
                 target = output_dir + file
                 logging.debug("Transferring output file %s to %s", abs_file, target)
-                try:
-                    os.makedirs(os.path.dirname(target))
-                except EnvironmentError:
-                    pass  # exist_ok=True not supported on Python 2
+                os.makedirs(os.path.dirname(target), exist_ok=True)
                 try:
                     # move is more efficient than copy in case both abs_file and target
                     # are on the same filesystem, and it avoids matching the file again
                     # with the next pattern.
                     shutil.move(abs_file, target)
-                except EnvironmentError as e:
+                except OSError as e:
                     logging.warning("Could not retrieve output file '%s': %s", file, e)
 
         for pattern in patterns:
@@ -1125,13 +1115,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             else:
                 pattern = tool_output_dir + os.path.join(working_dir, pattern)
             # normalize pattern for preventing directory traversal attacks:
-            for abs_file in util.maybe_recursive_iglob(
-                os.path.normpath(pattern), recursive=True
-            ):
-                # Recursive matching is only supported starting with Python 3.5, so we
-                # allow the user to match directories and transfer them recursively.
+            for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
+                # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
-                    for root, unused_dirs, files in os.walk(abs_file):
+                    for root, _unused_dirs, files in os.walk(abs_file):
                         for file in files:
                             transfer_file(os.path.join(root, file))
                 else:

@@ -1,35 +1,21 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """This module contians the tool benchexec for executing a whole benchmark (suite).
 To use it, instantiate the "benchexec.benchexec.BenchExec"
 and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse
+import datetime
 import logging
 import os
 import signal
 import sys
-import time
 
 from benchexec import __version__
 from benchexec import BenchExecException
@@ -140,6 +126,14 @@ class BenchExec(object):
         )
 
         parser.add_argument(
+            "--tool-directory",
+            help="Use benchmarked tool from given directory "
+            "instead of looking in PATH and the current directory",
+            metavar="DIR",
+            type=util.non_empty_str,
+        )
+
+        parser.add_argument(
             "-n",
             "--name",
             dest="name",
@@ -157,6 +151,12 @@ class BenchExec(object):
             help="Output prefix for the generated results. "
             + "If the path is a folder files are put into it,"
             + "otherwise it is used as a prefix for the resulting files.",
+        )
+
+        parser.add_argument(
+            "--description-file",
+            help="Path to a text file whose contents will be included in the results "
+            "as their description",
         )
 
         parser.add_argument(
@@ -292,7 +292,7 @@ class BenchExec(object):
             dest="start_time",
             type=parse_time_arg,
             default=None,
-            metavar="'YYYY-MM-DD hh:mm'",
+            metavar="'YYYY-MM-DD hh:mm:ss'",
             help="Set the given date and time as the start time of the benchmark.",
         )
 
@@ -320,6 +320,7 @@ class BenchExec(object):
         May be overridden for replacing the executor,
         for example with an implementation that delegates to some cloud service.
         """
+        logging.debug("This is benchexec %s.", __version__)
         from . import localexecution as executor
 
         return executor
@@ -332,7 +333,9 @@ class BenchExec(object):
         @return: a result value from the executor module
         """
         benchmark = Benchmark(
-            benchmark_file, self.config, self.config.start_time or time.localtime()
+            benchmark_file,
+            self.config,
+            self.config.start_time or util.read_local_time(),
         )
         self.check_existing_results(benchmark)
 
@@ -342,19 +345,22 @@ class BenchExec(object):
         )
 
         logging.debug(
-            "I'm benchmarking %r consisting of %s run sets.",
+            "I'm benchmarking %r consisting of %s run sets using %s %s.",
             benchmark_file,
             len(benchmark.run_sets),
+            benchmark.tool_name,
+            benchmark.tool_version or "(unknown version)",
         )
 
         try:
             result = self.executor.execute_benchmark(benchmark, output_handler)
         finally:
+            benchmark.tool.close()
             output_handler.close()
             # remove useless log folder if it is empty
             try:
                 os.rmdir(benchmark.log_folder)
-            except:
+            except OSError:
                 pass
 
         if self.config.commit and not self.stopped_by_interrupt:
@@ -404,6 +410,7 @@ class BenchExec(object):
 
 
 def add_container_args(parser):
+    container_args = parser.add_argument_group("optional arguments for run container")
     try:
         from benchexec import containerexecutor
     except Exception:
@@ -411,10 +418,15 @@ def add_container_args(parser):
         # We want to keep BenchExec usable for cases where the
         # localexecutor is replaced by something else.
         logging.debug("Could not import container feature:", exc_info=1)
-    else:
-        container_args = parser.add_argument_group(
-            "optional arguments for run container"
+        container_args.add_argument(
+            "--no-container",
+            action="store_false",
+            dest="container",
+            required=True,
+            help="disable use of containers for isolation of runs "
+            "(REQUIRED because this system does not support container mode)",
         )
+    else:
         container_on_args = container_args.add_mutually_exclusive_group()
         container_on_args.add_argument(
             "--container",
@@ -436,7 +448,7 @@ def parse_time_arg(s):
     Parse a time stamp in the "year-month-day hour-minute" format.
     """
     try:
-        return time.strptime(s, "%Y-%m-%d %H:%M")
+        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
 
@@ -460,9 +472,13 @@ def main(benchexec=None, argv=None):
     try:
         if not benchexec:
             benchexec = BenchExec()
-        signal.signal(signal.SIGINT, signal_stop)
-        signal.signal(signal.SIGQUIT, signal_stop)
-        signal.signal(signal.SIGTERM, signal_stop)
+
+        # Handle termination-request signals that are available on the current platform
+        for signal_name in ["SIGINT", "SIGQUIT", "SIGTERM", "SIGBREAK"]:
+            sig = getattr(signal, signal_name, None)
+            if sig:
+                signal.signal(sig, signal_stop)
+
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
         sys.exit("Error: " + str(e))

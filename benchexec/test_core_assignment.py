@@ -1,23 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import itertools
 import logging
@@ -25,9 +11,9 @@ import sys
 import unittest
 import math
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec.resources import _get_cpu_cores_per_run0
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def lrange(start, end):
@@ -60,7 +46,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             coreLimit,
             num_of_threads,
             self.use_ht,
-            *self.machine()
+            *self.machine(),
         )
 
     def machine(self):

@@ -1,21 +1,54 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 [flake8]
 max-line-length = 88
 ignore =
+    # temporarily disabled for historic reasons: line length, naming
+    E501,N801,N802,N803,N806,N815,
+    # the risk of class attributes shadowing builtins is quite small
+    # https://github.com/gforcada/flake8-builtins/issues/22#issuecomment-378755804
+    A003,
+    # warnings about mutable default values trigger too often
+    B006,
+    # flags complex expressions, but too many
+    ECE001,
     # do not match Black output
     E203,W503,
+    # followup warning from another one (F403 for star imports)
+    F405,
     # we have no isort config
-    I002,
+    I,
     # "... if .. else ..." is fine
     IF100,
     # using a result variable instead of early return allows later addition of logic
     R504,
+    # no warnings about assert
+    B011, S101,
+    # no warnings about pickle,
+    S301,S403,
+    # no warnings about XML parsing
+    S318,S320,S405,S408,S410,
+    # no warnings about all uses of subprocess
+    S404,S603,S607,
+    # several scripts use print() for their output, so allow it
+    T001,
     # only relevant if pytest is used
-    T003
+    PT,T003
 per-file-ignores =
-    # wildcard imports significantly shorten test code
-    benchexec/test*.py:F405
+    # references to /tmp are for other reasons
+    benchexec/containerexecutor.py:S108
+    # wildcard imports significantly shorten test code,
+    # accessing /tmp is ok
+    benchexec/test*.py:F405,S108
 exclude =
     # code copied by build system
     build,
     # Created locally by IDE plugins
     .ropeproject,
+    # scripts from JS modules
+    node_modules,

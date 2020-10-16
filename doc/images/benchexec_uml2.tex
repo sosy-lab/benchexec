@@ -1,7 +1,14 @@
-\documentclass[tikz, border=3mm, convert=pdf2svg]{standalone}
-\usetikzlibrary{positioning}
+% This file is part of BenchExec, a framework for reliable benchmarking:
+% https://github.com/sosy-lab/benchexec
+%
+% SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+%
+% SPDX-License-Identifier: Apache-2.0
 
-\usepackage{tikz-uml}
+\documentclass[tikz, border=3mm, convert=pdf2svg]{standalone}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning}
 
 \begin{document}
   \begin{tikzpicture} [
@@ -11,6 +18,10 @@
         every node/.style = {
           align = center,
           %font = \footnotesize,
+        },
+        aggregation/.style = {
+          draw,
+          open diamond-,
         },
         umlbox/.style = {
           draw,
@@ -26,13 +37,9 @@
     \node [umlbox, below = 0cm of Run, align=left, font=\scriptsize, text width = 2.7cm] (desc) {id: String\\inputfiles: String[\ ]\\propertyfile: String};
     \node [umlbox, below = 1.2cm of RunSet] (SourceFileSet) {SourceFileSet};
 
-    % relations
-    % for more configuration options regarding relations, c.f.
-    % https://perso.ensta-paristech.fr/~kielbasi/tikzuml/var/files/html/web-tikz-uml-userguidech2.html
-    \umlaggreg[geometry=--, arg2=1..n]{Benchmark}{RunSet};
-    \umlaggreg[geometry=--]{RunSet}{SourceFileSet};
-    \umlaggreg[geometry=--, arg2=1..n]{RunSet}{Run};
-    \umlaggreg[geometry=-|-, anchor2=170, arg2=1..n, pos2=2.6]{SourceFileSet}{desc};
-
+    \draw[aggregation] (Benchmark) -- (RunSet.west) coordinate [label=135:{1..n}];
+    \draw[aggregation] (RunSet) -- (SourceFileSet);
+    \draw[aggregation] (RunSet) -- (Run.west) coordinate [label=135:{1..n}];
+    \draw[aggregation] (SourceFileSet.east) -| ($(SourceFileSet.east)!.5!(desc.170)$) |- (desc.170) coordinate [label=135:{1..n}];
   \end{tikzpicture}
 \end{document}

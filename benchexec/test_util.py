@@ -1,24 +1,11 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+import datetime
 import sys
 import unittest
 from benchexec.util import ProcessExitCode
@@ -26,9 +13,9 @@ import tempfile
 import os
 import stat
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestParse(unittest.TestCase):
@@ -52,11 +39,6 @@ class TestParse(unittest.TestCase):
         self.assertRaises(ValueError, util.split_number_and_unit, "abc")
         self.assertRaises(ValueError, util.split_number_and_unit, "s")
         self.assertRaises(ValueError, util.split_number_and_unit, "a1a")
-
-        try:
-            self.assertEqualNumberAndUnit("- 1", -1, "")
-        except ValueError:
-            pass  # Python 2 accepts this syntax, Python 3 does not
 
     def test_parse_memory_value(self):
         self.assertEqual(util.parse_memory_value("1"), 1)
@@ -161,3 +143,13 @@ class TestRmtree(unittest.TestCase):
 
     def test_dir_without_any_permissions(self):
         self.create_and_delete_directory(0)
+
+    def test_read_local_time(self):
+        """Test on Python 3.6+ that the fallback for older Pythons does the same."""
+        try:
+            time = datetime.datetime.now().astimezone()  # desired code
+        except (ValueError, TypeError):
+            self.skipTest("datetime.datetime.now().astimezone() not supported")
+
+        time2 = util.read_local_time()  # contains backwards-compatible code
+        self.assertLess(time2 - time, datetime.timedelta(seconds=1))

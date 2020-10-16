@@ -1,8 +1,0 @@
-{{for line in ['tool', 'runset', 'title']}}
-{{if line in head and head[line]}}
-{{head[line].name.lower()}}	{{for id_column in relevant_id_columns[1:]}}{{if id_column}}	{{endif}}{{endfor}}{{flatten([[value]*width for value, width in head[line].content]) | '\t'.join}}
-{{endif}}
-{{endfor}}
-{{for line in body}}
-{{line.short_filename}}	{{for id, show in zip(line.id[1:], relevant_id_columns[1:])}}{{if show}}{{id}}	{{endif}}{{endfor}}{{[column.format_value(value or '', False, 'csv') for runResult in line.results for value, column in zip(runResult.values, runResult.columns)] | '\t'.join}}
-{{endfor}}

@@ -1,25 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import logging
@@ -28,11 +12,11 @@ import sys
 import tempfile
 import threading
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-from benchexec.cgroups import *  # @UnusedWildImport
+from benchexec.cgroups import CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.runexecutor import RunExecutor
 from benchexec import util
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def check_cgroup_availability(wait=1):
@@ -52,9 +36,8 @@ def check_cgroup_availability(wait=1):
     if not (
         CPUACCT in my_cgroups
         and CPUSET in my_cgroups
-        and
-        # FREEZER in my_cgroups and # For now, we do not require freezer
-        MEMORY in my_cgroups
+        # and FREEZER in my_cgroups # For now, we do not require freezer
+        and MEMORY in my_cgroups
     ):
         sys.exit(1)
 
@@ -76,7 +59,7 @@ def check_cgroup_availability(wait=1):
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)
-    task_cgroups = find_my_cgroups(lines)
+    task_cgroups = find_my_cgroups(lines, fallback=False)
 
     fail = False
     for subsystem in CPUACCT, CPUSET, MEMORY, FREEZER:

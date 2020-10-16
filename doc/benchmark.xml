@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.18//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.18.dtd">
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
            displayName="*human-readable name as description of this benchmark*"
@@ -28,8 +38,9 @@
          This can be used for example to define multiple tasks for the same input file but with different entry points. -->
     <withoutfile>*identifier of task*</withoutfile>
 
-    <!-- <propertyfile> defines a property file with the specification to check (for software verification). -->
-    <!-- <propertyfile>*file.prp*</propertyfile> -->
+    <!-- <propertyfile> defines a property file with the specification to check (for software verification).
+         The optional attribute can be used to filter tasks. -->
+    <!-- <propertyfile expectedverdict="true, false, false(<subproperty>), or unknown">*file.prp*</propertyfile> -->
 
     <!-- <option> may be used here, too. -->
   </tasks>

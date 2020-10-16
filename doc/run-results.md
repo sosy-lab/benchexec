@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec: Run Results
 
 Both `benchexec` and `runexec` report result values for every executed run.
@@ -37,6 +46,7 @@ The meanings of the current possible result values are as follows:
 - **cputime-cpu`<n>`**: CPU time of run which was used on CPU core *n* in seconds,
     as decimal number with suffix "s".
 - **walltime**: Wall time of run in seconds, as decimal number with suffix "s" ([more information](resources.md#wall-time)).
+- **starttime**: The time the run was started.
 - **memory** / **memUsage** (before BenchExec 2.0):
     Peak memory consumption of run in bytes, as integer with suffix "B" ([more information](resources.md#memory)).
 - **blkio-read**, **blkio-write**: Number of bytes read and written to block devices, as decimal number with suffix "B" ([more information](resources.md#disk-space-and-io)).
@@ -52,10 +62,14 @@ The meanings of the current possible result values are as follows:
 In the result dictionary of a call to `RunExecutor.execute_run()`,
 integer values are stored as `int`,
 decimal numbers as an instance of some arithmetic Python type,
+the start time as an ["aware" `datetime.datetime`](https://docs.python.org/3/library/datetime.html#aware-and-naive-objects) instance in local time,
 and other values as strings.
 More complex values are represented as a `dict`.
 Instead of `returnvalue` and `exitsignal`,
 an instance of `benchexec.util.ProcessExitCode` is returned in a field named `exitcode`.
+
+In the XML produced by `benchexec`,
+the start time is stored as local time with time zone in ISO 8601 format.
 
 
 ### Additional Results of benchexec
@@ -96,7 +110,7 @@ and tools for displaying such results may choose to hide such columns by default
 `benchexec` also reports the CPU time and wall time that was used for executing all runs
 (as measured by the operating system, not as aggregation of the individual values).
 These values are reported in the same way as for single runs,
-but with `<column>` tags directly inside the `<rundefinition>` root tag.
+but with `<column>` tags directly inside the `<result>` root tag.
 Note that this CPU-time value is not measured with cgroups currently and may be incomplete.
 The wall-time value can be used for example to calculate the speedup of executing runs in parallel
 (this value is simply the time difference between the end and the start of executing all runs).

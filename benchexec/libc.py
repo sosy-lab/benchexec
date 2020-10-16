@@ -1,29 +1,13 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2016  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """This module contains function declarations for several functions of libc
 (based on ctypes) and constants relevant for these functions.
 """
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
 import ctypes as _ctypes
 from ctypes import c_int, c_uint32, c_long, c_ulong, c_size_t, c_char_p, c_void_p
@@ -125,7 +109,7 @@ mprotect.errcheck = _check_errno
 PROT_NONE = 0x0  # /usr/include/bits/mman-linux.h
 MAP_GROWSDOWN = 0x00100  # /usr/include/bits/mman.h
 MAP_STACK = 0x20000  # /usr/include/bits/mman.h
-from mmap import (  # noqa: F401
+from mmap import (  # noqa: F401 E402
     PROT_EXEC,
     PROT_READ,
     PROT_WRITE,
@@ -182,17 +166,6 @@ pivot_root.argtypes = [c_char_p, c_char_p]
 pivot_root.errcheck = _check_errno
 
 
-_sighandler_t = _ctypes.CFUNCTYPE(None, c_int)
-_libc.signal.argtypes = [c_int, _sighandler_t]
-_libc.signal.restype = c_void_p
-_libc.signal.errcheck = _check_errno
-
-
-def signal(signal, handler):
-    """Set a signal handler similar to signal.signal(), but directly via libc."""
-    _libc.signal(signal, _sighandler_t(handler))
-
-
 class CapHeader(_ctypes.Structure):
     """Structure for first parameter of capset()."""
 
@@ -228,13 +201,3 @@ PR_GET_SECCOMP = 21
 PR_SET_SECCOMP = 22
 SUID_DUMP_DISABLE = 0
 SUID_DUMP_USER = 1
-
-_libc.sethostname.errcheck = _check_errno
-_libc.sethostname.argtypes = [c_char_p, c_size_t]
-
-
-def sethostname(name):
-    """Set the host name of the machine."""
-    # TODO: replace with socket.sethostname (not available on Python 2)
-    name = name.encode()
-    _libc.sethostname(name, len(name))

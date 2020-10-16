@@ -1,12 +1,17 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec: Setup
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.4.
-(The [runexec](runexec.md) tool and module also works with Python 2.7,
-though this will be [removed in 2020](https://github.com/sosy-lab/benchexec/issues/438).)
-Thus, make sure to use Python 3 for installation as described below,
-otherwise only `runexec` will get installed.
+BenchExec requires at least Python 3.5.
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.
@@ -19,14 +24,19 @@ The following packages are optional but recommended dependencies:
 
 ### Debian/Ubuntu
 
-For installing BenchExec on Debian or Ubuntu we recommend the `.deb` package
-that can be downloaded from [GitHub](https://github.com/sosy-lab/benchexec/releases):
+For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+
+    sudo add-apt-repository ppa:sosy-lab/benchmarking
+    sudo apt install benchexec
+
+Alternatively, you can download our `.deb` package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
+and install manually (note that the leading `./` is important, otherwise `apt` will not find the package):
 
     apt install --install-recommends ./benchexec_*.deb
 
-Note that the leading `./` is important, otherwise `apt` will not find the package.
-This package also automatically configures the necessary cgroup permissions.
-Just add your user to the group `benchexec` and reboot:
+Our package automatically configures the necessary cgroup permissions.
+Just add the users that should be able to use BenchExec to the group `benchexec`
+(group membership will be effective after the next login of the respective user):
 
     adduser <USER> benchexec
 
@@ -101,6 +111,9 @@ In container mode, BenchExec uses two main kernel features:
   so the system administrator needs to enable it
   with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
+  On CentOS it can be necessary to enable this feature with
+  `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
+  in `/etc/sysctl.conf` (the exact value is not important).
 
 - **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
   (kernel option `CONFIG_OVERLAY_FS`).
@@ -133,23 +146,22 @@ Most distributions today use systemd, and
 systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
 Thus it would interfere with the cgroups usage of BenchExec.
 
-By using a fake service we can let systemd create an appropriate cgroup for BenchExec
+By using a dummy service we can let systemd create an appropriate cgroup for BenchExec
 and prevent interference.
 The following steps are necessary:
 
- * Put [the file `benchexec-cgroup.conf`](../debian/additional_files/lib/systemd/system.conf.d/benchexec-cgroup.conf)
-   into `/etc/systemd/system.conf.d`
-   to ensure systemd creates a cgroup for all our controllers.
-   The setting in this file needs a reboot to take effect,
-   and [potentially a regeneration of your initramdisk](http://www.freedesktop.org/software/systemd/man/systemd-system.conf.html#Options).
+ * Decide which set of users should get permissions for cgroups.
+   Our recommendation is to create a group named `benchexec`
+   with `groupadd benchexec` and add the respective users to this group.
+   Note that users need to logout and login afterwards
+   to actually get the group membership.
 
  * Put [the file `benchexec-cgroup.service`](../debian/benchexec-cgroup.service)
    into `/etc/systemd/system/`
    and enable the service with `systemctl daemon-reload; systemctl enable --now benchexec-cgroup`.
 
-   By default, this gives permissions to use the BenchExec cgroup to users of
-   the group `benchexec`, please adjust this as necessary or create this group
-   by running `groupadd benchexec` command beforehand.
+   By default, this gives permissions to users of the group `benchexec`,
+   this can be adjusted in the `Environment` line as necessary.
 
 By default, BenchExec will automatically attempt to use the cgroup
 `system.slice/benchexec-cgroup.service` that is created by this service file.
@@ -213,6 +225,13 @@ to mount the cgroup hierarchy within the container when starting it:
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
 
 Note that you additionally need the `--privileged` flag for container mode.
+However, this gives your Docker container full root access to the host,
+so please also add the `--cap-drop=all` flag,
+make sure to use this only with trusted images,
+and configure your Docker container such that everything in it
+is executed under a different user account, not as root.
+BenchExec is not designed to run as root and does not provide
+any safety guarantees regarding its container under this circumstances.
 
 ### Testing Cgroups Setup and Known Problems
 

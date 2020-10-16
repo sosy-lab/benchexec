@@ -1,192 +1,475 @@
-<table id="dataTable">
-<thead>
-  <tr id="tool" class="tool collapsable-header">
-<td colspan="2">Tool</td>
-<td colspan="8">CPAchecker 1.4-svn 15944M</td>
-</tr>
-  <tr id="limits" class="limits collapsable-header">
-<td colspan="2">Limits</td>
-<td colspan="8">timelimit: 10 s, memlimit: 3000 MB, CPU core limit: 1</td>
-</tr>
-  <tr id="host" class="host collapsable-header">
-<td colspan="2">Host</td>
-<td colspan="8">tortuga</td>
-</tr>
-  <tr id="os" class="os collapsable-header">
-<td colspan="2">OS</td>
-<td colspan="8">Linux 3.13.0-45-generic x86_64</td>
-</tr>
-  <tr id="system" class="system collapsable-header">
-<td colspan="2">System</td>
-<td colspan="8">CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB</td>
-</tr>
-  <tr id="date" class="date collapsable-header">
-<td colspan="2">Date of execution</td>
-<td colspan="8">2015-03-03 16:13:02 CET</td>
-</tr>
-  <tr id="run" class="run ">
-<td colspan="2">Run set</td>
-<td colspan="4">predicateAnalysis</td>
-<td colspan="4">valueAnalysis</td>
-</tr>
-  <tr id="options" class="options collapsable-header">
-<td colspan="2">Options</td>
-<td colspan="4"><span style="display:block">-noout</span><span style="display:block"> -setprop log.consoleLevel=WARNING</span><span style="display:block"> -predicateAnalysis</span></td>
-<td colspan="4"><span style="display:block">-noout</span><span style="display:block"> -setprop log.consoleLevel=WARNING</span><span style="display:block"> -valueAnalysis</span></td>
-</tr>
-  <tr id="columnTitles" class="columnTitles ">
-<td colspan="2">benchexec/tablegenerator/test_integration/results/</td>
-<td colspan="1">status</td>
-<td colspan="1">cputime (s)</td>
-<td colspan="1">walltime (s)</td>
-<td colspan="1">memory (MB)</td>
-<td colspan="1">status</td>
-<td colspan="1">cputime (s)</td>
-<td colspan="1">walltime (s)</td>
-<td colspan="1">memory (MB)</td>
-</tr>
-</thead>
-
-<tbody>
-<tr><td title="Click here to show source code"><a href="../results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i">test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i</a></td>
-<td>unreach-label</td>
-<td class="wrong status link" title="Click here to show output of tool"><a href="../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.implicitunsignedconversion_false-unreach-label.i.log">true</a></td>
-<td class="wrong measure">2.17</td>
-<td class="wrong measure">2.18</td>
-<td class="wrong measure">128</td>
-<td class="correct status link" title="Click here to show output of tool"><a href="../results/test.2015-03-03_1613.logfiles/valueAnalysis.implicitunsignedconversion_false-unreach-label.i.log">false(reach)</a></td>
-<td class="correct measure">2.12</td>
-<td class="correct measure">2.13</td>
-<td class="correct measure">134</td>
-</tr>
-<tr><td title="Click here to show source code"><a href="../results/test/programs/simple/compoundLiteral_true-unreach-label.c">test/programs/simple/compoundLiteral_true-unreach-label.c</a></td>
-<td>unreach-label</td>
-<td class="correct status link" title="Click here to show output of tool"><a href="../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.compoundLiteral_true-unreach-label.c.log">true</a></td>
-<td class="correct measure">2.23</td>
-<td class="correct measure">2.24</td>
-<td class="correct measure">132</td>
-<td class="unknown status link" title="Click here to show output of tool"><a href="../results/test.2015-03-03_1613.logfiles/valueAnalysis.compoundLiteral_true-unreach-label.c.log">unknown</a></td>
-<td class="unknown measure">2.20</td>
-<td class="unknown measure">2.21</td>
-<td class="unknown measure">130</td>
-</tr>
-<tr><td title="Click here to show source code"><a href="../results/test/programs/simple/builtin_expect_true-unreach-label.c">test/programs/simple/builtin_expect_true-unreach-label.c</a></td>
-<td>unreach-label</td>
-<td class="correct status link" title="Click here to show output of tool"><a href="../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.builtin_expect_true-unreach-label.c.log">true</a></td>
-<td class="correct measure">2.06</td>
-<td class="correct measure">2.07</td>
-<td class="correct measure">126</td>
-<td class="missing status">-</td>
-<td class="missing measure novalue"></td>
-<td class="missing measure novalue"></td>
-<td class="missing measure novalue"></td>
-</tr>
-</tbody>
-
-<tfoot>
-<tr class="columnTitles">
-<td colspan="2">benchexec/tablegenerator/test_integration/results/</td>
-<td colspan="1">status</td>
-<td colspan="1">cputime (s)</td>
-<td colspan="1">walltime (s)</td>
-<td colspan="1">memory (MB)</td>
-<td colspan="1">status</td>
-<td colspan="1">cputime (s)</td>
-<td colspan="1">walltime (s)</td>
-<td colspan="1">memory (MB)</td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="in total 2 true tasks, 1 false tasks">total</td>
-<td class="status">3</td>
-<td class="measure" title="Min: 2.06, Max: 2.23, Average: 2.15, Median: 2.17, StDev: 0.07">6.46</td>
-<td class="measure" title="Min: 2.07, Max: 2.24, Average: 2.16, Median: 2.18, StDev: 0.07">6.48</td>
-<td class="measure" title="Min: 126, Max: 132, Average: 128.89, Median: 128, StDev: 2.53">387</td>
-<td class="status">2</td>
-<td class="measure" title="Min: 2.12, Max: 2.20, Average: 2.16, Median: 2.16, StDev: 0.04">4.32</td>
-<td class="measure" title="Min: 2.13, Max: 2.21, Average: 2.17, Median: 2.17, StDev: 0.04">4.34</td>
-<td class="measure" title="Min: 130, Max: 134, Average: 131.93, Median: 132, StDev: 1.64">264</td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="(property holds + result is true) OR (property does not hold + result is false)">&nbsp;&nbsp;&nbsp;&nbsp;correct results</td>
-<td class="status">2</td>
-<td class="measure" title="Min: 2.06, Max: 2.23, Average: 2.14, Median: 2.14, StDev: 0.09">4.29</td>
-<td class="measure" title="Min: 2.07, Max: 2.24, Average: 2.15, Median: 2.15, StDev: 0.09">4.30</td>
-<td class="measure" title="Min: 126, Max: 132, Average: 129.33, Median: 129, StDev: 3.01">259</td>
-<td class="status">1</td>
-<td class="measure" title="Min: 2.12, Max: 2.12, Average: 2.12, Median: 2.12, StDev: 0.0">2.12</td>
-<td class="measure" title="Min: 2.13, Max: 2.13, Average: 2.13, Median: 2.13, StDev: 0.0">2.13</td>
-<td class="measure" title="Min: 134, Max: 134, Average: 133.57, Median: 134, StDev: 0.0">134</td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="property holds + result is true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true</td>
-<td class="status">2</td>
-<td class="measure" title="Min: 2.06, Max: 2.23, Average: 2.14, Median: 2.14, StDev: 0.09">4.29</td>
-<td class="measure" title="Min: 2.07, Max: 2.24, Average: 2.15, Median: 2.15, StDev: 0.09">4.30</td>
-<td class="measure" title="Min: 126, Max: 132, Average: 129.33, Median: 129, StDev: 3.01">259</td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="property does not hold + result is false">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false</td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="status">1</td>
-<td class="measure" title="Min: 2.12, Max: 2.12, Average: 2.12, Median: 2.12, StDev: 0.0">2.12</td>
-<td class="measure" title="Min: 2.13, Max: 2.13, Average: 2.13, Median: 2.13, StDev: 0.0">2.13</td>
-<td class="measure" title="Min: 134, Max: 134, Average: 133.57, Median: 134, StDev: 0.0">134</td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="(property holds + result is false) OR (property does not hold + result is true)">&nbsp;&nbsp;&nbsp;&nbsp;incorrect results</td>
-<td class="status">1</td>
-<td class="measure" title="Min: 2.17, Max: 2.17, Average: 2.17, Median: 2.17, StDev: 0.0">2.17</td>
-<td class="measure" title="Min: 2.18, Max: 2.18, Average: 2.18, Median: 2.18, StDev: 0.0">2.18</td>
-<td class="measure" title="Min: 128, Max: 128, Average: 128.03, Median: 128, StDev: 0.0">128</td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="property does not hold + result is true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true</td>
-<td class="status">1</td>
-<td class="measure" title="Min: 2.17, Max: 2.17, Average: 2.17, Median: 2.17, StDev: 0.0">2.17</td>
-<td class="measure" title="Min: 2.18, Max: 2.18, Average: 2.18, Median: 2.18, StDev: 0.0">2.18</td>
-<td class="measure" title="Min: 128, Max: 128, Average: 128.03, Median: 128, StDev: 0.0">128</td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="property holds + result is false">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false</td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="status">0</td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-<td class="measure novalue"></td>
-</tr>
-<tr class="statistics">
-<td colspan="2" title="in total 2 true tasks, 1 false tasks">score (3 tasks, max score: 5)</td>
-<td class="score status">-28</td>
-<td class="score measure novalue"></td>
-<td class="score measure novalue"></td>
-<td class="score measure novalue"></td>
-<td class="score status">1</td>
-<td class="score measure novalue"></td>
-<td class="score measure novalue"></td>
-<td class="score measure novalue"></td>
-</tr>
-<tr class="run">
-<td colspan="2">Run set</td>
-<td colspan="4">predicateAnalysis</td>
-<td colspan="4">valueAnalysis</td>
-</tr>
-</tfoot>
-</table>
+{
+ "head": {
+  "branch": null,
+  "date": {
+   "content": [
+    [
+     "2015-03-03 16:13:02 CET",
+     8
+    ]
+   ],
+   "id": "date",
+   "name": "Date of execution"
+  },
+  "displayName": null,
+  "host": {
+   "content": [
+    [
+     "tortuga",
+     8
+    ]
+   ],
+   "id": "host",
+   "name": "Host"
+  },
+  "limit": {
+   "content": [
+    [
+     "timelimit: 10 s, memlimit: 3000 MB, CPU core limit: 1",
+     8
+    ]
+   ],
+   "id": "limits",
+   "name": "Limits"
+  },
+  "options": {
+   "content": [
+    [
+     "-noout -setprop log.consoleLevel=WARNING -predicateAnalysis",
+     4
+    ],
+    [
+     "-noout -setprop log.consoleLevel=WARNING -valueAnalysis",
+     4
+    ]
+   ],
+   "id": "options",
+   "name": "Options"
+  },
+  "os": {
+   "content": [
+    [
+     "Linux 3.13.0-45-generic x86_64",
+     8
+    ]
+   ],
+   "id": "os",
+   "name": "OS"
+  },
+  "property": null,
+  "runset": {
+   "content": [
+    [
+     "predicateAnalysis",
+     4
+    ],
+    [
+     "valueAnalysis",
+     4
+    ]
+   ],
+   "id": "run",
+   "name": "Run set"
+  },
+  "system": {
+   "content": [
+    [
+     "CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB",
+     8
+    ]
+   ],
+   "id": "system",
+   "name": "System"
+  },
+  "task_id_names": [
+   "Task name",
+   "Property"
+  ],
+  "title": {
+   "content": [
+    [
+     "status",
+     1
+    ],
+    [
+     "cputime (s)",
+     1
+    ],
+    [
+     "walltime (s)",
+     1
+    ],
+    [
+     "memory (MB)",
+     1
+    ],
+    [
+     "status",
+     1
+    ],
+    [
+     "cputime (s)",
+     1
+    ],
+    [
+     "walltime (s)",
+     1
+    ],
+    [
+     "memory (MB)",
+     1
+    ]
+   ],
+   "id": "columnTitles",
+   "name": "benchexec/tablegenerator/test_integration/results/"
+  },
+  "tool": {
+   "content": [
+    [
+     "CPAchecker 1.4-svn 15944M",
+     8
+    ]
+   ],
+   "id": "tool",
+   "name": "Tool"
+  }
+ },
+ "rows": [
+  {
+   "href": "../results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+   "id": [
+    "test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
+    "unreach-label"
+   ],
+   "results": [
+    {
+     "category": "wrong",
+     "href": "../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.implicitunsignedconversion_false-unreach-label.i.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": "2.17",
+       "raw": "2.169189428"
+      },
+      {
+       "html": "2.18",
+       "raw": "2.1783649921417236"
+      },
+      {
+       "html": "128",
+       "raw": "128.032768"
+      }
+     ]
+    },
+    {
+     "category": "correct",
+     "href": "../results/test.2015-03-03_1613.logfiles/valueAnalysis.implicitunsignedconversion_false-unreach-label.i.log",
+     "values": [
+      {
+       "raw": "false(reach)"
+      },
+      {
+       "html": "2.12",
+       "raw": "2.117287256"
+      },
+      {
+       "html": "2.13",
+       "raw": "2.1272354125976562"
+      },
+      {
+       "html": "134",
+       "raw": "133.574656"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "href": "../results/test/programs/simple/compoundLiteral_true-unreach-label.c",
+   "id": [
+    "test/programs/simple/compoundLiteral_true-unreach-label.c",
+    "unreach-label"
+   ],
+   "results": [
+    {
+     "category": "correct",
+     "href": "../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.compoundLiteral_true-unreach-label.c.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": "2.23",
+       "raw": "2.22954344"
+      },
+      {
+       "html": "2.24",
+       "raw": "2.237081289291382"
+      },
+      {
+       "html": "132",
+       "raw": "132.337664"
+      }
+     ]
+    },
+    {
+     "category": "unknown",
+     "href": "../results/test.2015-03-03_1613.logfiles/valueAnalysis.compoundLiteral_true-unreach-label.c.log",
+     "values": [
+      {
+       "raw": "unknown"
+      },
+      {
+       "html": "2.20",
+       "raw": "2.203966561"
+      },
+      {
+       "html": "2.21",
+       "raw": "2.2127082347869873"
+      },
+      {
+       "html": "130",
+       "raw": "130.29376"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "href": "../results/test/programs/simple/builtin_expect_true-unreach-label.c",
+   "id": [
+    "test/programs/simple/builtin_expect_true-unreach-label.c",
+    "unreach-label"
+   ],
+   "results": [
+    {
+     "category": "correct",
+     "href": "../results/test-error.2015-03-03_1613.logfiles/predicateAnalysis.builtin_expect_true-unreach-label.c.log",
+     "values": [
+      {
+       "raw": "true"
+      },
+      {
+       "html": "2.06",
+       "raw": "2.058647067"
+      },
+      {
+       "html": "2.07",
+       "raw": "2.0664572715759277"
+      },
+      {
+       "html": "126",
+       "raw": "126.31244799999999"
+      }
+     ]
+    },
+    {
+     "category": "empty",
+     "values": [
+      {},
+      {},
+      {},
+      {}
+     ]
+    }
+   ]
+  }
+ ],
+ "stats": [
+  {
+   "content": [
+    [
+     {
+      "sum": 3
+     },
+     {
+      "avg": "2.15",
+      "max": "2.23",
+      "median": "2.17",
+      "min": "2.06",
+      "stdev": "0.0708",
+      "sum": "6.46"
+     },
+     {
+      "avg": "2.16",
+      "max": "2.24",
+      "median": "2.18",
+      "min": "2.07",
+      "stdev": "0.0708",
+      "sum": "6.48"
+     },
+     {
+      "avg": "129",
+      "max": "132",
+      "median": "128",
+      "min": "126",
+      "stdev": "2.53",
+      "sum": "387"
+     }
+    ],
+    [
+     {
+      "sum": 2
+     },
+     {
+      "avg": "2.16",
+      "max": "2.20",
+      "median": "2.16",
+      "min": "2.12",
+      "stdev": "0.0433",
+      "sum": "4.32"
+     },
+     {
+      "avg": "2.17",
+      "max": "2.21",
+      "median": "2.17",
+      "min": "2.13",
+      "stdev": "0.0427",
+      "sum": "4.34"
+     },
+     {
+      "avg": "132",
+      "max": "134",
+      "median": "132",
+      "min": "130",
+      "stdev": "1.64",
+      "sum": "264"
+     }
+    ]
+   ],
+   "description": "",
+   "id": null,
+   "title": "total"
+  }
+ ],
+ "tools": [
+  {
+   "benchmarkname": "test",
+   "columns": [
+    {
+     "display_title": "status",
+     "max_width": 12,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "title": "status",
+     "type": "status"
+    },
+    {
+     "display_title": "cputime",
+     "max_width": 7,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "cputime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "walltime",
+     "max_width": 8,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "walltime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "memory",
+     "max_width": 6,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1e-06,
+     "source_unit": "B",
+     "title": "memUsage",
+     "type": "measure",
+     "unit": "MB"
+    }
+   ],
+   "cores": "8",
+   "cpu": "Intel Core i7-2600 CPU @ 3.40GHz",
+   "cpuCores": "1",
+   "date": "2015-03-03 16:13:02 CET",
+   "error": "fake error for testing",
+   "freq": "3401 MHz",
+   "host": "tortuga",
+   "memlimit": "3000 MB",
+   "name": "predicateAnalysis",
+   "niceName": "predicateAnalysis",
+   "options": "-noout -setprop log.consoleLevel=WARNING -predicateAnalysis",
+   "os": "Linux 3.13.0-45-generic x86_64",
+   "ram": "16389384 kB",
+   "timelimit": "10 s",
+   "tool": "CPAchecker",
+   "toolmodule": "benchexec.tools.cpachecker",
+   "version": "1.4-svn 15944M"
+  },
+  {
+   "benchmarkname": "test",
+   "columns": [
+    {
+     "display_title": "status",
+     "max_width": 12,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "title": "status",
+     "type": "status"
+    },
+    {
+     "display_title": "cputime",
+     "max_width": 7,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "cputime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "walltime",
+     "max_width": 8,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1,
+     "source_unit": "s",
+     "title": "walltime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "memory",
+     "max_width": 6,
+     "number_of_significant_digits": 3,
+     "relevant_for_diff": false,
+     "scale_factor": 1e-06,
+     "source_unit": "B",
+     "title": "memUsage",
+     "type": "measure",
+     "unit": "MB"
+    }
+   ],
+   "cores": "8",
+   "cpu": "Intel Core i7-2600 CPU @ 3.40GHz",
+   "cpuCores": "1",
+   "date": "2015-03-03 16:13:02 CET",
+   "freq": "3401 MHz",
+   "host": "tortuga",
+   "memlimit": "3000 MB",
+   "name": "valueAnalysis",
+   "niceName": "valueAnalysis",
+   "options": "-noout -setprop log.consoleLevel=WARNING -valueAnalysis",
+   "os": "Linux 3.13.0-45-generic x86_64",
+   "ram": "16389384 kB",
+   "timelimit": "10 s",
+   "tool": "CPAchecker",
+   "toolmodule": "benchexec.tools.cpachecker",
+   "version": "1.4-svn 15944M"
+  }
+ ],
+ "version": "(test)"
+}

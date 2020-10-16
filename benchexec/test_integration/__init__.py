@@ -1,25 +1,12 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import bz2
+import glob
 import os
 import shutil
 import subprocess
@@ -38,7 +25,7 @@ bin_dir = os.path.join(base_dir, "bin")
 benchmarks_dir = here
 benchexec = os.path.join(bin_dir, "benchexec")
 result_dtd = os.path.join(base_dir, "doc", "result.dtd")
-result_dtd_public_id = "+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN"
+result_dtd_public_id = "+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN"
 
 benchmark_test_name = "benchmark-example-rand"
 benchmark_test_file = os.path.join(here, "benchmark-example-rand.xml")
@@ -105,7 +92,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             "--outputpath",
             self.output_dir,
             "--startTime",
-            "2015-01-01 00:00",
+            "2015-01-01 00:00:00",
         ]
         try:
             output = subprocess.check_output(
@@ -158,9 +145,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
             expected_files += ["results." + rundef + xml_suffix for rundef in rundefs]
 
         if name is None:
-            basename = test_name + ".2015-01-01_0000."
+            basename = test_name + ".2015-01-01_00-00-00."
         else:
-            basename = test_name + "." + name + ".2015-01-01_0000."
+            basename = test_name + "." + name + ".2015-01-01_00-00-00."
 
         expected_files = set(map(lambda x: basename + x, expected_files))
         self.assertSetEqual(
@@ -339,8 +326,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_benchexec_and_compare_expected_files(compress=True)
 
     def test_validate_result_xml(self):
-        self.run_cmd(self.benchmark_test_file, "--no-compress-results")
-        basename = "benchmark-example-rand.2015-01-01_0000."
+        self.run_cmd(
+            self.benchmark_test_file,
+            "--no-compress-results",
+            "--description-file",
+            self.benchmark_test_file,
+        )
+        basename = "benchmark-example-rand.2015-01-01_00-00-00."
         xml_files = ["results.xml"] + [
             "results." + files + ".xml" for files in benchmark_test_tasks
         ]
@@ -361,7 +353,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
         parser.resolvers.add(DTDResolver())
 
         for xml_file in xml_files:
-            etree.parse(xml_file, parser=parser)
+            try:
+                etree.parse(xml_file, parser=parser)
+            except etree.XMLSyntaxError as e:
+                self.assertIsNone(e)
 
     def test_run_results_information(self):
         expected_xml = os.path.join(
@@ -374,7 +369,33 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         actual_xml = os.path.join(
             self.output_dir,
-            "benchmark-example-true.2015-01-01_0000.results.no options.xml",
+            "benchmark-example-true.2015-01-01_00-00-00.results.no options.xml",
         )
 
         self.assertSameRunResults(actual_xml, expected_xml)
+
+    def test_description(self):
+        test_description = """
+            äöüß     This tests non-ASCII characters, line breaks, whitespace, and
+              <>&"'  XML special characters.
+            """
+        with tempfile.NamedTemporaryFile(
+            prefix="description", suffix=".txt", dir=self.tmp, mode="w+"
+        ) as desc:
+            desc.write(test_description)
+            desc.flush()
+
+            self.run_cmd(
+                self.benchmark_test_file,
+                "--no-compress-results",
+                "--description-file",
+                desc.name,
+            )
+
+        generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
+        assert generated_files, "error in test, no results generated"
+
+        for f in generated_files:
+            result_xml = ElementTree.ElementTree().parse(f)
+            actual_description = result_xml.find("description").text
+            self.assertEqual(actual_description, test_description.strip())

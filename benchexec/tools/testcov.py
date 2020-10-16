@@ -1,22 +1,11 @@
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
 
-Copyright (C) 2007-2019  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+import re
 import benchexec.result as result
 import benchexec.util as util
 import benchexec.tools.template
@@ -66,18 +55,24 @@ class Tool(benchexec.tools.template.BaseTool):
                     return "TIMEOUT"
                 else:
                     return "ERROR ({0})".format(returncode)
-            elif line.startswith("Result:") and "FALSE" in line:
+            elif line.startswith("Result: FALSE"):
                 return result.RESULT_FALSE_REACH
-            elif line.startswith("Result:") and "TRUE" in line:
+            elif line.startswith("Result: TRUE"):
                 return result.RESULT_TRUE_PROP
-            elif line.startswith("Result") and "DONE" in line:
+            elif line.startswith("Result: DONE"):
                 return result.RESULT_DONE
+            elif line.startswith("Result: ERROR"):
+                # matches ERROR and ERROR followed by some reason in parantheses
+                # e.g., "ERROR (TRUE)" or "ERROR(TRUE)"
+                return re.search(r"ERROR(\s*\(.*\))?", line).group(0)
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, lines, identifier):
         for line in reversed(lines):
-            if identifier in line:
-                start = line.find(":") + 1
-                end = line.find("(", start)
-                return line[start:end].strip()
+            pattern = identifier
+            if pattern[-1] != ":":
+                pattern += ":"
+            match = re.match("^" + pattern + "([^(]*)", line)
+            if match and match.group(1):
+                return match.group(1).strip()
         return None

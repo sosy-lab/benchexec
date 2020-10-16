@@ -1,7 +1,15 @@
-\documentclass[tikz, border=3mm, convert=pdf2svg]{standalone}
-\usetikzlibrary{positioning}
+% This file is part of BenchExec, a framework for reliable benchmarking:
+% https://github.com/sosy-lab/benchexec
+%
+% SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+%
+% SPDX-License-Identifier: Apache-2.0
 
-\usepackage{tikz-uml}
+\documentclass[tikz, border=3mm, convert=pdf2svg]{standalone}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning}
 
 \begin{document}
   \begin{tikzpicture} [
@@ -16,6 +24,14 @@
           draw,
           minimum width = 3cm,
           minimum height = 0.6cm,          
+        },
+        inherit/.style = {
+          draw,
+          -open triangle 45,
+        },
+        aggregation/.style = {
+          draw,
+          open diamond-,
         },
         cust-fit/.style={%
           % draw,
@@ -49,30 +65,23 @@
     %\node [umlbox, yshift = -1.2cm] at (interectionPoint) (opt) {$<$option$>$};
 
 
-    % relations
-    % for more configuration options regarding relations, c.f.
-    % https://perso.ensta-paristech.fr/~kielbasi/tikzuml/var/files/html/web-tikz-uml-userguidech2.html
-    \umlaggreg[geometry=--, anchor1=175, anchor2=east]{benchmark}{resFiles};
-    \umlaggreg[geometry=--, anchor1=185, anchor2=east]{benchmark}{require};
-    \umlaggreg[geometry=--, arg2=1..n, pos2 = 0.75]{benchmark}{runDef};
-    \umlaggreg[geometry=--, arg2=0..n, pos2 = 0.75]{runDef}{taskSet};
-    
+    \draw[aggregation] (benchmark.175) -- (resFiles.east);
+    \draw[aggregation] (benchmark.185) -- (require.east);
+    \draw[aggregation] (benchmark.east) -- (runDef.west) coordinate [label=135:{1..n}];
+    \draw[aggregation] (runDef.east) -- (taskSet.west) coordinate [label=135:{0..n}];
+
     \coordinate [below = 0.5cm of runDef] (dummyPoint);
-    \umlaggreg[geometry=-|-, anchor1=350, arm1 = 0.7cm]{benchmark}{dummyPoint};
-    \umlassoc[geometry=-|-, mult2=0..n, anchor2=190, pos2 = 2.55, arm2 = -0.7cm]{dummyPoint}{taskSet};
+    \draw[aggregation] (benchmark.350) -- ++(right:0.7cm) |- (dummyPoint);
+    \draw (taskSet.190) to [edge label={0..n}] ++(left:0.7cm) |- (dummyPoint);
 
-    \umlinherit[geometry=|-|]{runDef}{runCol};
-    \umlinherit[geometry=|-|]{taskSet}{runCol};
-    \umlinherit[geometry=|-|]{benchmark}{runCol};
+    \draw[inherit] (runDef) |- ($(runDef)!.5!(runCol)$) -| (runCol);
+    \draw[inherit] (taskSet) |- ($(taskSet)!.5!(runCol)$) -| (runCol);
+    \draw[inherit] (benchmark) |- ($(benchmark)!.5!(runCol)$) -| (runCol);
 
-    \umlaggreg[geometry=--]{taskSet}{inclExcl};
+    \draw[aggregation] (taskSet) -- (inclExcl);
 
-    \umlaggreg[geometry=--, anchor1=15, anchor2=west]{runCol}{reqFiles};
-    \umlaggreg[geometry=--, arg1 = 1, arg2 = 0..1, pos2 = 0.9]{runCol}{propFile};
-    \umlaggreg[geometry=--, anchor1=345, anchor2=west, arg1 = 1, arg2 = 0..n, pos1 = 0.14, pos2 = 0.78]{runCol}{opt};
-    %\umlaggreg[geometry=--, anchor1=18, anchor2=west]{runCol}{reqFiles};
-    %\umlaggreg[geometry=--, anchor1=6, anchor2=west]{runCol}{inclFile};
-    %\umlaggreg[geometry=--, anchor1=354, anchor2=west, mult1 = 1, mult2 = 0..1, pos2 = 1.0]{runCol}{propFile};
-    %\umlaggreg[geometry=--, anchor1=342, anchor2=west, mult1 = 1, mult2 = 0..n, pos2 = 1.0]{runCol}{opt};
+    \draw[aggregation] (runCol.15) -- (reqFiles.west);
+    \draw[aggregation] (runCol.east) to ++(right:0.7cm) coordinate [label=1] -- (propFile.west) coordinate [label=135:{0..1}];
+    \draw[aggregation] (runCol.345) to ($(runCol.345)!0.7cm!(opt.west)$) coordinate [label=1] -- (opt.west) coordinate [label=135:{0..n}];
   \end{tikzpicture}
 \end{document}

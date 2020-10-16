@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
@@ -10,8 +19,8 @@
 
 
 **News**:
-- BenchExec 2.0 isolates runs by default using [containers](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md).
-- BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
+- We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu)).
+- BenchExec 2.3 produces improved HTML tables that load much faster and provide more features, subsequent versions improve these tables even further.
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
 - An extended version of our paper on BenchExec and its background was published in [STTT](https://link.springer.com/article/10.1007/s10009-017-0469-y),
   you can read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) online.
@@ -70,12 +79,22 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
 
+### License and Copyright
+
+BenchExec is licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0),
+copyright [Dirk Beyer](https://www.sosy-lab.org/people/beyer/).
+Exceptions are some tool-info modules
+and third-party code that is bundled in the HTML tables,
+which are available under several other free licenses
+(cf. [folder `LICENSES`](https://github.com/sosy-lab/benchexec/tree/master/LICENSES)).
+
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
 - [Aditya Arora](https://github.com/alohamora)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
+- [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
@@ -85,14 +104,17 @@ Contributors:
 - [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
+- [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
 - [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
+- [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
+- [Martin Yankov](https://github.com/marto97)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
@@ -108,6 +130,9 @@ It is integrated into the cluster-based logic-solving service
 The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
+- [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
 - [SMACK](https://github.com/smackers/smack)
+- [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
+- [Ultimate](https://github.com/ultimate-pa/ultimate)
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

@@ -1,31 +1,17 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 from decimal import Decimal
 import sys
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
+from benchexec.tablegenerator.statistics import StatValue
 
-from benchexec.tablegenerator import StatValue
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestStatValue(unittest.TestCase):
@@ -35,13 +21,7 @@ class TestStatValue(unittest.TestCase):
         cls.maxDiff = None
 
     def test_empty(self):
-        s = StatValue.from_list([])
-        self.assertEqual(s.sum, 0)
-        self.assertEqual(s.avg, None)
-        self.assertEqual(s.max, None)
-        self.assertEqual(s.min, None)
-        self.assertEqual(s.median, None)
-        self.assertEqual(s.stdev, None)
+        self.assertIsNone(StatValue.from_list([]))
 
     def test_single_value(self):
         v = Decimal(1.23)

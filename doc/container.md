@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # BenchExec: Container Mode
 
 The container mode isolates the benchmarked process from other processes on the same system,
@@ -150,7 +159,7 @@ to select only a subset of created files to be copied:
   will start at the root of the filesystem.
 - Relative patterns that traverse upwards out of the working directory (e.g., `..`) are not allowed.
 - The shell wildcards `?` and `*` are supported,
-  and if you use Python 3.5 or newer also the recursive wildcard `**`.
+  and also the recursive wildcard `**`.
 - If a directory is matched by the pattern, all files in the directory will be copied recursively.
 - Only regular files are copied; symlinks, empty directories, etc. are ignored.
 
@@ -172,9 +181,9 @@ and the result files are placed in a directory besides the result XML file.
 Note that for investigating container-related problems, it can be easier to start an interactive shell
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
-#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system, please enable them with 'sysctl kernel.unprivileged_userns_clone=1' or disable container mode.`
+#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on Debian and Arch Linux).
+(this is the default on some distributions like Debian, Arch Linux, and CentOS).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 

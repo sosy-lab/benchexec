@@ -1,23 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 from math import floor, ceil, log10, isnan, isinf
@@ -25,7 +11,7 @@ import logging
 
 from benchexec.tablegenerator import util
 
-__all__ = ["Column, ColumnType, ColumnMeasureType, get_column_type"]
+__all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -82,7 +68,7 @@ class ColumnEnumType(object):
     def __eq__(self, other):
         try:
             return self._type == other._type
-        except:
+        except:  # noqa: E722 eq should not throw exceptions
             return False
 
 
@@ -173,10 +159,20 @@ class Column(object):
             )
         self.display_title = display_title
 
+        # expected maximum width (in characters)
+        self.max_width = None
+
     def is_numeric(self):
         return (
             self.type.type == ColumnType.measure or self.type.type == ColumnType.count
         )
+
+    def get_number_of_significant_digits(self, format_target=None):
+        number_of_significant_digits = self.number_of_significant_digits
+        if self.type.type == ColumnType.measure:
+            if number_of_significant_digits is None and format_target != "csv":
+                number_of_significant_digits = DEFAULT_TIME_PRECISION
+        return number_of_significant_digits
 
     def format_title(self):
         title = self.display_title or self.title
@@ -223,18 +219,18 @@ class Column(object):
         if self.scale_factor is not None:
             number *= self.scale_factor
 
-        number_of_significant_digits = self.number_of_significant_digits
-        max_dec_digits = 0
         if (
-            number_of_significant_digits is None
-            and format_target is "tooltip_stochastic"
+            self.number_of_significant_digits is None
+            and format_target == "tooltip_stochastic"
         ):
             return str(round(number, DEFAULT_TOOLTIP_PRECISION))
 
-        elif self.type.type == ColumnType.measure:
-            if number_of_significant_digits is None and format_target is not "csv":
-                number_of_significant_digits = DEFAULT_TIME_PRECISION
-            max_dec_digits = self.type.max_decimal_digits
+        number_of_significant_digits = self.get_number_of_significant_digits(
+            format_target
+        )
+        max_dec_digits = (
+            self.type.max_decimal_digits if self.type.type == ColumnType.measure else 0
+        )
 
         if number_of_significant_digits is not None:
             current_significant_digits = _get_significant_digits(number_str)
@@ -253,6 +249,41 @@ class Column(object):
             if int(number) == number:
                 number = int(number)
             return str(number)
+
+    def set_column_type_from(self, column_values):
+        """
+        Sets the type of this column using a heuristic reading the given column_values.
+        """
+        column_values = list(column_values)
+        values_width = 0
+        try:
+            result = _get_column_type_heur(self, column_values)
+            if isinstance(result, tuple):
+                (
+                    self.type,
+                    self.unit,
+                    self.source_unit,
+                    self.scale_factor,
+                    values_width,
+                ) = result
+            else:
+                self.type = result
+        except util.TableDefinitionError as e:
+            logging.error("Column type couldn't be determined: %s", e)
+            self.type = ColumnType.text
+
+        if not self.is_numeric():
+            self.unit = None
+            self.source_unit = None
+            self.scale_factor = 1
+            if column_values:
+                values_width = max(
+                    len(str(value if value is not None else ""))
+                    for value in column_values
+                )
+
+        title_width = len(self.display_title or self.title)
+        self.max_width = max(title_width, values_width)
 
     def __str__(self):
         return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
@@ -408,30 +439,9 @@ def _is_to_cut(value, format_target, is_to_align):
     return correct_target and "." in value and 1 > float(value) >= 0
 
 
-def get_column_type(column, column_values):
-    """
-    Returns the type of the given column based on its row values on the given RunSetResult.
-    @param column: the column to return the correct ColumnType for
-    @param column_values: the column values to consider
-    @return: a tuple of a type object describing the column - the concrete ColumnType is stored in the attribute 'type',
-        the display unit of the column, which may be None,
-        the source unit of the column, which may be None,
-        and the scale factor to convert from the source unit to the display unit.
-        If no scaling is necessary for conversion, this value is 1.
-    """
-
-    try:
-        return _get_column_type_heur(column, column_values)
-    except util.TableDefinitionError as e:
-        logging.error("Column type couldn't be determined: {}".format(e.message))
-        return ColumnType.text, None, None, 1
-
-
 def _get_column_type_heur(column, column_values):
-    text_type_tuple = ColumnType.text, None, None, 1
-
     if column.title == "status":
-        return ColumnType.status, None, None, 1
+        return ColumnType.status
 
     column_type = column.type or None
     if column_type and column_type.type == ColumnType.measure:
@@ -439,6 +449,11 @@ def _get_column_type_heur(column, column_values):
     column_unit = column.unit  # May be None
     column_source_unit = column.source_unit  # May be None
     column_scale_factor = column.scale_factor  # May be None
+
+    column_max_int_digits = 0
+    column_max_dec_digits = 0
+    column_has_numbers = False
+    column_has_decimal_numbers = False
 
     if column_unit:
         explicit_unit_defined = True
@@ -459,8 +474,9 @@ def _get_column_type_heur(column, column_values):
 
         # As soon as one row's value is no number, the column type is 'text'
         if value_match is None:
-            return text_type_tuple
+            return ColumnType.text
         else:
+            column_has_numbers = True
             curr_column_unit = value_match.group(GROUP_UNIT)
 
             # If the units in two different rows of the same column differ,
@@ -483,7 +499,7 @@ def _get_column_type_heur(column, column_values):
                             curr_column_unit, column_source_unit, column
                         )
                     else:
-                        return text_type_tuple
+                        return ColumnType.text
                 else:
                     column_unit = curr_column_unit
 
@@ -517,32 +533,42 @@ def _get_column_type_heur(column, column_values):
             curr_dec_digits = _get_decimal_digits(
                 scaled_value_match, column.number_of_significant_digits
             )
+            column_max_dec_digits = max(column_max_dec_digits, curr_dec_digits)
 
-            try:
-                max_dec_digits = column_type.max_decimal_digits
-            except AttributeError or TypeError:
-                max_dec_digits = 0
-
-            if curr_dec_digits > max_dec_digits:
-                max_dec_digits = curr_dec_digits
+            curr_int_digits = _get_int_digits(scaled_value_match)
+            column_max_int_digits = max(column_max_int_digits, curr_int_digits)
 
             if (
-                (column_type and column_type.type == ColumnType.measure)
-                or scaled_value_match.group(GROUP_DEC_PART) is not None
+                scaled_value_match.group(GROUP_DEC_PART) is not None
                 or value_match.group(GROUP_DEC_PART) is not None
                 or scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None
             ):
-                column_type = ColumnMeasureType(max_dec_digits)
+                column_has_decimal_numbers = True
 
-            elif int(column_scale_factor) != column_scale_factor:
-                column_type = ColumnMeasureType(0)
-            else:
-                column_type = ColumnType.count
+    if not column_has_numbers:
+        # only empty values
+        return ColumnType.text
 
-    if column_type:
-        return column_type, column_unit, column_source_unit, column_scale_factor
+    if (
+        column_has_decimal_numbers
+        or column_max_dec_digits
+        or int(column_scale_factor) != column_scale_factor  # non-int scaling factor
+    ):
+        column_type = ColumnMeasureType(column_max_dec_digits)
     else:
-        return text_type_tuple
+        column_type = ColumnType.count
+
+    column_width = column_max_int_digits
+    if column_max_dec_digits:
+        column_width += column_max_dec_digits + 1
+
+    return (
+        column_type,
+        column_unit,
+        column_source_unit,
+        column_scale_factor,
+        column_width,
+    )
 
 
 # This function assumes that scale_factor is not defined.
@@ -612,6 +638,18 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         )
 
     return curr_dec_digits
+
+
+def _get_int_digits(decimal_number_match):
+    """
+    Returns the amount of integer digits of the given regex match.
+    @param number_of_significant_digits: the number of significant digits required
+    """
+    int_part = decimal_number_match.group(GROUP_INT_PART) or ""
+    if int_part == "0":
+        # we skip leading zeros of numbers < 1
+        int_part = ""
+    return len(int_part)
 
 
 def _check_unit_consistency(actual_unit, wanted_unit, column):

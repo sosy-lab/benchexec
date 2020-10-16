@@ -1,37 +1,20 @@
 #!/usr/bin/env python3
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
 
-Copyright (C) 2007-2015  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import itertools
 import sys
 
+from benchexec import result, tablegenerator
+from benchexec.tablegenerator import util
+
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-import benchexec.result as result
-import benchexec.tablegenerator as tablegenerator
-
-Util = tablegenerator.Util
 
 
 def get_extract_value_function(column_identifier):
@@ -46,8 +29,8 @@ def get_extract_value_function(column_identifier):
                 pos = i
                 break
         if pos is None:
-            sys.exit("CPU time missing for task {0}.".format(run_result.task_id[0]))
-        return Util.to_decimal(run_result.values[pos])
+            sys.exit("CPU time missing for task {0}.".format(run_result.task_id))
+        return util.to_decimal(run_result.values[pos])
 
     return extract_value
 
@@ -110,14 +93,14 @@ def main(args=None):
     # select appropriate results
     if options.score_based:
         start_index = 0
-        index_increment = lambda run_result: run_result.score
+        index_increment = lambda run_result: run_result.score  # noqa: E731
         results = []
         for run_result in run_set_result.results:
             if run_result.score is None:
                 sys.exit(
                     "No score available for task {0}, "
                     "cannot produce score-based quantile data.".format(
-                        run_result.task_id[0]
+                        run_result.task_id
                     )
                 )
 
@@ -127,7 +110,7 @@ def main(args=None):
                 sys.exit(
                     "Property missing for task {0}, "
                     "cannot produce score-based quantile data.".format(
-                        run_result.task_id[0]
+                        run_result.task_id
                     )
                 )
             elif run_result.category == result.CATEGORY_CORRECT:
@@ -139,7 +122,7 @@ def main(args=None):
                 }
     else:
         start_index = 0
-        index_increment = lambda run_result: 1
+        index_increment = lambda run_result: 1  # noqa: E731
         if options.correct_only:
             results = [
                 run_result
@@ -161,12 +144,11 @@ def main(args=None):
     index = start_index
     for run_result in results:
         index += index_increment(run_result)
-        columns = itertools.chain(
-            [index],
-            (id for id, show in zip(run_result.id, relevant_id_columns) if show),
-            map(Util.remove_unit, (value or "" for value in run_result.values)),
+        task_ids = (
+            task_id for task_id, show in zip(run_result.id, relevant_id_columns) if show
         )
-        print(*columns, sep="\t")
+        result_values = (util.remove_unit(value or "") for value in run_result.values)
+        print(*itertools.chain([index], task_ids, result_values), sep="\t")
 
 
 if __name__ == "__main__":

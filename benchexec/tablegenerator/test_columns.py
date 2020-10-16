@@ -1,23 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import unittest
 
@@ -25,7 +11,6 @@ from benchexec.tablegenerator.columns import (
     Column,
     ColumnType,
     ColumnMeasureType,
-    get_column_type,
 )
 from benchexec.tablegenerator.util import TableDefinitionError
 
@@ -42,8 +27,6 @@ class ColumnsTest(unittest.TestCase):
             "CpuTime", None, self.sig_figures, None, self.measure_type, None, None, 1
         )
         self.default_optionals = (False, "html")
-
-        self.empty_column = Column("empty_column", None, self.sig_figures, None)
 
     def tearDown(self):
         pass
@@ -274,20 +257,20 @@ class ColumnsTest(unittest.TestCase):
         self.assertEqual(formatted_value, "-Inf")
 
     def test_format_value_tooltip_explicit_sigs(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "9999.125s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("9999.125s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "9999")
 
     def test_format_value_tooltip_explicit_sigs2(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "0.125s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("0.125s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.125")
 
     def test_format_value_tooltip_explicit_sigs3(self):
-        formatted_value_tooltip_considers_explicit_sigs = self.measure_column.format_value(
-            "0.125999s", None, "tooltip_stochastic"
+        formatted_value_tooltip_considers_explicit_sigs = (
+            self.measure_column.format_value("0.125999s", None, "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.1260")
 
@@ -354,156 +337,75 @@ class ColumnsTest(unittest.TestCase):
     def test_column_init_no_error_on_same_unit_without_scale(self):
         Column("memUsed", None, None, None, self.measure_type, "B", "B", None)
 
-    def test_column_type_text_value_starts_with_number(self):
-        values = [1, 1, 1, 1.1, "1,2,3"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
+    def check_expected_column_type(self, values, expected_type):
+        column = Column("empty_column", None, self.sig_figures, None)
+        column.set_column_type_from(values)
         self.assertEqual(
-            column_type, ColumnType.text, msg="Actual type: " + str(column_type)
+            column.type.type, expected_type, msg="Actual type: " + str(column.type)
         )
+
+    def test_column_type_text_value_starts_with_number(self):
+        self.check_expected_column_type([1, 1, 1, 1.1, "1,2,3"], ColumnType.text)
 
     def test_column_type_integers_is_count(self):
-        values = [1, 2, 3, 99999]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type, ColumnType.count, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1, 2, 3, 99999], ColumnType.count)
 
     def test_column_type_integer_strings_is_count(self):
-        values = ["1", "2", "3", "99999"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type, ColumnType.count, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1", "2", "3", "99999"], ColumnType.count)
 
     def test_column_type_integers_and_integer_strings_is_count(self):
-        values = ["1", 2, 3, 99999]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type, ColumnType.count, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1", 2, 3, 99999], ColumnType.count)
 
     def test_column_type_floats_is_measure(self):
-        values = [1.1, 2.234]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, 2.234], ColumnType.measure)
 
     def test_column_type_floats_and_integers_is_measure(self):
-        values = [1, 2.234, 3, 4]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1, 2.234, 3, 4], ColumnType.measure)
 
     def test_column_type_float_strings_is_measure(self):
-        values = ["1.1", "2.234"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1.1", "2.234"], ColumnType.measure)
 
     def test_column_type_floats_and_float_strings_is_measure(self):
-        values = [1.1, "2.234"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, "2.234"], ColumnType.measure)
 
     def test_column_type_integer_and_nan_is_measure(self):
-        values = [1, 10, nan]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1, 10, nan], ColumnType.measure)
 
     def test_column_type_integer_string_and_nan_is_measure(self):
-        values = ["1", "10", nan]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1", "10", nan], ColumnType.measure)
 
     def test_column_type_integer_and_inf_is_measure(self):
-        values = [1, 10, inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1, 10, inf], ColumnType.measure)
 
     def test_column_type_integer_string_and_inf_is_measure(self):
-        values = ["1", "10", inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1", "10", inf], ColumnType.measure)
 
     def test_column_type_integer_and_negative_inf_is_measure(self):
-        values = [1, 10, -inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1, 10, -inf], ColumnType.measure)
 
     def test_column_type_integer_string_and_negative_inf_is_measure(self):
-        values = ["1", "10", -inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1", "10", -inf], ColumnType.measure)
 
     def test_column_type_float_and_nan_is_measure(self):
-        values = [1.1, 10, nan]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, 10, nan], ColumnType.measure)
 
     def test_column_type_float_string_and_nan_is_measure(self):
-        values = ["1.1", "10.0", nan]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1.1", "10.0", nan], ColumnType.measure)
 
     def test_column_type_float_and_inf_is_measure(self):
-        values = [1.1, 10, inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, 10, inf], ColumnType.measure)
 
     def test_column_type_float_string_and_inf_is_measure(self):
-        values = ["1.1", "10.0", inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1.1", "10.0", inf], ColumnType.measure)
 
     def test_column_type_float_and_negative_inf_is_measure(self):
-        values = [1.1, 10, -inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, 10, -inf], ColumnType.measure)
 
     def test_column_type_float_string_and_negative_inf_is_measure(self):
-        values = ["1.1", "10.0", -inf]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type.type, ColumnType.measure, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1.1", "10.0", -inf], ColumnType.measure)
 
     def test_column_type_floats_and_text_is_text(self):
-        values = [1.1, 2.234, "1,2,3"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type, ColumnType.text, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type([1.1, 2.234, "1,2,3"], ColumnType.text)
 
     def test_column_type_comma_decimal_is_text(self):
-        values = ["1,2"]
-        column_type, _, _, _ = get_column_type(self.empty_column, values)
-        self.assertEqual(
-            column_type, ColumnType.text, msg="Actual type: " + str(column_type)
-        )
+        self.check_expected_column_type(["1,2"], ColumnType.text)

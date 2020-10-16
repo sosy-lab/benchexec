@@ -1,29 +1,14 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2017  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
 import os
 import threading
+import time
 
 from benchexec import container
 from benchexec import util
@@ -82,8 +67,8 @@ class FileHierarchyLimitThread(threading.Thread):
 
             files_count = 0
             files_size = 0
-            start_time = util.read_monotonic_time()
-            for current_dir, dirs, files in os.walk(self._path):
+            start_time = time.monotonic()
+            for current_dir, _dirs, files in os.walk(self._path):
                 for file in files:
                     abs_file = os.path.join(current_dir, file)
                     file = "/" + os.path.relpath(file, self._path)
@@ -103,7 +88,7 @@ class FileHierarchyLimitThread(threading.Thread):
             if self._check_limit(files_count, files_size):
                 return
 
-            duration = util.read_monotonic_time() - start_time
+            duration = time.monotonic() - start_time
 
             logging.debug(
                 "FileHierarchyLimitThread for process %d: "

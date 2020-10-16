@@ -1,38 +1,26 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
-
+import errno
+import grp
 import logging
 import os
 import shutil
 import signal
+import stat
+import sys
 import tempfile
 import time
 
+from benchexec import systeminfo
 from benchexec import util
 
 __all__ = [
     "find_my_cgroups",
-    "find_cgroups_of_process",
     "BLKIO",
     "CPUACCT",
     "CPUSET",
@@ -42,7 +30,7 @@ __all__ = [
 
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
-attempt to use this sub-cgroup as fallback."""
+attempt to use this cgroup as fallback."""
 
 CGROUP_NAME_PREFIX = "benchmark_"
 
@@ -68,8 +56,37 @@ ALL_KNOWN_SUBSYSTEMS = {
     "pids",
 }
 
+_PERMISSION_HINT_GROUPS = """
+You need to add your account to the following groups: {0}
+Remember to logout and login again afterwards to make group changes effective."""
 
-def find_my_cgroups(cgroup_paths=None):
+_PERMISSION_HINT_DEBIAN = """
+The recommended way to fix this is to install the Debian package for BenchExec and add your account to the group "benchexec":
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu
+Alternatively, you can install benchexec-cgroup.service manually:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+
+_PERMISSION_HINT_SYSTEMD = """
+The recommended way to fix this is to add your account to a group named "benchexec" and install benchexec-cgroup.service:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+
+_PERMISSION_HINT_OTHER = """
+Please configure your system in way to allow your user to use cgroups:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-without-systemd"""
+
+_ERROR_MSG_PERMISSIONS = """
+Required cgroups are not available because of missing permissions.{0}
+
+As a temporary workaround, you can also run
+"sudo chmod o+wt {1}"
+Note that this will grant permissions to more users than typically desired and it will only last until the next reboot."""
+
+_ERROR_MSG_OTHER = """
+Required cgroups are not available.
+If you are using BenchExec within a container, please make "/sys/fs/cgroup" available."""
+
+
+def find_my_cgroups(cgroup_paths=None, fallback=True):
     """
     Return a Cgroup object with the cgroups of the current process.
     Note that it is not guaranteed that all subsystems are available
@@ -78,6 +95,8 @@ def find_my_cgroups(cgroup_paths=None):
     A subsystem may also be present but we do not have the rights to create
     child cgroups, this can be checked with require_subsystem().
     @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
+    @param fallback: Whether to look for a default cgroup as fallback is our cgroup
+        is not accessible.
     """
     logging.debug(
         "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
@@ -94,21 +113,16 @@ def find_my_cgroups(cgroup_paths=None):
         # (lxcfs mounts cgroups under /run/lxcfs in such a way).
         if os.access(mount, os.F_OK):
             cgroupPath = os.path.join(mount, my_cgroups[subsystem])
-            if not os.access(cgroupPath, os.W_OK) and os.access(
-                os.path.join(cgroupPath, CGROUP_FALLBACK_PATH), os.W_OK
+            fallbackPath = os.path.join(mount, CGROUP_FALLBACK_PATH)
+            if (
+                fallback
+                and not os.access(cgroupPath, os.W_OK)
+                and os.path.isdir(fallbackPath)
             ):
-                cgroupPath = os.path.join(cgroupPath, CGROUP_FALLBACK_PATH)
+                cgroupPath = fallbackPath
             cgroupsParents[subsystem] = cgroupPath
 
     return Cgroup(cgroupsParents)
-
-
-def find_cgroups_of_process(pid):
-    """
-    Return a Cgroup object that represents the cgroups of a given process.
-    """
-    with open("/proc/{}/cgroup".format(pid), "rt") as cgroups_file:
-        return find_my_cgroups(cgroups_file)
 
 
 def _find_cgroup_mounts():
@@ -126,7 +140,7 @@ def _find_cgroup_mounts():
                     for option in options.split(","):
                         if option in ALL_KNOWN_SUBSYSTEMS:
                             yield (option, mountpoint)
-    except IOError:
+    except OSError:
         logging.exception("Cannot read /proc/mounts")
 
 
@@ -140,7 +154,7 @@ def _find_own_cgroups():
         with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
             for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
                 yield cgroup
-    except IOError:
+    except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
 
 
@@ -161,15 +175,8 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup):
+def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
     tasksFile = os.path.join(cgroup, "tasks")
-    freezer_file = os.path.join(cgroup, "freezer.state")
-
-    def try_write_to_freezer(content):
-        try:
-            util.write_file(content, freezer_file)
-        except IOError:
-            pass  # expected if freezer not enabled, we try killing without it
 
     i = 0
     while True:
@@ -178,7 +185,6 @@ def kill_all_tasks_in_cgroup(cgroup):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            try_write_to_freezer("FROZEN")
             with open(tasksFile, "rt") as tasks:
                 task = None
                 for task in tasks:
@@ -194,9 +200,8 @@ def kill_all_tasks_in_cgroup(cgroup):
                         )
                     util.kill_process(int(task), sig)
 
-                if task is None:
+                if task is None or not ensure_empty:
                     return  # No process was hanging, exit
-            try_write_to_freezer("THAWED")
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
 
@@ -231,7 +236,6 @@ def _register_process_with_cgrulesengd(pid):
         failure = libcgroup.cgroup_init()
         if failure:
             pass
-            # print('Could not initialize libcgroup, error {}'.format(success))
         else:
             CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
             failure = libcgroup.cgroup_register_unchanged_process(
@@ -243,7 +247,6 @@ def _register_process_with_cgrulesengd(pid):
                 #      'Probably the daemon will mess up our cgroups.'.format(success))
     except OSError:
         pass
-        # print('libcgroup is not available: {}'.format(e.strerror))
 
 
 class Cgroup(object):
@@ -253,6 +256,9 @@ class Cgroup(object):
         # Also update self.paths on every update to this!
         self.per_subsystem = cgroupsPerSubsystem
         self.paths = set(cgroupsPerSubsystem.values())  # without duplicates
+        # for error messages:
+        self.unusable_subsystems = set()
+        self.denied_subsystems = {}
 
     def __contains__(self, key):
         return key in self.per_subsystem
@@ -272,29 +278,86 @@ class Cgroup(object):
         this instance such that further checks with "in" will return "False".
         @return A boolean value.
         """
-        if not subsystem in self:
-            log_method(
-                "Cgroup subsystem %s is not enabled. "
-                'Please enable it with "sudo mount -t cgroup none /sys/fs/cgroup".',
-                subsystem,
-            )
+        if subsystem not in self:
+            if subsystem not in self.unusable_subsystems:
+                self.unusable_subsystems.add(subsystem)
+                log_method(
+                    "Cgroup subsystem %s is not available. "
+                    "Please make sure it is supported by your kernel and mounted.",
+                    subsystem,
+                )
             return False
 
         try:
             test_cgroup = self.create_fresh_child_cgroup(subsystem)
             test_cgroup.remove()
         except OSError as e:
-            self.paths = set(self.per_subsystem.values())
             log_method(
-                "Cannot use cgroup hierarchy mounted at {0} for subsystem {1}, reason: {2}. "
-                "If permissions are wrong, please run \"sudo chmod o+wt '{0}'\".".format(
-                    self.per_subsystem[subsystem], subsystem, e.strerror
-                )
+                "Cannot use cgroup %s for subsystem %s, reason: %s (%s).",
+                self.per_subsystem[subsystem],
+                subsystem,
+                e.strerror,
+                e.errno,
             )
+            self.unusable_subsystems.add(subsystem)
+            if e.errno == errno.EACCES:
+                self.denied_subsystems[subsystem] = self.per_subsystem[subsystem]
             del self.per_subsystem[subsystem]
+            self.paths = set(self.per_subsystem.values())
             return False
 
         return True
+
+    def handle_errors(self, critical_cgroups):
+        """
+        If there were errors in calls to require_subsystem() and critical_cgroups
+        is not empty, terminate the program with an error message that explains how to
+        fix the problem.
+
+        @param critical_cgroups: set of unusable but required cgroups
+        """
+        if not critical_cgroups:
+            return
+        assert critical_cgroups.issubset(self.unusable_subsystems)
+
+        if critical_cgroups.issubset(self.denied_subsystems):
+            # All errors were because of permissions for these directories
+            paths = sorted(set(self.denied_subsystems.values()))
+
+            # Check if all cgroups have group permissions and user could just be added
+            # to some groups to get access. But group 0 (root) of course does not count.
+            groups = {}
+            try:
+                if all(stat.S_IWGRP & os.stat(path).st_mode for path in paths):
+                    groups = {os.stat(path).st_gid for path in paths}
+            except OSError:
+                pass
+            if groups and 0 not in groups:
+
+                def get_group_name(gid):
+                    try:
+                        name = grp.getgrgid(gid).gr_name
+                    except KeyError:
+                        name = None
+                    return util.escape_string_shell(name or str(gid))
+
+                groups = " ".join(sorted(set(map(get_group_name, groups))))
+                permission_hint = _PERMISSION_HINT_GROUPS.format(groups)
+
+            elif systeminfo.has_systemd():
+                if systeminfo.is_debian():
+                    permission_hint = _PERMISSION_HINT_DEBIAN
+                else:
+                    permission_hint = _PERMISSION_HINT_SYSTEMD
+
+            else:
+                permission_hint = _PERMISSION_HINT_OTHER
+
+            paths = " ".join(map(util.escape_string_shell, paths))
+            sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
+
+        else:
+            sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 
     def create_fresh_child_cgroup(self, *subsystems):
         """
@@ -327,7 +390,7 @@ class Cgroup(object):
             try:
                 copy_parent_to_child("cpuset.cpus")
                 copy_parent_to_child("cpuset.mems")
-            except IOError:
+            except OSError:
                 # expected to fail if cpuset subsystem is not enabled in this hierarchy
                 pass
 
@@ -354,35 +417,40 @@ class Cgroup(object):
 
     def kill_all_tasks(self):
         """
-        Kill all tasks in this cgroup forcefully.
-        """
-        # Use freezer cgroup first if available because it helps against fork bombs
-        if FREEZER in self.per_subsystem:
-            kill_all_tasks_in_cgroup(self.per_subsystem[FREEZER])
-
-        # Make sure cgroups for all subsystems are empty,
-        # even if mounted in separate hierarchies (checking freezer again does not hurt)
-        for cgroup in self.paths:
-            kill_all_tasks_in_cgroup(cgroup)
-
-    def kill_all_tasks_recursively(self):
-        """
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
         """
 
-        def kill_all_tasks_in_cgroup_recursively(cgroup):
-            files = [os.path.join(cgroup, f) for f in os.listdir(cgroup)]
-            subdirs = filter(os.path.isdir, files)
+        def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
+            for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
+                for subCgroup in dirs:
+                    subCgroup = os.path.join(dirpath, subCgroup)
+                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
 
-            for subCgroup in subdirs:
-                kill_all_tasks_in_cgroup_recursively(subCgroup)
-                remove_cgroup(subCgroup)
+                    if delete:
+                        remove_cgroup(subCgroup)
 
-            kill_all_tasks_in_cgroup(cgroup)
+            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
 
+        # First, we go through all cgroups recursively while they are frozen and kill
+        # all processes. This helps against fork bombs and prevents processes from
+        # creating new subgroups while we are trying to kill everything.
+        # But this is only possible if we have freezer, and all processes will stay
+        # until they are thawed (so we cannot check for cgroup emptiness and we cannot
+        # delete subgroups).
+        if FREEZER in self.per_subsystem:
+            cgroup = self.per_subsystem[FREEZER]
+            freezer_file = os.path.join(cgroup, "freezer.state")
+
+            util.write_file("FROZEN", freezer_file)
+            kill_all_tasks_in_cgroup_recursively(cgroup, delete=False)
+            util.write_file("THAWED", freezer_file)
+
+        # Second, we go through all cgroups again, kill what is left,
+        # check for emptiness, and remove subgroups.
+        # Furthermore, we do this for all hierarchies, not only the one with freezer.
         for cgroup in self.paths:
-            kill_all_tasks_in_cgroup_recursively(cgroup)
+            kill_all_tasks_in_cgroup_recursively(cgroup, delete=True)
 
     def has_value(self, subsystem, option):
         """

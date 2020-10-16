@@ -4,4 +4,3 @@ doc/[a-z]*.md
 doc/*.dtd
 doc/benchmark.xml
 doc/table-generator.xml
-doc/properties

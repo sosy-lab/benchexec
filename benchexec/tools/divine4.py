@@ -1,25 +1,11 @@
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+# SPDX-FileCopyrightText: 2015-2018 Vladimír Štill
+#
+# SPDX-License-Identifier: Apache-2.0
 
-Copyright (C) 2007-2015  Dirk Beyer
-Copyright (C) 2015-2018  Vladimír Štill
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-This file contains tool support for DIVINE (divine.fi.muni.cz)
-"""
 import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
@@ -53,12 +39,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable(self.BINS[0])
 
     def version(self, executable):
-        output = self._version_from_tool(executable, ignore_stderr=True)
-        for l in output.splitlines():
-            k, v = l.split(":", maxsplit=1)
-            if k == "version":
-                return v.strip()
-        return ""
+        return self._version_from_tool(
+            executable, ignore_stderr=True, line_prefix="version:"
+        )
 
     def name(self):
         """

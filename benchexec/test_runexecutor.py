@@ -1,25 +1,11 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import glob
+import contextlib
 import logging
 import os
 import re
@@ -31,8 +17,6 @@ import time
 import unittest
 import shutil
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import container
 from benchexec import containerexecutor
 from benchexec import filehierarchylimit
@@ -40,27 +24,14 @@ from benchexec.runexecutor import RunExecutor
 from benchexec import runexecutor
 from benchexec import util
 
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "wb")
-
-try:
-    unichr(0)
-except NameError:
-    unichr = chr
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
 runexec = os.path.join(bin_dir, "runexec")
 
-if sys.version_info[0] == 2:
-    python = "python2"
-    trivial_run_grace_time = 0.4
-else:
-    python = "python3"
-    trivial_run_grace_time = 0.2
+trivial_run_grace_time = 0.2
 
 
 class TestRunExecutor(unittest.TestCase):
@@ -68,26 +39,34 @@ class TestRunExecutor(unittest.TestCase):
     def setUpClass(cls):
         cls.longMessage = True
         cls.maxDiff = None
-        logging.disable(logging.CRITICAL)
+        logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
-        if not hasattr(cls, "assertRaisesRegex"):
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     def setUp(self, *args, **kwargs):
-        try:
+        with self.skip_if_logs(
+            "Cannot reliably kill sub-processes without freezer cgroup"
+        ):
             self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+
+    @contextlib.contextmanager
+    def skip_if_logs(self, error_msg):
+        """A context manager that automatically marks the test as skipped if SystemExit
+        is thrown and the given error message had been logged with level ERROR."""
+        # Note: assertLogs checks that there is at least one log message of given level.
+        # This is not what we want, so we just rely on one debug message being present.
+        try:
+            with self.assertLogs(level=logging.DEBUG) as log:
+                yield
         except SystemExit as e:
-            if str(e).startswith(
-                "Cannot reliably kill sub-processes without freezer cgroup"
+            if any(
+                record.levelno == logging.ERROR and record.msg.startswith(error_msg)
+                for record in log.records
             ):
                 self.skipTest(e)
-            else:
-                raise e
+            raise e
 
-    def execute_run(self, *args, **kwargs):
-        # Make keyword-only argument after support for Python 2 is dropped
-        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
+    def execute_run(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             result = self.runexecutor.execute_run(list(args), output_filename, **kwargs)
@@ -113,22 +92,20 @@ class TestRunExecutor(unittest.TestCase):
 
     def get_runexec_cmdline(self, *args, **kwargs):
         return [
-            python,
+            "python3",
             runexec,
             "--no-container",
             "--output",
             kwargs["output_filename"],
         ] + list(args)
 
-    def execute_run_extern(self, *args, **kwargs):
-        # Make keyword-only argument after support for Python 2 is dropped
-        expect_terminationreason = kwargs.pop("expect_terminationreason", None)
+    def execute_run_extern(self, *args, expect_terminationreason=None, **kwargs):
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         try:
             runexec_output = subprocess.check_output(
                 args=self.get_runexec_cmdline(*args, output_filename=output_filename),
-                stderr=DEVNULL,
-                **kwargs
+                stderr=subprocess.DEVNULL,
+                **kwargs,
             ).decode()
             output = os.read(output_fd, 4096).decode()
         except subprocess.CalledProcessError as e:
@@ -171,6 +148,7 @@ class TestRunExecutor(unittest.TestCase):
             "cpuenergy",
             "blkio-read",
             "blkio-write",
+            "starttime",
         }
         expected_keys.update(additional_keys)
         for key in result.keys():
@@ -183,7 +161,7 @@ class TestRunExecutor(unittest.TestCase):
             elif key.startswith("cpuenergy-"):
                 self.assertRegex(
                     key,
-                    "^cpuenergy-pkg[0-9]+(-(core|uncore|dram|psys))?$",
+                    "^cpuenergy-pkg[0-9]+-(package|core|uncore|dram|psys)$",
                     "unexpected result entry '{}={}'".format(key, result[key]),
                 )
             else:
@@ -285,7 +263,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -293,11 +271,6 @@ class TestRunExecutor(unittest.TestCase):
                 hardtimelimit=1,
                 expect_terminationreason="cputime",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
             result["walltime"],
@@ -318,7 +291,9 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_softlimit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs(
+            "Soft time limit cannot be specified without cpuacct cgroup"
+        ):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -326,12 +301,6 @@ class TestRunExecutor(unittest.TestCase):
                 softtimelimit=1,
                 expect_terminationreason="cputime-soft",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Soft time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
-
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
         self.assertAlmostEqual(
             result["walltime"],
@@ -378,7 +347,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_cputime_walltime_limit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -387,11 +356,6 @@ class TestRunExecutor(unittest.TestCase):
                 walltimelimit=5,
                 expect_terminationreason="cputime",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -413,7 +377,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_all_timelimits(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        try:
+        with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
                 "-c",
@@ -423,11 +387,6 @@ class TestRunExecutor(unittest.TestCase):
                 walltimelimit=5,
                 expect_terminationreason="cputime-soft",
             )
-        except SystemExit as e:
-            self.assertEqual(
-                str(e), "Time limit cannot be specified without cpuacct cgroup."
-            )
-            self.skipTest(e)
 
         self.check_exitcode(result, 15, "exit code of killed process is not 15")
         self.assertAlmostEqual(
@@ -516,11 +475,14 @@ class TestRunExecutor(unittest.TestCase):
         )
         try:
             process = subprocess.Popen(
-                args=cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=DEVNULL
+                args=cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
             )
             try:
                 runexec_output, unused_err = process.communicate(b"TEST_TOKEN")
-            except:
+            except:  # noqa: E722
                 process.kill()
                 process.wait()
                 raise
@@ -747,10 +709,13 @@ class TestRunExecutor(unittest.TestCase):
         subprocess.check_call(["rm", "-r", os.path.dirname(temp_dir)])
 
     def test_require_cgroup_invalid(self):
-        self.assertRaisesRegex(
-            SystemExit,
-            ".*invalid.*",
-            lambda: RunExecutor(additional_cgroup_subsystems=["invalid"]),
+        with self.assertLogs(level=logging.ERROR) as log:
+            with self.assertRaises(SystemExit):
+                RunExecutor(additional_cgroup_subsystems=["invalid"])
+
+        self.assertIn(
+            'Cgroup subsystem "invalid" was required but is not available',
+            "\n".join(log.output),
         )
 
     def test_require_cgroup_cpu(self):
@@ -781,6 +746,49 @@ class TestRunExecutor(unittest.TestCase):
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
+    def test_nested_runexec(self):
+        if not os.path.exists("/bin/echo"):
+            self.skipTest("missing /bin/echo")
+        self.setUp(
+            dir_modes={
+                # Do not mark /home hidden, would fail with python from virtualenv
+                "/": containerexecutor.DIR_READ_ONLY,
+                "/tmp": containerexecutor.DIR_FULL_ACCESS,  # for inner_output_file
+                "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
+            }
+        )
+        inner_args = ["--", "/bin/echo", "TEST_TOKEN"]
+
+        with tempfile.NamedTemporaryFile(
+            mode="r", prefix="inner_output_", suffix=".log"
+        ) as inner_output_file:
+            inner_cmdline = self.get_runexec_cmdline(
+                *inner_args, output_filename=inner_output_file.name
+            )
+            outer_result, outer_output = self.execute_run(*inner_cmdline)
+            inner_output = inner_output_file.read().strip().splitlines()
+
+        logging.info("Outer output:\n" + "\n".join(outer_output))
+        logging.info("Inner output:\n" + "\n".join(inner_output))
+        self.check_result_keys(outer_result, "returnvalue")
+        self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
+        self.check_command_in_output(inner_output, "/bin/echo TEST_TOKEN")
+        self.assertEqual(
+            inner_output[-1], "TEST_TOKEN", "run output misses command output"
+        )
+
+    def test_starttime(self):
+        if not os.path.exists("/bin/echo"):
+            self.skipTest("missing /bin/echo")
+        before = util.read_local_time()
+        (result, _) = self.execute_run("/bin/echo")
+        after = util.read_local_time()
+        self.check_result_keys(result)
+        run_starttime = result["starttime"]
+        self.assertIsNotNone(run_starttime.tzinfo, "start time is not a local time")
+        self.assertLessEqual(before, run_starttime)
+        self.assertLessEqual(run_starttime, after)
+
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
@@ -804,7 +812,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def get_runexec_cmdline(self, *args, **kwargs):
         return [
-            python,
+            "python3",
             runexec,
             "--container",
             "--read-only-dir",
@@ -853,7 +861,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 ),
             )
             result_files = []
-            for root, unused_dirs, files in os.walk(output_dir):
+            for root, _unused_dirs, files in os.walk(output_dir):
                 for file in files:
                     result_files.append(
                         os.path.relpath(os.path.join(root, file), output_dir)
@@ -955,8 +963,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
     def test_result_file_recursive_pattern(self):
-        if not util.maybe_recursive_iglob == glob.iglob:
-            self.skipTest("missing recursive glob.iglob")
         self.check_result_files(
             "mkdir -p TEST_DIR/TEST_DIR; "
             "echo TEST_TOKEN > TEST_FILE.txt; "
@@ -1073,3 +1079,32 @@ class _StopRunThread(threading.Thread):
     def run(self):
         time.sleep(self.delay)
         self.runexecutor.stop()
+
+
+class TestRunExecutorUnits(unittest.TestCase):
+    """unit tests for parts of RunExecutor"""
+
+    def test_get_debug_output_with_error_report_and_invalid_utf8(self):
+        invalid_utf8 = b"\xFF"
+        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
+            with tempfile.NamedTemporaryFile(mode="w+b") as output:
+                output_content = """Dummy output
+# An error report file with more information is saved as:
+# {}
+More output
+"""
+                output_content = output_content.format(report_file.name).encode()
+                report_content = b"Report output\nMore lines"
+                output_content += invalid_utf8
+                report_content += invalid_utf8
+
+                output.write(output_content)
+                output.flush()
+                output.seek(0)
+                report_file.write(report_content)
+                report_file.flush()
+
+                runexecutor._get_debug_output_after_crash(output.name, "")
+
+                self.assertFalse(os.path.exists(report_file.name))
+                self.assertEqual(output.read(), output_content + report_content)

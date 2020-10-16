@@ -1,34 +1,26 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
 import sys
 import unittest
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
+import types
 
 from benchexec.util import ProcessExitCode
 from benchexec.model import Run
-from benchexec.result import *  # @UnusedWildImport
+from benchexec.result import (
+    RESULT_FALSE_REACH,
+    RESULT_ERROR,
+    RESULT_UNKNOWN,
+    RESULT_TRUE_PROP,
+)
 from benchexec.tools.template import BaseTool
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 
@@ -40,13 +32,12 @@ class TestResult(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
     def create_run(self, info_result=RESULT_UNKNOWN):
-        # lambdas are simple dummy objects
-        runSet = lambda: None
+        runSet = types.SimpleNamespace()
         runSet.log_folder = "."
         runSet.result_files_folder = "."
         runSet.options = []
         runSet.real_name = None
-        runSet.propertyfile = None
+        runSet.propertytag = None
         runSet.benchmark = lambda: None
         runSet.benchmark.base_dir = "."
         runSet.benchmark.benchmark_file = "Test.xml"
@@ -56,113 +47,124 @@ class TestResult(unittest.TestCase):
         runSet.benchmark.rlimits = {}
         runSet.benchmark.tool = BaseTool()
 
-        def determine_result(self, returncode, returnsignal, output, isTimeout=False):
+        def determine_result(run):
             return info_result
 
         runSet.benchmark.tool.determine_result = determine_result
 
-        return Run(
-            identifier="test.c", sourcefiles=["test.c"], fileOptions=[], runSet=runSet
+        run = Run(
+            identifier="test.c",
+            sourcefiles=["test.c"],
+            task_options=None,
+            fileOptions=[],
+            runSet=runSet,
         )
+        run._cmdline = ["dummy.bin", "test.c"]
+        return run
 
     def test_simple(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            RESULT_UNKNOWN, run._analyze_result(normal_result, "", False, None)
-        )
+        self.assertEqual(RESULT_UNKNOWN, run._analyze_result(normal_result, "", None))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual(
-            RESULT_TRUE_PROP, run._analyze_result(normal_result, "", False, None)
-        )
+        self.assertEqual(RESULT_TRUE_PROP, run._analyze_result(normal_result, "", None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
-            RESULT_FALSE_REACH, run._analyze_result(normal_result, "", False, None)
+            RESULT_FALSE_REACH, run._analyze_result(normal_result, "", None)
         )
 
     def test_timeout(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", True, None))
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", "cputime"))
+        self.assertEqual(
+            "TIMEOUT", run._analyze_result(normal_result, "", "cputime-soft")
+        )
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", "walltime"))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         self.assertEqual(
             "TIMEOUT (" + RESULT_TRUE_PROP + ")",
-            run._analyze_result(normal_result, "", True, None),
+            run._analyze_result(normal_result, "", "cputime"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
             "TIMEOUT (" + RESULT_FALSE_REACH + ")",
-            run._analyze_result(normal_result, "", True, None),
+            run._analyze_result(normal_result, "", "cputime"),
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
         self.assertEqual(
             "TIMEOUT (SOME OTHER RESULT)",
-            run._analyze_result(normal_result, "", True, None),
+            run._analyze_result(normal_result, "", "cputime"),
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
-        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", True, None))
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", "cputime"))
+
+        run = self.create_run(info_result=RESULT_ERROR)
+        run._is_timeout = lambda: True
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", None))
 
     def test_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
         self.assertEqual(
-            "OUT OF MEMORY", run._analyze_result(normal_result, "", False, "memory")
+            "OUT OF MEMORY", run._analyze_result(normal_result, "", "memory")
         )
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         self.assertEqual(
             "OUT OF MEMORY (" + RESULT_TRUE_PROP + ")",
-            run._analyze_result(normal_result, "", False, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
             "OUT OF MEMORY (" + RESULT_FALSE_REACH + ")",
-            run._analyze_result(normal_result, "", False, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
         self.assertEqual(
             "OUT OF MEMORY (SOME OTHER RESULT)",
-            run._analyze_result(normal_result, "", False, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
         self.assertEqual(
-            "OUT OF MEMORY", run._analyze_result(normal_result, "", False, "memory")
+            "OUT OF MEMORY", run._analyze_result(normal_result, "", "memory")
         )
 
     def test_timeout_and_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            "TIMEOUT", run._analyze_result(normal_result, "", True, "memory")
-        )
+        run._is_timeout = lambda: True
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", "memory"))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
+        run._is_timeout = lambda: True
         self.assertEqual(
             "TIMEOUT (" + RESULT_TRUE_PROP + ")",
-            run._analyze_result(normal_result, "", True, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
+        run._is_timeout = lambda: True
         self.assertEqual(
             "TIMEOUT (" + RESULT_FALSE_REACH + ")",
-            run._analyze_result(normal_result, "", True, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
+        run._is_timeout = lambda: True
         self.assertEqual(
             "TIMEOUT (SOME OTHER RESULT)",
-            run._analyze_result(normal_result, "", True, "memory"),
+            run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
-        self.assertEqual(
-            "TIMEOUT", run._analyze_result(normal_result, "", True, "memory")
-        )
+        run._is_timeout = lambda: True
+        self.assertEqual("TIMEOUT", run._analyze_result(normal_result, "", "memory"))
 
     def test_returnsignal(self):
         def signal(sig):
@@ -170,32 +172,22 @@ class TestResult(unittest.TestCase):
             return ProcessExitCode(raw=sig, value=None, signal=sig)
 
         run = self.create_run(info_result=RESULT_ERROR)
-        self.assertEqual("TIMEOUT", run._analyze_result(signal(9), "", True, None))
+        self.assertEqual("TIMEOUT", run._analyze_result(signal(9), "", "cputime"))
 
         run = self.create_run(info_result=RESULT_ERROR)
-        self.assertEqual(
-            "OUT OF MEMORY", run._analyze_result(signal(9), "", False, "memory")
-        )
+        self.assertEqual("OUT OF MEMORY", run._analyze_result(signal(9), "", "memory"))
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        self.assertEqual(
-            RESULT_TRUE_PROP, run._analyze_result(signal(9), "", False, None)
-        )
+        self.assertEqual(RESULT_TRUE_PROP, run._analyze_result(signal(9), "", None))
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        self.assertEqual(
-            RESULT_FALSE_REACH, run._analyze_result(signal(9), "", False, None)
-        )
+        self.assertEqual(RESULT_FALSE_REACH, run._analyze_result(signal(9), "", None))
 
         run = self.create_run(info_result="SOME OTHER RESULT")
-        self.assertEqual(
-            "SOME OTHER RESULT", run._analyze_result(signal(9), "", False, None)
-        )
+        self.assertEqual("SOME OTHER RESULT", run._analyze_result(signal(9), "", None))
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            "KILLED BY SIGNAL 9", run._analyze_result(signal(9), "", False, None)
-        )
+        self.assertEqual("KILLED BY SIGNAL 9", run._analyze_result(signal(9), "", None))
 
     def test_exitcode(self):
         def returnvalue(value):
@@ -203,32 +195,27 @@ class TestResult(unittest.TestCase):
             return ProcessExitCode(raw=value << 8, value=value, signal=None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            "TIMEOUT (ERROR (1))", run._analyze_result(returnvalue(1), "", True, None)
-        )
+        self.assertEqual("TIMEOUT", run._analyze_result(returnvalue(1), "", "cputime"))
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         self.assertEqual(
-            "OUT OF MEMORY (ERROR (1))",
-            run._analyze_result(returnvalue(1), "", False, "memory"),
+            "OUT OF MEMORY", run._analyze_result(returnvalue(1), "", "memory")
         )
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         self.assertEqual(
-            RESULT_TRUE_PROP, run._analyze_result(returnvalue(1), "", False, None)
+            RESULT_TRUE_PROP, run._analyze_result(returnvalue(1), "", None)
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
-            RESULT_FALSE_REACH, run._analyze_result(returnvalue(1), "", False, None)
+            RESULT_FALSE_REACH, run._analyze_result(returnvalue(1), "", None)
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
         self.assertEqual(
-            "SOME OTHER RESULT", run._analyze_result(returnvalue(1), "", False, None)
+            "SOME OTHER RESULT", run._analyze_result(returnvalue(1), "", None)
         )
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        self.assertEqual(
-            "ERROR (1)", run._analyze_result(returnvalue(1), "", False, None)
-        )
+        self.assertEqual(RESULT_UNKNOWN, run._analyze_result(returnvalue(1), "", None))

@@ -1,3 +1,12 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Benchmarking Guidelines
 
 Please check the following guidelines for advice
@@ -5,6 +14,17 @@ on how to get reliable benchmark results when using BenchExec.
 For more general guidelines about benchmarking,
 e.g., what to do when implementing a benchmarking tool,
 please read our paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+
+### Document as much as possible
+For correct interpretation of results, it is important that everything important
+about the benchmarking is documented and archived together with the results.
+BenchExec already adds lots of information (e.g., about the benchmarking host),
+but it cannot know about everything (e.g., who did the benchmarking
+and for which purpose, what was the version of the benchmark set, etc.).
+To document such facts, write them into a text file
+and pass it to `benchexec` with the parameter `--decription-file <file>`.
+Furthermore, we recommend to use `benchexec --commit`
+to automatically store BenchExec results in a git repository.
 
 ### Use the latest version of BenchExec
 New versions of BenchExec might contain features or bug fixes

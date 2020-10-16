@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 1.18//EN" "https://www.sosy-lab.org/benchexec/benchmark-1.18.dtd">
+<benchmark tool="dummy">
+  <!-- This file is used to create integration-test files for table-generator
+       with the following command:
+       benchexec test/tasks/benchmark.xml -n test -o benchexec/tablegenerator/test_integration/results/
+  -->
+  <option>true</option>
+
+  <rundefinition/>
+
+  <tasks>
+    <include>*.yml</include>
+    <propertyfile>test.prp</propertyfile>
+  </tasks>
+</benchmark>

@@ -1,25 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import collections
@@ -34,12 +18,11 @@ import threading
 import time
 import tempfile
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
+from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
-from benchexec.cgroups import *
+from benchexec.cgroups import BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
@@ -47,14 +30,11 @@ from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
 
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+
 _WALLTIME_LIMIT_DEFAULT_OVERHEAD = 30  # seconds more than cputime limit
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _LOG_SHRINK_MARKER = "\n\n\nWARNING: YOUR LOGFILE WAS TOO LONG, SOME LINES IN THE MIDDLE WERE REMOVED.\n\n\n\n"
-
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "rb")
 
 
 def main(argv=None):
@@ -195,6 +175,7 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
     baseexecutor.handle_basic_executor_options(options, parser)
+    logging.debug("This is runexec %s.", __version__)
 
     if options.container:
         container_options = containerexecutor.handle_basic_container_args(
@@ -220,7 +201,7 @@ def main(argv=None):
             parser.error("Input and output files cannot be the same.")
         try:
             stdin = open(options.input, "rt")
-        except IOError as e:
+        except OSError as e:
             parser.error(e)
     else:
         stdin = None
@@ -246,7 +227,7 @@ def main(argv=None):
         cleanup_temp_dir=options.cleanup,
         additional_cgroup_subsystems=list(cgroup_subsystems),
         use_namespaces=options.container,
-        **container_options
+        **container_options,
     )
 
     # Ensure that process gets killed on interrupt/kill signal,
@@ -286,7 +267,7 @@ def main(argv=None):
             maxLogfileSize=options.maxOutputSize,
             files_count_limit=options.filesCountLimit,
             files_size_limit=options.filesSizeLimit,
-            **container_output_options
+            **container_output_options,
         )
     finally:
         if stdin:
@@ -295,11 +276,12 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = result.pop("exitcode", None)
 
-    def print_optional_result(key, unit=""):
+    def print_optional_result(key, unit="", format_fn=str):
         if key in result:
-            print(key + "=" + str(result[key]) + unit)
+            print(key + "=" + format_fn(result[key]) + unit)
 
     # output results
+    print_optional_result("starttime", unit="", format_fn=lambda dt: dt.isoformat())
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
@@ -346,11 +328,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         This function initializes the cgroups for the limitations and measurements.
         """
         self.cgroups = find_my_cgroups()
+        critical_cgroups = set()
 
         for subsystem in self._cgroup_subsystems:
             self.cgroups.require_subsystem(subsystem)
             if subsystem not in self.cgroups:
-                sys.exit('Required cgroup subsystem "{}" is missing.'.format(subsystem))
+                critical_cgroups.add(subsystem)
+                logging.error(
+                    'Cgroup subsystem "%s" was required but is not available.',
+                    subsystem,
+                )
 
         # Feature is still experimental, do not warn loudly
         self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
@@ -363,7 +350,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.require_subsystem(FREEZER)
         if FREEZER not in self.cgroups and not self._use_namespaces:
-            sys.exit(
+            critical_cgroups.add(FREEZER)
+            logging.error(
                 "Cannot reliably kill sub-processes without freezer cgroup "
                 "or container mode. Please enable at least one of them."
             )
@@ -390,9 +378,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             try:
                 self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
             except ValueError as e:
-                logging.warning(
-                    "Could not read available CPU cores from kernel: %s", e.strerror
-                )
+                logging.warning("Could not read available CPU cores from kernel: %s", e)
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
@@ -404,6 +390,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     "Could not read available memory nodes from kernel: %s", e.strerror
                 )
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
+
+        self.cgroups.handle_errors(critical_cgroups)
 
     # --- utility functions ---
 
@@ -439,7 +427,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         for ((subsystem, option), value) in cgroup_values.items():
             try:
                 cgroups.set_value(subsystem, option, value)
-            except EnvironmentError as e:
+            except OSError as e:
                 cgroups.remove()
                 sys.exit(
                     '{} for setting cgroup option {}.{} to "{}" (error code {}).'.format(
@@ -484,7 +472,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 try:
                     cgroups.set_value(MEMORY, swap_limit, memlimit)
-                except IOError as e:
+                except OSError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
                         sys.exit(
@@ -502,7 +490,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 # (unlike setting the global swappiness to 0).
                 # Our process might get killed because of this.
                 cgroups.set_value(MEMORY, "swappiness", "0")
-            except IOError as e:
+            except OSError as e:
                 logging.warning(
                     "Could not disable swapping for benchmarked process: %s", e
                 )
@@ -529,7 +517,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment = {}
         else:
             run_environment = os.environ.copy()
-        for key, value in environments.get("keepEnv", {}).items():
+        for key in environments.get("keepEnv", {}).keys():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
         for key, value in environments.get("newEnv", {}).items():
@@ -547,8 +535,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
         try:
+            parent_dir = os.path.dirname(output_filename)
+            if parent_dir:
+                os.makedirs(parent_dir, exist_ok=True)
             output_file = open(output_filename, "w")  # override existing file
-        except IOError as e:
+        except OSError as e:
             sys.exit(e)
 
         if write_header:
@@ -677,20 +668,26 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if stdin == subprocess.PIPE:
             sys.exit("Illegal value subprocess.PIPE for stdin")
         elif stdin is None:
-            stdin = DEVNULL
+            stdin = subprocess.DEVNULL
+
+        critical_cgroups = set()
 
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit("Invalid time limit {0}.".format(hardtimelimit))
-            if not CPUACCT in self.cgroups:
-                sys.exit("Time limit cannot be specified without cpuacct cgroup.")
+            if CPUACCT not in self.cgroups:
+                logging.error("Time limit cannot be specified without cpuacct cgroup.")
+                critical_cgroups.add(CPUACCT)
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
-            if not CPUACCT in self.cgroups:
-                sys.exit("Soft time limit cannot be specified without cpuacct cgroup.")
+            if CPUACCT not in self.cgroups:
+                logging.error(
+                    "Soft time limit cannot be specified without cpuacct cgroup."
+                )
+                critical_cgroups.add(CPUACCT)
 
         if walltimelimit is None:
             if hardtimelimit is not None:
@@ -703,10 +700,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if cores is not None:
             if self.cpus is None:
-                sys.exit("Cannot limit CPU cores without cpuset cgroup.")
-            if not cores:
+                logging.error("Cannot limit CPU cores without cpuset cgroup.")
+                critical_cgroups.add(CPUSET)
+            elif not cores:
                 sys.exit("Cannot execute run without any CPU core.")
-            if not set(cores).issubset(self.cpus):
+            elif not set(cores).issubset(self.cpus):
                 sys.exit(
                     "Cores {0} are not allowed to be used".format(
                         list(set(cores).difference(self.cpus))
@@ -716,17 +714,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit("Invalid memory limit {0}.".format(memlimit))
-            if not MEMORY in self.cgroups:
-                sys.exit(
+            if MEMORY not in self.cgroups:
+                logging.error(
                     "Memory limit specified, but cannot be implemented without cgroup support."
                 )
+                critical_cgroups.add(MEMORY)
 
         if memory_nodes is not None:
             if self.memory_nodes is None:
-                sys.exit("Cannot restrict memory nodes without cpuset cgroup.")
-            if len(memory_nodes) == 0:
+                logging.error("Cannot restrict memory nodes without cpuset cgroup.")
+                critical_cgroups.add(CPUSET)
+            elif len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
-            if not set(memory_nodes).issubset(self.memory_nodes):
+            elif not set(memory_nodes).issubset(self.memory_nodes):
                 sys.exit(
                     "Memory nodes {0} are not allowed to be used".format(
                         list(set(memory_nodes).difference(self.memory_nodes))
@@ -743,8 +743,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     "Permission denied for working directory {0}.".format(workingDir)
                 )
 
+        self.cgroups.handle_errors(critical_cgroups)
+
         for ((subsystem, option), _) in cgroupValues.items():
-            if not subsystem in self._cgroup_subsystems:
+            if subsystem not in self._cgroup_subsystems:
                 sys.exit(
                     'Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
                     'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
@@ -784,7 +786,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 maxLogfileSize,
                 files_count_limit,
                 files_size_limit,
-                **kwargs
+                **kwargs,
             )
 
         except BenchExecException as e:
@@ -854,14 +856,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # start measurements
             if self._energy_measurement is not None and packages:
                 self._energy_measurement.start()
-            walltime_before = util.read_monotonic_time()
-            return walltime_before
+            starttime = util.read_local_time()
+            walltime_before = time.monotonic()
+            return starttime, walltime_before
 
         def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            walltime_before = preParent_result
-            walltime = util.read_monotonic_time() - walltime_before
+            starttime, walltime_before = preParent_result
+            walltime = time.monotonic() - walltime_before
             energy = (
                 self._energy_measurement.stop() if self._energy_measurement else None
             )
@@ -888,7 +891,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
 
-            return (walltime, energy)
+            return starttime, walltime, energy
 
         def preSubprocess():
             """Setup that is executed in the forked process before the actual tool is started."""
@@ -934,7 +937,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 parent_setup_fn=preParent,
                 child_setup_fn=preSubprocess,
                 parent_cleanup_fn=postParent,
-                **kwargs
+                **kwargs,
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
@@ -949,7 +952,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
             # wait until process has terminated
-            returnvalue, ru_child, (walltime, energy) = result_fn()
+            returnvalue, ru_child, (starttime, walltime, energy) = result_fn()
+            if starttime:
+                result["starttime"] = starttime
             result["walltime"] = walltime
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -1012,7 +1017,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         result["exitcode"] = util.ProcessExitCode.from_raw(returnvalue)
         if energy:
-            if packages == True:
+            if packages is True:
                 result["cpuenergy"] = energy
             else:
                 result["cpuenergy"] = {
@@ -1097,7 +1102,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 try:
                     result["memory"] = int(cgroups.get_value(MEMORY, memUsageFile))
-                except IOError as e:
+                except OSError as e:
                     if e.errno == errno.ENOTSUP:
                         # kernel responds with operation unsupported if this is disabled
                         logging.critical(
@@ -1178,16 +1183,16 @@ def _get_debug_output_after_crash(output_filename, base_path):
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     try:
-        with open(output_filename, "r+") as outputFile:
+        with open(output_filename, "r+b") as outputFile:
             for line in outputFile:
                 if foundDumpFile:
-                    dumpFileName = base_path + line.strip(" #\n")
+                    dumpFileName = base_path.encode() + line.strip(b" #\n")
                     outputFile.seek(0, os.SEEK_END)  # jump to end of log file
                     try:
-                        with open(dumpFileName, "r") as dumpFile:
+                        with open(dumpFileName, "rb") as dumpFile:
                             util.copy_all_lines_from_to(dumpFile, outputFile)
                         os.remove(dumpFileName)
-                    except IOError as e:
+                    except OSError as e:
                         logging.warning(
                             "Could not append additional segmentation fault information "
                             "from %s (%s)",
@@ -1196,15 +1201,15 @@ def _get_debug_output_after_crash(output_filename, base_path):
                         )
                     break
                 try:
-                    if util.decode_to_string(line).startswith(
-                        "# An error report file with more information is saved as:"
+                    if line.startswith(
+                        b"# An error report file with more information is saved as:"
                     ):
                         logging.debug("Going to append error report file")
                         foundDumpFile = True
                 except UnicodeDecodeError:
                     pass
                     # ignore invalid chars from logfile
-    except IOError as e:
+    except OSError as e:
         logging.warning(
             "Could not analyze tool output for crash information (%s)", e.strerror
         )
@@ -1256,7 +1261,7 @@ class _TimelimitThread(threading.Thread):
         # set timelimits to large dummy value if no limit is given
         self.timelimit = hardtimelimit or (60 * 60 * 24 * 365 * 100)
         self.softtimelimit = softtimelimit or (60 * 60 * 24 * 365 * 100)
-        self.latestKillTime = util.read_monotonic_time() + walltimelimit
+        self.latestKillTime = time.monotonic() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
         self.finished = threading.Event()
@@ -1274,7 +1279,7 @@ class _TimelimitThread(threading.Thread):
             usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
-            remainingWallTime = self.latestKillTime - util.read_monotonic_time()
+            remainingWallTime = self.latestKillTime - time.monotonic()
             logging.debug(
                 "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
                 "remaining soft CPU time: %s, remaining wall time: %s.",

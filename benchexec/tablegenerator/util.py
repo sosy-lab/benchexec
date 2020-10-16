@@ -1,40 +1,33 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """
 This module contains some useful functions for Strings, Files and Lists.
 """
 
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+import collections
 from decimal import Decimal
 import glob
 import io
-import json
 import logging
 import os
-import re
-from urllib.parse import quote as url_quote
 import urllib.request
-import tempita
+import platform
 
-import benchexec.util
+
+class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
+    """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    field_names = ["Task name", "Property", "Expected verdict", "Run set"]
+
+    __slots__ = ()  # reduce per-instance memory consumption
+
+    def __str__(self):
+        return "'" + ", ".join(str(s) for s in self if s) + "'"
 
 
 def get_file_list(shortFile):
@@ -83,12 +76,12 @@ def open_url_seekable(path_url, mode="rt"):
     copying it into a buffer if necessary."""
 
     logging.debug("Making request to '%s'", path_url)
-    response = urllib.request.urlopen(path_url)
+    response = urllib.request.urlopen(path_url)  # noqa: S310
     logging.debug("Got response %s", response.info())
 
     try:
         response.seek(0)
-    except (IOError, AttributeError):
+    except (OSError, AttributeError):
         # Copy into buffer to allow seeking.
         response = io.BytesIO(response.read())
     if "b" in mode:
@@ -134,71 +127,6 @@ def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
 
-def create_link(href, base_dir, runResult=None, href_base=None):
-    def get_replacements(task_file):
-        var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
-        return [
-            (var_prefix + "name", os.path.basename(task_file)),
-            (var_prefix + "path", os.path.dirname(task_file) or "."),
-            (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
-        ] + (
-            [
-                ("logfile_name", os.path.basename(runResult.log_file)),
-                (
-                    "logfile_path",
-                    os.path.dirname(
-                        os.path.relpath(runResult.log_file, href_base or ".")
-                    )
-                    or ".",
-                ),
-                (
-                    "logfile_path_abs",
-                    os.path.dirname(os.path.abspath(runResult.log_file)),
-                ),
-            ]
-            if runResult.log_file
-            else []
-        )
-
-    source_file = (
-        os.path.relpath(runResult.task_id[0], href_base or ".") if runResult else None
-    )
-
-    if is_url(href):
-        # quote special characters only in inserted variable values, not full URL
-        if source_file:
-            source_file = url_quote(source_file)
-            href = benchexec.util.substitute_vars(href, get_replacements(source_file))
-        return href
-
-    # quote special characters everywhere (but not twice in source_file!)
-    if source_file:
-        href = benchexec.util.substitute_vars(href, get_replacements(source_file))
-    return url_quote(os.path.relpath(href, base_dir))
-
-
-def format_options(options):
-    """Helper function for formatting the content of the options line"""
-    # split on one of the following tokens: ' -' or '[[' or ']]'
-    lines = [""]
-    for token in re.split(r"( -|\[\[|\]\])", options):
-        if token in ["[[", "]]"]:
-            lines.append(token)
-            lines.append("")
-        elif token == " -":
-            lines.append(token)
-        else:
-            lines[-1] += token
-    # join all non-empty lines and wrap them into 'span'-tags
-    return (
-        '<span style="display:block">'
-        + '</span><span style="display:block">'.join(
-            line for line in lines if line.strip()
-        )
-        + "</span>"
-    )
-
-
 def to_decimal(s):
     if s:
         if s.lower() in ["nan", "inf", "-inf"]:
@@ -238,10 +166,6 @@ def get_column_value(sourcefileTag, columnTitle, default=None):
 
 def flatten(list_):
     return [value for sublist in list_ for value in sublist]
-
-
-def to_json(obj):
-    return tempita.html(json.dumps(obj, sort_keys=True))
 
 
 def merge_entries_with_common_prefixes(list_, number_of_needed_commons=6):
@@ -288,11 +212,28 @@ def prettylist(list_):
     uniqueList = []
 
     for entry in list_:
-        if not entry in values:
+        if entry not in values:
             values.add(entry)
             uniqueList.append(entry)
 
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
+
+
+def read_bundled_file(name):
+    """Read a file that is packaged together with this application."""
+    try:
+        return __loader__.get_data(name).decode("UTF-8")
+    except NameError:
+        with open(name, mode="r") as f:
+            return f.read()
+
+
+def fix_path_if_on_windows(path):
+    return path if platform.system() != "Windows" else path.replace("\\", "/")
+
+
+def normalize_line_endings(text):
+    return text.replace("\r\n", "\n")
 
 
 class _DummyFuture(object):

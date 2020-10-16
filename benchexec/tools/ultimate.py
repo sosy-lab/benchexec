@@ -1,22 +1,10 @@
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
-
-Copyright (C) 2015  Daniel Dietsch
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+# SPDX-FileCopyrightText: 2015 Daniel Dietsch
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import functools
 import logging
@@ -76,13 +64,15 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     @functools.lru_cache()
     def executable(self):
         exe = util.find_executable("Ultimate.py")
-        for (dirpath, dirnames, filenames) in os.walk(exe):
-            if "Ultimate" in filenames and "plugins" in dirnames:
-                return exe
-            break
-        # possibly another Ultimate.py was found, check in the current dir
+        if exe:
+            for (_dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
+                if "Ultimate" in filenames and "plugins" in dirnames:
+                    return exe
+                break
+
+        # possibly another Ultimate.py was found or not found at all, check in the current dir
         current = os.getcwd()
-        for (dirpath, dirnames, filenames) in os.walk(current):
+        for (_dirpath, dirnames, filenames) in os.walk(current):
             if (
                 "Ultimate" in filenames
                 and "Ultimate.py" in filenames
@@ -91,7 +81,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return "./Ultimate.py"
             break
 
-        sys.exit(
+        sys.exit(  # noqa: R503 always raises
             "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
                 str(exe), str(current)
             )
@@ -431,6 +421,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return result.RESULT_FALSE_DEREF
             elif line.startswith("FALSE(valid-memtrack)"):
                 return result.RESULT_FALSE_MEMTRACK
+            elif line.startswith("FALSE(valid-memcleanup)"):
+                return result.RESULT_FALSE_MEMCLEANUP
             elif line.startswith("FALSE(TERM)"):
                 return result.RESULT_FALSE_TERMINATION
             elif line.startswith("FALSE(OVERFLOW)"):
@@ -476,7 +468,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                     stderr=subprocess.STDOUT,
                 )
                 (stdout, stderr) = process.communicate()
-            except OSError as e:
+            except OSError:
                 continue
 
             stdout = util.decode_to_string(stdout).strip()

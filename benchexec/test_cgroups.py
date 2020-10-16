@@ -1,40 +1,18 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 import subprocess
 import sys
 import unittest
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 from benchexec import check_cgroups
 
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    DEVNULL = open(os.devnull, "wb")
-
-python = "python2" if sys.version_info[0] == 2 else "python3"
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 class TestCheckCgroups(unittest.TestCase):
@@ -47,9 +25,9 @@ class TestCheckCgroups(unittest.TestCase):
     def execute_run_extern(self, *args, **kwargs):
         try:
             return subprocess.check_output(
-                args=[python, "-m", "benchexec.check_cgroups"] + list(args),
+                args=["python3", "-m", "benchexec.check_cgroups"] + list(args),
                 stderr=subprocess.STDOUT,
-                **kwargs
+                **kwargs,
             ).decode()
         except subprocess.CalledProcessError as e:
             if e.returncode != 1:  # 1 is expected if cgroups are not available

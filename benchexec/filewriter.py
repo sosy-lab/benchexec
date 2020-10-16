@@ -1,27 +1,9 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2015  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import os
-
-from benchexec import util
+# SPDX-License-Identifier: Apache-2.0
 
 
 class FileWriter(object):
@@ -35,41 +17,35 @@ class FileWriter(object):
         If the file exist, it will be OVERWRITTEN without a message!
         """
 
-        self.filename = filename
-        self.__needsRewrite = False
-        self.__content = content
-
-        # Open file with "w" at least once so it will be overwritten.
-        util.write_file(content, self.filename)
+        self._file = open(filename, "w")
+        self._pos = None
+        self.append(content)
 
     def append(self, newContent, keep=True):
         """
         Add content to the represented file.
-        If keep is False, the new content will be forgotten during the next call
-        to this method.
+        If keep is False, the new content will be removed again during the next call
+        to this method where keep=True.
         """
-        content = self.__content + newContent
+        assert self._file
         if keep:
-            self.__content = content
+            self._truncate()
+        elif self._pos is None:
+            self._pos = self._file.tell()  # keep marker for where we need to truncate
 
-        if self.__needsRewrite:
-            """
-            Replace the content of the file.
-            A temporary file is used to avoid loss of data through an interrupt.
-            """
-            tmpFilename = self.filename + ".tmp"
+        self._file.write(newContent)
+        self._file.flush()
 
-            util.write_file(content, tmpFilename)
+    def _truncate(self):
+        """Remove any temporary content that was added with append(keep=False)"""
+        if self._pos is not None:
+            self._file.seek(self._pos)
+            self._file.truncate()
+            self._pos = None
 
-            os.rename(tmpFilename, self.filename)
-        else:
-            with open(self.filename, "a") as file:
-                file.write(newContent)
-
-        self.__needsRewrite = not keep
-
-    def replace(self, newContent):
-        # clear and append
-        self.__content = ""
-        self.__needsRewrite = True
-        self.append(newContent)
+    def close(self):
+        """Close file and prevent any further additions"""
+        if self._file:
+            self._truncate()
+            self._file.close()
+            self._file = None

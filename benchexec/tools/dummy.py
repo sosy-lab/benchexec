@@ -1,28 +1,15 @@
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
 
-Copyright (C) 2007-2017  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
 import benchexec.tools.template
 import benchexec.result as result
-import benchexec.util as util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This tool is an imaginary tool that can be made to output any result.
     It may be useful for debugging.
@@ -33,23 +20,23 @@ class Tool(benchexec.tools.template.BaseTool):
     picks the first line that looks like a result).
     """
 
-    def executable(self):
-        return util.find_executable("shuf")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("shuf")
 
     def name(self):
         return "DummyTool"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         return (
             [executable, "--echo", "--"]
             + options
-            + ["Input file: " + f for f in tasks]
-            + ["Property file: " + (propertyfile or "None")]
+            + ["Input file: " + f for f in task.input_files_or_empty]
+            + ["Property file: " + (task.property_file or "None")]
+            + (["Task options: " + repr(task.options)] if task.options else [])
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        for line in output:
-            line = line.strip()
-            if line in result.RESULT_LIST:
+    def determine_result(self, run):
+        for line in run.output:
+            if result.get_result_classification(line) != result.RESULT_CLASS_OTHER:
                 return line
         return result.RESULT_UNKNOWN

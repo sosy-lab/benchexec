@@ -1,3 +1,10 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 [Unit]
 Description=Cgroup setup for BenchExec
 Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
@@ -16,12 +23,16 @@ CPUAccounting=true
 MemoryAccounting=true
 ExecStart=/bin/bash -c '\
 set -e;\
+mkdir -p /sys/fs/cgroup/{cpuacct,cpuset,freezer,memory}/system.slice/benchexec-cgroup.service/;\
 cd /sys/fs/cgroup/cpuset/;\
 cp cpuset.cpus system.slice/;\
 cp cpuset.mems system.slice/;\
 cp cpuset.cpus system.slice/benchexec-cgroup.service/;\
 cp cpuset.mems system.slice/benchexec-cgroup.service/;\
 echo $$$$ > system.slice/benchexec-cgroup.service/tasks;\
+echo $$$$ > /sys/fs/cgroup/cpuacct/system.slice/benchexec-cgroup.service/tasks;\
+echo $$$$ > /sys/fs/cgroup/freezer/system.slice/benchexec-cgroup.service/tasks;\
+echo $$$$ > /sys/fs/cgroup/memory/system.slice/benchexec-cgroup.service/tasks;\
 [ -z "${BENCHEXEC_CGROUP_GROUP}" ] || chgrp -R ${BENCHEXEC_CGROUP_GROUP} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
 [ -z "${BENCHEXEC_CGROUP_PERM}" ] || chmod -R ${BENCHEXEC_CGROUP_PERM} /sys/fs/cgroup/*/system.slice/benchexec-cgroup.service/;\
 exec sleep $(( 10 * 365 * 24 * 3600 ))'

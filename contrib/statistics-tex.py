@@ -1,23 +1,11 @@
 #!/usr/bin/env python3
-"""
-BenchExec is a framework for reliable benchmarking.
-This file is part of BenchExec.
 
-Copyright (C) 2007-2017  Dirk Beyer
-All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
 import collections
@@ -28,11 +16,12 @@ import sys
 import multiprocessing
 from functools import partial
 
+from benchexec import tablegenerator
+from benchexec.tablegenerator.statistics import StatValue
+from benchexec.tablegenerator import util
+
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-import benchexec.tablegenerator as tablegenerator
-
-Util = tablegenerator.Util
 
 HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
@@ -48,10 +37,8 @@ def extract_time(column_title, time_name, run_result):
             pos = i
             break
     if pos is None:
-        sys.exit(
-            "{0} time missing for task {1}.".format(time_name, run_result.task_id[0])
-        )
-    return Util.to_decimal(run_result.values[pos])
+        sys.exit("{0} time missing for task {1}.".format(time_name, run_result.task_id))
+    return util.to_decimal(run_result.values[pos])
 
 
 def extract_cputime(run_result):
@@ -81,14 +68,16 @@ class StatAccumulator(object):
         self.walltime_values.append(extract_walltime(result))
 
     def to_latex(self, name_parts):
-        cputime_stats = tablegenerator.StatValue.from_list(self.cputime_values)
-        walltime_stats = tablegenerator.StatValue.from_list(self.walltime_values)
+        if not self.cputime_values or not self.walltime_values:
+            return ""
+        cputime_stats = StatValue.from_list(self.cputime_values)
+        walltime_stats = StatValue.from_list(self.walltime_values)
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
         return "\n".join(
             itertools.chain.from_iterable(
-                [["\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
+                [[r"\StoreBenchExecResult{%s}{Count}{}{%s}%%" % (name, self.count)]]
                 + [
                     [
                         r"\StoreBenchExecResult{%s}{%s}{}{%s}%%"
@@ -143,8 +132,8 @@ def load_results(result_file, status_print):
     assert len(run_set_result.results) == total_stats.count
 
     basenames = [
-        Util.prettylist(run_set_result.attributes.get("benchmarkname")),
-        Util.prettylist(run_set_result.attributes.get("name")),
+        util.prettylist(run_set_result.attributes.get("benchmarkname")),
+        util.prettylist(run_set_result.attributes.get("name")),
     ]
 
     # status_stats must be transformed to a dictionary to get rid of the lambda-factory used above (can't be pickled)

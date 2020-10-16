@@ -1,28 +1,12 @@
-# BenchExec is a framework for reliable benchmarking.
-# This file is part of BenchExec.
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
 #
-# Copyright (C) 2007-2016  Dirk Beyer
-# All rights reserved.
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """Utility functions for implementing a container using Linux namespaces
 and for appropriately configuring such a container."""
-
-# prepare for Python 3
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# THIS MODULE HAS TO WORK WITH PYTHON 2.7!
 
 import contextlib
 import ctypes
@@ -34,6 +18,7 @@ import resource  # noqa: F401 @UnusedImport necessary to eagerly import this mod
 import signal
 import socket
 import struct
+import sys
 
 from benchexec import libc
 from benchexec import seccomp
@@ -52,7 +37,6 @@ __all__ = [
     "make_bind_mount",
     "get_my_pid_from_procfs",
     "drop_capabilities",
-    "forward_all_signals_async",
     "wait_for_child_and_forward_signals",
     "setup_container_system_config",
     "CONTAINER_UID",
@@ -98,7 +82,7 @@ root:x:0:
 benchexec:x:{gid}:
 nogroup:x:65534:
 """.format(
-    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
+    gid=CONTAINER_GID
 )
 
 CONTAINER_ETC_HOSTS = """
@@ -139,8 +123,9 @@ if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
 _CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
 """Type for callback of execute_in_namespace, nested in our primary callback."""
 
-# TODO Use named fields on Python 3
-NATIVE_CLONE_CALLBACK_SUPPORTED = os.uname()[0] == "Linux" and os.uname()[4] == "x86_64"
+NATIVE_CLONE_CALLBACK_SUPPORTED = (
+    os.uname().sysname == "Linux" and os.uname().machine == "x86_64"
+)
 """Whether we use generated native code for clone or an unsafe Python fallback"""
 
 
@@ -263,13 +248,12 @@ def _generate_native_clone_child_callback():
     mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
-    # On Python 3 we could use to_bytes() instead of struct.pack
-    afterfork_address = struct.pack(
-        "Q", ctypes.cast(ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p).value
-    )
+    afterfork_address = ctypes.cast(
+        ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
+    ).value.to_bytes(8, sys.byteorder)
 
     # Generate machine code that does the same as _python_clone_child_callback
-    # We use this C code as template (with dummy address for PyOS_AfterFork_Child):
+    # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
     """
     int clone_child_callback(int (*func_p)()) {
       void (*PyOS_AfterFork_Child)() = (void*)0xffeeddccbbaa9988;
@@ -283,7 +267,7 @@ def _generate_native_clone_child_callback():
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
     """
-    # This gives the following code (machine code left, assembler right):
+    # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:
     # Store address in rdx:
@@ -295,7 +279,7 @@ def _generate_native_clone_child_callback():
     #     31 c0                   xorl   %eax,%eax
     # Copy rdi (value of parameter func_p) to stack:
     #     48 89 7c 24 08          movq   %rdi,0x8(%rsp)
-    # Call rdx (where address is stored):
+    # Call rdx (where address is stored) regularly:
     #     ff d2                   callq  *%rdx
     # Copy stack value func_p back to rdi:
     #     48 8b 7c 24 08          movq   0x8(%rsp),%rdi
@@ -306,7 +290,7 @@ def _generate_native_clone_child_callback():
     # Call function pointer in rdi (func_p) as tail call:
     #     ff e7                   jmpq   *%rdi
     #
-    # The following creates exactly the same machine code, just with the real address:
+    # The following creates exactly the same machine code, just with the real address
     movabsq_address_rdx = b"\x48\xba" + afterfork_address
     subq_0x18_rsp = b"\x48\x83\xec\x18"
     xorl_eax_eax = b"\x32\xc0"
@@ -341,10 +325,10 @@ else:
 
 def setup_user_mapping(
     pid,
-    uid=os.getuid(),
-    gid=os.getgid(),
-    parent_uid=os.getuid(),
-    parent_gid=os.getgid(),
+    uid=os.getuid(),  # noqa: B008
+    gid=os.getgid(),  # noqa: B008
+    parent_uid=os.getuid(),  # noqa: B008
+    parent_gid=os.getgid(),  # noqa: B008
 ):
     """Write uid_map and gid_map in /proc to create a user mapping
     that maps our user from outside the container to the same user inside the container
@@ -361,12 +345,12 @@ def setup_user_mapping(
         # map uid internally to our uid externally
         uid_map = "{0} {1} 1".format(uid, parent_uid)
         util.write_file(uid_map, proc_child, "uid_map")
-    except IOError as e:
+    except OSError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
 
     try:
         util.write_file("deny", proc_child, "setgroups")
-    except IOError as e:
+    except OSError as e:
         # Not all systems have this file (depends on the kernel version),
         # but if it does not exist, we do not need to write to it.
         if e.errno != errno.ENOENT:
@@ -376,7 +360,7 @@ def setup_user_mapping(
         # map gid internally to our gid externally
         gid_map = "{0} {1} 1".format(gid, parent_gid)
         util.write_file(gid_map, proc_child, "gid_map")
-    except IOError as e:
+    except OSError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
 
 
@@ -461,10 +445,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     )
             else:
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
-        if not os.path.exists(temp_path):
-            os.makedirs(temp_path)
+        os.makedirs(temp_path, exist_ok=True)
 
-    for unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
         mountpoint = full_mountpoint[len(mount_base) :] or b"/"
@@ -489,6 +472,12 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 mountpoint.decode(),
                 original_mountpoint.decode(),
             )
+            # Creating the following directory will make original_mountpoint appear as
+            # empty directory in the container. This is useful because otherwise the
+            # kernel will show a mountpoint for a non-existing directory.
+            # This makes nesting containers work better (common example is
+            # /sys/kernel/debug/tracing).
+            os.makedirs(temp_base + original_mountpoint, exist_ok=True)
         else:
             logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
 
@@ -497,10 +486,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
         work_path = work_base + mountpoint
 
         if mode == DIR_OVERLAY:
-            if not os.path.exists(temp_path):
-                os.makedirs(temp_path)
-            if not os.path.exists(work_path):
-                os.makedirs(work_path)
+            os.makedirs(temp_path, exist_ok=True)
+            os.makedirs(work_path, exist_ok=True)
             try:
                 # Previous mount in this place not needed if replaced with overlay dir.
                 libc.umount(mount_path)
@@ -519,8 +506,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 )
 
         elif mode == DIR_HIDDEN:
-            if not os.path.exists(temp_path):
-                os.makedirs(temp_path)
+            os.makedirs(temp_path, exist_ok=True)
             try:
                 # Previous mount in this place not needed if replaced with hidden dir.
                 libc.umount(mount_path)
@@ -620,6 +606,14 @@ def determine_directory_mode(dir_modes, path, fstype=None):
         )
         return DIR_READ_ONLY
 
+    if result_mode == DIR_OVERLAY and not os.path.isdir(path):
+        logging.debug(
+            "Cannot use overlay mode for %s because it is not a directory. "
+            "Using read-only mode instead. ",
+            path.decode(),
+        )
+        return DIR_READ_ONLY
+
     if result_mode == DIR_HIDDEN and parent_mode == DIR_HIDDEN:
         # No need to recursively recreate mountpoints in hidden dirs.
         return None
@@ -676,12 +670,27 @@ def make_overlay_mount(mount, lower, upper, work):
         upper,
         work,
     )
+
+    def escape(s):
+        """
+        Safely encode a string for being used as a path for overlayfs.
+        In addition to escaping ",", which separates mount options,
+        we need to escape ":", which overlayfs uses to separate multiple lower dirs
+        (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+        """
+        return s.replace(b"\\", br"\\").replace(b":", br"\:").replace(b",", br"\,")
+
     libc.mount(
         b"none",
         mount,
         b"overlay",
         0,
-        b"lowerdir=" + lower + b",upperdir=" + upper + b",workdir=" + work,
+        b"lowerdir="
+        + escape(lower)
+        + b",upperdir="
+        + escape(upper)
+        + b",workdir="
+        + escape(work),
     )
 
 
@@ -742,7 +751,7 @@ def chroot(target):
     # (cf. https://unix.stackexchange.com/a/456777/15398).
     # These three steps together are the easiest way for calling pivot_root as chroot
     # replacement (cf. the 'pivot_root(".", ".")' section of
-    # http://man7.org/linux/man-pages/man2/pivot_root.2.html):
+    # http://man7.org/linux/man-pages/man2/pivot_root.2.html).
     os.chdir(target)
     # Make "." (the target) our new root and put the old root at ".":
     libc.pivot_root(b".", b".")
@@ -799,17 +808,16 @@ def setup_seccomp_filter():
         logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
-_ALL_SIGNALS = range(1, signal.NSIG)
-_FORWARDABLE_SIGNALS = set(range(1, 32)).difference(
-    [signal.SIGKILL, signal.SIGSTOP, signal.SIGCHLD]
-)
-_HAS_SIGWAIT = hasattr(signal, "sigwait")  # Does not exist on Python 2
+try:
+    _ALL_SIGNALS = signal.valid_signals()
+except AttributeError:
+    # Only exists on Python 3.8+
+    _ALL_SIGNALS = range(1, signal.NSIG)
 
 
 def block_all_signals():
     """Block asynchronous delivery of all signals to this process."""
-    if _HAS_SIGWAIT:
-        signal.pthread_sigmask(signal.SIG_BLOCK, _ALL_SIGNALS)
+    signal.pthread_sigmask(signal.SIG_BLOCK, _ALL_SIGNALS)
 
 
 def _forward_signal(signum, target_pid, process_name):
@@ -822,32 +830,11 @@ def _forward_signal(signum, target_pid, process_name):
         )
 
 
-def forward_all_signals_async(target_pid, process_name):
-    """Install all signal handler that forwards all signals to the given process."""
-
-    def forwarding_signal_handler(signum):
-        _forward_signal(signum, forwarding_signal_handler.target_pid, process_name)
-
-    # Somehow we get a Python SystemError sometimes
-    # if we access target_pid directly from inside function.
-    forwarding_signal_handler.target_pid = target_pid
-
-    for signum in _FORWARDABLE_SIGNALS:
-        # Need to directly access libc function,
-        # the state of the signal module is incorrect due to the clone()
-        # (it may think we are in a different thread than the main thread).
-        libc.signal(signum, forwarding_signal_handler)
-
-    # Reactivate delivery of signals such that our handler gets called.
-    reset_signal_handling()
-
-
 def wait_for_child_and_forward_signals(child_pid, process_name):
     """Wait for a child to terminate and in the meantime forward all signals
     that the current process receives to this child.
     @return a tuple of exit code and resource usage of the child as given by os.waitpid
     """
-    assert _HAS_SIGWAIT
     block_all_signals()
 
     while True:
@@ -867,8 +854,7 @@ def wait_for_child_and_forward_signals(child_pid, process_name):
 
 
 def reset_signal_handling():
-    if _HAS_SIGWAIT:
-        signal.pthread_sigmask(signal.SIG_SETMASK, {})
+    signal.pthread_sigmask(signal.SIG_SETMASK, {})
 
 
 def close_open_fds(keep_files=[]):
@@ -882,7 +868,7 @@ def close_open_fds(keep_files=[]):
         else:
             try:
                 keep_fds.add(file.fileno())
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
 
     for fd in os.listdir("/proc/self/fd"):
@@ -942,6 +928,6 @@ def is_container_system_config_file(file):
     """
     if not file.startswith("/etc/"):
         return False
-    return file in [
+    return file in (
         os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE
-    ]
+    )
