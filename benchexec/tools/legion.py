@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable("legion-sv")
 
     def version(self, executable):
-        return self._version_from_tool(executable, ignore_stderr=False)
+        return self._version_from_tool(executable, ignore_stderr=True)
 
     def name(self):
         return "Legion"
