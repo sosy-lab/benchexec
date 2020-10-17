@@ -704,9 +704,11 @@ def _debug_current_process(sig, current_frame):
 
 def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces
-    and gives an interactive debugging shell.
+    and gives an interactive debugging shell. Not available on Windows.
     """
-    _signal.signal(_signal.SIGUSR1, _debug_current_process)  # Register handler
+    sig = getattr(_signal, "SIGUSR1", None)
+    if sig:
+        _signal.signal(sig, _debug_current_process)  # Register handler
 
 
 def get_capability(filename):
