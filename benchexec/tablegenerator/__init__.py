@@ -15,6 +15,7 @@ import io
 import itertools
 import logging
 import os.path
+import platform
 import signal
 import subprocess
 import sys
@@ -1391,12 +1392,22 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             callback(out, options=options, **kwargs)
 
         if options.show_table and template_format == "html":
+            system = platform.system()
             try:
-                subprocess.Popen(
-                    ["xdg-open", outfile],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                if system == "Windows":
+                    os.startfile(outfile, "open")
+                elif system == "Darwin":
+                    subprocess.Popen(
+                        ["open", outfile],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                else:  # system == "Linux":
+                    subprocess.Popen(
+                        ["xdg-open", outfile],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except OSError:
                 pass
 
