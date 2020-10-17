@@ -8,12 +8,10 @@
 import benchexec.tools.template
 import benchexec.result as result
 
-
 class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriFuzz
     """
-
     REQUIRED_PATHS = [
         "lib",
         "exp-in",
@@ -27,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("verifuzz", subdir="scripts")
+        return tool_locator.find_executable("verifuzz.py", subdir="scripts")
 
     def version(self, executable):
         return self._version_from_tool(executable, use_stderr=True)
@@ -37,13 +35,16 @@ class Tool(benchexec.tools.template.BaseTool2):
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
+
     def name(self):
         return "VeriFuzz"
 
-    def cmdline(self, executable, options, task, rlimits):
+
+    def cmdline(self, executable, options, task, rlimits): 
         if task.property_file:
             options = options + ["--propertyFile", task.property_file]
         return [executable] + options + [task.single_input_file]
+
 
     def determine_result(self, run):
         for line in run.output:
@@ -70,3 +71,4 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "NOT SUPPORTED" in line or "VERIFUZZ_UNKNOWN" in line:
                 return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
+
