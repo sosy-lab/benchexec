@@ -57,7 +57,7 @@ MAIN_COLUMNS = [
 
 NAME_START = "results"  # first part of filename of table
 
-DEFAULT_OUTPUT_PATH = "results/"
+DEFAULT_OUTPUT_PATH = "results"
 
 TEMPLATE_FORMATS = ["html", "csv"]
 
