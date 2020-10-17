@@ -8,10 +8,12 @@
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriFuzz
     """
+
     REQUIRED_PATHS = [
         "lib",
         "exp-in",
@@ -35,17 +37,14 @@ class Tool(benchexec.tools.template.BaseTool2):
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
-
     def name(self):
         return "VeriFuzz"
 
-    
-    def cmdline(self, executable, options, task, rlimits): 
+    def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options = options + ["--propertyFile", task.property_file]
         return [executable] + options + [task.single_input_file]
 
-    
     def determine_result(self, run):
         for line in run.output:
             if "COVER(error-call)" in line:
@@ -69,6 +68,5 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "FALSE(valid-memtrack)" in line:
                 return result.RESULT_FALSE_MEMTRACK
             elif "NOT SUPPORTED" in line or "VERIFUZZ_UNKNOWN" in line:
-                return result.RESULT_UNKNOWN        
+                return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
-    
