@@ -24,6 +24,7 @@ class Tool(cseq.CSeqTool):
         "pycparser",
         "pycparserext",
         "modules",
+        "backends",
     ]
 
     def executable(self):
