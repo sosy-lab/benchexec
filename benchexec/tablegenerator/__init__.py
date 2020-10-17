@@ -1395,7 +1395,7 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             system = platform.system()
             try:
                 if system == "Windows":
-                    os.startfile(outfile, "open")
+                    os.startfile(os.path.normpath(outfile), "open")  # noqa: S606
                 else:
                     cmd = "open" if system == "Darwin" else "xdg-open"
                     subprocess.Popen(
