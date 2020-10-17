@@ -71,5 +71,5 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_MEMTRACK
             elif "NOT SUPPORTED" in line or "VERIFUZZ_UNKNOWN" in line:
                 return result.RESULT_UNKNOWN
-        else:
-            return result.RESULT_ERROR
+        
+        return result.RESULT_ERROR
