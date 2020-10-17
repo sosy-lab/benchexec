@@ -1396,15 +1396,10 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             try:
                 if system == "Windows":
                     os.startfile(outfile, "open")
-                elif system == "Darwin":
+                else:
+                    cmd = "open" if system == "Darwin" else "xdg-open"
                     subprocess.Popen(
-                        ["open", outfile],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                else:  # system == "Linux":
-                    subprocess.Popen(
-                        ["xdg-open", outfile],
+                        [cmd, outfile],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL,
                     )
