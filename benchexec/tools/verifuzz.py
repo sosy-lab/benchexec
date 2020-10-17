@@ -27,7 +27,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("verifuzz", subdir="scripts")
+        return tool_locator.find_executable("verifuzz.py", subdir="scripts")
 
     def version(self, executable):
         return self._version_from_tool(executable, use_stderr=True)
