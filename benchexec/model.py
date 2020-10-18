@@ -853,9 +853,7 @@ class RunSet(object):
 
             # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
             # with cached stat calls.
-            if prop.filename == expanded[0] or os.path.samefile(
-                prop.filename, expanded[0]
-            ):
+            if prop.filename == expanded[0]:
                 expected_result = prop_dict.get("expected_verdict")
                 if expected_result is not None and not isinstance(
                     expected_result, bool
