@@ -14,7 +14,6 @@ import argparse
 import datetime
 import logging
 import os
-import signal
 import sys
 
 from benchexec import __version__
@@ -475,9 +474,7 @@ def main(benchexec=None, argv=None):
 
         # Handle termination-request signals that are available on the current platform
         for signal_name in ["SIGINT", "SIGQUIT", "SIGTERM", "SIGBREAK"]:
-            sig = getattr(signal, signal_name, None)
-            if sig:
-                signal.signal(sig, signal_stop)
+            util.try_set_signal_handler(signal_name, signal_stop)
 
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:

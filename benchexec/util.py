@@ -579,6 +579,16 @@ def kill_process(pid, sig=None):
             )
 
 
+def try_set_signal_handler(signal_name, handler):
+    """
+    Set signal handler like signal.signal(), but only if signal name exists on this
+    platform. Signal name must be a string starting with "SIG".
+    """
+    sig = getattr(_signal, signal_name, None)
+    if sig:
+        _signal.signal(sig, handler)
+
+
 def dummy_fn(*args, **kwargs):
     """Dummy function that accepts all parameters but does nothing."""
     pass
@@ -704,11 +714,9 @@ def _debug_current_process(sig, current_frame):
 
 def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces
-    and gives an interactive debugging shell. Not available on Windows.
+    and gives an interactive debugging shell. Does nothing on Windows.
     """
-    sig = getattr(_signal, "SIGUSR1", None)
-    if sig:
-        _signal.signal(sig, _debug_current_process)  # Register handler
+    try_set_signal_handler("SIGUSR1", _debug_current_process)
 
 
 def get_capability(filename):
