@@ -202,7 +202,7 @@ def main(argv=None):
         try:
             stdin = open(options.input, "rt")
         except OSError as e:
-            parser.error(e)
+            parser.error(str(e))
     else:
         stdin = None
 
@@ -387,7 +387,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
             except ValueError as e:
                 logging.warning(
-                    "Could not read available memory nodes from kernel: %s", e.strerror
+                    "Could not read available memory nodes from kernel: %s", str(e)
                 )
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
