@@ -7,11 +7,9 @@
 
 
 import re
-import benchexec.util as util
 import benchexec.tools.template
 
-
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Fuzzing with stochastic optimization guided by CMA-ES
 
@@ -27,8 +25,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "verifiers_real",
     ]
 
-    def executable(self):
-        return util.find_executable("fuzzer")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("fuzzer")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -36,12 +34,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "CMA-ES Fuzz"
 
-    def get_value_from_output(self, lines, identifier):
-        for line in reversed(lines):
-            pattern = identifier
-            if pattern[-1] != ":":
-                pattern += ":"
-            match = re.match("^" + pattern + "([^(]*)", line)
-            if match and match.group(1):
-                return match.group(1).strip()
+    def get_value_from_output(self, output, identifier):
+        for line in reversed(output):
+            if line.startswith(identifier):
+                return line[len(identifier):]
         return None
