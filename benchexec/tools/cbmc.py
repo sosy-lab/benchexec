@@ -52,7 +52,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             return s.replace("<>", "<emptyTag>").replace("</>", "</emptyTag>")
 
         try:
-            tree = ElementTree.fromstringlist(map(sanitizeXML, output))
+            tree = ElementTree.fromstringlist(list(map(sanitizeXML, output)))
             status = tree.findtext("cprover-status")
 
             if status is None:
