@@ -194,7 +194,7 @@ def is_turbo_boost_enabled():
             boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
             if not (0 <= boost_disabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                    "Invalid value {} for turbo boost activation".format(boost_disabled)
                 )
             return boost_disabled != 1
     except ValueError as e:
