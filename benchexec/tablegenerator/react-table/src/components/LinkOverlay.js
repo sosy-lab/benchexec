@@ -260,6 +260,7 @@ export default class LinkOverlay extends React.Component {
           this.state.isYAML ? (
             <TaskDefinitionViewer
               yamlText={this.state.content}
+              link={this.props.link}
               loadNewFile={this.loadNewFile}
             />
           ) : (
