@@ -12,11 +12,7 @@ import logging
 import os
 import collections
 import shutil
-
-try:
-    import cPickle as pickle  # noqa: N813
-except ImportError:
-    import pickle
+import pickle
 import signal
 import socket
 import subprocess
