@@ -9,7 +9,6 @@ import os
 import benchexec.tools.esbmc as esbmc
 
 
-
 class Tool(esbmc.Tool):
     """
     This class serves as tool adaptor for FuSeBMC (https://github.com/kaled-alshmrany/FuSeBMC)
