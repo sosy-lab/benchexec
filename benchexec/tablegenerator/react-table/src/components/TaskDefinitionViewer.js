@@ -7,7 +7,6 @@
 
 import React from "react";
 import yamlParser from "yaml";
-import path from "path";
 
 /** Special view for YAML files in the LinkOverlay component. */
 export default class TaskDefinitionViewer extends React.Component {
@@ -85,7 +84,7 @@ export default class TaskDefinitionViewer extends React.Component {
   loadFileInViewer = (event, contentPart) => {
     event.preventDefault();
     this.props.loadNewFile(contentPart);
-  }
+  };
 
   render() {
     const contentBySplitter = this.state.content.split(this.state.splitterTag);
@@ -98,7 +97,6 @@ export default class TaskDefinitionViewer extends React.Component {
           new RegExp(this.state.fileTag, "g"),
           "",
         );
-        const href = path.resolve(this.props.link, "../" + contentPart);
         return (
           /* Custom onClick disables the default behavior of an <a> tag to load a new page and instead loads
              the file in the same LinkOverlay. At the same time other benefits from <a> tags such as downloading
@@ -107,7 +105,7 @@ export default class TaskDefinitionViewer extends React.Component {
             onClick={(e) => this.loadFileInViewer(e, contentPart)}
             className="link-overlay-file-link"
             key={contentPart}
-            href={href}
+            href={this.props.createHref(contentPart)}
           >
             {contentPart}
           </a>

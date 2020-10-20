@@ -53,7 +53,7 @@ export default class LinkOverlay extends React.Component {
   }
 
   loadNewFile = (relativeURL) => {
-    const newURL = path.join(this.props.link, "../" + relativeURL);
+    const newURL = this.createFileUrl(relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
       isSecondLevel: true,
@@ -77,6 +77,8 @@ export default class LinkOverlay extends React.Component {
       this.loadOriginalFile();
     }
   };
+
+  createFileUrl = (fileUrl) => path.join(this.props.link, "../" + fileUrl);
 
   /*
    * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
@@ -260,7 +262,7 @@ export default class LinkOverlay extends React.Component {
           this.state.isYAML ? (
             <TaskDefinitionViewer
               yamlText={this.state.content}
-              link={this.props.link}
+              createHref={this.createFileUrl}
               loadNewFile={this.loadNewFile}
             />
           ) : (

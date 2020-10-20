@@ -9,6 +9,7 @@ import React from "react";
 import TaskDefinitionViewer from "../components/TaskDefinitionViewer.js";
 import fs from "fs";
 import renderer from "react-test-renderer";
+import path from "path";
 
 const testDir = "src/tests/task_definition_files/";
 
@@ -18,7 +19,10 @@ fs.readdirSync(testDir)
     it("Render TaskDefinitionViewer for " + file, () => {
       const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
       const component = renderer.create(
-        <TaskDefinitionViewer yamlText={content} />,
+        <TaskDefinitionViewer
+          yamlText={content}
+          createHref={(fileUrl) => fileUrl}
+        />,
       );
       expect(component).toMatchSnapshot();
     });
