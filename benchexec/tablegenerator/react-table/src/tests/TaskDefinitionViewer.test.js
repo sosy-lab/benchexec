@@ -9,7 +9,6 @@ import React from "react";
 import TaskDefinitionViewer from "../components/TaskDefinitionViewer.js";
 import fs from "fs";
 import renderer from "react-test-renderer";
-import path from "path";
 
 const testDir = "src/tests/task_definition_files/";
 
