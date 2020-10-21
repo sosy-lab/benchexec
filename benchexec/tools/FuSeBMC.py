@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import benchexec.tools.esbmc as esbmc
 
 
