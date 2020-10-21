@@ -9,6 +9,7 @@
 import re
 import benchexec.tools.template
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Fuzzing with stochastic optimization guided by CMA-ES
@@ -28,6 +29,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     def executable(self, tool_locator):
         return tool_locator.find_executable("fuzzer")
 
+    def cmdline(self, executable, options, task, rlimits):
+        return [executable] + options + [task.single_input_file]
+
     def version(self, executable):
         return self._version_from_tool(executable)
 
@@ -37,5 +41,5 @@ class Tool(benchexec.tools.template.BaseTool2):
     def get_value_from_output(self, output, identifier):
         for line in reversed(output):
             if line.startswith(identifier):
-                return line[len(identifier):]
+                return line[len(identifier) :]
         return None
