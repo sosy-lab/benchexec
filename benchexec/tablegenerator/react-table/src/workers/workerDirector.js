@@ -21,6 +21,7 @@ const WORKER_POOLS = [
 
 const queue = [];
 
+// Store that maps callback functions to a worker transaction number
 const refTable = {};
 
 let transaction = 1;
@@ -34,6 +35,7 @@ const handleWorkerMessage = ({ data: message }, worker) => {
   delete refTable[transaction];
 };
 
+// Pool population
 const workerPool = WORKER_POOLS.map(({ template, poolSize, name }) => {
   const pool = [];
   for (let i = 0; i < poolSize; i += 1) {
@@ -46,6 +48,7 @@ const workerPool = WORKER_POOLS.map(({ template, poolSize, name }) => {
   return { name, pool };
 }).reduce((acc, { name, pool }) => ({ ...acc, [name]: pool }), {});
 
+// gets the first idle worker and reserves it for job dispatch
 const reserveWorker = (name) => {
   const worker = workerPool[name].filter((w) => !w.busy)[0];
   if (worker) {
@@ -64,6 +67,8 @@ const processQueue = () => {
     const reservedWorker = reserveWorker(item.name);
     if (!reservedWorker) {
       queue.unshift(item);
+      // pushes the function back onto the stack for
+      // execution on next cycle of the event loop
       setImmediate(processQueue);
       return;
     }
@@ -79,6 +84,12 @@ const processQueue = () => {
   }
 };
 
+/**
+ * Registers a new job request and wraps it in a promise that resolves
+ * on completion of dispatched job.
+ *
+ * @param {object} options
+ */
 const enqueue = async ({ name, data }) =>
   new Promise((resolve) => {
     queue.push({ name, data, callback: resolve });
