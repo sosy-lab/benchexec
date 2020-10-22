@@ -5,22 +5,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from "react";
 import ReactDOM from "react-dom";
 import renderer from "react-test-renderer";
-import Overview from "../components/Overview";
 import {
   prepareTableData,
   getRawOrDefault,
-  getTaskIdParts,
   createHiddenColsFromURL,
 } from "../utils/utils";
 
-import {
-  getFilterableData,
-  buildMatcher,
-  applyMatcher,
-} from "../utils/filters";
+import { getFilterableData } from "../utils/filters";
 const fs = require("fs");
 
 // We use jest snapshots for integration tests, and they become quite large.
