@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import glob
 import logging
 import os
 import re
@@ -62,6 +63,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
     def __init__(self):
         self._uses_propertyfile = False
+        self.java = None
 
     @functools.lru_cache()
     def executable(self):
@@ -92,11 +94,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), "data")
         launcher_jar = self._get_current_launcher_jar(executable)
-
+        java_versions = self.get_java_installations()
         cmds = [
             # 2
             [
-                self.get_java(),
                 "-Xss4m",
                 "-jar",
                 launcher_jar,
@@ -107,24 +108,21 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 "--version",
             ],
             # 1
-            [
-                self.get_java(),
-                "-Xss4m",
-                "-jar",
-                launcher_jar,
-                "-data",
-                data_dir,
-                "--version",
-            ],
+            ["-Xss4m", "-jar", launcher_jar, "-data", data_dir, "--version"],
         ]
 
         self.api = len(cmds)
         for cmd in cmds:
-            version = self._query_ultimate_version(cmd, self.api)
-            if version != "":
-                return version
+            for java_version, java in java_versions.items():
+                version = self._query_ultimate_version([java] + cmd, self.api)
+                if version != "":
+                    logging.debug(
+                        f"Using Java {java} for API version {self.api} of Ultimate {version}"
+                    )
+                    self.java = java
+                    return version
             self.api = self.api - 1
-        raise BenchExecException("Could not determine Ultimate version")
+        raise BenchExecException("Cannot determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
@@ -141,39 +139,42 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return ""
         stdout = util.decode_to_string(stdout).strip()
         if stderr or process.returncode:
-            logging.warning(
-                "Cannot determine Ultimate version (API %s).\n"
-                "Command was:     %s\n"
-                "Exit code:       %s\n"
-                "Error output:    %s\n"
-                "Standard output: %s",
-                api,
-                " ".join(map(util.escape_string_shell, cmd)),
-                process.returncode,
-                util.decode_to_string(stderr),
-                stdout,
-            )
+            if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+                logging.debug(
+                    "Cannot determine Ultimate version (API %s).\n"
+                    "Command was:     %s\n"
+                    "Exit code:       %s\n"
+                    "Error output:    %s\n"
+                    "Standard output: %s",
+                    api,
+                    " ".join(map(util.escape_string_shell, cmd)),
+                    process.returncode,
+                    util.decode_to_string(stderr),
+                    stdout,
+                )
+            else:
+                logging.warning(
+                    f"Cannot determine Ultimate version (API {api}), use '-d' to get more information"
+                )
             return ""
 
         version_ultimate_match = _ULTIMATE_VERSION_REGEX.search(stdout)
         if not version_ultimate_match:
             logging.warning(
-                "Cannot determine Ultimate version (API %s), output was: %s",
-                api,
-                stdout,
+                f"Cannot determine Ultimate version (API {api}), output was: {stdout}"
             )
             return ""
         return version_ultimate_match.group(1)
 
     @functools.lru_cache()
     def _get_current_launcher_jar(self, executable):
-        ultimatedir = os.path.dirname(executable)
+        ultimate_dir = os.path.dirname(executable)
         for jar in _LAUNCHER_JARS:
-            launcher_jar = os.path.join(ultimatedir, jar)
+            launcher_jar = os.path.join(ultimate_dir, jar)
             if os.path.isfile(launcher_jar):
                 return launcher_jar
         raise FileNotFoundError(
-            "No suitable launcher jar found in {0}".format(ultimatedir)
+            "No suitable launcher jar found in {0}".format(ultimate_dir)
         )
 
     @functools.lru_cache()
@@ -241,11 +242,11 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             )
             return cmdline
 
-        # if no property file is given and toolchain (-tc) is, use ultimate directly
+        # if no property file is given and toolchain (-tc) is, use Ultimate directly
         if "-tc" in options or "--toolchain" in options:
             # ignore executable (old executable is just around for backwards compatibility)
             mem_bytes = rlimits.get(MEMLIMIT, None)
-            cmdline = [self.get_java()]
+            cmdline = [self.java]
 
             # -ea has to be given directly to java
             if "-ea" in options:
@@ -451,14 +452,19 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return line[start_position:].strip()
         return None
 
-    @functools.lru_cache(maxsize=1)
-    def get_java(self):
+    def get_java_installations(self):
         candidates = [
             "java",
             "/usr/bin/java",
-            "/opt/oracle-jdk-bin-1.8.0.202/bin/java",
-            "/usr/lib/jvm/java-8-openjdk-amd64/bin/java",
+            "/opt/oracle-jdk-bin-*/bin/java",
+            "/opt/openjdk-*/bin/java",
+            "/usr/lib/jvm/java-*-openjdk-amd64/bin/java",
         ]
+
+        candidates = [c for entry in candidates for c in glob.glob(entry)]
+        pattern = r'"(\d+\.\d+).*"'
+
+        rtr = {}
         for c in candidates:
             candidate = self.which(c)
             if not candidate:
@@ -476,18 +482,23 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             stdout = util.decode_to_string(stdout).strip()
             if not stdout:
                 continue
-            if "1.8" in stdout:
-                return candidate
-        raise BenchExecException(
-            "Could not find a suitable Java version: Need Java 1.8"
-        )
+            version = re.search(pattern, stdout).groups()[0]
+            if version not in rtr:
+                logging.debug(
+                    f"Found Java installation {candidate} with version {version}"
+                )
+                rtr[version] = candidate
+        if not rtr:
+            raise BenchExecException("Could not find any Java version")
+        return rtr
 
-    def which(self, program):
-        def is_exe(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    @staticmethod
+    def which(program):
+        def is_exe(file_path):
+            return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
 
-        fpath, fname = os.path.split(program)
-        if fpath:
+        path, file_name = os.path.split(program)
+        if path:
             if is_exe(program):
                 return program
         else:
