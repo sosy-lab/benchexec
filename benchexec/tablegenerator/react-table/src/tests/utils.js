@@ -158,6 +158,13 @@ const getOverviewProps = (data) => {
   };
 };
 
+/**
+ * Asynchronous variant of {@link test_snapshot_of} that awaits the resolving
+ * of a promise that is returned in the component_func
+ *
+ * @param {*} name Name of test
+ * @param {*} component_func Retrieval function for component
+ */
 const test_snapshot_of_async = (name, component_func) => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
