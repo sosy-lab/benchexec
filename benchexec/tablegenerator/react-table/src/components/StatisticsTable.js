@@ -121,6 +121,8 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   };
   const templ = stats;
 
+  // we currently only handle the cases that are described in "selector"
+  // for now, we want to skip all other cases and take them from the original stats
   const transformed = templ.map((row, rowIdx) => {
     row.content = row.content.map((tool, toolIdx) => {
       const key = selector[rowIdx];
@@ -135,6 +137,15 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   setStats(transformed);
 };
 
+/**
+ * This method gets called on the initial render or whenever there is a
+ * change to the underlying dataset.
+ * This usually happens whenever the user sets a filter.
+ *
+ * It handles the dispatching of stat calculation jobs as well as
+ * necessary transformation to bring the calculation results into the
+ * required format.
+ */
 const updateStats = async ({
   tools,
   data: table,
@@ -147,6 +158,13 @@ const updateStats = async ({
   let res = skipStats ? {} : await processData({ tools, table, formatter });
   // fill up stat array to match column mapping
 
+  // The result of our stat calculation only contains relevant columns.
+  // The stat table however requires a strict ordering of columns that also
+  // includes columns that are not even rendered.
+  //
+  // In order to ensure a consistent layout we iterate through all columns
+  // of the runset and append dummy objects until we reach a column that we
+  // have calculated data for
   res = res.map((tool, toolIdx) => {
     const out = [];
     const toolColumns = tools[toolIdx].columns;
@@ -156,6 +174,7 @@ const updateStats = async ({
     for (const col of tool) {
       const { title } = col;
       while (pointer < toolColumns.length && title !== curr.title) {
+        // irrelevant column
         out.push({});
         pointer++;
         curr = toolColumns[pointer];
@@ -163,6 +182,7 @@ const updateStats = async ({
       if (pointer >= toolColumns.length) {
         break;
       }
+      // relevant column
       out.push(col);
       pointer++;
       curr = toolColumns[pointer];
@@ -175,6 +195,7 @@ const updateStats = async ({
 
   if (onStatsReady) {
     console.log("calling onStatsReady");
+    // calling onStatsReady callback if available
     onStatsReady();
   } else {
     console.log("onStatsReady not found");
@@ -192,10 +213,14 @@ export default ({
   headerWidth,
   stats: defaultStats,
 }) => {
+  // We want to skip stat calculation in a test environment if not
+  // specifically wanted (signaled by a passed onStatsReady callback function)
   const skipStats = isTestEnv && !onStatsReady;
 
   const [fixed, setFixed] = useState(true);
   const [stats, setStats] = useState(defaultStats);
+
+  // we wrap stats in a ref to mitigate unwanted re-renders
   const statRef = useRef(stats);
 
   const handleInputChange = ({ target }) => setFixed(target.checked);
@@ -205,6 +230,7 @@ export default ({
     [changeTab, hiddenCols],
   );
 
+  // we want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
     updateStats({
       tools,
