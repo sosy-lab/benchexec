@@ -5,6 +5,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * This function either adds two numbers or increments the number
+ * passed in the first parameter if the type is "status".
+ * If the second parameter is not a number and the type is not status,
+ * the first parameter will be returned
+ *
+ * @param {Number} a
+ * @param {*} b
+ * @param {String} type
+ */
 const maybeAdd = (a, b, type) => {
   if (Number(b)) {
     return a + Number(b);
@@ -48,6 +58,7 @@ const parsePythonInfinityValues = (data) =>
     return item;
   });
 
+// If a bucket contains a NaN value, we can not perform any stat calculation
 const shouldSkipBucket = (bucketMeta, key) => {
   if (bucketMeta[key] && bucketMeta[key].hasNaN) {
     return true;
@@ -58,6 +69,7 @@ const shouldSkipBucket = (bucketMeta, key) => {
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
+  // template
   const defaultObj = {
     sum: 0,
     avg: 0,
@@ -68,6 +80,7 @@ onmessage = function (e) {
     variance: 0,
   };
 
+  // Copy of the template with all values replaced with NaN
   const nanObj = { ...defaultObj };
   for (const objKey of Object.keys(nanObj)) {
     nanObj[objKey] = "NaN";
@@ -79,6 +92,7 @@ onmessage = function (e) {
   copy = parsePythonInfinityValues(copy);
 
   if (copy.length === 0) {
+    // No data to perform calculations with
     postResult({ total: undefined }, transaction);
     return;
   }
@@ -86,22 +100,20 @@ onmessage = function (e) {
   copy.sort((a, b) => a.column - b.column);
 
   const buckets = {};
-  const bucketMeta = {}; // used to store various properties of buckets
+  const bucketNaNInfo = {}; // used to store NaN info of buckets
 
   let total = { ...defaultObj, items: [] };
 
   total.max = copy[copy.length - 1].column;
   total.min = copy[0].column;
 
-  const totalMeta = {
+  const totalNaNInfo = {
     hasNaN: copy.some((item) => {
       if (item.columnType !== "status" && isNaN(item.column)) {
         return true;
       }
       return false;
     }),
-    hasPosInf: total.max === Infinity,
-    hasNegInf: total.min === -Infinity,
   };
 
   // Bucket setup with sum and min/max
@@ -126,8 +138,8 @@ onmessage = function (e) {
     // if one item is NaN we store that info so we can default all
     // calculated values for this bucket to NaN
     if (itemIsNaN) {
-      bucketMeta[key] = { hasNaN: true };
-      bucketMeta[totalKey] = { hasNaN: true };
+      bucketNaNInfo[key] = { hasNaN: true };
+      bucketNaNInfo[totalKey] = { hasNaN: true };
 
       // set all values for this bucket to NaN
       buckets[key] = { ...nanObj, title };
@@ -136,8 +148,8 @@ onmessage = function (e) {
     }
 
     // we check if we should skip calculation for these buckets
-    const skipBucket = shouldSkipBucket(bucketMeta, key);
-    const skipSubTotal = shouldSkipBucket(bucketMeta, totalKey);
+    const skipBucket = shouldSkipBucket(bucketNaNInfo, key);
+    const skipSubTotal = shouldSkipBucket(bucketNaNInfo, totalKey);
 
     if (!skipBucket) {
       bucket.sum = maybeAdd(bucket.sum, column, type);
@@ -145,7 +157,7 @@ onmessage = function (e) {
     if (!skipSubTotal) {
       subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
     }
-    if (!totalMeta.hasNaN) {
+    if (!totalNaNInfo.hasNaN) {
       total.sum = maybeAdd(total.sum, column, type);
     }
 
@@ -164,14 +176,14 @@ onmessage = function (e) {
       try {
         bucket.items.push(item);
       } catch (e) {
-        console.e({ bucket, bucketMeta, key });
+        console.e({ bucket, bucketMeta: bucketNaNInfo, key });
       }
     }
     if (!skipSubTotal) {
       try {
         subTotalBucket.items.push(item);
       } catch (e) {
-        console.e({ subTotalBucket, bucketMeta, totalKey });
+        console.e({ subTotalBucket, bucketMeta: bucketNaNInfo, totalKey });
       }
     }
 
@@ -180,7 +192,7 @@ onmessage = function (e) {
   }
 
   for (const [bucket, values] of Object.entries(buckets)) {
-    if (shouldSkipBucket(bucketMeta, bucket)) {
+    if (shouldSkipBucket(bucketNaNInfo, bucket)) {
       continue;
     }
     values.avg = values.sum / values.items.length;
@@ -188,7 +200,7 @@ onmessage = function (e) {
     calculateMedian(values, values.items);
     buckets[bucket] = values;
   }
-  const totalHasNaN = totalMeta.hasNaN;
+  const totalHasNaN = totalNaNInfo.hasNaN;
 
   if (totalHasNaN) {
     total = { ...nanObj };
@@ -218,7 +230,7 @@ onmessage = function (e) {
   total.stdev = Math.sqrt(total.variance / copy.length);
 
   for (const [bucket, values] of Object.entries(buckets)) {
-    if (shouldSkipBucket(bucketMeta, bucket)) {
+    if (shouldSkipBucket(bucketNaNInfo, bucket)) {
       for (const [key, val] of Object.entries(values)) {
         values[key] = val.toString();
       }
@@ -245,7 +257,6 @@ onmessage = function (e) {
 
   const result = { total, ...buckets };
 
-  // handling in tests
   postResult(result, transaction);
 };
 

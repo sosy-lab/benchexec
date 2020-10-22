@@ -348,7 +348,7 @@ class NumberFormatterBuilder {
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
       postfix = Math.round(Number(postfix));
       postfix = isNaN(postfix) ? "" : postfix.toString();
-      //handle overflow
+      //handle carry
       if (postfix.length > 1 && postfix[0] !== ".") {
         const overflow = postfix[0];
         postfix = postfix[1];
