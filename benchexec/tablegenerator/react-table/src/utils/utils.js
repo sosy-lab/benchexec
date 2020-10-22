@@ -356,14 +356,15 @@ class NumberFormatterBuilder {
         const [, decPart] = prefix.split(".");
         let decimalLength = (decPart && decPart.length - 1) || 0;
         let toAdd = decPart ? "0." : "";
-        while (decimalLength > 0) {
+        let i = decimalLength;
+        while (i > 0) {
           toAdd += "0";
-          decimalLength -= 1;
+          i -= 1;
         }
 
         toAdd += overflow;
         prefix = (Number(prefix) + Number(toAdd))
-          .toString()
+          .toFixed(decimalLength + 1)
           .substr(0, oldLength);
         while (prefix.length < oldLength) {
           prefix += "0";

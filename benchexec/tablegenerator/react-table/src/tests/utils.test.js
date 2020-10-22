@@ -324,6 +324,21 @@ describe("NumberFormatterBuilder", () => {
 
     expect(actual).toBe("2&#x2008;&#x2007;&#x2007;");
   });
+
+  test("Should be able to deal with JS rounding errors", () => {
+    const num = 7.1994551950000005;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(2.01);
+    const formatter = b.build();
+
+    const actual = formatter(num);
+
+    // As the rounding of the last digits results in a carry-over,
+    // we end up with the addition of 7.1 and 0.1
+    // In JS 7.1 + 0.1 evaluates to 7.199999999999999, which caused an issue
+    expect(actual).toBe("7.20");
+  });
 });
 
 describe(
