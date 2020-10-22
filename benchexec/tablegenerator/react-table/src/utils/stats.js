@@ -8,6 +8,12 @@
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
+/**
+ * Creates a number formatters for each tool and column and
+ * configures them with the columns defined number of significant digits
+ *
+ * @param {object[]} tools
+ */
 export const buildFormatter = (tools) =>
   tools.map((tool, tIdx) =>
     tool.columns.map((column, cIdx) => {
@@ -16,11 +22,19 @@ export const buildFormatter = (tools) =>
     }),
   );
 
+/**
+ * Used to apply formatting to calculated stats and to remove
+ * values that are not displayable
+ *
+ * @param {object[][]} stats
+ * @param {Function[][]} formatter
+ */
 export const cleanupStats = (stats, formatter) => {
   const cleaned = stats.map((tool, toolIdx) =>
     tool
       .map((column, columnIdx) => {
         const out = {};
+        // if no total is calculated, then no values suitable for calculation were found
         if (column.total === undefined) {
           return undefined;
         }
@@ -28,10 +42,13 @@ export const cleanupStats = (stats, formatter) => {
           const rowRes = {};
 
           for (let [key, value] of Object.entries(result)) {
+            // attach the title to the stat item
+            // this will later be used to ensure correct ordering of columns
             if (key === "title") {
               out.title = value;
               continue;
             }
+            // if we have numeric values or 'NaN' we want to apply formatting
             if (
               !isNil(value) &&
               (!isNaN(value) || value === "NaN") &&
@@ -81,6 +98,9 @@ const RESULT_CLASS_TRUE = "true";
 const RESULT_CLASS_FALSE = "false";
 const RESULT_CLASS_OTHER = "other";
 
+/**
+ * @see result.py
+ */
 const classifyResult = (result) => {
   if (isNil(result)) {
     return RESULT_CLASS_OTHER;
@@ -127,12 +147,20 @@ export const prepareRows = (
   });
 };
 
+/**
+ * Transforms the dataset from a row-based layout into a column-based
+ * layout for calculation of column stats.
+ *
+ * @param {object[]} tools
+ */
 export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
   const out = [];
   for (const { row, categoryType, resultType } of preppedRows) {
     for (const columnIdx in row) {
       const column = row[columnIdx].raw;
       const curr = out[columnIdx] || [];
+      // we attach extra meta information for later use in calculation and mapping
+      // of results
       const { type: columnType, title: columnTitle } = tools[toolIdx].columns[
         columnIdx
       ];
@@ -144,6 +172,12 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
   return out;
 };
 
+/**
+ * Prepares the dataset for calculation, dispatches and collects calculations
+ * and returns a cleaned set of calculated statistics.
+ *
+ * @param {object} options
+ */
 export const processData = async ({ tools, table, formatter }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
@@ -180,6 +214,7 @@ export const processData = async ({ tools, table, formatter }) => {
 
   for (const to in formatter) {
     for (const co in formatter[to]) {
+      // we build all formatters which makes them ready to use
       formatter[to][co] = formatter[to][co].build();
     }
   }
