@@ -46,6 +46,18 @@ const calculateMedian = (values, allItems) => {
     }
   }
 };
+const calculateStdev = (hasNegInf, hasPosInf, variance, size) => {
+  if (hasNegInf && hasPosInf) {
+    return "NaN";
+  }
+  if (hasNegInf) {
+    return -Infinity;
+  }
+  if (hasPosInf) {
+    return Infinity;
+  }
+  return Math.sqrt(variance / size);
+};
 
 const parsePythonInfinityValues = (data) =>
   data.map((item) => {
@@ -227,7 +239,14 @@ onmessage = function (e) {
     subTotalBucket.variance += Math.pow(diffSubTotal, 2);
   }
 
-  total.stdev = Math.sqrt(total.variance / copy.length);
+  const totalHasNegInf = Number(total.min) === -Infinity;
+  const totalHasPosInf = Number(total.max) === Infinity;
+  total.stdev = calculateStdev(
+    totalHasNegInf,
+    totalHasPosInf,
+    total.variance,
+    copy.length,
+  );
 
   for (const [bucket, values] of Object.entries(buckets)) {
     if (shouldSkipBucket(bucketNaNInfo, bucket)) {
@@ -237,7 +256,14 @@ onmessage = function (e) {
       buckets[bucket] = values;
       continue;
     }
-    values.stdev = Math.sqrt(values.variance / values.items.length);
+    const valuesHaveNegInf = Number(values.min) === -Infinity;
+    const valuesHavePosInf = Number(total.max) === Infinity;
+    values.stdev = calculateStdev(
+      valuesHaveNegInf,
+      valuesHavePosInf,
+      values.variance,
+      values.items.length,
+    );
 
     for (const [key, val] of Object.entries(values)) {
       values[key] = val.toString();

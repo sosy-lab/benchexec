@@ -19790,7 +19790,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"-Inf"}
-         title="avg: -Inf, max: 0, median: -Inf, min: -Inf, stdev: NaN"
+         title="avg: -Inf, max: 0, median: -Inf, min: -Inf, stdev: -Inf"
         />
        </div>
        <div
@@ -19847,7 +19847,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"Inf"}
-         title="avg: Inf, max: Inf, median: Inf, min: 1, stdev: NaN"
+         title="avg: Inf, max: Inf, median: Inf, min: 1, stdev: Inf"
         />
        </div>
       </div>
