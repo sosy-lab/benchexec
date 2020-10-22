@@ -1,3 +1,10 @@
+// This file is part of BenchExec, a framework for reliable benchmarking:
+// https://github.com/sosy-lab/benchexec
+//
+// SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import ReactTable from "react-table";
