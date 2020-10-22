@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import withFixedColumns from "react-table-hoc-fixed-columns";
 import ReactTable from "react-table";
-import equals from "deep-equal";
 import {
   createRunSetColumns,
   SelectColumnsButton,
