@@ -22,6 +22,10 @@ class Worker {
     const b = Buffer.from(dataUrl.split(",")[1], "base64");
     let onmessage;
     this.mockedPostMessage = (data) => this.cb({ data });
+
+    // we only eval code that we control (worker code)
+    // the use is therefore deemed safe in this instance
+    // eslint-disable-next-line no-eval
     eval(b.toString()); //new Function("data", b.toString);
     this.onmessageImpl = onmessage;
   }
