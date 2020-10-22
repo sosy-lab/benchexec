@@ -1,8 +1,7 @@
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
 #
-# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
-# SPDX-FileCopyrightText: 2015 Daniel Dietsch
+# SPDX-FileCopyrightText: 2015-2020 Daniel Dietsch <dietsch@informatik.uni-freiburg.de>
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -25,7 +24,10 @@ _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile(r"^Version is (.*)$", re.MULTILINE)
 # .jar files that are used as launcher arguments with most recent .jar first
-_LAUNCHER_JARS = ["plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar"]
+_LAUNCHER_JARS = [
+    "plugins/org.eclipse.equinox.launcher_1.5.800.v20200727-1323.jar",
+    "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar",
+]
 
 
 class UltimateTool(benchexec.tools.template.BaseTool):
