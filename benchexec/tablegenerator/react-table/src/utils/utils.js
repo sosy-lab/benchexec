@@ -397,6 +397,11 @@ class NumberFormatterBuilder {
       };
       const out = this.format(number);
 
+      if (out === "NaN") {
+        // we don't want to pad NaN
+        return out;
+      }
+
       if (whitespaceFormat) {
         const decSpace = html ? punctuationSpaceHtml : " ";
         let [integer, decimal] = out.split(/\.|,/);

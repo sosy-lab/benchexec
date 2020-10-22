@@ -19827,7 +19827,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"&#x2007;NaN&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"NaN"}
          title="avg: NaN, max: NaN, median: NaN, min: NaN, stdev: NaN"
         />
        </div>
