@@ -50,10 +50,7 @@ const calculateStdev = (hasNegInf, hasPosInf, variance, size) => {
   if (hasNegInf && hasPosInf) {
     return "NaN";
   }
-  if (hasNegInf) {
-    return -Infinity;
-  }
-  if (hasPosInf) {
+  if (hasNegInf || hasPosInf) {
     return Infinity;
   }
   return Math.sqrt(variance / size);

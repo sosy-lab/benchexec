@@ -19790,7 +19790,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"-Inf"}
-         title="avg: -Inf, max: 0, median: -Inf, min: -Inf, stdev: -Inf"
+         title="avg: -Inf, max: 0, median: -Inf, min: -Inf, stdev: Inf"
         />
        </div>
        <div
