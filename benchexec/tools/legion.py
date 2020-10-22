@@ -11,7 +11,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for Legion (https://github.com/Alan32Liu/Principes).
+    Tool info for Legion (https://github.com/Alan32Liu/Legion).
     """
 
     REQUIRED_PATHS = [
@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
         return util.find_executable("legion-sv")
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, ignore_stderr=False)
 
     def name(self):
         return "Legion"

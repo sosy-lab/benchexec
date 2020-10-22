@@ -74,8 +74,8 @@ virtualenv -p /usr/bin/python3 "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
+pip install "pip >= 10.0"
 pip install -e "."
-pip install 'wheel>=0.32.0' 'setuptools>=42.0.0'
 python setup.py nosetests
 python setup.py sdist bdist_wheel
 popd
@@ -128,3 +128,4 @@ echo
 echo "Please create a release on GitHub and add content from CHANGELOG.md and the following files:"
 ls -1 "$DIST_DIR/BenchExec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
 echo "=> https://github.com/sosy-lab/benchexec/releases/new?tag=$VERSION&title=Release%20$VERSION"
+echo "Please also copy the binary PPA packages to all newer supported Ubuntu versions after they have been built by going to https://launchpad.net/%7Esosy-lab/+archive/ubuntu/benchmarking/+copy-packages"

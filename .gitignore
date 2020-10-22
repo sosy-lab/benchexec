@@ -10,7 +10,7 @@
 /build
 dist
 BenchExec.egg-info
-.coverage.*
+.coverage*
 coverage
 /.idea/benchexec.iml
 /.idea/misc.xml

@@ -15,6 +15,7 @@ import io
 import itertools
 import logging
 import os.path
+import platform
 import signal
 import subprocess
 import sys
@@ -56,7 +57,7 @@ MAIN_COLUMNS = [
 
 NAME_START = "results"  # first part of filename of table
 
-DEFAULT_OUTPUT_PATH = "results/"
+DEFAULT_OUTPUT_PATH = "results"
 
 TEMPLATE_FORMATS = ["html", "csv"]
 
@@ -1391,12 +1392,17 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             callback(out, options=options, **kwargs)
 
         if options.show_table and template_format == "html":
+            system = platform.system()
             try:
-                subprocess.Popen(
-                    ["xdg-open", outfile],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                if system == "Windows":
+                    os.startfile(os.path.normpath(outfile), "open")  # noqa: S606
+                else:
+                    cmd = "open" if system == "Darwin" else "xdg-open"
+                    subprocess.Popen(
+                        [cmd, outfile],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except OSError:
                 pass
 
