@@ -24503,7 +24503,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0"
         />
        </div>
