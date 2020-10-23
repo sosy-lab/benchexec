@@ -34,7 +34,6 @@ import {
   getFilterParamsFromUrl,
   setFilterParamsInUrl,
 } from "../utils/utils";
-import deepEqual from "deep-equal";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
