@@ -192,6 +192,24 @@ const setHashSearch = (
   document.location.href = hrefString;
 };
 
+const getFilterParamsFromUrl = (str) => {
+  const params = getHashSearch(str);
+  if (params.filter) {
+    const decoded = atob(params.filter);
+    return JSON.parse(decoded);
+  }
+  return null;
+};
+
+const setFilterParamsInUrl = (filter, options) => {
+  const previousParams = getHashSearch();
+  if (!filter) {
+    return setHashSearch(previousParams, options);
+  }
+  const encoded = btoa(JSON.stringify(filter));
+  return setHashSearch({ ...previousParams, filter: encoded }, options);
+};
+
 /**
  * Adds or update given key-value pairs to the query params
  *
@@ -544,4 +562,6 @@ export {
   hasSameEntries,
   isCategory,
   getStep,
+  getFilterParamsFromUrl,
+  setFilterParamsInUrl,
 };

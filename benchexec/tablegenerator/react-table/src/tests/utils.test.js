@@ -11,6 +11,8 @@ import {
   textSortMethod,
   getHashSearch,
   setHashSearch,
+  getFilterParamsFromUrl,
+  setFilterParamsInUrl,
   NumberFormatterBuilder,
   hasSameEntries,
 } from "../utils/utils";
@@ -92,6 +94,40 @@ describe("hashRouting helpers", () => {
         baseUrl: "localhost#table",
       });
       expect(res).toEqual("localhost#table?id=1&name=benchexec");
+    });
+  });
+  describe("getFilterParamsFromUrl", () => {
+    test("should return null if no filter set", () => {
+      const res = getFilterParamsFromUrl("localhost#/bla?id=1&name=benchexec");
+
+      expect(res).toBe(null);
+    });
+
+    test("should parse b64 encoded filters in url", () => {
+      const obj = { a: "b" };
+      const parsed = JSON.stringify(obj);
+
+      const res = getFilterParamsFromUrl(
+        `localhost#/bla?id=1&name=benchexec&filter=${btoa(parsed)}`,
+      );
+
+      expect(res).toStrictEqual(obj);
+    });
+  });
+
+  describe("setFilterParamsFromUrl", () => {
+    test("should set no filter if nullish parameter is passed", () => {
+      const res = setFilterParamsInUrl(null, { returnString: true });
+
+      expect(res).not.toContain("filter");
+    });
+
+    test("should embed filters as serialized b64 string", () => {
+      const obj = { a: "b" };
+
+      const res = setFilterParamsInUrl(obj, { returnString: true });
+
+      expect(res).toContain(btoa(JSON.stringify(obj)));
     });
   });
 });

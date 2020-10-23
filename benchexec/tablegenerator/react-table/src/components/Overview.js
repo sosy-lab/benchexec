@@ -29,7 +29,12 @@ import {
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
-import { createHiddenColsFromURL } from "../utils/utils";
+import {
+  createHiddenColsFromURL,
+  getFilterParamsFromUrl,
+  setFilterParamsInUrl,
+} from "../utils/utils";
+import deepEqual from "deep-equal";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -82,6 +87,7 @@ export default class Overview extends React.Component {
       filtered: [],
       tabIndex: 0,
       filterBoxVisible: false,
+      filter: getFilterParamsFromUrl(),
       active: (
         menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
@@ -102,14 +108,26 @@ export default class Overview extends React.Component {
 
   componentDidMount() {
     window.addEventListener("popstate", this.updateHiddenCols, false);
+    window.addEventListener("popstate", this.updateFilters, false);
   }
 
   componentWillUnmount() {
     window.removeEventListener("popstate", this.updateHiddenCols, false);
+    window.removeEventListener("popstate", this.updateFilters, false);
+  }
+
+  componentDidUpdate(_, prevState) {
+    /*     if(!deepEqual(this.state.filter, prevState.filter)){
+      this.filterPlotData(this.state.filter);
+    } */
   }
 
   updateHiddenCols = () => {
     this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
+  };
+
+  updateFilters = () => {
+    this.setState({ filters: getFilterParamsFromUrl() });
   };
 
   // -----------------------SelectColumns-----------------------
@@ -144,6 +162,7 @@ export default class Overview extends React.Component {
   };
   filterPlotData = (filter, runFilterLogic = true) => {
     console.log({ filter });
+    setFilterParamsInUrl(filter);
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
       this.setFilter(applyMatcher(matcher)(this.originalTable), true);
@@ -200,7 +219,9 @@ export default class Overview extends React.Component {
     let urlParams = document.location.href.split("?")[1] || "";
     urlParams = urlParams
       .split("&")
-      .filter((param) => param.startsWith("hidden"))
+      .filter(
+        (param) => param.startsWith("hidden") || param.startsWith("filter"),
+      )
       .join("&");
     return (
       <Router>
