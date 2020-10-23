@@ -116,12 +116,6 @@ export default class Overview extends React.Component {
     window.removeEventListener("popstate", this.updateFilters, false);
   }
 
-  componentDidUpdate(_, prevState) {
-    /*     if(!deepEqual(this.state.filter, prevState.filter)){
-      this.filterPlotData(this.state.filter);
-    } */
-  }
-
   updateHiddenCols = () => {
     this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
   };
