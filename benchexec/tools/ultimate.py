@@ -119,8 +119,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 version = self._query_ultimate_version([java] + cmd, self.api)
                 if version:
                     logging.debug(
-                        "Using Java %s for API version %s of Ultimate %s",
+                        "Using Java %s with version %s for API version %s of Ultimate %s",
                         java,
+                        java_version,
                         self.api,
                         version,
                     )
