@@ -146,9 +146,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             return ""
         stdout = util.decode_to_string(stdout).strip()
         if stderr or process.returncode:
-            logging.warning(
-                "Cannot determine Ultimate version (API %s)", api,
-            )
+            logging.warning("Cannot determine Ultimate version (API %s)", api)
             logging.debug(
                 "Command was:     %s\n"
                 "Exit code:       %s\n"
@@ -490,7 +488,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
             version = re.search(pattern, stdout).groups()[0]
             if version not in rtr:
                 logging.debug(
-                    "Found Java installation %s with version %s", candidate, version,
+                    "Found Java installation %s with version %s", candidate, version
                 )
                 rtr[version] = candidate
         if not rtr:
