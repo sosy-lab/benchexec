@@ -13,6 +13,7 @@ import glob
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -469,7 +470,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
         rtr = {}
         for c in candidates:
-            candidate = self.which(c)
+            candidate = shutil.which(c)
             if not candidate:
                 continue
             try:
@@ -494,19 +495,3 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         if not rtr:
             raise BenchExecException("Could not find any Java version")
         return rtr
-
-    @staticmethod
-    def which(program):
-        def is_exe(file_path):
-            return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
-
-        path, file_name = os.path.split(program)
-        if path:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-        return None
