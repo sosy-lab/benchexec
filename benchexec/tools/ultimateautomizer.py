@@ -3,7 +3,6 @@
 #
 # SPDX-FileCopyrightText: 2015-2020 Daniel Dietsch <dietsch@informatik.uni-freiburg.de>
 # SPDX-FileCopyrightText: 2015-2020 Matthias Heizmann <heizmann@informatik.uni-freiburg.de>
-# SPDX-FileCopyrightText: 2015-2020 Philipp Wendler <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
 
