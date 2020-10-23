@@ -1,7 +1,8 @@
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
 #
-# SPDX-FileCopyrightText: 2015-2020 Daniel Dietsch <dietsch@informatik.uni-freiburg.de>
+# SPDX-FileCopyrightText: 2016-2020 Daniel Dietsch <dietsch@informatik.uni-freiburg.de>
+# SPDX-FileCopyrightText: 2016-2020 Philipp Wendler <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
 
