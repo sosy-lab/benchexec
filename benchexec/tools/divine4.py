@@ -13,7 +13,7 @@ import benchexec.result as result
 import os
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     DIVINE tool info object
     """
@@ -31,12 +31,12 @@ class Tool(benchexec.tools.template.BaseTool):
         "false-overflow": result.RESULT_FALSE_OVERFLOW,
     }
 
-    def executable(self):
+    def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.
         The path returned should be relative to the current directory.
         """
-        return util.find_executable(self.BINS[0])
+        return tool_locator.find_executable(self.BINS[0])
 
     def version(self, executable):
         return self._version_from_tool(
@@ -49,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return "DIVINE"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Compose the command line to execute from the name of the executable,
         the user-specified options, and the inputfile to analyze.
@@ -68,15 +68,23 @@ class Tool(benchexec.tools.template.BaseTool):
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
                         All entries in rlimits are optional, so check for existence before usage!
         """
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "--32", "LP64": "--64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
         directory = os.path.dirname(executable)
-        prp = propertyfile or "-"
+        prp = task.property_file or "-"
 
         # prefix command line with wrapper script
         return (
-            [os.path.join(directory, self.BINS[1]), executable, prp] + options + tasks
+            [os.path.join(directory, self.BINS[1]), executable, prp]
+            + options
+            + list(task.input_files_or_identifier)
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         This method always needs to be overridden.
@@ -87,15 +95,15 @@ class Tool(benchexec.tools.template.BaseTool):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
 
-        if not output:
+        if not run.output:
             return "ERROR - no output"
 
-        last = output[-1]
+        last = run.output[-1]
 
-        if isTimeout:
+        if run.was_timeout:
             return "TIMEOUT"
 
-        if returncode != 0:
+        if run.exit_code.value != 0:
             return "ERROR - {0}".format(last)
 
         if "result:" in last:
