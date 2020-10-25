@@ -12,7 +12,7 @@ import benchexec.tools.template
 import benchexec.util as util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for witness2test
     (https://github.com/diffblue/cprover-sv-comp/pull/14).
@@ -25,12 +25,12 @@ class Tool(benchexec.tools.template.BaseTool):
         "pycparser-master",
     ]
 
-    def executable(self):
+    def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.
         @return a string pointing to an executable file
         """
-        return util.find_executable("test-gen.sh")
+        return tool_locator.find_executable("test-gen.sh")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -42,7 +42,7 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return "CProver witness2test"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Compose the command line to execute from the name of the executable,
         the user-specified options, and the inputfile to analyze.
@@ -60,11 +60,18 @@ class Tool(benchexec.tools.template.BaseTool):
                         All entries in rlimits are optional, so check for existence before usage!
         @return a list of strings that represent the command line to execute
         """
-        if propertyfile:
-            options = options + ["--propertyfile", propertyfile]
-        return [executable] + options + tasks
+        if task.property_file:
+            options = options + ["--propertyfile", task.property_file]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "-m32", "LP64": "-m64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + list(task.input_files_or_identifier)
+
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         This method always needs to be overridden.
@@ -80,6 +87,9 @@ class Tool(benchexec.tools.template.BaseTool):
         (useful to distinguish between program killed because of error and timeout)
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
+        returnsignal = run.exit_code.signal or 0
+        returncode = run.exit_code.value or 0
+        output = run.output
         status = result.RESULT_ERROR
         if returnsignal == 0 and returncode == 0:
             if output:
