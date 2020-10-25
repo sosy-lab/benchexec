@@ -767,6 +767,7 @@ def check_msr():
 def get_data_model_from_task(task, data_models):
     # Importing it here, otherwise it will result in cyclic dependency.
     import benchexec.tools.template
+
     if isinstance(task.options, dict) and task.options.get("language") == "C":
         data_model = task.options.get("data_model")
         if data_model:
