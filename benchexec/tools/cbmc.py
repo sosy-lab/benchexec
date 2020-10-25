@@ -13,7 +13,7 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CBMC (http://www.cprover.org/cbmc/).
     It always adds --xml-ui to the command-line arguments for easier parsing of
@@ -23,8 +23,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = ["cbmc", "cbmc-binary", "goto-cc"]
 
-    def executable(self):
-        return util.find_executable("cbmc")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("cbmc")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -32,15 +32,21 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "CBMC"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        if propertyfile:
-            options = options + ["--propertyfile", propertyfile]
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options = options + ["--propertyfile", task.property_file]
         elif "--xml-ui" not in options:
             options = options + ["--xml-ui"]
 
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "--32", "LP64": "--64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
         self.options = options
 
-        return [executable] + options + tasks
+        return [executable] + options + list(task.input_files_or_identifier)
 
     def parse_XML(self, output, returncode, isTimeout):
         # an empty tag cannot be parsed into a tree
@@ -102,12 +108,15 @@ class Tool(benchexec.tools.template.BaseTool):
 
         return status
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
+        returnsignal = run.exit_code.signal or 0
+        returncode = run.exit_code.value or 0
+        output = run.output
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             status = result.RESULT_ERROR
             if "--xml-ui" in self.options:
-                status = self.parse_XML(output, returncode, isTimeout)
+                status = self.parse_XML(output, returncode, run.was_timeout)
             elif len(output) > 0:
                 # SV-COMP mode
                 result_str = output[-1].strip()
