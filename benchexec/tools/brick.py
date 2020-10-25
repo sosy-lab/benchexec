@@ -10,7 +10,7 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for BRICK
     https://github.com/brick-tool-dev/brick-tool
@@ -18,14 +18,20 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = ["bin", "lib"]
 
-    def executable(self):
-        return util.find_executable("bin/brick")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("brick", subdir="bin")
 
     def name(self):
         return "BRICK"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "--32", "LP64": "--64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + list(task.input_files_or_identifier)
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")
@@ -36,10 +42,10 @@ class Tool(benchexec.tools.template.BaseTool):
             executable, paths, parent_dir=True
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         status = result.RESULT_ERROR
 
-        for line in output:
+        for line in run.output._lines:
             if line == "VERIFICATION SUCCESSFUL\n":
                 status = result.RESULT_TRUE_PROP
                 break
