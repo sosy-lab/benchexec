@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 from . import cseq
 
 
@@ -27,8 +26,8 @@ class Tool(cseq.CSeqTool):
         "backends",
     ]
 
-    def executable(self):
-        return util.find_executable("lazy-cseq.py")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("lazy-cseq.py")
 
     def name(self):
         return "Lazy-CSeq"

@@ -9,7 +9,7 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class CSeqTool(benchexec.tools.template.BaseTool):
+class CSeqTool(benchexec.tools.template.BaseTool2):
     """
     Abstract tool info for CSeq-based tools (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
@@ -19,7 +19,7 @@ class CSeqTool(benchexec.tools.template.BaseTool):
         first_line = output.splitlines()[0]
         return first_line.strip()
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Compose the command line to execute from the name of the executable,
         the user-specified options, and the inputfile to analyze.
@@ -36,13 +36,14 @@ class CSeqTool(benchexec.tools.template.BaseTool):
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
                         All entries in rlimits are optional, so check for existence before usage!
         """
+        tasks = list(task.input_files_or_identifier)
         assert len(tasks) == 1, "only one inputfile supported"
         inputfile = ["--input", tasks[0]]
-        spec = ["--spec", propertyfile] if propertyfile is not None else []
+        spec = ["--spec", task.property_file] if task.property_file is not None else []
         return [executable] + options + spec + inputfile
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
+    def determine_result(self, run):
+        output = "\n".join(run.output)
         status = result.RESULT_UNKNOWN
         if "FALSE" in output:
             status = result.RESULT_FALSE_REACH
