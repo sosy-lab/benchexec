@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -43,6 +44,13 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options = options + ["--propertyFile", task.property_file]
+
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "32", "LP64": "64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += ["--bit", data_model_param]
+
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
