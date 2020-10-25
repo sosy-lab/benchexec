@@ -6,8 +6,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.result as result
+from benchexec.tools.template import ToolNotFoundException
 
 from .symbiotic4 import Tool as OldSymbiotic
 
@@ -25,19 +25,21 @@ class Tool(OldSymbiotic):
 
     REQUIRED_PATHS_7_0_0 = ["bin", "include", "properties", "lib", "llvm-8.0.1"]
 
-    def executable(self):
+    def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.
         This method always needs to be overridden,
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
-        exe = util.find_executable("bin/symbiotic", exitOnError=False)
-        if exe:
-            return exe
-        else:
+        # This is used in the function _version_newer_than.
+        # I don't know a better way to do it.
+        self.tool_locator = tool_locator
+        try:
+            return tool_locator.find_executable("symbiotic", subdir="bin")
+        except ToolNotFoundException:
             # this may be the old version of Symbiotic
-            return OldSymbiotic.executable(self)
+            return OldSymbiotic.executable(self, tool_locator)
 
     def program_files(self, executable):
         if self._version_newer_than("7.0.0"):
@@ -59,7 +61,7 @@ class Tool(OldSymbiotic):
         """
         Determine whether the version is greater than some given version
         """
-        v = self.version(self.executable())
+        v = self.version(self.executable(self.tool_locator))
         vers_num = v[: v.index("-")]
         if not vers_num[0].isdigit():
             # this is the old version which is "older" than any given version
@@ -102,12 +104,15 @@ class Tool(OldSymbiotic):
 
         return lastphase
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        if output is None:
+    def determine_result(self, run):
+        returnsignal = run.exit_code.signal or 0
+        returncode = run.exit_code.value or 0
+
+        if run.output is None:
             return "{0}(no output)".format(result.RESULT_ERROR)
 
         if self._version_newer_than("4.0.1"):
-            for line in output:
+            for line in run.output:
                 line = line.strip()
                 if line == "RESULT: true":
                     return result.RESULT_TRUE_PROP
@@ -131,19 +136,19 @@ class Tool(OldSymbiotic):
                     return result.RESULT_FALSE_REACH
         else:
             # old version of Symbiotic
-            return OldSymbiotic.determine_result(
-                self, returncode, returnsignal, output, isTimeout
-            )
+            return OldSymbiotic.determine_result(self, run)
 
-        if isTimeout:
-            return self._getPhase(output)  # generates TIMEOUT(phase)
+        if run.was_timeout:
+            return self._getPhase(run.output)  # generates TIMEOUT(phase)
         elif returnsignal != 0:
             return "KILLED (signal {0}, {1})".format(
-                returnsignal, self._getPhase(output)
+                returnsignal, self._getPhase(run.output)
             )
         elif returncode != 0:
             return "{0}(returned {1}, {2})".format(
-                result.RESULT_ERROR, returncode, self._getPhase(output)
+                result.RESULT_ERROR, returncode, self._getPhase(run.output)
             )
 
-        return "{0}(unknown, {1})".format(result.RESULT_ERROR, self._getPhase(output))
+        return "{0}(unknown, {1})".format(
+            result.RESULT_ERROR, self._getPhase(run.output)
+        )
