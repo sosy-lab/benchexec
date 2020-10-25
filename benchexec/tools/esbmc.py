@@ -11,15 +11,15 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
     """
 
     REQUIRED_PATHS = ["cpachecker", "esbmc", "esbmc-wrapper.py", "tokenizer"]
 
-    def executable(self):
-        return util.find_executable("esbmc-wrapper.py")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("esbmc-wrapper.py")
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
@@ -31,13 +31,20 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "ESBMC"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
+        tasks = list(task.input_files_or_identifier)
         assert len(tasks) == 1, "only one inputfile supported"
         inputfile = tasks[0]
-        return [executable] + ["-p", propertyfile] + options + [inputfile]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
+        data_model_param = util.get_data_model_from_task(
+            task, {"ILP32": "32", "LP64": "64"}
+        )
+        if data_model_param and data_model_param not in options:
+            options += ["--arch", data_model_param]
+        return [executable] + ["-p", task.property_file] + options + [inputfile]
+
+    def determine_result(self, run):
+        output = "\n".join(run.output)
         status = result.RESULT_UNKNOWN
 
         if self.allInText(["FALSE_DEREF"], output):
@@ -58,7 +65,7 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_DONE
 
         if status == result.RESULT_UNKNOWN:
-            if isTimeout:
+            if run.was_timeout:
                 status = "TIMEOUT"
             elif output.endswith(("error", "error\n")):
                 status = "ERROR"
