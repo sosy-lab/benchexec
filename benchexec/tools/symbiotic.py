@@ -107,7 +107,7 @@ class Tool(OldSymbiotic):
         returnsignal = run.exit_code.signal or 0
         returncode = run.exit_code.value or 0
 
-        if run.output is None:
+        if not run.output:
             return "{0}(no output)".format(result.RESULT_ERROR)
 
         if self._version_newer_than("4.0.1"):
