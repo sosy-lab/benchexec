@@ -35,12 +35,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + list(task.input_files_or_identifier)
 
     def determine_result(self, run):
-        returnsignal = run.exit_code.signal or 0
         returncode = run.exit_code.value or 0
         output = run.output._lines
         status = ""
 
-        if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
+        if not run.exit_code.signal and ((returncode == 0) or (returncode == 10)):
             if "VERIFICATION FAILED (ReachSafety)\n" in output:
                 status = result.RESULT_FALSE_REACH
             elif "VERIFICATION FAILED (NoOverflow)\n" in output:

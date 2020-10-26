@@ -87,11 +87,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         (useful to distinguish between program killed because of error and timeout)
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
-        returnsignal = run.exit_code.signal or 0
         returncode = run.exit_code.value or 0
         output = run.output
         status = result.RESULT_ERROR
-        if returnsignal == 0 and returncode == 0:
+        if not run.exit_code.signal and returncode == 0:
             if output:
                 result_str = output[-1].strip()
 

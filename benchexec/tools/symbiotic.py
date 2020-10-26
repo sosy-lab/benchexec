@@ -104,7 +104,6 @@ class Tool(OldSymbiotic):
         return lastphase
 
     def determine_result(self, run):
-        returnsignal = run.exit_code.signal or 0
         returncode = run.exit_code.value or 0
 
         if not run.output:
@@ -139,9 +138,9 @@ class Tool(OldSymbiotic):
 
         if run.was_timeout:
             return self._getPhase(run.output)  # generates TIMEOUT(phase)
-        elif returnsignal != 0:
+        elif run.exit_code.signal:
             return "KILLED (signal {0}, {1})".format(
-                returnsignal, self._getPhase(run.output)
+                run.exit_code.signal, self._getPhase(run.output)
             )
         elif returncode != 0:
             return "{0}(returned {1}, {2})".format(

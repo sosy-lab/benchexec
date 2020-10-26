@@ -109,11 +109,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return status
 
     def determine_result(self, run):
-        returnsignal = run.exit_code.signal or 0
         returncode = run.exit_code.value or 0
         output = run.output
 
-        if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
+        if not run.exit_code.signal and ((returncode == 0) or (returncode == 10)):
             status = result.RESULT_ERROR
             if "--xml-ui" in self.options:
                 status = self.parse_XML(output, returncode, run.was_timeout)
