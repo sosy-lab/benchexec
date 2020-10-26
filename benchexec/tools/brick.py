@@ -45,17 +45,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         status = result.RESULT_ERROR
 
-        for line in run.output._lines:
-            if line == "VERIFICATION SUCCESSFUL\n":
+        for line in run.output:
+            if line == "VERIFICATION SUCCESSFUL":
                 status = result.RESULT_TRUE_PROP
                 break
-            elif line == "VERIFICATION FAILED\n":
+            elif line == "VERIFICATION FAILED":
                 status = result.RESULT_FALSE_REACH
                 break
-            elif (
-                line == "VERIFICATION UNKNOWN\n"
-                or line == "VERIFICATION BOUNDED TRUE\n"
-            ):
+            elif line == "VERIFICATION UNKNOWN" or line == "VERIFICATION BOUNDED TRUE":
                 status = result.RESULT_UNKNOWN
                 break
 
