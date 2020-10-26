@@ -35,10 +35,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
         data_model_param = util.get_data_model_from_task(
-            task, {"ILP32": "-m32", "LP64": "-m64"}
+            task,
+            {"ILP32": "--compiler-options=-m32", "LP64": "--compiler-options=-m64"},
         )
         if data_model_param and data_model_param not in options:
-            options += ["--compiler-options", data_model_param]
+            options += [data_model_param]
 
         return [executable] + options + spec + list(task.input_files_or_identifier)
 
