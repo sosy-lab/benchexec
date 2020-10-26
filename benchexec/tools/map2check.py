@@ -26,36 +26,25 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS_7_1 = ["map2check", "map2check-wrapper.py", "bin", "include", "lib"]
 
     def executable(self, tool_locator):
-        # This is used in _get_version
-        self._tool_locator = tool_locator
+        try:
+            executable = tool_locator.find_executable("map2check-wrapper.sh")
+            self.__version = 6
+        except ToolNotFoundException:
+            executable = tool_locator.find_executable("map2check-wrapper.py")
+            self.__version = 7
 
-        # Relative path to map2check wrapper
-        if self._get_version() == 6:
-            return tool_locator.find_executable("map2check-wrapper.sh")
-        elif self._get_version() > 6:
-            return tool_locator.find_executable("map2check-wrapper.py")
-        assert False, "Unexpected version " + self._get_version()
+        return executable
 
     def program_files(self, executable):
         """
         Determine the file paths to be adopted
         """
-        if self._get_version() == 6:
+        if self.__version == 6:
             paths = self.REQUIRED_PATHS_6
-        elif self._get_version() > 6:
+        elif self.__version > 6:
             paths = self.REQUIRED_PATHS_7_1
 
         return paths
-
-    def _get_version(self):
-        """
-        Determine the version based on map2check-wrapper.sh file
-        """
-        try:
-            self._tool_locator.find_executable("map2check-wrapper.sh")
-            return 6
-        except ToolNotFoundException:
-            return 7
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
@@ -74,11 +63,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         assert task.property_file, "property file required"
 
         sourcefile = sourcefiles[0]
-        if self._get_version() == 6:
+        if self.__version == 6:
             return [executable] + options + ["-c", task.property_file, sourcefile]
-        elif self._get_version() > 6:
+        elif self.__version > 6:
             return [executable] + options + ["-p", task.property_file, sourcefile]
-        assert False, "Unexpected version " + self._get_version()
+        assert False, "Unexpected version " + self.__version
 
     def determine_result(self, run):
         output = run.output
@@ -87,7 +76,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         output = output[-1].strip()
         status = result.RESULT_UNKNOWN
 
-        if self._get_version() > 6:
+        if self.__version > 6:
             if output.endswith("TRUE"):
                 status = result.RESULT_TRUE_PROP
             elif "FALSE" in output:
@@ -110,7 +99,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             else:
                 status = "ERROR"
 
-        elif self._get_version() == 6:
+        elif self.__version == 6:
             if output.endswith("TRUE"):
                 status = result.RESULT_TRUE_PROP
             elif "FALSE" in output:

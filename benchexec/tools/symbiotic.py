@@ -32,14 +32,14 @@ class Tool(OldSymbiotic):
         and most implementations will look similar to this one.
         The path returned should be relative to the current directory.
         """
-        # This is used in the function _version_newer_than.
-        # I don't know a better way to do it.
-        self.tool_locator = tool_locator
         try:
-            return tool_locator.find_executable("symbiotic", subdir="bin")
+            executable = tool_locator.find_executable("symbiotic", subdir="bin")
         except ToolNotFoundException:
             # this may be the old version of Symbiotic
-            return OldSymbiotic.executable(self, tool_locator)
+            executable = OldSymbiotic.executable(self, tool_locator)
+
+        self.__version = self.version(executable)
+        return executable
 
     def program_files(self, executable):
         if self._version_newer_than("7.0.0"):
@@ -61,8 +61,7 @@ class Tool(OldSymbiotic):
         """
         Determine whether the version is greater than some given version
         """
-        v = self.version(self.executable(self.tool_locator))
-        vers_num = v[: v.index("-")]
+        vers_num = self.__version[: self.__version.index("-")]
         if not vers_num[0].isdigit():
             # this is the old version which is "older" than any given version
             return False
