@@ -38,7 +38,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = util.get_data_model_from_task(
             task, {"ILP32": "32", "LP64": "64"}
         )
-        if data_model_param and data_model_param not in options:
+        if data_model_param and "--architecture" not in options:
             options += ["--architecture", data_model_param]
 
         return [executable] + options + list(task.input_files_or_identifier)
