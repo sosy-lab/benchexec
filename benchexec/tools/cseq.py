@@ -43,11 +43,10 @@ class CSeqTool(benchexec.tools.template.BaseTool2):
         return [executable] + options + spec + inputfile
 
     def determine_result(self, run):
-        output = "\n".join(run.output)
         status = result.RESULT_UNKNOWN
-        if "FALSE" in output:
+        if run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
-        elif "TRUE" in output:
+        elif run.output.any_line_contains("TRUE"):
             status = result.RESULT_TRUE_PROP
         else:
             status = result.RESULT_UNKNOWN

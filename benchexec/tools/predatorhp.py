@@ -44,21 +44,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + spec + list(task.input_files_or_identifier)
 
     def determine_result(self, run):
-        output = "\n".join(run.output)
         status = "UNKNOWN"
-        if "UNKNOWN" in output:
+        if run.output.any_line_contains("UNKNOWN"):
             status = result.RESULT_UNKNOWN
-        elif "TRUE" in output:
+        elif run.output.any_line_contains("TRUE"):
             status = result.RESULT_TRUE_PROP
-        elif "FALSE(valid-memtrack)" in output:
+        elif run.output.any_line_contains("FALSE(valid-memtrack)"):
             status = result.RESULT_FALSE_MEMTRACK
-        elif "FALSE(valid-deref)" in output:
+        elif run.output.any_line_contains("FALSE(valid-deref)"):
             status = result.RESULT_FALSE_DEREF
-        elif "FALSE(valid-free)" in output:
+        elif run.output.any_line_contains("FALSE(valid-free)"):
             status = result.RESULT_FALSE_FREE
-        elif "FALSE(valid-memcleanup)" in output:
+        elif run.output.any_line_contains("FALSE(valid-memcleanup)"):
             status = result.RESULT_FALSE_MEMCLEANUP
-        elif "FALSE" in output:
+        elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
         if status == "UNKNOWN" and run.was_timeout:
             status = "TIMEOUT"
