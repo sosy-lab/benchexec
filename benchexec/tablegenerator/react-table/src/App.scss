@@ -84,6 +84,13 @@ $hover-color: darken(white, 20%);
   background: $border-color !important;
 }
 
+.unsupported-browser-warning {
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #ff0033;
+}
+
 //------------------overview------------------
 $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
