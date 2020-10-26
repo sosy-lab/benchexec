@@ -13,13 +13,11 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
 from benchexec import BenchExecException
-from benchexec.model import MEMLIMIT
 from benchexec.tools.template import UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
@@ -445,13 +443,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, output, identifier):
-        # search for the text in output and get its value,
-        # stop after the first line, that contains the searched text
+        regex = re.compile(identifier)
         for line in output:
-            if identifier in line:
-                start_position = line.find("=") + 1
-                return line[start_position:].strip()
-        return None
+            match = regex.search(line)
+            if match and len(match.groups()) > 0:
+                return match.group(1)
+        logging.debug("Did not find a match with regex %s", identifier)
+        return "N/A"
 
     def get_java_installations(self):
         candidates = [
