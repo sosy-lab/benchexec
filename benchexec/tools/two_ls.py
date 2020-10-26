@@ -50,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif returncode == 0:
             status = result.RESULT_TRUE_PROP
         elif returncode == 10:
-            if len(run.output) > 0:
+            if run.output:
                 result_str = run.output[-1].strip()
                 if result_str == "FALSE(valid-memtrack)":
                     status = result.RESULT_FALSE_MEMTRACK
