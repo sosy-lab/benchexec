@@ -33,7 +33,7 @@ _LAUNCHER_JARS = [
 ]
 
 
-class UltimateTool(benchexec.tools.template.BaseTool):
+class UltimateTool(benchexec.tools.template.BaseTool2):
     """
     Abstract tool info for Ultimate-based tools.
     """
@@ -68,30 +68,32 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         self.java = None
 
     @functools.lru_cache()
-    def executable(self):
-        exe = util.find_executable("Ultimate.py")
-        if exe:
-            for (_dirpath, dirnames, filenames) in os.walk(os.path.dirname(exe)):
-                if "Ultimate" in filenames and "plugins" in dirnames:
+    def executable(self, tool_locator):
+        exe = None
+        try:
+            exe = tool_locator.find_executable("Ultimate.py")
+            for (_, dir_names, file_names) in os.walk(os.path.dirname(exe)):
+                if "Ultimate" in file_names and "plugins" in dir_names:
                     return exe
                 break
+        except benchexec.tools.template.ToolNotFoundException:
+            pass
 
         # possibly another Ultimate.py was found or not found at all, check in the current dir
         current = os.getcwd()
-        for (_dirpath, dirnames, filenames) in os.walk(current):
+        for (_, dir_names, file_names) in os.walk(current):
             if (
-                "Ultimate" in filenames
-                and "Ultimate.py" in filenames
-                and "plugins" in dirnames
+                "Ultimate" in file_names
+                and "Ultimate.py" in file_names
+                and "plugins" in dir_names
             ):
                 return "./Ultimate.py"
             break
 
-        sys.exit(  # noqa: R503 always raises
-            "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
-                str(exe), str(current)
-            )
+        msg = "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
+            str(exe), str(current)
         )
+        raise benchexec.tools.template.ToolNotFoundException(msg)
 
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), "data")
@@ -204,113 +206,116 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         # all versions before 0.1.24 do not require ultimatedata
         return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits=None):
-        if rlimits is None:
-            rlimits = {}
+    def cmdline(self, executable, options, task, resource_limits):
+        self._uses_propertyfile = task.property_file is not None
+        combined_options = options + [*task.options] if task.options else []
 
-        self._uses_propertyfile = propertyfile is not None
-        if _OPTION_NO_WRAPPER in options:
+        if _OPTION_NO_WRAPPER in combined_options:
             # do not use old wrapper script even if property file is given
             self._uses_propertyfile = False
-            propertyfile = None
-            options.remove(_OPTION_NO_WRAPPER)
+            combined_options.remove(_OPTION_NO_WRAPPER)
 
         if self._is_svcomp17_version(executable):
-            assert propertyfile
-            cmdline = [executable, propertyfile]
-
-            cmdline += [
-                option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS
-            ]
-
-            cmdline.append("--full-output")
-
-            cmdline += tasks
-            self.__assert_cmdline(
-                cmdline,
-                "cmdline contains empty or None argument when using SVCOMP17 mode: ",
-            )
-            return cmdline
+            return self._cmdline_svcomp17(executable, combined_options, task)
 
         if self._uses_propertyfile:
-            # use the old wrapper script if a property file is given
-            cmdline = [executable, "--spec", propertyfile]
-            if tasks:
-                cmdline += ["--file"] + tasks
-            cmdline += options
-            self.__assert_cmdline(
-                cmdline,
-                "cmdline contains empty or None argument when using default SVCOMP mode: ",
+            return self._cmdline_default(executable, combined_options, task)
+
+        # if no property file is given and toolchain (-tc) is, use Ultimate directly and
+        # ignore executable (old executable is just around for backwards compatibility)
+        if "-tc" in combined_options or "--toolchain" in combined_options:
+            return self._cmdline_no_wrapper(
+                executable, combined_options, task, resource_limits
             )
-            return cmdline
-
-        # if no property file is given and toolchain (-tc) is, use Ultimate directly
-        if "-tc" in options or "--toolchain" in options:
-            # ignore executable (old executable is just around for backwards compatibility)
-            mem_bytes = rlimits.get(MEMLIMIT, None)
-            cmdline = [self.java]
-
-            # -ea has to be given directly to java
-            if "-ea" in options:
-                options = [e for e in options if e != "-ea"]
-                cmdline += ["-ea"]
-
-            if mem_bytes:
-                cmdline += ["-Xmx" + str(mem_bytes)]
-            cmdline += ["-Xss4m"]
-            cmdline += ["-jar", self._get_current_launcher_jar(executable)]
-
-            if self._requires_ultimate_data(executable):
-                if "-ultimatedata" not in options and "-data" not in options:
-                    if self.api == 2:
-                        cmdline += [
-                            "-data",
-                            "@noDefault",
-                            "-ultimatedata",
-                            os.path.join(os.path.dirname(executable), "data"),
-                        ]
-                    if self.api == 1:
-                        raise ValueError(
-                            "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                                self.api, self.version(executable)
-                            )
-                        )
-                elif "-ultimatedata" in options and "-data" not in options:
-                    if self.api == 2:
-                        cmdline += ["-data", "@noDefault"]
-                    if self.api == 1:
-                        raise ValueError(
-                            "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                                self.api, self.version(executable)
-                            )
-                        )
-            else:
-                if "-data" not in options:
-                    if self.api == 2 or self.api == 1:
-                        cmdline += [
-                            "-data",
-                            os.path.join(os.path.dirname(executable), "data"),
-                        ]
-
-            cmdline += options
-
-            if tasks:
-                cmdline += ["-i"] + tasks
-            self.__assert_cmdline(
-                cmdline,
-                "cmdline contains empty or None argument when using Ultimate raw mode: ",
-            )
-            return cmdline
 
         # there is no way to run ultimate; not enough parameters
-        raise UnsupportedFeatureException(
-            "Unsupported argument combination: options={} propertyfile={} rlimits={}".format(
-                options, propertyfile, rlimits
+        msg = (
+            "Unsupported argument combination: You either need a property file or a toolchain option (-tc). "
+            "options={} property_file={} resource_limits={}".format(
+                options, task.property_file, resource_limits
             )
         )
+        raise UnsupportedFeatureException(msg)
 
-    def __assert_cmdline(self, cmdline, msg):
-        assert all(cmdline), msg + str(cmdline)
+    def _cmdline_no_wrapper(self, executable, options, task, resource_limits):
+        mem_bytes = resource_limits.memory
+        cmdline = [self.java]
+
+        # -ea has to be given directly to java
+        if "-ea" in options:
+            options = [e for e in options if e != "-ea"]
+            cmdline += ["-ea"]
+
+        if mem_bytes:
+            cmdline += ["-Xmx" + str(mem_bytes)]
+        cmdline += ["-Xss4m"]
+        cmdline += ["-jar", self._get_current_launcher_jar(executable)]
+
+        if self._requires_ultimate_data(executable):
+            if "-ultimatedata" not in options and "-data" not in options:
+                if self.api == 2:
+                    cmdline += [
+                        "-data",
+                        "@noDefault",
+                        "-ultimatedata",
+                        os.path.join(os.path.dirname(executable), "data"),
+                    ]
+                if self.api == 1:
+                    raise ValueError(
+                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
+                            self.api, self.version(executable)
+                        )
+                    )
+            elif "-ultimatedata" in options and "-data" not in options:
+                if self.api == 2:
+                    cmdline += ["-data", "@noDefault"]
+                if self.api == 1:
+                    raise ValueError(
+                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
+                            self.api, self.version(executable)
+                        )
+                    )
+        else:
+            if "-data" not in options:
+                if self.api == 2 or self.api == 1:
+                    cmdline += [
+                        "-data",
+                        os.path.join(os.path.dirname(executable), "data"),
+                    ]
+
+        cmdline += options
+
+        if task.input_files:
+            cmdline += ["-i"] + [*task.input_files]
+        self.__assert_cmdline(cmdline, "No_Wrapper")
+        return cmdline
+
+    def _cmdline_default(self, executable, options, task):
+        # use the old wrapper script if a property file is given
+        cmdline = [executable, "--spec", task.property_file]
+        if task.input_files:
+            cmdline += ["--file"] + [*task.input_files]
+        cmdline += options
+        self.__assert_cmdline(cmdline, "Default")
+        return cmdline
+
+    def _cmdline_svcomp17(self, executable, options, task):
+        cmdline = [executable, task.property_file]
+        cmdline += [
+            option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS
+        ]
+        cmdline.append("--full-output")
+        cmdline += [*task.input_files]
+        self.__assert_cmdline(cmdline, "SVCOMP17")
+        return cmdline
+
+    @staticmethod
+    def __assert_cmdline(cmdline, mode):
+        assert all(
+            cmdline
+        ), "cmdline contains empty or None argument when using %s mode: %s".format(
+            mode, str(cmdline)
+        )
         pass
 
     def program_files(self, executable):
@@ -321,18 +326,12 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         )
         return [executable] + self._program_files_from_executable(executable, paths)
 
-    def determine_result(self, returncode, returnsignal, output, is_timeout):
+    def determine_result(self, run):
         if self._uses_propertyfile:
-            return self._determine_result_with_propertyfile(
-                returncode, returnsignal, output, is_timeout
-            )
-        return self._determine_result_without_propertyfile(
-            returncode, returnsignal, output, is_timeout
-        )
+            return self._determine_result_with_property_file(run)
+        return self._determine_result_without_property_file(run)
 
-    def _determine_result_without_propertyfile(
-        self, returncode, returnsignal, output, is_timeout
-    ):
+    def _determine_result_without_property_file(self, run):
         # special strings in ultimate output
         treeautomizer_sat = "TreeAutomizerSatResult"
         treeautomizer_unsat = "TreeAutomizerUnsatResult"
@@ -357,7 +356,7 @@ class UltimateTool(benchexec.tools.template.BaseTool):
         ltl_true_string = "Buchi Automizer proved that the LTL property"
         overflow_false_string = "overflow possible"
 
-        for line in output:
+        for line in run.output:
             if line.find(unsupported_syntax_errorstring) != -1:
                 return "ERROR: UNSUPPORTED SYNTAX"
             if line.find(incorrect_syntax_errorstring) != -1:
@@ -399,7 +398,8 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
         return result.RESULT_UNKNOWN
 
-    def _contains_overapproximation_result(self, line):
+    @staticmethod
+    def _contains_overapproximation_result(line):
         triggers = [
             "Reason: overapproximation of",
             "Reason: overapproximation of bitwiseAnd",
@@ -416,10 +416,9 @@ class UltimateTool(benchexec.tools.template.BaseTool):
 
         return False
 
-    def _determine_result_with_propertyfile(
-        self, returncode, returnsignal, output, is_timeout
-    ):
-        for line in output:
+    @staticmethod
+    def _determine_result_with_property_file(run):
+        for line in run.output:
             if line.startswith("FALSE(valid-free)"):
                 return result.RESULT_FALSE_FREE
             elif line.startswith("FALSE(valid-deref)"):
@@ -445,10 +444,10 @@ class UltimateTool(benchexec.tools.template.BaseTool):
                 return status
         return result.RESULT_UNKNOWN
 
-    def get_value_from_output(self, lines, identifier):
+    def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
         # stop after the first line, that contains the searched text
-        for line in lines:
+        for line in output:
             if identifier in line:
                 start_position = line.find("=") + 1
                 return line[start_position:].strip()
