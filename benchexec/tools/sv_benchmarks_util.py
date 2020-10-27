@@ -12,6 +12,7 @@ repository: https://github.com/sosy-lab/sv-benchmarks
 
 import benchexec.tools.template
 
+
 def get_data_model_from_task(task, data_models):
     if isinstance(task.options, dict) and task.options.get("language") == "C":
         data_model = task.options.get("data_model")
