@@ -43,43 +43,29 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
     def determine_result(self, run):
-        output = "\n".join(run.output)
         status = result.RESULT_UNKNOWN
 
-        if self.allInText(["FALSE_DEREF"], output):
+        if run.output.any_line_contains("FALSE_DEREF"):
             status = result.RESULT_FALSE_DEREF
-        elif self.allInText(["FALSE_FREE"], output):
+        elif run.output.any_line_contains("FALSE_FREE"):
             status = result.RESULT_FALSE_FREE
-        elif self.allInText(["FALSE_MEMTRACK"], output):
+        elif run.output.any_line_contains("FALSE_MEMTRACK"):
             status = result.RESULT_FALSE_MEMTRACK
-        elif self.allInText(["FALSE_OVERFLOW"], output):
+        elif run.output.any_line_contains("FALSE_OVERFLOW"):
             status = result.RESULT_FALSE_OVERFLOW
-        elif self.allInText(["FALSE_TERMINATION"], output):
+        elif run.output.any_line_contains("FALSE_TERMINATION"):
             status = result.RESULT_FALSE_TERMINATION
-        elif self.allInText(["FALSE"], output):
+        elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
-        elif "TRUE" in output:
+        elif run.output.any_line_contains("TRUE"):
             status = result.RESULT_TRUE_PROP
-        elif "DONE" in output:
+        elif run.output.any_line_contains("DONE"):
             status = result.RESULT_DONE
 
         if status == result.RESULT_UNKNOWN:
             if run.was_timeout:
                 status = "TIMEOUT"
-            elif output.endswith(("error", "error\n")):
+            elif run.output[-1].endswith("error"):
                 status = "ERROR"
 
         return status
-
-    """ helper method """
-
-    def allInText(self, words, text):
-        """
-        This function checks, if all the words appear in the given order in the text.
-        """
-        index = 0
-        for word in words:
-            index = text[index:].find(word)
-            if index == -1:
-                return False
-        return True
