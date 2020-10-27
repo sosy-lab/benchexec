@@ -66,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return "timeout"
 
-        if run.output is None:
+        if not run.output:
             return "error (no output)"
 
         for line in run.output:
