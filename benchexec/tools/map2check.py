@@ -57,16 +57,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "Map2Check"
 
     def cmdline(self, executable, options, task, rlimits):
-        sourcefiles = list(task.input_files_or_identifier)
-
-        assert len(sourcefiles) == 1, "only one sourcefile supported"
         assert task.property_file, "property file required"
 
-        sourcefile = sourcefiles[0]
         if self.__version == 6:
-            return [executable] + options + ["-c", task.property_file, sourcefile]
+            return (
+                [executable]
+                + options
+                + ["-c", task.property_file, task.single_input_file]
+            )
         elif self.__version > 6:
-            return [executable] + options + ["-p", task.property_file, sourcefile]
+            return (
+                [executable]
+                + options
+                + ["-p", task.property_file, task.single_input_file]
+            )
         assert False, "Unexpected version " + self.__version
 
     def determine_result(self, run):

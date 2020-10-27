@@ -32,16 +32,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "ESBMC"
 
     def cmdline(self, executable, options, task, rlimits):
-        tasks = list(task.input_files_or_identifier)
-        assert len(tasks) == 1, "only one inputfile supported"
-        inputfile = tasks[0]
-
         data_model_param = util.get_data_model_from_task(
             task, {"ILP32": "32", "LP64": "64"}
         )
         if data_model_param and "--arch" not in options:
             options += ["--arch", data_model_param]
-        return [executable] + ["-p", task.property_file] + options + [inputfile]
+        return (
+            [executable]
+            + ["-p", task.property_file]
+            + options
+            + [task.single_input_file]
+        )
 
     def determine_result(self, run):
         output = "\n".join(run.output)

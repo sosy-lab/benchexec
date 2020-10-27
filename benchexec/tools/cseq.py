@@ -29,18 +29,14 @@ class CSeqTool(benchexec.tools.template.BaseTool2):
         are either absolute or have been made relative to the designated working directory.
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
-        @param tasks: a list of tasks, that should be analysed with the tool in one run.
-                            In most cases we we have only _one_ inputfile.
-        @param propertyfile: contains a specification for the verifier.
+        @param tasks: instance of class Task containg the property and input file
+                            This tool info module only supports one input file.
         @param rlimits: This dictionary contains resource-limits for a run,
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
                         All entries in rlimits are optional, so check for existence before usage!
         """
-        tasks = list(task.input_files_or_identifier)
-        assert len(tasks) == 1, "only one inputfile supported"
-        inputfile = ["--input", tasks[0]]
         spec = ["--spec", task.property_file] if task.property_file is not None else []
-        return [executable] + options + spec + inputfile
+        return [executable] + options + spec + ["--input", task.single_input_file]
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
