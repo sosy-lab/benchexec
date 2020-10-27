@@ -397,6 +397,8 @@ def _prepare_run_sets_for_js(run_sets):
 
     def prepare_column(column):
         result = {k: v for k, v in column.__dict__.items() if v is not None}
+        result.pop("scale_factor", None)
+        result.pop("source_unit", None)
         if "href" in result:
             # href may contain an url created from an os-dependant path, so standardize it between OSs
             result["href"] = util.fix_path_if_on_windows(result["href"])
