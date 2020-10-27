@@ -67,29 +67,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     @functools.lru_cache()
     def executable(self, tool_locator):
-        exe = None
-        try:
-            exe = tool_locator.find_executable("Ultimate.py")
-            for (_, dir_names, file_names) in os.walk(os.path.dirname(exe)):
-                if "Ultimate" in file_names and "plugins" in dir_names:
-                    return exe
-                break
-        except benchexec.tools.template.ToolNotFoundException:
-            pass
-
-        # possibly another Ultimate.py was found or not found at all, check in the current dir
-        current = os.getcwd()
-        for (_, dir_names, file_names) in os.walk(current):
-            if (
-                "Ultimate" in file_names
-                and "Ultimate.py" in file_names
-                and "plugins" in dir_names
-            ):
-                return "./Ultimate.py"
+        exe = tool_locator.find_executable("Ultimate.py")
+        for (_, dir_names, file_names) in os.walk(os.path.dirname(exe)):
+            if "Ultimate" in file_names and "plugins" in dir_names:
+                return exe
             break
-
-        msg = "ERROR: Could not find Ultimate executable in '{0}' or '{1}'".format(
-            str(exe), str(current)
+        msg = "ERROR: Did find a Ultimate.py in {} but no 'Ultimate' or no 'plugins' directory besides it".format(
+            os.path.dirname(exe)
         )
         raise benchexec.tools.template.ToolNotFoundException(msg)
 
