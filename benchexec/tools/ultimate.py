@@ -64,7 +64,6 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def __init__(self):
         self.java = None
 
-    @functools.lru_cache()
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
         for (_, dir_names, file_names) in os.walk(os.path.dirname(exe)):
