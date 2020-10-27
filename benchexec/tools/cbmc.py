@@ -48,7 +48,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return [executable] + options + list(task.input_files_or_identifier)
 
-    def parse_XML(self, output, returncode, isTimeout):
+    def parse_XML(self, output, exit_code, isTimeout):
         # an empty tag cannot be parsed into a tree
         def sanitizeXML(s):
             return s.replace("<>", "<emptyTag>").replace("</>", "</emptyTag>")
@@ -78,7 +78,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     status = "INVALID OUTPUT"
 
             elif status == "FAILURE":
-                assert returncode == 10
+                assert exit_code.value == 10
                 reason = tree.find("goto_trace").find("failure").findtext("reason")
                 if not reason:
                     reason = tree.find("goto_trace").find("failure").get("reason")
@@ -88,7 +88,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     status = result.RESULT_FALSE_REACH
 
             elif status == "SUCCESS":
-                assert returncode == 0
+                assert exit_code.value == 0
                 if "--unwinding-assertions" in self.options:
                     status = result.RESULT_TRUE_PROP
                 else:
@@ -103,19 +103,18 @@ class Tool(benchexec.tools.template.BaseTool2):
             else:
                 status = "INVALID OUTPUT"
                 logging.exception(
-                    "Error parsing CBMC output for returncode %d", returncode
+                    "Error parsing CBMC output for exit_code.value %d", exit_code.value
                 )
 
         return status
 
     def determine_result(self, run):
-        returncode = run.exit_code.value or 0
         output = run.output
 
-        if not run.exit_code.signal and ((returncode == 0) or (returncode == 10)):
+        if run.exit_code.value in [0, 10]:
             status = result.RESULT_ERROR
             if "--xml-ui" in self.options:
-                status = self.parse_XML(output, returncode, run.was_timeout)
+                status = self.parse_XML(output, run.exit_code.value, run.was_timeout)
             elif len(output) > 0:
                 # SV-COMP mode
                 result_str = output[-1].strip()
@@ -138,13 +137,13 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif "UNKNOWN" in output:
                     status = result.RESULT_UNKNOWN
 
-        elif returncode == 64 and "Usage error!\n" in output:
+        elif run.exit_code.value == 64 and "Usage error!\n" in output:
             status = "INVALID ARGUMENTS"
 
-        elif returncode == 6 and "Out of memory\n" in output:
+        elif run.exit_code.value == 6 and "Out of memory\n" in output:
             status = "OUT OF MEMORY"
 
-        elif returncode == 6 and "SAT checker ran out of memory\n" in output:
+        elif run.exit_code.value == 6 and "SAT checker ran out of memory\n" in output:
             status = "OUT OF MEMORY"
 
         else:

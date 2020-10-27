@@ -104,8 +104,6 @@ class Tool(OldSymbiotic):
         return lastphase
 
     def determine_result(self, run):
-        returncode = run.exit_code.value or 0
-
         if not run.output:
             return "{0}(no output)".format(result.RESULT_ERROR)
 
@@ -142,9 +140,9 @@ class Tool(OldSymbiotic):
             return "KILLED (signal {0}, {1})".format(
                 run.exit_code.signal, self._getPhase(run.output)
             )
-        elif returncode != 0:
+        elif run.exit_code.value != 0:
             return "{0}(returned {1}, {2})".format(
-                result.RESULT_ERROR, returncode, self._getPhase(run.output)
+                result.RESULT_ERROR, run.exit_code.value, self._getPhase(run.output)
             )
 
         return "{0}(unknown, {1})".format(

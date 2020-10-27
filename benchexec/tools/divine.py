@@ -96,8 +96,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        returncode = run.exit_code.value or 0
-
         if not run.output:
             return "ERROR - no output"
 
@@ -106,7 +104,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return "TIMEOUT"
 
-        if returncode != 0:
+        if run.exit_code.value != 0:
             return "ERROR - Pre-run"
 
         if last is None:

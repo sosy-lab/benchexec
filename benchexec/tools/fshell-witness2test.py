@@ -80,17 +80,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         Otherwise an arbitrary string can be returned that will be shown to the user
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
-        @param returncode: the exit code of the program, 0 if the program was killed
-        @param returnsignal: the signal that killed the program, 0 if program exited itself
+        @param run.exit_code.value: the exit code of the program, None if the program was killed
+        @param runb.exi_code.signal: the signal that killed the program, None if program exited itself
         @param output: a list of strings of output lines of the tool (both stdout and stderr)
         @param isTimeout: whether the result is a timeout
         (useful to distinguish between program killed because of error and timeout)
         @return a non-empty string, usually one of the benchexec.result.RESULT_* constants
         """
-        returncode = run.exit_code.value or 0
         output = run.output
         status = result.RESULT_ERROR
-        if not run.exit_code.signal and returncode == 0:
+        if run.exit_code.value == 0:
             if output:
                 result_str = output[-1].strip()
 

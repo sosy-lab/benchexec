@@ -39,16 +39,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + list(task.input_files_or_identifier)
 
     def determine_result(self, run):
-        returncode = run.exit_code.value or 0
-        if ((run.exit_code.signal == 9) or (run.exit_code.signal == 15)) and run.was_timeout:
+        if (
+            (run.exit_code.signal == 9) or (run.exit_code.signal == 15)
+        ) and run.was_timeout:
             status = "TIMEOUT"
         elif run.exit_code.signal == 9:
             status = "OUT OF MEMORY"
         elif run.exit_code.signal:
             status = "ERROR(SIGNAL " + str(run.exit_code.signal) + ")"
-        elif returncode == 0:
+        elif run.exit_code.value == 0:
             status = result.RESULT_TRUE_PROP
-        elif returncode == 10:
+        elif run.exit_code.value == 10:
             if run.output:
                 result_str = run.output[-1].strip()
                 if result_str == "FALSE(valid-memtrack)":
