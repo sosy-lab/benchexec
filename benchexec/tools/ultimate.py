@@ -62,7 +62,6 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS_SVCOMP17 = []
 
     def __init__(self):
-        self._uses_propertyfile = False
         self.java = None
 
     @functools.lru_cache()
@@ -189,18 +188,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
     def cmdline(self, executable, options, task, resource_limits):
-        self._uses_propertyfile = task.property_file is not None
         combined_options = options + [*task.options] if task.options else []
 
         if _OPTION_NO_WRAPPER in combined_options:
             # do not use old wrapper script even if property file is given
-            self._uses_propertyfile = False
             combined_options.remove(_OPTION_NO_WRAPPER)
 
         if self._is_svcomp17_version(executable):
             return self._cmdline_svcomp17(executable, combined_options, task)
 
-        if self._uses_propertyfile:
+        if task.property_file is not None:
             return self._cmdline_default(executable, combined_options, task)
 
         # if no property file is given and toolchain (-tc) is, use Ultimate directly and
@@ -309,7 +306,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, run):
-        if self._uses_propertyfile:
+        if any([arg for arg in run.commandline if "--spec" in arg or ".prp" in arg]):
             return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
