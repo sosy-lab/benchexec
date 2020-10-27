@@ -17,8 +17,8 @@ import subprocess
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
-from benchexec import BenchExecException
 from benchexec.tools.template import UnsupportedFeatureException
+from benchexec.tools.template import ToolNotFoundException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -73,7 +73,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         msg = "ERROR: Did find a Ultimate.py in {} but no 'Ultimate' or no 'plugins' directory besides it".format(
             os.path.dirname(exe)
         )
-        raise benchexec.tools.template.ToolNotFoundException(msg)
+        raise ToolNotFoundException(msg)
 
     def _ultimate_version(self, executable):
         data_dir = os.path.join(os.path.dirname(executable), "data")
@@ -110,7 +110,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     self.java = java
                     return version
             self.api = self.api - 1
-        raise BenchExecException("Cannot determine Ultimate version")
+        raise ToolNotFoundException("Cannot determine Ultimate version")
 
     def _query_ultimate_version(self, cmd, api):
         try:
@@ -468,5 +468,5 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 )
                 rtr[version] = candidate
         if not rtr:
-            raise BenchExecException("Could not find any Java version")
+            raise ToolNotFoundException("Could not find any Java version")
         return rtr
