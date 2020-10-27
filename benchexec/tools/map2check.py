@@ -28,10 +28,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     def executable(self, tool_locator):
         try:
             executable = tool_locator.find_executable("map2check-wrapper.sh")
-            self.__version = 6
+            self._version = 6
         except ToolNotFoundException:
             executable = tool_locator.find_executable("map2check-wrapper.py")
-            self.__version = 7
+            self._version = 7
 
         return executable
 
@@ -39,9 +39,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         Determine the file paths to be adopted
         """
-        if self.__version == 6:
+        if self._version == 6:
             paths = self.REQUIRED_PATHS_6
-        elif self.__version > 6:
+        elif self._version > 6:
             paths = self.REQUIRED_PATHS_7_1
 
         return paths
@@ -59,19 +59,19 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         assert task.property_file, "property file required"
 
-        if self.__version == 6:
+        if self._version == 6:
             return (
                 [executable]
                 + options
                 + ["-c", task.property_file, task.single_input_file]
             )
-        elif self.__version > 6:
+        elif self._version > 6:
             return (
                 [executable]
                 + options
                 + ["-p", task.property_file, task.single_input_file]
             )
-        assert False, "Unexpected version " + self.__version
+        assert False, "Unexpected version " + self._version
 
     def determine_result(self, run):
         output = run.output
@@ -80,7 +80,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         output = output[-1].strip()
         status = result.RESULT_UNKNOWN
 
-        if self.__version > 6:
+        if self._version > 6:
             if output.endswith("TRUE"):
                 status = result.RESULT_TRUE_PROP
             elif "FALSE" in output:
@@ -103,7 +103,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             else:
                 status = "ERROR"
 
-        elif self.__version == 6:
+        elif self._version == 6:
             if output.endswith("TRUE"):
                 status = result.RESULT_TRUE_PROP
             elif "FALSE" in output:

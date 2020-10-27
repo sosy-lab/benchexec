@@ -38,7 +38,7 @@ class Tool(OldSymbiotic):
             # this may be the old version of Symbiotic
             executable = OldSymbiotic.executable(self, tool_locator)
 
-        self.__version = self.version(executable)
+        self._version = self.version(executable)
         return executable
 
     def program_files(self, executable):
@@ -61,7 +61,7 @@ class Tool(OldSymbiotic):
         """
         Determine whether the version is greater than some given version
         """
-        vers_num = self.__version[: self.__version.index("-")]
+        vers_num = self._version[: self._version.index("-")]
         if not vers_num[0].isdigit():
             # this is the old version which is "older" than any given version
             return False
