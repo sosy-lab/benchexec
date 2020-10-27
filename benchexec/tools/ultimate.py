@@ -430,7 +430,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             if match and len(match.groups()) > 0:
                 return match.group(1)
         logging.debug("Did not find a match with regex %s", identifier)
-        return "N/A"
+        return None
 
     def get_java_installations(self):
         candidates = [
