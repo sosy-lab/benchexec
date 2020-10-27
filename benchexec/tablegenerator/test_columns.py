@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from decimal import Decimal
 import unittest
 
 from benchexec.tablegenerator.columns import (
@@ -14,8 +15,8 @@ from benchexec.tablegenerator.columns import (
 )
 from benchexec.tablegenerator.util import TableDefinitionError
 
-nan = float("nan")
-inf = float("inf")
+nan = Decimal("nan")
+inf = Decimal("inf")
 
 
 class ColumnsTest(unittest.TestCase):

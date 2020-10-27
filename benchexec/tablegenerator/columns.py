@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from decimal import Decimal
 from math import floor, ceil, log10, isnan, isinf
 import logging
 
@@ -17,7 +18,7 @@ DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
 # Compile regular expression for detecting measurements only once.
 REGEX_MEASURE = re.compile(
-    r"\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$"
+    r"\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF]|[iI][nN][fF][iI][nN][iI][tT][yY])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$"
 )
 GROUP_SIGN = 1
 GROUP_SPECIAL_FLOATS_PART = 2
@@ -33,20 +34,21 @@ POSSIBLE_FORMAT_TARGETS = ["html", "html_cell", "tooltip", "tooltip_stochastic",
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
+_ONE = Decimal(1)
 UNIT_CONVERSION = {
-    "s": {"ms": 1000, "min": 1.0 / 60, "h": 1.0 / 3600},
-    "B": {"kB": 1.0 / 10 ** 3, "MB": 1.0 / 10 ** 6, "GB": 1.0 / 10 ** 9},
+    "s": {"ms": 1000, "min": _ONE / 60, "h": _ONE / 3600},
+    "B": {"kB": Decimal("1e-3"), "MB": Decimal("1e-6"), "GB": Decimal("1e-9")},
     "J": {
-        "kJ": 1.0 / 10 ** 3,
-        "Ws": 1,
-        "kWs": 1.0 / 1000,
-        "Wh": 1.0 / 3600,
-        "kWh": 1.0 / (1000 * 3600),
-        "mWh": 1.0 / (1000 * 1000 * 3600),
+        "kJ": _ONE / 10 ** 3,
+        "Ws": _ONE,
+        "kWs": _ONE / 1000,
+        "Wh": _ONE / 3600,
+        "kWh": _ONE / (1000 * 3600),
+        "mWh": _ONE / (1000 * 1000 * 3600),
     },
 }
 
-inf = float("inf")
+inf = Decimal("inf")
 
 
 def enum(**enums):
@@ -149,7 +151,7 @@ class Column(object):
         self.type = col_type
         self.unit = unit
         self.source_unit = source_unit
-        self.scale_factor = float(scale_factor) if scale_factor else scale_factor
+        self.scale_factor = Decimal(scale_factor) if scale_factor else scale_factor
         self.href = href
         if relevant_for_diff is None:
             self.relevant_for_diff = False
@@ -206,7 +208,7 @@ class Column(object):
         # If the number ends with "s" or another unit, remove it.
         # Units should not occur in table cells, but in the table head.
         number_str = util.remove_unit(str(value).strip())
-        number = float(number_str)
+        number = Decimal(number_str)
 
         if isnan(number):
             return "NaN"
@@ -243,12 +245,10 @@ class Column(object):
                 format_target,
             )
         else:
-            if number == float(number_str) or isnan(number) or isinf(number):
+            if number == Decimal(number_str) or isnan(number) or isinf(number):
                 # TODO remove as soon as scaled values are handled correctly
                 return number_str
-            if int(number) == number:
-                number = int(number)
-            return str(number)
+            return str(number.normalize())
 
     def set_column_type_from(self, column_values):
         """
@@ -320,7 +320,7 @@ def _format_number_align(
 
 
 def _get_significant_digits(value):
-    if isnan(float(value)) or isinf(float(value)):
+    if isnan(Decimal(value)) or isinf(Decimal(value)):
         return 0
 
     # Regular expression returns multiple groups:
@@ -336,11 +336,11 @@ def _get_significant_digits(value):
     # decimal positions.
     match = REGEX_MEASURE.match(value)
 
-    if int(match.group(GROUP_INT_PART)) == 0 and float(value) != 0:
+    if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
         sig_digits = len(match.group(GROUP_SIG_DEC_PART))
 
     else:
-        if float(value) != 0:
+        if Decimal(value) != 0:
             sig_digits = len(match.group(GROUP_INT_PART))
         else:
             # If the value consists of only zeros, do not count the 0 in front of the decimal
@@ -390,7 +390,7 @@ def _format_number(
 
         # Get the number of intended significant digits and the number of current significant digits.
         # If we have not enough digits due to rounding, 0's have to be re-added.
-        # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
+        # If we have too many digits due to conversion of integers to Decimal (e.g. 1234.0), the decimals have to be cut
         current_sig_digits = _get_significant_digits(formatted_value)
 
         digits_to_add = intended_digits - current_sig_digits
@@ -436,7 +436,7 @@ def _is_to_cut(value, format_target, is_to_align):
         format_target == "csv" and is_to_align
     )
 
-    return correct_target and "." in value and 1 > float(value) >= 0
+    return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
 def _get_column_type_heur(column, column_values):
@@ -512,7 +512,7 @@ def _get_column_type_heur(column, column_values):
             # digits for this column.
             # Use the column's scale factor for computing the decimal digits of the current value.
             # Otherwise, they might be different from output.
-            scaled_value = float(util.remove_unit(str(value))) * column_scale_factor
+            scaled_value = Decimal(util.remove_unit(str(value))) * column_scale_factor
 
             # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
             # special cases, immediately convert the value back to decimal notation.
