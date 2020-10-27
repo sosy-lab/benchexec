@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         Compose the command line to execute from the name of the executable
         """
 
-        if task.property_file is not None:
+        if task.property_file:
             options = options + ["--prp={0}".format(task.property_file)]
 
         data_model_param = get_data_model_from_task(

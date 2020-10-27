@@ -28,11 +28,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable, use_stderr=True)
 
     def cmdline(self, executable, options, task, rlimits):
-        spec = (
-            ["--propertyfile", task.property_file]
-            if task.property_file is not None
-            else []
-        )
+        spec = ["--propertyfile", task.property_file] if task.property_file else []
 
         data_model_param = get_data_model_from_task(
             task,
