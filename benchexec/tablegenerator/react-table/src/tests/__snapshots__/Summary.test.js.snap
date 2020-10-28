@@ -26968,7 +26968,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       CPAchecker 1.4-svn 15944M
      </td>
@@ -26981,7 +26981,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       timelimit: 10 s, memlimit: 3000 MB, CPU core limit: 1
      </td>
@@ -26994,7 +26994,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       tortuga
      </td>
@@ -27007,7 +27007,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       Linux 3.13.0-45-generic x86_64
      </td>
@@ -27020,7 +27020,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB
      </td>
@@ -27033,7 +27033,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       2015-03-03 16:13:02 CET
      </td>
@@ -27046,7 +27046,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row"
-      colSpan={6}
+      colSpan={8}
      >
       predicateAnalysis
      </td>
@@ -27059,7 +27059,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      </th>
      <td
       className="header__tool-row options"
-      colSpan={6}
+      colSpan={8}
      >
       <ul>
        <li>
@@ -27100,7 +27100,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-thead -headerGroups"
      style={
       Object {
-       "minWidth": "643.6px",
+       "minWidth": "843.6px",
       }
      }
     >
@@ -27159,11 +27159,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="columnheader"
        style={
         Object {
-         "flex": "488 0 auto",
+         "flex": "688 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "488px",
+         "width": "688px",
         }
        }
        tabIndex="-1"
@@ -27181,7 +27181,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-thead -header"
      style={
       Object {
-       "minWidth": "643.6px",
+       "minWidth": "843.6px",
       }
      }
     >
@@ -27328,11 +27328,41 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="columnheader"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         walltime
+         <br />
+         (s)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
         }
        }
        tabIndex="-1"
@@ -27347,6 +27377,36 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
          walltime
          <br />
          (ns)
+        </div>
+       </div>
+       <div
+        className="rt-resizer"
+       />
+      </div>
+      <div
+       className="rt-th rt-resizable-header"
+       role="columnheader"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
+        }
+       }
+       tabIndex="-1"
+      >
+       <div
+        className="rt-resizable-header-content"
+       >
+        <div
+         className="columns"
+         title="Show Quantile Plot of this column"
+        >
+         walltime
+         <br />
+         (Gs)
         </div>
        </div>
        <div
@@ -27419,7 +27479,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      className="rt-tbody"
      style={
       Object {
-       "minWidth": "643.6px",
+       "minWidth": "843.6px",
       }
      }
     >
@@ -27524,18 +27584,56 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "92 0 auto",
+          "flex": "84 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "92px",
+          "width": "84px",
          }
         }
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={".0000011&#x2007;"}
-         title="avg: 0.00000020, max: 0.00000020, median: 0.00000020, min: 0.00000020, stdev: 0.00"
+         dangerouslySetInnerHTML={"11&#x2008;&#x2007;"}
+         title="avg: 2.2, max: 2.3, median: 2.2, min: 2.1, stdev: 0.072"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "100 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "100px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"11000000000"}
+         title="avg: 2200000000, max: 2300000000, median: 2200000000, min: 2100000000, stdev: 72000000"
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "108 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "108px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".000000011&#x2007;"}
+         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0.00"
         />
        </div>
        <div
@@ -27678,17 +27776,53 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         role="gridcell"
         style={
          Object {
-          "flex": "92 0 auto",
+          "flex": "84 0 auto",
           "left": false,
           "maxWidth": null,
           "right": false,
-          "width": "92px",
+          "width": "84px",
          }
         }
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={".0000012&#x2007;"}
+         dangerouslySetInnerHTML={"12&#x2008;&#x2007;"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "100 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "100px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={"12000000000"}
+        />
+       </div>
+       <div
+        className="rt-td"
+        role="gridcell"
+        style={
+         Object {
+          "flex": "108 0 auto",
+          "left": false,
+          "maxWidth": null,
+          "right": false,
+          "width": "108px",
+         }
+        }
+       >
+        <div
+         className="cell"
+         dangerouslySetInnerHTML={".000000012&#x2007;"}
         />
        </div>
        <div

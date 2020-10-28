@@ -5,7 +5,7 @@
    "content": [
     [
      "2015-03-03 16:13:02 CET",
-     6
+     8
     ]
    ],
    "id": "date",
@@ -16,7 +16,7 @@
    "content": [
     [
      "tortuga",
-     6
+     8
     ]
    ],
    "id": "host",
@@ -26,7 +26,7 @@
    "content": [
     [
      "timelimit: 10 s, memlimit: 3000 MB, CPU core limit: 1",
-     6
+     8
     ]
    ],
    "id": "limits",
@@ -36,7 +36,7 @@
    "content": [
     [
      "-noout -setprop log.consoleLevel=WARNING -predicateAnalysis",
-     6
+     8
     ]
    ],
    "id": "options",
@@ -46,7 +46,7 @@
    "content": [
     [
      "Linux 3.13.0-45-generic x86_64",
-     6
+     8
     ]
    ],
    "id": "os",
@@ -57,7 +57,7 @@
    "content": [
     [
      "predicateAnalysis",
-     6
+     8
     ]
    ],
    "id": "run",
@@ -67,7 +67,7 @@
    "content": [
     [
      "CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB",
-     6
+     8
     ]
    ],
    "id": "system",
@@ -92,7 +92,15 @@
      1
     ],
     [
+     "walltime (s)",
+     1
+    ],
+    [
      "walltime (ns)",
+     1
+    ],
+    [
+     "walltime (Gs)",
      1
     ],
     [
@@ -111,7 +119,7 @@
    "content": [
     [
      "CPAchecker 1.4-svn 15944M",
-     6
+     8
     ]
    ],
    "id": "tool",
@@ -141,8 +149,14 @@
        "raw": "0.0006026"
       },
       {
-       "html": ".00000022",
-       "raw": "0.00000022"
+       "raw": "2.2"
+      },
+      {
+       "raw": "2200000000"
+      },
+      {
+       "html": ".0000000022",
+       "raw": "0.0000000022"
       },
       {
        "raw": "128.03"
@@ -177,8 +191,14 @@
        "raw": "0.0006083"
       },
       {
-       "html": ".00000022",
-       "raw": "0.00000022"
+       "raw": "2.2"
+      },
+      {
+       "raw": "2200000000"
+      },
+      {
+       "html": ".0000000022",
+       "raw": "0.0000000022"
       },
       {
        "raw": "129.12"
@@ -213,8 +233,14 @@
        "raw": "0.0006193"
       },
       {
-       "html": ".00000022",
-       "raw": "0.00000022"
+       "raw": "2.2"
+      },
+      {
+       "raw": "2200000000"
+      },
+      {
+       "html": ".0000000022",
+       "raw": "0.0000000022"
       },
       {
        "raw": "132.34"
@@ -248,8 +274,14 @@
        "raw": "0.0006312"
       },
       {
-       "html": ".00000023",
-       "raw": "0.00000023"
+       "raw": "2.3"
+      },
+      {
+       "raw": "2300000000"
+      },
+      {
+       "html": ".0000000023",
+       "raw": "0.0000000023"
       },
       {
        "raw": "129.47"
@@ -284,8 +316,14 @@
        "raw": "0.0005718"
       },
       {
-       "html": ".00000021",
-       "raw": "0.00000021"
+       "raw": "2.1"
+      },
+      {
+       "raw": "2100000000"
+      },
+      {
+       "html": ".0000000021",
+       "raw": "0.0000000021"
       },
       {
        "raw": "126.31"
@@ -323,12 +361,28 @@
       "sum": ".003033&#x2007;"
      },
      {
-      "avg": "0.00000020",
-      "max": "0.00000020",
-      "median": "0.00000020",
-      "min": "0.00000020",
+      "avg": "2.2",
+      "max": "2.3",
+      "median": "2.2",
+      "min": "2.1",
+      "stdev": "0.072",
+      "sum": "11&#x2008;&#x2007;"
+     },
+     {
+      "avg": "2200000000",
+      "max": "2300000000",
+      "median": "2200000000",
+      "min": "2100000000",
+      "stdev": "72000000",
+      "sum": "11000000000"
+     },
+     {
+      "avg": "0.00",
+      "max": "0.00",
+      "median": "0.00",
+      "min": "0.00",
       "stdev": "0.00",
-      "sum": ".0000011&#x2007;"
+      "sum": ".000000011&#x2007;"
      },
      {
       "avg": "129.05",
@@ -363,7 +417,13 @@
       "sum": ".003037&#x2007;"
      },
      {
-      "sum": ".0000012&#x2007;"
+      "sum": "12&#x2008;&#x2007;"
+     },
+     {
+      "sum": "12000000000"
+     },
+     {
+      "sum": ".000000012&#x2007;"
      },
      null,
      null
@@ -405,12 +465,30 @@
     },
     {
      "display_title": "walltime",
-     "max_width": 9,
+     "max_width": 8,
+     "number_of_significant_digits": 2,
+     "relevant_for_diff": false,
+     "title": "walltime",
+     "type": "measure",
+     "unit": "s"
+    },
+    {
+     "display_title": "walltime",
+     "max_width": 10,
      "number_of_significant_digits": 2,
      "relevant_for_diff": false,
      "title": "walltime",
      "type": "measure",
      "unit": "ns"
+    },
+    {
+     "display_title": "walltime",
+     "max_width": 11,
+     "number_of_significant_digits": 2,
+     "relevant_for_diff": false,
+     "title": "walltime",
+     "type": "measure",
+     "unit": "Gs"
     },
     {
      "display_title": "memory",

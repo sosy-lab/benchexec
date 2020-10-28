@@ -13,7 +13,9 @@ SPDX-License-Identifier: Apache-2.0
   <column title="status"/>
   <column title="cputime" numberOfDigits="3" displayUnit="ms"/>
   <column title="cputime" displayTitle="cputime-h" numberOfDigits="4" displayUnit="h" sourceUnit="s"/>
-  <column title="walltime" numberOfDigits="2" displayUnit="ns" sourceUnit="s" scaleFactor="0.0000001"/>
+  <column title="walltime" numberOfDigits="2"/>
+  <column title="walltime" numberOfDigits="2" displayUnit="ns" sourceUnit="s" scaleFactor="1000000000"/>
+  <column title="walltime" numberOfDigits="2" displayUnit="Gs" sourceUnit="s" scaleFactor="0.000000001"/>
   <column title="memUsage" numberOfDigits="5" displayTitle="memory" displayUnit="MB" scaleFactor="0.000001"/>
   <column title="memUsage" numberOfDigits="5" displayTitle="memory-GB" displayUnit="GB" scaleFactor="0.000000001"/>
 </table>
