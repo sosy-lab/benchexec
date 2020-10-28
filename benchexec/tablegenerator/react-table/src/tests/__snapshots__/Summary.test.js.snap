@@ -59015,7 +59015,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".000000011&#x2007;"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0.00"
+         title="avg: 0.0000000022, max: 0.0000000023, median: 0.0000000022, min: 0.0000000021, stdev: 0.000000000072"
         />
        </div>
        <div
@@ -59397,7 +59397,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000000065"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0.00"
+         title="avg: 0.0000000022, max: 0.0000000022, median: 0.0000000022, min: 0.0000000021, stdev: 0.000000000073"
         />
        </div>
        <div
@@ -59590,7 +59590,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000000043"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0.00"
+         title="avg: 0.0000000022, max: 0.0000000022, median: 0.0000000022, min: 0.0000000021, stdev: 0.000000000085"
         />
        </div>
        <div
@@ -59783,7 +59783,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000000022"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0"
+         title="avg: 0.0000000022, max: 0.0000000022, median: 0.0000000022, min: 0.0000000022, stdev: 0"
         />
        </div>
        <div
@@ -59976,7 +59976,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000000022"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0"
+         title="avg: 0.0000000022, max: 0.0000000022, median: 0.0000000022, min: 0.0000000022, stdev: 0"
         />
        </div>
        <div
@@ -60169,7 +60169,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={".0000000022"}
-         title="avg: 0.00, max: 0.00, median: 0.00, min: 0.00, stdev: 0"
+         title="avg: 0.0000000022, max: 0.0000000022, median: 0.0000000022, min: 0.0000000022, stdev: 0"
         />
        </div>
        <div

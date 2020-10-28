@@ -397,7 +397,7 @@ def _format_number(
             max_digits_to_display = max_digits_after_decimal
         else:
             # This value may be too big, but extra digits will be cut below
-            max_digits_to_display = len(str(rounded_value))
+            max_digits_to_display = len(util.print_decimal(rounded_value))
         formatted_value = "{0:.{1}f}".format(rounded_value, max_digits_to_display)
 
         # Get the number of intended significant digits and the number of current significant digits.
