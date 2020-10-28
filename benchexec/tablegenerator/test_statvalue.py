@@ -59,29 +59,27 @@ class TestStatValue(unittest.TestCase):
             self.assertAlmostEqual(s.stdev, Decimal(370.83879721))
 
     def test_nan(self):
-        import math
-
-        nan = Decimal(float("nan"))
+        nan = Decimal("nan")
         v = Decimal(0.123)
 
         s = StatValue.from_list([nan])
-        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
-        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
-        self.assertTrue(math.isnan(s.max), "Not NaN, but " + str(s.max))
-        self.assertTrue(math.isnan(s.min), "Not NaN, but " + str(s.min))
-        self.assertTrue(math.isnan(s.median), "Not NaN, but " + str(s.median))
-        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
+        self.assertTrue(s.sum.is_nan(), "Not NaN, but " + str(s.sum))
+        self.assertTrue(s.avg.is_nan(), "Not NaN, but " + str(s.avg))
+        self.assertTrue(s.max.is_nan(), "Not NaN, but " + str(s.max))
+        self.assertTrue(s.min.is_nan(), "Not NaN, but " + str(s.min))
+        self.assertTrue(s.median.is_nan(), "Not NaN, but " + str(s.median))
+        self.assertTrue(s.stdev.is_nan(), "Not NaN, but " + str(s.stdev))
 
         s = StatValue.from_list([nan, v])
-        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
-        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
-        self.assertTrue(math.isnan(s.max), "Not NaN, but " + str(s.max))
-        self.assertTrue(math.isnan(s.min), "Not NaN, but " + str(s.min))
-        self.assertTrue(math.isnan(s.median), "Not NaN, but " + str(s.median))
-        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
+        self.assertTrue(s.sum.is_nan(), "Not NaN, but " + str(s.sum))
+        self.assertTrue(s.avg.is_nan(), "Not NaN, but " + str(s.avg))
+        self.assertTrue(s.max.is_nan(), "Not NaN, but " + str(s.max))
+        self.assertTrue(s.min.is_nan(), "Not NaN, but " + str(s.min))
+        self.assertTrue(s.median.is_nan(), "Not NaN, but " + str(s.median))
+        self.assertTrue(s.stdev.is_nan(), "Not NaN, but " + str(s.stdev))
 
     def test_one_inf(self):
-        inf = Decimal(float("inf"))
+        inf = Decimal("inf")
         v = Decimal(0.123)
 
         s = StatValue.from_list([inf])
@@ -101,8 +99,8 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not NaN, but " + str(s.stdev))
 
     def test_one_negative_inf(self):
-        ninf = Decimal(float("-inf"))
-        inf = Decimal(float("inf"))
+        ninf = Decimal("-inf")
+        inf = Decimal("inf")
         v = Decimal(0.123)
 
         s = StatValue.from_list([ninf])
@@ -122,7 +120,7 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
 
     def test_multiple_positive_inf(self):
-        inf = Decimal(float("inf"))
+        inf = Decimal("inf")
         v = Decimal(0.123)
 
         # Equal number of infs
@@ -144,8 +142,8 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
 
     def test_multiple_negative_inf(self):
-        ninf = Decimal(float("-inf"))
-        inf = Decimal(float("inf"))
+        ninf = Decimal("-inf")
+        inf = Decimal("inf")
         v = Decimal(0.123)
 
         # Equal number of negative infs
@@ -167,16 +165,14 @@ class TestStatValue(unittest.TestCase):
         self.assertEqual(s.stdev, inf, "Not Inf, but " + str(s.stdev))
 
     def test_multiple_positive_and_negative_inf(self):
-        import math
-
-        inf = Decimal(float("inf"))
-        ninf = Decimal(float("-inf"))
+        inf = Decimal("inf")
+        ninf = Decimal("-inf")
         v = Decimal(0.123)
 
         s = StatValue.from_list([inf, ninf, v])
-        self.assertTrue(math.isnan(s.sum), "Not NaN, but " + str(s.sum))
-        self.assertTrue(math.isnan(s.avg), "Not NaN, but " + str(s.avg))
+        self.assertTrue(s.sum.is_nan(), "Not NaN, but " + str(s.sum))
+        self.assertTrue(s.avg.is_nan(), "Not NaN, but " + str(s.avg))
         self.assertEqual(s.max, inf, "Not Inf, but " + str(s.max))
         self.assertEqual(s.min, ninf, "Not -Inf, but " + str(s.min))
         self.assertEqual(s.median, v, "Not 0.123, but " + str(s.median))
-        self.assertTrue(math.isnan(s.stdev), "Not NaN, but " + str(s.stdev))
+        self.assertTrue(s.stdev.is_nan(), "Not NaN, but " + str(s.stdev))

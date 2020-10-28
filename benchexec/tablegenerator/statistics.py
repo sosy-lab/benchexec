@@ -8,7 +8,6 @@
 import collections
 from decimal import Decimal, InvalidOperation
 import itertools
-import math
 
 from benchexec import result
 from benchexec.tablegenerator import util
@@ -66,7 +65,7 @@ class StatValue(object):
     def from_list(cls, values):
         if not values:
             return None
-        if any(math.isnan(v) for v in values if v is not None):
+        if any(v is not None and v.is_nan() for v in values):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)

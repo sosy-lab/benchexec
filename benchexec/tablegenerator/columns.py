@@ -8,7 +8,7 @@
 import re
 import decimal
 from decimal import Decimal
-from math import floor, ceil, log10, isnan, isinf
+from math import floor, ceil, log10
 import logging
 
 from benchexec.tablegenerator import util
@@ -224,7 +224,7 @@ class Column(object):
         else:
             raise TypeError("Unexpected number type " + str(type(value)))
 
-        if isnan(number):
+        if number.is_nan():
             return "NaN"
         elif number == inf:
             return "Inf"
@@ -335,7 +335,7 @@ def _format_number_align(
 
 
 def _get_significant_digits(value):
-    if isnan(Decimal(value)) or isinf(Decimal(value)):
+    if not Decimal(value).is_finite():
         return 0
 
     # Regular expression returns multiple groups:
