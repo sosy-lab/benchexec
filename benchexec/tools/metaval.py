@@ -117,30 +117,18 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if verifierName in self.wrappedTools:
             tool = self.wrappedTools[verifierName]
-            if isinstance(tool, BaseTool2):
-                wrapped_executable = self.wrappedTools[verifierName].executable(
-                    BaseTool2.ToolLocator(
-                        tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
-                    )
+            assert isinstance(tool, BaseTool2): "we expect that all wrapped tools extend BaseTool2"
+            wrapped_executable = self.wrappedTools[verifierName].executable(
+                BaseTool2.ToolLocator(
+                    tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
                 )
-                wrappedOptions = self.wrappedTools[verifierName].cmdline(
-                    wrapped_executable,
-                    options,
-                    [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
-                    rlimits,
-                )
-            elif isinstance(tool, BaseTool):
-                with self._in_tool_directory(verifierName) as oldcwd:
-                    wrapped_executable = self.wrappedTools[verifierName].executable()
-                    wrappedOptions = self.wrappedTools[verifierName].cmdline(
-                        wrapped_executable,
-                        options,
-                        [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                        os.path.relpath(os.path.join(oldcwd, task.property_file)),
-                        rlimits,
-                    )
-            else:
-                sys.exit("ERROR: unknown BaseTool version.")
+            )
+            wrappedOptions = self.wrappedTools[verifierName].cmdline(
+                wrapped_executable,
+                options,
+                [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
+                rlimits,
+            )
 
             return (
                 [
