@@ -8,16 +8,28 @@
 """
 This module contains some useful functions related to tasks in the sv-benchmarks
 repository: https://github.com/sosy-lab/sv-benchmarks
+
+Note the following points before using any function in this util:
+    1. This is not a part of stable benchexec API.
+       We do not provide any guarantee of backward compatibility of this module.
+    2. Out-of-tree modules should not use this util
+    3. Any function in this util may change at any point in time
 """
 
 import benchexec.tools.template
 
 
-def get_data_model_from_task(task, data_models):
+def get_data_model_from_task(task, param_dict):
+    """
+    This function tries to extract tool parameter for data model
+    depending on the data model in the task.
+    @param task: An instance of of class Task, e.g., with the input files
+    @param param_dict: Dictionary mapping data model to the tool param value
+    """
     if isinstance(task.options, dict) and task.options.get("language") == "C":
         data_model = task.options.get("data_model")
         if data_model:
-            data_model_option = data_models.get(data_model)
+            data_model_option = param_dict.get(data_model)
             if data_model_option:
                 return data_model_option
             else:
