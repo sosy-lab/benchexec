@@ -29,8 +29,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     TOOL_TO_PATH_MAP = {
-        "cpachecker-metaval": "CPAchecker",
-        "cpachecker": "CPAchecker-1.7-svn 29852-unix",
+        "cpachecker-metaval": "CPAchecker-backend",
+        "cpachecker": "CPAchecker",
         "esbmc": "esbmc",
         "symbiotic": "symbiotic",
         "yogar-cbmc": "yogar-cbmc",
