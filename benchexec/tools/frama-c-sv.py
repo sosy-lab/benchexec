@@ -16,7 +16,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = ["."]
-    _TOOL_NAME = "frama-c-sv.py"
+    _TOOL_NAME = "frama-c-sv"
     _SCRIPT_NAME = _TOOL_NAME + ".py"
 
     def executable(self, _):
