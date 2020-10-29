@@ -37,4 +37,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        return super().cmdline(executable, options, task, rlimits)
+        return [executable, *options, *task.input_files_or_identifier]
