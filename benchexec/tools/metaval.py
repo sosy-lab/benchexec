@@ -49,20 +49,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "metaval"
 
-    @contextlib.contextmanager
-    def _in_tool_directory(self, verifierName):
-        """
-        Context manager that sets the current working directory to the tool's directory
-        and resets its afterward. The returned value is the previous working directory.
-        """
-        with self.lock:
-            try:
-                oldcwd = os.getcwd()
-                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
-                yield oldcwd
-            finally:
-                os.chdir(oldcwd)
-
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")
@@ -115,12 +101,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             assert isinstance(
                 tool, BaseTool2
             ), "we expect that all wrapped tools extend BaseTool2"
-            wrapped_executable = self.wrappedTools[verifierName].executable(
+            wrapped_executable = tool.executable(
                 BaseTool2.ToolLocator(
                     tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
                 )
             )
-            wrappedOptions = self.wrappedTools[verifierName].cmdline(
+            wrappedOptions = tool.cmdline(
                 wrapped_executable,
                 options,
                 [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
@@ -137,7 +123,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 ]
                 + additionalPathArgument
                 + witnessTypeArgument
-                + list(task.input_files_or_empty)
+                + list(task.single_input_file)
                 + ["--"]
                 + wrappedOptions
             )
