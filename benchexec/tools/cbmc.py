@@ -114,7 +114,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.exit_code.value in [0, 10]:
             status = result.RESULT_ERROR
             if "--xml-ui" in self.options:
-                status = self.parse_XML(output, run.exit_code.value, run.was_timeout)
+                status = self.parse_XML(output, run.exit_code, run.was_timeout)
             elif len(output) > 0:
                 # SV-COMP mode
                 result_str = output[-1].strip()
@@ -137,13 +137,13 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif "UNKNOWN" in output:
                     status = result.RESULT_UNKNOWN
 
-        elif run.exit_code.value == 64 and "Usage error!\n" in output:
+        elif run.exit_code.value == 64 and "Usage error!" in output:
             status = "INVALID ARGUMENTS"
 
-        elif run.exit_code.value == 6 and "Out of memory\n" in output:
+        elif run.exit_code.value == 6 and "Out of memory" in output:
             status = "OUT OF MEMORY"
 
-        elif run.exit_code.value == 6 and "SAT checker ran out of memory\n" in output:
+        elif run.exit_code.value == 6 and "SAT checker ran out of memory" in output:
             status = "OUT OF MEMORY"
 
         else:
