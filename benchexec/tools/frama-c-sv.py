@@ -19,22 +19,17 @@ class Tool(benchexec.tools.template.BaseTool2):
     _TOOL_NAME = "frama-c-sv"
     _SCRIPT_NAME = _TOOL_NAME + ".py"
 
-    def executable(self, _):
-        return util.find_executable(_SCRIPT_NAME)
-
-    def program_files(self, executable):
-        return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
+    def executable(self, tool_locator):
+        return tool_locator.find_executable(Tool._SCRIPT_NAME)
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return _TOOL_NAME
+        return Tool._TOOL_NAME
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [_SCRIPT_NAME, "--program"] + list(task.input_files_or_identifier)
+        cmd = [executable, "--program"] + list(task.input_files_or_identifier)
         if task.property_file:
             cmd += ["--property", task.property_file]
         return cmd
