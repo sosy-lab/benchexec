@@ -80,15 +80,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
 
         tool = self.wrappedTools[verifierName]
-        if isinstance(tool, BaseTool2):
-            return tool.determine_result(returncode, returnsignal, output, isTimeout)
-        elif isinstance(tool, BaseTool):
-            with self._in_tool_directory(verifierName):
-                return tool.determine_result(
-                    returncode, returnsignal, output, isTimeout
-                )
-        else:
-            sys.exit("ERROR: unknown BaseTool version.")
+        assert isinstance(
+            tool, BaseTool2
+        ), "we expect that all wrapped tools extend BaseTool2"
+        return tool.determine_result(returncode, returnsignal, output, isTimeout)
 
     def cmdline(self, executable, options, task, rlimits):
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
@@ -117,7 +112,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if verifierName in self.wrappedTools:
             tool = self.wrappedTools[verifierName]
-            assert isinstance(tool, BaseTool2): "we expect that all wrapped tools extend BaseTool2"
+            assert isinstance(
+                tool, BaseTool2
+            ), "we expect that all wrapped tools extend BaseTool2"
             wrapped_executable = self.wrappedTools[verifierName].executable(
                 BaseTool2.ToolLocator(
                     tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
