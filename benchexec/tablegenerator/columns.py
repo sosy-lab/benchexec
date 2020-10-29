@@ -260,7 +260,7 @@ class Column(object):
             if number == Decimal(number_str) or isnan(number) or isinf(number):
                 # TODO remove as soon as scaled values are handled correctly
                 return number_str
-            return str(number.normalize())
+            return util.print_decimal(number.normalize())
 
     def set_column_type_from(self, column_values):
         """

@@ -143,6 +143,19 @@ class ColumnsTest(unittest.TestCase):
         )
         self.assertEqual(formatted_value_aligned, "0.00000877")
 
+        # Test CSV formatting with scaling
+        small_value_column = Column(
+            "CpuTime",
+            None,
+            None,
+            None,
+            small_value_measure_type,
+            unit="s",
+            scale_factor=Decimal("0.1"),
+        )
+        formatted_value = small_value_column.format_value(small_value, False, "csv")
+        self.assertEqual(formatted_value, "0.0000008767")
+
         # Test whether scaling to small values and resulting values are handled correctly
         small_value_measure_type = ColumnMeasureType(12)
         small_value_column = Column(
