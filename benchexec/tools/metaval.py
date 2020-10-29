@@ -96,8 +96,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                     "benchexec.tools." + verifierName, fromlist=["Tool"]
                 ).Tool()
 
-        if not verifierName in self.wrappedTools:
-            sys.exit("ERROR: Could not find wrapped tool")  # noqa: R503 always raises
         tool = self.wrappedTools[verifierName]
         assert isinstance(
             tool, BaseTool2
