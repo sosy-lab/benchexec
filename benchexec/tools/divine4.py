@@ -102,7 +102,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return "TIMEOUT"
 
-        if run.exit_code.value != 0:
+        if run.exit_code.value and run.exit_code.value != 0:
             return "ERROR - {0}".format(last)
 
         if "result:" in last:
