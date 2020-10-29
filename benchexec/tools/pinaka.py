@@ -38,11 +38,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         status = ""
 
         if run.exit_code.value in [0, 10]:
-            if run.output.any_line_contains("VERIFICATION FAILED (ReachSafety)"):
+            if "VERIFICATION FAILED (ReachSafety)" in run.output:
                 status = result.RESULT_FALSE_REACH
-            elif run.output.any_line_contains("VERIFICATION FAILED (NoOverflow)"):
+            elif "VERIFICATION FAILED (NoOverflow)" in run.output:
                 status = result.RESULT_FALSE_OVERFLOW
-            elif run.output.any_line_contains("VERIFICATION SUCCESSFUL"):
+            elif "VERIFICATION SUCCESSFUL" in run.output:
                 status = result.RESULT_TRUE_PROP
             else:
                 status = result.RESULT_UNKNOWN
