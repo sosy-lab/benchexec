@@ -96,39 +96,36 @@ class Tool(benchexec.tools.template.BaseTool2):
                     "benchexec.tools." + verifierName, fromlist=["Tool"]
                 ).Tool()
 
-        if verifierName in self.wrappedTools:
-            tool = self.wrappedTools[verifierName]
-            assert isinstance(
-                tool, BaseTool2
-            ), "we expect that all wrapped tools extend BaseTool2"
-            wrapped_executable = tool.executable(
-                BaseTool2.ToolLocator(
-                    tool_directory=self.TOOL_TO_PATH_MAP[verifierName]
-                )
-            )
-            wrappedOptions = tool.cmdline(
-                wrapped_executable,
-                options,
-                [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
-                rlimits,
-            )
-
-            return (
-                [
-                    executable,
-                    "--verifier",
-                    self.TOOL_TO_PATH_MAP[verifierName],
-                    "--witness",
-                    witnessName,
-                ]
-                + additionalPathArgument
-                + witnessTypeArgument
-                + list(task.single_input_file)
-                + ["--"]
-                + wrappedOptions
-            )
-        else:
+        if not verifierName in self.wrappedTools:
             sys.exit("ERROR: Could not find wrapped tool")  # noqa: R503 always raises
+        tool = self.wrappedTools[verifierName]
+        assert isinstance(
+            tool, BaseTool2
+        ), "we expect that all wrapped tools extend BaseTool2"
+        wrapped_executable = tool.executable(
+            BaseTool2.ToolLocator(tool_directory=self.TOOL_TO_PATH_MAP[verifierName])
+        )
+        wrappedOptions = tool.cmdline(
+            wrapped_executable,
+            options,
+            [os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
+            rlimits,
+        )
+
+        return (
+            [
+                executable,
+                "--verifier",
+                self.TOOL_TO_PATH_MAP[verifierName],
+                "--witness",
+                witnessName,
+            ]
+            + additionalPathArgument
+            + witnessTypeArgument
+            + list(task.single_input_file)
+            + ["--"]
+            + wrappedOptions
+        )
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
