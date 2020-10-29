@@ -189,22 +189,28 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, resource_limits):
         combined_options = options + [*task.options] if task.options else []
 
-        if _OPTION_NO_WRAPPER in combined_options:
-            # do not use old wrapper script even if property file is given
-            combined_options.remove(_OPTION_NO_WRAPPER)
-
         if self._is_svcomp17_version(executable):
             return self._cmdline_svcomp17(executable, combined_options, task)
 
+        if _OPTION_NO_WRAPPER in combined_options:
+            # do not use old wrapper script even if property file is given
+            combined_options.remove(_OPTION_NO_WRAPPER)
+            # if no property file is given and toolchain (-tc) is, use Ultimate directly and
+            # ignore wrapper
+            if "-tc" in combined_options or "--toolchain" in combined_options:
+                return self._cmdline_no_wrapper(
+                    executable, combined_options, task, resource_limits
+                )
+            msg = (
+                "Unsupported argument combination: "
+                "If you specify {}, you also need to give a toolchain (with '-tc' or '--tolchain')".format(
+                    _OPTION_NO_WRAPPER
+                )
+            )
+            raise UnsupportedFeatureException(msg)
+
         if task.property_file is not None:
             return self._cmdline_default(executable, combined_options, task)
-
-        # if no property file is given and toolchain (-tc) is, use Ultimate directly and
-        # ignore executable (old executable is just around for backwards compatibility)
-        if "-tc" in combined_options or "--toolchain" in combined_options:
-            return self._cmdline_no_wrapper(
-                executable, combined_options, task, resource_limits
-            )
 
         # there is no way to run ultimate; not enough parameters
         msg = (
