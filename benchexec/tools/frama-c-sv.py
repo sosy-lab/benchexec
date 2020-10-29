@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
 
 
@@ -29,7 +28,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return Tool._TOOL_NAME
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "--program"] + list(task.input_files_or_identifier)
+        cmd = [executable, "--program"] + list(task.input_files)
         if task.property_file:
             cmd += ["--property", task.property_file]
         return cmd
