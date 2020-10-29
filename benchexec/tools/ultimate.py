@@ -209,15 +209,14 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             )
             raise UnsupportedFeatureException(msg)
 
-        if task.property_file is not None:
+        if task.property_file:
             return self._cmdline_default(executable, combined_options, task)
 
         # there is no way to run ultimate; not enough parameters
         msg = (
-            "Unsupported argument combination: You either need a property file or a toolchain option (-tc). "
-            "options={} property_file={} resource_limits={}".format(
-                options, task.property_file, resource_limits
-            )
+            "Unsupported argument combination: You either need a property file or a toolchain option (-tc).\n"
+            "options={}\n"
+            "resource_limits={}".format(options, resource_limits)
         )
         raise UnsupportedFeatureException(msg)
 
@@ -269,16 +268,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
         cmdline += options
 
-        if task.input_files:
-            cmdline += ["-i"] + [*task.input_files]
+        if task.input_files_or_empty:
+            cmdline += ["-i", *task.input_files]
         self.__assert_cmdline(cmdline, "No_Wrapper")
         return cmdline
 
     def _cmdline_default(self, executable, options, task):
         # use the old wrapper script if a property file is given
         cmdline = [executable, "--spec", task.property_file]
-        if task.input_files:
-            cmdline += ["--file"] + [*task.input_files]
+        if task.input_files_or_empty:
+            cmdline += ["--file", *task.input_files]
         cmdline += options
         self.__assert_cmdline(cmdline, "Default")
         return cmdline
@@ -289,7 +288,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS
         ]
         cmdline.append("--full-output")
-        cmdline += [*task.input_files]
+        cmdline += task.input_files
         self.__assert_cmdline(cmdline, "SVCOMP17")
         return cmdline
 
@@ -311,7 +310,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, run):
-        if any([arg for arg in run.commandline if "--spec" in arg or ".prp" in arg]):
+        if any([arg for arg in run.commandline if "--spec" == arg or ".prp" in arg]):
             return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
