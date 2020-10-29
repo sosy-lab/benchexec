@@ -104,12 +104,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return "TIMEOUT"
 
-        if run.exit_code.value != 0:
+        if run.exit_code.value and run.exit_code.value != 0:
             return "ERROR - Pre-run"
 
-        if last is None:
-            return "ERROR - no output"
-        elif "result: true" in last:
+        if "result: true" in last:
             return result.RESULT_TRUE_PROP
         elif "result: false" in last:
             return result.RESULT_FALSE_REACH
