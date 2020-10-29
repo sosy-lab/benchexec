@@ -341,43 +341,43 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         overflow_false_string = "overflow possible"
 
         for line in run.output:
-            if line.find(unsupported_syntax_errorstring) != -1:
+            if unsupported_syntax_errorstring in line:
                 return "ERROR: UNSUPPORTED SYNTAX"
-            if line.find(incorrect_syntax_errorstring) != -1:
+            if incorrect_syntax_errorstring in line:
                 return "ERROR: INCORRECT SYNTAX"
-            if line.find(type_errorstring) != -1:
+            if type_errorstring in line:
                 return "ERROR: TYPE ERROR"
-            if line.find(witness_errorstring) != -1:
+            if witness_errorstring in line:
                 return "ERROR: INVALID WITNESS FILE"
-            if line.find(exception_errorstring) != -1:
+            if exception_errorstring in line:
                 return "ERROR: EXCEPTION"
             if self._contains_overapproximation_result(line):
                 return "UNKNOWN: OverapproxCex"
-            if line.find(termination_false_string) != -1:
+            if termination_false_string in line:
                 return result.RESULT_FALSE_TERMINATION
-            if line.find(termination_true_string) != -1:
+            if termination_true_string in line:
                 return result.RESULT_TRUE_PROP
-            if line.find(ltl_false_string) != -1:
+            if ltl_false_string in line:
                 return "FALSE(valid-ltl)"
-            if line.find(ltl_true_string) != -1:
+            if ltl_true_string in line:
                 return result.RESULT_TRUE_PROP
-            if line.find(unsafety_string) != -1:
+            if unsafety_string in line:
                 return result.RESULT_FALSE_REACH
-            if line.find(mem_deref_false_string) != -1:
+            if mem_deref_false_string in line:
                 return result.RESULT_FALSE_DEREF
-            if line.find(mem_deref_false_string_2) != -1:
+            if mem_deref_false_string_2 in line:
                 return result.RESULT_FALSE_DEREF
-            if line.find(mem_free_false_string) != -1:
+            if mem_free_false_string in line:
                 return result.RESULT_FALSE_FREE
-            if line.find(mem_memtrack_false_string) != -1:
+            if mem_memtrack_false_string in line:
                 return result.RESULT_FALSE_MEMTRACK
-            if line.find(overflow_false_string) != -1:
+            if overflow_false_string in line:
                 return result.RESULT_FALSE_OVERFLOW
-            if line.find(safety_string) != -1 or line.find(all_spec_string) != -1:
+            if safety_string in line or all_spec_string in line:
                 return result.RESULT_TRUE_PROP
-            if line.find(treeautomizer_unsat) != -1:
+            if treeautomizer_unsat in line:
                 return "unsat"
-            if line.find(treeautomizer_sat) != -1 or line.find(all_spec_string) != -1:
+            if treeautomizer_sat in line or all_spec_string in line:
                 return "sat"
 
         return result.RESULT_UNKNOWN
@@ -395,7 +395,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ]
 
         for trigger in triggers:
-            if line.find(trigger) != -1:
+            if trigger in line:
                 return True
 
         return False
