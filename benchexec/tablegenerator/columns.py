@@ -213,6 +213,9 @@ class Column(object):
         if value is None or value == "":
             return ""
 
+        if not isinstance(value, (str, Decimal)):
+            raise TypeError("Unexpected number type " + str(type(value)))
+
         # If the number ends with "s" or another unit, remove it.
         # Units should not occur in table cells, but in the table head.
         number_str = util.remove_unit(str(value).strip())
@@ -228,6 +231,7 @@ class Column(object):
         # Apply the scale factor to the value
         if self.scale_factor is not None:
             number *= self.scale_factor
+        assert number.is_finite()
 
         if (
             self.number_of_significant_digits is None
