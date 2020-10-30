@@ -54,14 +54,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             options += ["--property-file=" + task.property_file]
         if rlimits.memory:
             options += ["--max-memory=" + str(rlimits.memory)]
-        if rlimits.cputime_hard:
-            options += ["--max-time=" + str(rlimits.cputime_hard)]
-        if rlimits.walltime:
-            options += ["--max-walltime=" + str(rlimits.walltime)]
         if rlimits.cputime:
             options += ["--max-cputime-soft=" + str(rlimits.cputime)]
-        if rlimits.cputime_hard:
-            options += ["--max-cputime-hard=" + str(rlimits.cputime_hard)]
 
         data_model_param = get_data_model_from_task(
             task, {"ILP32": "--32", "LP64": "--64"}
