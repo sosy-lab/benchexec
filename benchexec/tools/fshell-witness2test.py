@@ -9,7 +9,7 @@ import re
 
 import benchexec.result as result
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -63,9 +63,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             options = options + ["--propertyfile", task.property_file]
 
-        data_model_param = get_data_model_from_task(
-            task, {"ILP32": "-m32", "LP64": "-m64"}
-        )
+        data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 

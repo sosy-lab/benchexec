@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -26,9 +26,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options = options + ["--propertyfile", task.property_file]
-        data_model_param = get_data_model_from_task(
-            task, {"ILP32": "--32", "LP64": "--64"}
-        )
+        data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 

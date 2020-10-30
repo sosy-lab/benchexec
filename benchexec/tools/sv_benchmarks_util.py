@@ -18,6 +18,10 @@ Note the following points before using any function in this util:
 
 import benchexec.tools.template
 
+# Defining constants for data model.
+ILP32 = "ILP32"
+LP64 = "LP64"
+
 
 def get_data_model_from_task(task, param_dict):
     """
