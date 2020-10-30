@@ -227,7 +227,7 @@ const createDistinctValueFilters = (selected, nominal, trim = false) => {
   return makeSerializedFilterValue(filter);
 };
 
-const transformFiltersIntoReadableFormat = ({
+const makeFilterSerializer = ({
   statusValues: allStatusValues,
   categoryValues: allCategoryValues,
 }) => (filter) => {
@@ -840,6 +840,6 @@ export {
   getStep,
   getFilterParamsFromUrl,
   setFilterParamsInUrl,
-  transformFiltersIntoReadableFormat,
+  makeFilterSerializer,
   makeFilterDeserializer,
 };

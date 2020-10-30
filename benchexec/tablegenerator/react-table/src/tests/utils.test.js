@@ -15,7 +15,7 @@ import {
   setFilterParamsInUrl,
   NumberFormatterBuilder,
   hasSameEntries,
-  transformFiltersIntoReadableFormat,
+  makeFilterSerializer,
   makeFilterDeserializer,
 } from "../utils/utils";
 
@@ -152,7 +152,7 @@ describe("serialization", () => {
     );
   };
   beforeEach(() => {
-    serializer = transformFiltersIntoReadableFormat({
+    serializer = makeFilterSerializer({
       statusValues,
       categoryValues,
     });
