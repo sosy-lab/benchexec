@@ -15,6 +15,8 @@ import {
   setFilterParamsInUrl,
   NumberFormatterBuilder,
   hasSameEntries,
+  transformFiltersIntoReadableFormat,
+  makeFilterDeserializer,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -129,6 +131,307 @@ describe("hashRouting helpers", () => {
 
       expect(res).toContain(btoa(JSON.stringify(obj)));
     });
+  });
+});
+
+describe("serialization", () => {
+  let serializer;
+  const statusValues = [
+    [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
+    [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
+  ];
+  const categoryValues = [
+    [["correct ", "wrong ", "missing ", "unknown "]],
+    [["correct ", "wrong ", "missing ", "unknown "]],
+  ];
+
+  const makeSelection = (selection, base) => {
+    // the status column has id 0
+    return base[0].filter((item) =>
+      selection.every((select) => item !== select),
+    );
+  };
+  beforeEach(() => {
+    serializer = transformFiltersIntoReadableFormat({
+      statusValues,
+      categoryValues,
+    });
+  });
+
+  test("should serialize id filters", () => {
+    const filter = [{ id: "id", values: ["abc", "def"] }];
+    const expected = "id(values(abc,def))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize normal value filters for one runset", () => {
+    const filter = [
+      { id: "0_cputime_1", value: "1223:4567" },
+      { id: "0_hostname_2", value: "satu" },
+    ];
+
+    const urlencoded = escape("1223:4567");
+    const expected = `0(1*cputime*(value(${urlencoded})),2*hostname*(value(satu)))`;
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize normal value filters in multiple runsets", () => {
+    const filter = [
+      { id: "0_cputime_1", value: "1223:4567" },
+      { id: "1_cputime_1", value: ":4567" },
+      { id: "0_hostname_2", value: "satu" },
+      { id: "1_hostname_2", value: "tilo" },
+    ];
+
+    const urlencoded1 = escape("1223:4567");
+    const urlencoded2 = escape(":4567");
+
+    const filterRunset1 = `0(1*cputime*(value(${urlencoded1})),2*hostname*(value(satu)))`;
+    const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
+    const expected = `${filterRunset1},${filterRunset2}`;
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize normal value filters in multiple runsets and id filter", () => {
+    const filter = [
+      { id: "0_cputime_1", value: "1223:4567" },
+      { id: "1_cputime_1", value: ":4567" },
+      { id: "0_hostname_2", value: "satu" },
+      { id: "1_hostname_2", value: "tilo" },
+      { id: "id", values: ["abc", "def"] },
+    ];
+
+    const urlencoded1 = escape("1223:4567");
+    const urlencoded2 = escape(":4567");
+
+    const filterRunset1 = `0(1*cputime*(value(${urlencoded1})),2*hostname*(value(satu)))`;
+    const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
+    const expected = `id(values(abc,def)),${filterRunset1},${filterRunset2}`;
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize status filter correctly (notIn)", () => {
+    const uncheckedBoxes = ["true", "false"];
+    const selected = makeSelection(uncheckedBoxes, statusValues[0]);
+
+    const filter = selected.map((status) => ({
+      id: "0_status_0",
+      value: status,
+    }));
+
+    const expected = "0(0*status*(status(notIn(true,false))))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize status filter correctly (in)", () => {
+    const uncheckedBoxes = ["true", "false", "TIMEOUT"];
+    const selected = makeSelection(uncheckedBoxes, statusValues[0]);
+
+    const filter = selected.map((status) => ({
+      id: "0_status_0",
+      value: status,
+    }));
+
+    const encoded = escape("false(reach)");
+
+    const expected = `0(0*status*(status(in(OOM,${encoded}))))`;
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize status filter correctly in multiple runsets", () => {
+    const uncheckedBoxes1 = ["true", "false", "TIMEOUT"];
+    const uncheckedBoxes2 = ["true", "false"];
+    const selected1 = makeSelection(uncheckedBoxes1, statusValues[0]);
+    const selected2 = makeSelection(uncheckedBoxes2, statusValues[0]);
+
+    const makeStatus = (selection, runset) =>
+      selection.map((status) => ({
+        id: `${runset}_status_0`,
+        value: status,
+      }));
+
+    const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
+
+    const encoded = escape("false(reach)");
+
+    const expected1 = `0(0*status*(status(in(OOM,${encoded}))))`;
+    const expected2 = `1(0*status*(status(notIn(true,false))))`;
+
+    expect(serializer(filter)).toBe(`${expected1},${expected2}`);
+  });
+
+  test("should serialize category filter correctly (notIn)", () => {
+    const uncheckedBoxes = ["unknown "];
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+
+    const filter = selected.map((status) => ({
+      id: "0_status_0",
+      value: status,
+    }));
+
+    const expected = "0(0*status*(category(notIn(unknown))))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize category filter correctly (in)", () => {
+    const uncheckedBoxes = ["correct ", "wrong "];
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+
+    const filter = selected.map((status) => ({
+      id: "0_status_0",
+      value: status,
+    }));
+
+    const expected = `0(0*status*(category(in(missing,unknown))))`;
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize category filter correctly in multiple runsets", () => {
+    const uncheckedBoxes1 = ["correct ", "wrong "];
+    const uncheckedBoxes2 = ["unknown "];
+    const selected1 = makeSelection(uncheckedBoxes1, categoryValues[0]);
+    const selected2 = makeSelection(uncheckedBoxes2, categoryValues[0]);
+
+    const makeStatus = (selection, runset) =>
+      selection.map((status) => ({
+        id: `${runset}_status_0`,
+        value: status,
+      }));
+
+    const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
+
+    const expected1 = `0(0*status*(category(in(missing,unknown))))`;
+    const expected2 = `1(0*status*(category(notIn(unknown))))`;
+
+    expect(serializer(filter)).toBe(`${expected1},${expected2}`);
+  });
+});
+
+describe("Filter deserialization", () => {
+  let deserializer;
+
+  const statusValues = [
+    [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
+    [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
+  ];
+  const categoryValues = [
+    [["correct ", "wrong ", "missing ", "unknown "]],
+    [["correct ", "wrong ", "missing ", "unknown "]],
+  ];
+
+  beforeEach(() => {
+    deserializer = makeFilterDeserializer({ statusValues, categoryValues });
+  });
+
+  test("should deserialize id filter", () => {
+    const string = "id(values(abc,def))";
+
+    const expected = [{ id: "id", values: ["abc", "def"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize normal values for one runset", () => {
+    const string = "0(1*cputime*(value(%3A1234)))";
+
+    const expected = [{ id: "0_cputime_1", value: ":1234" }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize normal values for many runsets", () => {
+    const string =
+      "0(1*cputime*(value(%3A1234))),1(1*cputime*(value(23%3A1234)))";
+
+    const expected = [
+      { id: "0_cputime_1", value: ":1234" },
+      { id: "1_cputime_1", value: "23:1234" },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize status filters (in)", () => {
+    const string = "0(0*status*(status(in(true,false))))";
+
+    const expected = [
+      { id: "0_status_0", value: "true" },
+      { id: "0_status_0", value: "false" },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize status filters (notIn)", () => {
+    const string = "0(0*status*(status(notIn(true,false))))";
+
+    const expected = [
+      { id: "0_status_0", value: "TIMEOUT" },
+      { id: "0_status_0", value: "OOM" },
+      { id: "0_status_0", value: "false(reach)" },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize status filters in multiple runsets", () => {
+    const string =
+      "0(0*status*(status(in(true,false)))),1(0*status*(status(notIn(true,false))))";
+
+    const expected = [
+      { id: "0_status_0", value: "true" },
+      { id: "0_status_0", value: "false" },
+      { id: "1_status_0", value: "TIMEOUT" },
+      { id: "1_status_0", value: "OOM" },
+      { id: "1_status_0", value: "false(reach)" },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+  // categories
+
+  test("should deserialize category filters (in)", () => {
+    const string = "0(0*status*(category(in(correct,wrong))))";
+
+    const expected = [
+      { id: "0_status_0", value: "correct " },
+      { id: "0_status_0", value: "wrong " },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize category filters (notIn)", () => {
+    const string = "0(0*status*(category(notIn(correct,wrong))))";
+
+    const expected = [
+      { id: "0_status_0", value: "missing " },
+      { id: "0_status_0", value: "unknown " },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize category filters in multiple runsets", () => {
+    const string =
+      "0(0*status*(category(in(correct,wrong)))),1(0*status*(category(notIn(correct,wrong))))";
+
+    const expected = [
+      { id: "0_status_0", value: "correct " },
+      { id: "0_status_0", value: "wrong " },
+      { id: "1_status_0", value: "missing " },
+      { id: "1_status_0", value: "unknown " },
+    ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
   });
 });
 

@@ -201,6 +201,282 @@ const getFilterParamsFromUrl = (str) => {
   return null;
 };
 
+const makeSerializedFilterValue = (filter) => {
+  const parts = [];
+  for (const [key, values] of Object.entries(filter)) {
+    parts.push(`${key}(${values.map(escape).join(",")})`);
+  }
+  return parts.join(",");
+};
+const createDistinctValueFilters = (selected, nominal, trim = false) => {
+  const filter = {};
+  // we want to minimize the needed space to encode the filter
+  // if we have more than half of all values selected, we encode all not selected
+  // values in "notIn", otherwise we encode all selected values in "in"
+  if (selected.length > Math.floor(nominal.length / 2.0)) {
+    const exclusions = [];
+    for (const status of nominal) {
+      if (!selected.includes(status)) {
+        exclusions.push(trim ? status.trim() : status);
+      }
+    }
+    filter.notIn = exclusions;
+  } else {
+    filter.in = selected.map((val) => (trim ? val.trim() : val));
+  }
+  return makeSerializedFilterValue(filter);
+};
+
+const transformFiltersIntoReadableFormat = ({
+  statusValues: allStatusValues,
+  categoryValues: allCategoryValues,
+}) => (filter) => {
+  const groupedFilters = {};
+  for (const { id, value, values } of filter) {
+    if (id === "id") {
+      if (values.length > 0) {
+        groupedFilters.ids = { values };
+      }
+      continue;
+    }
+    const [tool, name, column] = id.split("_");
+    const toolBucket = groupedFilters[tool] || {};
+    const columnBucket = toolBucket[column] || { name };
+
+    if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
+      // we are processing a status column with checkboxes
+      if (value.endsWith(" ")) {
+        // category value
+        const selectedCategoryValues = columnBucket.categoryValues || [];
+        selectedCategoryValues.push(value);
+        columnBucket.categoryValues = selectedCategoryValues;
+      } else {
+        // status value
+        const selectedStatusValues = columnBucket.statusValues || [];
+        selectedStatusValues.push(value);
+        columnBucket.statusValues = selectedStatusValues;
+      }
+    } else {
+      columnBucket.value = value;
+    }
+    toolBucket[column] = columnBucket;
+    groupedFilters[tool] = toolBucket;
+  }
+  // serialization part
+  // we want to transform our filters into the following format:
+  // [<idFilter>,]<runsetFilter>+
+  // with
+  // <idFilter> := id(values(<value>+))
+  // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
+  // <columnFilter> := <columnId>*<name>*(<filter>)[,]
+  // <filter> := <valueFilter>|<statusColumnFilter>
+  // <valueFilter> := value(<value>)
+  // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
+  // <statusFilter> := status(in(<value>+)|notIn(<value>+))
+  // <categoryFilter> := category(in(<value>+)|notIn(<value>+))
+  // <value> := <urlencodedTerminalValue>
+
+  // one transformed example would be
+  // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
+
+  const { ids, ...rest } = groupedFilters;
+  const runsetFilters = [];
+  if (ids) {
+    runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+  }
+  for (const [tool, column] of Object.entries(rest)) {
+    const columnFilters = [];
+    for (const [columnId, filters] of Object.entries(column)) {
+      const columnFilterHeader = `${columnId}*${filters.name}*`;
+      let filter;
+      if (filters.statusValues || filters.categoryValues) {
+        // <statusColumnFilter>
+        const statusColumnFilter = [];
+        const { statusValues, categoryValues } = filters;
+        const toolStatusValues = allStatusValues[tool][columnId];
+        const toolCategoryValues = allCategoryValues[tool][columnId];
+        if (statusValues && statusValues.length !== toolStatusValues.length) {
+          const encodedFilter = createDistinctValueFilters(
+            statusValues,
+            toolStatusValues,
+          );
+          statusColumnFilter.push(`status(${encodedFilter})`);
+        }
+        if (
+          categoryValues &&
+          categoryValues.length !== toolCategoryValues.length
+        ) {
+          const encodedFilter = createDistinctValueFilters(
+            categoryValues,
+            toolCategoryValues,
+            true,
+          );
+          statusColumnFilter.push(`category(${encodedFilter})`);
+        }
+        filter = statusColumnFilter.join(",");
+      } else {
+        // <valueFilter>
+        filter = `value(${escape(filters.value)})`;
+      }
+      columnFilters.push(`${columnFilterHeader}(${filter})`);
+    }
+    runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
+  }
+  const filterString = runsetFilters.join(",");
+  return filterString;
+};
+
+const tokenizePart = (string) => {
+  const out = {};
+  let openBrackets = 0;
+
+  let buf = "";
+
+  for (const char of string) {
+    // we want to split the filter string on the highest level first
+    if (char === "(") {
+      buf += char;
+      openBrackets++;
+      continue;
+    }
+    if (char === ")") {
+      buf += char;
+      openBrackets--;
+      if (openBrackets === 0) {
+        const firstBracket = buf.indexOf("(");
+        const key = buf.substr(0, firstBracket);
+        const value = buf.substr(
+          firstBracket + 1,
+          buf.length - 1 - (firstBracket + 1),
+        );
+        out[key] = value;
+      }
+      continue;
+    }
+    if (openBrackets === 0 && char === ",") {
+      buf = "";
+      continue;
+    }
+    buf += char;
+  }
+  return out;
+};
+
+const handleStatusColumnFilter = (
+  token,
+  param,
+  statusValues,
+  categoryValues,
+  column,
+) => {
+  // "in(a,b,c)"
+  const parts = tokenizePart(param);
+  const out = [];
+  for (const [method, stringItems] of Object.entries(parts)) {
+    if (method === "in") {
+      let items = stringItems.split(",").map(unescape);
+      if (token === "category") {
+        items = items.map((item) => `${item} `);
+      }
+      out.push(...items.map((item) => ({ value: item })));
+    }
+    if (method === "notIn") {
+      let items = stringItems.split(",").map(unescape);
+      const itemsToPush = [];
+      if (token === "category") {
+        items = items.map((item) => `${item} `);
+
+        for (const cat of categoryValues[column]) {
+          if (!items.includes(cat)) {
+            itemsToPush.push({ value: cat });
+          }
+        }
+      } else {
+        for (const stat of statusValues[column]) {
+          if (!items.includes(stat)) {
+            itemsToPush.push({ value: stat });
+          }
+        }
+      }
+      out.push(...itemsToPush);
+    }
+  }
+  return out;
+};
+
+const tokenHandlers = (
+  token,
+  param,
+  allStatusValues,
+  allCategoryValues,
+  column,
+) => {
+  if (token === "values") {
+    // wrapping return in array to allow vararg spreading
+    return [{ values: param.split(",").map(unescape) }];
+  }
+  if (token === "value") {
+    return [{ value: unescape(param) }];
+  }
+  if (token === "status" || token === "category") {
+    return handleStatusColumnFilter(
+      token,
+      param,
+      allStatusValues,
+      allCategoryValues,
+      column,
+    );
+  }
+};
+
+const makeFilterDeserializer = ({
+  categoryValues: allCategoryValues,
+  statusValues: allStatusValues,
+}) => (filterString) => {
+  const runsetFilters = tokenizePart(filterString);
+
+  const out = [];
+  for (const [token, filter] of Object.entries(runsetFilters)) {
+    if (token === "id") {
+      const tokenized = tokenizePart(filter);
+      out.push({
+        id: "id",
+        ...tokenHandlers("values", tokenized["values"])[0],
+      });
+      continue;
+    }
+    const runsetId = token;
+
+    const columnFilters = tokenizePart(filter);
+    const parsedColumnFilters = {};
+    for (const [key, columnFilter] of Object.entries(columnFilters)) {
+      const [columnId, columnTitle] = key.split("*");
+      const name = `${runsetId}_${columnTitle}_${columnId}`;
+      const parsedFilters = parsedColumnFilters[name] || [];
+      const tokenizedFilter = tokenizePart(columnFilter);
+
+      for (const [filterToken, filterParam] of Object.entries(
+        tokenizedFilter,
+      )) {
+        parsedFilters.push(
+          ...tokenHandlers(
+            filterToken,
+            filterParam,
+            allStatusValues[runsetId],
+            allCategoryValues[runsetId],
+            columnId,
+          ),
+        );
+      }
+      for (const parsedFilter of parsedFilters) {
+        out.push({ id: name, ...parsedFilter });
+      }
+    }
+  }
+
+  return out;
+};
+
 const setFilterParamsInUrl = (filter, options) => {
   const previousParams = getHashSearch();
   if (!filter) {
@@ -564,4 +840,6 @@ export {
   getStep,
   getFilterParamsFromUrl,
   setFilterParamsInUrl,
+  transformFiltersIntoReadableFormat,
+  makeFilterDeserializer,
 };
