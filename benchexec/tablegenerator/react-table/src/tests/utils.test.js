@@ -98,42 +98,7 @@ describe("hashRouting helpers", () => {
       expect(res).toEqual("localhost#table?id=1&name=benchexec");
     });
   });
-  describe("getFilterParamsFromUrl", () => {
-    test("should return null if no filter set", () => {
-      const res = getFilterParamsFromUrl("localhost#/bla?id=1&name=benchexec");
-
-      expect(res).toBe(null);
-    });
-
-    test("should parse b64 encoded filters in url", () => {
-      const obj = { a: "b" };
-      const parsed = JSON.stringify(obj);
-
-      const res = getFilterParamsFromUrl(
-        `localhost#/bla?id=1&name=benchexec&filter=${btoa(parsed)}`,
-      );
-
-      expect(res).toStrictEqual(obj);
-    });
-  });
-
-  describe("setFilterParamsFromUrl", () => {
-    test("should set no filter if nullish parameter is passed", () => {
-      const res = setFilterParamsInUrl(null, { returnString: true });
-
-      expect(res).not.toContain("filter");
-    });
-
-    test("should embed filters as serialized b64 string", () => {
-      const obj = { a: "b" };
-
-      const res = setFilterParamsInUrl(obj, { returnString: true });
-
-      expect(res).toContain(btoa(JSON.stringify(obj)));
-    });
-  });
 });
-
 describe("serialization", () => {
   let serializer;
   const statusValues = [
@@ -312,6 +277,21 @@ describe("serialization", () => {
     const expected2 = `1(0*status*(category(notIn(unknown))))`;
 
     expect(serializer(filter)).toBe(`${expected1},${expected2}`);
+  });
+
+  test("should serialize category filter and status filter", () => {
+    const uncheckedBoxes = ["correct ", "wrong "];
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+
+    const filter = selected.map((category) => ({
+      id: "0_status_0",
+      value: category,
+    }));
+    filter.push({ id: "0_status_0", value: "true" });
+
+    const expected = `0(0*status*(status(in(true)),category(in(missing,unknown))))`;
+
+    expect(serializer(filter)).toBe(expected);
   });
 });
 
