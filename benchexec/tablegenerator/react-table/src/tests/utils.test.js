@@ -380,6 +380,25 @@ describe("serialization", () => {
 
     expect(testSerializer(inp)).toBe(expected);
   });
+
+  test("Should handle empty category filters", () => {
+    const testStatusValues = [[["true", "false"]]];
+    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+
+    const inp = [
+      { id: "0_status_0", value: "true" },
+      { id: "id", values: Array(0) },
+    ];
+
+    const expected = "0(0*status*(status(in(true)),category(empty())))";
+
+    const testSerializer = makeFilterSerializer({
+      statusValues: testStatusValues,
+      categoryValues: testCategoryValues,
+    });
+
+    expect(testSerializer(inp)).toBe(expected);
+  });
 });
 
 describe("Filter deserialization", () => {
@@ -519,6 +538,22 @@ describe("Filter deserialization", () => {
       { id: "1_status_0", value: "unknown " },
       ...defaultStatus1,
     ];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should handle empty category filters correctly", () => {
+    const string = "0(0*status*(category(empty()),status(in(true))))";
+
+    const expected = [{ id: "0_status_0", value: "true" }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should handle empty status filters correctly", () => {
+    const string = "0(0*status*(category(in(missing)),status(empty())))";
+
+    const expected = [{ id: "0_status_0", value: "missing " }];
 
     expect(deserializer(string)).toStrictEqual(expected);
   });
