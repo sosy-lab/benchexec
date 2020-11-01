@@ -28,18 +28,6 @@ export default class TaskFilterCard extends React.PureComponent {
     this.props.updateFilters(values);
   }
 
-  handleMinMaxValue(value) {
-    const { min: propMin, max: propMax } = this.props.filter || {
-      min: 0,
-      max: Infinity,
-    };
-    const [vMin, vMax] = value.split(":");
-    return {
-      min: vMin.trim() !== "" ? Number(vMin) : propMin,
-      max: vMax.trim() !== "" ? Number(vMax) : propMax,
-    };
-  }
-
   render() {
     const ids = this.props.ids || {};
     const makeHeader = () => (
