@@ -237,8 +237,8 @@ const makeFilterSerializer = ({
   const groupedFilters = {};
   for (const { id, value, values } of filter) {
     if (id === "id") {
-      if (values.length > 0) {
-        groupedFilters.ids = { values };
+      if (values && values.length > 0) {
+        groupedFilters.ids = { values: values.map((val) => (val ? val : "")) };
       }
       continue;
     }
