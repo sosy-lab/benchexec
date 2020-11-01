@@ -113,7 +113,9 @@ describe("serialization", () => {
   const makeSelection = (selection, base) => {
     // the status column has id 0
     return base[0].filter((item) =>
-      selection.every((select) => item !== select),
+      selection && selection.length > 0
+        ? selection.every((select) => item !== select)
+        : true,
     );
   };
   beforeEach(() => {
@@ -182,11 +184,20 @@ describe("serialization", () => {
   test("should serialize status filter correctly (notIn)", () => {
     const uncheckedBoxes = ["true", "false"];
     const selected = makeSelection(uncheckedBoxes, statusValues[0]);
+    const standardCategories = makeSelection(null, categoryValues[0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
       value: status,
     }));
+    filter.push(
+      ...standardCategories.map((category) => ({
+        id: "0_status_0",
+        value: category,
+      })),
+    );
+
+    console.log({ filter });
 
     const expected = "0(0*status*(status(notIn(true,false))))";
 
@@ -196,11 +207,18 @@ describe("serialization", () => {
   test("should serialize status filter correctly (in)", () => {
     const uncheckedBoxes = ["true", "false", "TIMEOUT"];
     const selected = makeSelection(uncheckedBoxes, statusValues[0]);
+    const standardCategories = makeSelection(null, categoryValues[0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
       value: status,
     }));
+    filter.push(
+      ...standardCategories.map((category) => ({
+        id: "0_status_0",
+        value: category,
+      })),
+    );
 
     const encoded = escape("false(reach)");
 
@@ -214,6 +232,7 @@ describe("serialization", () => {
     const uncheckedBoxes2 = ["true", "false"];
     const selected1 = makeSelection(uncheckedBoxes1, statusValues[0]);
     const selected2 = makeSelection(uncheckedBoxes2, statusValues[0]);
+    const standardCategories = makeSelection(null, categoryValues[0]);
 
     const makeStatus = (selection, runset) =>
       selection.map((status) => ({
@@ -222,6 +241,20 @@ describe("serialization", () => {
       }));
 
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
+
+    filter.push(
+      ...standardCategories.map((category) => ({
+        id: "0_status_0",
+        value: category,
+      })),
+    );
+
+    filter.push(
+      ...standardCategories.map((category) => ({
+        id: "1_status_0",
+        value: category,
+      })),
+    );
 
     const encoded = escape("false(reach)");
 
@@ -235,10 +268,19 @@ describe("serialization", () => {
     const uncheckedBoxes = ["unknown "];
     const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
 
+    const standardStatus = makeSelection(null, statusValues[0]);
+
     const filter = selected.map((status) => ({
       id: "0_status_0",
       value: status,
     }));
+
+    filter.push(
+      ...standardStatus.map((status) => ({
+        id: "0_status_0",
+        value: status,
+      })),
+    );
 
     const expected = "0(0*status*(category(notIn(unknown))))";
 
@@ -249,10 +291,19 @@ describe("serialization", () => {
     const uncheckedBoxes = ["correct ", "wrong "];
     const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
 
+    const standardStatus = makeSelection(null, statusValues[0]);
+
     const filter = selected.map((status) => ({
       id: "0_status_0",
       value: status,
     }));
+
+    filter.push(
+      ...standardStatus.map((status) => ({
+        id: "0_status_0",
+        value: status,
+      })),
+    );
 
     const expected = `0(0*status*(category(in(missing,unknown))))`;
 
@@ -265,6 +316,8 @@ describe("serialization", () => {
     const selected1 = makeSelection(uncheckedBoxes1, categoryValues[0]);
     const selected2 = makeSelection(uncheckedBoxes2, categoryValues[0]);
 
+    const standardStatus = makeSelection(null, statusValues[0]);
+
     const makeStatus = (selection, runset) =>
       selection.map((status) => ({
         id: `${runset}_status_0`,
@@ -272,6 +325,20 @@ describe("serialization", () => {
       }));
 
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
+
+    filter.push(
+      ...standardStatus.map((status) => ({
+        id: "0_status_0",
+        value: status,
+      })),
+    );
+
+    filter.push(
+      ...standardStatus.map((status) => ({
+        id: "1_status_0",
+        value: status,
+      })),
+    );
 
     const expected1 = `0(0*status*(category(in(missing,unknown))))`;
     const expected2 = `1(0*status*(category(notIn(unknown))))`;
@@ -293,6 +360,26 @@ describe("serialization", () => {
 
     expect(serializer(filter)).toBe(expected);
   });
+
+  test("Should handle empty status filters", () => {
+    const testStatusValues = [[["true", "false"]]];
+    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+
+    const inp = [
+      { id: "0_status_0", value: "wrong " },
+      { id: "0_status_0", value: "missing " },
+      { id: "id", values: Array(0) },
+    ];
+
+    const expected = "0(0*status*(status(empty()),category(notIn(correct))))";
+
+    const testSerializer = makeFilterSerializer({
+      statusValues: testStatusValues,
+      categoryValues: testCategoryValues,
+    });
+
+    expect(testSerializer(inp)).toBe(expected);
+  });
 });
 
 describe("Filter deserialization", () => {
@@ -306,6 +393,11 @@ describe("Filter deserialization", () => {
     [["correct ", "wrong ", "missing ", "unknown "]],
     [["correct ", "wrong ", "missing ", "unknown "]],
   ];
+
+  const makeStandardStatusValues = (id) =>
+    statusValues[0][0].map((value) => ({ id, value }));
+  const makeStandardCategoryValues = (id) =>
+    categoryValues[0][0].map((value) => ({ id, value }));
 
   beforeEach(() => {
     deserializer = makeFilterDeserializer({ statusValues, categoryValues });
@@ -341,10 +433,12 @@ describe("Filter deserialization", () => {
 
   test("should deserialize status filters (in)", () => {
     const string = "0(0*status*(status(in(true,false))))";
+    const defaultCategories = makeStandardCategoryValues("0_status_0");
 
     const expected = [
       { id: "0_status_0", value: "true" },
       { id: "0_status_0", value: "false" },
+      ...defaultCategories,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
@@ -352,11 +446,13 @@ describe("Filter deserialization", () => {
 
   test("should deserialize status filters (notIn)", () => {
     const string = "0(0*status*(status(notIn(true,false))))";
+    const defaultCategories = makeStandardCategoryValues("0_status_0");
 
     const expected = [
       { id: "0_status_0", value: "TIMEOUT" },
       { id: "0_status_0", value: "OOM" },
       { id: "0_status_0", value: "false(reach)" },
+      ...defaultCategories,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
@@ -365,13 +461,17 @@ describe("Filter deserialization", () => {
   test("should deserialize status filters in multiple runsets", () => {
     const string =
       "0(0*status*(status(in(true,false)))),1(0*status*(status(notIn(true,false))))";
+    const defaultCategories0 = makeStandardCategoryValues("0_status_0");
+    const defaultCategories1 = makeStandardCategoryValues("1_status_0");
 
     const expected = [
       { id: "0_status_0", value: "true" },
       { id: "0_status_0", value: "false" },
+      ...defaultCategories0,
       { id: "1_status_0", value: "TIMEOUT" },
       { id: "1_status_0", value: "OOM" },
       { id: "1_status_0", value: "false(reach)" },
+      ...defaultCategories1,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
@@ -380,10 +480,12 @@ describe("Filter deserialization", () => {
 
   test("should deserialize category filters (in)", () => {
     const string = "0(0*status*(category(in(correct,wrong))))";
+    const defaultStatus = makeStandardStatusValues("0_status_0");
 
     const expected = [
       { id: "0_status_0", value: "correct " },
       { id: "0_status_0", value: "wrong " },
+      ...defaultStatus,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
@@ -391,10 +493,12 @@ describe("Filter deserialization", () => {
 
   test("should deserialize category filters (notIn)", () => {
     const string = "0(0*status*(category(notIn(correct,wrong))))";
+    const defaultStatus = makeStandardStatusValues("0_status_0");
 
     const expected = [
       { id: "0_status_0", value: "missing " },
       { id: "0_status_0", value: "unknown " },
+      ...defaultStatus,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
@@ -404,11 +508,16 @@ describe("Filter deserialization", () => {
     const string =
       "0(0*status*(category(in(correct,wrong)))),1(0*status*(category(notIn(correct,wrong))))";
 
+    const defaultStatus0 = makeStandardStatusValues("0_status_0");
+    const defaultStatus1 = makeStandardStatusValues("1_status_0");
+
     const expected = [
       { id: "0_status_0", value: "correct " },
       { id: "0_status_0", value: "wrong " },
+      ...defaultStatus0,
       { id: "1_status_0", value: "missing " },
       { id: "1_status_0", value: "unknown " },
+      ...defaultStatus1,
     ];
 
     expect(deserializer(string)).toStrictEqual(expected);
