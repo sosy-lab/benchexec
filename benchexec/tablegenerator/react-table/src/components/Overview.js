@@ -159,7 +159,6 @@ export default class Overview extends React.Component {
 
   // -----------------------Filter-----------------------
   setFilter = (filteredData, raw = false) => {
-    console.log({ filteredData });
     if (raw) {
       this.filteredData = filteredData;
       return;
@@ -169,7 +168,6 @@ export default class Overview extends React.Component {
     });
   };
   filterPlotData = (filter, runFilterLogic = true) => {
-    console.log({ filter });
     this.filterUrlSetter(filter);
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
