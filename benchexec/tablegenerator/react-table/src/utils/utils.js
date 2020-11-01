@@ -299,30 +299,40 @@ const makeFilterSerializer = ({
         const { statusValues, categoryValues } = filters;
         const toolStatusValues = allStatusValues[tool][columnId];
         const toolCategoryValues = allCategoryValues[tool][columnId];
-        const hasStatusFilter =
-          statusValues && statusValues.length !== toolStatusValues.length;
-        const hasCategoryFilter =
-          categoryValues && categoryValues.length !== toolCategoryValues.length;
+
+        const hasStatusFilter = !!statusValues;
+        const hasStatusUnchecked =
+          hasStatusFilter && statusValues.length !== toolStatusValues.length;
+
+        const hasCategoryFilter = !!categoryValues;
+        const hasCategoryUnchecked =
+          hasCategoryFilter &&
+          categoryValues.length !== toolCategoryValues.length;
+
         if (hasStatusFilter) {
-          const encodedFilter = createDistinctValueFilters(
-            statusValues,
-            toolStatusValues,
-          );
-          statusColumnFilter.push(`status(${encodedFilter})`);
+          if (hasStatusUnchecked) {
+            const encodedFilter = createDistinctValueFilters(
+              statusValues,
+              toolStatusValues,
+            );
+            statusColumnFilter.push(`status(${encodedFilter})`);
+          }
           if (!hasCategoryFilter) {
             statusColumnFilter.push("category(empty())");
           }
         }
         if (hasCategoryFilter) {
-          const encodedFilter = createDistinctValueFilters(
-            categoryValues,
-            toolCategoryValues,
-            true,
-          );
           if (!hasStatusFilter) {
             statusColumnFilter.push("status(empty())");
           }
-          statusColumnFilter.push(`category(${encodedFilter})`);
+          if (hasCategoryUnchecked) {
+            const encodedFilter = createDistinctValueFilters(
+              categoryValues,
+              toolCategoryValues,
+              true,
+            );
+            statusColumnFilter.push(`category(${encodedFilter})`);
+          }
         }
         filter = statusColumnFilter.join(",");
       } else {
