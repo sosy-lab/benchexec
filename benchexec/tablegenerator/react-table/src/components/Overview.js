@@ -31,8 +31,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import {
   createHiddenColsFromURL,
-  getFilterParamsFromUrl,
-  setFilterParamsInUrl,
+  makeUrlFilterDeserializer,
+  makeUrlFilterSerializer,
 } from "../utils/utils";
 
 const menuItems = [
@@ -86,7 +86,6 @@ export default class Overview extends React.Component {
       filtered: [],
       tabIndex: 0,
       filterBoxVisible: false,
-      filter: getFilterParamsFromUrl(),
       active: (
         menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
       ).key,
@@ -103,24 +102,40 @@ export default class Overview extends React.Component {
       (_tool, column) => column.type === "status",
       (runResult, _value) => runResult.category,
     );
+
+    const categoryValuesWithTrailingSpace = this.categoryValues.map(
+      (tool) =>
+        tool &&
+        tool.map((column) => column && column.map((item) => `${item} `)),
+    );
+
+    this.filterUrlRetriever = makeUrlFilterDeserializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+    this.filterUrlSetter = makeUrlFilterSerializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    const deserializedFilters = this.filterUrlRetriever();
+    if (deserializedFilters) {
+      // we wrap the setting of filters in setImmediate to allow react
+      // to finalize mounting
+      setImmediate(() => this.filterPlotData(deserializedFilters));
+    }
   }
 
   componentDidMount() {
     window.addEventListener("popstate", this.updateHiddenCols, false);
-    window.addEventListener("popstate", this.updateFilters, false);
   }
 
   componentWillUnmount() {
     window.removeEventListener("popstate", this.updateHiddenCols, false);
-    window.removeEventListener("popstate", this.updateFilters, false);
   }
 
   updateHiddenCols = () => {
     this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
-  };
-
-  updateFilters = () => {
-    this.setState({ filters: getFilterParamsFromUrl() });
   };
 
   // -----------------------SelectColumns-----------------------
@@ -155,7 +170,7 @@ export default class Overview extends React.Component {
   };
   filterPlotData = (filter, runFilterLogic = true) => {
     console.log({ filter });
-    setFilterParamsInUrl(filter);
+    this.filterUrlSetter(filter);
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
       this.setFilter(applyMatcher(matcher)(this.originalTable), true);
