@@ -192,13 +192,17 @@ const setHashSearch = (
   document.location.href = hrefString;
 };
 
-const getFilterParamsFromUrl = (str) => {
-  const params = getHashSearch(str);
-  if (params.filter) {
-    const decoded = atob(params.filter);
-    return JSON.parse(decoded);
-  }
-  return null;
+const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
+  const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
+  return (str) => {
+    const params = getHashSearch(str);
+    if (params.filter) {
+      const out = deserializer(params.filter);
+      console.log({ out, filter: params.filter, statusValues, categoryValues });
+      return out;
+    }
+    return null;
+  };
 };
 
 const makeSerializedFilterValue = (filter) => {
@@ -272,8 +276,8 @@ const makeFilterSerializer = ({
   // <filter> := <valueFilter>|<statusColumnFilter>
   // <valueFilter> := value(<value>)
   // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
-  // <statusFilter> := status(in(<value>+)|notIn(<value>+))
-  // <categoryFilter> := category(in(<value>+)|notIn(<value>+))
+  // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
+  // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
   // <value> := <urlencodedTerminalValue>
 
   // one transformed example would be
@@ -295,22 +299,29 @@ const makeFilterSerializer = ({
         const { statusValues, categoryValues } = filters;
         const toolStatusValues = allStatusValues[tool][columnId];
         const toolCategoryValues = allCategoryValues[tool][columnId];
-        if (statusValues && statusValues.length !== toolStatusValues.length) {
+        const hasStatusFilter =
+          statusValues && statusValues.length !== toolStatusValues.length;
+        const hasCategoryFilter =
+          categoryValues && categoryValues.length !== toolCategoryValues.length;
+        if (hasStatusFilter) {
           const encodedFilter = createDistinctValueFilters(
             statusValues,
             toolStatusValues,
           );
           statusColumnFilter.push(`status(${encodedFilter})`);
+          if (!hasCategoryFilter) {
+            statusColumnFilter.push("category(empty())");
+          }
         }
-        if (
-          categoryValues &&
-          categoryValues.length !== toolCategoryValues.length
-        ) {
+        if (hasCategoryFilter) {
           const encodedFilter = createDistinctValueFilters(
             categoryValues,
             toolCategoryValues,
             true,
           );
+          if (!hasStatusFilter) {
+            statusColumnFilter.push("status(empty())");
+          }
           statusColumnFilter.push(`category(${encodedFilter})`);
         }
         filter = statusColumnFilter.join(",");
@@ -393,6 +404,7 @@ const handleStatusColumnFilter = (
         }
       } else {
         for (const stat of statusValues[column]) {
+          console.log({ stat });
           if (!items.includes(stat)) {
             itemsToPush.push({ value: stat });
           }
@@ -434,7 +446,6 @@ const makeFilterDeserializer = ({
   statusValues: allStatusValues,
 }) => (filterString) => {
   const runsetFilters = tokenizePart(filterString);
-
   const out = [];
   for (const [token, filter] of Object.entries(runsetFilters)) {
     if (token === "id") {
@@ -458,6 +469,7 @@ const makeFilterDeserializer = ({
       for (const [filterToken, filterParam] of Object.entries(
         tokenizedFilter,
       )) {
+        console.log({ runsetFilters, tokenizedFilter });
         parsedFilters.push(
           ...tokenHandlers(
             filterToken,
@@ -468,22 +480,50 @@ const makeFilterDeserializer = ({
           ),
         );
       }
+      let hasStatus = false;
+      let hasCategory = false;
+      for (const token of Object.keys(tokenizedFilter)) {
+        if (token === "status") {
+          hasStatus = true;
+        } else if (token === "category") {
+          hasCategory = true;
+        }
+      }
+      if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
+        // if we only have category or a status filter, it means that no
+        // filter has been set for the other. We need to fill up the values
+        if (!hasStatus) {
+          parsedFilters.push(
+            ...allStatusValues[runsetId][columnId].map((status) => ({
+              value: status,
+            })),
+          );
+        } else {
+          parsedFilters.push(
+            ...allCategoryValues[runsetId][columnId].map((category) => ({
+              value: category,
+            })),
+          );
+        }
+      }
       for (const parsedFilter of parsedFilters) {
         out.push({ id: name, ...parsedFilter });
       }
     }
   }
-
   return out;
 };
 
-const setFilterParamsInUrl = (filter, options) => {
-  const previousParams = getHashSearch();
-  if (!filter) {
-    return setHashSearch(previousParams, options);
-  }
-  const encoded = btoa(JSON.stringify(filter));
-  return setHashSearch({ ...previousParams, filter: encoded }, options);
+const makeUrlFilterSerializer = (statusValues, categoryValues) => {
+  const serializer = makeFilterSerializer({ statusValues, categoryValues });
+  return (filter, options) => {
+    const previousParams = getHashSearch();
+    if (!filter) {
+      return setHashSearch(previousParams, options);
+    }
+    const encoded = serializer(filter);
+    return setHashSearch({ ...previousParams, filter: encoded }, options);
+  };
 };
 
 /**
@@ -838,8 +878,8 @@ export {
   hasSameEntries,
   isCategory,
   getStep,
-  getFilterParamsFromUrl,
-  setFilterParamsInUrl,
+  makeUrlFilterDeserializer,
+  makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
 };
