@@ -197,8 +197,6 @@ describe("serialization", () => {
       })),
     );
 
-    console.log({ filter });
-
     const expected = "0(0*status*(status(notIn(true,false))))";
 
     expect(serializer(filter)).toBe(expected);
@@ -398,6 +396,30 @@ describe("serialization", () => {
     });
 
     expect(testSerializer(inp)).toBe(expected);
+  });
+
+  test("Should not produce a status filter if all fields are selected", () => {
+    const testStatusValues = [[["true", "false"]]];
+    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+
+    const inp = [
+      { id: "0_status_0", value: "true" },
+      { id: "0_status_0", value: "false" },
+      { id: "0_status_0", value: "correct " },
+      { id: "0_status_0", value: "wrong " },
+      { id: "0_status_0", value: "missing " },
+      { id: "0_cputime_1", value: "1234" },
+      { id: "id", values: Array(0) },
+    ];
+
+    const testSerializer = makeFilterSerializer({
+      statusValues: testStatusValues,
+      categoryValues: testCategoryValues,
+    });
+
+    const expected = "0(1*cputime*(value(1234)))";
+
+    expect(testSerializer(inp)).toEqual(expected);
   });
 });
 

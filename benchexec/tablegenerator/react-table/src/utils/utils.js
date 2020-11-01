@@ -198,7 +198,6 @@ const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
     const params = getHashSearch(str);
     if (params.filter) {
       const out = deserializer(params.filter);
-      console.log({ out, filter: params.filter, statusValues, categoryValues });
       return out;
     }
     return null;
@@ -339,9 +338,13 @@ const makeFilterSerializer = ({
         // <valueFilter>
         filter = `value(${escape(filters.value)})`;
       }
-      columnFilters.push(`${columnFilterHeader}(${filter})`);
+      if (filter !== "") {
+        columnFilters.push(`${columnFilterHeader}(${filter})`);
+      }
     }
-    runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
+    if (columnFilters.length > 0) {
+      runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
+    }
   }
   const filterString = runsetFilters.join(",");
   return filterString;
@@ -414,7 +417,6 @@ const handleStatusColumnFilter = (
         }
       } else {
         for (const stat of statusValues[column]) {
-          console.log({ stat });
           if (!items.includes(stat)) {
             itemsToPush.push({ value: stat });
           }
@@ -479,7 +481,6 @@ const makeFilterDeserializer = ({
       for (const [filterToken, filterParam] of Object.entries(
         tokenizedFilter,
       )) {
-        console.log({ runsetFilters, tokenizedFilter });
         parsedFilters.push(
           ...tokenHandlers(
             filterToken,
@@ -532,7 +533,11 @@ const makeUrlFilterSerializer = (statusValues, categoryValues) => {
       return setHashSearch(previousParams, options);
     }
     const encoded = serializer(filter);
-    return setHashSearch({ ...previousParams, filter: encoded }, options);
+    if (encoded) {
+      return setHashSearch({ ...previousParams, filter: encoded }, options);
+    }
+    delete previousParams.filter;
+    return setHashSearch({ ...previousParams }, options);
   };
 };
 
