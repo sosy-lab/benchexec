@@ -11,8 +11,6 @@ import {
   textSortMethod,
   getHashSearch,
   setHashSearch,
-  getFilterParamsFromUrl,
-  setFilterParamsInUrl,
   NumberFormatterBuilder,
   hasSameEntries,
   makeFilterSerializer,
