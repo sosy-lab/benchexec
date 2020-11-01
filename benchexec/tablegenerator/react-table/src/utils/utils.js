@@ -244,7 +244,7 @@ const makeFilterSerializer = ({
     }
     const [tool, name, column] = id.split("_");
     const toolBucket = groupedFilters[tool] || {};
-    const columnBucket = toolBucket[column] || { name };
+    const columnBucket = toolBucket[column] || { name: escape(name) };
 
     if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
       // we are processing a status column with checkboxes
@@ -474,7 +474,7 @@ const makeFilterDeserializer = ({
     const parsedColumnFilters = {};
     for (const [key, columnFilter] of Object.entries(columnFilters)) {
       const [columnId, columnTitle] = key.split("*");
-      const name = `${runsetId}_${columnTitle}_${columnId}`;
+      const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
       const parsedFilters = parsedColumnFilters[name] || [];
       const tokenizedFilter = tokenizePart(columnFilter);
 
