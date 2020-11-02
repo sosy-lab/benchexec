@@ -247,16 +247,6 @@ export default class Overview extends React.Component {
                 },
               })}
             </div>
-            {
-              // This attribute is only defined in Internet Explorer
-              window.document.documentMode && (
-                <div className="unsupported-browser-warning">
-                  This application is not optimized for your browser and
-                  therefore some features may not work properly. Please consider
-                  using supported browsers such as Firefox or Google Chrome.
-                </div>
-              )
-            }
             <div className="route-container">
               <Switch>
                 <Route exact path="/">

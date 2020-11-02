@@ -6,7 +6,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   webpack: function override(config, webpackEnv) {
@@ -53,23 +52,6 @@ module.exports = {
       const dataPath = process.env.DATA || "src/data/data.json";
       config.resolve.alias["@data"] = path.resolve(__dirname, dataPath);
     }
-
-    const htmlWebpackPlugin = new HtmlWebpackPlugin({
-      inject: true,
-      template: "src/index.html",
-      minify: {
-        collapseWhitespace: true,
-        removeComments: true,
-        removeRedundantAttributes: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        useShortDoctype: true,
-        minifyJS: true,
-        minifyCSS: true,
-      },
-    });
-
-    config.plugins.push(htmlWebpackPlugin);
 
     return config;
   },

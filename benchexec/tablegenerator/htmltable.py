@@ -76,16 +76,35 @@ def write_html_table(
     )
     write_tags("style", app_css)
     out.write(
-        """</head>
+        """<style>
+    #msg-container {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 1.2rem;
+    }
+</style>
+</head>
+
 <body>
 
-<div id="root"></div>
+<div id="root">
+<div id="msg-container">
+    Please wait while the page is being loaded.
+</div>
+</div>
 <noscript>
   This is an interactive table for viewing results produced by
   <a href="https://github.com/sosy-lab/benchexec" target="_blank" rel="noopener noreferrer">BenchExec</a>.
   Please enable JavaScript to use it.
 </noscript>
-
+<script>
+    try {
+        eval('Object.values({})');
+    } catch (err) {
+        const msgContainer = document.getElementById("msg-container");
+        msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."
+    }
+</script>
 <script>
 const data = {
 """

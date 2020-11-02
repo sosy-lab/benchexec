@@ -5,11 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import "react-app-polyfill/ie11";
-import "react-app-polyfill/stable";
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 
+// Remove loading message
+document.getElementById("msg-container").remove();
 ReactDOM.render(<App />, document.getElementById("root"));

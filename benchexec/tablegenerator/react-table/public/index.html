@@ -13,6 +13,13 @@ SPDX-License-Identifier: Apache-2.0
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>React App</title>
+    <style>
+        #msg-container {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 1.2rem;
+        }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -27,5 +34,16 @@ SPDX-License-Identifier: Apache-2.0
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <div id="msg-container">
+        Please wait while the page is being loaded.
+    </div>
+    <script>
+        try {
+            eval("Object.values({})");
+        } catch (err) {
+            const msgContainer = document.getElementById("msg-container");
+            msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."
+        }
+    </script>
   </body>
 </html>
