@@ -5,11 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for PRTest (https://gitlab.com/sosy-lab/software/prtest).
     """
@@ -21,11 +21,18 @@ class Tool(benchexec.tools.template.BaseTool):
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
-    def executable(self):
-        return util.find_executable("prtest", "bin/prtest")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("prtest", subdir="bin")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
         return "PRTest"
+
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable, *options, *task.input_files_or_identifier]
