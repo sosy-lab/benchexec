@@ -101,7 +101,7 @@ def write_html_table(
     try {
         eval('Object.values({})');
     } catch (err) {
-        const msgContainer = document.getElementById("msg-container");
+        var msgContainer = document.getElementById("msg-container");
         msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."
     }
 </script>
