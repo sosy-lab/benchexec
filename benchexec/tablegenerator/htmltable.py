@@ -87,10 +87,10 @@ def write_html_table(
 
 <body>
 
-<div id="root">
 <div id="msg-container">
     Please wait while the page is being loaded.
 </div>
+<div id="root">
 </div>
 <noscript>
   This is an interactive table for viewing results produced by
