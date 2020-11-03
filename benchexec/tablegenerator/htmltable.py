@@ -99,7 +99,7 @@ def write_html_table(
 </noscript>
 <script>
     try {
-        eval('Object.values({})');
+        [0].flat();
     } catch (err) {
         var msgContainer = document.getElementById("msg-container");
         msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."

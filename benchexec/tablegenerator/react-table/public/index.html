@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
     </div>
     <script>
         try {
-            eval("Object.values({})");
+            [0].flat();
         } catch (err) {
             var msgContainer = document.getElementById("msg-container");
             msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."
