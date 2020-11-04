@@ -230,6 +230,54 @@ const createDistinctValueFilters = (selected, nominal, trim = false) => {
   return makeSerializedFilterValue(filter);
 };
 
+function makeStatusColumnFilter(
+  filters,
+  allStatusValues,
+  tool,
+  columnId,
+  allCategoryValues,
+) {
+  const statusColumnFilter = [];
+  const { statusValues, categoryValues } = filters;
+  const toolStatusValues = allStatusValues[tool][columnId];
+  const toolCategoryValues = allCategoryValues[tool][columnId];
+
+  const hasStatusFilter = !!statusValues;
+  const hasStatusUnchecked =
+    hasStatusFilter && statusValues.length !== toolStatusValues.length;
+
+  const hasCategoryFilter = !!categoryValues;
+  const hasCategoryUnchecked =
+    hasCategoryFilter && categoryValues.length !== toolCategoryValues.length;
+
+  if (hasStatusFilter) {
+    if (hasStatusUnchecked) {
+      const encodedFilter = createDistinctValueFilters(
+        statusValues,
+        toolStatusValues,
+      );
+      statusColumnFilter.push(`status(${encodedFilter})`);
+    }
+    if (!hasCategoryFilter) {
+      statusColumnFilter.push("category(empty())");
+    }
+  }
+  if (hasCategoryFilter) {
+    if (!hasStatusFilter) {
+      statusColumnFilter.push("status(empty())");
+    }
+    if (hasCategoryUnchecked) {
+      const encodedFilter = createDistinctValueFilters(
+        categoryValues,
+        toolCategoryValues,
+        true,
+      );
+      statusColumnFilter.push(`category(${encodedFilter})`);
+    }
+  }
+  return statusColumnFilter.join(",");
+}
+
 const makeFilterSerializer = ({
   statusValues: allStatusValues,
   categoryValues: allCategoryValues,
@@ -294,46 +342,13 @@ const makeFilterSerializer = ({
       let filter;
       if (filters.statusValues || filters.categoryValues) {
         // <statusColumnFilter>
-        const statusColumnFilter = [];
-        const { statusValues, categoryValues } = filters;
-        const toolStatusValues = allStatusValues[tool][columnId];
-        const toolCategoryValues = allCategoryValues[tool][columnId];
-
-        const hasStatusFilter = !!statusValues;
-        const hasStatusUnchecked =
-          hasStatusFilter && statusValues.length !== toolStatusValues.length;
-
-        const hasCategoryFilter = !!categoryValues;
-        const hasCategoryUnchecked =
-          hasCategoryFilter &&
-          categoryValues.length !== toolCategoryValues.length;
-
-        if (hasStatusFilter) {
-          if (hasStatusUnchecked) {
-            const encodedFilter = createDistinctValueFilters(
-              statusValues,
-              toolStatusValues,
-            );
-            statusColumnFilter.push(`status(${encodedFilter})`);
-          }
-          if (!hasCategoryFilter) {
-            statusColumnFilter.push("category(empty())");
-          }
-        }
-        if (hasCategoryFilter) {
-          if (!hasStatusFilter) {
-            statusColumnFilter.push("status(empty())");
-          }
-          if (hasCategoryUnchecked) {
-            const encodedFilter = createDistinctValueFilters(
-              categoryValues,
-              toolCategoryValues,
-              true,
-            );
-            statusColumnFilter.push(`category(${encodedFilter})`);
-          }
-        }
-        filter = statusColumnFilter.join(",");
+        filter = makeStatusColumnFilter(
+          filters,
+          allStatusValues,
+          tool,
+          columnId,
+          allCategoryValues,
+        );
       } else {
         // <valueFilter>
         filter = `value(${escape(filters.value)})`;
