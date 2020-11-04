@@ -6,20 +6,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import benchexec.util as util
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
     """
 
     REQUIRED_PATHS = ["cpachecker", "esbmc", "esbmc-wrapper.py", "tokenizer"]
 
-    def executable(self):
-        return util.find_executable("esbmc-wrapper.py")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("esbmc-wrapper.py")
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
@@ -31,49 +31,41 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "ESBMC"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        assert len(tasks) == 1, "only one inputfile supported"
-        inputfile = tasks[0]
-        return [executable] + ["-p", propertyfile] + options + [inputfile]
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
+        if data_model_param and "--arch" not in options:
+            options += ["--arch", data_model_param]
+        return (
+            [executable]
+            + ["-p", task.property_file]
+            + options
+            + [task.single_input_file]
+        )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
+    def determine_result(self, run):
         status = result.RESULT_UNKNOWN
 
-        if self.allInText(["FALSE_DEREF"], output):
+        if run.output.any_line_contains("FALSE_DEREF"):
             status = result.RESULT_FALSE_DEREF
-        elif self.allInText(["FALSE_FREE"], output):
+        elif run.output.any_line_contains("FALSE_FREE"):
             status = result.RESULT_FALSE_FREE
-        elif self.allInText(["FALSE_MEMTRACK"], output):
+        elif run.output.any_line_contains("FALSE_MEMTRACK"):
             status = result.RESULT_FALSE_MEMTRACK
-        elif self.allInText(["FALSE_OVERFLOW"], output):
+        elif run.output.any_line_contains("FALSE_OVERFLOW"):
             status = result.RESULT_FALSE_OVERFLOW
-        elif self.allInText(["FALSE_TERMINATION"], output):
+        elif run.output.any_line_contains("FALSE_TERMINATION"):
             status = result.RESULT_FALSE_TERMINATION
-        elif self.allInText(["FALSE"], output):
+        elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
-        elif "TRUE" in output:
+        elif run.output.any_line_contains("TRUE"):
             status = result.RESULT_TRUE_PROP
-        elif "DONE" in output:
+        elif run.output.any_line_contains("DONE"):
             status = result.RESULT_DONE
 
         if status == result.RESULT_UNKNOWN:
-            if isTimeout:
+            if run.was_timeout:
                 status = "TIMEOUT"
-            elif output.endswith(("error", "error\n")):
+            elif run.output[-1].endswith("error"):
                 status = "ERROR"
 
         return status
-
-    """ helper method """
-
-    def allInText(self, words, text):
-        """
-        This function checks, if all the words appear in the given order in the text.
-        """
-        index = 0
-        for word in words:
-            index = text[index:].find(word)
-            if index == -1:
-                return False
-        return True

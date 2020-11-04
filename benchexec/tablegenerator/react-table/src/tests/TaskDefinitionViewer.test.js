@@ -18,7 +18,10 @@ fs.readdirSync(testDir)
     it("Render TaskDefinitionViewer for " + file, () => {
       const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
       const component = renderer.create(
-        <TaskDefinitionViewer yamlText={content} />,
+        <TaskDefinitionViewer
+          yamlText={content}
+          createHref={(fileUrl) => fileUrl}
+        />,
       );
       expect(component).toMatchSnapshot();
     });

@@ -181,9 +181,9 @@ and the result files are placed in a directory besides the result XML file.
 Note that for investigating container-related problems, it can be easier to start an interactive shell
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
-#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system, please enable them with 'sysctl kernel.unprivileged_userns_clone=1' or disable container mode.`
+#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on Debian and Arch Linux).
+(this is the default on some distributions like Debian, Arch Linux, and CentOS).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 

@@ -67,16 +67,21 @@ unit-tests:python-3.8:
   variables:
     PYTHON_VERSION: '3.8'
 
+unit-tests:python-3.9:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.9'
+
 deploy-coverage:
   stage: deploy
   variables:
-    PYTHON_VERSION: '3.7'
+    PYTHON_VERSION: '3.9'
   before_script:
     - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
   script:
     - python-codacy-coverage -r coverage.xml
   dependencies:
-    - unit-tests:python-3.7
+    - unit-tests:python-3.9
   only:
     refs:
       - master
@@ -88,7 +93,7 @@ deploy-coverage:
 # Static checks
 check-format:
   stage: test
-  image: python:3.7
+  image: python:3.9
   before_script:
     - pip install black
   script:
@@ -96,9 +101,8 @@ check-format:
 
 flake8:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
-    - pip install 'isort<5' # workaround for https://github.com/gforcada/flake8-isort/issues/88
     - pip install flake8-awesome
   script:
     - flake8
@@ -199,3 +203,9 @@ build-docker:test:python-3.8:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.8
     IMAGE: test:python-3.8
+
+build-docker:test:python-3.9:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.9
+    IMAGE: test:python-3.9

@@ -9,9 +9,9 @@ import benchexec.tools.cpachecker as cpachecker
 
 
 class Tool(cpachecker.Tool):
-    """Tool info for PeSCo."""
+    """Tool info for CoVeriTest."""
 
     REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
     def name(self):
-        return "PeSCo"
+        return "CoVeriTest"

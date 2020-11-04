@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+include pyproject.toml
 include *.md
 recursive-include benchexec/tablegenerator/react-table/build *.min.js
 recursive-include benchexec/tablegenerator/react-table/build *.min.css

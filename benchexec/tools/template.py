@@ -416,8 +416,22 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @property
         def input_files(self):
+            """
+            Return sequence of input files or raise appropriate exception if the task
+            has no input files.
+            """
             self.require_input_files()
             return self.input_files_or_empty
+
+        @property
+        def single_input_file(self):
+            """
+            Return string with the single given input file, or raise appropriate
+            exception if there is not exactly one input file.
+            """
+            self.require_input_files()
+            self.require_single_input_file()
+            return self.input_files_or_empty[0]
 
         @property
         def input_files_or_identifier(self):
@@ -435,6 +449,16 @@ class BaseTool2(object, metaclass=ABCMeta):
             if not self.input_files_or_empty:
                 raise UnsupportedFeatureException(
                     "Tool does not support tasks without input files"
+                )
+
+        def require_single_input_file(self):
+            """
+            Check that there is not more than one path in input_files and raise
+            appropriate exception otherwise.
+            """
+            if len(self.input_files_or_empty) > 1:
+                raise UnsupportedFeatureException(
+                    "Tool does not support tasks with more than one input file"
                 )
 
     class ResourceLimits(
