@@ -35,7 +35,7 @@ class Tool(cbmc.Tool):
                 status = result.RESULT_TRUE_PROP
             elif result_str == "FALSE":
                 status = result.RESULT_FALSE_PROP
-            elif "UNKNOWN\n" in run.output:
+            elif "UNKNOWN" in run.output:
                 status = result.RESULT_UNKNOWN
 
         elif run.exit_code.value == 64 and "Usage error!" in run.output:
