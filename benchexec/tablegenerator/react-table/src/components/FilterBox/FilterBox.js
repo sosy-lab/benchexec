@@ -44,12 +44,8 @@ export default class FilterBox extends React.PureComponent {
   }
 
   retrieveIdFilters(filters) {
-    for (const { id, values } of filters) {
-      if (id === "id") {
-        return values;
-      }
-    }
-    return [];
+    const possibleIdFilter = filters.find((filter) => filter.id === "id");
+    return possibleIdFilter ? possibleIdFilter.values : [];
   }
 
   createFiltersFromReactTableStructure(filters) {

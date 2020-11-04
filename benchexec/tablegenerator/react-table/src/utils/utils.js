@@ -197,8 +197,7 @@ const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
   return (str) => {
     const params = getHashSearch(str);
     if (params.filter) {
-      const out = deserializer(params.filter);
-      return out;
+      return deserializer(params.filter);
     }
     return null;
   };

@@ -109,16 +109,17 @@ export default class Overview extends React.Component {
         tool.map((column) => column && column.map((item) => `${item} `)),
     );
 
-    this.filterUrlRetriever = makeUrlFilterDeserializer(
-      this.statusValues,
-      categoryValuesWithTrailingSpace,
-    );
     this.filterUrlSetter = makeUrlFilterSerializer(
       this.statusValues,
       categoryValuesWithTrailingSpace,
     );
 
-    const deserializedFilters = this.filterUrlRetriever();
+    const filterUrlRetriever = makeUrlFilterDeserializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    const deserializedFilters = filterUrlRetriever();
     if (deserializedFilters) {
       // we wrap the setting of filters in setImmediate to allow react
       // to finalize mounting
