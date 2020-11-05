@@ -315,7 +315,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def __assert_cmdline(cmdline, mode):
         assert all(
             cmdline
-        ), "cmdline contains empty or None argument when using %s mode: %s".format(
+        ), "cmdline contains empty or None argument when using {} mode: {}".format(
             mode, str(cmdline)
         )
         pass
@@ -329,7 +329,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, run):
-        if any([arg for arg in run.commandline if "--spec" == arg or ".prp" in arg]):
+        if any(arg for arg in run.commandline if "--spec" == arg or ".prp" in arg):
             return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
