@@ -389,7 +389,7 @@ def _format_number(
             )
 
     else:
-        float_value = round(
+        rounded_value = round(
             number, -int(floor(log10(abs(number)))) + (number_of_significant_digits - 1)
         )
 
@@ -397,8 +397,8 @@ def _format_number(
             max_digits_to_display = max_digits_after_decimal
         else:
             # This value may be too big, but extra digits will be cut below
-            max_digits_to_display = len(str(float_value))
-        formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
+            max_digits_to_display = len(str(rounded_value))
+        formatted_value = "{0:.{1}f}".format(rounded_value, max_digits_to_display)
 
         # Get the number of intended significant digits and the number of current significant digits.
         # If we have not enough digits due to rounding, 0's have to be re-added.
@@ -413,7 +413,7 @@ def _format_number(
                     "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'".format(
                         formatted_value,
                         number,
-                        float_value,
+                        rounded_value,
                         intended_digits,
                         max_digits_to_display,
                         format_target,
@@ -424,7 +424,7 @@ def _format_number(
             if "." in formatted_value[:digits_to_add]:
                 formatted_value = formatted_value[:digits_to_add]
             else:
-                formatted_value = str(round(float_value))
+                formatted_value = str(round(rounded_value))
 
             if formatted_value.endswith("."):
                 formatted_value = formatted_value[:-1]
