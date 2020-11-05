@@ -190,12 +190,23 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, resource_limits):
         data_model_param = get_data_model_from_task(
-            task,
-            {ILP32: ["--architecture", "32bit"], LP64: ["--architecture", "64bit"]},
+            task, {ILP32: "32bit", LP64: "64bit"},
         )
         combined_options = options
-        if data_model_param and not self._is_sublist(data_model_param, options):
-            combined_options += [data_model_param]
+        if data_model_param:
+            arch = ["--architecture", data_model_param]
+            if not self._is_sublist(arch, options):
+                combined_options += arch
+                if "--architecture" in options:
+                    # arch is no sublist, but architecture is already specified
+                    msg = (
+                        "Unsupported argument combination: "
+                        "You specified '--architecture' as option, but it is also specified as task"
+                    )
+                    logging.warning(
+                        "You specified '--architecture' as option, but the task has a different value of %s",
+                        data_model_param,
+                    )
 
         if self._is_svcomp17_version(executable):
             return self._cmdline_svcomp17(executable, combined_options, task)
