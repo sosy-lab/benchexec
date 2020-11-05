@@ -13,10 +13,12 @@ import os
 import re
 import shutil
 import subprocess
+from typing import Union, Tuple, List
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.template import ToolNotFoundException
 
@@ -187,7 +189,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
     def cmdline(self, executable, options, task, resource_limits):
-        combined_options = options + [*task.options] if task.options else []
+        data_model_param = get_data_model_from_task(
+            task,
+            {ILP32: ["--architecture", "32bit"], LP64: ["--architecture", "64bit"]},
+        )
+        combined_options = options
+        if data_model_param and not self._is_sublist(data_model_param, options):
+            combined_options += [data_model_param]
 
         if self._is_svcomp17_version(executable):
             return self._cmdline_svcomp17(executable, combined_options, task)
@@ -475,3 +483,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         if not rtr:
             raise ToolNotFoundException("Could not find any Java version")
         return rtr
+
+    @staticmethod
+    def _is_sublist(small: List, big: List) -> Union[bool, Tuple[int, int]]:
+        for i in range(len(big) - len(small) + 1):
+            for j in range(len(small)):
+                if big[i + j] != small[j]:
+                    break
+            else:
+                return i, i + len(small)
+        return False
