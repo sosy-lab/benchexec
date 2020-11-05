@@ -394,28 +394,23 @@ def _format_number(
         rounded_value = round(number, rounding_point)
         assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
 
-        if not format_target.startswith("tooltip"):
-            max_digits_to_display = max_digits_after_decimal
-        else:
-            # This value may be too big, but extra digits will be cut below
-            max_digits_to_display = len(util.print_decimal(rounded_value))
-        formatted_value = "{0:.{1}f}".format(rounded_value, max_digits_to_display)
+        formatted_value = util.print_decimal(rounded_value)
 
-        # Get the number of intended significant digits and the number of current significant digits.
-        # If we have not enough digits due to rounding, 0's have to be re-added.
-        # If we have too many digits due to conversion of integers to Decimal (e.g. 1234.0), the decimals have to be cut
+        # Get the number of resulting significant digits.
         current_sig_digits = _get_significant_digits(formatted_value)
 
-        digits_to_add = intended_digits - current_sig_digits
-
-        if digits_to_add > 0:
-            assert "." in formatted_value
-            formatted_value += "".join(["0"] * digits_to_add)
-        elif digits_to_add < 0:
-            if "." in formatted_value[:digits_to_add]:
-                formatted_value = formatted_value[:digits_to_add].rstrip(".")
+        if current_sig_digits > intended_digits:
+            if "." in formatted_value:
+                # Happens when rounding 9.99 to 10 with 2 significant digits,
+                # the formatted_value will be 10.0 and we need to cut one trailing zero.
+                assert current_sig_digits == intended_digits + 1
+                assert formatted_value.endswith("0")
+                formatted_value = formatted_value[:-1].rstrip(".")
             else:
-                formatted_value = str(round(rounded_value))
+                # happens for cases like 12300 with 3 significant digits
+                assert formatted_value == str(round(rounded_value))
+        else:
+            assert current_sig_digits == intended_digits
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
