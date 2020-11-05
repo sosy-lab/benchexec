@@ -387,7 +387,7 @@ def _format_number(
 
     else:
         assert number.adjusted() == int(floor(log10(abs(number))))
-        rounding_point = -number.adjusted() + (number_of_significant_digits - 1)
+        rounding_point = -number.adjusted() + (intended_digits - 1)
         # Contrary to its documentation, round() seems to be affected by the rounding
         # mode of decimal's context (which is good for us) when rounding Decimals.
         # We add an assertion to double check (calling round() is easier to understand).
