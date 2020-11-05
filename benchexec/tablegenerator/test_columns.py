@@ -50,6 +50,24 @@ class ColumnsTest(unittest.TestCase):
         )
         self.assertEqual(formatted_value_no_align_rounded, "0.5556")
 
+    def test_format_value_round_up(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "5.7715", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "5.772")
+
+    def test_format_value_round_up2(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "4.4445", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "4.445")
+
+    def test_format_value_round_up3(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "99.675", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "99.68")
+
     def test_format_value_add_missing_zeros(self):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value(
             "9.599999", *self.default_optionals

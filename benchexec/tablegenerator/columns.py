@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+import decimal
 from decimal import Decimal
 from math import floor, ceil, log10, isnan, isinf
 import logging
@@ -13,6 +14,13 @@ import logging
 from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
+
+# This sets the rounding mode for all Decimal operations in the process.
+# It is actually used only as default context for new contexts, but because we set this
+# at import time and before any threads are started, it should work according to its
+# documentation. We double check with the context of the current thread.
+decimal.DefaultContext.rounding = decimal.ROUND_HALF_UP
+assert decimal.getcontext().rounding == decimal.ROUND_HALF_UP
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
