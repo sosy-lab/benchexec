@@ -382,16 +382,15 @@ def _format_number(
     """
     assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
-    # Round to the given amount of significant digits
-    intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
     if number == 0:
-        formatted_value = "0"
-        if max_digits_after_decimal > 0 and initial_value_sig_digits > 0:
-            formatted_value += "." + "0" * min(
-                max_digits_after_decimal, initial_value_sig_digits
-            )
+        intended_digits = min(max_digits_after_decimal, initial_value_sig_digits)
+        # Add as many trailing zeros as desired
+        rounded_value = Decimal(0).scaleb(-intended_digits)
 
     else:
+        # Round to the given amount of significant digits
+        intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
+
         assert number.adjusted() == int(floor(log10(abs(number))))
         rounding_point = -number.adjusted() + (intended_digits - 1)
         # Contrary to its documentation, round() seems to be affected by the rounding
@@ -400,23 +399,23 @@ def _format_number(
         rounded_value = round(number, rounding_point)
         assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
 
-        formatted_value = util.print_decimal(rounded_value)
+    formatted_value = util.print_decimal(rounded_value)
 
-        # Get the number of resulting significant digits.
-        current_sig_digits = _get_significant_digits(formatted_value)
+    # Get the number of resulting significant digits.
+    current_sig_digits = _get_significant_digits(formatted_value)
 
-        if current_sig_digits > intended_digits:
-            if "." in formatted_value:
-                # Happens when rounding 9.99 to 10 with 2 significant digits,
-                # the formatted_value will be 10.0 and we need to cut one trailing zero.
-                assert current_sig_digits == intended_digits + 1
-                assert formatted_value.endswith("0")
-                formatted_value = formatted_value[:-1].rstrip(".")
-            else:
-                # happens for cases like 12300 with 3 significant digits
-                assert formatted_value == str(round(rounded_value))
+    if current_sig_digits > intended_digits:
+        if "." in formatted_value:
+            # Happens when rounding 9.99 to 10 with 2 significant digits,
+            # the formatted_value will be 10.0 and we need to cut one trailing zero.
+            assert current_sig_digits == intended_digits + 1
+            assert formatted_value.endswith("0")
+            formatted_value = formatted_value[:-1].rstrip(".")
         else:
-            assert current_sig_digits == intended_digits
+            # happens for cases like 12300 with 3 significant digits
+            assert formatted_value == str(round(rounded_value))
+    else:
+        assert current_sig_digits == intended_digits
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
