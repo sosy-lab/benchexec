@@ -386,9 +386,13 @@ def _format_number(
             )
 
     else:
-        rounded_value = round(
-            number, -int(floor(log10(abs(number)))) + (number_of_significant_digits - 1)
-        )
+        assert number.adjusted() == int(floor(log10(abs(number))))
+        rounding_point = -number.adjusted() + (number_of_significant_digits - 1)
+        # Contrary to its documentation, round() seems to be affected by the rounding
+        # mode of decimal's context (which is good for us) when rounding Decimals.
+        # We add an assertion to double check (calling round() is easier to understand).
+        rounded_value = round(number, rounding_point)
+        assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
 
         if not format_target.startswith("tooltip"):
             max_digits_to_display = max_digits_after_decimal
