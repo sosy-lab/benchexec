@@ -409,31 +409,18 @@ def _format_number(
         digits_to_add = intended_digits - current_sig_digits
 
         if digits_to_add > 0:
-            if "." not in formatted_value:
-                raise AssertionError(
-                    "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'".format(
-                        formatted_value,
-                        number,
-                        rounded_value,
-                        intended_digits,
-                        max_digits_to_display,
-                        format_target,
-                    )
-                )
+            assert "." in formatted_value
             formatted_value += "".join(["0"] * digits_to_add)
         elif digits_to_add < 0:
             if "." in formatted_value[:digits_to_add]:
-                formatted_value = formatted_value[:digits_to_add]
+                formatted_value = formatted_value[:digits_to_add].rstrip(".")
             else:
                 formatted_value = str(round(rounded_value))
-
-            if formatted_value.endswith("."):
-                formatted_value = formatted_value[:-1]
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
     if _is_to_cut(formatted_value, format_target, isToAlign):
-        assert formatted_value[0] == "0"
+        assert formatted_value.startswith("0.")
         formatted_value = formatted_value[1:]
 
     # Alignment
