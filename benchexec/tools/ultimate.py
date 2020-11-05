@@ -190,7 +190,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, resource_limits):
         data_model_param = get_data_model_from_task(
-            task, {ILP32: "32bit", LP64: "64bit"},
+            task, {ILP32: "32bit", LP64: "64bit"}
         )
         combined_options = options
         if data_model_param:
