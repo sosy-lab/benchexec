@@ -6,20 +6,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.model
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for KLEE (https://klee.github.io).
     """
 
     REQUIRED_PATHS = ["bin", "include", "klee_build", "libraries"]
 
-    def executable(self):
-        return util.find_executable("bin/klee")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("klee", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
@@ -45,30 +45,24 @@ class Tool(benchexec.tools.template.BaseTool):
         version = self._version_from_tool(executable, line_prefix="KLEE")
         return version.split("(")[0].strip()
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        if propertyfile:
-            options += ["--property-file=" + propertyfile]
-        if benchexec.model.MEMLIMIT in rlimits:
-            options += ["--max-memory=" + str(rlimits[benchexec.model.MEMLIMIT])]
-        if benchexec.model.TIMELIMIT in rlimits:
-            options += ["--max-time=" + str(rlimits[benchexec.model.TIMELIMIT])]
-        if benchexec.model.WALLTIMELIMIT in rlimits:
-            options += ["--max-walltime=" + str(rlimits[benchexec.model.WALLTIMELIMIT])]
-        if benchexec.model.SOFTTIMELIMIT in rlimits:
-            options += [
-                "--max-cputime-soft=" + str(rlimits[benchexec.model.SOFTTIMELIMIT])
-            ]
-        if benchexec.model.HARDTIMELIMIT in rlimits:
-            options += [
-                "--max-cputime-hard=" + str(rlimits[benchexec.model.HARDTIMELIMIT])
-            ]
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options += ["--property-file=" + task.property_file]
+        if rlimits.memory:
+            options += ["--max-memory=" + str(rlimits.memory)]
+        if rlimits.cputime:
+            options += ["--max-cputime-soft=" + str(rlimits.cputime)]
 
-        return [executable] + options + tasks
+        data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + list(task.input_files_or_identifier)
 
     def name(self):
         return "KLEE"
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         This method always needs to be overridden.
@@ -78,7 +72,7 @@ class Tool(benchexec.tools.template.BaseTool):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        for line in output:
+        for line in run.output:
             if line.startswith("KLEE: ERROR: "):
                 if line.find("ASSERTION FAIL:") != -1:
                     return result.RESULT_FALSE_REACH
@@ -87,7 +81,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 elif line.find("overflow") != -1:
                     return result.RESULT_FALSE_OVERFLOW
                 else:
-                    return "ERROR ({0})".format(returncode)
+                    return "ERROR ({0})".format(run.exit_code.value)
             if line.startswith("KLEE: done"):
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN

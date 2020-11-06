@@ -5,12 +5,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Wrapper for a Predator - Hunting Party
     http://www.fit.vutbr.cz/research/groups/verifit/tools/predator-hp/
@@ -18,8 +18,8 @@ class Tool(benchexec.tools.template.BaseTool):
 
     REQUIRED_PATHS = ["predator", "predator-bfs", "predator-dfs", "predatorHP.py"]
 
-    def executable(self):
-        return util.find_executable("predatorHP.py")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("predatorHP.py")
 
     def name(self):
         return "PredatorHP"
@@ -27,27 +27,34 @@ class Tool(benchexec.tools.template.BaseTool):
     def version(self, executable):
         return self._version_from_tool(executable, use_stderr=True)
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        spec = ["--propertyfile", propertyfile] if propertyfile is not None else []
-        return [executable] + options + spec + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        spec = ["--propertyfile", task.property_file] if task.property_file else []
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
+        data_model_param = get_data_model_from_task(
+            task,
+            {ILP32: "--compiler-options=-m32", LP64: "--compiler-options=-m64"},
+        )
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + spec + list(task.input_files_or_identifier)
+
+    def determine_result(self, run):
         status = "UNKNOWN"
-        if "UNKNOWN" in output:
+        if run.output.any_line_contains("UNKNOWN"):
             status = result.RESULT_UNKNOWN
-        elif "TRUE" in output:
+        elif run.output.any_line_contains("TRUE"):
             status = result.RESULT_TRUE_PROP
-        elif "FALSE(valid-memtrack)" in output:
+        elif run.output.any_line_contains("FALSE(valid-memtrack)"):
             status = result.RESULT_FALSE_MEMTRACK
-        elif "FALSE(valid-deref)" in output:
+        elif run.output.any_line_contains("FALSE(valid-deref)"):
             status = result.RESULT_FALSE_DEREF
-        elif "FALSE(valid-free)" in output:
+        elif run.output.any_line_contains("FALSE(valid-free)"):
             status = result.RESULT_FALSE_FREE
-        elif "FALSE(valid-memcleanup)" in output:
+        elif run.output.any_line_contains("FALSE(valid-memcleanup)"):
             status = result.RESULT_FALSE_MEMCLEANUP
-        elif "FALSE" in output:
+        elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
-        if status == "UNKNOWN" and isTimeout:
+        if status == "UNKNOWN" and run.was_timeout:
             status = "TIMEOUT"
         return status
