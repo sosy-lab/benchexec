@@ -34,6 +34,7 @@ import {
   makeUrlFilterDeserializer,
   makeUrlFilterSerializer,
 } from "../utils/utils";
+import deepEqual from "deep-equal";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -114,26 +115,37 @@ export default class Overview extends React.Component {
       categoryValuesWithTrailingSpace,
     );
 
-    const filterUrlRetriever = makeUrlFilterDeserializer(
+    this.filterUrlRetriever = makeUrlFilterDeserializer(
       this.statusValues,
       categoryValuesWithTrailingSpace,
     );
 
-    const deserializedFilters = filterUrlRetriever();
-    if (deserializedFilters) {
-      // we wrap the setting of filters in setImmediate to allow react
-      // to finalize mounting
-      setImmediate(() => this.filterPlotData(deserializedFilters));
-    }
+    // we wrap the setting of filters in setImmediate to allow react
+    // to finalize mounting
+    setImmediate(this.updateFiltersFromUrl);
   }
 
   componentDidMount() {
-    window.addEventListener("popstate", this.updateHiddenCols, false);
+    window.addEventListener("popstate", this.updateFiltersFromUrl, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateHiddenCols, false);
+    window.removeEventListener("popstate", this.updateFiltersFromUrl, false);
   }
+
+  handlePopState = () => {
+    this.updateHiddenCols();
+    this.updateFiltersFromUrl();
+  };
+
+  updateFiltersFromUrl = () => {
+    const deserializedFilters = this.filterUrlRetriever() || [];
+    console.log({ deserializedFilters });
+    if (!deepEqual(this.state.filtered, deserializedFilters)) {
+      // we only want to kick off filtering when filters changed
+      this.filterPlotData(deserializedFilters);
+    }
+  };
 
   updateHiddenCols = () => {
     this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
@@ -169,7 +181,9 @@ export default class Overview extends React.Component {
     });
   };
   filterPlotData = (filter, runFilterLogic = true) => {
-    this.filterUrlSetter(filter);
+    // updating url filters on next tick to ensure that state is already set
+    // when handler is called
+    setImmediate(() => this.filterUrlSetter(filter));
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
       this.setFilter(applyMatcher(matcher)(this.originalTable), true);
