@@ -329,7 +329,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, run):
-        if any(arg for arg in run.commandline if "--spec" == arg or ".prp" in arg):
+        if any(arg for arg in run.cmdline if "--spec" == arg or ".prp" in arg):
             return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
