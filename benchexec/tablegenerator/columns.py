@@ -417,7 +417,7 @@ def _format_number(
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
-    if _is_to_cut(formatted_value, format_target, isToAlign):
+    if _is_to_cut(formatted_value, format_target):
         assert formatted_value.startswith("0.")
         formatted_value = formatted_value[1:]
 
@@ -429,11 +429,8 @@ def _format_number(
     return formatted_value
 
 
-def _is_to_cut(value, format_target, is_to_align):
-    correct_target = format_target == "html_cell" or (
-        format_target == "csv" and is_to_align
-    )
-
+def _is_to_cut(value, format_target):
+    correct_target = format_target == "html_cell"
     return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
