@@ -193,7 +193,7 @@ class Column(object):
         else:
             return title
 
-    def format_value(self, value, isToAlign=False, format_target="html"):
+    def format_value(self, value, isToAlign, format_target):
         """
         Format a value nicely for human-readable output (including rounding).
 
@@ -313,9 +313,7 @@ class Column(object):
         )
 
 
-def _format_number_align(
-    formattedValue, max_number_of_dec_digits, format_target="html"
-):
+def _format_number_align(formattedValue, max_number_of_dec_digits, format_target):
     alignment = max_number_of_dec_digits
 
     if formattedValue.find(".") >= 0:
