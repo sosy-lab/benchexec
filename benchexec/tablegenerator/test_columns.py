@@ -27,7 +27,7 @@ class ColumnsTest(unittest.TestCase):
         self.measure_column = Column(
             "CpuTime", None, self.sig_figures, None, self.measure_type, None, None, 1
         )
-        self.default_optionals = (False, "html")
+        self.default_optionals = ("html",)
 
     def tearDown(self):
         pass
@@ -52,19 +52,19 @@ class ColumnsTest(unittest.TestCase):
 
     def test_format_value_round_up(self):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value(
-            "5.7715", None, "html"
+            "5.7715", *self.default_optionals
         )
         self.assertEqual(formatted_value_no_align_zeros_cut, "5.772")
 
     def test_format_value_round_up2(self):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value(
-            "4.4445", None, "html"
+            "4.4445", *self.default_optionals
         )
         self.assertEqual(formatted_value_no_align_zeros_cut, "4.445")
 
     def test_format_value_round_up3(self):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value(
-            "99.675", None, "html"
+            "99.675", *self.default_optionals
         )
         self.assertEqual(formatted_value_no_align_zeros_cut, "99.68")
 
@@ -128,7 +128,7 @@ class ColumnsTest(unittest.TestCase):
 
     def test_format_value_align_decimal(self):
         formatted_value_aligned = self.measure_column.format_value(
-            "1.555s", True, "html"
+            "1.555s", "html_cell"
         )
         self.assertEqual(formatted_value_aligned, "1.555&#x2007;&#x2007;&#x2007;")
 
@@ -144,10 +144,10 @@ class ColumnsTest(unittest.TestCase):
             unit=None,
             scale_factor=1,
         )
-        formatted_value_aligned = small_value_column.format_value(
-            small_value, True, "html"
+        formatted_value = small_value_column.format_value(
+            small_value, *self.default_optionals
         )
-        self.assertEqual(formatted_value_aligned, "0.00000877")
+        self.assertEqual(formatted_value, "0.00000877")
 
         # Test CSV formatting with scaling
         small_value_column = Column(
@@ -159,7 +159,7 @@ class ColumnsTest(unittest.TestCase):
             unit="s",
             scale_factor=Decimal("0.1"),
         )
-        formatted_value = small_value_column.format_value(small_value, False, "csv")
+        formatted_value = small_value_column.format_value(small_value, "csv")
         self.assertEqual(formatted_value, "0.0000008767")
 
         # Test whether scaling to small values and resulting values are handled correctly
@@ -173,12 +173,12 @@ class ColumnsTest(unittest.TestCase):
             unit="dummy",
             scale_factor=1e-10,
         )
-        formatted_value_aligned = small_value_column.format_value("2", True, "html")
-        self.assertEqual(formatted_value_aligned, "0.0000000002&#x2007;&#x2007;")
+        formatted_value_aligned = small_value_column.format_value("2", "html_cell")
+        self.assertEqual(formatted_value_aligned, ".0000000002&#x2007;&#x2007;")
 
     def test_format_value_align_int(self):
         formatted_value_int_aligned = self.measure_column.format_value(
-            "20", True, "html"
+            "20", "html_cell"
         )
         self.assertEqual(
             formatted_value_int_aligned,
@@ -187,7 +187,7 @@ class ColumnsTest(unittest.TestCase):
 
     def test_format_value_cut_0_at_front(self):
         formatted_value_0_cut = self.measure_column.format_value(
-            "0.055999", True, "html_cell"
+            "0.055999", "html_cell"
         )
         self.assertEqual(formatted_value_0_cut, ".05600&#x2007;")
 
@@ -289,56 +289,56 @@ class ColumnsTest(unittest.TestCase):
         self.assertEqual(formatted_value, "-Inf")
 
     def test_format_value_NaN_for_csv(self):
-        formatted_value = self.measure_column.format_value("Nan", False, "csv")
+        formatted_value = self.measure_column.format_value("Nan", "csv")
         self.assertEqual(formatted_value, "NaN")
 
     def test_format_value_inf_for_csv(self):
-        formatted_value = self.measure_column.format_value("InF", False, "csv")
+        formatted_value = self.measure_column.format_value("InF", "csv")
         self.assertEqual(formatted_value, "Inf")
 
-        formatted_value = self.measure_column.format_value("inf", False, "csv")
+        formatted_value = self.measure_column.format_value("inf", "csv")
         self.assertEqual(formatted_value, "Inf")
 
-        formatted_value = self.measure_column.format_value("inF", False, "csv")
+        formatted_value = self.measure_column.format_value("inF", "csv")
         self.assertEqual(formatted_value, "Inf")
 
-        formatted_value = self.measure_column.format_value("+Inf", False, "csv")
+        formatted_value = self.measure_column.format_value("+Inf", "csv")
         self.assertEqual(formatted_value, "Inf")
 
     def test_format_value_negative_inf_for_csv(self):
-        formatted_value = self.measure_column.format_value("-InF", False, "csv")
+        formatted_value = self.measure_column.format_value("-InF", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
-        formatted_value = self.measure_column.format_value("-inf", False, "csv")
+        formatted_value = self.measure_column.format_value("-inf", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
-        formatted_value = self.measure_column.format_value("-inF", False, "csv")
+        formatted_value = self.measure_column.format_value("-inF", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
-        formatted_value = self.measure_column.format_value("-Inf", False, "csv")
+        formatted_value = self.measure_column.format_value("-Inf", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
-        formatted_value = self.measure_column.format_value("-inf", False, "csv")
+        formatted_value = self.measure_column.format_value("-inf", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
-        formatted_value = self.measure_column.format_value("-INF", False, "csv")
+        formatted_value = self.measure_column.format_value("-INF", "csv")
         self.assertEqual(formatted_value, "-Inf")
 
     def test_format_value_tooltip_explicit_sigs(self):
         formatted_value_tooltip_considers_explicit_sigs = (
-            self.measure_column.format_value("9999.125s", None, "tooltip_stochastic")
+            self.measure_column.format_value("9999.125s", "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "9999")
 
     def test_format_value_tooltip_explicit_sigs2(self):
         formatted_value_tooltip_considers_explicit_sigs = (
-            self.measure_column.format_value("0.125s", None, "tooltip_stochastic")
+            self.measure_column.format_value("0.125s", "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.125")
 
     def test_format_value_tooltip_explicit_sigs3(self):
         formatted_value_tooltip_considers_explicit_sigs = (
-            self.measure_column.format_value("0.125999s", None, "tooltip_stochastic")
+            self.measure_column.format_value("0.125999s", "tooltip_stochastic")
         )
         self.assertEqual(formatted_value_tooltip_considers_explicit_sigs, "0.1260")
 
@@ -351,9 +351,7 @@ class ColumnsTest(unittest.TestCase):
         )
         self.assertEqual(formatted_value_count_no_align_no_sigs, "123456789")
 
-        formatted_value_aligned = count_column.format_value(
-            "123456789", True, "html_cell"
-        )
+        formatted_value_aligned = count_column.format_value("123456789", "html_cell")
         self.assertEqual(
             formatted_value_aligned, formatted_value_count_no_align_no_sigs
         )

@@ -193,13 +193,11 @@ class Column(object):
         else:
             return title
 
-    def format_value(self, value, isToAlign, format_target):
+    def format_value(self, value, format_target):
         """
         Format a value nicely for human-readable output (including rounding).
 
         @param value: the value to format
-        @param isToAlign: if True, spaces will be added to the returned String representation to align it to all
-            other values in this column, correctly
         @param format_target the target the value should be formatted for
         @return: a formatted String representation of the given value.
         """
@@ -259,7 +257,6 @@ class Column(object):
                 current_significant_digits,
                 number_of_significant_digits,
                 max_dec_digits,
-                isToAlign,
                 format_target,
             )
         else:
@@ -313,23 +310,17 @@ class Column(object):
         )
 
 
-def _format_number_align(formattedValue, max_number_of_dec_digits, format_target):
+def _format_number_align(formattedValue, max_number_of_dec_digits):
     alignment = max_number_of_dec_digits
 
     if formattedValue.find(".") >= 0:
         # Subtract spaces for digits after the decimal point.
         alignment -= len(formattedValue) - formattedValue.find(".") - 1
-    elif max_number_of_dec_digits > 0 and format_target.startswith("html"):
+    elif max_number_of_dec_digits > 0:
         # Add punctuation space.
         formattedValue += "&#x2008;"
 
-    if format_target.startswith("html"):
-        whitespace = "&#x2007;"
-    else:
-        whitespace = " "
-    formattedValue += whitespace * alignment
-
-    return formattedValue
+    return formattedValue + ("&#x2007;" * alignment)
 
 
 def _get_significant_digits(value):
@@ -369,7 +360,6 @@ def _format_number(
     initial_value_sig_digits,
     number_of_significant_digits,
     max_digits_after_decimal,
-    isToAlign,
     format_target,
 ):
     """
@@ -422,9 +412,9 @@ def _format_number(
         formatted_value = formatted_value[1:]
 
     # Alignment
-    if isToAlign:
+    if format_target == "html_cell":
         formatted_value = _format_number_align(
-            formatted_value, max_digits_after_decimal, format_target
+            formatted_value, max_digits_after_decimal
         )
     return formatted_value
 

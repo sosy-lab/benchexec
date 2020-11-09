@@ -1375,7 +1375,7 @@ def write_csv_table(
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
-                out.write(column.format_value(value or "", False, "csv"))
+                out.write(column.format_value(value or "", "csv"))
         out.write("\n")
 
 

@@ -246,11 +246,11 @@ def _statistics_has_value_for(all_column_stats, field):
 def _convert_statvalue_to_json(column_stats, field, column):
     def format_stat_value(key, value):
         if key == "sum":
-            return column.format_value(value, True, "html_cell")
+            return column.format_value(value, "html_cell")
         elif key == "avg" or key == "stdev":
-            return column.format_value(value, False, "tooltip_stochastic")
+            return column.format_value(value, "tooltip_stochastic")
         else:
-            return column.format_value(value, False, "tooltip")
+            return column.format_value(value, "tooltip")
 
     if column_stats is None:
         return None
@@ -454,11 +454,11 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         We always add the raw value (as in CSV), and sometimes a version that is
         formatted for HTML (e.g., with spaces for alignment).
         """
-        raw_value = column.format_value(value, False, "csv")
+        raw_value = column.format_value(value, "csv")
         # We need to make sure that formatted_value is safe (no unescaped tool output),
         # but for text columns format_value returns the same for csv and html_cell,
         # and for number columns the HTML result is safe.
-        formatted_value = column.format_value(value, True, "html_cell")
+        formatted_value = column.format_value(value, "html_cell")
         result = {}
         if column.href:
             result["href"] = _create_link(column.href, base_dir, run_result, href_base)
