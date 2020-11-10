@@ -238,9 +238,12 @@ class Column(object):
 
         if (
             self.number_of_significant_digits is None
+            and self.type.type != ColumnType.measure
             and format_target == "tooltip_stochastic"
         ):
-            return str(round(number, DEFAULT_TOOLTIP_PRECISION))
+            # Column of type count (integral values) without specified sig. digits.
+            # However, we need to round values like stdev, so we just round somehow.
+            return util.print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         number_of_significant_digits = self.get_number_of_significant_digits(
             format_target
