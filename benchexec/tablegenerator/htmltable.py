@@ -301,7 +301,9 @@ def _prepare_stats(all_column_stats, rows, columns):
             )
         )
 
-    if count_true or count_false:
+    has_correct = _statistics_has_value_for(all_column_stats, "correct")
+    has_wrong = _statistics_has_value_for(all_column_stats, "wrong")
+    if has_correct or has_wrong:
         stat_rows.append(
             dict(  # noqa: C408
                 id=None,
