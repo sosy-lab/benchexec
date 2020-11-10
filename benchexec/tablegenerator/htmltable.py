@@ -246,6 +246,8 @@ def _convert_statvalue_to_json(column_stats, field, column):
     def format_stat_value(key, value):
         if key == "sum":
             return column.format_value(value, True, "html_cell")
+        elif key == "avg" or key == "stdev":
+            return column.format_value(value, False, "tooltip_stochastic")
         else:
             return column.format_value(value, False, "tooltip")
 
