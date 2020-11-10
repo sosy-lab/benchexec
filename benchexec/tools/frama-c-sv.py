@@ -22,7 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable(Tool._SCRIPT_NAME)
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, line_prefix="frama-c-sv version ")
 
     def name(self):
         return Tool._TOOL_NAME
