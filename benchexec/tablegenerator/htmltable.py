@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import copy
 import json
 import logging
 import os
@@ -265,6 +266,27 @@ def _convert_statvalue_to_json(column_stats, field, column):
 
 def _prepare_stats(all_column_stats, rows, columns):
     max_score, count_true, count_false = _get_task_counts(rows)
+
+    # Column instances contain the info about how to format (round and align) values.
+    # However, alignment info is based on the values in the actual table, whereas for
+    # the stats table often less whitespace for alignment is necessary.
+    # So we replace the Column instances with adjusted ones.
+    def adjust_column_to_statistics_values(column, column_stats):
+        if not column_stats:
+            return column
+        # Compute alignment info from the values shown in the statistics table (sums).
+        values = [stat.sum for stat in column_stats.__dict__.values() if stat]
+        new_column = copy.copy(column)
+        new_column.set_column_type_from(values)
+        return new_column
+
+    columns = [
+        [
+            adjust_column_to_statistics_values(column, column_stats)
+            for column_stats, column in zip(run_set_stats, run_set_columns)
+        ]
+        for run_set_stats, run_set_columns in zip(all_column_stats, columns)
+    ]
 
     task_counts = (
         "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
