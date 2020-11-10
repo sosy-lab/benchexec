@@ -213,13 +213,16 @@ class Column(object):
         if value is None or value == "":
             return ""
 
-        if not isinstance(value, (str, Decimal)):
+        if isinstance(value, str):
+            # If the number ends with "s" or another unit, remove it.
+            # Units should not occur in table cells, but in the table head.
+            number_str = util.remove_unit(value.strip())
+            number = Decimal(number_str)
+        elif isinstance(value, Decimal):
+            number = value
+            number_str = util.print_decimal(number)
+        else:
             raise TypeError("Unexpected number type " + str(type(value)))
-
-        # If the number ends with "s" or another unit, remove it.
-        # Units should not occur in table cells, but in the table head.
-        number_str = util.remove_unit(str(value).strip())
-        number = Decimal(number_str)
 
         if isnan(number):
             return "NaN"
