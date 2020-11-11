@@ -6,6 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+import decimal
+from decimal import Decimal
 from math import floor, ceil, log10, isnan, isinf
 import logging
 
@@ -13,11 +15,18 @@ from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
+# This sets the rounding mode for all Decimal operations in the process.
+# It is actually used only as default context for new contexts, but because we set this
+# at import time and before any threads are started, it should work according to its
+# documentation. We double check with the context of the current thread.
+decimal.DefaultContext.rounding = decimal.ROUND_HALF_UP
+assert decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
 # Compile regular expression for detecting measurements only once.
 REGEX_MEASURE = re.compile(
-    r"\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$"
+    r"\s*([-\+])?(?:([Nn][aA][Nn]|[iI][nN][fF]|[iI][nN][fF][iI][nN][iI][tT][yY])|(\d+)(\.(0*)(\d+))?([eE]([-\+])(\d+))?\s?([a-zA-Z/%]*))\s*$"
 )
 GROUP_SIGN = 1
 GROUP_SPECIAL_FLOATS_PART = 2
@@ -33,20 +42,21 @@ POSSIBLE_FORMAT_TARGETS = ["html", "html_cell", "tooltip", "tooltip_stochastic",
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
+_ONE = Decimal(1)
 UNIT_CONVERSION = {
-    "s": {"ms": 1000, "min": 1.0 / 60, "h": 1.0 / 3600},
-    "B": {"kB": 1.0 / 10 ** 3, "MB": 1.0 / 10 ** 6, "GB": 1.0 / 10 ** 9},
+    "s": {"ms": 1000, "min": _ONE / 60, "h": _ONE / 3600},
+    "B": {"kB": Decimal("1e-3"), "MB": Decimal("1e-6"), "GB": Decimal("1e-9")},
     "J": {
-        "kJ": 1.0 / 10 ** 3,
-        "Ws": 1,
-        "kWs": 1.0 / 1000,
-        "Wh": 1.0 / 3600,
-        "kWh": 1.0 / (1000 * 3600),
-        "mWh": 1.0 / (1000 * 1000 * 3600),
+        "kJ": _ONE / 10 ** 3,
+        "Ws": _ONE,
+        "kWs": _ONE / 1000,
+        "Wh": _ONE / 3600,
+        "kWh": _ONE / (1000 * 3600),
+        "mWh": _ONE / (1000 * 1000 * 3600),
     },
 }
 
-inf = float("inf")
+inf = Decimal("inf")
 
 
 def enum(**enums):
@@ -149,7 +159,7 @@ class Column(object):
         self.type = col_type
         self.unit = unit
         self.source_unit = source_unit
-        self.scale_factor = float(scale_factor) if scale_factor else scale_factor
+        self.scale_factor = Decimal(scale_factor) if scale_factor else scale_factor
         self.href = href
         if relevant_for_diff is None:
             self.relevant_for_diff = False
@@ -203,10 +213,16 @@ class Column(object):
         if value is None or value == "":
             return ""
 
-        # If the number ends with "s" or another unit, remove it.
-        # Units should not occur in table cells, but in the table head.
-        number_str = util.remove_unit(str(value).strip())
-        number = float(number_str)
+        if isinstance(value, str):
+            # If the number ends with "s" or another unit, remove it.
+            # Units should not occur in table cells, but in the table head.
+            number_str = util.remove_unit(value.strip())
+            number = Decimal(number_str)
+        elif isinstance(value, Decimal):
+            number = value
+            number_str = util.print_decimal(number)
+        else:
+            raise TypeError("Unexpected number type " + str(type(value)))
 
         if isnan(number):
             return "NaN"
@@ -218,12 +234,16 @@ class Column(object):
         # Apply the scale factor to the value
         if self.scale_factor is not None:
             number *= self.scale_factor
+        assert number.is_finite()
 
         if (
             self.number_of_significant_digits is None
+            and self.type.type != ColumnType.measure
             and format_target == "tooltip_stochastic"
         ):
-            return str(round(number, DEFAULT_TOOLTIP_PRECISION))
+            # Column of type count (integral values) without specified sig. digits.
+            # However, we need to round values like stdev, so we just round somehow.
+            return util.print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         number_of_significant_digits = self.get_number_of_significant_digits(
             format_target
@@ -243,12 +263,7 @@ class Column(object):
                 format_target,
             )
         else:
-            if number == float(number_str) or isnan(number) or isinf(number):
-                # TODO remove as soon as scaled values are handled correctly
-                return number_str
-            if int(number) == number:
-                number = int(number)
-            return str(number)
+            return util.print_decimal(number)
 
     def set_column_type_from(self, column_values):
         """
@@ -320,7 +335,7 @@ def _format_number_align(
 
 
 def _get_significant_digits(value):
-    if isnan(float(value)) or isinf(float(value)):
+    if isnan(Decimal(value)) or isinf(Decimal(value)):
         return 0
 
     # Regular expression returns multiple groups:
@@ -336,11 +351,11 @@ def _get_significant_digits(value):
     # decimal positions.
     match = REGEX_MEASURE.match(value)
 
-    if int(match.group(GROUP_INT_PART)) == 0 and float(value) != 0:
+    if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
         sig_digits = len(match.group(GROUP_SIG_DEC_PART))
 
     else:
-        if float(value) != 0:
+        if Decimal(value) != 0:
             sig_digits = len(match.group(GROUP_INT_PART))
         else:
             # If the value consists of only zeros, do not count the 0 in front of the decimal
@@ -377,50 +392,36 @@ def _format_number(
             )
 
     else:
-        float_value = round(
-            number, -int(floor(log10(abs(number)))) + (number_of_significant_digits - 1)
-        )
+        assert number.adjusted() == int(floor(log10(abs(number))))
+        rounding_point = -number.adjusted() + (intended_digits - 1)
+        # Contrary to its documentation, round() seems to be affected by the rounding
+        # mode of decimal's context (which is good for us) when rounding Decimals.
+        # We add an assertion to double check (calling round() is easier to understand).
+        rounded_value = round(number, rounding_point)
+        assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
 
-        if not format_target.startswith("tooltip"):
-            max_digits_to_display = max_digits_after_decimal
-        else:
-            # This value may be too big, but extra digits will be cut below
-            max_digits_to_display = len(str(float_value))
-        formatted_value = "{0:.{1}f}".format(float_value, max_digits_to_display)
+        formatted_value = util.print_decimal(rounded_value)
 
-        # Get the number of intended significant digits and the number of current significant digits.
-        # If we have not enough digits due to rounding, 0's have to be re-added.
-        # If we have too many digits due to conversion of integers to float (e.g. 1234.0), the decimals have to be cut
+        # Get the number of resulting significant digits.
         current_sig_digits = _get_significant_digits(formatted_value)
 
-        digits_to_add = intended_digits - current_sig_digits
-
-        if digits_to_add > 0:
-            if "." not in formatted_value:
-                raise AssertionError(
-                    "Unexpected string '{}' after rounding '{}' to '{}' with {} significant digits and {} decimal digits for format '{}'".format(
-                        formatted_value,
-                        number,
-                        float_value,
-                        intended_digits,
-                        max_digits_to_display,
-                        format_target,
-                    )
-                )
-            formatted_value += "".join(["0"] * digits_to_add)
-        elif digits_to_add < 0:
-            if "." in formatted_value[:digits_to_add]:
-                formatted_value = formatted_value[:digits_to_add]
+        if current_sig_digits > intended_digits:
+            if "." in formatted_value:
+                # Happens when rounding 9.99 to 10 with 2 significant digits,
+                # the formatted_value will be 10.0 and we need to cut one trailing zero.
+                assert current_sig_digits == intended_digits + 1
+                assert formatted_value.endswith("0")
+                formatted_value = formatted_value[:-1].rstrip(".")
             else:
-                formatted_value = str(round(float_value))
-
-            if formatted_value.endswith("."):
-                formatted_value = formatted_value[:-1]
+                # happens for cases like 12300 with 3 significant digits
+                assert formatted_value == str(round(rounded_value))
+        else:
+            assert current_sig_digits == intended_digits
 
     # Cut the 0 in front of the decimal point for values < 1.
     # Example: 0.002 => .002
     if _is_to_cut(formatted_value, format_target, isToAlign):
-        assert formatted_value[0] == "0"
+        assert formatted_value.startswith("0.")
         formatted_value = formatted_value[1:]
 
     # Alignment
@@ -436,7 +437,7 @@ def _is_to_cut(value, format_target, is_to_align):
         format_target == "csv" and is_to_align
     )
 
-    return correct_target and "." in value and 1 > float(value) >= 0
+    return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
 def _get_column_type_heur(column, column_values):
@@ -512,7 +513,7 @@ def _get_column_type_heur(column, column_values):
             # digits for this column.
             # Use the column's scale factor for computing the decimal digits of the current value.
             # Otherwise, they might be different from output.
-            scaled_value = float(util.remove_unit(str(value))) * column_scale_factor
+            scaled_value = Decimal(util.remove_unit(str(value))) * column_scale_factor
 
             # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
             # special cases, immediately convert the value back to decimal notation.

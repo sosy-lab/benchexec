@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from decimal import Decimal
 import unittest
 
 from benchexec.tablegenerator.columns import (
@@ -14,8 +15,8 @@ from benchexec.tablegenerator.columns import (
 )
 from benchexec.tablegenerator.util import TableDefinitionError
 
-nan = float("nan")
-inf = float("inf")
+nan = Decimal("nan")
+inf = Decimal("inf")
 
 
 class ColumnsTest(unittest.TestCase):
@@ -48,6 +49,24 @@ class ColumnsTest(unittest.TestCase):
             "0.55559", *self.default_optionals
         )
         self.assertEqual(formatted_value_no_align_rounded, "0.5556")
+
+    def test_format_value_round_up(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "5.7715", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "5.772")
+
+    def test_format_value_round_up2(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "4.4445", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "4.445")
+
+    def test_format_value_round_up3(self):
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "99.675", None, "html"
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "99.68")
 
     def test_format_value_add_missing_zeros(self):
         formatted_value_no_align_zeros_cut = self.measure_column.format_value(
@@ -101,6 +120,12 @@ class ColumnsTest(unittest.TestCase):
         )
         self.assertEqual(formatted_value, "0.000000")
 
+    def test_format_value_small_number(self):
+        formatted_value = self.measure_column.format_value(
+            "0.00000000001", *self.default_optionals
+        )
+        self.assertEqual(formatted_value, "0.00000000001")
+
     def test_format_value_align_decimal(self):
         formatted_value_aligned = self.measure_column.format_value(
             "1.555s", True, "html"
@@ -123,6 +148,19 @@ class ColumnsTest(unittest.TestCase):
             small_value, True, "html"
         )
         self.assertEqual(formatted_value_aligned, "0.00000877")
+
+        # Test CSV formatting with scaling
+        small_value_column = Column(
+            "CpuTime",
+            None,
+            None,
+            None,
+            small_value_measure_type,
+            unit="s",
+            scale_factor=Decimal("0.1"),
+        )
+        formatted_value = small_value_column.format_value(small_value, False, "csv")
+        self.assertEqual(formatted_value, "0.0000008767")
 
         # Test whether scaling to small values and resulting values are handled correctly
         small_value_measure_type = ColumnMeasureType(12)
