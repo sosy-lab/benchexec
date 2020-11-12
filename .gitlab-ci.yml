@@ -122,6 +122,19 @@ flake8:
     - flake8
   <<: *pip-cache
 
+pytype:
+  stage: test
+  image: python:3.9
+  before_script:
+    - pip install pytype
+  script:
+    - pytype -k
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+      - ".pytype"
+
 
 # For HTML tables, test that bundled files are uptodate
 javascript-build:
