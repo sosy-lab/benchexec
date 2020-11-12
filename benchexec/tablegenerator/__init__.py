@@ -339,9 +339,9 @@ def load_tool(result):
     if tool_module in loaded_tools:
         return loaded_tools[tool_module]
     else:
-        result = load_tool_module(tool_module)
-        loaded_tools[tool_module] = result
-        return result
+        loaded_tool = load_tool_module(tool_module)
+        loaded_tools[tool_module] = loaded_tool
+        return loaded_tool
 
 
 class RunSetResult(object):
