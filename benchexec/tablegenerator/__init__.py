@@ -402,8 +402,11 @@ class RunSetResult(object):
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
+            tool = load_tool(self)
+            if not tool:
+                return None
             output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)
-            return load_tool(self).get_value_from_output(output, identifier)
+            return tool.get_value_from_output(output, identifier)
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
