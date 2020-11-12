@@ -7,6 +7,7 @@
 
 import argparse
 import collections
+import datetime
 import errno
 import logging
 import multiprocessing
@@ -281,7 +282,7 @@ def main(argv=None):
             print(key + "=" + format_fn(result[key]) + unit)
 
     # output results
-    print_optional_result("starttime", unit="", format_fn=lambda dt: dt.isoformat())
+    print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
@@ -1244,6 +1245,7 @@ class _TimelimitThread(threading.Thread):
     ):
         super(_TimelimitThread, self).__init__()
         self.name = "TimelimitThread-" + self.name
+        self.finished = threading.Event()
 
         if hardtimelimit or softtimelimit:
             assert CPUACCT in cgroups
@@ -1264,7 +1266,6 @@ class _TimelimitThread(threading.Thread):
         self.latestKillTime = time.monotonic() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
-        self.finished = threading.Event()
 
     def read_cputime(self):
         while True:

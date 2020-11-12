@@ -27,6 +27,9 @@ from benchexec import (
 )
 
 
+tool = None  # type: tooladapter.CURRENT_BASETOOL
+
+
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
 class ContainerizedTool(object):
     """Wrapper for an instance of any subclass of one of the base-tool classes in

@@ -250,7 +250,8 @@ def _generate_native_clone_child_callback():
     # Get address of PyOS_AfterFork_Child that we want to call
     afterfork_address = ctypes.cast(
         ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
-    ).value.to_bytes(8, sys.byteorder)
+    ).value
+    assert afterfork_address is not None  # ensured above
 
     # Generate machine code that does the same as _python_clone_child_callback
     # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
@@ -291,7 +292,7 @@ def _generate_native_clone_child_callback():
     #     ff e7                   jmpq   *%rdi
     #
     # The following creates exactly the same machine code, just with the real address
-    movabsq_address_rdx = b"\x48\xba" + afterfork_address
+    movabsq_address_rdx = b"\x48\xba" + afterfork_address.to_bytes(8, sys.byteorder)
     subq_0x18_rsp = b"\x48\x83\xec\x18"
     xorl_eax_eax = b"\x32\xc0"
     movq_rdi_stack = b"\x48\x89\x7c\x24\x08"
