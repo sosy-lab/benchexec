@@ -126,7 +126,7 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
-    - pip install pytype
+    - pip install coloredlogs pytype
   script:
     - pytype -k
   cache:
