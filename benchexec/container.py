@@ -775,7 +775,7 @@ def drop_capabilities(keep=[]):
     Drop all capabilities this process has.
     @param keep: list of capabilities to not drop
     """
-    capdata = (libc.CapData * 2)()
+    capdata = (libc.CapData * 2)()  # pytype: disable=not-callable
     for cap in keep:
         capdata[0].effective |= 1 << cap
         capdata[0].permitted |= 1 << cap
@@ -810,7 +810,7 @@ def setup_seccomp_filter():
 
 
 try:
-    _ALL_SIGNALS = signal.valid_signals()
+    _ALL_SIGNALS = signal.valid_signals()  # pytype: disable=module-attr
 except AttributeError:
     # Only exists on Python 3.8+
     _ALL_SIGNALS = range(1, signal.NSIG)

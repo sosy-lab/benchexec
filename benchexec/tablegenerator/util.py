@@ -265,7 +265,7 @@ def prettylist(list_):
 def read_bundled_file(name):
     """Read a file that is packaged together with this application."""
     try:
-        return __loader__.get_data(name).decode("UTF-8")
+        return __loader__.get_data(name).decode("UTF-8")  # pytype: disable=name-error
     except NameError:
         with open(name, mode="r") as f:
             return f.read()

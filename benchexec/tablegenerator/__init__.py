@@ -21,6 +21,7 @@ import subprocess
 import sys
 import time
 import types
+import typing
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -616,7 +617,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
         with util.open_url_seekable(url, mode="rb") as f:
             try:
                 try:
-                    resultElem = parse(gzip.GzipFile(fileobj=f))
+                    resultElem = parse(typing.cast(typing.IO, gzip.GzipFile(fileobj=f)))
                 except OSError:
                     f.seek(0)
                     resultElem = parse(bz2.BZ2File(f))
@@ -1398,7 +1399,9 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             system = platform.system()
             try:
                 if system == "Windows":
-                    os.startfile(os.path.normpath(outfile), "open")  # noqa: S606
+                    os.startfile(  # pytype: disable=module-attr # noqa: S606
+                        os.path.normpath(outfile), "open"
+                    )
                 else:
                     cmd = "open" if system == "Darwin" else "xdg-open"
                     subprocess.Popen(
