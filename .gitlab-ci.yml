@@ -124,7 +124,7 @@ flake8:
 
 pytype:
   stage: test
-  image: python:3.9
+  image: python:3.7
   before_script:
     - pip install pytype
   script:
