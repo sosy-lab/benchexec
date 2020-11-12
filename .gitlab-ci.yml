@@ -11,6 +11,19 @@
 
 variables:
   PRIMARY_USER: benchexec
+  PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
+
+.pip-cache: &pip-cache
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+
+.node-cache: &node-cache
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - "benchexec/tablegenerator/react-table/node_modules"
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
@@ -88,7 +101,7 @@ deploy-coverage:
     variables:
       - $CODACY_PROJECT_TOKEN # required for job
       - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
-
+  <<: *pip-cache
 
 # Static checks
 check-format:
@@ -98,6 +111,7 @@ check-format:
     - pip install black
   script:
     - black . --check --diff
+  <<: *pip-cache
 
 flake8:
   stage: test
@@ -106,6 +120,7 @@ flake8:
     - pip install flake8-awesome
   script:
     - flake8
+  <<: *pip-cache
 
 
 # For HTML tables, test that bundled files are uptodate
@@ -123,10 +138,7 @@ javascript-build:
     paths:
       - benchexec/tablegenerator/react-table/build
     when: on_failure
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 javascript-tests:
   stage: test
@@ -136,10 +148,7 @@ javascript-tests:
     - npm install
   script:
     - npm run test
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 javascript-eslint:
   stage: test
@@ -149,10 +158,7 @@ javascript-eslint:
     - npm install
   script:
     - npm run lint
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 
 # check license declarations etc.
