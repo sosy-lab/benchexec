@@ -178,12 +178,16 @@ const getHashSearch = (str) => {
  */
 const setHashSearch = (
   params = {},
-  options = { returnString: false, baseUrl: null },
+  options = { returnString: false, baseUrl: null, keepOthers: false },
 ) => {
+  const additionalParams = options.keepOthers ? getHashSearch() : {};
+  const mergedParams = { ...additionalParams, ...params };
   const optionTemplate = { returnString: false, baseUrl: null };
   const { returnString, baseUrl } = { ...optionTemplate, ...options };
   const url = (baseUrl || document.location.href).split("?")[0];
-  const pairs = Object.keys(params).map((key) => `${key}=${params[key]}`);
+  const pairs = Object.keys(mergedParams).map(
+    (key) => `${key}=${mergedParams[key]}`,
+  );
   const searchString = `?${pairs.join("&")}`;
   const hrefString = encodeURI(`${url}${searchString}`);
   if (returnString) {
