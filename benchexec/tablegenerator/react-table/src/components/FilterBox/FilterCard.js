@@ -332,6 +332,8 @@ export default class FilterCard extends React.PureComponent {
                 this.setState({
                   sliderMin: fMin,
                   sliderMax: fMax,
+                  numericMin: nMin,
+                  numericMax: nMax,
                   values: [`${stringRepMin}:${stringRepMax}`],
                 });
                 this.sendFilterUpdate([`${stringRepMin}:${stringRepMax}`]);
