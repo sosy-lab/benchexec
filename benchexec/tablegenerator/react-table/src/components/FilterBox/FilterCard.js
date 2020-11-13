@@ -57,6 +57,8 @@ export default class FilterCard extends React.PureComponent {
       selectedDistincts: [],
       currentMin,
       currentMax,
+      tempMin: null,
+      tempMax: null,
     };
   }
 
@@ -106,6 +108,27 @@ export default class FilterCard extends React.PureComponent {
       min: vMin.trim() !== "" ? builder(vMin) : builder(propMin),
       max: vMax.trim() !== "" ? builder(vMax) : builder(propMax),
     };
+  }
+
+  handleNumericOnBlur(min, max) {
+    const newState = {};
+    newState.currentMin =
+      this.state.tempMin !== null ? this.state.tempMin : this.state.currentMin;
+    newState.currentMax =
+      this.state.tempMax !== null ? this.state.tempMax : this.state.currentMax;
+    if (newState.currentMin > newState.currentMax) {
+      const temp = newState.currentMax;
+      newState.currentMax = newState.currentMin;
+      newState.currentMin = temp;
+    }
+    const stringRepMin = newState.currentMin === min ? "" : newState.currentMin;
+    const stringRepMax = newState.currentMax === max ? "" : newState.currentMax;
+    newState.values = [`${stringRepMin}:${stringRepMax}`];
+    newState.tempMin = null;
+    newState.tempMax = null;
+    console.log({ newState });
+    this.setState(newState);
+    this.sendFilterUpdate(newState.values);
   }
 
   render() {
@@ -325,27 +348,16 @@ export default class FilterCard extends React.PureComponent {
               <input
                 type="number"
                 name={`inp-${title}-min`}
-                value={this.state.currentMin}
+                value={
+                  this.state.tempMin !== null
+                    ? this.state.tempMin
+                    : this.state.currentMin
+                }
                 lang="en-US"
                 step={step}
+                onBlur={() => this.handleNumericOnBlur(min, max)}
                 onChange={({ target: { value } }) => {
-                  const { currentMin, currentMax } = this.state;
-                  if (value > this.state.currentMax) {
-                    const stringRepMin = currentMin === min ? "" : currentMin;
-                    const stringRepMax = value === max ? "" : value;
-                    this.setState({
-                      currentMax: value,
-                      currentMin: this.state.currentMax,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  } else {
-                    const stringRepMin = value === min ? "" : value;
-                    const stringRepMax = currentMax === max ? "" : currentMax;
-                    this.setState({
-                      currentMin: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  }
+                  this.setState({ tempMin: value });
                 }}
               />
               <input
@@ -353,25 +365,17 @@ export default class FilterCard extends React.PureComponent {
                 name={`inp-${title}-max`}
                 step={step}
                 lang="en-US"
-                value={this.state.currentMax}
+                value={
+                  this.state.tempMax !== null
+                    ? this.state.tempMax
+                    : this.state.currentMax
+                }
+                onBlur={() => this.handleNumericOnBlur(min, max)}
+                onInput={({ target: { value } }) => {
+                  this.setState({ tempMax: value });
+                }}
                 onChange={({ target: { value } }) => {
-                  const { currentMin, currentMax } = this.state;
-                  if (value < this.state.currentMin) {
-                    const stringRepMin = value === min ? "" : value;
-                    const stringRepMax = currentMax === max ? "" : currentMax;
-                    this.setState({
-                      currentMax: this.state.currentMin,
-                      currentMin: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  } else {
-                    const stringRepMin = currentMin === min ? "" : currentMin;
-                    const stringRepMax = value === max ? "" : value;
-                    this.setState({
-                      currentMax: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  }
+                  this.setState({ tempMax: value });
                 }}
               />
             </div>
