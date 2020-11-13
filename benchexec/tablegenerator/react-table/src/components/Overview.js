@@ -126,11 +126,11 @@ export default class Overview extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener("popstate", this.updateFiltersFromUrl, false);
+    window.addEventListener("popstate", this.handlePopState, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateFiltersFromUrl, false);
+    window.removeEventListener("popstate", this.handlePopState, false);
   }
 
   handlePopState = () => {
