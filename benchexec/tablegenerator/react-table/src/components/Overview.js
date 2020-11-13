@@ -122,7 +122,9 @@ export default class Overview extends React.Component {
 
     // we wrap the setting of filters in setImmediate to allow react
     // to finalize mounting
-    setImmediate(this.updateFiltersFromUrl);
+    if (process.env.NODE_ENV !== "test") {
+      setImmediate(this.updateFiltersFromUrl);
+    }
   }
 
   componentDidMount() {
