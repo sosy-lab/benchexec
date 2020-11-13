@@ -81,17 +81,17 @@ class StatAccumulator(object):
                 + [
                     [
                         r"\StoreBenchExecResult{%s}{%s}{}{%s}%%"
-                        % (name, time_name, time_stats.sum),
+                        % (name, time_name, util.print_decimal(time_stats.sum)),
                         r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}%%"
-                        % (name, time_name, time_stats.avg),
+                        % (name, time_name, util.print_decimal(time_stats.avg)),
                         r"\StoreBenchExecResult{%s}{%s}{Median}{%s}%%"
-                        % (name, time_name, time_stats.median),
+                        % (name, time_name, util.print_decimal(time_stats.median)),
                         r"\StoreBenchExecResult{%s}{%s}{Min}{%s}%%"
-                        % (name, time_name, time_stats.min),
+                        % (name, time_name, util.print_decimal(time_stats.min)),
                         r"\StoreBenchExecResult{%s}{%s}{Max}{%s}%%"
-                        % (name, time_name, time_stats.max),
+                        % (name, time_name, util.print_decimal(time_stats.max)),
                         r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%"
-                        % (name, time_name, time_stats.stdev),
+                        % (name, time_name, util.print_decimal(time_stats.stdev)),
                     ]
                     for (time_name, time_stats) in [
                         ("Cputime", cputime_stats),
