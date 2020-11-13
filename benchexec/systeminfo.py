@@ -9,6 +9,7 @@
 This module allows to retrieve information about the current system.
 """
 
+from decimal import Decimal
 import glob
 import logging
 import os
@@ -66,8 +67,8 @@ class SystemInfo(object):
             .replace("(tm)", "")
         )
         if "cpu MHz" in cpuInfo:
-            # convert to Hz
-            self.cpu_max_frequency = int(float(cpuInfo["cpu MHz"])) * 1000 * 1000
+            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
+            self.cpu_max_frequency = int((freq_hz).to_integral_value())
 
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above
