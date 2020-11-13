@@ -182,8 +182,11 @@ export default class Overview extends React.Component {
   };
   filterPlotData = (filter, runFilterLogic = true) => {
     // updating url filters on next tick to ensure that state is already set
-    // when handler is called
-    setImmediate(() => this.filterUrlSetter(filter));
+    // when handler is called);
+    if (this.lastImmediate) {
+      clearImmediate(this.lastImmediate);
+    }
+    this.lastImmediate = setImmediate(() => this.filterUrlSetter(filter));
     if (runFilterLogic) {
       const matcher = buildMatcher(filter);
       this.setFilter(applyMatcher(matcher)(this.originalTable), true);
