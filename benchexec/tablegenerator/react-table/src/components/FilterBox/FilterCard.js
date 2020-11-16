@@ -94,7 +94,12 @@ export default class FilterCard extends React.PureComponent {
       const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value, significantDigits);
-        this.setState({ sliderMin: min, sliderMax: max });
+        this.setState({
+          sliderMin: min,
+          sliderMax: max,
+          numericMin: min,
+          numericMax: max,
+        });
       }
     }
   }
@@ -107,8 +112,8 @@ export default class FilterCard extends React.PureComponent {
     };
     const [vMin, vMax] = value.split(":");
     return {
-      min: vMin.trim() !== "" ? builder(vMin) : builder(propMin),
-      max: vMax.trim() !== "" ? builder(vMax) : builder(propMax),
+      min: vMin.trim() !== "" ? vMin : builder(propMin),
+      max: vMax.trim() !== "" ? vMax : builder(propMax),
     };
   }
 
