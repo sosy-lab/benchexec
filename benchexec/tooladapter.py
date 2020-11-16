@@ -54,7 +54,7 @@ class Tool1To2:
                 "Tool-info module for {} does not support parameter --tool-directory. "
                 "Instead, you can add the tool to PATH, "
                 "execute benchexec from the tool directory, "
-                "or upgrade the tool-info module.".format(self.name())
+                "or upgrade the tool-info module.".format(self._wrapped.name())
             )
 
         assert tool_locator.use_path and tool_locator.use_current

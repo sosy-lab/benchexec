@@ -36,8 +36,9 @@ class BenchExec(object):
     DEFAULT_OUTPUT_PATH = "results/"
 
     def __init__(self):
-        self.executor = None
+        self.executor = None  # set by start()
         self.stopped_by_interrupt = False
+        self.config = None  # set by start()
 
     def start(self, argv):
         """
@@ -416,7 +417,7 @@ def add_container_args(parser):
         # This fails e.g. on MacOS X because of missing libc.
         # We want to keep BenchExec usable for cases where the
         # localexecutor is replaced by something else.
-        logging.debug("Could not import container feature:", exc_info=1)
+        logging.debug("Could not import container feature:", exc_info=True)
         container_args.add_argument(
             "--no-container",
             action="store_false",
@@ -464,13 +465,13 @@ def main(benchexec=None, argv=None):
     if sys.version_info < (3,):
         sys.exit("benchexec needs Python 3 to run.")
 
-    def signal_stop(signum, frame):
-        logging.debug("Received signal %d, terminating.", signum)
-        benchexec.stop()
-
     try:
         if not benchexec:
             benchexec = BenchExec()
+
+        def signal_stop(signum, frame):
+            logging.debug("Received signal %d, terminating.", signum)
+            benchexec.stop()
 
         # Handle termination-request signals that are available on the current platform
         for signal_name in ["SIGINT", "SIGQUIT", "SIGTERM", "SIGBREAK"]:

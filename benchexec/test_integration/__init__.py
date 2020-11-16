@@ -208,8 +208,8 @@ class BenchExecIntegrationTests(unittest.TestCase):
             comparable_columns = ["status", "category", "returnvalue"]
             for column in comparable_columns:
                 self.assertEqual(
-                    actual_columns.get(column).get("value"),
-                    expected_columns.get(column).get("value"),
+                    actual_columns[column].get("value"),
+                    expected_columns[column].get("value"),
                 )
 
     def test_same_results_file(self):
