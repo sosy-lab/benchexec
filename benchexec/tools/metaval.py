@@ -9,10 +9,7 @@ import argparse
 import benchexec.util as util
 import benchexec.tools.template
 from benchexec.tools.template import BaseTool2
-import contextlib
-import os
 import re
-import sys
 import threading
 
 
