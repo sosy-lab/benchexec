@@ -39,6 +39,17 @@ export default class FilterBox extends React.PureComponent {
     }
   }
 
+  resetAllFilters() {
+    this.resetAllContainers();
+    this.resetIdFilters();
+  }
+
+  resetIdFilters() {
+    const empty = null; //Object.keys(this.props.ids).map(() => null);
+    this.setState({ idFilters: empty });
+    this.sendFilters({ filter: this.state.filters, idFilter: empty });
+  }
+
   resetAllContainers() {
     this.listeners.forEach((fun) => fun());
   }
@@ -139,7 +150,7 @@ export default class FilterBox extends React.PureComponent {
           <FontAwesomeIcon
             icon={faTrash}
             className="filterBox--header--reset-icon"
-            onClick={() => this.resetAllContainers()}
+            onClick={() => this.resetAllFilters()}
           />
         </div>
 
