@@ -104,7 +104,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             BaseTool2.ToolLocator(tool_directory=self.TOOL_TO_PATH_MAP[verifierName])
         )
         wrappedtask = BaseTool2.Task(
-            input_files=[os.path.relpath(os.path.join(os.getcwd(), "output/ARG.c"))],
+            input_files=["../output/ARG.c"],
             identifier=task.identifier,
             property_file=task.property_file,
             options=task.options,
