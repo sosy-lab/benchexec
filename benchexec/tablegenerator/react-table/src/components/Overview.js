@@ -29,7 +29,7 @@ import {
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
-import { createHiddenColsFromURL } from "../utils/utils";
+import { createHiddenColsFromURL, setConstantHashSearch } from "../utils/utils";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -57,7 +57,18 @@ export default class Overview extends React.Component {
       columns,
       table,
       stats,
+      initial,
     } = prepareTableData(props.data);
+
+    const shouldSetInitial =
+      initial &&
+      getCurrentPath() === "/" &&
+      document.location.href.split("?").length === 1 &&
+      !document.location.href.endsWith("#");
+
+    if (shouldSetInitial) {
+      setConstantHashSearch(initial);
+    }
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;

@@ -1530,6 +1530,11 @@ def create_argument_parser():
         help="Do not show informational messages, only warnings.",
     )
     parser.add_argument(
+        "--initial-table-state",
+        action="store",
+        help="Default URL parameter string that is used when opening the table without any URL parameters defined.",
+    )
+    parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
     )
     return parser
