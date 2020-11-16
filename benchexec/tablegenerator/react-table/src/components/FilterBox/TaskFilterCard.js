@@ -16,7 +16,7 @@ export default class TaskFilterCard extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      values: {},
+      values: this.extractFilters(),
     };
     props.resetFilterHook(() => this.resetIdFilters());
   }
@@ -30,13 +30,18 @@ export default class TaskFilterCard extends React.PureComponent {
     this.props.updateFilters(values);
   }
 
+  extractFilters() {
+    let i = 0;
+    const newVal = {};
+    for (const id of Object.keys(this.props.ids)) {
+      newVal[id] = pathOr(["filters", i++], "", this.props);
+    }
+    return newVal;
+  }
+
   componentDidUpdate(prevProps) {
     if (!equals(this.props.filters, prevProps.filters)) {
-      let i = 0;
-      const newVal = {};
-      for (const id of Object.keys(this.props.ids)) {
-        newVal[id] = pathOr(["filters", i++], "", this.props);
-      }
+      const newVal = this.extractFilters();
       this.setState({ values: newVal });
     }
   }
