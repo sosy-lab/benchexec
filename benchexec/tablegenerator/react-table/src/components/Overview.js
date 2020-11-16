@@ -120,10 +120,14 @@ export default class Overview extends React.Component {
       categoryValuesWithTrailingSpace,
     );
 
-    // we wrap the setting of filters in setImmediate to allow react
-    // to finalize mounting
-    if (process.env.NODE_ENV !== "test") {
-      setImmediate(this.updateFiltersFromUrl);
+    const deserializedFilters = this.getFiltersFromUrl();
+    if (deserializedFilters) {
+      this.filteredData = this.runFilter(deserializedFilters);
+      this.state = {
+        ...this.state,
+        table: this.filteredData,
+        filtered: deserializedFilters,
+      };
     }
   }
 
@@ -140,12 +144,22 @@ export default class Overview extends React.Component {
     this.updateFiltersFromUrl();
   };
 
-  updateFiltersFromUrl = () => {
+  getFiltersFromUrl = () => {
     const deserializedFilters = this.filterUrlRetriever() || [];
-    console.log({ deserializedFilters });
     if (!deepEqual(this.state.filtered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
-      this.filterPlotData(deserializedFilters);
+      return deserializedFilters;
+    }
+    return null;
+  };
+
+  updateFiltersFromUrl = () => {
+    const newFilters = this.getFiltersFromUrl();
+    if (newFilters) {
+      this.setState({
+        table: this.filteredData,
+        filter: newFilters,
+      });
     }
   };
 
@@ -182,6 +196,12 @@ export default class Overview extends React.Component {
       return row._original;
     });
   };
+
+  runFilter(filter) {
+    const matcher = buildMatcher(filter);
+    return applyMatcher(matcher)(this.originalTable);
+  }
+
   filterPlotData = (filter, runFilterLogic = true) => {
     // updating url filters on next tick to ensure that state is already set
     // when handler is called);
@@ -190,8 +210,7 @@ export default class Overview extends React.Component {
     }
     this.lastImmediate = setImmediate(() => this.filterUrlSetter(filter));
     if (runFilterLogic) {
-      const matcher = buildMatcher(filter);
-      this.setFilter(applyMatcher(matcher)(this.originalTable), true);
+      this.setFilter(this.runFilter(filter), true);
     }
     this.setState({
       table: this.filteredData,
