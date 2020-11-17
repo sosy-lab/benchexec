@@ -62,7 +62,7 @@ export default class Overview extends React.Component {
 
     const shouldSetInitial =
       initial &&
-      getCurrentPath() === "/" &&
+      (getCurrentPath() === "" || getCurrentPath() === "/") &&
       document.location.href.split("?").length === 1 &&
       !document.location.href.endsWith("#");
 
