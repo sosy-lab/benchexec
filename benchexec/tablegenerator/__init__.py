@@ -1529,10 +1529,22 @@ def create_argument_parser():
         action="store_true",
         help="Do not show informational messages, only warnings.",
     )
+
+    def handle_initial_table_state(value):
+        value = value.lstrip("#")
+        if not value.startswith("/"):
+            raise argparse.ArgumentTypeError(
+                "Invalid value '{}', needs to start with /".format(value)
+            )
+        return value
+
     parser.add_argument(
         "--initial-table-state",
         action="store",
-        help="Default URL parameter string that is used when opening the table without any URL parameters defined.",
+        type=handle_initial_table_state,
+        help="Set initial state of HTML table, e.g., if another tab should be shown "
+        "by default. Valid values can be copied from the URL part after '#' of a table "
+        "when the table is in the desired state. (Example: '/table')",
     )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
