@@ -193,13 +193,13 @@ const setHashSearch = (
   document.location.href = hrefString;
 };
 
-// Sets the URL parameters to the given string. Assumes that there currently are no URL parameters defined.
+// Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
 const setConstantHashSearch = (paramString) => {
   // Remove any possible '#/' or '/' at the beginning of the parameter string
   paramString = paramString.replace(/(^#\/|^\/)/, "");
-  // Remove any possible '#/' at the end of the current URL
-  const hrefString = document.location.href.replace(/(#\/)$/, "");
-  document.location.href = encodeURI(`${hrefString}#/${paramString}`);
+  document.location.href = encodeURI(
+    `${document.location.href}#/${paramString}`,
+  );
 };
 
 /**

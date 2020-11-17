@@ -60,13 +60,7 @@ export default class Overview extends React.Component {
       initial,
     } = prepareTableData(props.data);
 
-    const shouldSetInitial =
-      initial &&
-      (getCurrentPath() === "" || getCurrentPath() === "/") &&
-      document.location.href.split("?").length === 1 &&
-      !document.location.href.endsWith("#");
-
-    if (shouldSetInitial) {
+    if (initial && !document.location.href.includes("#")) {
       setConstantHashSearch(initial);
     }
 
