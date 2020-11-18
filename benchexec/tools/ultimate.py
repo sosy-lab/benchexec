@@ -225,9 +225,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         )
         raise UnsupportedFeatureException(msg)
 
-    def _get_additional_data_model_from_task(
-        self, options, task
-    ) -> Optional[List[str]]:
+    def _get_additional_data_model_from_task(self, options, task) -> List[str]:
         data_model_param = get_data_model_from_task(
             task, {ILP32: "32bit", LP64: "64bit"}
         )
@@ -246,7 +244,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     options,
                     arch,
                 )
-        return None
+        return []
 
     def _cmdline_no_wrapper(self, executable, options, task, resource_limits):
         mem_bytes = resource_limits.memory
