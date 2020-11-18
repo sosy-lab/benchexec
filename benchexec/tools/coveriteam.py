@@ -6,10 +6,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.template
-import benchexec.util as util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CoVeriTeam: On-Demand Composition of Cooperative Verification Systems.
     URL: https://gitlab.com/sosy-lab/software/coveriteam.
@@ -28,8 +27,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "CoVeriTeam"
 
-    def executable(self):
-        return util.find_executable("bin/coveriteam")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("coveriteam", subdir="bin")
 
     def version(self, executable):
         return self._version_from_tool(executable)
