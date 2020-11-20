@@ -125,6 +125,7 @@ export default class Overview extends React.Component {
     const deserializedFilters = this.getFiltersFromUrl();
     if (deserializedFilters) {
       this.filteredData = this.runFilter(deserializedFilters);
+      this.lastFiltered = deserializedFilters;
       this.state = {
         ...this.state,
         table: this.filteredData,
@@ -137,7 +138,8 @@ export default class Overview extends React.Component {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
         if (action === "POP") {
-          this.handlePopState();
+          this.updateHiddenCols();
+          this.updateFiltersFromUrl();
         }
       },
     );
@@ -147,14 +149,9 @@ export default class Overview extends React.Component {
     this.removeHistoryListener();
   }
 
-  handlePopState = () => {
-    this.updateHiddenCols();
-    this.updateFiltersFromUrl();
-  };
-
   getFiltersFromUrl = () => {
     const deserializedFilters = this.filterUrlRetriever() || [];
-    if (!deepEqual(this.state.filtered, deserializedFilters)) {
+    if (!deepEqual(this.lastFiltered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
       return deserializedFilters;
     }
@@ -169,6 +166,7 @@ export default class Overview extends React.Component {
         table: this.filteredData,
         filtered: newFilters,
       });
+      this.lastFiltered = newFilters;
     }
   };
 
@@ -217,9 +215,12 @@ export default class Overview extends React.Component {
     if (this.lastImmediate) {
       clearImmediate(this.lastImmediate);
     }
-    this.lastImmediate = setImmediate(() =>
-      this.filterUrlSetter(filter, { history: this.routerRef.current.history }),
-    );
+    this.lastImmediate = setImmediate(() => {
+      this.filterUrlSetter(filter, { history: this.routerRef.current.history });
+      this.lastFiltered = filter.filter(
+        (item) => (item.values && item.values.length > 0) || item.value,
+      );
+    });
     if (runFilterLogic) {
       this.setFilter(this.runFilter(filter), true);
     }
