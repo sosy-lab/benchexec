@@ -63,7 +63,10 @@ export default class SelectColumn extends React.Component {
       hiddenParams["hidden"] = hiddenRunsets.toString();
     }
 
-    setHashSearch(hiddenParams, { keepOthers: true });
+    setHashSearch(hiddenParams, {
+      keepOthers: true,
+      history: this.props.history,
+    });
   }
 
   // -------------------------Rendering-------------------------

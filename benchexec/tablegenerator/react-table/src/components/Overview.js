@@ -76,6 +76,8 @@ export default class Overview extends React.Component {
 
     this.filteredData = [];
 
+    this.routerRef = React.createRef();
+
     //data is handled and changed here; To use it in other components hand it over with component
     //To change data in component (e.g. filter): function to change has to be in overview
     this.state = {
@@ -132,11 +134,17 @@ export default class Overview extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener("popstate", this.handlePopState, false);
+    this.removeHistoryListener = this.routerRef.current.history.listen(
+      (_, action) => {
+        if (action === "POP") {
+          this.handlePopState();
+        }
+      },
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.handlePopState, false);
+    this.removeHistoryListener();
   }
 
   handlePopState = () => {
@@ -156,9 +164,10 @@ export default class Overview extends React.Component {
   updateFiltersFromUrl = () => {
     const newFilters = this.getFiltersFromUrl();
     if (newFilters) {
+      this.filteredData = this.runFilter(newFilters);
       this.setState({
         table: this.filteredData,
-        filter: newFilters,
+        filtered: newFilters,
       });
     }
   };
@@ -208,7 +217,9 @@ export default class Overview extends React.Component {
     if (this.lastImmediate) {
       clearImmediate(this.lastImmediate);
     }
-    this.lastImmediate = setImmediate(() => this.filterUrlSetter(filter));
+    this.lastImmediate = setImmediate(() =>
+      this.filterUrlSetter(filter, { history: this.routerRef.current.history }),
+    );
     if (runFilterLogic) {
       this.setFilter(this.runFilter(filter), true);
     }
@@ -269,7 +280,7 @@ export default class Overview extends React.Component {
       )
       .join("&");
     return (
-      <Router>
+      <Router ref={this.routerRef}>
         <div className="overview">
           <div className="overview-container">
             <FilterBox
@@ -379,6 +390,7 @@ export default class Overview extends React.Component {
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
                 hiddenCols={this.state.hiddenCols}
+                history={this.routerRef.current.history}
               />
             )}
             {this.state.showLinkOverlay && (
