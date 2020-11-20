@@ -21,9 +21,8 @@ import {
 
 const Range = createSliderWithTooltip(Slider.Range);
 
-let debounceHandler = setTimeout(() => {}, 500);
-
-const numericInputDebounce = 800;
+const numericInputDebounce = 500;
+let debounceHandler = setTimeout(() => {}, numericInputDebounce);
 
 export default class FilterCard extends React.PureComponent {
   constructor(props) {
@@ -297,7 +296,7 @@ export default class FilterCard extends React.PureComponent {
               this.setState({ values: [textValue] });
               debounceHandler = setTimeout(() => {
                 this.sendFilterUpdate([textValue]);
-              }, 500);
+              }, numericInputDebounce);
             }}
           />
         );
