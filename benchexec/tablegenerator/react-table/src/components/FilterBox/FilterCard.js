@@ -119,14 +119,16 @@ export default class FilterCard extends React.PureComponent {
 
   handleNumberChange(min, max) {
     const newState = {};
-    newState.sliderMin =
+    newState.sliderMin = Number(
       this.state.numericMin !== null
         ? this.state.numericMin
-        : this.state.sliderMin;
-    newState.sliderMax =
+        : this.state.sliderMin,
+    );
+    newState.sliderMax = Number(
       this.state.numericMax !== null
         ? this.state.numericMax
-        : this.state.sliderMax;
+        : this.state.sliderMax,
+    );
     if (newState.sliderMin > newState.sliderMax) {
       const temp = newState.sliderMax;
       newState.sliderMax = newState.sliderMin;
@@ -134,8 +136,10 @@ export default class FilterCard extends React.PureComponent {
     }
     // defaulting to an empty string per side, if the values exceeds
     // or is less than the min/max thresholds
-    const stringRepMin = newState.sliderMin <= min ? "" : newState.sliderMin;
-    const stringRepMax = newState.sliderMax >= max ? "" : newState.sliderMax;
+    const stringRepMin =
+      newState.sliderMin <= Number(min) ? "" : newState.sliderMin;
+    const stringRepMax =
+      newState.sliderMax >= Number(max) ? "" : newState.sliderMax;
     newState.values = [`${stringRepMin}:${stringRepMax}`];
     this.setState(newState);
     this.sendFilterUpdate(newState.values);
