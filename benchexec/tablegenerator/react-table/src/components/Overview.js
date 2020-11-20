@@ -137,8 +137,8 @@ export default class Overview extends React.Component {
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
+        this.updateHiddenCols();
         if (action === "POP") {
-          this.updateHiddenCols();
           this.updateFiltersFromUrl();
         }
       },
