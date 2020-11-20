@@ -25,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         """
@@ -36,12 +36,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         for line in run.output:
             if "s SATISFIABLE" in line:
-                status = "SAT"
+                status = result.RESULT_TRUE_PROP
             elif "s UNSATISFIABLE" in line:
-                status = "UNSAT"
-
-        if (not status or status == result.RESULT_UNKNOWN) and run.was_timeout:
-            status = "TIMEOUT"
+                status = result.RESULT_FALSE_PROP
 
         if not status:
             status = result.RESULT_ERROR
