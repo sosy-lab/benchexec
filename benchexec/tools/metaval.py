@@ -7,7 +7,6 @@
 
 import argparse
 import benchexec.tools.template
-import os
 import re
 import threading
 
