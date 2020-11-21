@@ -11,6 +11,7 @@ from benchexec.tools.template import ToolNotFoundException
 
 from .symbiotic4 import Tool as OldSymbiotic
 
+
 class Tool(OldSymbiotic):
     """
     Symbiotic tool info object
