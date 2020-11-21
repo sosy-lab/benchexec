@@ -2,7 +2,7 @@
 # https://github.com/sosy-lab/benchexec
 #
 # SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
-# SPDX-FileCopyrightText: 2016-2019 Marek Chalupa
+# SPDX-FileCopyrightText: 2016-2020 Marek Chalupa
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -21,9 +21,7 @@ class Tool(OldSymbiotic):
 
     REQUIRED_PATHS_5_0_0 = ["bin", "include", "lib", "lib32", "llvm-3.9.1"]
 
-    REQUIRED_PATHS_6_0_0 = ["bin", "include", "properties", "lib", "llvm-4.0.1"]
-
-    REQUIRED_PATHS_7_0_0 = ["bin", "include", "properties", "lib", "llvm-8.0.1"]
+    REQUIRED_PATHS_NEW = ["bin", "include", "properties", "lib", "llvm-*"]
 
     def executable(self, tool_locator):
         """
@@ -42,10 +40,8 @@ class Tool(OldSymbiotic):
         return executable
 
     def program_files(self, executable):
-        if self._version_newer_than("7.0.0"):
-            paths = self.REQUIRED_PATHS_7_0_0
-        elif self._version_newer_than("6.0.0"):
-            paths = self.REQUIRED_PATHS_6_0_0
+        if self._version_newer_than("6.0.0"):
+            paths = self.REQUIRED_PATHS_NEW
         elif self._version_newer_than("5.0.0"):
             paths = self.REQUIRED_PATHS_5_0_0
         elif self._version_newer_than("4.0.1"):
