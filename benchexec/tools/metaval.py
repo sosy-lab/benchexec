@@ -124,6 +124,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             ]
             + additionalPathArgument
             + witnessTypeArgument
+            + ["--property", task.property_file]
             + [task.single_input_file]
             + ["--"]
             + wrappedOptions
