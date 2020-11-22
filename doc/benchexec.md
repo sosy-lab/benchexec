@@ -93,7 +93,7 @@ and the respective file is given to the tool as input file.
 
 Inside a `<tasks>` tag there can also exist `<includesfile>` tags,
 which contain a file-name pattern that points to so-called "set" files.
-This set files are expected to contain a file-name pattern on each line,
+These set files are expected to contain a file-name pattern on each line,
 and `benchexec` will treat these patterns as specified with `<include>`.
 
 The tags `<exclude>` and `<excludesfile>` can be used to exclude tasks
