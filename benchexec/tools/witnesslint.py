@@ -7,6 +7,7 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -25,10 +26,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         version_string = self._version_from_tool(executable)
         return version_string.partition("version")[2].strip().split(" ")[0]
 
+    def _code_matches_tool_output(self, tool_output, exit_code):
+        pattern = re.compile(rf"Exit code: {exit_code}")
+        if pattern.match(tool_output[-1]):
+            return True
+        return False
+
     def determine_result(self, run):
         if run.exit_code.value == 0:
-            return result.RESULT_TRUE_PROP
+            if self._code_matches_tool_output(run.output, 0):
+                return result.RESULT_DONE
         elif run.exit_code.value == 1:
-            return result.RESULT_FALSE_PROP
-        else:
-            return result.RESULT_ERROR
+            if self._code_matches_tool_output(run.output, 1):
+                return result.RESULT_ERROR + "(invalid witness)"
+        return "EXCEPTION"
