@@ -26,9 +26,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return version_string.partition("version")[2].strip().split(" ")[0]
 
     def _code_matches_tool_output(self, tool_output, exit_code):
-        if tool_output[-1] == "Exit code: {}".format(exit_code):
-            return True
-        return False
+        return tool_output[-1] == "Exit code: {}".format(exit_code)
 
     def determine_result(self, run):
         if run.exit_code.value == 0:
