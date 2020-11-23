@@ -34,8 +34,7 @@ def get_data_model_from_task(task, param_dict):
         data_model = task.options.get("data_model")
         if data_model:
             try:
-                data_model_option = param_dict[data_model]
-                return data_model_option
+                return param_dict[data_model]
             except KeyError:
                 raise benchexec.tools.template.UnsupportedFeatureException(
                     "Unsupported data_model '{}' defined for task '{}'".format(
