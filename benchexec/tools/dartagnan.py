@@ -30,6 +30,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "Dartagnan"
 
     def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options += [task.property_file]
         return [executable] + options + list(task.input_files_or_identifier)
 
     def version(self, executable):
