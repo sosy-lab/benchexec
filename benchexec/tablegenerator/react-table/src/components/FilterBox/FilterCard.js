@@ -118,16 +118,8 @@ export default class FilterCard extends React.PureComponent {
 
   handleNumberChange(min, max) {
     const newState = {};
-    newState.sliderMin = Number(
-      this.state.numericMin !== null
-        ? this.state.numericMin
-        : this.state.sliderMin,
-    );
-    newState.sliderMax = Number(
-      this.state.numericMax !== null
-        ? this.state.numericMax
-        : this.state.sliderMax,
-    );
+    newState.sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
+    newState.sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
     if (newState.sliderMin > newState.sliderMax) {
       const temp = newState.sliderMax;
       newState.sliderMax = newState.sliderMin;
