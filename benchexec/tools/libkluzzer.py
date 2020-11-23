@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "LibKluzzer"
 
     def cmdline(self, executable, options, task, rlimits):
-        data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+        data_model_param = get_data_model_from_task(task, {ILP32: None, LP64: "--64"})
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
