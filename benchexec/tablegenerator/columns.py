@@ -281,7 +281,7 @@ class Column(object):
             else:
                 self.type = result
         except util.TableDefinitionError as e:
-            logging.error("Column type couldn't be determined: %s", e)
+            logging.warning("Column type couldn't be determined: %s", e)
             self.type = ColumnType.text
 
         if not self.is_numeric():
