@@ -15,6 +15,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     (https://github.com/sosy-lab/sv-witnesses)
     """
 
+    REQUIRED_PATHS = ["witnesslint"]
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("witnesslinter.py")
 
