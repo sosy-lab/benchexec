@@ -38,7 +38,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             if timeout > 0:
                 options = options + ["-t", str(timeout)]
             else:
-                options = options + ["-t", rlimits.cputime]
+                options = options + ["-t", str(rlimits.cputime)]
         return [executable] + options + [task.single_input_file]
 
     def version(self, executable):
