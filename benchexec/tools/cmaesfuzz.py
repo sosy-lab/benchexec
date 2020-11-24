@@ -29,6 +29,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("fuzzer")
 
     def cmdline(self, executable, options, task, rlimits):
+        # add a time limit if not given
+        # that is hopefully sufficient to write all tests
+        if "-t" not in options:
+            # at least three seconds + 1% of overall time
+            timeout = int(rlimits.cputime*0.99 - 5)
+            # but don't add negative timeout
+            if timeout > 0:
+                options = options + ["-t", timeout]
+            else:
+                options = options + ["-t", rlimits.cputime]
         return [executable] + options + [task.single_input_file]
 
     def version(self, executable):
