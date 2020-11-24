@@ -29,7 +29,7 @@ import {
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
-import { createHiddenColsFromURL } from "../utils/utils";
+import { createHiddenColsFromURL, setConstantHashSearch } from "../utils/utils";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -57,7 +57,12 @@ export default class Overview extends React.Component {
       columns,
       table,
       stats,
+      initial,
     } = prepareTableData(props.data);
+
+    if (initial && !document.location.href.includes("#")) {
+      setConstantHashSearch(initial);
+    }
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
@@ -283,7 +288,7 @@ export default class Overview extends React.Component {
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/scatter">
@@ -293,7 +298,7 @@ export default class Overview extends React.Component {
                     tools={this.state.tools}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/info">
