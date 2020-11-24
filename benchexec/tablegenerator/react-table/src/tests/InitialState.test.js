@@ -6,11 +6,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import ScatterPlot from "../components/ScatterPlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
-import { setParam } from "../utils/utils";
-import { getPlotOptions } from "./utils.js";
 const fs = require("fs");
 
 const content = fs.readFileSync(
