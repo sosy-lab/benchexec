@@ -38,8 +38,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                     match = result.group(1)
                 else:
                     logging.warning(
-                        "skipping repeated matches for identifier '{0}': '{1}'".format(
-                            identifier, line
-                        )
+                        "skipping repeated matches for identifier '%s': '%s'",
+                        identifier,
+                        line,
                     )
         return match
