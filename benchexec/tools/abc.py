@@ -8,7 +8,6 @@
 import re
 import logging
 
-import benchexec.result as result
 import benchexec.tools.template
 
 
