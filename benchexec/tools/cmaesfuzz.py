@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             timeout = int(rlimits.cputime * 0.99 - 5)
             # but don't add negative timeout
             if timeout > 0:
-                options = options + ["-t", timeout]
+                options = options + ["-t", str(timeout)]
             else:
                 options = options + ["-t", rlimits.cputime]
         return [executable] + options + [task.single_input_file]
