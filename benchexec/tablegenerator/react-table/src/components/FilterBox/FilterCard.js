@@ -21,7 +21,8 @@ import {
 
 const Range = createSliderWithTooltip(Slider.Range);
 
-let debounceHandler = setTimeout(() => {}, 500);
+const numericInputDebounce = 500;
+let debounceHandler = setTimeout(() => {}, numericInputDebounce);
 
 export default class FilterCard extends React.PureComponent {
   constructor(props) {
@@ -33,17 +34,17 @@ export default class FilterCard extends React.PureComponent {
       type,
       number_of_significant_digits: significantDigits,
     } = props.filter || { values: [] };
-    let currentMin = 0;
-    let currentMax = 0;
+    let sliderMin = 0;
+    let sliderMax = 0;
     if (type === "measure" || type === "number") {
       const builder = new NumberFormatterBuilder(significantDigits).build();
-      currentMin = builder(min);
-      currentMax = builder(max);
+      sliderMin = builder(min);
+      sliderMax = builder(max);
       const value = values && values[0];
       if (value && value.includes(":")) {
         const res = this.handleMinMaxValue(value, significantDigits);
-        currentMin = res.min;
-        currentMax = res.max;
+        sliderMin = res.min;
+        sliderMax = res.max;
       }
     }
     this.state = {
@@ -55,8 +56,10 @@ export default class FilterCard extends React.PureComponent {
       idx: pathOr(["availableFilters", 0, "idx"], 0, props),
       active: true,
       selectedDistincts: [],
-      currentMin,
-      currentMax,
+      sliderMin,
+      sliderMax,
+      numericMin: null,
+      numericMax: null,
     };
   }
 
@@ -90,7 +93,12 @@ export default class FilterCard extends React.PureComponent {
       const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value, significantDigits);
-        this.setState({ currentMin: min, currentMax: max });
+        this.setState({
+          sliderMin: min,
+          sliderMax: max,
+          numericMin: min,
+          numericMax: max,
+        });
       }
     }
   }
@@ -103,9 +111,29 @@ export default class FilterCard extends React.PureComponent {
     };
     const [vMin, vMax] = value.split(":");
     return {
-      min: vMin.trim() !== "" ? builder(vMin) : builder(propMin),
-      max: vMax.trim() !== "" ? builder(vMax) : builder(propMax),
+      min: vMin.trim() !== "" ? vMin : builder(propMin),
+      max: vMax.trim() !== "" ? vMax : builder(propMax),
     };
+  }
+
+  handleNumberChange(min, max) {
+    const newState = {};
+    newState.sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
+    newState.sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
+    if (newState.sliderMin > newState.sliderMax) {
+      const temp = newState.sliderMax;
+      newState.sliderMax = newState.sliderMin;
+      newState.sliderMin = temp;
+    }
+    // defaulting to an empty string per side, if the values exceeds
+    // or is less than the min/max thresholds
+    const stringRepMin =
+      newState.sliderMin <= Number(min) ? "" : newState.sliderMin;
+    const stringRepMax =
+      newState.sliderMax >= Number(max) ? "" : newState.sliderMax;
+    newState.values = [`${stringRepMin}:${stringRepMax}`];
+    this.setState(newState);
+    this.sendFilterUpdate(newState.values);
   }
 
   render() {
@@ -260,7 +288,7 @@ export default class FilterCard extends React.PureComponent {
               this.setState({ values: [textValue] });
               debounceHandler = setTimeout(() => {
                 this.sendFilterUpdate([textValue]);
-              }, 500);
+              }, numericInputDebounce);
             }}
           />
         );
@@ -287,13 +315,13 @@ export default class FilterCard extends React.PureComponent {
               step={step}
               defaultValue={[Number(min), Number(max)]}
               value={[
-                Number(this.state.currentMin),
-                Number(this.state.currentMax),
+                Number(this.state.sliderMin),
+                Number(this.state.sliderMax),
               ]}
               onChange={([nMin, nMax]) => {
                 this.setState({
-                  currentMin: builder(nMin),
-                  currentMax: builder(nMax),
+                  sliderMin: builder(nMin),
+                  sliderMax: builder(nMax),
                 });
               }}
               onAfterChange={([nMin, nMax]) => {
@@ -302,8 +330,10 @@ export default class FilterCard extends React.PureComponent {
                 const stringRepMin = fMin === min ? "" : fMin;
                 const stringRepMax = fMax === max ? "" : fMax;
                 this.setState({
-                  currentMin: fMin,
-                  currentMax: fMax,
+                  sliderMin: fMin,
+                  sliderMax: fMax,
+                  numericMin: nMin,
+                  numericMax: nMax,
                   values: [`${stringRepMin}:${stringRepMax}`],
                 });
                 this.sendFilterUpdate([`${stringRepMin}:${stringRepMax}`]);
@@ -325,27 +355,22 @@ export default class FilterCard extends React.PureComponent {
               <input
                 type="number"
                 name={`inp-${title}-min`}
-                value={this.state.currentMin}
+                value={
+                  this.state.numericMin !== null
+                    ? this.state.numericMin
+                    : this.state.sliderMin
+                }
                 lang="en-US"
                 step={step}
                 onChange={({ target: { value } }) => {
-                  const { currentMin, currentMax } = this.state;
-                  if (value > this.state.currentMax) {
-                    const stringRepMin = currentMin === min ? "" : currentMin;
-                    const stringRepMax = value === max ? "" : value;
-                    this.setState({
-                      currentMax: value,
-                      currentMin: this.state.currentMax,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  } else {
-                    const stringRepMin = value === min ? "" : value;
-                    const stringRepMax = currentMax === max ? "" : currentMax;
-                    this.setState({
-                      currentMin: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
+                  if (this.numericMinTimeout) {
+                    clearTimeout(this.numericMinTimeout);
                   }
+                  this.setState({ numericMin: value });
+                  this.numericMinTimeout = setTimeout(
+                    () => this.handleNumberChange(min, max),
+                    numericInputDebounce,
+                  );
                 }}
               />
               <input
@@ -353,25 +378,20 @@ export default class FilterCard extends React.PureComponent {
                 name={`inp-${title}-max`}
                 step={step}
                 lang="en-US"
-                value={this.state.currentMax}
+                value={
+                  this.state.numericMax !== null
+                    ? this.state.numericMax
+                    : this.state.sliderMax
+                }
                 onChange={({ target: { value } }) => {
-                  const { currentMin, currentMax } = this.state;
-                  if (value < this.state.currentMin) {
-                    const stringRepMin = value === min ? "" : value;
-                    const stringRepMax = currentMax === max ? "" : currentMax;
-                    this.setState({
-                      currentMax: this.state.currentMin,
-                      currentMin: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
-                  } else {
-                    const stringRepMin = currentMin === min ? "" : currentMin;
-                    const stringRepMax = value === max ? "" : value;
-                    this.setState({
-                      currentMax: value,
-                      values: [`${stringRepMin}:${stringRepMax}`],
-                    });
+                  if (this.numericMaxTimeout) {
+                    clearTimeout(this.numericMaxTimeout);
                   }
+                  this.setState({ numericMax: value });
+                  this.numericMaxTimeout = setTimeout(
+                    () => this.handleNumberChange(min, max),
+                    numericInputDebounce,
+                  );
                 }}
               />
             </div>

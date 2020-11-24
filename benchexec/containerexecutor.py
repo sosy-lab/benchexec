@@ -769,7 +769,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             except OSError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
-            except:  # noqa: E722
+            except BaseException:
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")

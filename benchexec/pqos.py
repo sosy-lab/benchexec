@@ -75,13 +75,13 @@ class Pqos(object):
         }
         try:
             ret = json.loads(err)
-            logging.warning("{0}...{1}".format(msg_prefix[__type], ret["message"]))
+            logging.warning("%s...%s", msg_prefix[__type], ret["message"])
             self.check_for_errors()
         except ValueError:
             logging.warning(
-                "{0}...Unable to execute command {1}".format(
-                    msg_prefix[__type], " ".join(args_list)
-                )
+                "%s...Unable to execute command %s",
+                msg_prefix[__type],
+                " ".join(args_list),
             )
 
     def check_capacity(self, technology):
@@ -225,15 +225,11 @@ class Pqos(object):
             if msr["read"]:
                 if not msr["write"]:
                     logging.warning(
-                        "Add write permissions for msr module for {}".format(
-                            current_user
-                        )
+                        "Add write permissions for msr module for %s", current_user
                     )
             else:
                 logging.warning(
-                    "Add read and write permissions for msr module for {}".format(
-                        current_user
-                    )
+                    "Add read and write permissions for msr module for %s", current_user
                 )
         else:
             logging.warning("Load msr module for using cache allocation/monitoring")

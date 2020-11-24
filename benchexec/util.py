@@ -714,7 +714,7 @@ def get_capability(filename):
         libcap = ctypes.cdll.LoadLibrary(libcap_path)
     except OSError:
         res["error"] = True
-        logging.warning("Unable to find capabilities for {0}".format(filename))
+        logging.warning("Unable to find capabilities for %s", filename)
         return res
     cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
     libcap.cap_to_text.restype = ctypes.c_char_p

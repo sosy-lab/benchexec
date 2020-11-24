@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             or not os.path.isfile(os.path.join(bin_path, "nitwit64"))
         ):
             logging.warning(
-                "Required binary files for Nitwit not found in {0}.".format(bin_path)
+                "Required binary files for Nitwit not found in %s.", bin_path
             )
         return executable
 

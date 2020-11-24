@@ -146,7 +146,7 @@ def print_tool_info(tool, tool_locator):
 
     try:
         print_value("Version", tool.version(executable))
-    except:  # noqa: E722
+    except BaseException:
         logging.warning("Determining version failed:", exc_info=1)
 
     working_directory = tool.working_directory(executable)
@@ -329,7 +329,7 @@ def analyze_tool_output(tool, file, dummy_cmdline):
             result,
             extra_line=True,
         )
-    except:  # noqa: E722
+    except BaseException:
         logging.warning(
             "Tool module failed to analyze result in “%s”:", file.name, exc_info=1
         )
