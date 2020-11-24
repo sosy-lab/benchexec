@@ -78,7 +78,7 @@ class ColumnEnumType(object):
     def __eq__(self, other):
         try:
             return self._type == other._type
-        except:  # noqa: E722 eq should not throw exceptions
+        except Exception:
             return False
 
 
