@@ -14,7 +14,7 @@ import re
 
 class Tool(benchexec.tools.template.BaseTool):
 
-    REQUIRED_PATHS = ["boogie", "corral", "llvm", "lockpwn", "smack", "smack.sh"]
+    REQUIRED_PATHS = ["bin", "lib", "share", "smack-deps", "smack.sh"]
 
     def executable(self):
         """
