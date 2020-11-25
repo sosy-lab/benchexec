@@ -21,6 +21,7 @@ import subprocess
 import sys
 import time
 import types
+import typing
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -339,9 +340,9 @@ def load_tool(result):
     if tool_module in loaded_tools:
         return loaded_tools[tool_module]
     else:
-        result = load_tool_module(tool_module)
-        loaded_tools[tool_module] = result
-        return result
+        loaded_tool = load_tool_module(tool_module)
+        loaded_tools[tool_module] = loaded_tool
+        return loaded_tool
 
 
 class RunSetResult(object):
@@ -402,8 +403,11 @@ class RunSetResult(object):
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
+            tool = load_tool(self)
+            if not tool:
+                return None
             output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)
-            return load_tool(self).get_value_from_output(output, identifier)
+            return tool.get_value_from_output(output, identifier)
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
@@ -613,7 +617,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
         with util.open_url_seekable(url, mode="rb") as f:
             try:
                 try:
-                    resultElem = parse(gzip.GzipFile(fileobj=f))
+                    resultElem = parse(typing.cast(typing.IO, gzip.GzipFile(fileobj=f)))
                 except OSError:
                     f.seek(0)
                     resultElem = parse(bz2.BZ2File(f))
@@ -1375,7 +1379,7 @@ def write_csv_table(
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
-                out.write(column.format_value(value or "", False, "csv"))
+                out.write(column.format_value(value or "", "csv"))
         out.write("\n")
 
 
@@ -1395,7 +1399,9 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             system = platform.system()
             try:
                 if system == "Windows":
-                    os.startfile(os.path.normpath(outfile), "open")  # noqa: S606
+                    os.startfile(  # pytype: disable=module-attr # noqa: S606
+                        os.path.normpath(outfile), "open"
+                    )
                 else:
                     cmd = "open" if system == "Darwin" else "xdg-open"
                     subprocess.Popen(
@@ -1522,6 +1528,23 @@ def create_argument_parser():
         "--quiet",
         action="store_true",
         help="Do not show informational messages, only warnings.",
+    )
+
+    def handle_initial_table_state(value):
+        value = value.lstrip("#")
+        if not value.startswith("/"):
+            raise argparse.ArgumentTypeError(
+                "Invalid value '{}', needs to start with /".format(value)
+            )
+        return value
+
+    parser.add_argument(
+        "--initial-table-state",
+        action="store",
+        type=handle_initial_table_state,
+        help="Set initial state of HTML table, e.g., if another tab should be shown "
+        "by default. Valid values can be copied from the URL part after '#' of a table "
+        "when the table is in the desired state. (Example: '/table')",
     )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__

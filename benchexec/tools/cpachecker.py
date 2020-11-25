@@ -231,8 +231,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                     match = line[startPosition:endPosition].strip()
                 else:
                     logging.warning(
-                        "skipping repeated match for identifier '{0}': '{1}'".format(
-                            identifier, line
-                        )
+                        "skipping repeated match for identifier '%s': '%s'",
+                        identifier,
+                        line,
                     )
         return match

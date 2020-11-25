@@ -7,6 +7,7 @@
 
 import argparse
 import collections
+import datetime
 import errno
 import logging
 import multiprocessing
@@ -17,6 +18,7 @@ import sys
 import threading
 import time
 import tempfile
+from typing import cast, Optional
 
 from benchexec import __version__
 from benchexec import baseexecutor
@@ -202,7 +204,7 @@ def main(argv=None):
         try:
             stdin = open(options.input, "rt")
         except OSError as e:
-            parser.error(e)
+            parser.error(str(e))
     else:
         stdin = None
 
@@ -274,14 +276,14 @@ def main(argv=None):
             stdin.close()
 
     # exit_code is a util.ProcessExitCode instance
-    exit_code = result.pop("exitcode", None)
+    exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
     def print_optional_result(key, unit="", format_fn=str):
         if key in result:
             print(key + "=" + format_fn(result[key]) + unit)
 
     # output results
-    print_optional_result("starttime", unit="", format_fn=lambda dt: dt.isoformat())
+    print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print("returnvalue=" + str(exit_code.value))
@@ -387,7 +389,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
             except ValueError as e:
                 logging.warning(
-                    "Could not read available memory nodes from kernel: %s", e.strerror
+                    "Could not read available memory nodes from kernel: %s", str(e)
                 )
             logging.debug("List of available memory nodes is %s.", self.memory_nodes)
 
@@ -1244,6 +1246,7 @@ class _TimelimitThread(threading.Thread):
     ):
         super(_TimelimitThread, self).__init__()
         self.name = "TimelimitThread-" + self.name
+        self.finished = threading.Event()
 
         if hardtimelimit or softtimelimit:
             assert CPUACCT in cgroups
@@ -1264,7 +1267,6 @@ class _TimelimitThread(threading.Thread):
         self.latestKillTime = time.monotonic() + walltimelimit
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
-        self.finished = threading.Event()
 
     def read_cputime(self):
         while True:

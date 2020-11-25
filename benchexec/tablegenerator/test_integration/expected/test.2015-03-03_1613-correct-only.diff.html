@@ -134,6 +134,7 @@
    "name": "Tool"
   }
  },
+ "initial": null,
  "rows": [
   {
    "href": "../results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
@@ -243,7 +244,7 @@
       },
       {
        "html": "126",
-       "raw": "126.31244799999999"
+       "raw": "126.312448"
       }
      ]
     },
@@ -300,7 +301,7 @@
       "max": "2.12",
       "median": "2.12",
       "min": "2.12",
-      "stdev": "0",
+      "stdev": "0.00",
       "sum": "2.12"
      },
      {
@@ -308,7 +309,7 @@
       "max": "2.13",
       "median": "2.13",
       "min": "2.13",
-      "stdev": "0",
+      "stdev": "0.00",
       "sum": "2.13"
      },
      {
@@ -324,6 +325,228 @@
    "description": "",
    "id": null,
    "title": "total"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 2
+     },
+     {
+      "avg": "2.14",
+      "max": "2.23",
+      "median": "2.14",
+      "min": "2.06",
+      "stdev": "0.0854",
+      "sum": "4.29"
+     },
+     {
+      "avg": "2.15",
+      "max": "2.24",
+      "median": "2.15",
+      "min": "2.07",
+      "stdev": "0.0853",
+      "sum": "4.30"
+     },
+     {
+      "avg": "129",
+      "max": "132",
+      "median": "129",
+      "min": "126",
+      "stdev": "3.01",
+      "sum": "259"
+     }
+    ],
+    [
+     {
+      "sum": 1
+     },
+     {
+      "avg": "2.12",
+      "max": "2.12",
+      "median": "2.12",
+      "min": "2.12",
+      "stdev": "0.00",
+      "sum": "2.12"
+     },
+     {
+      "avg": "2.13",
+      "max": "2.13",
+      "median": "2.13",
+      "min": "2.13",
+      "stdev": "0.00",
+      "sum": "2.13"
+     },
+     {
+      "avg": "134",
+      "max": "134",
+      "median": "134",
+      "min": "134",
+      "stdev": "0",
+      "sum": "134"
+     }
+    ]
+   ],
+   "description": "(property holds + result is true) OR (property does not hold + result is false)",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;correct results"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 2
+     },
+     {
+      "avg": "2.14",
+      "max": "2.23",
+      "median": "2.14",
+      "min": "2.06",
+      "stdev": "0.0854",
+      "sum": "4.29"
+     },
+     {
+      "avg": "2.15",
+      "max": "2.24",
+      "median": "2.15",
+      "min": "2.07",
+      "stdev": "0.0853",
+      "sum": "4.30"
+     },
+     {
+      "avg": "129",
+      "max": "132",
+      "median": "129",
+      "min": "126",
+      "stdev": "3.01",
+      "sum": "259"
+     }
+    ],
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ]
+   ],
+   "description": "property holds + result is true",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ],
+    [
+     {
+      "sum": 1
+     },
+     {
+      "avg": "2.12",
+      "max": "2.12",
+      "median": "2.12",
+      "min": "2.12",
+      "stdev": "0.00",
+      "sum": "2.12"
+     },
+     {
+      "avg": "2.13",
+      "max": "2.13",
+      "median": "2.13",
+      "min": "2.13",
+      "stdev": "0.00",
+      "sum": "2.13"
+     },
+     {
+      "avg": "134",
+      "max": "134",
+      "median": "134",
+      "min": "134",
+      "stdev": "0",
+      "sum": "134"
+     }
+    ]
+   ],
+   "description": "property does not hold + result is false",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 1
+     },
+     null,
+     null,
+     null
+    ],
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ]
+   ],
+   "description": "(property holds + result is false) OR (property does not hold + result is true)",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 1
+     },
+     null,
+     null,
+     null
+    ],
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ]
+   ],
+   "description": "property does not hold + result is true",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ],
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null
+    ]
+   ],
+   "description": "property holds + result is false",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"
   }
  ],
  "tools": [
@@ -334,7 +557,6 @@
      "display_title": "status",
      "max_width": 12,
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "status",
      "type": "status"
     },
@@ -343,8 +565,6 @@
      "max_width": 7,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "cputime",
      "type": "measure",
      "unit": "s"
@@ -354,8 +574,6 @@
      "max_width": 8,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "walltime",
      "type": "measure",
      "unit": "s"
@@ -365,8 +583,6 @@
      "max_width": 6,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1e-06,
-     "source_unit": "B",
      "title": "memUsage",
      "type": "measure",
      "unit": "MB"
@@ -396,7 +612,6 @@
      "display_title": "status",
      "max_width": 12,
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "status",
      "type": "status"
     },
@@ -405,8 +620,6 @@
      "max_width": 7,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "cputime",
      "type": "measure",
      "unit": "s"
@@ -416,8 +629,6 @@
      "max_width": 8,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "walltime",
      "type": "measure",
      "unit": "s"
@@ -427,8 +638,6 @@
      "max_width": 6,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1e-06,
-     "source_unit": "B",
      "title": "memUsage",
      "type": "measure",
      "unit": "MB"

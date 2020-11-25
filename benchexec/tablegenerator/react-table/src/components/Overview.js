@@ -33,6 +33,7 @@ import {
   createHiddenColsFromURL,
   makeUrlFilterDeserializer,
   makeUrlFilterSerializer,
+  setConstantHashSearch,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
 
@@ -62,7 +63,12 @@ export default class Overview extends React.Component {
       columns,
       table,
       stats,
+      initial,
     } = prepareTableData(props.data);
+
+    if (initial && !document.location.href.includes("#")) {
+      setConstantHashSearch(initial);
+    }
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
@@ -361,7 +367,7 @@ export default class Overview extends React.Component {
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/scatter">
@@ -371,7 +377,7 @@ export default class Overview extends React.Component {
                     tools={this.state.tools}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/info">

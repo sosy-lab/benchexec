@@ -9,6 +9,7 @@
 
 import sys
 
+from decimal import Decimal
 import os
 import io
 from xml.etree import ElementTree
@@ -16,6 +17,7 @@ import bz2
 
 from benchexec import result
 from benchexec import tablegenerator
+from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -145,11 +147,13 @@ def main(argv=None):
                     statusWit, categoryWit = (status_from_verification, "correct")
                     category_from_verification = "correct"
                     try:
-                        coverage_float = float(coverage_value)
+                        coverage_percentage = Decimal(coverage_value) / 100
                     except ValueError:
                         continue
                     scoreColumn = ElementTree.Element(
-                        "column", title="score", value=str(coverage_float / 100)
+                        "column",
+                        title="score",
+                        value=util.print_decimal(coverage_percentage),
                     )
                     result_tag.append(scoreColumn)
                 else:

@@ -250,7 +250,8 @@ def _generate_native_clone_child_callback():
     # Get address of PyOS_AfterFork_Child that we want to call
     afterfork_address = ctypes.cast(
         ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
-    ).value.to_bytes(8, sys.byteorder)
+    ).value
+    assert afterfork_address is not None  # ensured above
 
     # Generate machine code that does the same as _python_clone_child_callback
     # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
@@ -291,7 +292,7 @@ def _generate_native_clone_child_callback():
     #     ff e7                   jmpq   *%rdi
     #
     # The following creates exactly the same machine code, just with the real address
-    movabsq_address_rdx = b"\x48\xba" + afterfork_address
+    movabsq_address_rdx = b"\x48\xba" + afterfork_address.to_bytes(8, sys.byteorder)
     subq_0x18_rsp = b"\x48\x83\xec\x18"
     xorl_eax_eax = b"\x32\xc0"
     movq_rdi_stack = b"\x48\x89\x7c\x24\x08"
@@ -774,7 +775,7 @@ def drop_capabilities(keep=[]):
     Drop all capabilities this process has.
     @param keep: list of capabilities to not drop
     """
-    capdata = (libc.CapData * 2)()
+    capdata = (libc.CapData * 2)()  # pytype: disable=not-callable
     for cap in keep:
         capdata[0].effective |= 1 << cap
         capdata[0].permitted |= 1 << cap
@@ -809,7 +810,7 @@ def setup_seccomp_filter():
 
 
 try:
-    _ALL_SIGNALS = signal.valid_signals()
+    _ALL_SIGNALS = signal.valid_signals()  # pytype: disable=module-attr
 except AttributeError:
     # Only exists on Python 3.8+
     _ALL_SIGNALS = range(1, signal.NSIG)

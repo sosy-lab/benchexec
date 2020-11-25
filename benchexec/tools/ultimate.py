@@ -13,14 +13,14 @@ import os
 import re
 import shutil
 import subprocess
-from typing import Union, Tuple, List
+from typing import List
 
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.util as util
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
-from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.template import UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -68,7 +68,9 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
-        for (_, dir_names, file_names) in os.walk(os.path.dirname(exe)):
+        dir_name = os.path.dirname(exe)
+        logging.debug("Looking in %s for Ultimate and plugins/", dir_name)
+        for (_, dir_names, file_names) in os.walk(dir_name):
             if "Ultimate" in file_names and "plugins" in dir_names:
                 return exe
             break
@@ -189,47 +191,31 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)
 
     def cmdline(self, executable, options, task, resource_limits):
-        data_model_param = get_data_model_from_task(
-            task, {ILP32: "32bit", LP64: "64bit"}
-        )
-        combined_options = options
-        if data_model_param:
-            arch = ["--architecture", data_model_param]
-            if not self._is_sublist(arch, options):
-                combined_options += arch
-                if "--architecture" in options:
-                    # arch is no sublist, but architecture is already specified
-                    msg = (
-                        "Unsupported argument combination: "
-                        "You specified '--architecture' as option, but it is also specified as task"
-                    )
-                    logging.warning(
-                        "You specified '--architecture' as option, but the task has a different value of %s",
-                        data_model_param,
-                    )
+        arch = self._get_additional_data_model_from_task(options, task)
 
         if self._is_svcomp17_version(executable):
-            return self._cmdline_svcomp17(executable, combined_options, task)
+            return self._cmdline_svcomp17(executable, options + arch, task)
 
-        if _OPTION_NO_WRAPPER in combined_options:
+        if _OPTION_NO_WRAPPER in options:
             # do not use old wrapper script even if property file is given
-            combined_options.remove(_OPTION_NO_WRAPPER)
+            # this also means we do not support the --architecture parameter from the data model
+            options.remove(_OPTION_NO_WRAPPER)
             # if no property file is given and toolchain (-tc) is, use Ultimate directly and
             # ignore wrapper
-            if "-tc" in combined_options or "--toolchain" in combined_options:
+            if "-tc" in options or "--toolchain" in options:
                 return self._cmdline_no_wrapper(
-                    executable, combined_options, task, resource_limits
+                    executable, options, task, resource_limits
                 )
             msg = (
                 "Unsupported argument combination: "
-                "If you specify {}, you also need to give a toolchain (with '-tc' or '--tolchain')".format(
+                "If you specify {}, you also need to give a toolchain (with '-tc' or '--toolchain')".format(
                     _OPTION_NO_WRAPPER
                 )
             )
             raise UnsupportedFeatureException(msg)
 
         if task.property_file:
-            return self._cmdline_default(executable, combined_options, task)
+            return self._cmdline_default(executable, options + arch, task)
 
         # there is no way to run ultimate; not enough parameters
         msg = (
@@ -238,6 +224,27 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             "resource_limits={}".format(options, resource_limits)
         )
         raise UnsupportedFeatureException(msg)
+
+    def _get_additional_data_model_from_task(self, options, task) -> List[str]:
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "32bit", LP64: "64bit"}
+        )
+
+        if data_model_param:
+            arch = ["--architecture", data_model_param]
+            if "--architecture" not in options:
+                return arch
+            elif data_model_param in options:
+                # architecture and data_model_param in options, I guess these are the options we want
+                pass
+            else:
+                # arch is no sublist, but architecture is already specified
+                logging.warning(
+                    "You specified %s as options, but the task has a different value: %s",
+                    options,
+                    arch,
+                )
+        return []
 
     def _cmdline_no_wrapper(self, executable, options, task, resource_limits):
         mem_bytes = resource_limits.memory
@@ -329,7 +336,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return [executable] + self._program_files_from_executable(executable, paths)
 
     def determine_result(self, run):
-        if any(arg for arg in run.commandline if "--spec" == arg or ".prp" in arg):
+        if any(arg for arg in run.cmdline if "--spec" == arg or ".prp" in arg):
             return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
@@ -496,11 +503,11 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return rtr
 
     @staticmethod
-    def _is_sublist(small: List, big: List) -> Union[bool, Tuple[int, int]]:
+    def _is_sublist_or_equal(small: List, big: List) -> bool:
         for i in range(len(big) - len(small) + 1):
             for j in range(len(small)):
-                if big[i + j] != small[j]:
+                if str(big[i + j]) != str(small[j]):
                     break
             else:
-                return i, i + len(small)
+                return True
         return False

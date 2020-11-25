@@ -338,8 +338,8 @@ export default class ScatterPlot extends React.Component {
           height: window.innerHeight - 200,
         }
       : {
-          height: this.props.fixedHeight,
-          width: this.props.fixedWidth,
+          height: 1000,
+          width: 1500,
         };
     return (
       <div className="scatterPlot">

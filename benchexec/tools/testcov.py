@@ -11,7 +11,7 @@ import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for TestCov (https://gitlab.com/sosy-lab/software/test-suite-validator).
     """

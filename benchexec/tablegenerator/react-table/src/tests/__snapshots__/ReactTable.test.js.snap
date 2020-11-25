@@ -77453,7 +77453,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
     className="rt-thead -headerGroups"
     style={
      Object {
-      "minWidth": "845.2px",
+      "minWidth": "1045.2px",
      }
     }
    >
@@ -77509,11 +77509,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       role="columnheader"
       style={
        Object {
-        "flex": "536 0 auto",
+        "flex": "736 0 auto",
         "left": false,
         "maxWidth": null,
         "right": false,
-        "width": "536px",
+        "width": "736px",
        }
       }
       tabIndex="-1"
@@ -77530,7 +77530,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
     className="rt-thead -header"
     style={
      Object {
-      "minWidth": "845.2px",
+      "minWidth": "1045.2px",
      }
     }
    >
@@ -77669,11 +77669,38 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       role="columnheader"
       style={
        Object {
-        "flex": "92 0 auto",
+        "flex": "84 0 auto",
         "left": false,
         "maxWidth": null,
         "right": false,
-        "width": "92px",
+        "width": "84px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        walltime
+        <br />
+        (s)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
        }
       }
       tabIndex="-1"
@@ -77685,6 +77712,33 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         walltime
         <br />
         (ns)
+       </div>
+      </div>
+      <div
+       className="rt-resizer"
+      />
+     </div>
+     <div
+      className="rt-th rt-resizable-header -cursor-pointer"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "108 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "108px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <div
+       className="rt-resizable-header-content"
+      >
+       <div>
+        walltime
+        <br />
+        (Gs)
        </div>
       </div>
       <div
@@ -77751,7 +77805,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
     className="rt-thead -filters"
     style={
      Object {
-      "minWidth": "845.2px",
+      "minWidth": "1045.2px",
      }
     }
    >
@@ -77905,11 +77959,11 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       role="columnheader"
       style={
        Object {
-        "flex": "92 0 auto",
+        "flex": "84 0 auto",
         "left": false,
         "maxWidth": null,
         "right": false,
-        "width": "92px",
+        "width": "84px",
        }
       }
       tabIndex="-1"
@@ -77917,6 +77971,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
       <input
        disabled={false}
        id="0_walltime_3_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "100 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "100px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       disabled={false}
+       id="0_walltime_4_filter"
+       pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+       placeholder="Min:Max"
+       type="search"
+      />
+     </div>
+     <div
+      className="rt-th"
+      role="columnheader"
+      style={
+       Object {
+        "flex": "108 0 auto",
+        "left": false,
+        "maxWidth": null,
+        "right": false,
+        "width": "108px",
+       }
+      }
+      tabIndex="-1"
+     >
+      <input
+       disabled={false}
+       id="0_walltime_5_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
@@ -77938,7 +78036,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      >
       <input
        disabled={false}
-       id="0_memory_4_filter"
+       id="0_memory_6_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
@@ -77960,7 +78058,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
      >
       <input
        disabled={false}
-       id="0_memory-GB_5_filter"
+       id="0_memory-GB_7_filter"
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
@@ -77972,7 +78070,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
     className="rt-tbody"
     style={
      Object {
-      "minWidth": "845.2px",
+      "minWidth": "1045.2px",
      }
     }
    >
@@ -78085,16 +78183,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="gridcell"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+      >
+       <div>
+        2.2
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <div>
+        2200000000
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
         }
        }
       >
        <div
-        dangerouslySetInnerHTML={".00000022"}
+        dangerouslySetInnerHTML={".0000000022"}
        />
       </div>
       <div
@@ -78242,16 +78374,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="gridcell"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+      >
+       <div>
+        2.2
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <div>
+        2200000000
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
         }
        }
       >
        <div
-        dangerouslySetInnerHTML={".00000022"}
+        dangerouslySetInnerHTML={".0000000022"}
        />
       </div>
       <div
@@ -78399,16 +78565,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="gridcell"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+      >
+       <div>
+        2.2
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <div>
+        2200000000
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
         }
        }
       >
        <div
-        dangerouslySetInnerHTML={".00000022"}
+        dangerouslySetInnerHTML={".0000000022"}
        />
       </div>
       <div
@@ -78551,16 +78751,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="gridcell"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+      >
+       <div>
+        2.3
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <div>
+        2300000000
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
         }
        }
       >
        <div
-        dangerouslySetInnerHTML={".00000023"}
+        dangerouslySetInnerHTML={".0000000023"}
        />
       </div>
       <div
@@ -78708,16 +78942,50 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        role="gridcell"
        style={
         Object {
-         "flex": "92 0 auto",
+         "flex": "84 0 auto",
          "left": false,
          "maxWidth": null,
          "right": false,
-         "width": "92px",
+         "width": "84px",
+        }
+       }
+      >
+       <div>
+        2.1
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "100 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "100px",
+        }
+       }
+      >
+       <div>
+        2100000000
+       </div>
+      </div>
+      <div
+       className="rt-td"
+       role="gridcell"
+       style={
+        Object {
+         "flex": "108 0 auto",
+         "left": false,
+         "maxWidth": null,
+         "right": false,
+         "width": "108px",
         }
        }
       >
        <div
-        dangerouslySetInnerHTML={".00000021"}
+        dangerouslySetInnerHTML={".0000000021"}
        />
       </div>
       <div

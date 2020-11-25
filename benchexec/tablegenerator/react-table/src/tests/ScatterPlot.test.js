@@ -33,8 +33,6 @@ const scatterPlotJSX = (
     getRowName={overviewInstance.getRowName}
     hiddenCols={overviewInstance.state.hiddenCols}
     isFlexible={false}
-    fixedWidth={1500}
-    fixedHeight={1000}
   />
 );
 const plot = renderer.create(scatterPlotJSX);

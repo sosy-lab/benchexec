@@ -74,7 +74,7 @@ The respective mode can be specified with the command-line parameters
 `--hidden-dir`, `--read-only-dir`, `--overlay-dir`, and `--full-access-dir`.
 Directory modes are applied recursively,
 i.e., for all subdirectories which do not have a mode specified explicitly.
-For the overlay mode, please note the [INSTALL.md#kernel-requirements](system requirements).
+For the overlay mode, please note the [system requirements](INSTALL.md#kernel-requirements).
 
 The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
 i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,

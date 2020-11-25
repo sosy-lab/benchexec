@@ -9,7 +9,7 @@ import React from "react";
 
 const emptyStateValue = "##########";
 
-const prepareTableData = ({ head, tools, rows, stats, props }) => {
+const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
   return {
     tableHeader: head,
     taskIdNames: head.task_id_names,
@@ -26,6 +26,7 @@ const prepareTableData = ({ head, tools, rows, stats, props }) => {
     table: rows,
     stats: stats,
     properties: props,
+    initial: initial,
   };
 };
 
@@ -567,6 +568,12 @@ const makeUrlFilterSerializer = (statusValues, categoryValues) => {
     return setHashSearch({ ...previousParams }, options);
   };
 };
+// Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
+const setConstantHashSearch = (paramString) => {
+  document.location.href = encodeURI(
+    `${document.location.href}#${paramString}`,
+  );
+};
 
 /**
  * Adds or update given key-value pairs to the query params
@@ -905,6 +912,7 @@ export {
   EXTENDED_DISCRETE_COLOR_RANGE,
   getHashSearch,
   setHashSearch,
+  setConstantHashSearch,
   setParam,
   createHiddenColsFromURL,
   stringAsBoolean,

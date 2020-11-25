@@ -33,10 +33,9 @@ def get_data_model_from_task(task, param_dict):
     if isinstance(task.options, dict) and task.options.get("language") == "C":
         data_model = task.options.get("data_model")
         if data_model:
-            data_model_option = param_dict.get(data_model)
-            if data_model_option:
-                return data_model_option
-            else:
+            try:
+                return param_dict[data_model]
+            except KeyError:
                 raise benchexec.tools.template.UnsupportedFeatureException(
                     "Unsupported data_model '{}' defined for task '{}'".format(
                         data_model, task
