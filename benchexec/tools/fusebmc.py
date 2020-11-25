@@ -13,7 +13,10 @@ class Tool(esbmc.Tool):
     This class serves as tool adaptor for FuSeBMC (https://github.com/kaled-alshmrany/FuSeBMC)
     """
 
-    REQUIRED_PATHS = ["esbmc", "esbmc-wrapper.py", "my_instrument"]
+    REQUIRED_PATHS = ["esbmc", "fusebmc.py", "FuSeBMC_inustrment/FuSeBMC_inustrment", "fusebmc_output"]
 
     def name(self):
         return "FuSeBMC"
+    
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("fusebmc.py")
