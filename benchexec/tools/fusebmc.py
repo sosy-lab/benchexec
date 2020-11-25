@@ -19,4 +19,7 @@ class Tool(esbmc.Tool):
         return "FuSeBMC"
     
     def executable(self, tool_locator):
-        return tool_locator.find_executable("fusebmc.py")
+        try:
+            return tool_locator.find_executable("fusebmc.py")
+        except ToolNotFoundException:
+            return super().executable(tool_locator)
