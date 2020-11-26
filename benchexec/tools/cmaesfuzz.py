@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         # add a time limit if not given
         # that is hopefully sufficient to write all tests
         if "-t" not in options and rlimits.cputime:
-            # at least three seconds + 1% of overall time
+            # at least five seconds + 1% of overall time
             timeout = int(rlimits.cputime * 0.99 - 5)
             # but don't add negative timeout
             if timeout > 0:
