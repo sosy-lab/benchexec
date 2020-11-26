@@ -7,18 +7,21 @@
 
 import benchexec.tools.esbmc as esbmc
 
+
 class Tool(esbmc.Tool):
     """
     This class serves as tool adaptor for FuSeBMC (https://github.com/kaled-alshmrany/FuSeBMC)
     """
+
     REQUIRED_PATHS_TESTCOMP20 = ["esbmc", "esbmc-wrapper.py", "my_instrument"]
     REQUIRED_PATHS_TESTCOMP21 = [
         "esbmc",
         "fusebmc.py",
         "FuSeBMC_inustrment/FuSeBMC_inustrment",
         "fusebmc_output",
-        "map2check-fuzzer"
+        "map2check-fuzzer",
     ]
+
     def name(self):
         return "FuSeBMC"
 
@@ -38,4 +41,4 @@ class Tool(esbmc.Tool):
             paths = self.REQUIRED_PATHS_TESTCOMP20
         elif self._version > 20:
             paths = self.REQUIRED_PATHS_TESTCOMP21
-        return paths
+        return self._program_files_from_executable(executable, paths)
