@@ -65,7 +65,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if status == result.RESULT_UNKNOWN:
             if run.was_timeout:
                 status = "TIMEOUT"
-            elif run.output[-1].endswith("error"):
+            elif not run.output.any_line_contains("Unknown"):
                 status = "ERROR"
 
         return status
