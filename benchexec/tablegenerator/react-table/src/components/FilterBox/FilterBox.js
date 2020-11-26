@@ -26,7 +26,7 @@ export default class FilterBox extends React.PureComponent {
 
     this.state = {
       filters: this.createFiltersFromReactTableStructure(filtered),
-      idFilters: [],
+      idFilters: this.retrieveIdFilters(filtered),
     };
   }
 
@@ -34,12 +34,29 @@ export default class FilterBox extends React.PureComponent {
     if (!equals(prevProps.filtered, this.props.filtered)) {
       this.setState({
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
+        idFilters: this.retrieveIdFilters(this.props.filtered),
       });
     }
   }
 
+  resetAllFilters() {
+    this.resetAllContainers();
+    this.resetIdFilters();
+  }
+
+  resetIdFilters() {
+    const empty = null; //Object.keys(this.props.ids).map(() => null);
+    this.setState({ idFilters: empty });
+    this.sendFilters({ filter: this.state.filters, idFilter: empty });
+  }
+
   resetAllContainers() {
     this.listeners.forEach((fun) => fun());
+  }
+
+  retrieveIdFilters(filters) {
+    const possibleIdFilter = filters.find((filter) => filter.id === "id");
+    return possibleIdFilter ? possibleIdFilter.values : [];
   }
 
   createFiltersFromReactTableStructure(filters) {
@@ -51,6 +68,9 @@ export default class FilterBox extends React.PureComponent {
     const out = [];
 
     for (const { id, value } of filters.flat()) {
+      if (id === "id") {
+        continue;
+      }
       const [tool, title, col] = id.split("_");
       const toolArr = out[tool] || [];
       if (!toolArr[col]) {
@@ -130,7 +150,7 @@ export default class FilterBox extends React.PureComponent {
           <FontAwesomeIcon
             icon={faTrash}
             className="filterBox--header--reset-icon"
-            onClick={() => this.resetAllContainers()}
+            onClick={() => this.resetAllFilters()}
           />
         </div>
 
@@ -139,6 +159,7 @@ export default class FilterBox extends React.PureComponent {
             ids={this.props.ids}
             updateFilters={(data) => this.updateIdFilters(data)}
             resetFilterHook={this.resetFilterHook}
+            filters={this.state.idFilters}
           />
           {this.props.filterable.map((tool, idx) => {
             return (

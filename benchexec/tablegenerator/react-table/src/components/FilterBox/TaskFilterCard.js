@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
+import equals from "deep-equal";
+import { pathOr } from "../../utils/utils";
 import "rc-slider/assets/index.css";
 
 let debounceHandler = setTimeout(() => {}, 500);
@@ -14,7 +16,7 @@ export default class TaskFilterCard extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      values: {},
+      values: this.extractFilters(),
     };
     props.resetFilterHook(() => this.resetIdFilters());
   }
@@ -28,16 +30,20 @@ export default class TaskFilterCard extends React.PureComponent {
     this.props.updateFilters(values);
   }
 
-  handleMinMaxValue(value) {
-    const { min: propMin, max: propMax } = this.props.filter || {
-      min: 0,
-      max: Infinity,
-    };
-    const [vMin, vMax] = value.split(":");
-    return {
-      min: vMin.trim() !== "" ? Number(vMin) : propMin,
-      max: vMax.trim() !== "" ? Number(vMax) : propMax,
-    };
+  extractFilters() {
+    let i = 0;
+    const newVal = {};
+    for (const id of Object.keys(this.props.ids)) {
+      newVal[id] = pathOr(["filters", i++], "", this.props);
+    }
+    return newVal;
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!equals(this.props.filters, prevProps.filters)) {
+      const newVal = this.extractFilters();
+      this.setState({ values: newVal });
+    }
   }
 
   render() {

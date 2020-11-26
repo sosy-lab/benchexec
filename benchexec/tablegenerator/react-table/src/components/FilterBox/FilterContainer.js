@@ -12,7 +12,15 @@ import equals from "deep-equal";
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
     super(props);
-    const { filters, toolName } = props;
+    const { filters, toolName, currentFilters } = props;
+    for (const idx in currentFilters) {
+      filters[idx] = {
+        ...filters[idx],
+        ...currentFilters[idx],
+        touched: filters[idx].touched + 1,
+        filtering: true,
+      };
+    }
     this.props.resetFilterHook(() => this.resetAllFilters());
     this.state = { filters, toolName, addingFilter: false, numCards: 0 };
   }
