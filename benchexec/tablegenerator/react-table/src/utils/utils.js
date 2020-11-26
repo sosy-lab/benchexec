@@ -183,10 +183,22 @@ const setHashSearch = (
     returnString: false,
     baseUrl: null,
     keepOthers: false,
+    paramName: null,
     history: null,
   },
 ) => {
-  const additionalParams = options.keepOthers ? getHashSearch() : {};
+  let additionalParams = {};
+  let transformedParams = params;
+  if (options.keepOthers) {
+    additionalParams = getHashSearch();
+    const removedItems = Object.entries(params).filter(
+      ([_, value]) => value === undefined || value === null,
+    );
+    removedItems.forEach(([key]) => {
+      delete additionalParams[key];
+      delete transformedParams[key];
+    });
+  }
   const mergedParams = { ...additionalParams, ...params };
   const optionTemplate = { returnString: false, baseUrl: null };
   const { returnString, baseUrl, history } = { ...optionTemplate, ...options };
@@ -200,6 +212,7 @@ const setHashSearch = (
     return hrefString;
   }
   if (history) {
+    console.log({ searchString });
     history.push(searchString);
     return;
   }

@@ -56,11 +56,15 @@ export default class SelectColumn extends React.Component {
         // Hidden columns of runset X will be added to the "hiddenX" parameter if not the entire runset is hidden yet
       } else if (cols.length > 0) {
         hiddenParams["hidden" + toolIdx] = cols.toString();
+      } else {
+        hiddenParams["hidden" + toolIdx] = null;
       }
     });
 
     if (hiddenRunsets.length > 0) {
       hiddenParams["hidden"] = hiddenRunsets.toString();
+    } else {
+      hiddenParams["hidden"] = null;
     }
 
     setHashSearch(hiddenParams, {
