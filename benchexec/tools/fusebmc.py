@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.esbmc as esbmc
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(esbmc.Tool):
