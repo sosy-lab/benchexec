@@ -6,13 +6,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.template
+from benchexec.tools.template import UnsupportedFeatureException
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 import re
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
 
     REQUIRED_PATHS = [
         "bin",
@@ -27,12 +28,12 @@ class Tool(benchexec.tools.template.BaseTool):
         "smack",
     ]
 
-    def executable(self):
+    def executable(self, tool_locator):
         """
         Tells BenchExec to search for 'smack.sh' as the main executable to be
         called when running SMACK.
         """
-        return util.find_executable("smack.sh")
+        return tool_locator.find_executable("smack.sh")
 
     def version(self, executable):
         """
@@ -53,21 +54,31 @@ class Tool(benchexec.tools.template.BaseTool):
         """
         return "SMACK"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Allows us to define special actions to be taken or command line argument
         modifications to make just before calling SMACK.
         """
-        assert len(tasks) == 1
-        assert propertyfile is not None
-        prop = ["--svcomp-property", propertyfile]
-        return [executable] + options + prop + tasks
+        data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
+        if data_model_param and "--data-model" not in options:
+            options += ["--clang-options=" + data_model_param]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        if task.property_file:
+            options += ["--svcomp-property", task.property_file]
+        else:
+            raise UnsupportedFeatureException(
+                "SMACK can't execute without a property file."
+            )
+
+        options += [task.single_input_file]
+
+        return [executable] + options
+
+    def determine_result(self, run):
         """
         Returns a BenchExec result status based on the output of SMACK
         """
-        splitout = "\n".join(output)
+        splitout = "\n".join(run.output)
         if "SMACK found no errors" in splitout:
             return result.RESULT_TRUE_PROP
         errmsg = re.search(r"SMACK found an error(:\s+([^\.]+))?\.", splitout)
