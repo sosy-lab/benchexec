@@ -10,8 +10,6 @@ import benchexec.tools.template
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
-import re
-
 
 class Tool(benchexec.tools.template.BaseTool2):
 
@@ -78,23 +76,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         Returns a BenchExec result status based on the output of SMACK
         """
-        splitout = "\n".join(run.output)
-        if "SMACK found no errors" in splitout:
+        if run.output.any_line_contains("SMACK found no errors"):
             return result.RESULT_TRUE_PROP
-        errmsg = re.search(r"SMACK found an error(:\s+([^\.]+))?\.", splitout)
-        if errmsg:
-            errtype = errmsg.group(2)
-            if errtype:
-                if "invalid pointer dereference" == errtype:
-                    return result.RESULT_FALSE_DEREF
-                elif "invalid memory deallocation" == errtype:
-                    return result.RESULT_FALSE_FREE
-                elif "memory leak" == errtype:
-                    return result.RESULT_FALSE_MEMTRACK
-                elif "memory cleanup" == errtype:
-                    return result.RESULT_FALSE_MEMCLEANUP
-                elif "integer overflow" == errtype:
-                    return result.RESULT_FALSE_OVERFLOW
+        if run.output.any_line_contains("SMACK found an error"):
+            if run.output.any_line_contains("invalid pointer dereference"):
+                return result.RESULT_FALSE_DEREF
+            elif run.output.any_line_contains(""):
+                return result.RESULT_FALSE_FREE
+            elif run.output.any_line_contains("memory leak"):
+                return result.RESULT_FALSE_MEMTRACK
+            elif run.output.any_line_contains("memory cleanup"):
+                return result.RESULT_FALSE_MEMCLEANUP
+            elif run.output.any_line_contains("integer overflow"):
+                return result.RESULT_FALSE_OVERFLOW
             else:
                 return result.RESULT_FALSE_REACH
         return result.RESULT_UNKNOWN
