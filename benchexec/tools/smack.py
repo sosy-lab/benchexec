@@ -84,7 +84,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.output.any_line_contains("SMACK found an error"):
             if run.output.any_line_contains("invalid pointer dereference"):
                 return result.RESULT_FALSE_DEREF
-            elif run.output.any_line_contains(""):
+            elif run.output.any_line_contains("invalid memory deallocation"):
                 return result.RESULT_FALSE_FREE
             elif run.output.any_line_contains("memory leak"):
                 return result.RESULT_FALSE_MEMTRACK
