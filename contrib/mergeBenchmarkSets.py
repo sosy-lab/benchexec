@@ -70,7 +70,7 @@ def getWitnessResult(witness, verification_result):
     if status_from_validation == status_from_verification:
         return status_from_verification, category_from_verification
     # An invalid witness counts as error of the verifier.
-    if status_from_validation == "ERROR(invalid witness)":
+    if status_from_validation == "ERROR (invalid witness syntax)":
         return (
             "witness invalid (" + status_from_verification + ")",
             result.CATEGORY_ERROR,
