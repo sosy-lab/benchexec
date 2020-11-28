@@ -57,41 +57,49 @@ class Tool(benchexec.tools.template.BaseTool2):
         Allows us to define special actions to be taken or command line argument
         modifications to make just before calling SMACK.
         """
-        data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
-        print(options)
-        if data_model_param and not any(
-            option.startswith("--clang-options=") for option in options
-        ):
+        data_model_param = get_data_model_from_task(
+            task,
+            {ILP32: "-m32", LP64: "-m64"}
+        )
+        if data_model_param:
             options += ["--clang-options=" + data_model_param]
+        else:
+            raise UnsupportedFeatureException(
+                "Unsupported data_model '{}' defined for task '{}'".format(
+                    task.options.get("data_model"), task
+                )
+            )
 
         if task.property_file:
             options += ["--svcomp-property", task.property_file]
         else:
-            raise UnsupportedFeatureException(
-                "SMACK can't execute without a property file."
-            )
+            raise RuntimeError("Cannot find a property file")
 
-        options += [task.single_input_file]
-
-        return [executable] + options
+        return [executable] + [task.single_input_file] + options
 
     def determine_result(self, run):
         """
         Returns a BenchExec result status based on the output of SMACK
         """
-        if run.output.any_line_contains("SMACK found no errors"):
+
+        if len(run.output) == 0:
+            return result.RESULT_UNKNOWN
+
+        # strip is used just in case there are leading spaces
+        last_line = run.output[-1].strip()
+        if last_line.startswith("SMACK found no errors"):
             return result.RESULT_TRUE_PROP
-        if run.output.any_line_contains("SMACK found an error"):
-            if run.output.any_line_contains("invalid pointer dereference"):
-                return result.RESULT_FALSE_DEREF
-            elif run.output.any_line_contains("invalid memory deallocation"):
-                return result.RESULT_FALSE_FREE
-            elif run.output.any_line_contains("memory leak"):
-                return result.RESULT_FALSE_MEMTRACK
-            elif run.output.any_line_contains("memory cleanup"):
-                return result.RESULT_FALSE_MEMCLEANUP
-            elif run.output.any_line_contains("integer overflow"):
-                return result.RESULT_FALSE_OVERFLOW
+        if last_line.startswith("SMACK found an error"):
+            descriptions = {
+                'invalid pointer dereference': result.RESULT_FALSE_DEREF,
+                'invalid memory deallocation': result.RESULT_FALSE_FREE,
+                'memory leak': result.RESULT_FALSE_MEMTRACK,
+                'integer overflow': result.RESULT_FALSE_OVERFLOW,
+                'memory cleanup': result.RESULT_FALSE_MEMCLEANUP
+            }
+            description = last_line[len('SMACK found an error: '):-1]
+            if description in descriptions:
+                return descriptions[description]
             else:
                 return result.RESULT_FALSE_REACH
         return result.RESULT_UNKNOWN
