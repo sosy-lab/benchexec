@@ -36,5 +36,5 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_DONE
         elif run.exit_code.value == 1:
             if self._code_matches_tool_output(run.output, 1):
-                return result.RESULT_ERROR + "(invalid witness)"
+                return result.RESULT_ERROR + " (invalid witness syntax)"
         return "EXCEPTION"

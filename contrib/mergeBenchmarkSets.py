@@ -69,6 +69,12 @@ def getWitnessResult(witness, verification_result):
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
         return status_from_verification, category_from_verification
+    # An invalid witness counts as error of the verifier.
+    if status_from_validation == "ERROR (invalid witness syntax)":
+        return (
+            "witness invalid (" + status_from_verification + ")",
+            result.CATEGORY_ERROR,
+        )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == result.CATEGORY_CORRECT:
         return status_from_verification, result.CATEGORY_CORRECT_UNCONFIRMED
@@ -158,11 +164,14 @@ def main(argv=None):
                     result_tag.append(scoreColumn)
                 else:
                     # For verification
+                    if statusWit and statusWit.startswith("witness invalid"):
+                        continue
                     statusWitNew, categoryWitNew = getWitnessResult(witness, result_tag)
                     if (
                         categoryWit is None
                         or not categoryWit.startswith(result.CATEGORY_CORRECT)
                         or categoryWitNew == result.CATEGORY_CORRECT
+                        or statusWitNew.startswith("witness invalid")
                     ):
                         statusWit, categoryWit = (statusWitNew, categoryWitNew)
         # Overwrite status with status from witness
