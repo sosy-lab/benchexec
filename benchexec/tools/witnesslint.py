@@ -27,14 +27,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         version_string = self._version_from_tool(executable)
         return version_string.partition("version")[2].strip().split(" ")[0]
 
-    def _code_matches_tool_output(self, tool_output, exit_code):
-        return tool_output[-1] == "Exit code: {}".format(exit_code)
-
     def determine_result(self, run):
-        if run.exit_code.value == 0:
-            if self._code_matches_tool_output(run.output, 0):
-                return result.RESULT_DONE
-        elif run.exit_code.value == 1:
-            if self._code_matches_tool_output(run.output, 1):
-                return result.RESULT_ERROR + " (invalid witness syntax)"
-        return "EXCEPTION"
+        exit_code = run.exit_code.value
+        if "witnesslint finished" not in run.output[-1] or exit_code == 7:
+            return "EXCEPTION"
+        elif exit_code == 0:
+            return result.RESULT_DONE
+        elif exit_code == 1:
+            return result.RESULT_ERROR + " (invalid witness syntax)"
+        elif exit_code == 5:
+            return result.RESULT_ERROR + " (witness does not exist)"
+        elif exit_code == 6:
+            return result.RESULT_ERROR + " (program does not exist)"
+        else:
+            return result.UNKNOWN
