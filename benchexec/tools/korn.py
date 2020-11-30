@@ -22,6 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "z3",
         "eld",
         "eld.jar",
+        "__VERIFIER.c",
     ]
 
     def executable(self, tool_locator):
