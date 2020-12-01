@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
