@@ -34,7 +34,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "ultimateautomizer": "UAutomizer-linux",
     }
     PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
-    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
+    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values()) + ["VERSION.txt"]
 
     def __init__(self):
         self.lock = threading.Lock()
