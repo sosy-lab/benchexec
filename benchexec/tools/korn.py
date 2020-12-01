@@ -23,6 +23,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "eld",
         "eld.jar",
         "__VERIFIER.c",
+        "__VERIFIER_random.c",
     ]
 
     def executable(self, tool_locator):
@@ -36,16 +37,30 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         """
-        This is literally the output from the underlying CHC solver
+        Parse structured tool output
         """
 
         for line in run.output:
-            line = line.strip()
-            if line == "unsat":
-                return result.RESULT_FALSE_PROP
-            elif line == "sat":
-                return result.RESULT_TRUE_PROP
-            elif "error" in line:
-                return "ERROR"
+            if "status:" in line:
+                parts = line.split(":")
+                if len(parts) > 1:
+                    status = parts[1]
+                    status = status.strip()
+
+                    if status == "incorrect":
+                        return result.RESULT_FALSE_PROP
+                    elif status == "correct":
+                        return result.RESULT_TRUE_PROP
+
+            if "error:" in line:
+                return result.RESULT_ERROR
 
         return result.RESULT_UNKNOWN
+
+    def get_value_from_output(self, output, identifier):
+        for line in reversed(output):
+            if line.startswith(identifier):
+                value = line[len(identifier) :]
+                value = value.strip()
+                return value
+        return None
