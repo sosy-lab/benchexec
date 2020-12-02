@@ -7,8 +7,8 @@
 
 import argparse
 import benchexec.tools.template
+import os
 import re
-import pathlib
 import threading
 
 from benchexec.tools.template import BaseTool2
@@ -144,7 +144,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
     def _resource(self, executable, relpath):
-        return pathlib.Path(executable).parent / relpath
+        return os.path.join(os.path.dirname(executable), relpath)
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
