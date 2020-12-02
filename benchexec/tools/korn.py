@@ -48,7 +48,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     status = status.strip()
 
                     if status == "incorrect":
-                        return result.RESULT_FALSE_PROP
+                        return result.RESULT_FALSE_REACH
                     elif status == "correct":
                         return result.RESULT_TRUE_PROP
 
