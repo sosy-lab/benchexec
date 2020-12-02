@@ -7,10 +7,12 @@
 
 import argparse
 import benchexec.tools.template
+import os
 import re
 import threading
 
 from benchexec.tools.template import BaseTool2
+from benchexec.tools.template import UnsupportedFeatureException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -34,7 +36,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         "ultimateautomizer": "UAutomizer-linux",
     }
     PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
-    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values()) + ["VERSION.txt"]
+    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values()) + [
+        "VERSION.txt",
+        "metaval.py",
+        "metaval.sh",
+    ]
 
     def __init__(self):
         self.lock = threading.Lock()
@@ -44,13 +50,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return toolLocator.find_executable("metaval.sh")
 
     def name(self):
-        return "metaval"
+        return "MetaVal"
 
     def determine_result(self, run):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")
         for line in run.output[:20]:
-            match = regex.match(line)
+            match = regex.search(line)
             if match is not None:
                 verifierDir = match.group(1)
                 break
@@ -69,6 +75,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool.determine_result(run)
 
     def cmdline(self, executable, options, task, rlimits):
+        if not task.property_file:
+            raise UnsupportedFeatureException(
+                "Execution without property file is not supported by %s!" % self.name()
+            )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
         parser.add_argument("--metavalVerifierBackend", required=True)
@@ -98,10 +108,14 @@ class Tool(benchexec.tools.template.BaseTool2):
             tool, BaseTool2
         ), "we expect that all wrapped tools extend BaseTool2"
         wrapped_executable = tool.executable(
-            BaseTool2.ToolLocator(tool_directory=self.TOOL_TO_PATH_MAP[verifierName])
+            BaseTool2.ToolLocator(
+                tool_directory=self._resource(
+                    executable, self.TOOL_TO_PATH_MAP[verifierName]
+                )
+            )
         )
         wrappedtask = BaseTool2.Task(
-            input_files=["output/ARG.c"],
+            input_files=[self._resource(executable, "output/ARG.c")],
             identifier=task.identifier,
             property_file=task.property_file,
             options=task.options,
@@ -128,6 +142,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             + ["--"]
             + wrappedOptions
         )
+
+    def _resource(self, executable, relpath):
+        return os.path.join(os.path.dirname(executable), relpath)
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
