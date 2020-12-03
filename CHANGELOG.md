@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.5
+
+- One tool-info module improved.
+
 ## BenchExec 3.4
 
 - BenchExec is now available in a PPA for easy installation on Ubuntu.
