@@ -33,6 +33,12 @@ if [ ! -z "$(git status -uno -s)" ]; then
   exit 1
 fi
 
+git remote update origin
+if [ ! -z "$(git rev-list HEAD..origin/master)" ]; then
+  echo "Local branch is not up-to-date, please rebase."
+  exit 1
+fi
+
 if [ -z "$DEBFULLNAME" ]; then
   echo "Please define environment variable DEBFULLNAME with your name you want to use for the Debian package."
   exit 1
