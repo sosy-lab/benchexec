@@ -64,14 +64,12 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
-        if not values:
-            return None
         if any(v is not None and v.is_nan() for v in values):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)
         if not values:
-            return StatValue(Decimal(0))
+            return None
 
         values_len = len(values)
         min_value = values[0]
