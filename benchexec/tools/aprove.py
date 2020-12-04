@@ -42,9 +42,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 )
                 (stdout, stderr) = process.communicate()
             except OSError as e:
-                logging.warning(
-                    "Unable to determine AProVE version: {0}".format(e.strerror)
-                )
+                logging.warning("Unable to determine AProVE version: %s", e.strerror)
                 return ""
 
             version_aprove_match = re.search(
@@ -54,9 +52,8 @@ class Tool(benchexec.tools.template.BaseTool):
             )
             if not version_aprove_match:
                 logging.warning(
-                    "Unable to determine AProVE version: {0}".format(
-                        util.decode_to_string(stdout)
-                    )
+                    "Unable to determine AProVE version: %s",
+                    util.decode_to_string(stdout),
                 )
                 return ""
             return version_aprove_match.group(1)[:10]

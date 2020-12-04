@@ -15,7 +15,13 @@ class Tool(benchexec.tools.template.BaseTool):
     Tool info for JayHorn (https://github.com/jayhorn/jayhorn).
     """
 
-    REQUIRED_PATHS = ["jayhorn.jar", "jayhorn", "libz3.so", "libz3java.so"]
+    REQUIRED_PATHS = [
+        "jayhorn.jar",
+        "EnumEliminator-assembly-0.1.jar",
+        "jayhorn",
+        "libz3.so",
+        "libz3java.so",
+    ]
 
     def executable(self):
         return util.find_executable("jayhorn")

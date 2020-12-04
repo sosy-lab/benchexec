@@ -74,15 +74,15 @@
   },
   "devDependencies": {
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.2",
-    "eslint-config-prettier": "^6.11.0",
+    "enzyme-adapter-react-16": "^1.15.5",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "imports-loader": "^1.1.0",
+    "imports-loader": "^1.2.0",
     "license-checker": "^25.0.1",
     "node-sass": "^4.14.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.2.1",
     "react-app-rewired": "^2.1.6",
     "react-scripts": "3.4.1",
-    "react-test-renderer": "^16.13.1"
+    "react-test-renderer": "^16.14.0"
   }
 }

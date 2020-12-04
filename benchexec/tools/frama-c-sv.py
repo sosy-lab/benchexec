@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.template
+from collections.abc import Mapping
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -31,6 +32,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         cmd = [executable, "--program"] + list(task.input_files)
         if task.property_file:
             cmd += ["--property", task.property_file]
+        if isinstance(task.options, Mapping) and "data_model" in task.options:
+            cmd += ["--datamodel", task.options["data_model"]]
         return cmd
 
     def determine_result(self, run):

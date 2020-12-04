@@ -43,6 +43,7 @@ def write_html_table(
     tools = _prepare_run_sets_for_js(run_sets)
     href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
     rows_js = _prepare_rows_for_js(rows, output_path, href_base, relevant_id_columns)
+    initial_state = options.initial_table_state
 
     def write_tags(tag_name, contents):
         for content in contents:
@@ -114,6 +115,7 @@ const data = {
     write_json_part("head", benchmark_setup)
     write_json_part("tools", tools)
     write_json_part("rows", rows_js)
+    write_json_part("initial", initial_state)
     write_json_part("stats", stats, last=True)
     out.write(
         """};

@@ -75,7 +75,7 @@ RESULT_CLASS_OTHER = "other"
 # Score values taken from http://sv-comp.sosy-lab.org/
 # (use values 0 to disable scores completely for a given property).
 _SCORE_CORRECT_TRUE = 2
-_SCORE_CORRECT_UNCONFIRMED_TRUE = 1
+_SCORE_CORRECT_UNCONFIRMED_TRUE = 0
 _SCORE_CORRECT_FALSE = 1
 _SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0

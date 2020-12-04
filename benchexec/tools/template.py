@@ -146,23 +146,21 @@ class BaseTool2(object, metaclass=ABCMeta):
             (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
-                "Cannot run {0} to determine version: {1}".format(
-                    executable, e.strerror
-                )
+                "Cannot run %s to determine version: %s", executable, e.strerror
             )
             return ""
         if stderr and not use_stderr and not ignore_stderr:
             logging.warning(
-                "Cannot determine {0} version, error output: {1}".format(
-                    executable, util.decode_to_string(stderr)
-                )
+                "Cannot determine %s version, error output: %s",
+                executable,
+                util.decode_to_string(stderr),
             )
             return ""
         if process.returncode:
             logging.warning(
-                "Cannot determine {0} version, exit code {1}".format(
-                    executable, process.returncode
-                )
+                "Cannot determine %s version, exit code %s",
+                executable,
+                process.returncode,
             )
             return ""
 

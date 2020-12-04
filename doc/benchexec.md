@@ -93,7 +93,7 @@ and the respective file is given to the tool as input file.
 
 Inside a `<tasks>` tag there can also exist `<includesfile>` tags,
 which contain a file-name pattern that points to so-called "set" files.
-This set files are expected to contain a file-name pattern on each line,
+These set files are expected to contain a file-name pattern on each line,
 and `benchexec` will treat these patterns as specified with `<include>`.
 
 The tags `<exclude>` and `<excludesfile>` can be used to exclude tasks
@@ -115,7 +115,7 @@ such as tasks with several input files
 or tasks where BenchExec should compare the produced tool output against an expected result.
 The files need to be in [YAML format](http://yaml.org/) (which is a superset of JSON)
 and their structure needs to adhere to the
-[task-definition format](https://gitlab.com/sosy-lab/software/task-definition-format)
+[task-definition format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format)
 (cf. also our [example file doc/task-definition-example.yml](task-definition-example.yml)).
 BenchExec supports versions 1.0 and 2.0 of the format.
 For creating task-definition files for existing tasks

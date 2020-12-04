@@ -23,6 +23,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "process_witness.py",
         "TestEnvGenerator.pl",
         "pycparser-master",
+        "pycparserext-master",
     ]
 
     def executable(self, tool_locator):

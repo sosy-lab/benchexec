@@ -15,6 +15,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     (https://github.com/sosy-lab/sv-witnesses)
     """
 
+    REQUIRED_PATHS = ["witnesslint"]
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("witnesslinter.py")
 
@@ -26,9 +28,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         return version_string.partition("version")[2].strip().split(" ")[0]
 
     def determine_result(self, run):
-        if run.exit_code.value == 0:
-            return result.RESULT_TRUE_PROP
-        elif run.exit_code.value == 1:
-            return result.RESULT_FALSE_PROP
+        exit_code = run.exit_code.value
+        if "witnesslint finished" not in run.output[-1] or exit_code == 7:
+            return "EXCEPTION"
+        elif exit_code == 0:
+            return result.RESULT_DONE
+        elif exit_code == 1:
+            return result.RESULT_ERROR + " (invalid witness syntax)"
+        elif exit_code == 5:
+            return result.RESULT_ERROR + " (witness does not exist)"
+        elif exit_code == 6:
+            return result.RESULT_ERROR + " (program does not exist)"
         else:
-            return result.RESULT_ERROR
+            return result.UNKNOWN

@@ -29,7 +29,13 @@ import {
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
-import { createHiddenColsFromURL } from "../utils/utils";
+import {
+  createHiddenColsFromURL,
+  makeUrlFilterDeserializer,
+  makeUrlFilterSerializer,
+  setConstantHashSearch,
+} from "../utils/utils";
+import deepEqual from "deep-equal";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -57,7 +63,12 @@ export default class Overview extends React.Component {
       columns,
       table,
       stats,
+      initial,
     } = prepareTableData(props.data);
+
+    if (initial && !document.location.href.includes("#")) {
+      setConstantHashSearch(initial);
+    }
 
     const filterable = getFilterableData(this.props.data);
     this.originalTable = table;
@@ -70,6 +81,8 @@ export default class Overview extends React.Component {
     this.tableHeader = tableHeader;
 
     this.filteredData = [];
+
+    this.routerRef = React.createRef();
 
     //data is handled and changed here; To use it in other components hand it over with component
     //To change data in component (e.g. filter): function to change has to be in overview
@@ -98,15 +111,70 @@ export default class Overview extends React.Component {
       (_tool, column) => column.type === "status",
       (runResult, _value) => runResult.category,
     );
+
+    const categoryValuesWithTrailingSpace = this.categoryValues.map(
+      (tool) =>
+        tool &&
+        tool.map((column) => column && column.map((item) => `${item} `)),
+    );
+
+    this.filterUrlSetter = makeUrlFilterSerializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    this.filterUrlRetriever = makeUrlFilterDeserializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    const deserializedFilters = this.getFiltersFromUrl();
+    if (deserializedFilters) {
+      this.filteredData = this.runFilter(deserializedFilters);
+      this.lastFiltered = deserializedFilters;
+      this.state = {
+        ...this.state,
+        table: this.filteredData,
+        filtered: deserializedFilters,
+      };
+    }
   }
 
   componentDidMount() {
-    window.addEventListener("popstate", this.updateHiddenCols, false);
+    this.removeHistoryListener = this.routerRef.current.history.listen(
+      (_, action) => {
+        this.updateHiddenCols();
+        if (action === "POP") {
+          this.updateFiltersFromUrl();
+        }
+      },
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateHiddenCols, false);
+    this.removeHistoryListener();
   }
+
+  getFiltersFromUrl = () => {
+    const deserializedFilters = this.filterUrlRetriever() || [];
+    if (!deepEqual(this.lastFiltered, deserializedFilters)) {
+      // we only want to kick off filtering when filters changed
+      return deserializedFilters;
+    }
+    return null;
+  };
+
+  updateFiltersFromUrl = () => {
+    const newFilters = this.getFiltersFromUrl();
+    if (newFilters) {
+      this.filteredData = this.runFilter(newFilters);
+      this.setState({
+        table: this.filteredData,
+        filtered: newFilters,
+      });
+      this.lastFiltered = newFilters;
+    }
+  };
 
   updateHiddenCols = () => {
     this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
@@ -133,7 +201,6 @@ export default class Overview extends React.Component {
 
   // -----------------------Filter-----------------------
   setFilter = (filteredData, raw = false) => {
-    console.log({ filteredData });
     if (raw) {
       this.filteredData = filteredData;
       return;
@@ -142,11 +209,26 @@ export default class Overview extends React.Component {
       return row._original;
     });
   };
+
+  runFilter(filter) {
+    const matcher = buildMatcher(filter);
+    return applyMatcher(matcher)(this.originalTable);
+  }
+
   filterPlotData = (filter, runFilterLogic = true) => {
-    console.log({ filter });
+    // updating url filters on next tick to ensure that state is already set
+    // when handler is called);
+    if (this.lastImmediate) {
+      clearImmediate(this.lastImmediate);
+    }
+    this.lastImmediate = setImmediate(() => {
+      this.filterUrlSetter(filter, { history: this.routerRef.current.history });
+      this.lastFiltered = filter.filter(
+        (item) => (item.values && item.values.length > 0) || item.value,
+      );
+    });
     if (runFilterLogic) {
-      const matcher = buildMatcher(filter);
-      this.setFilter(applyMatcher(matcher)(this.originalTable), true);
+      this.setFilter(this.runFilter(filter), true);
     }
     this.setState({
       table: this.filteredData,
@@ -200,10 +282,12 @@ export default class Overview extends React.Component {
     let urlParams = document.location.href.split("?")[1] || "";
     urlParams = urlParams
       .split("&")
-      .filter((param) => param.startsWith("hidden"))
+      .filter(
+        (param) => param.startsWith("hidden") || param.startsWith("filter"),
+      )
       .join("&");
     return (
-      <Router>
+      <Router ref={this.routerRef}>
         <div className="overview">
           <div className="overview-container">
             <FilterBox
@@ -285,7 +369,7 @@ export default class Overview extends React.Component {
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/scatter">
@@ -295,7 +379,7 @@ export default class Overview extends React.Component {
                     tools={this.state.tools}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/info">
@@ -315,6 +399,7 @@ export default class Overview extends React.Component {
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
                 hiddenCols={this.state.hiddenCols}
+                history={this.routerRef.current.history}
               />
             )}
             {this.state.showLinkOverlay && (

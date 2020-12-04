@@ -20,8 +20,13 @@ class App extends Component {
     return (
       <div className="App">
         <main>
-          <Overview data={window.data} onStatsReady={this.props.onStatsReady} />
-          {/* imports the component Overview with all subcomponents */}
+          <Overview
+            data={window.data}
+            renderPlotsFlexible={true}
+            onStatsReady={this.props.onStatsReady}
+          />
+          {/* imports the component Overview with all subcomponents.
+              The renderPlotsFlexible prop should always be true in development and production, but will be set to false in the tests to make them work.*/}
         </main>
       </div>
     );
