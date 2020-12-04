@@ -132,13 +132,6 @@ export const prepareRows = (
     const mappedCat = cat;
     const mappedRes = classifyResult(stat);
 
-    for (const colIdx in row.results[toolIdx].values) {
-      const { raw } = row.results[toolIdx].values[colIdx];
-      if (!isNaN(Number(raw))) {
-        formatter[toolIdx][colIdx].addDataItem(raw);
-      }
-    }
-
     return {
       categoryType: mappedCat,
       resultType: mappedRes,
@@ -211,6 +204,17 @@ export const processData = async ({ tools, table, formatter }) => {
   const allPromises = promises.map((p) => Promise.all(p));
   const res = await Promise.all(allPromises);
   console.log(`Calculation took ${Date.now() - start}ms`);
+
+  for (const tool in res) {
+    for (const col in res[tool]) {
+      for (const value of Object.values(res[tool][col])) {
+        const sum = value?.sum;
+        if (sum ?? false) {
+          formatter[tool][col].addDataItem(sum);
+        }
+      }
+    }
+  }
 
   for (const to in formatter) {
     for (const co in formatter[to]) {
