@@ -2597,8 +2597,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -2615,8 +2616,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -2633,8 +2635,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td"
@@ -2651,8 +2654,9 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td separator"
@@ -63564,8 +63568,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td separator"
@@ -63806,8 +63811,9 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"}
-        />
+        >
+         -
+        </div>
        </div>
        <div
         className="rt-td separator"
