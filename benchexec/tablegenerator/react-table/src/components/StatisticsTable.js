@@ -111,21 +111,25 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   // our stats template to steal from
 
   const selector = {
-    0: "total",
-    2: "correct-total",
-    3: "correct-true",
-    4: "correct-false",
-    5: "wrong-total",
-    6: "wrong-true",
-    7: "wrong-false",
+    total: "total",
+    "correct results": "correct-total",
+    "correct true": "correct-true",
+    "correct false": "correct-false",
+    "incorrect results": "wrong-total",
+    "incorrect true": "wrong-true",
+    "incorrect false": "wrong-false",
   };
   const templ = stats;
 
+  console.log({ templ });
+
   // we currently only handle the cases that are described in "selector"
   // for now, we want to skip all other cases and take them from the original stats
-  const transformed = templ.map((row, rowIdx) => {
+  const transformed = templ.map((row) => {
+    const title = row.title.replace(/&nbsp;/g, "");
     row.content = row.content.map((tool, toolIdx) => {
-      const key = selector[rowIdx];
+      const key = selector[title];
+      console.log({ tool });
       if (!key || !newStats[toolIdx]) {
         return tool;
       }
@@ -187,9 +191,10 @@ const updateStats = async ({
       pointer++;
       curr = toolColumns[pointer];
     }
-
     return out;
   });
+
+  console.log({ res, stats });
 
   transformStatsFromWorkers({ newStats: res, stats, setStats });
 
