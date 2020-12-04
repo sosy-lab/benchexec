@@ -22,6 +22,13 @@ export const buildFormatter = (tools) =>
     }),
   );
 
+const maybeRoundToTwoDigits = (key) => (number, { significantDigits }) => {
+  if ((significantDigits ?? false) || (key !== "avg" && key !== "stdev")) {
+    return number;
+  }
+  return Number(number).toFixed(2);
+};
+
 /**
  * Used to apply formatting to calculated stats and to remove
  * values that are not displayable
@@ -66,6 +73,7 @@ export const cleanupStats = (stats, formatter) => {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
+                    additionalFormatting: maybeRoundToTwoDigits(key),
                   });
                 }
               } catch (e) {
@@ -208,8 +216,8 @@ export const processData = async ({ tools, table, formatter }) => {
   for (const tool in res) {
     for (const col in res[tool]) {
       for (const value of Object.values(res[tool][col])) {
-        const sum = value?.sum;
-        if (sum ?? false) {
+        const sum = value?.sum ?? false;
+        if (sum) {
           formatter[tool][col].addDataItem(sum);
         }
       }

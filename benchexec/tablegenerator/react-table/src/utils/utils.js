@@ -664,6 +664,7 @@ class NumberFormatterBuilder {
     whitespaceFormat: false,
     html: false,
     leadingZero: true,
+    additionalFormatting: (x) => x,
   };
 
   addDataItem(item) {
@@ -784,14 +785,18 @@ class NumberFormatterBuilder {
 
   build() {
     return (number, options = {}) => {
-      if (isNil(this.significantDigits)) {
-        return number.toString();
-      }
-      const { whitespaceFormat, html, leadingZero } = {
+      const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
         ...options,
       };
-      const out = this.format(number);
+
+      const ctx = { significantDigits: this.significantDigits };
+      if (isNil(this.significantDigits)) {
+        return additionalFormatting(number.toString(), ctx);
+      }
+      let out = this.format(number);
+
+      out = additionalFormatting(out, ctx);
 
       if (out === "NaN") {
         // we don't want to pad NaN
