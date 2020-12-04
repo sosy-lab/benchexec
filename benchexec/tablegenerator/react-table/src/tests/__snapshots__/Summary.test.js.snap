@@ -2229,7 +2229,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"-2596607"}
-         title="avg: -2596607.00, max: 0, median: -2596607, min: -2596607, stdev: 0.00"
+         title="avg: -2596607.00, max: -2596607, median: -2596607, min: -2596607, stdev: 0.00"
         />
        </div>
        <div
@@ -2967,7 +2967,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
         <div
          className="cell"
          dangerouslySetInnerHTML={"-2596607"}
-         title="avg: -2596607.00, max: 0, median: -2596607, min: -2596607, stdev: 0.00"
+         title="avg: -2596607.00, max: -2596607, median: -2596607, min: -2596607, stdev: 0.00"
         />
        </div>
        <div
@@ -71068,7 +71068,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
         <div
          className="cell"
          dangerouslySetInnerHTML={"-2.5"}
-         title="avg: -2.5, max: 0, median: -2.5, min: -2.5, stdev: 0"
+         title="avg: -2.5, max: -2.5, median: -2.5, min: -2.5, stdev: 0"
         />
        </div>
       </div>

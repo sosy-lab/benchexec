@@ -82,7 +82,7 @@ onmessage = function (e) {
   const defaultObj = {
     sum: 0,
     avg: 0,
-    max: 0,
+    max: -Infinity,
     median: 0,
     min: Infinity,
     stdev: 0,

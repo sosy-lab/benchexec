@@ -121,15 +121,12 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   };
   const templ = stats;
 
-  console.log({ templ });
-
   // we currently only handle the cases that are described in "selector"
   // for now, we want to skip all other cases and take them from the original stats
   const transformed = templ.map((row) => {
     const title = row.title.replace(/&nbsp;/g, "");
     row.content = row.content.map((tool, toolIdx) => {
       const key = selector[title];
-      console.log({ tool });
       if (!key || !newStats[toolIdx]) {
         return tool;
       }
@@ -193,8 +190,6 @@ const updateStats = async ({
     }
     return out;
   });
-
-  console.log({ res, stats });
 
   transformStatsFromWorkers({ newStats: res, stats, setStats });
 
