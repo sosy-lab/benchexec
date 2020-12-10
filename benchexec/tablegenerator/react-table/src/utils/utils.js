@@ -812,9 +812,9 @@ class NumberFormatterBuilder {
         integer = integer || "";
         decimal = decimal || "";
         const decimalPoint = decimal ? "." : decSpace;
-        while (integer.length < this.maxPositiveDecimalPosition) {
+        /*         while (integer.length < this.maxPositiveDecimalPosition) {
           integer = ` ${integer}`;
-        }
+        } */
         while (decimal.length < this.maxNegativeDecimalPosition) {
           decimal += " ";
         }
