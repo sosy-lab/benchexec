@@ -76803,9 +76803,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.17
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.17"}
+       />
       </div>
       <div
        className="rt-td"
@@ -76820,9 +76820,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -76837,9 +76837,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        128030000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"128030000"}
+       />
       </div>
      </div>
     </div>
@@ -76926,9 +76926,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.19
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.19"}
+       />
       </div>
       <div
        className="rt-td"
@@ -76943,9 +76943,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -76960,9 +76960,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        129120000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"129120000"}
+       />
       </div>
      </div>
     </div>
@@ -77049,9 +77049,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.23
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.23"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77066,9 +77066,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77083,9 +77083,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        132340000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"132340000"}
+       />
       </div>
      </div>
     </div>
@@ -77167,9 +77167,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.27
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.27"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77184,9 +77184,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.3
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.3"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77201,9 +77201,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        129470000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"129470000"}
+       />
       </div>
      </div>
     </div>
@@ -77290,9 +77290,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.06
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.06"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77307,9 +77307,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.1
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.1"}
+       />
       </div>
       <div
        className="rt-td"
@@ -77324,9 +77324,9 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         }
        }
       >
-       <div>
-        126310000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"126310000"}
+       />
       </div>
      </div>
     </div>
@@ -78157,9 +78157,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2170
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2170"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78191,9 +78191,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78208,9 +78208,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2200000000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2200000000"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78242,9 +78242,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        128.03
-       </div>
+       <div
+        dangerouslySetInnerHTML={"128.03"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78348,9 +78348,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2190
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2190"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78382,9 +78382,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78399,9 +78399,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2200000000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2200000000"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78433,9 +78433,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        129.12
-       </div>
+       <div
+        dangerouslySetInnerHTML={"129.12"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78539,9 +78539,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2230
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2230"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78573,9 +78573,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.2
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.2"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78590,9 +78590,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2200000000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2200000000"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78624,9 +78624,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        132.34
-       </div>
+       <div
+        dangerouslySetInnerHTML={"132.34"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78725,9 +78725,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2270
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2270"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78759,9 +78759,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.3
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.3"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78776,9 +78776,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2300000000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2300000000"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78810,9 +78810,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        129.47
-       </div>
+       <div
+        dangerouslySetInnerHTML={"129.47"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78916,9 +78916,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2060
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2060"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78950,9 +78950,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2.1
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2.1"}
+       />
       </div>
       <div
        className="rt-td"
@@ -78967,9 +78967,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        2100000000
-       </div>
+       <div
+        dangerouslySetInnerHTML={"2100000000"}
+       />
       </div>
       <div
        className="rt-td"
@@ -79001,9 +79001,9 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         }
        }
       >
-       <div>
-        126.31
-       </div>
+       <div
+        dangerouslySetInnerHTML={"126.31"}
+       />
       </div>
       <div
        className="rt-td"
