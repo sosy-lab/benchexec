@@ -24,6 +24,7 @@ The documentation for BenchExec is available in the following files:
 - [Benchmarking guidelines](benchmarking.md) with advice for how to get reliable benchmarks
 - [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
+- [Tool integration](tool-integration.md) for developing tool-info modules
 
 More on the background of BenchExec can also be found in our paper
 [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf)
