@@ -95,8 +95,10 @@ const createColumnBuilder = ({ changeTab, hiddenCols }) => (
     if (column.type === "status") {
       // As the main aggregation for the status columns is count (vs sum)
       // we default to zero, if we don't have any results for the cell
-      if (isNil(cell.value)) {
+      if (cell.value === undefined) {
         valueToRender = 0;
+      } else if (cell.value === null) {
+        valueToRender = null;
       } else {
         valueToRender = Number.isInteger(Number(cell.value.sum))
           ? Number(cell.value.sum)
