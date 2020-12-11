@@ -22,11 +22,24 @@ export const buildFormatter = (tools) =>
     }),
   );
 
-const maybeRoundToTwoDigits = (key) => (number, { significantDigits }) => {
-  if ((significantDigits ?? false) || (key !== "avg" && key !== "stdev")) {
+const maybeRound = (key) => (number, { significantDigits }) => {
+  if (key !== "avg" && key !== "stdev") {
     return number;
   }
-  return Number(number).toFixed(2);
+  const numLength = Number(number).toString().length;
+  if (isNil(significantDigits) || numLength < significantDigits) {
+    const outString = number;
+    let fixedNum = isNil(significantDigits) ? 2 : significantDigits;
+    const decimalPos = outString.indexOf(".");
+    if (decimalPos > -1) {
+      // numbers to attach = significantDigits - integer.length
+      fixedNum = significantDigits - decimalPos;
+    } else {
+      fixedNum = significantDigits - outString.length;
+    }
+    return Number(outString).toFixed(fixedNum);
+  }
+  return number;
 };
 
 /**
@@ -73,7 +86,7 @@ export const cleanupStats = (stats, formatter) => {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
-                    additionalFormatting: maybeRoundToTwoDigits(key),
+                    additionalFormatting: maybeRound(key),
                   });
                 }
               } catch (e) {
