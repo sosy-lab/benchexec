@@ -90,21 +90,31 @@ const createColumnBuilder = ({ changeTab, hiddenCols }) => (
     column.type === "status" ? 6 : null,
   ),
   accessor: (row) => row.content[runSetIdx][columnIdx],
-  Cell: (cell) =>
-    !isNil(cell.value) ? (
+  Cell: (cell) => {
+    let valueToRender = cell.value?.sum;
+    if (column.type === "status") {
+      // As the main aggregation for the status columns is count (vs sum)
+      // we default to zero, if we don't have any results for the cell
+      if (isNil(cell.value)) {
+        valueToRender = 0;
+      } else {
+        valueToRender = Number.isInteger(Number(cell.value.sum))
+          ? Number(cell.value.sum)
+          : cell.value.sum;
+      }
+    }
+    return !isNil(valueToRender) ? (
       <div
         dangerouslySetInnerHTML={{
-          __html:
-            column.type === "status" && Number.isInteger(Number(cell.value.sum))
-              ? Number(cell.value.sum)
-              : cell.value.sum,
+          __html: valueToRender,
         }}
         className="cell"
         title={column.type !== "status" ? renderTooltip(cell.value) : undefined}
       ></div>
     ) : (
       <div className="cell">-</div>
-    ),
+    );
+  },
 });
 
 const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
