@@ -92,12 +92,19 @@ const createColumnBuilder = ({ changeTab, hiddenCols }) => (
   accessor: (row) => row.content[runSetIdx][columnIdx],
   Cell: (cell) => {
     let valueToRender = cell.value?.sum;
+    // We handle status differently as the main aggregation (denoted "sum")
+    // is of type "count" for this column type.
+    // This means that the default value if no data is available is 0
     if (column.type === "status") {
-      // As the main aggregation for the status columns is count (vs sum)
-      // we default to zero, if we don't have any results for the cell
       if (cell.value === undefined) {
+        // No data is available, default to 0
         valueToRender = 0;
       } else if (cell.value === null) {
+        // We receive a null value directly from the stats object of the dataset.
+        // Will be rendered as "-"
+        // This edge case only applies to the local summary as it contains static values
+        // that we can not calculate and therefore directly take them from the stats object.
+
         valueToRender = null;
       } else {
         valueToRender = Number.isInteger(Number(cell.value.sum))
