@@ -90,7 +90,7 @@ deploy-coverage:
   variables:
     PYTHON_VERSION: '3.9'
   before_script:
-    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
+    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy-coverage
   script:
     - python-codacy-coverage -r coverage.xml
   dependencies:

@@ -77,7 +77,7 @@ class Dependency extends React.Component {
   );
 }
 
-export default (props) => (
+const Info = (props) => (
   <div className="info">
     <div className="info-header">
       <h1>Info and Help</h1>
@@ -214,3 +214,4 @@ export default (props) => (
     </details>
   </div>
 );
+export default Info;
