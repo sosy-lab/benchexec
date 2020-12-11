@@ -380,7 +380,7 @@ def _format_number(
     assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
     if number == 0:
-        intended_digits = min(max_digits_after_decimal, initial_value_sig_digits)
+        intended_digits = min(number_of_significant_digits, initial_value_sig_digits)
         # Add as many trailing zeros as desired
         rounded_value = Decimal(0).scaleb(-intended_digits)
 

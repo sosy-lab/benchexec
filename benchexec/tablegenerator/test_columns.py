@@ -118,7 +118,7 @@ class ColumnsTest(unittest.TestCase):
         formatted_value = self.measure_column.format_value(
             "0.0000000", *self.default_optionals
         )
-        self.assertEqual(formatted_value, "0.000000")
+        self.assertEqual(formatted_value, "0.0000")
 
     def test_format_value_small_number(self):
         formatted_value = self.measure_column.format_value(
