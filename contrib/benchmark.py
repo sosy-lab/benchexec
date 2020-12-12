@@ -8,16 +8,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import glob
 import logging
 import os
-import subprocess
 import sys
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-cpachecker_dir = os.path.join(os.path.dirname(__file__), os.pardir)
-for egg in glob.glob(os.path.join(cpachecker_dir, "lib", "python-benchmark", "*.whl")):
-    sys.path.insert(0, egg)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from benchexec import __version__
 import benchexec.benchexec
@@ -25,7 +21,6 @@ import benchexec.model
 import benchexec.tooladapter
 import benchexec.tools
 import benchexec.util
-import benchmark.util
 
 # Add ./benchmark/tools to __path__ of benchexec.tools package
 # such that additional tool-wrapper modules can be placed in this directory.
@@ -146,50 +141,15 @@ class Benchmark(benchexec.benchexec.BenchExec):
         return parser
 
     def load_executor(self):
-        webclient = False
         if self.config.cloud:
-            if self.config.cloudMaster and "http" in self.config.cloudMaster:
-                webclient = True
-                import benchmark.webclient_executor as executor
-            else:
-                import benchmark.benchmarkclient_executor as executor
+            import vcloud.benchmarkclient_executor as executor
             logging.debug(
-                "This is CPAchecker's benchmark.py (based on benchexec %s) "
-                "using the VerifierCloud %s API.",
+                "This is vcloud-benchmark.py (based on benchexec %s) "
+                "using the VerifierCloud internal API.",
                 __version__,
-                "HTTP" if webclient else "internal",
             )
         else:
             executor = super(Benchmark, self).load_executor()
-
-        if not webclient:
-            original_load_function = benchexec.model.load_tool_info
-
-            def build_cpachecker_before_load(tool_name, *args, **kwargs):
-                if tool_name == "cpachecker":
-                    # This duplicates the logic from our tool-info module,
-                    # but we cannot call it here.
-                    # Note that base_dir can be different from cpachecker_dir!
-                    tool_locator = benchexec.tooladapter.create_tool_locator(
-                        self.config
-                    )
-                    script = tool_locator.find_executable("cpa.sh", subdir="scripts")
-                    base_dir = os.path.join(os.path.dirname(script), os.path.pardir)
-                    build_file = os.path.join(base_dir, "build.xml")
-                    if os.path.exists(build_file) and subprocess.call(
-                        ["ant", "-q", "jar"],
-                        cwd=base_dir,
-                        shell=benchmark.util.is_windows(),  # noqa: S602
-                    ):
-                        sys.exit(
-                            "Failed to build CPAchecker, please fix the build first."
-                        )
-
-                return original_load_function(tool_name, *args, **kwargs)
-
-            # Monkey-patch BenchExec to build CPAchecker before loading the tool-info
-            # module (https://gitlab.com/sosy-lab/software/cpachecker/issues/549)
-            benchexec.model.load_tool_info = build_cpachecker_before_load
 
         return executor
 
