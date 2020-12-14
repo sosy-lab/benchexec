@@ -13,19 +13,6 @@ class Tool(cseq.CSeqTool):
     Tool info for Lazy-CSeq (http://github.com/omainv/cseq/releases).
     """
 
-    REQUIRED_PATHS = [
-        "cbmc",
-        "cbmc-5.4",
-        "esbmc",
-        "core",
-        "cseq.py",
-        "lazy-cseq.py",
-        "pycparser",
-        "pycparserext",
-        "modules",
-        "backends",
-    ]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("lazy-cseq.py")
 

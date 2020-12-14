@@ -16,14 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for Tracer-X (https://www.comp.nus.edu.sg/~tracerx/).
     """
 
-    REQUIRED_PATHS = [
-        "bin",
-        "include",
-        "libraries",
-        "llvm-3.4.2",
-        "tracerx_build",
-    ]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("tracerx", subdir="bin")
 

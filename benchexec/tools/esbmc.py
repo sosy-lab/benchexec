@@ -16,8 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
     """
 
-    REQUIRED_PATHS = ["cpachecker", "esbmc", "esbmc-wrapper.py", "tokenizer"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("esbmc-wrapper.py")
 

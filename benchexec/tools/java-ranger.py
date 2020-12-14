@@ -16,16 +16,6 @@ class Tool(benchexec.tools.template.BaseTool):
     (https://github.com/vaibhavbsharma/java-ranger).
     """
 
-    REQUIRED_PATHS = [
-        "jpf-core/bin/jpf",
-        "jpf-core/build",
-        "jpf-core/jpf.properties",
-        "java-ranger/lib",
-        "java-ranger/build",
-        "java-ranger/jpf.properties",
-        "jr-sv-comp",
-    ]
-
     def executable(self):
         return util.find_executable("jr-sv-comp")
 
