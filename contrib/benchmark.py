@@ -14,10 +14,10 @@ import sys
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from vcloud.benchmarkbase import BenchmarkBase # noqa E402
-from benchexec import __version__ # noqa E402
-import benchexec.benchexec # noqa E402
-import benchexec.tools # noqa E402
+from vcloud.benchmarkbase import BenchmarkBase  # noqa E402
+from benchexec import __version__  # noqa E402
+import benchexec.benchexec  # noqa E402
+import benchexec.tools  # noqa E402
 
 # Add ./benchmark/tools to __path__ of benchexec.tools package
 # such that additional tool-wrapper modules can be placed in this directory.
@@ -34,6 +34,7 @@ class Benchmark(BenchmarkBase):
     def load_executor(self):
         if self.config.cloud:
             import vcloud.benchmarkclient_executor as executor
+
             logging.debug(
                 "This is vcloud-benchmark.py (based on benchexec %s) "
                 "using the VerifierCloud internal API.",

@@ -27,9 +27,7 @@ DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 STOPPED_BY_INTERRUPT = False
 
 # Assuming that benchmark.py is executed from the contrib folder.
-_ROOT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__))
-)
+_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 # Check if benchmark.py is executed from the contrib folder,
 # otherwise it is being used from the scripts folder in CPAchecker.
@@ -39,7 +37,7 @@ if not os.path.isfile(os.path.join(_ROOT_DIR, "build.xml")):
     )
 
 # Keeping the variable name as before but adding a noqa
-_justReprocessResults = False # noqa N816
+_justReprocessResults = False  # noqa N816
 
 
 def init(config, benchmark):
