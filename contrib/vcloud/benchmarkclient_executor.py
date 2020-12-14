@@ -6,9 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 import json
 import logging
 import os
@@ -19,6 +16,7 @@ import benchexec.tooladapter
 import benchexec.util
 from . import util as util
 
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
 
@@ -40,7 +38,8 @@ if not os.path.isfile(os.path.join(_ROOT_DIR, "build.xml")):
         os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
     )
 
-_justReprocessResults = False
+# Keeping the variable name as before but adding a noqa
+_justReprocessResults = False # noqa N816
 
 
 def init(config, benchmark):
