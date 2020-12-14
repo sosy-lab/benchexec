@@ -81,14 +81,15 @@ def execute_benchmark(benchmark, output_handler):
             }
         )
 
-        # install cloud and dependencies
-        ant = subprocess.Popen(
-            ["ant", "resolve-benchmark-dependencies"],
-            cwd=_ROOT_DIR,
-            shell=util.is_windows(),  # noqa: S602
-        )
-        ant.communicate()
-        ant.wait()
+        if not os.getenv("TAKE_LOCAL_VCLOUD_JAR"):
+            # install cloud and dependencies
+            ant = subprocess.Popen(
+                ["ant", "resolve-benchmark-dependencies"],
+                cwd=_ROOT_DIR,
+                shell=util.is_windows(),  # noqa: S602
+            )
+            ant.communicate()
+            ant.wait()
 
         # start cloud and wait for exit
         logging.debug("Starting cloud.")
