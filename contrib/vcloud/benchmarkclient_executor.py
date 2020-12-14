@@ -17,7 +17,7 @@ import subprocess
 
 import benchexec.tooladapter
 import benchexec.util
-import benchmark.util as util
+from . import util as util
 
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
@@ -28,9 +28,17 @@ DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
 STOPPED_BY_INTERRUPT = False
 
+# Assuming that benchmark.py is executed from the contrib folder.
 _ROOT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
+    os.path.join(os.path.dirname(__file__))
 )
+
+# Check if benchmark.py is executed from the contrib folder,
+# otherwise it is being used from the scripts folder in CPAchecker.
+if not os.path.isfile(os.path.join(_ROOT_DIR, "build.xml")):
+    _ROOT_DIR = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
+    )
 
 _justReprocessResults = False
 
