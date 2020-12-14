@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            version="2.0"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="org.sosy_lab" module="Benchmarking"/>
+    <configurations>
+        <conf name="runtime" />
+        <!-- Dependencies needed for benchmarking. -->
+        <conf name="benchmark" />
+    </configurations>
+
+    <dependencies>
+        <!-- When adding/changing/removing a runtime dependency, make sure to also update java-runtime-licenses.txt! -->
+        <!-- VerifierCloud -->
+        <dependency org="org.sosy_lab" name="vcloud" rev="${verifiercloud.version}" conf="benchmark->runtime"/>
+
+    </dependencies>
+</ivy-module>

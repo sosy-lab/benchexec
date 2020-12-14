@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+This file is part of SoSy-Lab Java-Project Template,
+a collection of common files and build definitions for Java projects:
+https://gitlab.com/sosy-lab/software/java-project-template
+
+SPDX-FileCopyrightText: 2018-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE ivysettings> <!-- generic AcceptAllDTD to make the Eclipse Warning go away -->
+<ivysettings>
+    <!-- DO NOT EDIT LOCALLY!
+         Keep this file synchronized with
+         https://gitlab.com/sosy-lab/software/java-project-template
+    -->
+    <settings defaultResolver="Sosy-Lab"/>
+    <property name="repo.dir" value="${basedir}/repository"/>
+    <resolvers>
+        <!-- Resolver for downloading dependencies -->
+        <url name="Sosy-Lab" descriptor="required">
+            <ivy pattern="${ivy.repo.url}/[organisation]/[module]/ivy-[revision].xml" />
+            <artifact pattern="${ivy.repo.url}/[organisation]/[module]/[artifact]-[revision](-[classifier]).[ext]" />
+        </url>
+
+        <!-- Resolver for publishing this project -->
+        <filesystem name="Sosy-Lab-Publish">
+            <ivy pattern="${repo.dir}/[organisation]/[module]/ivy-[revision].xml" />
+            <artifact pattern="${repo.dir}/[organisation]/[module]/[artifact]-[revision](-[classifier]).[ext]" />
+        </filesystem>
+    </resolvers>
+    <caches defaultCacheDir="${ivy.cache.dir}"/>
+</ivysettings>

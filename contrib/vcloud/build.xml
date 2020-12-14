@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+This file is part of CPAchecker,
+a tool for configurable software verification:
+https://cpachecker.sosy-lab.org
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!-- vim: set tabstop=8 shiftwidth=4 expandtab : -->
+<project name="Benchmarking" basedir="." default="build"
+         xmlns:unless="ant:unless"
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+    <!-- Include a file in which all properties can be overridden.
+         This file won't get checked in and can be used to change properties
+         locally for one machine if necessary. -->
+    <property file="build.properties"/>
+    <property environment="env"/>
+
+    <!-- These properties can be overridden from including file. -->
+    <property name="ivy.target_version" value="2.5.0"/> <!-- Change version number here to use a newer version of Ivy. -->
+    <!-- <property name="ivy.disable" value=""/> --> <!-- Disable ivy completely. -->
+    <property name="ivy.repo.url" value="https://www.sosy-lab.org/ivy"/>
+    <property name="ivy.lib.dir" value="lib/java"/>
+    <property name="ivy.configurations" value="build, runtime, test, spotbugs"/> 
+    <property name="ivy.dep.file" value="lib/ivy.xml"/>
+    <property name="ivy.settings.file" value="lib/ivysettings.xml"/>
+
+    <property name="ivy.jar.dir" value="${ivy.lib.dir}/build"/>
+    <property name="ivy.jar.file" value="ivy.jar"/>
+    <available file="${ivy.jar.dir}/${ivy.jar.file}" property="ivy.jar.present"/>
+    <available file="${ivy.lib.dir}-contrib" property="ivy.contrib.present"/>
+
+    <property environment="env"/>
+    <!-- Use $HOME with fallback of ${user.home} for home directory to avoid use of hardcoded home directory path in Java. -->
+    <condition property="home.dir" value="${env.HOME}" else="${user.home}">
+        <isset property="env.HOME"/>
+    </condition>
+    <condition property="tmp.ivy.cache.dir" value="${env.IVY_CACHE_DIR}" else="${home.dir}/.ivy2/cache">
+        <isset property="env.IVY_CACHE_DIR" />
+    </condition>
+    <property name="ivy.cache.dir" location="${tmp.ivy.cache.dir}" />
+    <property name="verifiercloud.version" value="0.+"/> <!-- Version of VerifierCloud to use ("+" is wildcard). -->
+    <property name="verifiercloud.refresh" value="true"/> <!-- Lookup newest version of VerifierCloud on server each time. -->
+
+    <!-- If necessary, download Ivy from web site so that it does not need to be installed. -->
+    <target name="bootstrap-ivy" unless="ivy.jar.present">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <echo message="Downloading ivy..."/>
+        <get src="${ivy.repo.url}/org.apache.ivy/ivy/ivy-${ivy.target_version}.jar" dest="${ivy.jar.dir}/${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <!-- Load the Ivy plugin for Ant so the Ivy tasks are available. -->
+    <target name="load-ivy" depends="bootstrap-ivy">
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="${ivy.jar.file}"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+        <ivy:settings file="${ivy.settings.file}"/>
+    </target>
+
+    <!-- Main targets -->
+    <target name="resolve-benchmark-dependencies" depends="load-ivy" description="Retrieve dependencies for benchmark configuration" unless="ivy.disable">
+        <condition property="ivy.useCacheOnly" value="true" else="false"><not><istrue value="${verifiercloud.refresh}"/></not></condition>
+        <ivy:resolve conf="benchmark" log="download-only" resolveMode="dynamic" useCacheOnly="${ivy.useCacheOnly}" refresh="${verifiercloud.refresh}"/>
+        <ivy:retrieve sync="true" pattern="${ivy.lib.dir}-benchmark/[artifact](-[classifier]).[ext]"/>
+    </target>
+</project>
