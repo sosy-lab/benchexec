@@ -14,8 +14,8 @@ import benchexec.util
 
 class BenchmarkBase(benchexec.benchexec.BenchExec):
     """
-    An extension of BenchExec (also to use with CPAchecker)
-    that supports executing the benchmarks in the VerifierCloud.
+    An extension of BenchExec that supports executing the benchmarks in the
+    VerifierCloud (internal project at https://gitlab.com/sosy-lab/software/verifiercloud/).
     """
 
     DEFAULT_OUTPUT_PATH = "test/results/"
@@ -24,28 +24,28 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
         parser = super(BenchmarkBase, self).create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
         vcloud_args.add_argument(
-            "--cloud",
+            "--vcloud",
             dest="cloud",
             action="store_true",
             help="Use VerifierCloud to execute benchmarks.",
         )
 
         vcloud_args.add_argument(
-            "--cloudMaster",
+            "--vcloudMaster",
             dest="cloudMaster",
             metavar="HOST",
             help="Sets the master host of the VerifierCloud instance to be used. If this is a HTTP URL, the web interface is used.",
         )
 
         vcloud_args.add_argument(
-            "--cloudPriority",
+            "--vcloudPriority",
             dest="cloudPriority",
             metavar="PRIORITY",
             help="Sets the priority for this benchmark used in the VerifierCloud. Possible values are IDLE, LOW, HIGH, URGENT.",
         )
 
         vcloud_args.add_argument(
-            "--cloudCPUModel",
+            "--vcloudCPUModel",
             dest="cpu_model",
             type=str,
             default=None,
@@ -54,7 +54,7 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--cloudUser",
+            "--vcloudUser",
             dest="cloudUser",
             metavar="USER[:PWD]",
             help="The user (and password) for the VerifierCloud (if using the web interface).",
@@ -76,7 +76,7 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--cloudClientHeap",
+            "--vcloudClientHeap",
             dest="cloudClientHeap",
             metavar="MB",
             default=100,
@@ -85,7 +85,7 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--cloudSubmissionThreads",
+            "--vcloudSubmissionThreads",
             dest="cloud_threads",
             default=5,
             type=int,
@@ -93,7 +93,7 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--cloudPollInterval",
+            "--vcloudPollInterval",
             dest="cloud_poll_interval",
             metavar="SECONDS",
             default=5,
@@ -113,7 +113,7 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
             help="Allows the usage of cgroups inside the execution environment. This is useful e.g. if a tool wants to make use of resource limits for subprocesses it spawns.",
         )
         vcloud_args.add_argument(
-            "--cloudAdditionalFiles",
+            "--vcloudAdditionalFiles",
             dest="additional_files",
             metavar="FILE_OR_PATH",
             nargs="*",
