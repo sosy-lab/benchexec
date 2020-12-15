@@ -11,6 +11,7 @@ import logging
 import os
 import shutil
 import subprocess
+import urllib.request
 
 import benchexec.tooladapter
 import benchexec.util
@@ -29,6 +30,7 @@ STOPPED_BY_INTERRUPT = False
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 _JustReprocessResults = False
+IVY_JAR_NAME = "ivy-2.5.0.jar"
 
 
 def init(config, benchmark):
@@ -47,6 +49,31 @@ def init(config, benchmark):
 
 def get_system_info():
     return None
+
+
+def download_required_jars():
+    # download ivy if needed
+    ivy_path = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
+    ivy_download_url = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
+    if not os.path.isfile(ivy_path):
+        # let the process exit if an exception occurs.
+        urllib.request.urlretrieve(ivy_download_url, ivy_path)  # noqa S310
+
+    # prepare command
+    cmd = ["java", "-Divy.default.resolver=Sosy-Lab", "-jar", "lib/" + IVY_JAR_NAME]
+    cmd += ["-settings", "lib/ivysettings.xml"]
+    cmd += ["-dependency", "org.sosy_lab", "vcloud", "0.+"]
+    cmd += ["-confs", "runtime", "-mode", "dynamic", "-refresh"]
+    cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
+
+    # install cloud and dependencies
+    ant = subprocess.Popen(
+        cmd,
+        cwd=_ROOT_DIR,
+        shell=vcloudutil.is_windows(),  # noqa: S602
+    )
+    ant.communicate()
+    ant.wait()
 
 
 def execute_benchmark(benchmark, output_handler):
@@ -70,15 +97,7 @@ def execute_benchmark(benchmark, output_handler):
             }
         )
 
-        if not os.getenv("TAKE_LOCAL_VCLOUD_JAR"):
-            # install cloud and dependencies
-            ant = subprocess.Popen(
-                ["ant", "resolve-benchmark-dependencies"],
-                cwd=_ROOT_DIR,
-                shell=vcloudutil.is_windows(),  # noqa: S602
-            )
-            ant.communicate()
-            ant.wait()
+        download_required_jars()
 
         # start cloud and wait for exit
         logging.debug("Starting cloud.")
@@ -88,7 +107,7 @@ def execute_benchmark(benchmark, output_handler):
             logLevel = "INFO"
         # heuristic for heap size: 100 MB and 100 kB per run
         heapSize = benchmark.config.cloudClientHeap + numberOfRuns // 10
-        lib = os.path.join(_ROOT_DIR, "lib", "java-benchmark", "vcloud.jar")
+        lib = os.path.join(_ROOT_DIR, "lib", "vcloud-jars", "vcloud.jar")
         cmdLine = [
             "java",
             "-Xmx" + str(heapSize) + "m",
@@ -349,7 +368,8 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             if os.path.exists(run.log_file + ".stdError"):
                 runsProducedErrorOutput = True
 
-            # The directory structure differs between direct and webclient mode when using VCloud.
+            # Execution using this executor produces a different directory name than what
+            # BenchExec expects.
             # Move all output files from "sibling of log-file" to "sibling of parent directory".
             rawPath = run.log_file[: -len(".log")]
             dirname, filename = os.path.split(rawPath)
