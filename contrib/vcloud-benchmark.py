@@ -25,6 +25,8 @@ class Benchmark(BenchmarkBase):
     Benchmark class that defines the load_executor function.
     """
 
+    DEFAULT_OUTPUT_PATH = "results/"
+
     def load_executor(self):
         import vcloud.benchmarkclient_executor as executor
 

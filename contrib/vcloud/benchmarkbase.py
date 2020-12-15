@@ -18,8 +18,6 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
     VerifierCloud (internal project at https://gitlab.com/sosy-lab/software/verifiercloud/).
     """
 
-    DEFAULT_OUTPUT_PATH = "test/results/"
-
     def create_argument_parser(self):
         parser = super(BenchmarkBase, self).create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
