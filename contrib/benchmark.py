@@ -19,12 +19,6 @@ from benchexec import __version__  # noqa E402
 import benchexec.benchexec  # noqa E402
 import benchexec.tools  # noqa E402
 
-# Add ./benchmark/tools to __path__ of benchexec.tools package
-# such that additional tool-wrapper modules can be placed in this directory.
-benchexec.tools.__path__ = [
-    os.path.join(os.path.dirname(__file__), "benchmark", "tools")
-] + benchexec.tools.__path__
-
 
 class Benchmark(BenchmarkBase):
     """
@@ -32,16 +26,13 @@ class Benchmark(BenchmarkBase):
     """
 
     def load_executor(self):
-        if self.config.cloud:
-            import vcloud.benchmarkclient_executor as executor
+        import vcloud.benchmarkclient_executor as executor
 
-            logging.debug(
-                "This is vcloud-benchmark.py (based on benchexec %s) "
-                "using the VerifierCloud internal API.",
-                __version__,
-            )
-        else:
-            executor = super(Benchmark, self).load_executor()
+        logging.debug(
+            "This is vcloud-benchmark.py (based on benchexec %s) "
+            "using the VerifierCloud internal API.",
+            __version__,
+        )
 
         return executor
 
