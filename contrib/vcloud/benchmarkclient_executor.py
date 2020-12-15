@@ -14,7 +14,7 @@ import subprocess
 
 import benchexec.tooladapter
 import benchexec.util
-from . import util as util
+from . import vcloud_util as vcloudutil
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -84,7 +84,7 @@ def execute_benchmark(benchmark, output_handler):
             ant = subprocess.Popen(
                 ["ant", "resolve-benchmark-dependencies"],
                 cwd=_ROOT_DIR,
-                shell=util.is_windows(),  # noqa: S602
+                shell=vcloudutil.is_windows(),  # noqa: S602
             )
             ant.communicate()
             ant.wait()
@@ -127,7 +127,7 @@ def execute_benchmark(benchmark, output_handler):
         start_time = benchexec.util.read_local_time()
 
         cloud = subprocess.Popen(
-            cmdLine, stdin=subprocess.PIPE, shell=util.is_windows()  # noqa: S602
+            cmdLine, stdin=subprocess.PIPE, shell=vcloudutil.is_windows()  # noqa: S602
         )
         try:
             cloud.communicate(cloudInput.encode("utf-8"))
@@ -246,7 +246,7 @@ def getBenchmarkDataForCloud(benchmark):
         # get runs
         for run in runSet.runs:
             cmdline = run.cmdline()
-            cmdline = list(map(util.force_linux_path, cmdline))
+            cmdline = list(map(vcloudutil.force_linux_path, cmdline))
 
             # we assume, that VCloud-client only splits its input at tabs,
             # so we can use all other chars for the info, that is needed to run the tool.
@@ -399,7 +399,7 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
                 osName = file.readline().split("=")[-1].strip()
                 memory = file.readline().split("=")[-1].strip()
                 cpuName = file.readline().split("=")[-1].strip()
-                frequency = util.parse_frequency_value(file.readline().split("=")[-1])
+                frequency = vcloudutil.parse_frequency_value(file.readline().split("=")[-1])
                 cores = file.readline().split("=")[-1].strip()
                 turboBoostSupported = False
                 turboBoostEnabled = False
@@ -440,7 +440,7 @@ def parseCloudRunResultFile(filePath):
                 key, value = line.split("=", 1)
                 yield key, value
 
-    return util.parse_vcloud_run_result(read_items())
+    return vcloudutil.parse_vcloud_run_result(read_items())
 
 
 def bytes_to_mb(mb):
