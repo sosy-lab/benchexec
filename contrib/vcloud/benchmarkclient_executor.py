@@ -26,23 +26,14 @@ DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
 STOPPED_BY_INTERRUPT = False
 
-# Assuming that benchmark.py is executed from the contrib folder.
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
-# Check if benchmark.py is executed from the contrib folder,
-# otherwise it is being used from the scripts folder in CPAchecker.
-if not os.path.isfile(os.path.join(_ROOT_DIR, "build.xml")):
-    _ROOT_DIR = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
-    )
-
-# Keeping the variable name as before but adding a noqa
-_justReprocessResults = False  # noqa N816
+_JustReprocessResults = False
 
 
 def init(config, benchmark):
-    global _justReprocessResults
-    _justReprocessResults = config.reprocessResults
+    global _JustReprocessResults
+    _JustReprocessResults = config.reprocessResults
     tool_locator = benchexec.tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
@@ -59,7 +50,7 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    if not _justReprocessResults:
+    if not _JustReprocessResults:
         # build input for cloud
         (cloudInput, numberOfRuns) = getCloudInput(benchmark)
         if benchmark.config.debug:
@@ -399,7 +390,9 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
                 osName = file.readline().split("=")[-1].strip()
                 memory = file.readline().split("=")[-1].strip()
                 cpuName = file.readline().split("=")[-1].strip()
-                frequency = vcloudutil.parse_frequency_value(file.readline().split("=")[-1])
+                frequency = vcloudutil.parse_frequency_value(
+                    file.readline().split("=")[-1]
+                )
                 cores = file.readline().split("=")[-1].strip()
                 turboBoostSupported = False
                 turboBoostEnabled = False
