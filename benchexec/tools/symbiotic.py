@@ -17,12 +17,6 @@ class Tool(OldSymbiotic):
     Symbiotic tool info object
     """
 
-    REQUIRED_PATHS_4_0_1 = ["bin", "include", "lib", "lib32", "llvm-3.8.1"]
-
-    REQUIRED_PATHS_5_0_0 = ["bin", "include", "lib", "lib32", "llvm-3.9.1"]
-
-    REQUIRED_PATHS_NEW = ["bin", "include", "properties", "lib", "llvm-*"]
-
     def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.
@@ -40,15 +34,7 @@ class Tool(OldSymbiotic):
         return executable
 
     def program_files(self, executable):
-        if self._version_newer_than("6.0.0"):
-            paths = self.REQUIRED_PATHS_NEW
-        elif self._version_newer_than("5.0.0"):
-            paths = self.REQUIRED_PATHS_5_0_0
-        elif self._version_newer_than("4.0.1"):
-            paths = self.REQUIRED_PATHS_4_0_1
-        else:
-            paths = OldSymbiotic.REQUIRED_PATHS
-
+        paths = self.REQUIRED_PATHS
         return [executable] + self._program_files_from_executable(
             executable, paths, parent_dir=True
         )

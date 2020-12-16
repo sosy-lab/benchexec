@@ -15,15 +15,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     Symbiotic tool info object
     """
 
-    REQUIRED_PATHS = [
-        "bin",
-        "include",
-        "share",
-        "instrumentations",
-        "lib",
-        "lib32",
-        "symbiotic",
-    ]
+    REQUIRED_PATHS = ["."]
 
     def executable(self, tool_locator):
         """

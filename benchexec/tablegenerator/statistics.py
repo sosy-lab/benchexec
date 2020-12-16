@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import decimal
 from decimal import Decimal, InvalidOperation
 import itertools
 
@@ -91,7 +92,9 @@ class StatValue(object):
             values_sum = sum(values)
             mean = values_sum / values_len
 
-            stdev = Decimal(0)
+            # The scaling is just to avoid having too few decimal digits when printing,
+            # the value is still just 0.
+            stdev = Decimal(0).scaleb(-decimal.getcontext().prec)
             for v in values:
                 diff = v - mean
                 stdev += diff * diff
