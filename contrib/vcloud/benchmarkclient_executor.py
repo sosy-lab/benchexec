@@ -30,7 +30,10 @@ STOPPED_BY_INTERRUPT = False
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 _JustReprocessResults = False
+
 IVY_JAR_NAME = "ivy-2.5.0.jar"
+IVY_PATH = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
+IVY_DOWNLOAD_URL = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
 
 
 def init(config, benchmark):
@@ -53,27 +56,23 @@ def get_system_info():
 
 def download_required_jars():
     # download ivy if needed
-    ivy_path = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
-    ivy_download_url = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
-    if not os.path.isfile(ivy_path):
+    if not os.path.isfile(IVY_PATH):
         # let the process exit if an exception occurs.
-        urllib.request.urlretrieve(ivy_download_url, ivy_path)  # noqa S310
+        urllib.request.urlretrieve(IVY_DOWNLOAD_URL, IVY_PATH)  # noqa S310
 
     # prepare command
-    cmd = ["java", "-Divy.default.resolver=Sosy-Lab", "-jar", "lib/" + IVY_JAR_NAME]
+    cmd = ["java", "-jar", "lib/" + IVY_JAR_NAME]
     cmd += ["-settings", "lib/ivysettings.xml"]
     cmd += ["-dependency", "org.sosy_lab", "vcloud", "0.+"]
     cmd += ["-confs", "runtime", "-mode", "dynamic", "-refresh"]
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
 
-    # install cloud and dependencies
-    ant = subprocess.Popen(
+    # install vcloud jar and dependencies
+    subprocess.run(
         cmd,
         cwd=_ROOT_DIR,
         shell=vcloudutil.is_windows(),  # noqa: S602
     )
-    ant.communicate()
-    ant.wait()
 
 
 def execute_benchmark(benchmark, output_handler):
