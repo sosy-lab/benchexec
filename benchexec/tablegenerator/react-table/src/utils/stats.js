@@ -27,10 +27,12 @@ const maybeRound = (key) => (number, { significantDigits }) => {
     return number;
   }
   const numLength = Number(number).toString().length;
+
   if (isNil(significantDigits) || numLength < significantDigits) {
     const outString = number;
+    const asNumber = Number(outString);
     if (isNil(significantDigits)) {
-      return Number(outString).toFixed(2);
+      return asNumber.toFixed(2);
     }
     let fixedNum = significantDigits;
     const decimalPos = outString.indexOf(".");
@@ -38,9 +40,13 @@ const maybeRound = (key) => (number, { significantDigits }) => {
       // numbers to attach = significantDigits - integer.length
       fixedNum = significantDigits - decimalPos;
     } else {
-      fixedNum = significantDigits - outString.length;
+      // if the integer part is 0, we want to ignore it
+
+      if (asNumber !== 0) {
+        fixedNum = significantDigits - outString.length;
+      }
     }
-    return Number(outString).toFixed(fixedNum);
+    return asNumber.toFixed(fixedNum);
   }
   return number;
 };
