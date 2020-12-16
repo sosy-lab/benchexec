@@ -58,7 +58,8 @@ class Tool(coveriteam.Tool):
                 # CoVeriTeam outputs benchexec result categories as verdicts.
                 try:
                     verdict = re.search(r"'verdict': '([a-zA-Z\(\)\ ]*)'", line).group(1).lower()
-                except:
+                except AttributeError:
+                    # re.search didn't find anything, so this is not a valid verdict line
                     pass
             if 'Traceback (most recent call last)' in line:
                 verdict = "EXCEPTION"
