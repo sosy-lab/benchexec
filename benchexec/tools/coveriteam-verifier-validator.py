@@ -52,15 +52,13 @@ class Tool(coveriteam.Tool):
         If more than one dict is printed, the first matching one.
         """
         verdict = None
+        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ ]*)'")
         for line in reversed(run.output):
             line = line.strip()
-            if "'verdict':" in line and verdict is None:
+            verdict_match = verdict_regex.search(line)
+            if verdict_match and verdict is None:
                 # CoVeriTeam outputs benchexec result categories as verdicts.
-                try:
-                    verdict = re.search(r"'verdict': '([a-zA-Z\(\)\ ]*)'", line).group(1).lower()
-                except AttributeError:
-                    # re.search didn't find anything, so this is not a valid verdict line
-                    pass
+                verdict = verdict_match.group(1).lower()
             if 'Traceback (most recent call last)' in line:
                 verdict = "EXCEPTION"
         if verdict is None:
