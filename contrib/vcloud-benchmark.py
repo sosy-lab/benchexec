@@ -14,18 +14,16 @@ import sys
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from vcloud.benchmarkbase import BenchmarkBase  # noqa E402
+from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
 from benchexec import __version__  # noqa E402
 import benchexec.benchexec  # noqa E402
 import benchexec.tools  # noqa E402
 
 
-class Benchmark(BenchmarkBase):
+class VcloudBenchmark(VcloudBenchmarkBase):
     """
     Benchmark class that defines the load_executor function.
     """
-
-    DEFAULT_OUTPUT_PATH = "results/"
 
     def load_executor(self):
         import vcloud.benchmarkclient_executor as executor
@@ -40,4 +38,4 @@ class Benchmark(BenchmarkBase):
 
 
 if __name__ == "__main__":
-    benchexec.benchexec.main(Benchmark())
+    benchexec.benchexec.main(VcloudBenchmark())

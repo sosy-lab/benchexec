@@ -12,14 +12,14 @@ import benchexec.tools
 import benchexec.util
 
 
-class BenchmarkBase(benchexec.benchexec.BenchExec):
+class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
     """
     An extension of BenchExec that supports executing the benchmarks in the
     VerifierCloud (internal project at https://gitlab.com/sosy-lab/software/verifiercloud/).
     """
 
     def create_argument_parser(self):
-        parser = super(BenchmarkBase, self).create_argument_parser()
+        parser = super(VcloudBenchmarkBase, self).create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
         vcloud_args.add_argument(
             "--vcloud",
@@ -123,4 +123,4 @@ class BenchmarkBase(benchexec.benchexec.BenchExec):
 
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:
-            super(BenchmarkBase, self).check_existing_results(benchmark)
+            super(VcloudBenchmarkBase, self).check_existing_results(benchmark)
