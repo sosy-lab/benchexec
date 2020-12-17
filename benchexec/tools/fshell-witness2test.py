@@ -18,14 +18,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     (https://github.com/diffblue/cprover-sv-comp/pull/14).
     """
 
-    REQUIRED_PATHS = [
-        "test-gen.sh",
-        "process_witness.py",
-        "TestEnvGenerator.pl",
-        "pycparser-master",
-        "pycparserext-master",
-    ]
-
     def executable(self, tool_locator):
         """
         Find the path to the executable file that will get executed.

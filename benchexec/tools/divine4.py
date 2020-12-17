@@ -19,7 +19,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     BINS = ["divine", "divine-svc"]
-    REQUIRED_PATHS = BINS + ["lib", "utils"]
     RESMAP = {
         "true": result.RESULT_TRUE_PROP,
         "false": result.RESULT_FALSE_REACH,

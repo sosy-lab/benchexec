@@ -16,8 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     https://github.com/brick-tool-dev/brick-tool
     """
 
-    REQUIRED_PATHS = ["bin", "lib"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("brick", subdir="bin")
 

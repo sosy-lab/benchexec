@@ -11,9 +11,6 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
-    REQUIRED_PATHS = ["pinaka-wrapper.sh", "pinaka"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("pinaka-wrapper.sh")
 
