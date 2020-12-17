@@ -54,7 +54,7 @@ def get_system_info():
     return None
 
 
-def download_required_jars():
+def download_required_jars(config):
     # download ivy if needed
     if not os.path.isfile(IVY_PATH):
         # let the process exit if an exception occurs.
@@ -65,6 +65,11 @@ def download_required_jars():
     cmd += ["-settings", "lib/ivysettings.xml"]
     cmd += ["-dependency", "org.sosy_lab", "vcloud", "0.+"]
     cmd += ["-confs", "runtime", "-mode", "dynamic", "-refresh"]
+    if not config.debug:
+        # In normal mode, -warn is good (no output by default, only if sth. is wrong).
+        # In debug mode, the default Ivy output seems fine (-verbose and -debug would
+        # be too verbose).
+        cmd += ["-warn"]
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
 
     # install vcloud jar and dependencies
@@ -96,7 +101,7 @@ def execute_benchmark(benchmark, output_handler):
             }
         )
 
-        download_required_jars()
+        download_required_jars(benchmark.config)
 
         # start cloud and wait for exit
         logging.debug("Starting cloud.")
