@@ -58,6 +58,7 @@ def parse_vcloud_run_result(values):
 
 
 def parse_frequency_value(s):
+    # Contrary to benchexec.util.parse_frequency_value, this handles float values.
     if not s:
         return s
     s = s.strip()
