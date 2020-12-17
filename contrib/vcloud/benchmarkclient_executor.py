@@ -15,7 +15,7 @@ import urllib.request
 
 import benchexec.tooladapter
 import benchexec.util
-from . import vcloud_util as vcloudutil
+from . import vcloudutil
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
