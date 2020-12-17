@@ -5,6 +5,42 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// COPY OF utils.js, as imports will not work here
+/**
+ * Function to safely add two numbers in a way that should mitigate errors
+ * caused by inaccurate floating point operations in javascript
+ * @param {Number|String} a - The base number
+ * @param {Number|String} b - The number to add
+ *
+ * @returns {Number} The result of the addition
+ */
+const safeAdd = (a, b) => {
+  let aNum = a;
+  let bNum = b;
+
+  if (typeof a === "string") {
+    aNum = Number(a);
+  }
+  if (typeof b === "string") {
+    bNum = Number(b);
+  }
+
+  if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
+    return aNum + bNum;
+  }
+
+  const aString = a.toString();
+  const aLength = aString.length;
+  const aDecimalPoint = aString.indexOf(".");
+  const bString = b.toString();
+  const bLength = bString.length;
+  const bDecimalPoint = bString.indexOf(".");
+
+  const length = Math.max(aLength - aDecimalPoint, bLength - bDecimalPoint) - 1;
+
+  return Number((aNum + bNum).toFixed(length));
+};
+
 /**
  * This function either adds two numbers or increments the number
  * passed in the first parameter if the type is "status".
@@ -17,7 +53,7 @@
  */
 const maybeAdd = (a, b, type) => {
   if (Number(b)) {
-    return a + Number(b);
+    return safeAdd(a, b);
   }
   if (type === "status") {
     return a + 1;

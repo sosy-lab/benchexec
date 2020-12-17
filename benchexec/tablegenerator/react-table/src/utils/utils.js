@@ -640,6 +640,41 @@ const getTaskIdParts = (rows, taskIdNames) =>
     {},
   );
 
+/**
+ * Function to safely add two numbers in a way that should mitigate errors
+ * caused by inaccurate floating point operations in javascript
+ * @param {Number|String} a - The base number
+ * @param {Number|String} b - The number to add
+ *
+ * @returns {Number} The result of the addition
+ */
+const safeAdd = (a, b) => {
+  let aNum = a;
+  let bNum = b;
+
+  if (typeof a === "string") {
+    aNum = Number(a);
+  }
+  if (typeof b === "string") {
+    bNum = Number(b);
+  }
+
+  if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
+    return aNum + bNum;
+  }
+
+  const aString = a.toString();
+  const aLength = aString.length;
+  const aDecimalPoint = aString.indexOf(".");
+  const bString = b.toString();
+  const bLength = bString.length;
+  const bDecimalPoint = bString.indexOf(".");
+
+  const length = Math.max(aLength - aDecimalPoint, bLength - bDecimalPoint) - 1;
+
+  return Number((aNum + bNum).toFixed(length));
+};
+
 const punctuationSpaceHtml = "&#x2008;";
 const characterSpaceHtml = "&#x2007;";
 
@@ -760,7 +795,7 @@ class NumberFormatterBuilder {
         }
 
         toAdd += overflow;
-        prefix = (Number(prefix) + Number(toAdd))
+        prefix = safeAdd(prefix, toAdd)
           .toFixed(decimalLength + 1)
           .substr(0, oldLength);
         while (prefix.length < oldLength) {
@@ -1015,4 +1050,5 @@ export {
   makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
+  safeAdd,
 };

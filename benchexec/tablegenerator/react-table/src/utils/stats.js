@@ -47,6 +47,8 @@ const maybeRound = (key) => (number, { significantDigits }) => {
     }
     return number;
   }
+  //console.log({ key, number, significantDigits });
+
   return number;
 };
 
