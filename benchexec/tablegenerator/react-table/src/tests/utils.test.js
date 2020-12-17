@@ -669,10 +669,10 @@ describe("NumberFormatterBuilder", () => {
     const number3 = "0.123";
     const number4 = "0.01337";
 
-    const expected1 = "  23      ";
-    const expected2 = "  23.1    ";
-    const expected3 = "   0.123  ";
-    const expected4 = "   0.01337";
+    const expected1 = "23      ";
+    const expected2 = "23.1    ";
+    const expected3 = "0.123  ";
+    const expected4 = "0.01337";
 
     const actual1 = formatter(number1, { whitespaceFormat: true });
     const actual2 = formatter(number2, { whitespaceFormat: true });
@@ -698,10 +698,10 @@ describe("NumberFormatterBuilder", () => {
     const number3 = "0.123";
     const number4 = "0.01337";
 
-    const expected1 = "  23&#x2008;     ".replace(/ /g, "&#x2007;");
-    const expected2 = "  23.1    ".replace(/ /g, "&#x2007;");
-    const expected3 = "   0.123  ".replace(/ /g, "&#x2007;");
-    const expected4 = "   0.01337".replace(/ /g, "&#x2007;");
+    const expected1 = "23&#x2008;     ".replace(/ /g, "&#x2007;");
+    const expected2 = "23.1    ".replace(/ /g, "&#x2007;");
+    const expected3 = "0.123  ".replace(/ /g, "&#x2007;");
+    const expected4 = "0.01337".replace(/ /g, "&#x2007;");
 
     const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
     const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
@@ -821,6 +821,52 @@ describe("NumberFormatterBuilder", () => {
     // we end up with the addition of 7.1 and 0.1
     // In JS 7.1 + 0.1 evaluates to 7.199999999999999, which caused an issue
     expect(actual).toBe("7.20");
+  });
+
+  describe("additionalFormatting function", () => {
+    test("Should correctly pass number of significant digits in context", async () => {
+      let resolve;
+
+      const promise = new Promise((res) => {
+        resolve = res;
+      });
+
+      const additionalFormatting = (_, context) => {
+        expect(context.significantDigits).toBe(9);
+        resolve();
+      };
+
+      const b = new NumberFormatterBuilder(9);
+      const formatter = b.build();
+
+      formatter(0, { additionalFormatting });
+
+      await promise;
+    });
+
+    test("Should correctly pass max length of decimals of input", async () => {
+      let resolve;
+
+      const promise = new Promise((res) => {
+        resolve = res;
+      });
+
+      const additionalFormatting = (_, context) => {
+        expect(context.maxDecimalInputLength).toBe(4);
+        resolve();
+      };
+
+      const b = new NumberFormatterBuilder(9);
+      b.addDataItem(1);
+      b.addDataItem(1.23);
+      b.addDataItem(1.2345);
+      b.addDataItem(1.234);
+      const formatter = b.build();
+
+      formatter(0, { additionalFormatting });
+
+      await promise;
+    });
   });
 });
 

@@ -790,7 +790,10 @@ class NumberFormatterBuilder {
         ...options,
       };
 
-      const ctx = { significantDigits: this.significantDigits };
+      const ctx = {
+        significantDigits: this.significantDigits,
+        maxDecimalInputLength: this.maxNegativeDecimalPosition,
+      };
       if (isNil(this.significantDigits)) {
         return additionalFormatting(number.toString(), ctx);
       }

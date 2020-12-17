@@ -22,33 +22,67 @@ export const buildFormatter = (tools) =>
     }),
   );
 
-const maybeRound = (key) => (number, { significantDigits }) => {
-  if (key !== "avg" && key !== "stdev") {
+const maybeRound = (key) => (
+  number,
+  { significantDigits, maxDecimalInputLength },
+) => {
+  // if the number is min, max or median, which represent actual values input by the user,
+  // we do not apply any additional formatting
+  if (["min", "max", "median"].includes(key)) {
     return number;
   }
-  const numLength = Number(number).toString().length;
 
-  if (isNil(significantDigits) || numLength < significantDigits) {
-    const outString = number;
-    const asNumber = Number(outString);
-    if (isNil(significantDigits)) {
-      return asNumber.toFixed(2);
-    }
-    let fixedNum = significantDigits;
-    const decimalPos = outString.indexOf(".");
-    if (decimalPos > -1) {
-      // numbers to attach = significantDigits - integer.length
-      fixedNum = significantDigits - decimalPos;
-    } else {
-      // if the integer part is 0, we want to ignore it
+  const asNumber = Number(number);
 
-      if (asNumber !== 0) {
-        fixedNum = significantDigits - outString.length;
-      }
+  // if we have a leading 0 and/or decimal point, we only want to look at everything
+  // after the first non-zero number
+  const importantBit = number.replace(/^0?\.0*/, "");
+  const importantLength = importantBit.length;
+
+  const [, decimalPart] = number.split(".");
+
+  // if the number is a sum or an average, we want to pad to the maximum length of
+  // input numbers, if this length is smaller than the number of significant digits
+  if (["sum", "avg"].includes(key)) {
+    /*     if (isNil(significantDigits)) {
+      return number.toFixed(2);
     }
-    return asNumber.toFixed(fixedNum);
+    return number; */
+    if (
+      !isNil(significantDigits) &&
+      importantLength < significantDigits &&
+      decimalPart < maxDecimalInputLength
+    ) {
+      return asNumber.toFixed(maxDecimalInputLength);
+    } else if (key === "sum") {
+      return number;
+    }
   }
-  return number;
+
+  // if our length is good, we don't need to do anything
+  if (importantBit.replace(".", "").length >= significantDigits) {
+    return number;
+  }
+
+  // in all other cases, we want to pad to the number of significant digits
+  // (or to two digits, if no significant digits are defined)
+
+  if (isNil(significantDigits)) {
+    return asNumber.toFixed(2);
+  }
+  let fixedNum = significantDigits;
+  const decimalPos = number.indexOf(".");
+  if (decimalPos > -1) {
+    // numbers to attach = significantDigits - integer.length
+    fixedNum = significantDigits - decimalPos;
+  } else {
+    // if the integer part is 0, we want to ignore it
+
+    if (asNumber !== 0) {
+      fixedNum = significantDigits - number.length;
+    }
+  }
+  return asNumber.toFixed(fixedNum);
 };
 
 /**
@@ -89,6 +123,7 @@ export const cleanupStats = (stats, formatter) => {
                     leadingZero: false,
                     whitespaceFormat: true,
                     html: true,
+                    additionalFormatting: maybeRound(key),
                   });
                 } else {
                   rowRes[key] = formatter[toolIdx][columnIdx](value, {
