@@ -68,7 +68,7 @@ def parse_frequency_value(s):
     unit = s[pos:].strip()
     if not unit or unit == "Hz":
         return int(number)
-    elif unit == "KHz":
+    elif unit == "kHz":
         return int(number * 1000)
     elif unit == "MHz":
         return int(number * 1000 * 1000)
@@ -76,7 +76,7 @@ def parse_frequency_value(s):
         return int(number * 1000 * 1000 * 1000)
     else:
         raise ValueError(
-            "unknown unit: {} (allowed are Hz, KHz, MHz, and GHz)".format(unit)
+            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
         )
 
 
