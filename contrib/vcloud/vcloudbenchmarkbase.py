@@ -21,12 +21,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
     def create_argument_parser(self):
         parser = super(VcloudBenchmarkBase, self).create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
-        vcloud_args.add_argument(
-            "--vcloud",
-            dest="cloud",
-            action="store_true",
-            help="Use VerifierCloud to execute benchmarks.",
-        )
 
         vcloud_args.add_argument(
             "--vcloudMaster",
@@ -52,21 +46,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--vcloudUser",
-            dest="cloudUser",
-            metavar="USER[:PWD]",
-            help="The user (and password) for the VerifierCloud (if using the web interface).",
-        )
-
-        vcloud_args.add_argument(
-            "--revision",
-            dest="revision",
-            metavar="(tags/<tag name>|branch_name)[:(HEAD|head|<revision number>)]",
-            default="trunk:HEAD",
-            help="The svn revision of CPAchecker to use (if using the web interface of the VerifierCloud).",
-        )
-
-        vcloud_args.add_argument(
             "--justReprocessResults",
             dest="reprocessResults",
             action="store_true",
@@ -82,22 +61,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="The heap-size (in MB) used by the VerifierCloud client. A too small heap-size may terminate the client without any results.",
         )
 
-        vcloud_args.add_argument(
-            "--vcloudSubmissionThreads",
-            dest="cloud_threads",
-            default=5,
-            type=int,
-            help="The number of threads used for parallel run submission (if using the web interface of the VerifierCloud).",
-        )
-
-        vcloud_args.add_argument(
-            "--vcloudPollInterval",
-            dest="cloud_poll_interval",
-            metavar="SECONDS",
-            default=5,
-            type=int,
-            help="The interval in seconds for polling results from the server (if using the web interface of the VerifierCloud).",
-        )
         vcloud_args.add_argument(
             "--zipResultFiles",
             dest="zipResultFiles",
