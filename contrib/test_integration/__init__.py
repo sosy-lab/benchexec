@@ -65,8 +65,8 @@ class MergeBenchmarkSetsTests(unittest.TestCase):
         )
 
     def test_no_files(self):
-        self.assertEqual(
-            1,
+        self.assertNotEqual(
+            0,
             subprocess.call(
                 merge_benchmark_sets, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             ),
@@ -76,10 +76,10 @@ class MergeBenchmarkSetsTests(unittest.TestCase):
     def test_only_resultfile(self):
         cmd = [
             *merge_benchmark_sets,
-            os.path.join(here, "data", "verified.xml.bz2"),
+            os.path.join(here, "verified.xml.bz2"),
         ]
-        self.assertEqual(
-            1,
+        self.assertNotEqual(
+            0,
             subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
             "expected error return code",
         )
