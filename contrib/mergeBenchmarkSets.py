@@ -9,6 +9,9 @@
 
 import sys
 
+sys.path.append("../benchexec")
+
+import argparse
 from decimal import Decimal
 import os
 import io
@@ -20,6 +23,27 @@ from benchexec import tablegenerator
 from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
+
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "resultsXML",
+        metavar="results-xml",
+        help="XML-file containing the verification results.",
+    )
+    parser.add_argument(
+        "witnessXML",
+        nargs="*",
+        metavar="witness-xml",
+        help="Any number of XML-files containing validation results.",
+    )
+    parser.add_argument(
+        "--no-overwrite-status-true",
+        action="store_true",
+        help="Do not overwrite true results with results from validation.",
+    )
+    return parser.parse_args(argv)
 
 
 def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
@@ -87,21 +111,11 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    if len(argv) < 3:
-        sys.exit(
-            "Usage: "
-            + argv[0]
-            + " <results-xml> [<witness-xml>]* [--no-overwrite-status-true].\n"
-        )
-
-    resultFile = argv[1]
-    witnessFiles = []
-    isOverwrite = True
-    for i in range(2, len(argv)):
-        if len(argv) > i and not argv[i].startswith("--"):
-            witnessFiles.append(argv[i])
-        if argv[i] == "--no-overwrite-status-true":
-            isOverwrite = False
+    args = parse_args(argv[1:])
+    resultFile = args.resultsXML
+    witnessFiles = args.witnessXML
+    isOverwrite = not args.no_overwrite_status_true
+    assert witnessFiles or not isOverwrite
 
     if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
         sys.exit("File {0} does not exist.".format(repr(resultFile)))
