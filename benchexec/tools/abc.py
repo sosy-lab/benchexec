@@ -18,7 +18,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("abc")
+        return tool_locator.find_executable("abc", subdir="bin")
 
     def name(self):
         return "ABC"
@@ -27,10 +27,24 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def get_value_from_output(self, output, identifier):
-        # search for the identifier in the output and return the integral value after it
+        # search for the identifier in the output and return the number after it
+        # the number can be an integer, a decimal, or a scientific notation
         # warn if there are repeated matches (multiple statistics from sequential analysis?)
+        regex_integer = r"(\d+)"
+        regex_decimal = r"(\d+\.\d*|\d*\.\d+)"
+        regex_scinote = r"(\d\.?\d*[Ee][+\-]?\d+)"
+        regex_pattern = (
+            re.escape(identifier)
+            + r"\s*("
+            + regex_integer
+            + r"|"
+            + regex_decimal
+            + r"|"
+            + regex_scinote
+            + r")(\s|$)"
+        )
+        regex = re.compile(regex_pattern)
         match = None
-        regex = re.compile(re.escape(identifier) + r"\s*(\d+)")
         for line in output:
             result = regex.search(line)
             if result:
