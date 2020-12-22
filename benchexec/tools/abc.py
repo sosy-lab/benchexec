@@ -35,13 +35,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         regex_scinote = r"(\d\.?\d*[Ee][+\-]?\d+)"
         regex_pattern = (
             re.escape(identifier)
-            + r"\s*("
+            + r"\s*[:=]\s*(-?("
             + regex_integer
             + r"|"
             + regex_decimal
             + r"|"
             + regex_scinote
-            + r")(\s|$)"
+            + r"))(\s|$)"
         )
         regex = re.compile(regex_pattern)
         match = None
