@@ -32,7 +32,7 @@ ignore =
     # no warnings about pickle,
     S301,S403,
     # no warnings about XML parsing
-    S318,S320,S405,S408,S410,
+    S314,S318,S320,S405,S408,S410,
     # no warnings about all uses of subprocess
     S404,S603,S607,
     # several scripts use print() for their output, so allow it

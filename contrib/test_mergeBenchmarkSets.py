@@ -5,9 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import copy
 import sys
 import unittest
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # noqa: What's wrong with ET?
 
 import mergeBenchmarkSets
 from benchexec import result
@@ -30,7 +31,7 @@ mock_results = """<?xml version="1.0"?>
     <ram size="33546305536B"/>
     <environment/>
   </systeminfo>
-  <run name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml">
+  <run name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml" logfile="logfiles/sanfoundry_24-1.yml.log">
     <column title="cpuenergy" value="157.939331J"/>
     <column title="cputime" value="18.077505912s"/>
     <column title="host" value="apollon124"/>
@@ -47,7 +48,7 @@ mock_results = """<?xml version="1.0"?>
     <column hidden="true" title="memoryNodes" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run name="../sv-benchmarks/c/reducercommutativity/rangesum05.yml">
+  <run name="../sv-benchmarks/c/reducercommutativity/rangesum05.yml" logfile="logfiles/rangesum05.yml.log">
     <column title="cpuenergy" value="5027.425903J"/>
     <column title="cputime" value="703.613562312s"/>
     <column title="host" value="apollon022"/>
@@ -64,7 +65,7 @@ mock_results = """<?xml version="1.0"?>
     <column hidden="true" title="memoryNodes" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run name="../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml">
+  <run name="../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml" logfile="logfiles/data_structures_set_multi_proc_trivial_ground.yml.log">
     <column title="cpuenergy" value="11577.313477J"/>
     <column title="cputime" value="962.726514515s"/>
     <column title="host" value="apollon085"/>
@@ -82,7 +83,7 @@ mock_results = """<?xml version="1.0"?>
     <column hidden="true" title="memoryNodes" value="0"/>
     <column hidden="true" title="terminationreason" value="cputime"/>
   </run>
-  <run name="../sv-benchmarks/c/array-fpi/indp4f.yml">
+  <run name="../sv-benchmarks/c/array-fpi/indp4f.yml" logfile="logfiles/indp4f.yml.log">
     <column title="cpuenergy" value="58.927551J"/>
     <column title="cputime" value="6.646181369s"/>
     <column title="host" value="apollon024"/>
@@ -99,7 +100,7 @@ mock_results = """<?xml version="1.0"?>
     <column hidden="true" title="memoryNodes" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run name="../sv-benchmarks/c/array-patterns/array28_pattern.yml">
+  <run name="../sv-benchmarks/c/array-patterns/array28_pattern.yml" logfile="logfiles/array28_pattern.yml.log">
     <column title="cpuenergy" value="1270.774292J"/>
     <column title="cputime" value="146.010175303s"/>
     <column title="host" value="apollon068"/>
@@ -237,15 +238,25 @@ files = [
 ]
 
 
+def mock_witness_sets():
+    witness_sets = {}
+    for witness in [witness_xml_1, witness_xml_2]:
+        for run in witness.findall("run"):
+            name = run.get("name")
+            witness_sets[name] = run
+    return [witness_sets]
+
+
+def mock_get_verification_result(name):
+    return results_xml.find("run[@name='{}']".format(name))
+
+
 class TestXMLToString(unittest.TestCase):
     def element_trees_equal(self, et1, et2):
         if len(et1) != len(et2) or et1.tag != et2.tag or et1.attrib != et2.attrib:
             return False
         return all(
-            [
-                self.element_trees_equal(child1, child2)
-                for child1, child2 in zip(et1, et2)
-            ]
+            self.element_trees_equal(child1, child2) for child1, child2 in zip(et1, et2)
         )
 
     def test_only_elem(self):
@@ -288,21 +299,10 @@ class TestXMLToString(unittest.TestCase):
 
 class TestWitnesses(unittest.TestCase):
     def mock_get_witness(self, name):
-        if name in [
-            "../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml",
-            "../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml",
-            "../sv-benchmarks/c/array-patterns/array28_pattern.yml",
-        ]:
-            return witness_xml_1.find("run[@name='{}']".format(name))
-        elif name in [
-            "../sv-benchmarks/c/reducercommutativity/rangesum05.yml",
-            "../sv-benchmarks/c/array-fpi/indp4f.yml",
-        ]:
-            return witness_xml_2.find("run[@name='{}']".format(name))
-        raise NotImplementedError(name)
-
-    def mock_get_verification_result(self, name):
-        return results_xml.find("run[@name='{}']".format(name))
+        witness = mock_witness_sets()[0].get(name)
+        if witness is None:
+            raise NotImplementedError(name)
+        return witness
 
     def test_getWitnesses(self):
         witness1 = mergeBenchmarkSets.getWitnesses(witness_xml_1)
@@ -358,6 +358,170 @@ class TestWitnesses(unittest.TestCase):
             self.assertEqual(
                 expected,
                 mergeBenchmarkSets.getWitnessResult(
-                    self.mock_get_witness(file), self.mock_get_verification_result(file)
+                    self.mock_get_witness(file), mock_get_verification_result(file)
                 ),
             )
+
+
+class TestMerge(unittest.TestCase):
+    def test_getValidationResult_single_witness(self):
+        expected_results = [
+            ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
+            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
+            ("false(unreach-call)", result.CATEGORY_CORRECT),
+            ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
+        ]
+        for expected, file in zip(expected_results, files):
+            run = mock_get_verification_result(file)
+            status_from_verification = run.find('column[@title="status"]').get("value")
+            category_from_verification = run.find('column[@title="category"]').get(
+                "value"
+            )
+            actual = mergeBenchmarkSets.getValidationResult(
+                run,
+                mock_witness_sets(),
+                status_from_verification,
+                category_from_verification,
+            )
+            self.assertEqual(expected, actual[:2])
+            self.assertEqual(
+                (status_from_verification, category_from_verification), actual[2:]
+            )
+
+    def test_getValidationResult_multiple_witnesses(self):
+        new_witness_results = [
+            ("ERROR (invalid witness syntax)", result.CATEGORY_ERROR),
+            ("ERROR (invalid witness file)", result.CATEGORY_ERROR),
+            ("false (unreach-call)", result.CATEGORY_WRONG),
+            ("true", result.CATEGORY_WRONG),
+            ("false (unreach-call)", result.CATEGORY_CORRECT),
+        ]
+        expected_results = [
+            ("witness invalid (true)", result.CATEGORY_ERROR),
+            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
+            ("false(unreach-call)", result.CATEGORY_CORRECT),
+            ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
+        ]
+        witness_set_1 = mock_witness_sets()
+        witness_set_2 = copy.deepcopy(witness_set_1)
+        for expected, file, new_witness_result in zip(
+            expected_results, files, new_witness_results
+        ):
+            verification_run = mock_get_verification_result(file)
+            witness_run = witness_set_2[0].get(file)
+            witness_run.find('column[@title="status"]').set(
+                "value", new_witness_result[0]
+            )
+            witness_run.find('column[@title="category"]').set(
+                "value", new_witness_result[1]
+            )
+            status_from_verification = verification_run.find(
+                'column[@title="status"]'
+            ).get("value")
+            category_from_verification = verification_run.find(
+                'column[@title="category"]'
+            ).get("value")
+            actual = mergeBenchmarkSets.getValidationResult(
+                verification_run,
+                witness_set_1 + [{file: witness_run}],
+                status_from_verification,
+                category_from_verification,
+            )
+            self.assertEqual(expected, actual[:2])
+            self.assertEqual(
+                (status_from_verification, category_from_verification), actual[2:]
+            )
+
+    def test_getValidationResult_coverage_error_call(self):
+        expected_results = [
+            (None, None),
+            (None, None),
+            ("false(unreach-call)", result.CATEGORY_CORRECT),
+            (None, None),
+            (None, None),
+        ]
+        for expected, file in zip(expected_results, files):
+            run = copy.deepcopy(mock_get_verification_result(file))
+            run.set("properties", "coverage-error-call")
+            status_from_verification = run.find('column[@title="status"]').get("value")
+            category_from_verification = run.find('column[@title="category"]').get(
+                "value"
+            )
+            actual = mergeBenchmarkSets.getValidationResult(
+                run,
+                mock_witness_sets(),
+                status_from_verification,
+                category_from_verification,
+            )
+            self.assertEqual(expected, actual[:2])
+            self.assertEqual(status_from_verification, actual[2])
+            if file == "../sv-benchmarks/c/array-patterns/array28_pattern.yml":
+                self.assertEqual(result.CATEGORY_CORRECT, actual[3])
+                self.assertNotEqual(None, run.find('column[@title="score"]'))
+            else:
+                self.assertEqual(category_from_verification, actual[3])
+
+    def test_getValidationResult_coverage_branches(self):
+        for file in files:
+            run = copy.deepcopy(mock_get_verification_result(file))
+            run.set("properties", "coverage-branches")
+            status_from_verification = run.find('column[@title="status"]').get("value")
+            category_from_verification = run.find('column[@title="category"]').get(
+                "value"
+            )
+            actual = mergeBenchmarkSets.getValidationResult(
+                run,
+                mock_witness_sets(),
+                status_from_verification,
+                category_from_verification,
+            )
+            self.assertTupleEqual(
+                (
+                    status_from_verification,
+                    result.CATEGORY_CORRECT,
+                    status_from_verification,
+                    result.CATEGORY_CORRECT,
+                ),
+                actual,
+            )
+            self.assertNotEqual(None, run.find('column[@title="score"]'))
+
+    def test_merge_no_witness(self):
+        results_xml_cp1 = copy.deepcopy(results_xml)
+        results_xml_cp2 = copy.deepcopy(results_xml)
+        mergeBenchmarkSets.merge(results_xml_cp2, [], True)
+        for run in results_xml_cp1.findall("run"):
+            del run.attrib["logfile"]
+        self.assertEqual(ET.tostring(results_xml_cp1), ET.tostring(results_xml_cp2))
+
+    def test_merge(self):
+        expected_results = [
+            ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
+            ("false(unreach-call)", result.CATEGORY_CORRECT),
+            ("TIMEOUT", result.CATEGORY_ERROR),
+            ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
+            ("false(unreach-call)", result.CATEGORY_WRONG),
+        ]
+        results_xml_cp = copy.deepcopy(results_xml)
+        mergeBenchmarkSets.merge(results_xml_cp, mock_witness_sets(), True)
+        for expected, run in zip(expected_results, results_xml_cp.findall("run")):
+            status = run.find('column[@title="status"]').get("value")
+            category = run.find('column[@title="category"]').get("value")
+            self.assertTupleEqual(expected, (status, category))
+
+    def test_merge_no_overwrite(self):
+        expected_results = [
+            ("true", result.CATEGORY_CORRECT),
+            ("false(unreach-call)", result.CATEGORY_CORRECT),
+            ("TIMEOUT", result.CATEGORY_ERROR),
+            ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
+            ("false(unreach-call)", result.CATEGORY_WRONG),
+        ]
+        results_xml_cp = copy.deepcopy(results_xml)
+        mergeBenchmarkSets.merge(results_xml_cp, mock_witness_sets(), False)
+        for expected, run in zip(expected_results, results_xml_cp.findall("run")):
+            status = run.find('column[@title="status"]').get("value")
+            category = run.find('column[@title="category"]').get("value")
+            self.assertTupleEqual(expected, (status, category))

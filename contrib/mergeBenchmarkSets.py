@@ -9,8 +9,6 @@
 
 import sys
 
-sys.path.append("../benchexec")
-
 import argparse
 from decimal import Decimal
 import os
@@ -65,9 +63,9 @@ def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
 
 def getWitnesses(witnessXML):
     witnesses = {}
-    for result_tag in witnessXML.findall("run"):
-        run = result_tag.get("name")
-        witnesses[run] = result_tag
+    for run in witnessXML.findall("run"):
+        name = run.get("name")
+        witnesses[name] = run
     return witnesses
 
 
@@ -106,6 +104,105 @@ def getWitnessResult(witness, verification_result):
     return "result invalid (" + status_from_verification + ")", result.CATEGORY_ERROR
 
 
+def getValidationResult(
+    run, witnessSets, status_from_verification, category_from_verification
+):
+    statusWit, categoryWit = None, None
+    name = run.get("name")
+    for witnessSet in witnessSets:
+        witness = witnessSet.get(name)
+        if witness is None or not len(witness):
+            continue
+        # copy data from witness
+        if run.get("properties") == "coverage-error-call":
+            status_from_validation = witness.find('column[@title="status"]').get(
+                "value"
+            )
+            if status_from_validation == "true":
+                statusWit, categoryWit = (
+                    status_from_verification,
+                    result.CATEGORY_CORRECT,
+                )
+                category_from_verification = result.CATEGORY_CORRECT
+                scoreColumn = ElementTree.Element("column", title="score", value="1")
+                run.append(scoreColumn)
+        elif run.get("properties") == "coverage-branches":
+            try:
+                coverage_value = (
+                    witness.find('column[@title="branches_covered"]')
+                    .get("value")
+                    .replace("%", "")
+                )
+            except AttributeError:
+                coverage_value = "0.00"
+            statusWit, categoryWit = (status_from_verification, result.CATEGORY_CORRECT)
+            category_from_verification = result.CATEGORY_CORRECT
+            try:
+                coverage_percentage = Decimal(coverage_value) / 100
+            except ValueError:
+                continue
+            scoreColumn = ElementTree.Element(
+                "column",
+                title="score",
+                value=util.print_decimal(coverage_percentage),
+            )
+            run.append(scoreColumn)
+        else:
+            # For verification
+            if statusWit and statusWit.startswith("witness invalid"):
+                continue
+            statusWitNew, categoryWitNew = getWitnessResult(witness, run)
+            if (
+                categoryWit is None
+                or not categoryWit.startswith(result.CATEGORY_CORRECT)
+                or categoryWitNew == result.CATEGORY_CORRECT
+                or statusWitNew.startswith("witness invalid")
+            ):
+                statusWit, categoryWit = (statusWitNew, categoryWitNew)
+    return statusWit, categoryWit, status_from_verification, category_from_verification
+
+
+def merge(resultXML, witnessSets, isOverwrite):
+    for run in resultXML.findall("run"):
+        try:
+            status_from_verification = run.find('column[@title="status"]').get("value")
+            category_from_verification = run.find('column[@title="category"]').get(
+                "value"
+            )
+        except AttributeError:
+            status_from_verification = "not found"
+            category_from_verification = "not found"
+        (
+            statusWit,
+            categoryWit,
+            status_from_verification,
+            category_from_verification,
+        ) = getValidationResult(
+            run,
+            witnessSets,
+            status_from_verification,
+            category_from_verification,
+        )
+        # Overwrite status with status from witness
+        if (
+            (
+                isOverwrite
+                or result.RESULT_CLASS_FALSE
+                == result.get_result_classification(status_from_verification)
+            )
+            and "correct" == category_from_verification
+            and statusWit is not None
+            and categoryWit is not None
+        ):
+            try:
+                run.find('column[@title="status"]').set("value", statusWit)
+                run.find('column[@title="category"]').set("value", categoryWit)
+            except AttributeError:
+                pass
+        # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
+        del run.attrib["logfile"]
+
+
 def main(argv=None):
 
     if argv is None:
@@ -127,85 +224,7 @@ def main(argv=None):
         witnessXML = tablegenerator.parse_results_file(witnessFile)
         witnessSets.append(getWitnesses(witnessXML))
 
-    for result_tag in resultXML.findall("run"):
-        run = result_tag.get("name")
-        try:
-            status_from_verification = result_tag.find('column[@title="status"]').get(
-                "value"
-            )
-            category_from_verification = result_tag.find(
-                'column[@title="category"]'
-            ).get("value")
-        except AttributeError:
-            status_from_verification = "not found"
-            category_from_verification = "not found"
-        statusWit, categoryWit = (None, None)
-        for witnessSet in witnessSets:
-            witness = witnessSet.get(run, None)
-            # copy data from witness
-            if witness is not None and len(witness) > 0:
-                if result_tag.get("properties") == "coverage-error-call":
-                    status_from_validation = witness.find(
-                        'column[@title="status"]'
-                    ).get("value")
-                    if status_from_validation == "true":
-                        statusWit, categoryWit = (status_from_verification, "correct")
-                        category_from_verification = "correct"
-                        scoreColumn = ElementTree.Element(
-                            "column", title="score", value="1"
-                        )
-                        result_tag.append(scoreColumn)
-                elif result_tag.get("properties") == "coverage-branches":
-                    try:
-                        coverage_value = (
-                            witness.find('column[@title="branches_covered"]')
-                            .get("value")
-                            .replace("%", "")
-                        )
-                    except AttributeError:
-                        coverage_value = "0.00"
-                    statusWit, categoryWit = (status_from_verification, "correct")
-                    category_from_verification = "correct"
-                    try:
-                        coverage_percentage = Decimal(coverage_value) / 100
-                    except ValueError:
-                        continue
-                    scoreColumn = ElementTree.Element(
-                        "column",
-                        title="score",
-                        value=util.print_decimal(coverage_percentage),
-                    )
-                    result_tag.append(scoreColumn)
-                else:
-                    # For verification
-                    if statusWit and statusWit.startswith("witness invalid"):
-                        continue
-                    statusWitNew, categoryWitNew = getWitnessResult(witness, result_tag)
-                    if (
-                        categoryWit is None
-                        or not categoryWit.startswith(result.CATEGORY_CORRECT)
-                        or categoryWitNew == result.CATEGORY_CORRECT
-                        or statusWitNew.startswith("witness invalid")
-                    ):
-                        statusWit, categoryWit = (statusWitNew, categoryWitNew)
-        # Overwrite status with status from witness
-        if (
-            (
-                isOverwrite
-                or result.RESULT_CLASS_FALSE
-                == result.get_result_classification(status_from_verification)
-            )
-            and "correct" == category_from_verification
-            and statusWit is not None
-            and categoryWit is not None
-        ):
-            try:
-                result_tag.find('column[@title="status"]').set("value", statusWit)
-                result_tag.find('column[@title="category"]').set("value", categoryWit)
-            except AttributeError:
-                pass
-        # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
-        del result_tag.attrib["logfile"]
+    merge(resultXML, witnessSets, isOverwrite)
 
     filename = resultFile + ".merged.xml.bz2"
     print("    " + filename)
