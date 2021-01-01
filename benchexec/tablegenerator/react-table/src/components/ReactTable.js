@@ -26,6 +26,8 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
+  setHashSearch,
+  getHashSearch,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -37,10 +39,23 @@ const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
+const getSortingSettingsFromURL = () => {
+  const urlParams = getHashSearch();
+  let setting = {};
+  if (urlParams.sort) {
+    const sortingParams = urlParams.sort.split(",");
+    const id = sortingParams[0];
+    const desc = sortingParams[1] === "desc" ? true : false;
+    setting = { id, desc };
+  }
+  return setting;
+};
+
 const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
+  let [sortingSettings, setSortingSettings] = useState();
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
@@ -107,6 +122,9 @@ const TableRender = (props) => {
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
     setFilteredColumnValues(newFilteredColumnValues);
+
+    const sortingSetting = getSortingSettingsFromURL();
+    setSortingSettings(sortingSetting);
   }, [props]);
 
   const handleFixedInputChange = ({ target }) => {
@@ -395,6 +413,12 @@ const TableRender = (props) => {
         filterable={true}
         filtered={props.filtered}
         columns={[createTaskIdColumn()].concat(resultColumns)}
+        defaultSorted={sortingSettings ? [sortingSettings] : []}
+        onSortedChange={(sorted) => {
+          setHashSearch({
+            sort: sorted[0].id + "," + (sorted[0].desc ? "desc" : "asc"),
+          });
+        }}
         defaultPageSize={250}
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
         className="-highlight"
