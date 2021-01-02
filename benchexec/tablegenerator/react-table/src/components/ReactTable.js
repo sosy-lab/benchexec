@@ -26,6 +26,8 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
+  setParam,
+  getHashSearch,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -37,10 +39,19 @@ const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
+const initialPage = 1;
+const getCurrentPageFromURL = () =>
+  parseInt(getHashSearch().page) || initialPage;
+const initialPageSize = 250;
+const getPageSizeFromURL = () =>
+  parseInt(getHashSearch().pageSize) || initialPageSize;
+
 const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
+  let [currentPage, setCurrentPage] = useState(initialPage);
+  let [pageSize, setPageSize] = useState(initialPageSize);
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
@@ -106,6 +117,13 @@ const TableRender = (props) => {
 
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
+    setFilteredColumnValues(newFilteredColumnValues);
+    const currentPage = getCurrentPageFromURL();
+    setCurrentPage(currentPage);
+
+    const pageSize = getPageSizeFromURL();
+    setPageSize(pageSize);
+
     setFilteredColumnValues(newFilteredColumnValues);
   }, [props]);
 
@@ -395,8 +413,10 @@ const TableRender = (props) => {
         filterable={true}
         filtered={props.filtered}
         columns={[createTaskIdColumn()].concat(resultColumns)}
-        defaultPageSize={250}
+        page={currentPage - 1}
+        pageSize={pageSize}
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
+        showPageJump={false}
         className="-highlight"
         minRows={0}
         onFilteredChange={(filtered) => {
@@ -451,6 +471,8 @@ const TableRender = (props) => {
           }
           props.filterPlotData([...filteredCopy, ...additionalFilters], true);
         }}
+        onPageChange={(pageIndex) => setParam({ page: pageIndex + 1 })}
+        onPageSizeChange={(pageSize) => setParam({ pageSize, page: 1 })}
       >
         {(_, makeTable) => {
           return makeTable();
