@@ -719,6 +719,7 @@ class NumberFormatterBuilder {
       }
       postfix = stringNumber.substring(pointer);
 
+      let existsCarryOver = false;
       if (postfix) {
         // hacky trickery
         // we force the postfix to turn into a decimal value with one leading integer
@@ -728,6 +729,7 @@ class NumberFormatterBuilder {
         postfix = postfix.replace(/\./, "");
         postfix = `${postfix[0]}.${postfix.substr(1)}`;
         postfix = Math.round(Number(postfix));
+        existsCarryOver = postfix > 9;
         postfix = isNaN(postfix) ? "" : postfix.toString();
         if (attachDecimal) {
           postfix = `.${postfix}`;
@@ -740,6 +742,16 @@ class NumberFormatterBuilder {
         while (prefix.length + postfix.length < end) {
           postfix += "0";
         }
+      }
+
+      if (existsCarryOver) {
+        const lastDigit = parseInt(prefix[prefix.length - 1]);
+        const digitWithCarryOver = lastDigit + 1;
+        prefix = `${prefix.substring(
+          0,
+          prefix.length - 1,
+        )}${digitWithCarryOver}`;
+        postfix = `0${postfix.substring(1)}`;
       }
 
       const out = `${prefix}${postfix}`;
