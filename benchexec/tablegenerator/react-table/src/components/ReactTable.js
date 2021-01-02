@@ -26,7 +26,7 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
-  setHashSearch,
+  setParam,
   getHashSearch,
 } from "../utils/utils";
 
@@ -415,7 +415,7 @@ const TableRender = (props) => {
         columns={[createTaskIdColumn()].concat(resultColumns)}
         defaultSorted={sortingSettings ? [sortingSettings] : []}
         onSortedChange={(sorted) => {
-          setHashSearch({
+          setParam({
             sort: sorted[0].id + "," + (sorted[0].desc ? "desc" : "asc"),
           });
         }}
