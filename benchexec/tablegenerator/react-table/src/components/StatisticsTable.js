@@ -13,8 +13,13 @@ import {
   SelectColumnsButton,
   StandardColumnHeader,
 } from "./TableComponents";
-import { buildFormatter, processData } from "../utils/stats.js";
-import { determineColumnWidth, isNumericColumn, isNil } from "../utils/utils";
+import { buildFormatter, processData, cleanupStats } from "../utils/stats.js";
+import {
+  determineColumnWidth,
+  isNumericColumn,
+  isNil,
+  isNotNil,
+} from "../utils/utils";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -126,18 +131,19 @@ const createColumnBuilder = ({ changeTab, hiddenCols }) => (
   },
 });
 
+const subStatSelector = {
+  total: "total",
+  "correct results": "correct-total",
+  "correct true": "correct-true",
+  "correct false": "correct-false",
+  "incorrect results": "wrong-total",
+  "incorrect true": "wrong-true",
+  "incorrect false": "wrong-false",
+};
+
 const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   // our stats template to steal from
 
-  const selector = {
-    total: "total",
-    "correct results": "correct-total",
-    "correct true": "correct-true",
-    "correct false": "correct-false",
-    "incorrect results": "wrong-total",
-    "incorrect true": "wrong-true",
-    "incorrect false": "wrong-false",
-  };
   const templ = stats;
 
   // we currently only handle the cases that are described in "selector"
@@ -145,12 +151,14 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
   const transformed = templ.map((row) => {
     const title = row.title.replace(/&nbsp;/g, "");
     row.content = row.content.map((tool, toolIdx) => {
-      const key = selector[title];
+      const key = subStatSelector[title];
       if (!key || !newStats[toolIdx]) {
         return tool;
       }
+
       return newStats[toolIdx].map((col) => col[key]);
     });
+
     return row;
   });
 
@@ -175,7 +183,15 @@ const updateStats = async ({
   setStats,
 }) => {
   const formatter = buildFormatter(tools);
-  let res = skipStats ? {} : await processData({ tools, table, formatter });
+  let res = skipStats
+    ? {}
+    : await processData({ tools, table, formatter, stats });
+
+  const availableStats = stats
+    .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
+    .filter(isNotNil);
+  const cleaned = cleanupStats(res, formatter, availableStats);
+
   // fill up stat array to match column mapping
 
   // The result of our stat calculation only contains relevant columns.
@@ -185,7 +201,7 @@ const updateStats = async ({
   // In order to ensure a consistent layout we iterate through all columns
   // of the runset and append dummy objects until we reach a column that we
   // have calculated data for
-  res = res.map((tool, toolIdx) => {
+  res = cleaned.map((tool, toolIdx) => {
     const out = [];
     const toolColumns = tools[toolIdx].columns;
     let pointer = 0;
@@ -210,7 +226,7 @@ const updateStats = async ({
     return out;
   });
 
-  transformStatsFromWorkers({ newStats: res, stats, setStats });
+  transformStatsFromWorkers({ newStats: res, stats, setStats, formatter });
 
   if (onStatsReady) {
     console.log("calling onStatsReady");

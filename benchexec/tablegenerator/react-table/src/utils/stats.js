@@ -67,7 +67,33 @@ const maybeRound = (key, columnType) => (
  * @param {object[][]} stats
  * @param {Function[][]} formatter
  */
-export const cleanupStats = (stats, formatter) => {
+export const cleanupStats = (unfilteredStats, formatter, availableStats) => {
+  const stats = unfilteredStats.map((tool, toolIdx) =>
+    tool.map((col, colIdx) => {
+      const { columnType } = col;
+      const out = { columnType };
+
+      for (const visibleStats of availableStats) {
+        const currentCol = col[visibleStats];
+        if (!currentCol) {
+          continue;
+        }
+        out[visibleStats] = currentCol;
+        if (currentCol?.sum ?? false) {
+          formatter[toolIdx][colIdx].addDataItem(currentCol.sum);
+        }
+      }
+      return out;
+    }),
+  );
+
+  for (const to in formatter) {
+    for (const co in formatter[to]) {
+      // we build all formatters which makes them ready to use
+      formatter[to][co] = formatter[to][co].build();
+    }
+  }
+
   const cleaned = stats.map((tool, toolIdx) =>
     tool
       .map(({ columnType, ...column }, columnIdx) => {
@@ -78,7 +104,6 @@ export const cleanupStats = (stats, formatter) => {
         }
         for (const [resultKey, result] of Object.entries(column)) {
           const rowRes = {};
-
           for (let [key, value] of Object.entries(result)) {
             // attach the title to the stat item
             // this will later be used to ensure correct ordering of columns
@@ -211,7 +236,7 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-export const processData = async ({ tools, table, formatter }) => {
+export const processData = async ({ tools, table, formatter, stats }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
   const start = Date.now();
@@ -245,24 +270,5 @@ export const processData = async ({ tools, table, formatter }) => {
   const res = await Promise.all(allPromises);
   console.log(`Calculation took ${Date.now() - start}ms`);
 
-  for (const tool in res) {
-    for (const col in res[tool]) {
-      for (const value of Object.values(res[tool][col])) {
-        const sum = value?.sum ?? false;
-        if (sum) {
-          formatter[tool][col].addDataItem(sum);
-        }
-      }
-    }
-  }
-
-  for (const to in formatter) {
-    for (const co in formatter[to]) {
-      // we build all formatters which makes them ready to use
-      formatter[to][co] = formatter[to][co].build();
-    }
-  }
-
-  const cleaned = cleanupStats(res, formatter);
-  return cleaned;
+  return res;
 };

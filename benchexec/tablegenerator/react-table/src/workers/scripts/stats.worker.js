@@ -182,6 +182,9 @@ onmessage = function (e) {
     const key = `${item.categoryType}-${item.resultType}`;
     const totalKey = `${item.categoryType}-total`;
     const { columnType: type, column, columnTitle: title } = item;
+    if (!total.title) {
+      total.title = title;
+    }
     const bucket = buckets[key] || {
       ...defaultObj,
       title,
@@ -263,7 +266,7 @@ onmessage = function (e) {
   const totalHasNaN = totalNaNInfo.hasNaN;
 
   if (totalHasNaN) {
-    total = { ...nanObj };
+    total = { ...total, ...nanObj };
   } else {
     calculateMean(total, copy);
     calculateMedian(total, copy);

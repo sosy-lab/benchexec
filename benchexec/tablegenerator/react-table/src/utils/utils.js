@@ -35,6 +35,8 @@ const isNumericColumn = (column) =>
 
 const isNil = (data) => data === undefined || data === null;
 
+const isNotNil = (data) => !isNil(data);
+
 const getRawOrDefault = (value, def) =>
   isNil(value) || isNil(value.raw) ? def : value.raw;
 
@@ -1030,6 +1032,7 @@ export {
   getRunSetName,
   isOkStatus,
   isNil,
+  isNotNil,
   EXTENDED_DISCRETE_COLOR_RANGE,
   getHashSearch,
   setHashSearch,
