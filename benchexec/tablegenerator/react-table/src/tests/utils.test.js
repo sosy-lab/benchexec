@@ -773,8 +773,18 @@ describe("NumberFormatterBuilder", () => {
     expect(actual).toBe("2.000");
   });
 
-  test("should correctly handle numbers in scientific notation", () => {
+  test("should correctly handle numbers in scientific notation with a decimal coefficient", () => {
     const num = 2.2e-7;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.00000022");
+  });
+  test("should correctly handle numbers in scientific notation with a integer coeffecient", () => {
+    const num = 2e-7;
 
     const b = new NumberFormatterBuilder(2);
     const formatter = b.build();
@@ -821,6 +831,24 @@ describe("NumberFormatterBuilder", () => {
     // we end up with the addition of 7.1 and 0.1
     // In JS 7.1 + 0.1 evaluates to 7.199999999999999, which caused an issue
     expect(actual).toBe("7.20");
+  });
+
+  test("Should always render 0 when resulting value resolves to a Number representation of 0", () => {
+    const num = 0;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(0.001);
+    const formatter = b.build();
+
+    const actual = formatter(num, {
+      whitespaceFormat: true,
+      html: true,
+      leadingZero: false,
+    });
+
+    expect(actual).toBe(
+      "0.   ".replace(".", "&#x2008;").replace(/ /g, "&#x2007;"),
+    );
   });
 
   describe("additionalFormatting function", () => {

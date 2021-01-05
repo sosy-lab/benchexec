@@ -733,8 +733,12 @@ class NumberFormatterBuilder {
 
     // handling exponential formatting of large (or small) numbers in javascript
     if (stringNumber.includes("e")) {
-      const exponent = stringNumber.split("-")[1];
-      stringNumber = Number(number).toFixed(exponent);
+      const [coefficient, exponent] = stringNumber.split("-");
+      let addedFactor = 0;
+      if (coefficient.includes(".")) {
+        addedFactor = 1;
+      }
+      stringNumber = Number(number).toFixed(Number(exponent) + addedFactor);
     }
 
     const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
@@ -845,7 +849,7 @@ class NumberFormatterBuilder {
         const decSpace = html ? punctuationSpaceHtml : " ";
         let [integer, decimal] = out.split(/\.|,/);
         if (integer === "0" && !leadingZero) {
-          integer = "";
+          integer = decimal ? "" : "0";
         }
         integer = integer || "";
         decimal = decimal || "";

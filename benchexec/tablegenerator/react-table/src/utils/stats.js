@@ -22,7 +22,10 @@ export const buildFormatter = (tools) =>
     }),
   );
 
-const maybeRound = (key) => (number, { significantDigits }) => {
+const maybeRound = (key, columnType) => (
+  number,
+  { significantDigits, maxDecimalInputLength },
+) => {
   const asNumber = Number(number);
   if (["avg", "stdev"].includes(key)) {
     if (isNil(significantDigits)) {
@@ -43,12 +46,17 @@ const maybeRound = (key) => (number, { significantDigits }) => {
           offset += matched.length;
         }
       }
-      return Number(out).toFixed(offset + (significantDigits - includedNums));
+      const paddingLength = offset + (significantDigits - includedNums);
+      return paddingLength > 0 ? Number(out).toFixed(paddingLength) : number;
     }
     return number;
   }
   //console.log({ key, number, significantDigits });
-
+  /*   if (key === "sum") {
+    if (maxDecimalInputLength < significantDigits) {
+      return Number(number).toFixed(maxDecimalInputLength);
+    }
+  } */
   return number;
 };
 
@@ -62,7 +70,7 @@ const maybeRound = (key) => (number, { significantDigits }) => {
 export const cleanupStats = (stats, formatter) => {
   const cleaned = stats.map((tool, toolIdx) =>
     tool
-      .map((column, columnIdx) => {
+      .map(({ columnType, ...column }, columnIdx) => {
         const out = {};
         // if no total is calculated, then no values suitable for calculation were found
         if (column.total === undefined) {
@@ -90,14 +98,14 @@ export const cleanupStats = (stats, formatter) => {
                     leadingZero: false,
                     whitespaceFormat: true,
                     html: true,
-                    additionalFormatting: maybeRound(key),
+                    additionalFormatting: maybeRound(key, columnType),
                   });
                 } else {
                   rowRes[key] = formatter[toolIdx][columnIdx](value, {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
-                    additionalFormatting: maybeRound(key),
+                    additionalFormatting: maybeRound(key, columnType),
                   });
                 }
               } catch (e) {

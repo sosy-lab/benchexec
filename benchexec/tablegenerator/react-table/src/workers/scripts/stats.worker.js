@@ -41,6 +41,18 @@ const safeAdd = (a, b) => {
   return Number((aNum + bNum).toFixed(length));
 };
 
+const mathStringMax = (a, b) => {
+  const numA = Number(a);
+  const numB = Number(b);
+  return numA > numB ? a : b;
+};
+
+const mathStringMin = (a, b) => {
+  const numA = Number(a);
+  const numB = Number(b);
+  return numA < numB ? a : b;
+};
+
 /**
  * This function either adds two numbers or increments the number
  * passed in the first parameter if the type is "status".
@@ -61,25 +73,27 @@ const maybeAdd = (a, b, type) => {
   return a;
 };
 
-const calculateMedian = (values, allItems) => {
+const calculateMean = (values, allItems) => {
   const numMin = Number(values.min);
   const numMax = Number(values.max);
   if (numMin === -Infinity && numMax === Infinity) {
-    values.median = "NaN";
+    values.avg = "NaN";
   } else if (numMin === -Infinity) {
-    values.median = "-Infinity";
+    values.avg = "-Infinity";
   } else if (numMax === Infinity) {
-    values.median = "Infinity";
+    values.avg = "Infinity";
   } else {
-    if (allItems.length % 2 === 0) {
-      const idx = allItems.length / 2;
-      values.median =
-        (Number(allItems[idx - 1].column) + Number(allItems[idx].column)) / 2.0;
-    } else {
-      values.median = Number(
-        allItems[Math.floor(allItems.length / 2.0)].column,
-      );
-    }
+    values.avg = values.sum / allItems.length;
+  }
+};
+
+const calculateMedian = (values, allItems) => {
+  if (allItems.length % 2 === 0) {
+    const idx = allItems.length / 2;
+    values.median =
+      (Number(allItems[idx - 1].column) + Number(allItems[idx].column)) / 2.0;
+  } else {
+    values.median = allItems[Math.floor(allItems.length / 2.0)].column;
   }
 };
 const calculateStdev = (hasNegInf, hasPosInf, variance, size) => {
@@ -118,9 +132,9 @@ onmessage = function (e) {
   const defaultObj = {
     sum: 0,
     avg: 0,
-    max: -Infinity,
+    max: "-Infinity",
     median: 0,
-    min: Infinity,
+    min: "Infinity",
     stdev: 0,
     variance: 0,
   };
@@ -141,6 +155,8 @@ onmessage = function (e) {
     postResult({ total: undefined }, transaction);
     return;
   }
+
+  const { columnType } = copy[0];
 
   copy.sort((a, b) => a.column - b.column);
 
@@ -207,14 +223,13 @@ onmessage = function (e) {
     }
 
     if (!isNaN(Number(column))) {
-      const numCol = Number(column);
       if (!skipBucket) {
-        bucket.max = Math.max(bucket.max, numCol);
-        bucket.min = Math.min(bucket.min, numCol);
+        bucket.max = mathStringMax(bucket.max, column);
+        bucket.min = mathStringMin(bucket.min, column);
       }
       if (!skipSubTotal) {
-        subTotalBucket.max = Math.max(subTotalBucket.max, numCol);
-        subTotalBucket.min = Math.min(subTotalBucket.min, numCol);
+        subTotalBucket.max = mathStringMax(subTotalBucket.max, column);
+        subTotalBucket.min = mathStringMin(subTotalBucket.min, column);
       }
     }
     if (!skipBucket) {
@@ -240,7 +255,7 @@ onmessage = function (e) {
     if (shouldSkipBucket(bucketNaNInfo, bucket)) {
       continue;
     }
-    values.avg = values.sum / values.items.length;
+    calculateMean(values, values.items);
 
     calculateMedian(values, values.items);
     buckets[bucket] = values;
@@ -250,7 +265,7 @@ onmessage = function (e) {
   if (totalHasNaN) {
     total = { ...nanObj };
   } else {
-    total.avg = total.sum / copy.length;
+    calculateMean(total, copy);
     calculateMedian(total, copy);
   }
 
@@ -314,8 +329,7 @@ onmessage = function (e) {
   delete total.items;
   delete total.variance;
 
-  const result = { total, ...buckets };
-
+  const result = { columnType, total, ...buckets };
   postResult(result, transaction);
 };
 
