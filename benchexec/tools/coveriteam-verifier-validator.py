@@ -52,7 +52,7 @@ class Tool(coveriteam.Tool):
         If more than one dict is printed, the first matching one.
         """
         verdict = None
-        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ ]*)'")
+        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ \-]*)'")
         for line in reversed(run.output):
             line = line.strip()
             verdict_match = verdict_regex.search(line)
