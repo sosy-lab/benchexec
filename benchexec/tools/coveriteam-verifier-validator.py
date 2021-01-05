@@ -33,14 +33,14 @@ class Tool(coveriteam.Tool):
             options += ["--data-model", data_model_param]
 
         if task.property_file:
-            options += ["--input", "spec_path=" + task.property_file]
+            options += ["--input", "specification_path=" + task.property_file]
         else:
             raise UnsupportedFeatureException(
                 "Can't execute CoVeriTeam-Verifier-Validator: "
                 "Specification is missing."
             )
 
-        options += ["--input", "prog_path=" + task.single_input_file]
+        options += ["--input", "program_path=" + task.single_input_file]
 
         return [executable] + options
 

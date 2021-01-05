@@ -18,8 +18,6 @@ class Tool(cbmc.Tool):
     SV-COMP conditions is assumed.
     """
 
-    REQUIRED_PATHS = ["jbmc", "jbmc-binary", "core-models.jar"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("jbmc")
 

@@ -15,8 +15,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Wrapper for 2LS (http://www.cprover.org/2LS).
     """
 
-    REQUIRED_PATHS = ["2ls", "2ls-binary", "goto-cc"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("2ls")
 
