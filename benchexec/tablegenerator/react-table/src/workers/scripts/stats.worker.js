@@ -72,6 +72,13 @@ const maybeAdd = (a, b, type) => {
   }
   return a;
 };
+const removeRoundOff = (num) => {
+  const str = num.toString();
+  if (str.match(/\..+?0{2,}\d$/)) {
+    return Number(str.substr(0, str.length - 1));
+  }
+  return num;
+};
 
 const calculateMean = (values, allItems) => {
   const numMin = Number(values.min);
@@ -83,7 +90,7 @@ const calculateMean = (values, allItems) => {
   } else if (numMax === Infinity) {
     values.avg = "Infinity";
   } else {
-    values.avg = values.sum / allItems.length;
+    values.avg = removeRoundOff(values.sum / allItems.length);
   }
 };
 
@@ -125,6 +132,28 @@ const shouldSkipBucket = (bucketMeta, key) => {
   return false;
 };
 
+/**
+ * Function that keeps track of the max inputted decimal length of column values.
+ * This is used for conditional formatting in the stats module to determine the maximum
+ * amount of padded 0s
+ *
+ * @typedef UpdateMaxDecimalMetaInfoParam
+ * @param {String} columnType - The type of the current column
+ * @param {Object} column - The column object
+ * @param {Object} bucket - The current stat bucket in context
+ *
+ * @param {UpdateMaxDecimalMetaInfoParam} param
+ */
+const updateMaxDecimalMetaInfo = ({ columnType, column, bucket }) => {
+  if (columnType !== "status") {
+    const [, decimal] = column.split(".");
+    bucket.meta.maxDecimals = Math.max(
+      bucket.meta.maxDecimals,
+      decimal?.length ?? 0,
+    );
+  }
+};
+
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
@@ -137,6 +166,11 @@ onmessage = function (e) {
     min: "Infinity",
     stdev: 0,
     variance: 0,
+  };
+
+  const metaTemplate = {
+    type: null,
+    maxDecimals: 0,
   };
 
   // Copy of the template with all values replaced with NaN
@@ -157,13 +191,14 @@ onmessage = function (e) {
   }
 
   const { columnType } = copy[0];
+  metaTemplate.type = columnType;
 
   copy.sort((a, b) => a.column - b.column);
 
   const buckets = {};
   const bucketNaNInfo = {}; // used to store NaN info of buckets
 
-  let total = { ...defaultObj, items: [] };
+  let total = { ...defaultObj, items: [], meta: { ...metaTemplate } };
 
   total.max = copy[copy.length - 1].column;
   total.min = copy[0].column;
@@ -189,12 +224,14 @@ onmessage = function (e) {
       ...defaultObj,
       title,
       items: [],
+      meta: { ...metaTemplate },
     };
 
     const subTotalBucket = buckets[totalKey] || {
       ...defaultObj,
       title,
       items: [],
+      meta: { ...metaTemplate },
     };
 
     const itemIsNaN = type !== "status" && isNaN(column);
@@ -217,12 +254,15 @@ onmessage = function (e) {
 
     if (!skipBucket) {
       bucket.sum = maybeAdd(bucket.sum, column, type);
+      updateMaxDecimalMetaInfo({ columnType, column, bucket });
     }
     if (!skipSubTotal) {
       subTotalBucket.sum = maybeAdd(subTotalBucket.sum, column, type);
+      updateMaxDecimalMetaInfo({ columnType, column, bucket: subTotalBucket });
     }
     if (!totalNaNInfo.hasNaN) {
       total.sum = maybeAdd(total.sum, column, type);
+      updateMaxDecimalMetaInfo({ columnType, column, bucket: total });
     }
 
     if (!isNaN(Number(column))) {
@@ -317,6 +357,9 @@ onmessage = function (e) {
     );
 
     for (const [key, val] of Object.entries(values)) {
+      if (key === "meta") {
+        continue;
+      }
       values[key] = val.toString();
     }
     // clearing memory
@@ -326,6 +369,9 @@ onmessage = function (e) {
   }
 
   for (const [key, value] of Object.entries(total)) {
+    if (key === "meta") {
+      continue;
+    }
     total[key] = value.toString();
   }
 

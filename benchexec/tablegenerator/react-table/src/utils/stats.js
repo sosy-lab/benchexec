@@ -8,6 +8,8 @@
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
+const keysToIgnore = ["meta"];
+
 /**
  * Creates a number formatters for each tool and column and
  * configures them with the columns defined number of significant digits
@@ -22,48 +24,70 @@ export const buildFormatter = (tools) =>
     }),
   );
 
-const maybeRound = (key, columnType) => (
+const maybeRound = (key, maxDecimalInputLength, columnIdx) => (
   number,
-  { significantDigits, maxDecimalInputLength },
+  { significantDigits },
 ) => {
   const asNumber = Number(number);
-  if (["avg", "stdev"].includes(key)) {
-    if (isNil(significantDigits)) {
+  const [integer, decimal] = number.split(".");
+
+  if (["sum", "avg", "stdev"].includes(key)) {
+    // for cases when we have no significant digits defined,
+    // we want to pad avg and stdev to two digits
+    if (isNil(significantDigits) && key !== "sum") {
       return asNumber.toFixed(2);
     }
-    if (key === "stdev") {
-      // special case "stdev", we want to pad stdev to match the number of significant digits
-      const [integer, decimal] = number.split(".");
-      let offset = 0;
-      let includedNums = 0;
-      let out = number;
-      if (integer !== "0") {
-        includedNums += integer.length;
-      }
-      if (decimal) {
-        if (includedNums === 0) {
-          const { 0: matched } = decimal.match(/^0*/, "");
-          offset += matched.length;
-        }
-      }
-      const paddingLength = offset + (significantDigits - includedNums);
-      return paddingLength > 0 ? Number(out).toFixed(paddingLength) : number;
+    // integer value without leading 0
+    const cleanedInt = integer.replace(/^0+/, "");
+    // decimal value without leading 0, if cleanedInt is empty (evaluates to zero)
+    let cleanedDec = decimal || "";
+    if (cleanedInt === "") {
+      cleanedDec = cleanedDec.replace(/^0+/, "");
     }
-    return number;
+
+    // differences in length between input value with maximal length and current value
+    const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
+
+    // differences in length between num of significant digits and current value
+    const deltaSigDigLength =
+      significantDigits - (cleanedInt.length + cleanedDec.length);
+
+    // if we have not yet filled the number of significant digits, we could decide to pad
+    const paddingPossible = deltaSigDigLength > 0;
+
+    const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
+
+    if (deltaInputLength > 0 && paddingPossible) {
+      if (deltaInputLength > deltaSigDigLength) {
+        // we want to pad to the smaller value (sigDigits vs maxDecimal)
+        return asNumber.toFixed(missingDigits);
+      }
+      return asNumber.toFixed(maxDecimalInputLength);
+    }
+
+    // if avg was previously padded to fill the number of significant digits,
+    // we want to make sure, that we don't go over the maximumDecimalDigits
+    if (
+      key === "avg" &&
+      !paddingPossible &&
+      deltaInputLength < 0 &&
+      number[number.length - 1] === "0"
+    ) {
+      return asNumber.toFixed(maxDecimalInputLength);
+    }
+
+    if (key === "stdev" && paddingPossible) {
+      return asNumber.toFixed(missingDigits);
+    }
   }
-  //console.log({ key, number, significantDigits });
-  /*   if (key === "sum") {
-    if (maxDecimalInputLength < significantDigits) {
-      return Number(number).toFixed(maxDecimalInputLength);
-    }
-  } */
+
   return number;
 };
 
 /**
  * Used to apply formatting to calculated stats and to remove
  * values that are not displayable
- *
+ *stats
  * @param {object[][]} stats
  * @param {Function[][]} formatter
  */
@@ -104,7 +128,15 @@ export const cleanupStats = (unfilteredStats, formatter, availableStats) => {
         }
         for (const [resultKey, result] of Object.entries(column)) {
           const rowRes = {};
+          const meta = result?.meta;
           for (let [key, value] of Object.entries(result)) {
+            // we ignore any of these defined keys
+            if (keysToIgnore.includes(key)) {
+              continue;
+            }
+
+            const maxDecimalInputLength = meta?.maxDecimals ?? 0;
+
             // attach the title to the stat item
             // this will later be used to ensure correct ordering of columns
             if (key === "title") {
@@ -123,14 +155,22 @@ export const cleanupStats = (unfilteredStats, formatter, availableStats) => {
                     leadingZero: false,
                     whitespaceFormat: true,
                     html: true,
-                    additionalFormatting: maybeRound(key, columnType),
+                    additionalFormatting: maybeRound(
+                      key,
+                      maxDecimalInputLength,
+                      columnIdx,
+                    ),
                   });
                 } else {
                   rowRes[key] = formatter[toolIdx][columnIdx](value, {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
-                    additionalFormatting: maybeRound(key, columnType),
+                    additionalFormatting: maybeRound(
+                      key,
+                      maxDecimalInputLength,
+                      columnIdx,
+                    ),
                   });
                 }
               } catch (e) {
