@@ -58,7 +58,7 @@ class Tool(coveriteam.Tool):
             verdict_match = verdict_regex.search(line)
             if verdict_match and verdict is None:
                 # CoVeriTeam outputs benchexec result categories as verdicts.
-                verdict = verdict_match.group(1).lower()
+                verdict = verdict_match.group(1)
             if "Traceback (most recent call last)" in line:
                 verdict = "EXCEPTION"
         if verdict is None:
