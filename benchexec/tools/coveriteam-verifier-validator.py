@@ -9,7 +9,6 @@ import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
-import ast
 import re
 
 
