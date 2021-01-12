@@ -90032,7 +90032,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        }
       >
        <div
-        dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;"}
+        dangerouslySetInnerHTML={"0&#x2008;&#x2007;"}
        />
       </div>
      </div>
@@ -90167,7 +90167,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        }
       >
        <div
-        dangerouslySetInnerHTML={"10&#x2008;&#x2007;&#x2007;"}
+        dangerouslySetInnerHTML={"10&#x2008;&#x2007;"}
        />
       </div>
      </div>
@@ -90301,9 +90301,9 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
         }
        }
       >
-       <div
-        dangerouslySetInnerHTML={"-2.5&#x2007;"}
-       />
+       <div>
+        -2.5
+       </div>
       </div>
      </div>
     </div>

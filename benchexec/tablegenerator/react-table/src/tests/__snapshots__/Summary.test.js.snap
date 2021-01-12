@@ -70646,7 +70646,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.5&#x2007;"}
+         dangerouslySetInnerHTML={"7.5"}
          title="avg: 2.5, max: 10, median: 0, min: -2.5, stdev: 5.40"
         />
        </div>
@@ -70782,7 +70782,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"7.5&#x2007;"}
+         dangerouslySetInnerHTML={"7.5"}
          title="avg: 3.75, max: 10, median: 3.75, min: -2.5, stdev: 6.25"
         />
        </div>
@@ -70918,7 +70918,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"-2.5&#x2007;"}
+         dangerouslySetInnerHTML={"-2.5"}
          title="avg: -2.5, max: -2.5, median: -2.5, min: -2.5, stdev: 0.000"
         />
        </div>
@@ -71054,7 +71054,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"10&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"10&#x2008;&#x2007;"}
          title="avg: 10, max: 10, median: 10, min: 10, stdev: 0.000"
         />
        </div>
@@ -71190,7 +71190,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0.000"
         />
        </div>
@@ -71326,7 +71326,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        >
         <div
          className="cell"
-         dangerouslySetInnerHTML={"0&#x2008;&#x2007;&#x2007;"}
+         dangerouslySetInnerHTML={"0&#x2008;&#x2007;"}
          title="avg: 0, max: 0, median: 0, min: 0, stdev: 0.000"
         />
        </div>
