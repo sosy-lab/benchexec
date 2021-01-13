@@ -237,7 +237,7 @@ const updateStats = async ({
   }
 };
 
-export default ({
+const StatisticsTable = ({
   width,
   selectColumn,
   tools,
@@ -260,9 +260,10 @@ export default ({
 
   const handleInputChange = ({ target }) => setFixed(target.checked);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const createColumn = useCallback(
     createColumnBuilder({ changeTab, hiddenCols }),
-    [changeTab, hiddenCols],
+    [changeTab, hiddenCols, createColumnBuilder],
   );
 
   // we want to trigger a re-calculation of our stats whenever data changes.
@@ -305,3 +306,5 @@ export default ({
     </div>
   );
 };
+
+export default StatisticsTable;
