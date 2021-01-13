@@ -111,7 +111,7 @@ def getValidationResult(
     name = run.get("name")
     for witnessSet in witnessSets:
         witness = witnessSet.get(name)
-        if witness is None or not len(witness):
+        if not witness:
             continue
         # copy data from witness
         if run.get("properties") == "coverage-error-call":

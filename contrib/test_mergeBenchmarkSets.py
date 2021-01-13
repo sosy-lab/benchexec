@@ -10,7 +10,7 @@ import sys
 import unittest
 import xml.etree.ElementTree as ET  # noqa: What's wrong with ET?
 
-import mergeBenchmarkSets
+from . import mergeBenchmarkSets
 from benchexec import result
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -225,9 +225,9 @@ mock_witness_2 = """<?xml version="1.0"?>
 </result>
 """
 
-results_xml = ET.fromstring(mock_results)
-witness_xml_1 = ET.fromstring(mock_witness_1)
-witness_xml_2 = ET.fromstring(mock_witness_2)
+results_xml = ET.fromstring(mock_results)  # noqa S314, the XML is trusted
+witness_xml_1 = ET.fromstring(mock_witness_1)  # noqa S314, the XML is trusted
+witness_xml_2 = ET.fromstring(mock_witness_2)  # noqa S314, the XML is trusted
 
 files = [
     "../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml",
@@ -260,18 +260,25 @@ class TestXMLToString(unittest.TestCase):
         )
 
     def test_only_elem(self):
-
         new_results = mergeBenchmarkSets.xml_to_string(results_xml)
         new_witness_1 = mergeBenchmarkSets.xml_to_string(witness_xml_1)
         new_witness_2 = mergeBenchmarkSets.xml_to_string(witness_xml_2)
         self.assertTrue(
-            self.element_trees_equal(ET.fromstring(new_results), results_xml)
+            self.element_trees_equal(
+                ET.fromstring(new_results), results_xml  # noqa S314, the XML is trusted
+            )
         )
         self.assertTrue(
-            self.element_trees_equal(ET.fromstring(new_witness_1), witness_xml_1)
+            self.element_trees_equal(
+                ET.fromstring(new_witness_1),  # noqa S314, the XML is trusted
+                witness_xml_1,
+            )
         )
         self.assertTrue(
-            self.element_trees_equal(ET.fromstring(new_witness_2), witness_xml_2)
+            self.element_trees_equal(
+                ET.fromstring(new_witness_2),  # noqa S314, the XML is trusted
+                witness_xml_2,
+            )
         )
 
     def test_set_doctype(self):

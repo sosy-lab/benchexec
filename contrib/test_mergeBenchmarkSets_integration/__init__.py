@@ -26,7 +26,7 @@ merge_benchmark_sets = [
 OVERWRITE_MODE = False
 
 
-class MergeBenchmarkSetsTests(unittest.TestCase):
+class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(
