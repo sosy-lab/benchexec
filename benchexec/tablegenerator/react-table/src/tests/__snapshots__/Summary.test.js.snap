@@ -70919,7 +70919,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
         <div
          className="cell"
          dangerouslySetInnerHTML={"-2.5"}
-         title="avg: -2.5, max: -2.5, median: -2.5, min: -2.5, stdev: 0.0"
+         title="avg: -2.5, max: -2.5, median: -2.5, min: -2.5, stdev: 0.000"
         />
        </div>
       </div>

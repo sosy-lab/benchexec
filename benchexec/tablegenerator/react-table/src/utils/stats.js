@@ -57,7 +57,7 @@ const maybeRound = (key, maxDecimalInputLength, columnIdx) => (
 
     const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
 
-    if (deltaInputLength > 0 && paddingPossible) {
+    if (deltaInputLength > 0 && paddingPossible && key !== "stdev") {
       if (deltaInputLength > deltaSigDigLength) {
         // we want to pad to the smaller value (sigDigits vs maxDecimal)
         return asNumber.toFixed(missingDigits);
