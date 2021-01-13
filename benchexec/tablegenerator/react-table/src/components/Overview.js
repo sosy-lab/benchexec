@@ -50,7 +50,12 @@ const menuItems = [
   },
 ];
 
-const getCurrentPath = () => document.location.hash.split("?")[0].substr(1);
+const getActiveTab = () =>
+  (
+    menuItems.find(
+      (i) => i.path === document.location.hash.split("?")[0].substr(1),
+    ) || { key: "summary" }
+  ).key;
 
 export default class Overview extends React.Component {
   constructor(props) {
@@ -95,10 +100,7 @@ export default class Overview extends React.Component {
       filtered: [],
       tabIndex: 0,
       filterBoxVisible: false,
-      active: (
-        menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
-      ).key,
-
+      active: getActiveTab(),
       quantilePreSelection: tools[0].columns[1],
       hiddenCols: createHiddenColsFromURL(tools),
     };
@@ -143,7 +145,7 @@ export default class Overview extends React.Component {
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
-        this.updateHiddenCols();
+        this.updateState();
         if (action === "POP") {
           this.updateFiltersFromUrl();
         }
@@ -176,9 +178,11 @@ export default class Overview extends React.Component {
     }
   };
 
-  updateHiddenCols = () => {
-    this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
-  };
+  updateState = () =>
+    this.setState({
+      active: getActiveTab(),
+      hiddenCols: createHiddenColsFromURL(this.state.tools),
+    });
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = (ev) => {
