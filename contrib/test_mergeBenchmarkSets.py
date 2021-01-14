@@ -312,8 +312,8 @@ class TestWitnesses(unittest.TestCase):
         return witness
 
     def test_getWitnesses(self):
-        witness1 = mergeBenchmarkSets.getWitnesses(witness_xml_1)
-        witness2 = mergeBenchmarkSets.getWitnesses(witness_xml_2)
+        witness1 = mergeBenchmarkSets.get_witnesses(witness_xml_1)
+        witness2 = mergeBenchmarkSets.get_witnesses(witness_xml_2)
         self.assertEqual(3, len(witness1))
         self.assertEqual(2, len(witness2))
         self.assertSetEqual(
@@ -335,22 +335,22 @@ class TestWitnesses(unittest.TestCase):
     def test_getWitnessResult_no_witness(self):
         self.assertEqual(
             ("witness missing", result.CATEGORY_ERROR),
-            mergeBenchmarkSets.getWitnessResult(None, None),
+            mergeBenchmarkSets.get_witness_result(None, None),
         )
         self.assertEqual(
             ("witness missing", result.CATEGORY_ERROR),
-            mergeBenchmarkSets.getWitnessResult(None, results_xml.find("run")),
+            mergeBenchmarkSets.get_witness_result(None, results_xml.find("run")),
         )
 
     def test_getWitnessResult_no_verification_result(self):
         for file in files[:-1]:
             self.assertEqual(
                 ("result invalid (not found)", result.CATEGORY_ERROR),
-                mergeBenchmarkSets.getWitnessResult(self.mock_get_witness(file), None),
+                mergeBenchmarkSets.get_witness_result(self.mock_get_witness(file), None),
             )
         self.assertEqual(
             ("witness invalid (not found)", result.CATEGORY_ERROR),
-            mergeBenchmarkSets.getWitnessResult(self.mock_get_witness(files[-1]), None),
+            mergeBenchmarkSets.get_witness_result(self.mock_get_witness(files[-1]), None),
         )
 
     def test_getWitnessResult(self):
@@ -364,7 +364,7 @@ class TestWitnesses(unittest.TestCase):
         for expected, file in zip(expected_results, files):
             self.assertEqual(
                 expected,
-                mergeBenchmarkSets.getWitnessResult(
+                mergeBenchmarkSets.get_witness_result(
                     self.mock_get_witness(file), mock_get_verification_result(file)
                 ),
             )
@@ -385,7 +385,7 @@ class TestMerge(unittest.TestCase):
             category_from_verification = run.find('column[@title="category"]').get(
                 "value"
             )
-            actual = mergeBenchmarkSets.getValidationResult(
+            actual = mergeBenchmarkSets.get_validation_result(
                 run,
                 mock_witness_sets(),
                 status_from_verification,
@@ -430,7 +430,7 @@ class TestMerge(unittest.TestCase):
             category_from_verification = verification_run.find(
                 'column[@title="category"]'
             ).get("value")
-            actual = mergeBenchmarkSets.getValidationResult(
+            actual = mergeBenchmarkSets.get_validation_result(
                 verification_run,
                 witness_set_1 + [{file: witness_run}],
                 status_from_verification,
@@ -456,7 +456,7 @@ class TestMerge(unittest.TestCase):
             category_from_verification = run.find('column[@title="category"]').get(
                 "value"
             )
-            actual = mergeBenchmarkSets.getValidationResult(
+            actual = mergeBenchmarkSets.get_validation_result(
                 run,
                 mock_witness_sets(),
                 status_from_verification,
@@ -478,7 +478,7 @@ class TestMerge(unittest.TestCase):
             category_from_verification = run.find('column[@title="category"]').get(
                 "value"
             )
-            actual = mergeBenchmarkSets.getValidationResult(
+            actual = mergeBenchmarkSets.get_validation_result(
                 run,
                 mock_witness_sets(),
                 status_from_verification,

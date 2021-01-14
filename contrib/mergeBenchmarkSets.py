@@ -61,15 +61,15 @@ def xml_to_string(elem, qualified_name=None, public_id=None, system_id=None):
     return reparsed.toprettyxml(indent="  ")
 
 
-def getWitnesses(witnessXML):
+def get_witnesses(witness_xml):
     witnesses = {}
-    for run in witnessXML.findall("run"):
+    for run in witness_xml.findall("run"):
         name = run.get("name")
         witnesses[name] = run
     return witnesses
 
 
-def getWitnessResult(witness, verification_result):
+def get_witness_result(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
@@ -104,12 +104,12 @@ def getWitnessResult(witness, verification_result):
     return "result invalid (" + status_from_verification + ")", result.CATEGORY_ERROR
 
 
-def getValidationResult(
-    run, witnessSets, status_from_verification, category_from_verification
+def get_validation_result(
+    run, witness_sets, status_from_verification, category_from_verification
 ):
-    statusWit, categoryWit = None, None
+    status_wit, category_wit = None, None
     name = run.get("name")
-    for witnessSet in witnessSets:
+    for witnessSet in witness_sets:
         witness = witnessSet.get(name)
         if not witness:
             continue
@@ -119,13 +119,13 @@ def getValidationResult(
                 "value"
             )
             if status_from_validation == "true":
-                statusWit, categoryWit = (
+                status_wit, category_wit = (
                     status_from_verification,
                     result.CATEGORY_CORRECT,
                 )
                 category_from_verification = result.CATEGORY_CORRECT
-                scoreColumn = ElementTree.Element("column", title="score", value="1")
-                run.append(scoreColumn)
+                score_column = ElementTree.Element("column", title="score", value="1")
+                run.append(score_column)
         elif run.get("properties") == "coverage-branches":
             try:
                 coverage_value = (
@@ -135,35 +135,43 @@ def getValidationResult(
                 )
             except AttributeError:
                 coverage_value = "0.00"
-            statusWit, categoryWit = (status_from_verification, result.CATEGORY_CORRECT)
+            status_wit, category_wit = (
+                status_from_verification,
+                result.CATEGORY_CORRECT,
+            )
             category_from_verification = result.CATEGORY_CORRECT
             try:
                 coverage_percentage = Decimal(coverage_value) / 100
             except ValueError:
                 continue
-            scoreColumn = ElementTree.Element(
+            score_column = ElementTree.Element(
                 "column",
                 title="score",
                 value=util.print_decimal(coverage_percentage),
             )
-            run.append(scoreColumn)
+            run.append(score_column)
         else:
             # For verification
-            if statusWit and statusWit.startswith("witness invalid"):
+            if status_wit and status_wit.startswith("witness invalid"):
                 continue
-            statusWitNew, categoryWitNew = getWitnessResult(witness, run)
+            status_wit_new, category_wit_new = get_witness_result(witness, run)
             if (
-                categoryWit is None
-                or not categoryWit.startswith(result.CATEGORY_CORRECT)
-                or categoryWitNew == result.CATEGORY_CORRECT
-                or statusWitNew.startswith("witness invalid")
+                category_wit is None
+                or not category_wit.startswith(result.CATEGORY_CORRECT)
+                or category_wit_new == result.CATEGORY_CORRECT
+                or status_wit_new.startswith("witness invalid")
             ):
-                statusWit, categoryWit = (statusWitNew, categoryWitNew)
-    return statusWit, categoryWit, status_from_verification, category_from_verification
+                status_wit, category_wit = (status_wit_new, category_wit_new)
+    return (
+        status_wit,
+        category_wit,
+        status_from_verification,
+        category_from_verification,
+    )
 
 
-def merge(resultXML, witnessSets, isOverwrite):
-    for run in resultXML.findall("run"):
+def merge(result_xml, witness_sets, overwrite_status):
+    for run in result_xml.findall("run"):
         try:
             status_from_verification = run.find('column[@title="status"]').get("value")
             category_from_verification = run.find('column[@title="category"]').get(
@@ -177,16 +185,16 @@ def merge(resultXML, witnessSets, isOverwrite):
             categoryWit,
             status_from_verification,
             category_from_verification,
-        ) = getValidationResult(
+        ) = get_validation_result(
             run,
-            witnessSets,
+            witness_sets,
             status_from_verification,
             category_from_verification,
         )
         # Overwrite status with status from witness
         if (
             (
-                isOverwrite
+                overwrite_status
                 or result.RESULT_CLASS_FALSE
                 == result.get_result_classification(status_from_verification)
             )
@@ -209,28 +217,28 @@ def main(argv=None):
         argv = sys.argv
 
     args = parse_args(argv[1:])
-    resultFile = args.resultsXML
-    witnessFiles = args.witnessXML
-    isOverwrite = not args.no_overwrite_status_true
-    assert witnessFiles or not isOverwrite
+    result_file = args.resultsXML
+    witness_files = args.witnessXML
+    overwrite_status = not args.no_overwrite_status_true
+    assert witness_files or not overwrite_status
 
-    if not os.path.exists(resultFile) or not os.path.isfile(resultFile):
-        sys.exit("File {0} does not exist.".format(repr(resultFile)))
-    resultXML = tablegenerator.parse_results_file(resultFile)
-    witnessSets = []
-    for witnessFile in witnessFiles:
+    if not os.path.exists(result_file) or not os.path.isfile(result_file):
+        sys.exit("File {0} does not exist.".format(repr(result_file)))
+    result_xml = tablegenerator.parse_results_file(result_file)
+    witness_sets = []
+    for witnessFile in witness_files:
         if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
             sys.exit("File {0} does not exist.".format(repr(witnessFile)))
-        witnessXML = tablegenerator.parse_results_file(witnessFile)
-        witnessSets.append(getWitnesses(witnessXML))
+        witness_xml = tablegenerator.parse_results_file(witnessFile)
+        witness_sets.append(get_witnesses(witness_xml))
 
-    merge(resultXML, witnessSets, isOverwrite)
+    merge(result_xml, witness_sets, overwrite_status)
 
-    filename = resultFile + ".merged.xml.bz2"
+    filename = result_file + ".merged.xml.bz2"
     print("    " + filename)
     with io.TextIOWrapper(bz2.BZ2File(filename, "wb"), encoding="utf-8") as xml_file:
         xml_file.write(
-            xml_to_string(resultXML).replace("    \n", "").replace("  \n", "")
+            xml_to_string(result_xml).replace("    \n", "").replace("  \n", "")
         )
 
 
