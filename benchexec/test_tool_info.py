@@ -166,6 +166,12 @@ def print_tool_info(tool, tool_locator):
         logging.warning("Tool module specifies no program files.")
 
     environment = tool.environment(executable)
+    keep_environment = environment.pop("keepEnv", None)
+    if keep_environment is not None:
+        print_list(
+            "Run will start with fresh environment, except for these variables",
+            keep_environment.keys(),
+        )
     new_environment = environment.pop("newEnv", {})
     if new_environment:
         print_multiline_list(
