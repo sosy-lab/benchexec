@@ -31,27 +31,25 @@ class Tool(benchexec.tools.template.BaseTool2):
         return {"keepEnv": {"TPTP": 1}}
 
     def cmdline(self, executable, options, task, rlimits):
-        assert len(task.input_files) <= 1, "only one input file supported"
-
         if "-t" not in options and "--time_limit" not in options:
-            if rlimits.walltime is None:
+            if rlimits.walltime:
                 # Default timeout of Vampire is 60s,
                 # so we set value of 0 explicitly (means unlimited)
                 options += ["-t", "0"]
             else:
-                options += ["-t", f"{rlimits.walltime}s"]
+                options += ["-t", "{}s".format(rlimits.walltime)]
 
         if "-m" not in options and "--memory_limit" not in options:
-            if rlimits.memory is None:
+            if rlimits.memory:
                 # No memory limit has been set
                 # TODO: should we warn in this case? Vampire is going to use the default of 3000MiB
                 pass
             else:
                 # Vampire's option '--memory_limit/-m' takes the value in MiB
-                memory_mb = int(rlimits.memory / (1024 * 1024))
-                options += ["-m", f"{memory_mb}"]
+                memory_mib = rlimits.memory // (1024 * 1024)
+                options += ["-m", str(memory_mib)]
 
-        return [executable, *options, *task.input_files]
+        return [executable, *options, task.single_input_file]
 
     def determine_result(self, run):
         status = self.get_szs_status(run.output)
@@ -125,4 +123,5 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def get_value_from_output(self, output, identifier):
         if identifier == "szs-status":
-            return self.get_szs_status(output) or "--"
+            return self.get_szs_status(output)
+        return None
