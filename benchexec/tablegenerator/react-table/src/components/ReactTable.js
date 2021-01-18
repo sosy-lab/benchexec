@@ -410,10 +410,19 @@ const TableRender = (props) => {
         className="-highlight"
         minRows={0}
         onFilteredChange={(filtered) => {
+          /* There may be filters without values left over when the filter tab
+             overrides the table tab filters. Remove those if any exist. */
+          filtered = filtered.filter((filter) => filter.value);
           // We only want to consider filters that were set by ReactTable on this update
           const newFilters = filtered.filter(
             (filter) => !props.filtered.includes(filter),
           );
+
+          filtered
+            .filter((filter) => filter.id == "id")
+            .forEach((filter) => {
+              filter.isTableTabFilter = true;
+            });
 
           let filteredCopy = [...filtered];
 
