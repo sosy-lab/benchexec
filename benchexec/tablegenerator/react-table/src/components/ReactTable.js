@@ -41,14 +41,15 @@ const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
 const getSortingSettingsFromURL = () => {
   const urlParams = getHashSearch();
-  let setting = {};
-  if (urlParams.sort) {
-    const sortingParams = urlParams.sort.split(",");
-    const id = sortingParams[0];
-    const desc = sortingParams[1] === "desc" ? true : false;
-    setting = { id, desc };
-  }
-  return setting;
+  let settings = urlParams.sort
+    ? urlParams.sort.split(";").map((sortingEntry) => {
+        const sortingParams = sortingEntry.split(",");
+        const id = sortingParams[0];
+        const desc = sortingParams[1] === "desc";
+        return { id, desc };
+      })
+    : [];
+  return settings;
 };
 
 const TableRender = (props) => {
@@ -413,11 +414,15 @@ const TableRender = (props) => {
         filterable={true}
         filtered={props.filtered}
         columns={[createTaskIdColumn()].concat(resultColumns)}
-        defaultSorted={sortingSettings ? [sortingSettings] : []}
+        defaultSorted={sortingSettings}
         onSortedChange={(sorted) => {
-          setParam({
-            sort: sorted[0].id + "," + (sorted[0].desc ? "desc" : "asc"),
-          });
+          const sort = sorted
+            .map(
+              (sortingEntry) =>
+                sortingEntry.id + "," + (sortingEntry.desc ? "desc" : "asc"),
+            )
+            .join(";");
+          setParam({ sort });
         }}
         defaultPageSize={250}
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
