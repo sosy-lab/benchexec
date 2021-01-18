@@ -10,7 +10,7 @@ import sys
 import unittest
 import xml.etree.ElementTree as ET  # noqa: What's wrong with ET?
 
-from . import mergeBenchmarkSets
+from contrib import mergeBenchmarkSets
 from benchexec import result
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -251,31 +251,37 @@ def mock_get_verification_result(name):
     return results_xml.find("run[@name='{}']".format(name))
 
 
-class TestXMLToString(unittest.TestCase):
-    def element_trees_equal(self, et1, et2):
-        if len(et1) != len(et2) or et1.tag != et2.tag or et1.attrib != et2.attrib:
-            return False
-        return all(
-            self.element_trees_equal(child1, child2) for child1, child2 in zip(et1, et2)
-        )
+def mock_get_witness(name):
+    witness = mock_witness_sets()[0].get(name)
+    if witness is None:
+        raise NotImplementedError(name)
+    return witness
 
+
+def element_trees_equal(et1, et2):
+    if len(et1) != len(et2) or et1.tag != et2.tag or et1.attrib != et2.attrib:
+        return False
+    return all(element_trees_equal(child1, child2) for child1, child2 in zip(et1, et2))
+
+
+class TestMergeBenchmarkSets(unittest.TestCase):
     def test_only_elem(self):
         new_results = mergeBenchmarkSets.xml_to_string(results_xml)
         new_witness_1 = mergeBenchmarkSets.xml_to_string(witness_xml_1)
         new_witness_2 = mergeBenchmarkSets.xml_to_string(witness_xml_2)
         self.assertTrue(
-            self.element_trees_equal(
+            element_trees_equal(
                 ET.fromstring(new_results), results_xml  # noqa S314, the XML is trusted
             )
         )
         self.assertTrue(
-            self.element_trees_equal(
+            element_trees_equal(
                 ET.fromstring(new_witness_1),  # noqa S314, the XML is trusted
                 witness_xml_1,
             )
         )
         self.assertTrue(
-            self.element_trees_equal(
+            element_trees_equal(
                 ET.fromstring(new_witness_2),  # noqa S314, the XML is trusted
                 witness_xml_2,
             )
@@ -299,17 +305,17 @@ class TestXMLToString(unittest.TestCase):
         new_witness_2 = mergeBenchmarkSets.xml_to_string(
             witness_xml_2, qualified_name, public_id, system_id
         )
+        self.assertTrue(element_trees_equal(results_xml, ET.fromstring(new_results)))
+        self.assertTrue(
+            element_trees_equal(witness_xml_1, ET.fromstring(new_witness_1))
+        )
+        self.assertTrue(
+            element_trees_equal(witness_xml_2, ET.fromstring(new_witness_2))
+        )
+        # TODO: Still have to make sure that the doctype was actually added; probably not present in parsed ET
         assert_equal_ignore_space(mock_results, new_results)
         assert_equal_ignore_space(mock_witness_1, new_witness_1)
         assert_equal_ignore_space(mock_witness_2, new_witness_2)
-
-
-class TestWitnesses(unittest.TestCase):
-    def mock_get_witness(self, name):
-        witness = mock_witness_sets()[0].get(name)
-        if witness is None:
-            raise NotImplementedError(name)
-        return witness
 
     def test_getWitnesses(self):
         witness1 = mergeBenchmarkSets.get_witnesses(witness_xml_1)
@@ -346,11 +352,11 @@ class TestWitnesses(unittest.TestCase):
         for file in files[:-1]:
             self.assertEqual(
                 ("result invalid (not found)", result.CATEGORY_ERROR),
-                mergeBenchmarkSets.get_witness_result(self.mock_get_witness(file), None),
+                mergeBenchmarkSets.get_witness_result(mock_get_witness(file), None),
             )
         self.assertEqual(
             ("witness invalid (not found)", result.CATEGORY_ERROR),
-            mergeBenchmarkSets.get_witness_result(self.mock_get_witness(files[-1]), None),
+            mergeBenchmarkSets.get_witness_result(mock_get_witness(files[-1]), None),
         )
 
     def test_getWitnessResult(self):
@@ -365,12 +371,10 @@ class TestWitnesses(unittest.TestCase):
             self.assertEqual(
                 expected,
                 mergeBenchmarkSets.get_witness_result(
-                    self.mock_get_witness(file), mock_get_verification_result(file)
+                    mock_get_witness(file), mock_get_verification_result(file)
                 ),
             )
 
-
-class TestMerge(unittest.TestCase):
     def test_getValidationResult_single_witness(self):
         expected_results = [
             ("true", result.CATEGORY_CORRECT_UNCONFIRMED),

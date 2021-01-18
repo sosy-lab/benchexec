@@ -14,7 +14,7 @@ import unittest
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.relpath(os.path.dirname(__file__))
-base_dir = os.path.join(here, "..", "..")
+base_dir = os.path.join(here, "..", "..", "..")
 merge_benchmark_sets = [
     sys.executable,
     os.path.join(base_dir, "contrib", "mergeBenchmarkSets.py"),
