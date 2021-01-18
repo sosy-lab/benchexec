@@ -52,11 +52,16 @@ const getSortingSettingsFromURL = () => {
   return settings;
 };
 
+const initialPageSize = 250;
+const getPageSizeFromURL = () =>
+  parseInt(getHashSearch().pageSize) || initialPageSize;
+
 const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
   let [sortingSettings, setSortingSettings] = useState();
+  let [pageSize, setPageSize] = useState(initialPageSize);
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
@@ -126,6 +131,9 @@ const TableRender = (props) => {
 
     const sortingSetting = getSortingSettingsFromURL();
     setSortingSettings(sortingSetting);
+
+    const pageSize = getPageSizeFromURL();
+    setPageSize(pageSize);
   }, [props]);
 
   const handleFixedInputChange = ({ target }) => {
@@ -425,6 +433,7 @@ const TableRender = (props) => {
           setParam({ sort });
         }}
         defaultPageSize={250}
+        pageSize={pageSize}
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
         className="-highlight"
         minRows={0}
@@ -480,6 +489,7 @@ const TableRender = (props) => {
           }
           props.filterPlotData([...filteredCopy, ...additionalFilters], true);
         }}
+        onPageSizeChange={(pageSize) => setParam({ pageSize })}
       >
         {(_, makeTable) => {
           return makeTable();

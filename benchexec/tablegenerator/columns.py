@@ -622,8 +622,10 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         )
 
     else:
-        max_num_of_digits = len(decimal_number_match.group(GROUP_INT_PART)) + len(
-            decimal_number_match.group(GROUP_DEC_PART)
+        max_num_of_digits = (
+            len(decimal_number_match.group(GROUP_INT_PART))
+            + len(decimal_number_match.group(GROUP_DEC_PART))
+            - 1  # for decimal point, which is guaranteed to exist at this point
         )
         num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
