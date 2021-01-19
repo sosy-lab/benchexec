@@ -419,7 +419,7 @@ const TableRender = (props) => {
           );
 
           filtered
-            .filter((filter) => filter.id == "id")
+            .filter((filter) => filter.id === "id")
             .forEach((filter) => {
               filter.isTableTabFilter = true;
             });
