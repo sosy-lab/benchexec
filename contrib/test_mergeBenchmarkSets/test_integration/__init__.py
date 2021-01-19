@@ -9,6 +9,7 @@ import filecmp
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -41,22 +42,23 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
     def merge_tables_and_compare(
         self, resultfile, witness_files, no_overwrite=False, merge_suffix=""
     ):
-        result = self.run_cmd(
-            *merge_benchmark_sets
-            + [resultfile]
-            + witness_files
-            + (["--no-overwrite-status-true"] if no_overwrite else [])
-        ).strip()
-        expected = os.path.join(
-            here,
-            "expected",
-            os.path.basename(resultfile) + ".merged" + merge_suffix + ".xml.bz2",
-        )
-        if OVERWRITE_MODE:
-            os.replace(result, expected)
-        else:
-            self.assert_content_equals(result, expected)
-            os.remove(result)  # TODO: More reliable cleanup
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            result = self.run_cmd(
+                *merge_benchmark_sets
+                + [resultfile]
+                + witness_files
+                + (["--no-overwrite-status-true"] if no_overwrite else [])
+                + ["--outputpath", tmp_dir]
+            ).strip()
+            expected = os.path.join(
+                here,
+                "expected",
+                os.path.basename(resultfile) + ".merged" + merge_suffix + ".xml.bz2",
+            )
+            if OVERWRITE_MODE:
+                os.replace(result, expected)
+            else:
+                self.assert_content_equals(result, expected)
 
     def assert_content_equals(self, result, expected):
         self.assertTrue(
