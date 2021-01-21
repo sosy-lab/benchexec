@@ -114,7 +114,15 @@ class TestMergeBenchmarkSets(unittest.TestCase):
                 ET.fromstring(new_witness_2),  # noqa S314, the XML is trusted
             )
         )
-        # TODO: Still have to make sure that the doctype was actually added; probably not present in parsed ET
+        for xml in [new_results, new_witness_1, new_witness_2]:
+            self.assertListEqual(
+                [line.strip() for line in xml.splitlines()[1:4]],
+                [
+                    "<!DOCTYPE {}".format(qualified_name),
+                    "PUBLIC '{}'".format(public_id),
+                    "'{}'>".format(system_id),
+                ],
+            )
 
     def test_getWitnesses(self):
         witness1 = mergeBenchmarkSets.get_witnesses(witness_xml_1)

@@ -19,11 +19,6 @@ from contrib import mergeBenchmarkSets
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.relpath(os.path.dirname(__file__))
-base_dir = os.path.join(here, "..", "..", "..")
-merge_benchmark_sets = [
-    sys.executable,
-    os.path.join(base_dir, "contrib", "mergeBenchmarkSets.py"),
-]
 
 # Set to True to let tests overwrite the expected result with the actual result
 # instead of letting them fail.
