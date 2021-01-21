@@ -6,11 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import filecmp
+import io
 import os
-import subprocess
 import sys
 import tempfile
 import unittest
+
+from contextlib import redirect_stderr
+
+from contrib import mergeBenchmarkSets
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -28,28 +32,17 @@ OVERWRITE_MODE = False
 
 
 class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
-    def run_cmd(self, *args):
-        try:
-            output = subprocess.check_output(
-                args=args, stderr=subprocess.STDOUT
-            ).decode()
-        except subprocess.CalledProcessError as e:
-            print(e.output.decode())
-            raise e
-        print(output)
-        return output
-
     def merge_tables_and_compare(
         self, resultfile, witness_files, no_overwrite=False, merge_suffix=""
     ):
         with tempfile.TemporaryDirectory() as tmp_dir:
-            result = self.run_cmd(
-                *merge_benchmark_sets
-                + [resultfile]
+            mergeBenchmarkSets.main(
+                [resultfile]
                 + witness_files
                 + (["--no-overwrite-status-true"] if no_overwrite else [])
                 + ["--outputpath", tmp_dir]
-            ).strip()
+            )
+            result = os.path.join(tmp_dir, resultfile + ".merged.xml.bz2")
             expected = os.path.join(
                 here,
                 "expected",
@@ -67,23 +60,14 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
         )
 
     def test_no_files(self):
-        self.assertNotEqual(
-            0,
-            subprocess.call(
-                merge_benchmark_sets, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ),
-            "expected error return code",
-        )
+        with redirect_stderr(io.StringIO()):
+            self.assertRaises(SystemExit, mergeBenchmarkSets.main, [])
 
     def test_only_resultfile(self):
-        cmd = [
-            *merge_benchmark_sets,
-            os.path.join(here, "verified.xml.bz2"),
-        ]
-        self.assertNotEqual(
-            0,
-            subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
-            "expected error return code",
+        self.assertRaises(
+            AssertionError,
+            mergeBenchmarkSets.main,
+            [os.path.join(here, "verified.xml.bz2")],
         )
 
     def test_empty_resultfile(self):

@@ -46,7 +46,7 @@ def parse_args(argv):
         "--outputpath",
         default=".",
         metavar="OUT_PATH",
-        help="Folder wherein the generated output files will be placed."
+        help="Folder wherein the generated output files will be placed.",
     )
     return parser.parse_args(argv)
 
@@ -219,11 +219,9 @@ def merge(result_xml, witness_sets, overwrite_status):
 
 
 def main(argv=None):
-
     if argv is None:
-        argv = sys.argv
-
-    args = parse_args(argv[1:])
+        argv = sys.argv[1:]
+    args = parse_args(argv)
     result_file = args.resultsXML
     witness_files = args.witnessXML
     overwrite_status = not args.no_overwrite_status_true
