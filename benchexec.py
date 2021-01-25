@@ -49,10 +49,6 @@ def main(benchexec=None, argv=None):
 
     try:
 
-        print(os.getuid())
-        elevate()
-        print(os.getuid())
-
         if not benchexec:
 
             benchexec = BenchExec()
