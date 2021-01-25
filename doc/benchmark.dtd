@@ -28,6 +28,8 @@ SPDX-License-Identifier: Apache-2.0
 <!ELEMENT column (#PCDATA)>
 
 <!ATTLIST rundefinition name CDATA #IMPLIED>
+<!-- Johan Added-->
+<!ATTLIST rundefinition rootReq CDATA #IMPLIED>
 
 <!ATTLIST benchmark tool CDATA #REQUIRED>
 <!ATTLIST benchmark displayName CDATA #IMPLIED>
@@ -37,6 +39,8 @@ SPDX-License-Identifier: Apache-2.0
 <!ATTLIST benchmark hardtimelimit CDATA #IMPLIED>
 <!ATTLIST benchmark cpuCores CDATA #IMPLIED>
 <!ATTLIST benchmark threads CDATA #IMPLIED>
+
+
 
 <!ATTLIST tasks name CDATA #IMPLIED>
 
