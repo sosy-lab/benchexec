@@ -453,10 +453,10 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     def prepare_value(column, value, run_result):
         """
         Return a dict that represents one value (table cell).
-        We always add the raw value (as in CSV), and sometimes a version that is
+        We always add the raw value (never rounded), and sometimes a version that is
         formatted for HTML (e.g., with spaces for alignment).
         """
-        raw_value = column.format_value(value, "csv")
+        raw_value = column.format_value(value, "raw")
         # We need to make sure that formatted_value is safe (no unescaped tool output),
         # but for text columns format_value returns the same for csv and html_cell,
         # and for number columns the HTML result is safe.

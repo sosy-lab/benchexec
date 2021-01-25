@@ -18,8 +18,6 @@ class Tool(benchexec.tools.template.BaseTool):
     (https://github.com/javapathfinder/jpf-core/).
     """
 
-    REQUIRED_PATHS = ["../bin", "../build", "../jpf.properties"]
-
     def executable(self):
         return util.find_executable("bin/jpf-core-sv-comp")
 

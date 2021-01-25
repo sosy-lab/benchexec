@@ -9,7 +9,7 @@ import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
-import ast
+import re
 
 
 class Tool(coveriteam.Tool):
@@ -33,14 +33,14 @@ class Tool(coveriteam.Tool):
             options += ["--data-model", data_model_param]
 
         if task.property_file:
-            options += ["--input", "spec_path=" + task.property_file]
+            options += ["--input", "specification_path=" + task.property_file]
         else:
             raise UnsupportedFeatureException(
                 "Can't execute CoVeriTeam-Verifier-Validator: "
                 "Specification is missing."
             )
 
-        options += ["--input", "prog_path=" + task.single_input_file]
+        options += ["--input", "program_path=" + task.single_input_file]
 
         return [executable] + options
 
@@ -50,14 +50,16 @@ class Tool(coveriteam.Tool):
         will print out the produced aftifacts.
         If more than one dict is printed, the first matching one.
         """
-        for line in run.output:
+        verdict = None
+        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ \-]*)'")
+        for line in reversed(run.output):
             line = line.strip()
-            if "verdict" in line:
+            verdict_match = verdict_regex.search(line)
+            if verdict_match and verdict is None:
                 # CoVeriTeam outputs benchexec result categories as verdicts.
-                try:
-                    d = ast.literal_eval(line)
-                    if isinstance(d, dict):
-                        return d.get("verdict", result.RESULT_ERROR)
-                except SyntaxError:
-                    pass
-        return result.RESULT_ERROR
+                verdict = verdict_match.group(1)
+            if "Traceback (most recent call last)" in line:
+                verdict = "EXCEPTION"
+        if verdict is None:
+            return result.RESULT_UNKNOWN
+        return verdict

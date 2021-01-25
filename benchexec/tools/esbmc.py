@@ -16,8 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
     """
 
-    REQUIRED_PATHS = ["cpachecker", "esbmc", "esbmc-wrapper.py", "tokenizer"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("esbmc-wrapper.py")
 
@@ -65,7 +63,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if status == result.RESULT_UNKNOWN:
             if run.was_timeout:
                 status = "TIMEOUT"
-            elif run.output[-1].endswith("error"):
+            elif not run.output.any_line_contains("Unknown"):
                 status = "ERROR"
 
         return status

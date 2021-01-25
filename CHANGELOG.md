@@ -9,6 +9,43 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.6
+
+- One tool-info module improved.
+
+## BenchExec 3.5
+
+- One tool-info module improved.
+
+## BenchExec 3.4
+
+- BenchExec is now available in a PPA for easy installation on Ubuntu.
+  Just run the following commands
+
+      sudo add-apt-repository ppa:sosy-lab/benchmarking
+      sudo apt install benchexec
+
+- Column filters are now reflected in the URL of HTML tables.
+  This makes it possible to open a table, configure some filters,
+  and share a link with others that will apply these filters on load.
+  Furthermore, using the back and forward buttons of the browser
+  will now also update the applied filters.
+- Add parameter `--initial-table-state` to `table-generator`,
+  which allows to define the default state of HTML tables
+  (e.g., filters, opened tab, etc.).
+- Category-specific statistics are shown more often again on first table tab.
+  Since BenchExec 3.0 these were removed in some cases where we cannot compute
+  them, but this accidentally removed them from more than the desired cases.
+- Improved rounding in table-generator.
+- SV-COMP scoring schema updated according to rules of SV-COMP'21.
+- Many tool-info modules updated to use the new API from BenchExec 3.3
+  and improvements for SV-COMP'21 and Test-Comp'21.
+- Improved warnings in certain cases where a benchmark definition
+  does not make sense (e.g., `<exclude>` tags that do not match anything).
+- HTML tables now show a proper error message if the browser is not supported
+  and also a loading message.
+- Several smaller bug fixes like avoiding crashes in corner cases.
+
 ## BenchExec 3.3
 
 - New API for tool-info modules (needed by `benchexec` for getting information

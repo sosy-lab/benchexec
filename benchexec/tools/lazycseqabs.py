@@ -13,15 +13,6 @@ class Tool(cseq.CSeqTool):
     Tool info for Lazy CSeq + Abstract Interpretation  (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
     """
 
-    REQUIRED_PATHS = [
-        "cbmc",
-        "core",
-        "cseq-feeder.py",
-        "cseq-wrapper.py",
-        "lazy-cseq-abs.py",
-        "modules",
-    ]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("lazy-cseq-abs.py")
 

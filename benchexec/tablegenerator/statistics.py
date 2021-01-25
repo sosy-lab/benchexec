@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import decimal
 from decimal import Decimal, InvalidOperation
 import itertools
 
@@ -64,14 +65,12 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
-        if not values:
-            return None
         if any(v is not None and v.is_nan() for v in values):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)
         if not values:
-            return StatValue(Decimal(0))
+            return None
 
         values_len = len(values)
         min_value = values[0]
@@ -93,7 +92,9 @@ class StatValue(object):
             values_sum = sum(values)
             mean = values_sum / values_len
 
-            stdev = Decimal(0)
+            # The scaling is just to avoid having too few decimal digits when printing,
+            # the value is still just 0.
+            stdev = Decimal(0).scaleb(-decimal.getcontext().prec)
             for v in values:
                 diff = v - mean
                 stdev += diff * diff

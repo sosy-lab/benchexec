@@ -514,7 +514,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # keepEnv specifies variables to copy from the current environment,
         # newEnv specifies variables to set to a new value,
         # additionalEnv specifies variables where some value should be appended, and
-        # clearEnv specifies variables to delete.
         if environments.get("keepEnv", None) is not None:
             run_environment = {}
         else:
@@ -526,8 +525,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment[key] = value
         for key, value in environments.get("additionalEnv", {}).items():
             run_environment[key] = os.environ.get(key, "") + value
-        for key in environments.get("clearEnv", {}).items():
-            run_environment.pop(key, None)
 
         logging.debug("Using additional environment %s.", environments)
         return run_environment

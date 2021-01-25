@@ -38,7 +38,14 @@ GROUP_EXPONENT_PART = 7
 GROUP_EXPONENT_SIGN = 8
 GROUP_EXPONENT_VALUE = 9
 GROUP_UNIT = 10
-POSSIBLE_FORMAT_TARGETS = ["html", "html_cell", "tooltip", "tooltip_stochastic", "csv"]
+POSSIBLE_FORMAT_TARGETS = [
+    "html",
+    "html_cell",
+    "tooltip",
+    "tooltip_stochastic",
+    "csv",
+    "raw",
+]
 
 DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS = 3
 
@@ -178,6 +185,8 @@ class Column(object):
         )
 
     def get_number_of_significant_digits(self, format_target=None):
+        if format_target == "raw":
+            return None
         number_of_significant_digits = self.number_of_significant_digits
         if self.type.type == ColumnType.measure:
             if number_of_significant_digits is None and format_target != "csv":
@@ -371,7 +380,7 @@ def _format_number(
     assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
     if number == 0:
-        intended_digits = min(max_digits_after_decimal, initial_value_sig_digits)
+        intended_digits = min(number_of_significant_digits, initial_value_sig_digits)
         # Add as many trailing zeros as desired
         rounded_value = Decimal(0).scaleb(-intended_digits)
 
@@ -613,8 +622,10 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         )
 
     else:
-        max_num_of_digits = len(decimal_number_match.group(GROUP_INT_PART)) + len(
-            decimal_number_match.group(GROUP_DEC_PART)
+        max_num_of_digits = (
+            len(decimal_number_match.group(GROUP_INT_PART))
+            + len(decimal_number_match.group(GROUP_DEC_PART))
+            - 1  # for decimal point, which is guaranteed to exist at this point
         )
         num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = significant digits - number of digits in front of decimal point
