@@ -321,7 +321,8 @@ class BenchExec(object):
         for example with an implementation that delegates to some cloud service.
         """
         logging.debug("This is benchexec %s.", __version__)
-        from . import localexecution as executor
+        #from . import localexecution as executor
+        from . import p4execution as executor
 
         return executor
 
