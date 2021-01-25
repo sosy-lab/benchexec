@@ -8,6 +8,7 @@
 // enzyme
 import { configure } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
+window.crypto = require("@trust/webcrypto");
 
 // mock uniqid to have consistent names
 // https://stackoverflow.com/a/44538270/396730
