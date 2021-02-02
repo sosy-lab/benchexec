@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.18.dtd'>
+<result benchmarkname="cpa-seq-validate-violation-witnesses-cpa-seq" date="2019-12-03 07:46:25 CET" endtime="2019-12-03T08:32:39.564187+01:00" generator="BenchExec 2.5" starttime="2019-12-03T07:51:26.047090+01:00" tool="CPAchecker" toolmodule="benchexec.tools.cpachecker" version="1.9">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo>
+    <os name="Linux 4.15.0-70-generic"/>
+    <cpu cores="8" frequency="3800000000Hz" model="Intel Xeon E3-1230 v5 @ 3.40 GHz"/>
+    <ram size="33546305536B"/>
+    <environment/>
+  </systeminfo>
+  <run name="../sv-benchmarks/c/reducercommutativity/rangesum05.yml">
+    <column title="cputime" value="10.069947319s"/>
+    <column title="host" value="apollon019"/>
+    <column title="memory" value="298663936B"/>
+    <column title="status" value="false(unreach-call)"/>
+    <column title="walltime" value="5.824956073000067s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="cpuCores" value="2,6"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="starttime" value="2019-12-03T08:09:52.416048+01:00"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-fpi/indp4f.yml">
+    <column title="cputime" value="6.499907904s"/>
+    <column title="host" value="apollon026"/>
+    <column title="memory" value="183717888B"/>
+    <column title="status" value="ERROR (invalid witness syntax)"/>
+    <column title="walltime" value="3.7764528109983075s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="error"/>
+    <column hidden="true" title="cpuCores" value="1,5"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+    <column hidden="true" title="starttime" value="2019-12-03T08:09:55.376890+01:00"/>
+  </run>
+</result>

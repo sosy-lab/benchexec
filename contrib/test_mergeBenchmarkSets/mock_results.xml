@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.18.dtd'>
+<result benchmarkname="cpa-seq" date="2019-11-29 14:00:20 CET" endtime="2019-11-30T15:10:11.004407+01:00" generator="BenchExec 2.5" starttime="2019-11-29T14:01:23.164273+01:00" tool="CPAchecker" toolmodule="benchexec.tools.cpachecker" version="1.9">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo>
+    <os name="Linux 4.15.0-70-generic"/>
+    <cpu cores="8" frequency="3800000000Hz" model="Intel Xeon E3-1230 v5 @ 3.40 GHz"/>
+    <ram size="33546305536B"/>
+    <environment/>
+  </systeminfo>
+  <run name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml" logfile="logfiles/sanfoundry_24-1.yml.log">
+    <column title="cpuenergy" value="157.939331J"/>
+    <column title="cputime" value="18.077505912s"/>
+    <column title="host" value="apollon124"/>
+    <column title="memory" value="624906240B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="5.474685221910477s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="cpuCores" value="0,4,1,5,2,6,3,7"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="157.939331J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="152.173279J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="16.833801J"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+  </run>
+  <run name="../sv-benchmarks/c/reducercommutativity/rangesum05.yml" logfile="logfiles/rangesum05.yml.log">
+    <column title="cpuenergy" value="5027.425903J"/>
+    <column title="cputime" value="703.613562312s"/>
+    <column title="host" value="apollon022"/>
+    <column title="memory" value="2182410240B"/>
+    <column title="status" value="false(unreach-call)"/>
+    <column title="walltime" value="675.135140747996s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="cpuCores" value="0,4,1,5,2,6,3,7"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="5027.425903J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="4366.581726J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="1893.130615J"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml" logfile="logfiles/data_structures_set_multi_proc_trivial_ground.yml.log">
+    <column title="cpuenergy" value="11577.313477J"/>
+    <column title="cputime" value="962.726514515s"/>
+    <column title="host" value="apollon085"/>
+    <column title="memory" value="6377070592B"/>
+    <column title="status" value="TIMEOUT"/>
+    <column title="walltime" value="903.5037164168898s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="error"/>
+    <column hidden="true" title="cpuCores" value="0,4,1,5,2,6,3,7"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="11577.313477J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="10705.700562J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="2652.688477J"/>
+    <column hidden="true" title="exitsignal" value="9"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="terminationreason" value="cputime"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-fpi/indp4f.yml" logfile="logfiles/indp4f.yml.log">
+    <column title="cpuenergy" value="58.927551J"/>
+    <column title="cputime" value="6.646181369s"/>
+    <column title="host" value="apollon024"/>
+    <column title="memory" value="233844736B"/>
+    <column title="status" value="false(unreach-call)"/>
+    <column title="walltime" value="2.3128131250850856s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="cpuCores" value="0,4,1,5,2,6,3,7"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="58.927551J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="56.604187J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="6.205261J"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-patterns/array28_pattern.yml" logfile="logfiles/array28_pattern.yml.log">
+    <column title="cpuenergy" value="1270.774292J"/>
+    <column title="cputime" value="146.010175303s"/>
+    <column title="host" value="apollon068"/>
+    <column title="memory" value="1779523584B"/>
+    <column title="status" value="false(unreach-call)"/>
+    <column title="walltime" value="56.699794229120016s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="wrong"/>
+    <column hidden="true" title="cpuCores" value="0,4,1,5,2,6,3,7"/>
+    <column hidden="true" title="cpuenergy-pkg0" value="1270.774292J"/>
+    <column hidden="true" title="cpuenergy-pkg0-core" value="1209.154663J"/>
+    <column hidden="true" title="cpuenergy-pkg0-dram" value="207.455811J"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+  </run>
+</result>
