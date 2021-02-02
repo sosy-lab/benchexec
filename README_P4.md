@@ -2,6 +2,16 @@
 
 ## Installation
 
+### Benchexec installation
+To install this version of benchexec, run this command. This will install the regular benchexec, but also the extra p4 functionality. 
+For general explaination, go to [benchexec doc](https://github.com/sosy-labs/benchexec)
+
+```
+pip3 install --user git+https://github.com/thaprau/benchexec.git colorlogs
+```
+
+
+
 ### Docker file setup
 To setup the required docker files, some images has to be created locally. In total, three images has to be built.
 1. Node image - basic image which acts as a node in the network
@@ -15,7 +25,7 @@ sudo docker build -t basic_node basic_node
 sudo docker build -t switch_bmv2 switch_bmv2
 sudo docker build -t ptf_tester ptf_tester
 ```
-or use the installation script
+or use the installation script(not added yet)
 
 ```
 sudo docker_install.sh
