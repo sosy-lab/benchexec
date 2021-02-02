@@ -10,9 +10,9 @@ import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     
-    def executable(self):
+    def executable(self, tool):
         #return "~/nanomsg_test/nn_test.py"
         
         return "/home/sdn/Scripts/SocketTest.sh"
@@ -24,12 +24,11 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "SocketTest1"
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         returnString = "-----This is the output-----\n \n"
-        for line in output:
-            returnString += line
-            #if line == "Success\n":
-            #    return result.RESULT_TRUE_PROP
-            #else:
-            #    return result.RESULT_FALSE_PROP
+        for line in run.output:
+            if "ok" in line:
+                 return benchexec.result.RESULT_CLASS_TRUE
+            else:
+                return benchexec.result.RESULT_CLASS_FALSE
         return returnString
