@@ -63,7 +63,11 @@ class BenchExec(object):
 
         self.setup_logging()
 
-        self.executor = self.load_executor()
+        if self.config.p4:
+            from .p4execution import P4Execution
+            self.executor = P4Execution()
+        else:
+            self.executor = self.load_executor()
 
         returnCode = 0
         for arg in self.config.files:
@@ -233,6 +237,15 @@ class BenchExec(object):
             help="Do not compress result files.",
         )
 
+        parser.add_argument(
+            "-p4",
+            "--p4",
+            dest="p4",
+            default=False,
+            type=bool,
+            help="Set True if you wanna run a p4 program"
+        )
+
         def parse_filesize_value(value):
             try:
                 value = int(value)
@@ -321,8 +334,8 @@ class BenchExec(object):
         for example with an implementation that delegates to some cloud service.
         """
         logging.debug("This is benchexec %s.", __version__)
-        #from . import localexecution as executor
-        from . import p4execution as executor
+        from . import localexecution as executor
+        #from . import p4execution as executor
 
         return executor
 
