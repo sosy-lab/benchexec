@@ -26,6 +26,8 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
+  setParam,
+  getHashSearch,
 } from "../utils/utils";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
@@ -37,10 +39,29 @@ const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
 
 const ReactTableFixedColumns = withFixedColumns(ReactTable);
 
+const getSortingSettingsFromURL = () => {
+  const urlParams = getHashSearch();
+  let settings = urlParams.sort
+    ? urlParams.sort.split(";").map((sortingEntry) => {
+        const sortingParams = sortingEntry.split(",");
+        const id = sortingParams[0];
+        const desc = sortingParams[1] === "desc";
+        return { id, desc };
+      })
+    : [];
+  return settings;
+};
+
+const initialPageSize = 250;
+const getPageSizeFromURL = () =>
+  parseInt(getHashSearch().pageSize) || initialPageSize;
+
 const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
+  let [sortingSettings, setSortingSettings] = useState();
+  let [pageSize, setPageSize] = useState(initialPageSize);
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
@@ -107,6 +128,12 @@ const TableRender = (props) => {
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
     setFilteredColumnValues(newFilteredColumnValues);
+
+    const sortingSetting = getSortingSettingsFromURL();
+    setSortingSettings(sortingSetting);
+
+    const pageSize = getPageSizeFromURL();
+    setPageSize(pageSize);
   }, [props]);
 
   const handleFixedInputChange = ({ target }) => {
@@ -395,15 +422,35 @@ const TableRender = (props) => {
         filterable={true}
         filtered={props.filtered}
         columns={[createTaskIdColumn()].concat(resultColumns)}
+        defaultSorted={sortingSettings}
+        onSortedChange={(sorted) => {
+          const sort = sorted
+            .map(
+              (sortingEntry) =>
+                sortingEntry.id + "," + (sortingEntry.desc ? "desc" : "asc"),
+            )
+            .join(";");
+          setParam({ sort });
+        }}
         defaultPageSize={250}
+        pageSize={pageSize}
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
         className="-highlight"
         minRows={0}
         onFilteredChange={(filtered) => {
+          /* There may be filters without values left over when the filter tab
+             overrides the table tab filters. Remove those if any exist. */
+          filtered = filtered.filter((filter) => filter.value);
           // We only want to consider filters that were set by ReactTable on this update
           const newFilters = filtered.filter(
             (filter) => !props.filtered.includes(filter),
           );
+
+          filtered
+            .filter((filter) => filter.id === "id")
+            .forEach((filter) => {
+              filter.isTableTabFilter = true;
+            });
 
           let filteredCopy = [...filtered];
 
@@ -451,6 +498,7 @@ const TableRender = (props) => {
           }
           props.filterPlotData([...filteredCopy, ...additionalFilters], true);
         }}
+        onPageSizeChange={(pageSize) => setParam({ pageSize })}
       >
         {(_, makeTable) => {
           return makeTable();
