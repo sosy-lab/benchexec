@@ -45,8 +45,6 @@ class P4Execution(object):
             logging.critical("Ptf test folder path not found: {0}".format(ptf_folder_path))
             raise( BenchExecException("Ptf test folder path not found: {0}".format(ptf_folder_path)))
 
-
-        switch_source_path = ""
         if not switch_source_path or not ptf_folder_path:
             raise BenchExecException("Switch or Ptf folder path not defined." +
                 "Switch path: {0} Folder path: {1}".format(switch_source_path, ptf_folder_path))
