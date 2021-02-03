@@ -47,7 +47,7 @@ __all__ = [
 
 
 DEFAULT_STACK_SIZE = 1024 * 1024
-GUARD_PAGE_SIZE = libc.sysconf(libc.SC_PAGESIZE)  # size of guard page at end of stack
+GUARD_PAGE_SIZE = os.sysconf("SC_PAGESIZE")  # size of guard page at end of stack
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
@@ -244,7 +244,7 @@ def _generate_native_clone_child_callback():
     # Inspired by https://csl.name/post/python-jit/
 
     # Allocate one page of memory where we put the code
-    page_size = libc.sysconf(libc.SC_PAGESIZE)
+    page_size = os.sysconf("SC_PAGESIZE")
     mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
