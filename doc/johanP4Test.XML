@@ -6,13 +6,16 @@
      with dummy tool that simply returns random answers.
      No resource limits are specified. -->
 <benchmark tool="johanTestTool" displayName="Johans test tool">
-
-<rundefinition>
-    <tasks>
-        <withoutfile>123</withoutfile>
-    </tasks>
-</rundefinition>
-
-
-
+    <option name="switch_folder">/home/sdn/benchexec/docker_files/switch_bmv2</option>
+    <option name="ptf_test_folder">/home/sdn/DockerTesting/Network_Compose/ptf_tester/tests</option>
+    <rundefinition>
+        <tasks>
+            <include>task_files/task_1.yml</include>  
+            <propertyfile>task_files/ALL.prp</propertyfile>  
+        </tasks>
+        <tasks>
+            <include>task_files/task_1.yml</include>  
+            <propertyfile>task_files/ALL.prp</propertyfile>  
+        </tasks>
+    </rundefinition>
 </benchmark>

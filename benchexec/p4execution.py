@@ -8,6 +8,7 @@ from benchexec import tooladapter
 from benchexec import util
 import docker
 from benchexec import benchexec
+from benchexec import BenchExecException
 
 STOPPED_BY_INTERRUPT = False
 
@@ -35,6 +36,21 @@ class P4Execution(object):
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
+        switch_source_path, ptf_folder_path = self.read_folder_paths(benchmark) 
+
+        if not os.path.isdir(switch_source_path):
+          logging.critical("Switch folder path not found: {0}".format(switch_source_path)) 
+          raise BenchExecException("Switch folder path not found: {0}".format(switch_source_path))
+        if not os.path.isdir(ptf_folder_path):
+            logging.critical("Ptf test folder path not found: {0}".format(ptf_folder_path))
+            raise( BenchExecException("Ptf test folder path not found: {0}".format(ptf_folder_path)))
+
+
+        switch_source_path = ""
+        if not switch_source_path or not ptf_folder_path:
+            raise BenchExecException("Switch or Ptf folder path not defined." +
+                "Switch path: {0} Folder path: {1}".format(switch_source_path, ptf_folder_path))
+
         self.client = docker.from_env()
         
 
@@ -48,7 +64,6 @@ class P4Execution(object):
         #To be replaceded by input file
         NodeImageName = "basic_node"
         SwitchImageName = "switch_bmv2"
-        SwitchSourcePath = "/home/sdn/DockerTesting/Network_Compose/switch_bmv2"
         SwitchTargetPath = "/app"
 
         for device_nr in range(nrOfNodes):
@@ -65,8 +80,8 @@ class P4Execution(object):
 
         #Switch containers
         self.switches = []
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        mount_switch = docker.types.Mount(SwitchTargetPath, SwitchSourcePath, type="bind")
+        
+        mount_switch = docker.types.Mount(SwitchTargetPath, switch_source_path, type="bind")
 
         switch_command = "simple_switch "
 
@@ -90,7 +105,7 @@ class P4Execution(object):
         # net2.connect(self.switches[0])
 
         #Ptf tester container
-        mount_ptf_tester = docker.types.Mount("/app", "/home/sdn/DockerTesting/Network_Compose/ptf_tester/tests", type="bind")
+        mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
         self.ptf_tester = self.client.containers.create("ptf_tester",
             command="ptf --test-dir /app --device-socket 0-{0-64}@tcp://172.21.0.2:10001 --device-socket 1-{0-64}@tcp://172.21.0.3:10001 --platform nn",
             detach=True,
@@ -198,10 +213,28 @@ class P4Execution(object):
                 ipam=ipam_config
             )
 
-
     def get_system_info(self):
         return systeminfo.SystemInfo()
     
+    def read_folder_paths(self, benchmark):
+
+        switch_folder = ""
+        ptf_folder = ""
+        option_index = 0
+
+        while option_index < len(benchmark.options):
+            try:
+                if "switch" in benchmark.options[option_index].lower():
+                    switch_folder = benchmark.options[option_index +1]
+                elif "ptf" in benchmark.options[option_index].lower():
+                    ptf_folder = benchmark.options[option_index +1]
+            except:
+                test = ""
+
+            option_index += 2
+               
+        return switch_folder, ptf_folder
+            
     def close(self):
         """
             Cleans up all the running containers. Should be called when test is done.
