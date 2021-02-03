@@ -3,7 +3,6 @@ import os
 import logging
 import time
 from benchexec import systeminfo
-from elevate import elevate
 
 from benchexec import tooladapter
 from benchexec import util
