@@ -30,8 +30,6 @@ import benchexec.util as util
 
 from benchexec.benchexec import BenchExec
 
-from elevate import elevate
-
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 
