@@ -13,7 +13,8 @@ import { isOkStatus } from "../utils/utils";
 import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
-const zip = require("../../node_modules/@zip.js/zip.js/dist/zip.min.js");
+import * as zip from "@zip.js/zip.js/dist/zip.min"
+
 zip.configure({
   useWebWorkers: false,
 });
