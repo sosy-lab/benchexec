@@ -46,8 +46,8 @@ RUN rm -rf tempdir
 
 RUN cd /usr/local/behavioral-model/ && ./autogen.sh
 RUN /usr/local/behavioral-model/configure
-RUN cd /usr/local/behavioral-model/ && make
-RUN cd /usr/local/behavioral-model/ && make install
+RUN make
+RUN make install
 RUN cd /usr/local/behavioral-model/ && ldconfig
 
 CMD tail -f /dev/null
