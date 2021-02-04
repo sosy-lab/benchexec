@@ -131,7 +131,7 @@ export default class LinkOverlay extends React.Component {
     const reader = new zip.ZipReader(new zip.HttpRangeReader(zipPath));
     reader.getEntries().then(
       (entries) => {
-        this.loadEntries(entries, zipFile, zipPath);
+        this.handleZipEntries(entries, zipFile, zipPath);
       },
       (error) => {
         if (error.message === zip.ERR_HTTP_RANGE) {
@@ -148,7 +148,7 @@ export default class LinkOverlay extends React.Component {
     const reader = new zip.ZipReader(new zip.HttpReader(zipPath));
     reader.getEntries().then(
       (entries) => {
-        this.loadEntries(entries, zipFile, zipPath);
+        this.handleZipEntries(entries, zipFile, zipPath);
       },
       (error) => {
         this.readZipArchiveManually(zipPath, zipFile);
@@ -172,7 +172,7 @@ export default class LinkOverlay extends React.Component {
           reader
             .getEntries()
             .then(
-              (entries) => this.loadEntries(entries, zipFile, zipPath),
+              (entries) => this.handleZipEntries(entries, zipFile, zipPath),
               this.setError,
             );
         },
@@ -186,7 +186,7 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  loadEntries = (entries, zipFile, zipPath) => {
+  handleZipEntries = (entries, zipFile, zipPath) => {
     zipEntriesCache[zipPath] = entries;
     this.loadFileFromZipEntries(entries, zipFile, zipPath);
   };
