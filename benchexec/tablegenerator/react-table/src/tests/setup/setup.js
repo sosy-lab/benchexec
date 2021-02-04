@@ -8,6 +8,7 @@
 // enzyme
 import { configure } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
+// Used by @zip.js/zip.js, but not implemented in jsdom via jest, so manually add it here
 window.crypto = require("@trust/webcrypto");
 
 // mock uniqid to have consistent names
