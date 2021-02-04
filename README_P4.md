@@ -2,23 +2,37 @@
 
 ## Installation
 
+
+### Dependencies
+
+#### Docker Engine
+To install docker, follow the instruction on [dockers website](https://docs.docker.com/engine/install/)
+
+Also install the extension for docker to be excecuted through python:
+
+```
+sudo pip3 install docker
+```
+
 ### Benchexec installation
-To install this version of benchexec, run this command. This will install the regular benchexec, but also the extra p4 functionality. 
-For general explaination, go to [benchexec doc](https://github.com/sosy-labs/benchexec)
+
+To install benchexecute with p4 extensions follow these steps. First clone the repository, switch to correct
+branch and install the application:
 
 ```
-pip3 install --user git+https://github.com/thaprau/benchexec.git colorlogs
+git clone https://github.com/thaprau/benchexec.git
+cd benchexec
+git checkout bench_p4
+pip3 install .
 ```
-
-
 
 ### Docker file setup
 To setup the required docker files, some images has to be created locally. In total, three images has to be built.
 1. Node image - basic image which acts as a node in the network
-2. Switch image - Image that runs the bmv2 software provided by the p4 institution()
+2. Switch image - Image that runs the bmv2 software provided by the p4 institution
 3. Ptf tester image - Image that runs PTF(package test framwork) also provided by p4 institution
 
-To build the images, run the following commands or use the setup script provided in `/docker`.
+To build the images, run the following commands or use the setup script provided in `/docker_files`.
 
 ```
 sudo docker build -t basic_node basic_node
