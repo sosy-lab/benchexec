@@ -11,7 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.13",
-    "@zip.js/zip.js": "^2.2.8",
+    "@zip.js/zip.js": "^2.2.12",
     "classnames": "^2.2.6",
     "deep-equal": "^2.0.5",
     "rc-slider": "^9.6.5",

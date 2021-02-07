@@ -13,7 +13,7 @@ import { isOkStatus } from "../utils/utils";
 import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
-import * as zip from "@zip.js/zip.js/dist/zip.min"
+import * as zip from "@zip.js/zip.js/dist/zip-no-worker-inflate.min";
 
 zip.configure({
   useWebWorkers: false,
