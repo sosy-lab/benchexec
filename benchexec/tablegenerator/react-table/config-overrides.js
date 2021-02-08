@@ -22,7 +22,7 @@ module.exports = {
         vendors: {
           chunks: "all",
           name: "vendors",
-          test: /(node_modules|src\/data\/dependencies\.json|src\/vendor)/,
+          test: /(node_modules|src\/data\/dependencies\.json)/,
         },
       },
     };
@@ -52,22 +52,6 @@ module.exports = {
       const dataPath = process.env.DATA || "src/data/data.json";
       config.resolve.alias["@data"] = path.resolve(__dirname, dataPath);
     }
-
-    return config;
-  },
-
-  jest: function (config) {
-    // In tests we want to skip loading the libraries from src/vendor/,
-    // so we insert a pattern in the transform key that lets Jest replace
-    // those files with dummy values when imported.
-    // We cannot set this key in package.json because it needs to be the first.
-    const fileTransformScript = Object.values(config.transform).find((e) =>
-      e.endsWith("fileTransform.js"),
-    );
-    config.transform = {
-      "^(.*[\\\\/])?src[\\\\/]vendor[\\\\/].*$": fileTransformScript,
-      ...config.transform,
-    };
 
     return config;
   },

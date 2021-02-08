@@ -52,16 +52,6 @@ checker.init(
       console.log(err);
       process.exit(1);
     } else {
-      // zip.js is a special case because we do not retrieve it from npm
-      packages["zip.js"] = {
-        name: "zip.js",
-        version: "3e79208",
-        repository: "https://github.com/gildas-lormeau/zip.js",
-        copyright: "Copyright (c) 2013 Gildas Lormeau. All rights reserved.",
-        licenses: "BSD-3-Clause",
-        licenseText: fs.readFileSync("src/vendor/zip.js/LICENSE.txt", "utf-8")
-      };
-
       // We store some metadata for each package, including its license.
       // Because licenses are large, we deduplicate them:
       // We store each occurring license in licensesTexts and refer to it via its index.
