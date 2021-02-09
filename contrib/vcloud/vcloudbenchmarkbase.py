@@ -23,21 +23,21 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
 
         vcloud_args.add_argument(
-            "--vcloudMaster",
+            self.get_param_name("cloudMaster"),
             dest="cloudMaster",
             metavar="HOST",
             help="Sets the master host of the VerifierCloud instance to be used. If this is a HTTP URL, the web interface is used.",
         )
 
         vcloud_args.add_argument(
-            "--vcloudPriority",
+            self.get_param_name("cloudPriority"),
             dest="cloudPriority",
             metavar="PRIORITY",
             help="Sets the priority for this benchmark used in the VerifierCloud. Possible values are IDLE, LOW, HIGH, URGENT.",
         )
 
         vcloud_args.add_argument(
-            "--vcloudCPUModel",
+            self.get_param_name("cloudCPUModel"),
             dest="cpu_model",
             type=str,
             default=None,
@@ -53,7 +53,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         vcloud_args.add_argument(
-            "--vcloudClientHeap",
+            self.get_param_name("cloudClientHeap"),
             dest="cloudClientHeap",
             metavar="MB",
             default=100,
@@ -74,7 +74,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Allows the usage of cgroups inside the execution environment. This is useful e.g. if a tool wants to make use of resource limits for subprocesses it spawns.",
         )
         vcloud_args.add_argument(
-            "--vcloudAdditionalFiles",
+            self.get_param_name("cloudAdditionalFiles"),
             dest="additional_files",
             metavar="FILE_OR_PATH",
             nargs="*",
@@ -83,6 +83,9 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
         return parser
+
+    def get_param_name(self, pname):
+        return "--" + "v" + pname
 
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:
