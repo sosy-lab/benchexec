@@ -7,7 +7,7 @@
      No resource limits are specified. -->
 <benchmark tool="johanTestTool" displayName="Johans test tool">
     <option name="switch_folder">/home/sdn/benchexec/docker_files/switch_bmv2</option>
-    <option name="ptf_test_folder">/home/sdn/DockerTesting/Network_Compose/ptf_tester/tests</option>
+    <option name="ptf_test_folder">/home/sdn/benchexec/docker_files/ptf_tester/tests</option>
     <rundefinition>
         <tasks>
             <include>task_files/task_1.yml</include>  
