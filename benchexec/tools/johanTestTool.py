@@ -25,10 +25,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "SocketTest1"
 
     def determine_result(self, run):
-        returnString = "-----This is the output-----\n \n"
+        AllTestCleared = True
+        
         for line in run.output:
-            if "ok" in line:
-                 return benchexec.result.RESULT_CLASS_TRUE
-            else:
-                return benchexec.result.RESULT_CLASS_FALSE
-        return returnString
+            print(line)
+            if not "ok" in line:
+                AllTestCleared = False
+                break
+        if AllTestCleared:
+            return benchexec.result.RESULT_CLASS_TRUE
+        else:
+            return benchexec.result.RESULT_CLASS_FALSE
