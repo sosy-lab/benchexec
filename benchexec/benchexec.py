@@ -64,6 +64,8 @@ class BenchExec(object):
         self.setup_logging()
 
         if self.config.p4:
+            if os.getuid() != 0:
+                raise BenchExecException("Superuser is required to run p4 program.")
             from .p4execution import P4Execution
             self.executor = P4Execution()
         else:
@@ -422,7 +424,6 @@ class BenchExec(object):
         if self.executor:
             self.executor.stop()
 
-
 def add_container_args(parser):
     container_args = parser.add_argument_group("optional arguments for run container")
     try:
@@ -456,7 +457,6 @@ def add_container_args(parser):
         )
         containerexecutor.add_basic_container_args(container_args)
 
-
 def parse_time_arg(s):
     """
     Parse a time stamp in the "year-month-day hour-minute" format.
@@ -465,7 +465,6 @@ def parse_time_arg(s):
         return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
-
 
 def main(benchexec=None, argv=None):
     """

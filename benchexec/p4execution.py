@@ -3,6 +3,8 @@ import os
 import logging
 import time
 from benchexec import systeminfo
+from benchexec.model import Run
+from benchexec.p4_run_setup import P4SetupHandler
 
 from benchexec import tooladapter
 from benchexec import util
@@ -51,30 +53,25 @@ class P4Execution(object):
 
         self.client = docker.from_env()
         
+        #To be replaceded by input file
+        NodeImageName = "basic_node"
+        SwitchImageName = "switch_bmv2"
+        SwitchTargetPath = "/app"
+        nrOfNodes = 4
 
-        nrOfNodes = 2
         #Setup networks
         self.setup_network(nrOfNodes)
 
         #Create node container
         self.nodes = []
 
-        #To be replaceded by input file
-        NodeImageName = "basic_node"
-        SwitchImageName = "switch_bmv2"
-        SwitchTargetPath = "/app"
-
         for device_nr in range(nrOfNodes):
             self.nodes.append(self.client.containers.create(NodeImageName,
-                command="python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.21.0.{1}:10001 -i {2}-1@eth0".format(device_nr ,device_nr+2, device_nr),
+                command="python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {2}-1@eth0".format(device_nr ,device_nr+3, device_nr),
                 detach=True,
                 name="node{0}".format(device_nr+1),
                 network="net{0}".format(device_nr+1)
                 ))
-
-        mgnt = self.client.networks.get("mgnt")
-        mgnt.connect(self.nodes[0])
-        mgnt.connect(self.nodes[1])
 
         #Switch containers
         self.switches = []
@@ -99,22 +96,28 @@ class P4Execution(object):
         #Connect all nodes to the switch
         for device_nr in range(nrOfNodes)[1:]:
             self.client.networks.get("net{0}".format(device_nr+1)).connect(self.switches[0])
-        # net2 = self.client.networks.get("net2")
-        # net2.connect(self.switches[0])
 
         #Ptf tester container
         mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
         self.ptf_tester = self.client.containers.create("ptf_tester",
-            command="ptf --test-dir /app --device-socket 0-{0-64}@tcp://172.21.0.2:10001 --device-socket 1-{0-64}@tcp://172.21.0.3:10001 --platform nn",
             detach=True,
-            network="mgnt",
             name="ptfTester",
-            mounts=[mount_ptf_tester])
+            mounts=[mount_ptf_tester],
+            tty=True)
+
+        #Setup mgnt network
+        mgnt = self.client.networks.get("mgnt")
+        mgnt.connect(self.ptf_tester)
+        for node in self.nodes:
+            mgnt.connect(node)
 
     def execute_benchmark(self, benchmark, output_handler):
+        self.start_containers()
 
-        #Start containers used for this benchmark, except for ptf tester container
-        self.start()
+        test_dict = self.read_tests()
+
+        setup_handler = P4SetupHandler(benchmark, test_dict)
+        setup_handler.update_runsets()
 
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
@@ -131,24 +134,56 @@ class P4Execution(object):
             output_handler.output_before_run_set(runSet)
 
             for run in runSet.runs:
+                command = ("ptf --test-dir /app " + run.identifier + " " + 
+                "--device-socket 0-{0-64}@tcp://172.19.0.3:10001 " + 
+                "--device-socket 1-{0-64}@tcp://172.19.0.4:10001 " + 
+                "--device-socket 2-{0-64}@tcp://172.19.0.5:10001 " + 
+                "--device-socket 3-{0-64}@tcp://172.19.0.6:10001 " + 
+                "--platform nn")
 
-                logs = self._execute_benchmark(run)
+                return_code, test_output = self._execute_benchmark(run, command)
 
-                logs = logs.decode("utf-8")
-                logging.debug("Logs: " + logs)
+                test_output = test_output.decode("utf-8")
+                test_output_list = test_output.split("\r\n")
+
+                #Extract simple information to determine results
+                #_ , test_names = self._execute_benchmark(run,"ptf --test-dir /app/test_with_fail --list-test-names")
+                #test_names = test_names.decode("utf-8")
+                #test_names = test_names.split("\r\n")
+                
+                if os.path.exists("/home/sdn/benchexec/test.txt"):
+                    os.remove("/home/sdn/benchexec/test.txt")
+                f = open("/home/sdn/benchexec/test.txt", "w+")
+                f.write(test_output)
+                
+                
+
+                #f.write(str(test_names))
+
+                # f.write("Extract result")
+                # test_results = []
+                # for test in test_names:
+                #     if test:
+                #         matching = [s for s in test_output_list if test in s]
+                #         test_results.append(matching[0])
+                #         f.write(matching[0] + "\n")
+                # f.close()
+
+                logging.debug("Logs: " + test_output)
 
                 try:
                     with open(run.log_file, "w") as ouputFile:
                         for i in range(6):
                             ouputFile.write("Logging\n")
 
-                        ouputFile.write(logs)
+                        #for result in test_results:
+                        ouputFile.write(test_output + "\n")
                 except OSError:
                     print("Failed")
                 
                 values = {}
-                values["exitcode"] = util.ProcessExitCode.from_raw(0)
-                run.cmdline()
+                values["exitcode"] = util.ProcessExitCode.from_raw(return_code)
+                test = run.cmdline()
                 
                 run.set_result(values)
                 
@@ -156,16 +191,12 @@ class P4Execution(object):
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
-            self.close()
+        self.close()
+        #self.clear_networks()
     
-    def _execute_benchmark(self, run):
+    def _execute_benchmark(self, run, command):
 
-        self.ptf_tester.start()
-
-        logging.debug('Waiting for ptf tester to finish')
-        time.sleep(5)
-
-        return self.ptf_tester.logs()
+        return self.ptf_tester.exec_run(command, tty=True)
     
     def setup_network(self, nrOfNodes):
         """
@@ -179,8 +210,8 @@ class P4Execution(object):
                 self.node_networks.append(network)
             except docker.errors.NotFound:
                 ipam_pool = docker.types.IPAMPool(
-                    subnet="172.{0}.0.0/16".format(18+net_id),
-                    gateway="172.{0}.0.1".format(18+net_id)
+                    subnet="172.{0}.0.0/16".format(19+net_id),
+                    gateway="172.{0}.0.1".format(19+net_id)
                 )
 
                 ipam_config = docker.types.IPAMConfig(
@@ -197,8 +228,8 @@ class P4Execution(object):
             self.mgnt_network = self.client.networks.get("mgnt")
         except docker.errors.NotFound:
             ipam_pool = docker.types.IPAMPool(
-                subnet="172.21.0.0/16",
-                gateway="172.21.0.1"
+                subnet="172.19.0.0/16",
+                gateway="172.19.0.1"
                 )
 
             ipam_config = docker.types.IPAMConfig(
@@ -210,6 +241,39 @@ class P4Execution(object):
                 driver="bridge",
                 ipam=ipam_config
             )
+
+    def read_tests(self):
+        self.ptf_tester.start()
+
+        _, test_info = self.ptf_tester.exec_run("ptf --test-dir /app --list")
+        test_info = test_info.decode()
+
+        test_dict = self.extract_info_from_test_info(test_info)
+
+        return test_dict
+
+    def extract_info_from_test_info(self,test_info):
+        testing = test_info.split("\n")
+        test_info = test_info.split("Test List:")[1]
+        test_modules = test_info.split("Module ")
+        nr_of_modules = len(test_modules) - 1
+        test_modules[len(test_modules)-1] = test_modules[len(test_modules)-1].split("\n{0}".format(nr_of_modules))[0]
+        
+
+        test_dict = {}
+
+        for i in range(nr_of_modules):
+            test = test_modules[i+1].split("\n")
+            module_name = test.pop(0).split(":")[0]
+
+            test_names = []
+            for test_string in test:
+                if not str.isspace(test_string) and test_string:
+                    test_names.append(test_string.split(":")[0].strip())
+            
+            test_dict[module_name] = test_names
+        
+        return test_dict
 
     def get_system_info(self):
         return systeminfo.SystemInfo()
@@ -246,15 +310,17 @@ class P4Execution(object):
 
         self.ptf_tester.remove(force=True)
 
-    def start(self):
-        """
-            Start all containers
-        """
+    def start_containers(self):
+        self.ptf_tester.start()
+
         for container in self.nodes:
             container.start()
 
         for container in self.switches:
             container.start()
+
+
+        
 
 def main(argv=None):
     if argv is None:
