@@ -21,7 +21,11 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
     def create_argument_parser(self):
         parser = super(VcloudBenchmarkBase, self).create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
+        self.add_vcloud_args(vcloud_args)
 
+        return parser
+
+    def add_vcloud_args(self, vcloud_args):
         vcloud_args.add_argument(
             self.get_param_name("cloudMaster"),
             dest="cloudMaster",
@@ -81,8 +85,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             type=str,
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
-
-        return parser
 
     def get_param_name(self, pname):
         return "--" + "v" + pname
