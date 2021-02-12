@@ -27,11 +27,12 @@ class TestCheckCgroups(unittest.TestCase):
             return subprocess.check_output(
                 args=["python3", "-m", "benchexec.check_cgroups"] + list(args),
                 stderr=subprocess.STDOUT,
+                universal_newlines=True,
                 **kwargs,
-            ).decode()
+            )
         except subprocess.CalledProcessError as e:
             if e.returncode != 1:  # 1 is expected if cgroups are not available
-                print(e.output.decode())
+                print(e.output)
                 raise e
 
     def test_extern_command(self):

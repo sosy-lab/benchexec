@@ -57,10 +57,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(
-                args=args, stderr=subprocess.STDOUT
-            ).decode()
+                args=args,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
         except subprocess.CalledProcessError as e:
-            print(e.output.decode())
+            print(e.output)
             raise e
         print(output)
         return output
@@ -720,7 +722,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 table_prefix="cbmc.2015-12-11_1211.results.Simple",
             )
         except subprocess.CalledProcessError as e:
-            if "HTTP Error" or "urlopen error" in e.output.decode():
+            if "HTTP Error" or "urlopen error" in e.output:
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise
