@@ -4,16 +4,3 @@
 # SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
-
-*.pyc
-*~
-/build
-/dist
-/BenchExec.egg-info
-/.coverage*
-/coverage
-/.pytype
-.idea
-node_modules/
-/contrib/vcloud/lib/ivy*.jar
-/contrib/vcloud/lib/vcloud-jars
