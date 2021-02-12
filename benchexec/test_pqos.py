@@ -84,14 +84,14 @@ def mock_check_output(args_list, **kwargs):
     mock for subprocess.check_output function, this function returns a dummy
     pqos_wrapper CLI output.
     """
-    return json.dumps(mock_pqos_wrapper_output).encode()
+    return json.dumps(mock_pqos_wrapper_output)
 
 
 def mock_check_output_error(args_list, **kwargs):
     """
     mock for subprocess.check_output, returns a dummy error output of pqos_wrapper
     """
-    raise CalledProcessError(1, "cmd", json.dumps(mock_pqos_wrapper_error).encode())
+    raise CalledProcessError(1, "cmd", json.dumps(mock_pqos_wrapper_error))
 
 
 def mock_check_output_capability_error(args_list, **kwargs):
@@ -109,7 +109,8 @@ class MockPopen:
     A Mock class for subprocess.Popen
     """
 
-    def __init__(self, args_list, **kwargs):
+    def __init__(self, args_list, universal_newlines=None, **kwargs):
+        assert universal_newlines  # required for this mock
         self.args_list = args_list
         self.returncode = 0
 
@@ -131,7 +132,7 @@ class MockPopen:
         """
         if self.returncode == 0:
             return (mock_check_output(self.args_list), None)
-        return (None, json.dumps(mock_pqos_wrapper_error).encode())
+        return (None, json.dumps(mock_pqos_wrapper_error))
 
 
 def mock_popen(args_list, **kwargs):
