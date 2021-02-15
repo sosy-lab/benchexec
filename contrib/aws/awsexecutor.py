@@ -36,8 +36,6 @@ REQUEST_URL = {
 STOPPED_BY_INTERRUPT = False
 event_handler = Event()
 
-ENCODING_UTF_8 = "utf-8"
-
 # Number of seconds a http request will wait to establish a connection to the
 # remote machine.
 HTTP_REQUEST_TIMEOUT = 10
@@ -74,9 +72,7 @@ def execute_benchmark(benchmark, output_handler):
 
         # Create
         logging.info("Sending http-request for the specific upload destinations")
-        url = (
-            REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
         logging.debug("Url of the 'create' HTTP -request: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -97,11 +93,7 @@ def execute_benchmark(benchmark, output_handler):
             tempfile_verifier.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
-            url = (
-                REQUEST_URL["upload"]
-                .format(aws_endpoint, aws_token, requestId)
-                .encode(ENCODING_UTF_8)
-            )
+            url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
             logging.debug("Sending http-request for uploading the verifier: \n%s", url)
             http_response = requests.get(
                 url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
@@ -133,11 +125,7 @@ def execute_benchmark(benchmark, output_handler):
             tempfile_tasks.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
-            url = (
-                REQUEST_URL["upload"]
-                .format(aws_endpoint, aws_token, requestId)
-                .encode(ENCODING_UTF_8)
-            )
+            url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
             logging.debug("Sending http-request for uploading tasks: \n%s", url)
             http_response = requests.get(
                 url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
@@ -158,11 +146,7 @@ def execute_benchmark(benchmark, output_handler):
 
         # Upload commands
         payload = {"file": "commands.json"}
-        url = (
-            REQUEST_URL["upload"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for uploading commands: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -187,11 +171,7 @@ def execute_benchmark(benchmark, output_handler):
             "tasksS3": tasks_s3_key,
             "commandsS3": commands_s3_key,
         }
-        url = (
-            REQUEST_URL["launchBatch"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["launchBatch"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for launch: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -201,10 +181,8 @@ def execute_benchmark(benchmark, output_handler):
             "Executing Runexec on the AWS workers. "
             "Depending on the size of the tasks, this might take a while."
         )
-        progress_url = (
-            REQUEST_URL["progressBatch"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
+        progress_url = REQUEST_URL["progressBatch"].format(
+            aws_endpoint, aws_token, requestId
         )
         logging.debug("Sending http-request for progress: \n%s", progress_url)
         printMsg = 0
@@ -247,11 +225,7 @@ def execute_benchmark(benchmark, output_handler):
                 break
 
         # Results
-        url = (
-            REQUEST_URL["results"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for collecting the results: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -266,9 +240,7 @@ def execute_benchmark(benchmark, output_handler):
         stop()
     finally:
         # Clean
-        url = (
-            REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
         logging.debug(
             "Sending http-request for cleaning the aws services up: \n%s", url
         )
