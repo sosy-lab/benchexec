@@ -192,7 +192,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_no_files_given(self):
         self.assertEqual(
             1,
-            subprocess.run(tablegenerator, capture_output=True).returncode,
+            subprocess.run(
+                tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -205,7 +207,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         ]
         self.assertEqual(
             2,
-            subprocess.run(cmdline, capture_output=True).returncode,
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -213,7 +217,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
-            subprocess.run(cmdline, capture_output=True).returncode,
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
