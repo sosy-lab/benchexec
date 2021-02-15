@@ -243,9 +243,8 @@ class BenchExec(object):
             "-p4",
             "--p4",
             dest="p4",
-            default=False,
-            type=bool,
-            help="Set True if you wanna run a p4 program"
+            action="store_true",
+            help="Use this flag if a p4 test is to be executed"
         )
 
         def parse_filesize_value(value):
