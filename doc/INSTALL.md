@@ -100,11 +100,14 @@ If you are using an Ubuntu version that is still supported,
 everything else should work out of the box.
 For other distributions, please read the following detailed requirements.
 
-In general, any Linux kernel version of the last several years is
-acceptable, though newer is usually better.
-In particular, we recommend **Linux 4.14 or newer**
+Except on Ubuntu, the full feature set of BenchExec is only usable
+on **Linux 5.11 or newer**, so we suggest at least this kernel version.
+
+On older kernels, you need to avoid using the overlay filesystem (cf. below),
+all other features are supported.
+However, we strongly recommend to use at least **Linux 4.14 or newer**
 because it reduces the overhead of BenchExec's memory measurements and limits.
-For older kernel versions, please read
+For even older kernel versions, please read
 [our previous documentation](https://github.com/sosy-lab/benchexec/blob/e445f17/doc/INSTALL.md#kernel-requirements)
 with more details.
 
@@ -125,12 +128,11 @@ that are not usable on all distributions by default:
   `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
   in `/etc/sysctl.conf` (the exact value is not important).
 
-- **Overlay Filesystem**: This is also typically available
+- **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
-  but only Ubuntu allows regular users to create such mounts in a container.
-  Users of other distributions can still use container mode, but have to choose a different mode
+  but also present in all Ubuntu kernels, even older ones.
+  Users of older kernels on other distributions can still use container mode, but have to choose a different mode
   of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
-  Alternatively, you could compile your own kernel and include [this patch](http://kernel.ubuntu.com/git/ubuntu/ubuntu-xenial.git/commit?id=0c29f9eb00d76a0a99804d97b9e6aba5d0bf19b3).
 
 If container mode does not work, please check the [common problems](container.md#common-problems).
 
