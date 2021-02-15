@@ -25,8 +25,7 @@ class P4Execution(object):
 
         self.client = None
         self.node_networks = []
-        self.mgnt_network = []
-
+        self.mgnt_network = None
 
     def init(self, config, benchmark):
         """
@@ -59,62 +58,82 @@ class P4Execution(object):
         SwitchTargetPath = "/app"
         nrOfNodes = 4
 
-        #Setup networks
-        self.setup_network(nrOfNodes)
+        try:
+            #Setup networks
+            self.setup_network(nrOfNodes)
 
-        #Create node container
-        self.nodes = []
+            #Create node container
+            self.nodes = []
 
-        for device_nr in range(nrOfNodes):
-            self.nodes.append(self.client.containers.create(NodeImageName,
-                command="python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {2}-1@eth0".format(device_nr ,device_nr+3, device_nr),
-                detach=True,
-                name="node{0}".format(device_nr+1),
-                network="net{0}".format(device_nr+1)
-                ))
+            for device_nr in range(nrOfNodes):
+                #Try get old node from previous run if it exits
+                try:
+                    self.nodes.append(self.client.containers.get("node{0}".format(device_nr+1)))
+                    logging.debug("Old node container find with name: " + "node{0}".format(device_nr+1) + ". Using that")
+                except docker.errors.APIError:
+                    self.nodes.append(self.client.containers.create(NodeImageName,
+                        command="python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {2}-1@eth0".format(device_nr ,device_nr+3, device_nr),
+                        detach=True,
+                        name="node{0}".format(device_nr+1),
+                        network="net{0}".format(device_nr+1)
+                        ))
 
-        #Switch containers
-        self.switches = []
-        
-        mount_switch = docker.types.Mount(SwitchTargetPath, switch_source_path, type="bind")
+            #Switch containers
+            self.switches = []
+            
+            mount_switch = docker.types.Mount(SwitchTargetPath, switch_source_path, type="bind")
 
-        switch_command = "simple_switch "
+            switch_command = "simple_switch "
 
-        for device_nr in range(nrOfNodes):
-            switch_command += "-i {0}@eth{0} ".format(device_nr)
-        
-        switch_command += "/app/P4/simple_switch.json"
+            for device_nr in range(nrOfNodes):
+                switch_command += "-i {0}@eth{0} ".format(device_nr)
+            
+            switch_command += "/app/P4/simple_switch.json"
 
-        self.switches.append(self.client.containers.create("switch_bmv2",
-            command=switch_command,
-            detach=True,
-            network="net1",
-            name="switch1",
-            mounts = [mount_switch]
-            ))
+            try:
+                self.switches.append(self.client.containers.create("switch_bmv2",
+                    command=switch_command,
+                    detach=True,
+                    network="net1",
+                    name="switch1",
+                    mounts = [mount_switch]
+                    ))
+            except docker.errors.APIError as e:
+                logging.debug("Failed to create switch. Got error:" + str(e))
+                self.close()
+                raise BenchExecException("Switch contianer with name switch1 might already be running")
+                
+            #Connect all nodes   to the switch
+            for device_nr in range(nrOfNodes)[1:]:
+                self.client.networks.get("net{0}".format(device_nr+1)).connect(self.switches[0])
 
-        #Connect all nodes to the switch
-        for device_nr in range(nrOfNodes)[1:]:
-            self.client.networks.get("net{0}".format(device_nr+1)).connect(self.switches[0])
-
-        #Ptf tester container
-        mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
-        self.ptf_tester = self.client.containers.create("ptf_tester",
-            detach=True,
-            name="ptfTester",
-            mounts=[mount_ptf_tester],
-            tty=True)
-
-        #Setup mgnt network
-        mgnt = self.client.networks.get("mgnt")
-        mgnt.connect(self.ptf_tester)
-        for node in self.nodes:
-            mgnt.connect(node)
+            #Ptf tester container
+            mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
+            try:
+                self.ptf_tester = self.client.containers.create("ptf_tester",
+                    detach=True,
+                    name="ptfTester",
+                    mounts=[mount_ptf_tester],
+                    tty=True)
+            except docker.errors.APIError:
+                self.close()
+                raise BenchExecException("Cannot create ptf tester container. Might already be running")
+            
+            #Setup mgnt network
+            mgnt = self.client.networks.get("mgnt")
+            mgnt.connect(self.ptf_tester)
+            for node in self.nodes:
+                mgnt.connect(node)
+        except docker.errors.APIError as e:
+            raise BenchExecException(str(e))
 
     def execute_benchmark(self, benchmark, output_handler):
         self.start_containers()
 
         test_dict = self.read_tests()
+
+        # test_dict = {}
+        # test_dict["Module1"] = ["Test1", "Test2", "Test3"]
 
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
@@ -144,30 +163,11 @@ class P4Execution(object):
                 return_code, test_output = self._execute_benchmark(run, command)
 
                 test_output = test_output.decode("utf-8")
-                test_output_list = test_output.split("\r\n")
 
-                #Extract simple information to determine results
-                #_ , test_names = self._execute_benchmark(run,"ptf --test-dir /app/test_with_fail --list-test-names")
-                #test_names = test_names.decode("utf-8")
-                #test_names = test_names.split("\r\n")
-                
                 if os.path.exists("/home/sdn/benchexec/test.txt"):
                     os.remove("/home/sdn/benchexec/test.txt")
                 f = open("/home/sdn/benchexec/test.txt", "w+")
                 f.write(test_output)
-                
-                
-
-                #f.write(str(test_names))
-
-                # f.write("Extract result")
-                # test_results = []
-                # for test in test_names:
-                #     if test:
-                #         matching = [s for s in test_output_list if test in s]
-                #         test_results.append(matching[0])
-                #         f.write(matching[0] + "\n")
-                # f.close()
 
                 logging.debug("Logs: " + test_output)
 
@@ -183,15 +183,27 @@ class P4Execution(object):
                 
                 values = {}
                 values["exitcode"] = util.ProcessExitCode.from_raw(return_code)
+
                 test = run.cmdline()
-                
+                run._cmdline = command.split(" ")
+
+                for item in test:
+                    f.write(item + "\n")
+
+                f.write("\n---------- Run object ---------- \n")
+                for item in dir(run):
+                    f.write(item + "\n")
+
+                f.write(run.identifier)
+                f.close()
+
                 run.set_result(values)
                 
                 output_handler.output_after_run(run)
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
-        self.close()
+        #self.close()
         #self.clear_networks()
     
     def _execute_benchmark(self, run, command):
@@ -307,8 +319,8 @@ class P4Execution(object):
 
         for container in self.switches:
             container.remove(force=True)
-
-        self.ptf_tester.remove(force=True)
+        if self.ptf_tester:
+            self.ptf_tester.remove(force=True)
 
     def start_containers(self):
         self.ptf_tester.start()
