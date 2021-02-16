@@ -125,15 +125,13 @@ class P4Execution(object):
             for node in self.nodes:
                 mgnt.connect(node)
         except docker.errors.APIError as e:
+            self.close()
             raise BenchExecException(str(e))
 
     def execute_benchmark(self, benchmark, output_handler):
         self.start_containers()
 
         test_dict = self.read_tests()
-
-        # test_dict = {}
-        # test_dict["Module1"] = ["Test1", "Test2", "Test3"]
 
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
@@ -167,8 +165,7 @@ class P4Execution(object):
                 if os.path.exists("/home/sdn/benchexec/test.txt"):
                     os.remove("/home/sdn/benchexec/test.txt")
                 f = open("/home/sdn/benchexec/test.txt", "w+")
-                f.write(test_output)
-
+                f.write("Log file: " + run.log_file)
                 logging.debug("Logs: " + test_output)
 
                 try:
@@ -203,7 +200,7 @@ class P4Execution(object):
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
-        #self.close()
+        self.close()
         #self.clear_networks()
     
     def _execute_benchmark(self, run, command):
@@ -331,7 +328,8 @@ class P4Execution(object):
         for container in self.switches:
             container.start()
 
-
+        #allow 2 sec of startuptime
+        time.sleep(2)
         
 
 def main(argv=None):
