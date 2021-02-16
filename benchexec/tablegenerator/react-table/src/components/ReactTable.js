@@ -104,8 +104,11 @@ const TableRender = (props) => {
       const { value, values, id } = filter;
       if (id === "id") {
         if (!isNil(values)) {
+          console.log("setDisableTaskText(true)");
           setDisableTaskText(true);
         } else {
+          console.log("setDisableTaskText(false)");
+
           setDisableTaskText(false);
         }
       }
@@ -127,17 +130,21 @@ const TableRender = (props) => {
 
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
+    console.log("setFilteredColumnValues");
     setFilteredColumnValues(newFilteredColumnValues);
 
     const sortingSetting = getSortingSettingsFromURL();
+    console.log("setSortingSettings");
     setSortingSettings(sortingSetting);
 
     const pageSize = getPageSizeFromURL();
+    console.log("setPageSize");
     setPageSize(pageSize);
-  }, [props]);
+  }, [props.filtered]);
 
   const handleFixedInputChange = ({ target }) => {
     const value = target.checked;
+    console.log("setting fixed");
     setFixed(value);
   };
 
@@ -234,8 +241,9 @@ const TableRender = (props) => {
     return out;
   };
 
-  const createStatusColumn = useMemo(
-    () => (runSetIdx, column, columnIdx) => ({
+  const createStatusColumn = useMemo(() => {
+    console.log("createStatusColumn");
+    return (runSetIdx, column, columnIdx) => ({
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
       show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
@@ -341,18 +349,18 @@ const TableRender = (props) => {
           </select>
         );
       },
-    }),
-    [
-      filteredColumnValues,
-      props.categoryValues,
-      props.hiddenCols,
-      props.statusValues,
-      props.toggleLinkOverlay,
-    ],
-  );
+    });
+  }, [
+    filteredColumnValues,
+    props.categoryValues,
+    props.hiddenCols,
+    props.statusValues,
+    props.toggleLinkOverlay,
+  ]);
 
-  const createColumn = useMemo(
-    () => (runSetIdx, column, columnIdx) => {
+  const createColumn = useMemo(() => {
+    console.log("createColumn");
+    return (runSetIdx, column, columnIdx) => {
       if (column.type === "status") {
         return createStatusColumn(runSetIdx, column, columnIdx);
       }
@@ -377,18 +385,18 @@ const TableRender = (props) => {
           ? numericSortMethod
           : textSortMethod,
       };
-    },
-    [createStatusColumn, props.toggleLinkOverlay, props.hiddenCols],
-  );
+    };
+  }, [createStatusColumn, props.toggleLinkOverlay, props.hiddenCols]);
 
   const resultColumns = useMemo(
     () =>
+      console.log("resultColumns") ||
       props.tools
         .map((runSet, runSetIdx) =>
           createRunSetColumns(runSet, runSetIdx, createColumn),
         )
         .flat(),
-    [props, createColumn],
+    [props.tools, createColumn],
   );
 
   /**
@@ -438,12 +446,13 @@ const TableRender = (props) => {
 
   const mTable = useCallback((_, makeTable) => makeTable(), [props.data]);
 
+  console.log({ filtered: props.filtered });
+
   return (
     <div className="mainTable">
       <ReactTableFixedColumns
         data={props.data}
         filterable={true}
-        filtered={props.filtered}
         columns={[createTaskIdColumn()].concat(resultColumns)}
         defaultSorted={sortingSettings}
         onSortedChange={(sorted) => {
