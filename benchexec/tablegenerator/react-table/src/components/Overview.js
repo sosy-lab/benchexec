@@ -178,11 +178,20 @@ export default class Overview extends React.Component {
     }
   };
 
-  updateState = () =>
-    this.setState({
-      active: getActiveTab(),
-      hiddenCols: createHiddenColsFromURL(this.state.tools),
-    });
+  updateState = () => {
+    const newState = {};
+    const active = getActiveTab();
+    const hiddenCols = createHiddenColsFromURL(this.state.tools);
+    if (this.state.active !== active) {
+      newState.active = active;
+    }
+    if (this.state.hiddenCols !== hiddenCols) {
+      newState.hiddenCols = hiddenCols;
+    }
+    if (Object.keys(newState) > 0) {
+      this.setState(newState);
+    }
+  };
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = (ev) => {

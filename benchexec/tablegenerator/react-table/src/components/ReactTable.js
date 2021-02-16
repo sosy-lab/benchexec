@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, memo, useMemo } from "react";
+import React, { useState, useEffect, memo, useMemo, useCallback } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -436,6 +436,8 @@ const TableRender = (props) => {
     return out;
   };
 
+  const mTable = useCallback((_, makeTable) => makeTable(), [props.data]);
+
   return (
     <div className="mainTable">
       <ReactTableFixedColumns
@@ -521,9 +523,7 @@ const TableRender = (props) => {
         }}
         onPageSizeChange={(pageSize) => setParam({ pageSize })}
       >
-        {(_, makeTable) => {
-          return makeTable();
-        }}
+        {mTable}
       </ReactTableFixedColumns>
     </div>
   );
