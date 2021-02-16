@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -234,141 +234,162 @@ const TableRender = (props) => {
     return out;
   };
 
-  const createStatusColumn = (runSetIdx, column, columnIdx) => ({
-    id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
-    Header: <StandardColumnHeader column={column} />,
-    show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
-    minWidth: determineColumnWidth(column, 10),
-    accessor: (row) => row.results[runSetIdx].values[columnIdx],
-    Cell: (cell) => {
-      const category = cell.original.results[runSetIdx].category;
-      let href = cell.original.results[runSetIdx].href;
-      let tooltip;
-      if (category === "aborted") {
-        href = undefined;
-        tooltip = "Result missing because run was aborted or not executed";
-      } else if (category === "empty") {
-        tooltip = "Result missing because task was not part of benchmark set";
-      } else if (href) {
-        tooltip = "Click here to show output of tool";
-      }
-      return (
-        <StandardCell
-          cell={cell}
-          href={href}
-          className={category}
-          toggleLinkOverlay={props.toggleLinkOverlay}
-          title={tooltip}
-          force={true}
-        />
-      );
-    },
-    sortMethod: textSortMethod,
-    filterMethod: (filter, row) => {
-      return true;
-    },
-    Filter: ({ filter, onChange }) => {
-      const categoryValues = props.categoryValues[runSetIdx][columnIdx];
-      const selectedCategoryFilters = pathOr(
-        [runSetIdx, "categories"],
-        [],
-        filteredColumnValues,
-      );
-      const selectedStatusValues = pathOr(
-        [runSetIdx, columnIdx],
-        [],
-        filteredColumnValues,
-      );
-      const selectedFilters = createRelevantFilterLabel({
-        categoryFilters: selectedCategoryFilters,
-        statusFilters: selectedStatusValues,
-        categoryFilterValues: categoryValues.map((item) => `${item} `),
-        statusFilterValues: props.statusValues[runSetIdx][columnIdx],
-      });
-
-      const multipleSelected =
-        selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
-
-      const allSelected = selectedFilters.length === 0;
-
-      const singleFilterValue = selectedFilters && selectedFilters[0];
-      const selectValue = multipleSelected ? "multiple" : singleFilterValue;
-      return (
-        <select
-          onChange={(event) => onChange(event.target.value)}
-          style={{ width: "100%" }}
-          value={
-            (allSelected && "all ") ||
-            (multipleSelected && "multiple") ||
-            selectValue
-          }
-        >
-          {multipleSelected && (
-            <option value="multiple" disabled>
-              {selectedFilters
-                .map((x) => x.trim())
-                .filter((x) => x !== "all" && x !== emptyStateValue)
-                .join(", ") || "No filters selected"}
-            </option>
-          )}
-          <option value="all ">Show all</option>
-          {categoryValues
-            .filter((category) => category in SPECIAL_CATEGORIES)
-            .map((category) => (
-              // category filters are marked with space at end
-              <option value={category + " "} key={category}>
-                {SPECIAL_CATEGORIES[category]}
-              </option>
-            ))}
-          <optgroup label="Category">
-            {categoryValues
-              .filter((category) => !(category in SPECIAL_CATEGORIES))
-              .map((category) => (
-                // category filters are marked with space at end
-                <option value={category + " "} key={category}>
-                  {category}
-                </option>
-              ))}
-          </optgroup>
-          <optgroup label="Status">
-            {props.statusValues[runSetIdx][columnIdx].map((status) => (
-              <option value={status} key={status}>
-                {status}
-              </option>
-            ))}
-          </optgroup>
-        </select>
-      );
-    },
-  });
-
-  const createColumn = (runSetIdx, column, columnIdx) => {
-    if (column.type === "status") {
-      return createStatusColumn(runSetIdx, column, columnIdx);
-    }
-
-    return {
+  const createStatusColumn = useMemo(
+    () => (runSetIdx, column, columnIdx) => ({
       id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
       Header: <StandardColumnHeader column={column} />,
       show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
-      minWidth: determineColumnWidth(column),
+      minWidth: determineColumnWidth(column, 10),
       accessor: (row) => row.results[runSetIdx].values[columnIdx],
-      Cell: (cell) => (
-        <StandardCell cell={cell} toggleLinkOverlay={props.toggleLinkOverlay} />
-      ),
-      filterMethod: () => true,
-      Filter: (filter) => (
-        <FilterInputField numeric={isNumericColumn(column)} {...filter} />
-      ),
-      sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod,
-    };
-  };
+      Cell: (cell) => {
+        const category = cell.original.results[runSetIdx].category;
+        let href = cell.original.results[runSetIdx].href;
+        let tooltip;
+        if (category === "aborted") {
+          href = undefined;
+          tooltip = "Result missing because run was aborted or not executed";
+        } else if (category === "empty") {
+          tooltip = "Result missing because task was not part of benchmark set";
+        } else if (href) {
+          tooltip = "Click here to show output of tool";
+        }
+        return (
+          <StandardCell
+            cell={cell}
+            href={href}
+            className={category}
+            toggleLinkOverlay={props.toggleLinkOverlay}
+            title={tooltip}
+            force={true}
+          />
+        );
+      },
+      sortMethod: textSortMethod,
+      filterMethod: (filter, row) => {
+        return true;
+      },
+      Filter: ({ filter, onChange }) => {
+        const categoryValues = props.categoryValues[runSetIdx][columnIdx];
+        const selectedCategoryFilters = pathOr(
+          [runSetIdx, "categories"],
+          [],
+          filteredColumnValues,
+        );
+        const selectedStatusValues = pathOr(
+          [runSetIdx, columnIdx],
+          [],
+          filteredColumnValues,
+        );
+        const selectedFilters = createRelevantFilterLabel({
+          categoryFilters: selectedCategoryFilters,
+          statusFilters: selectedStatusValues,
+          categoryFilterValues: categoryValues.map((item) => `${item} `),
+          statusFilterValues: props.statusValues[runSetIdx][columnIdx],
+        });
 
-  const resultColumns = props.tools
-    .map((runSet, runSetIdx) =>
-      createRunSetColumns(runSet, runSetIdx, createColumn),
-    )
-    .flat();
+        const multipleSelected =
+          selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
+
+        const allSelected = selectedFilters.length === 0;
+
+        const singleFilterValue = selectedFilters && selectedFilters[0];
+        const selectValue = multipleSelected ? "multiple" : singleFilterValue;
+        return (
+          <select
+            onChange={(event) => onChange(event.target.value)}
+            style={{ width: "100%" }}
+            value={
+              (allSelected && "all ") ||
+              (multipleSelected && "multiple") ||
+              selectValue
+            }
+          >
+            {multipleSelected && (
+              <option value="multiple" disabled>
+                {selectedFilters
+                  .map((x) => x.trim())
+                  .filter((x) => x !== "all" && x !== emptyStateValue)
+                  .join(", ") || "No filters selected"}
+              </option>
+            )}
+            <option value="all ">Show all</option>
+            {categoryValues
+              .filter((category) => category in SPECIAL_CATEGORIES)
+              .map((category) => (
+                // category filters are marked with space at end
+                <option value={category + " "} key={category}>
+                  {SPECIAL_CATEGORIES[category]}
+                </option>
+              ))}
+            <optgroup label="Category">
+              {categoryValues
+                .filter((category) => !(category in SPECIAL_CATEGORIES))
+                .map((category) => (
+                  // category filters are marked with space at end
+                  <option value={category + " "} key={category}>
+                    {category}
+                  </option>
+                ))}
+            </optgroup>
+            <optgroup label="Status">
+              {props.statusValues[runSetIdx][columnIdx].map((status) => (
+                <option value={status} key={status}>
+                  {status}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        );
+      },
+    }),
+    [
+      filteredColumnValues,
+      props.categoryValues,
+      props.hiddenCols,
+      props.statusValues,
+      props.toggleLinkOverlay,
+    ],
+  );
+
+  const createColumn = useMemo(
+    () => (runSetIdx, column, columnIdx) => {
+      if (column.type === "status") {
+        return createStatusColumn(runSetIdx, column, columnIdx);
+      }
+
+      return {
+        id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+        Header: <StandardColumnHeader column={column} />,
+        show: !props.hiddenCols[runSetIdx].includes(column.colIdx),
+        minWidth: determineColumnWidth(column),
+        accessor: (row) => row.results[runSetIdx].values[columnIdx],
+        Cell: (cell) => (
+          <StandardCell
+            cell={cell}
+            toggleLinkOverlay={props.toggleLinkOverlay}
+          />
+        ),
+        filterMethod: () => true,
+        Filter: (filter) => (
+          <FilterInputField numeric={isNumericColumn(column)} {...filter} />
+        ),
+        sortMethod: isNumericColumn(column)
+          ? numericSortMethod
+          : textSortMethod,
+      };
+    },
+    [createStatusColumn, props.toggleLinkOverlay, props.hiddenCols],
+  );
+
+  const resultColumns = useMemo(
+    () =>
+      props.tools
+        .map((runSet, runSetIdx) =>
+          createRunSetColumns(runSet, runSetIdx, createColumn),
+        )
+        .flat(),
+    [props, createColumn],
+  );
 
   /**
    * This function automatically creates additional filters for status or category filters.
