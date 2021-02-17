@@ -719,12 +719,12 @@ def get_capability(filename):
         res["error"] = True
         logging.warning("Unable to find capabilities for %s", filename)
         return res
-    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
+    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
     if cap_object is not None:
-        cap_string = cap_object.decode("utf-8")
+        cap_string = cap_object.decode()
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
         res["set"] = list(cap_string.split("+")[1])
     return res

@@ -69,7 +69,7 @@ class KillProcessOnOomThread(threading.Thread):
                 # This is not allowed if memory.use_hierarchy is enabled,
                 # but we don't care.
                 try:
-                    os.write(ofd, "1".encode("ascii"))
+                    os.write(ofd, b"1")
                 except OSError as e:
                     logging.debug(
                         "Failed to disable kernel-side OOM killer: error %s (%s)",
