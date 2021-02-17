@@ -5,7 +5,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, memo, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  memo,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -148,61 +155,64 @@ const TableRender = (props) => {
     setFixed(value);
   };
 
-  const createTaskIdColumn = () => ({
-    Header: () => (
-      <div className="fixed">
-        <form>
-          <label title="Fix the first column">
-            Fixed task:
-            <input
-              name="fixed"
-              type="checkbox"
-              checked={fixed}
-              onChange={handleFixedInputChange}
-            />
-          </label>
-        </form>
-      </div>
-    ),
-    fixed: fixed ? "left" : "",
-    columns: [
-      {
-        minWidth: window.innerWidth * 0.3,
-        Header: (
-          <StandardColumnHeader>
-            <SelectColumnsButton handler={props.selectColumn} />
-          </StandardColumnHeader>
-        ),
-        fixed: fixed ? "left" : "",
-        accessor: "id",
-        Cell: (cell) => {
-          const content = cell.value.map((id) => (
-            <span key={id} className="row_id">
-              {id}
-            </span>
-          ));
-          const href = cell.original.href;
-          return href ? (
-            <a
-              key={href}
-              className="row__name--cellLink"
-              href={href}
-              title="Click here to show source code"
-              onClick={(ev) => props.toggleLinkOverlay(ev, href)}
-            >
-              {content}
-            </a>
-          ) : (
-            <span title="This task has no associated file">{content}</span>
-          );
+  const createTaskIdColumn = useMemo(
+    () => ({
+      Header: () => (
+        <div className="fixed">
+          <form>
+            <label title="Fix the first column">
+              Fixed task:
+              <input
+                name="fixed"
+                type="checkbox"
+                checked={fixed}
+                onChange={handleFixedInputChange}
+              />
+            </label>
+          </form>
+        </div>
+      ),
+      fixed: fixed ? "left" : "",
+      columns: [
+        {
+          minWidth: window.innerWidth * 0.3,
+          Header: (
+            <StandardColumnHeader>
+              <SelectColumnsButton handler={props.selectColumn} />
+            </StandardColumnHeader>
+          ),
+          fixed: fixed ? "left" : "",
+          accessor: "id",
+          Cell: (cell) => {
+            const content = cell.value.map((id) => (
+              <span key={id} className="row_id">
+                {id}
+              </span>
+            ));
+            const href = cell.original.href;
+            return href ? (
+              <a
+                key={href}
+                className="row__name--cellLink"
+                href={href}
+                title="Click here to show source code"
+                onClick={(ev) => props.toggleLinkOverlay(ev, href)}
+              >
+                {content}
+              </a>
+            ) : (
+              <span title="This task has no associated file">{content}</span>
+            );
+          },
+          filterMethod: (filter, row) => {
+            return true;
+          },
+          Filter: FilterInputField,
         },
-        filterMethod: (filter, row) => {
-          return true;
-        },
-        Filter: FilterInputField,
-      },
-    ],
-  });
+      ],
+    }),
+    [handleFixedInputChange, fixed, FilterInputField],
+  );
 
   /**
    * @typedef {Object} RelevantFilterParam
@@ -302,6 +312,7 @@ const TableRender = (props) => {
 
         const singleFilterValue = selectedFilters && selectedFilters[0];
         const selectValue = multipleSelected ? "multiple" : singleFilterValue;
+
         return (
           <select
             onChange={(event) => onChange(event.target.value)}
@@ -444,16 +455,26 @@ const TableRender = (props) => {
     return out;
   };
 
-  const mTable = useCallback((_, makeTable) => makeTable(), [props.data]);
-
   console.log({ filtered: props.filtered });
+
+  const [versionChanged, setVersionChanged] = useState(true);
+  const tableRef = useRef(null);
+
+  useEffect(() => {
+    setVersionChanged(true);
+  }, [resultColumns]);
+
+  const columns = useMemo(() => [createTaskIdColumn].concat(resultColumns), [
+    resultColumns,
+    createTaskIdColumn,
+  ]);
 
   return (
     <div className="mainTable">
       <ReactTableFixedColumns
         data={props.data}
         filterable={true}
-        columns={[createTaskIdColumn()].concat(resultColumns)}
+        columns={columns}
         defaultSorted={sortingSettings}
         onSortedChange={(sorted) => {
           const sort = sorted
@@ -532,7 +553,15 @@ const TableRender = (props) => {
         }}
         onPageSizeChange={(pageSize) => setParam({ pageSize })}
       >
-        {mTable}
+        {(_, makeTable) => {
+          if (versionChanged) {
+            const newTable = makeTable();
+            tableRef.current = newTable;
+            setVersionChanged(false);
+            return newTable;
+          }
+          return tableRef.current;
+        }}
       </ReactTableFixedColumns>
     </div>
   );
