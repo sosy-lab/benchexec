@@ -5,7 +5,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, memo, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  memo,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -56,12 +63,83 @@ const initialPageSize = 250;
 const getPageSizeFromURL = () =>
   parseInt(getHashSearch().pageSize) || initialPageSize;
 
+const debounceTime = 500;
 const TableRender = (props) => {
   const [fixed, setFixed] = useState(true);
   let [filteredColumnValues, setFilteredColumnValues] = useState({});
   let [disableTaskText, setDisableTaskText] = useState(false);
   let [sortingSettings, setSortingSettings] = useState();
   let [pageSize, setPageSize] = useState(initialPageSize);
+
+  const onFilterChanged = (key, filterValue) => {
+    let updatedOldValue = false;
+    let filtered = props.filtered.map((filter) => {
+      if (filter.id === key) {
+        updatedOldValue = true;
+        return { id: key, value: filterValue };
+      }
+      return filter;
+    });
+    if (!updatedOldValue) {
+      filtered.push({ id: key, value: filterValue });
+    }
+    /* There may be filters without values left over when the filter tab
+         overrides the table tab filters. Remove those if any exist. */
+    filtered = filtered.filter((filter) => filter.value);
+    // We only want to consider filters that were set by ReactTable on this update
+    const newFilters = filtered.filter(
+      (filter) => !props.filtered.includes(filter),
+    );
+
+    filtered
+      .filter((filter) => filter.id === "id")
+      .forEach((filter) => {
+        filter.isTableTabFilter = true;
+      });
+
+    let filteredCopy = [...filtered];
+
+    let additionalFilters = [];
+
+    // We are only interested in applying additional filters based on status filters
+    const statusFilter = newFilters.filter(({ id, value }) =>
+      id.includes("status"),
+    );
+    if (statusFilter && statusFilter.length) {
+      const parsed = statusFilter.map(({ id, value }) => {
+        const [tool, name, column] = id.split("_");
+        return {
+          tool,
+          name,
+          column,
+          value,
+        };
+      });
+
+      for (const { tool, name, column, value } of parsed) {
+        if (value.trim() === "all") {
+          additionalFilters = selectAllStatusFields({
+            tool,
+            name,
+            column,
+          });
+          filteredCopy = filteredCopy.filter(
+            ({ id, value }) =>
+              !(id === `${tool}_${name}_${column}` && value.trim() === "all"),
+          );
+        } else {
+          const isCategory = value[value.length - 1] === " ";
+          additionalFilters = createAdditionalFilters({
+            tool,
+            name,
+            column,
+            isCategory,
+          });
+        }
+      }
+    }
+    props.filterPlotData([...filteredCopy, ...additionalFilters], true);
+  };
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
@@ -78,9 +156,9 @@ const TableRender = (props) => {
       value = event.target.value;
       clearTimeout(typingTimer);
       typingTimer = setTimeout(() => {
-        props.onChange(value);
+        onFilterChanged(props.column.id, value);
         document.getElementById(elementId).focus();
-      }, 500);
+      }, debounceTime);
     };
 
     return (
@@ -276,7 +354,7 @@ const TableRender = (props) => {
       filterMethod: (filter, row) => {
         return true;
       },
-      Filter: ({ filter, onChange }) => {
+      Filter: ({ filter, onChange, column }) => {
         const categoryValues = props.categoryValues[runSetIdx][columnIdx];
         const selectedCategoryFilters = pathOr(
           [runSetIdx, "categories"],
@@ -304,7 +382,7 @@ const TableRender = (props) => {
         const selectValue = multipleSelected ? "multiple" : singleFilterValue;
         return (
           <select
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(event) => onFilterChanged(column.id, event.target.value)}
             style={{ width: "100%" }}
             value={
               (allSelected && "all ") ||
@@ -444,8 +522,6 @@ const TableRender = (props) => {
     return out;
   };
 
-  const mTable = useCallback((_, makeTable) => makeTable(), [props.data]);
-
   console.log({ filtered: props.filtered });
 
   return (
@@ -469,71 +545,8 @@ const TableRender = (props) => {
         pageSizeOptions={[50, 100, 250, 500, 1000, 2500]}
         className="-highlight"
         minRows={0}
-        onFilteredChange={(filtered) => {
-          /* There may be filters without values left over when the filter tab
-             overrides the table tab filters. Remove those if any exist. */
-          filtered = filtered.filter((filter) => filter.value);
-          // We only want to consider filters that were set by ReactTable on this update
-          const newFilters = filtered.filter(
-            (filter) => !props.filtered.includes(filter),
-          );
-
-          filtered
-            .filter((filter) => filter.id === "id")
-            .forEach((filter) => {
-              filter.isTableTabFilter = true;
-            });
-
-          let filteredCopy = [...filtered];
-
-          let additionalFilters = [];
-
-          // We are only interested in applying additional filters based on status filters
-          const statusFilter = newFilters.filter(({ id, value }) =>
-            id.includes("status"),
-          );
-          if (statusFilter && statusFilter.length) {
-            const parsed = statusFilter.map(({ id, value }) => {
-              const [tool, name, column] = id.split("_");
-              return {
-                tool,
-                name,
-                column,
-                value,
-              };
-            });
-
-            for (const { tool, name, column, value } of parsed) {
-              if (value.trim() === "all") {
-                additionalFilters = selectAllStatusFields({
-                  tool,
-                  name,
-                  column,
-                });
-                filteredCopy = filteredCopy.filter(
-                  ({ id, value }) =>
-                    !(
-                      id === `${tool}_${name}_${column}` &&
-                      value.trim() === "all"
-                    ),
-                );
-              } else {
-                const isCategory = value[value.length - 1] === " ";
-                additionalFilters = createAdditionalFilters({
-                  tool,
-                  name,
-                  column,
-                  isCategory,
-                });
-              }
-            }
-          }
-          props.filterPlotData([...filteredCopy, ...additionalFilters], true);
-        }}
         onPageSizeChange={(pageSize) => setParam({ pageSize })}
-      >
-        {mTable}
-      </ReactTableFixedColumns>
+      />
     </div>
   );
 };
