@@ -46,6 +46,7 @@ class EnergyMeasurement(object):
             [self._executable, "-r"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            universal_newlines=True,
             bufsize=10000,
             preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess
         )
@@ -69,7 +70,6 @@ class EnergyMeasurement(object):
         for line in err.splitlines():
             logging.debug("energy measurement stderr: %s", line)
         for line in out.splitlines():
-            line = line.decode("ASCII")
             logging.debug("energy measurement output: %s", line)
             match = re.match(r"cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)", line)
             if not match:

@@ -110,10 +110,13 @@ def execute_benchmark(benchmark, output_handler):
         start_time = benchexec.util.read_local_time()
 
         cloud = subprocess.Popen(
-            cmdLine, stdin=subprocess.PIPE, shell=vcloudutil.is_windows()  # noqa: S602
+            cmdLine,
+            stdin=subprocess.PIPE,
+            universal_newlines=True,
+            shell=vcloudutil.is_windows(),  # noqa: S602
         )
         try:
-            cloud.communicate(cloudInput.encode("utf-8"))
+            cloud.communicate(cloudInput)
         except KeyboardInterrupt:
             stop()
         returnCode = cloud.wait()

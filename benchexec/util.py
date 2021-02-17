@@ -733,7 +733,9 @@ def check_msr():
     benchexec has the read and write permissions for msr.
     """
     res = {"loaded": False, "write": False, "read": False}
-    loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
+    loaded_modules = subprocess.check_output(
+        ["lsmod"], universal_newlines=True
+    ).splitlines()
 
     if any("msr" in module for module in loaded_modules):
         res["loaded"] = True
