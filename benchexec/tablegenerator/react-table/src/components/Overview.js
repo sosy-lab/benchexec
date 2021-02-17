@@ -346,33 +346,43 @@ export default class Overview extends React.Component {
             </div>
             <div className="route-container">
               <Switch>
-                <Route exact path="/">
-                  <Summary
-                    tools={this.state.tools}
-                    tableHeader={this.tableHeader}
-                    version={this.props.data.version}
-                    selectColumn={this.toggleSelectColumns}
-                    stats={this.stats}
-                    changeTab={this.changeTab}
-                    hiddenCols={this.state.hiddenCols}
-                  />
-                </Route>
-                <Route path="/table">
-                  <Table
-                    tableHeader={this.tableHeader}
-                    data={this.state.table}
-                    tools={this.state.tools}
-                    selectColumn={this.toggleSelectColumns}
-                    setFilter={this.setFilter}
-                    filterPlotData={this.filterPlotData}
-                    filtered={this.state.filtered}
-                    toggleLinkOverlay={this.toggleLinkOverlay}
-                    changeTab={this.changeTab}
-                    statusValues={this.statusValues}
-                    categoryValues={this.categoryValues}
-                    hiddenCols={this.state.hiddenCols}
-                  />
-                </Route>
+                <Route
+                  exact
+                  path="/"
+                  render={() => (
+                    <Summary
+                      tools={this.state.tools}
+                      tableHeader={this.tableHeader}
+                      version={this.props.data.version}
+                      selectColumn={this.toggleSelectColumns}
+                      stats={this.stats}
+                      changeTab={this.changeTab}
+                      hiddenCols={this.state.hiddenCols}
+                    />
+                  )}
+                />
+                <Route
+                  path="/table"
+                  render={({ match, location, history }) => {
+                    console.log({ match, location, history });
+                    return (
+                      <Table
+                        tableHeader={this.tableHeader}
+                        data={this.state.table}
+                        tools={this.state.tools}
+                        selectColumn={this.toggleSelectColumns}
+                        setFilter={this.setFilter}
+                        filterPlotData={this.filterPlotData}
+                        filtered={this.state.filtered}
+                        toggleLinkOverlay={this.toggleLinkOverlay}
+                        changeTab={this.changeTab}
+                        statusValues={this.statusValues}
+                        categoryValues={this.categoryValues}
+                        hiddenCols={this.state.hiddenCols}
+                      />
+                    );
+                  }}
+                />
                 <Route path="/quantile">
                   <QuantilePlot
                     table={this.state.table}

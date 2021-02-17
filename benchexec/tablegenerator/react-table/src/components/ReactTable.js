@@ -567,6 +567,6 @@ const TableRender = (props) => {
   );
 };
 
-const Table = memo(TableRender);
+const Table = TableRender;
 
 export default Table;
