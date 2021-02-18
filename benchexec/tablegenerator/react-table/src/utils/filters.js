@@ -227,7 +227,8 @@ const applyMatcher = (matcher) => (data) => {
       return true;
     });
   }
-  if (!isNil(matcher.id)) {
+
+  /* if (!isNil(matcher.id)) {
     const { value: idValue, values: idValues } = matcher.id;
     if (idValue) {
       diffd = diffd.filter(({ id }) =>
@@ -247,8 +248,27 @@ const applyMatcher = (matcher) => (data) => {
         }),
       );
     }
-  }
+  } */
   const out = diffd.filter((row) => {
+    if (!isNil(matcher.id)) {
+      const { value: idValue, values: idValues } = matcher.id;
+      if (idValue) {
+        return row.id.some(
+          (idName) => idName === idValue || idName.includes(idValue),
+        );
+      } else {
+        return idValues.every((filterValue, idx) => {
+          const idName = row.id[idx];
+          if (isNil(filterValue) || filterValue === "") {
+            return true;
+          }
+          if (isNil(idName) || idName === "") {
+            return false;
+          }
+          return idName === filterValue || idName.includes(filterValue);
+        });
+      }
+    }
     for (const tool in omit(["diff", "id"], matcher)) {
       for (const column in matcher[tool]) {
         let columnPass = false;
