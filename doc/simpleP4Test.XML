@@ -2,17 +2,13 @@
 
 
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
-<!-- Example file for benchmark definition for BenchExec
-     with dummy tool that simply returns random answers.
-     No resource limits are specified. -->
-     <!-- /home/sdn/benchexec/docker_files/ptf_tester/tests
-          /home/sdn/test_nano_ptf/ptf/ptf_nn/ptf_nn_test -->
+
 <benchmark tool="p4-test-tool" displayName="P4 test">
     <option name="switch_folder">/home/sdn/benchexec/docker_files/switch_bmv2</option>
     <option name="ptf_test_folder">/home/sdn/benchexec/docker_files/ptf_tester/tests</option>
     <rundefinition>
         <tasks>
-            <include>task_files/task_1.yml</include>  
+            <include>task_files/expected_results.json</include>  
             <propertyfile>task_files/ALL.prp</propertyfile>  
         </tasks>
     </rundefinition>
