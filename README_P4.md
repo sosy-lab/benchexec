@@ -49,12 +49,11 @@ sudo docker_install.sh
 
 To run benchexec with p4, the first thing that is necessary is to create an benchmark file. The benchmark file is the same as
 the regular benchexec, but requires two extra option tags. The option tags define the path to the test folder for 
-ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. 
+ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. Furthermore, if the task is run with the include tag(can be replaced with withoutfile tag), the user can include a expected results json file. An example of such a file is located in `/doc/task_files/expected_results.json`. The format is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
 
-An examlpe of such a file is located in `/doc/johanP4Test.XML`. It refers to a simple p4-compiled .JSON file
-which forwads all packets on port 0 to port 1. It also refers to a ptf test file which sends a simple TCP packet.
+An complete examlpe of the xml file is located in `/doc/simpleP4Test.XML`. It refers to a simple p4-compiled .JSON file which forwads all packets on port 0 to port 1. It also refers to a ptf test file which sends a simple TCP packet.
 
-To run benchexec with p4 extension. Run benchexec normally, but with tag -p4 true. An example would be:
+To run benchexec with p4 extension. Run benchexec normally, but with tag -p4. An example would be:
 ```
-sudo benchexec -p4 true doc/johanP4Test.XML
+sudo benchexec -p4 doc/simpleP4Test.XML
 ```
