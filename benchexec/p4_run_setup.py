@@ -3,6 +3,10 @@ from benchexec import result
 import json
 
 class P4SetupHandler(object):
+    """
+    This class creates a new set of runs in the given benchmark.
+    It will create on run for each test in the test_dict.
+    """
     def __init__(self, benchmark, test_dict):
         self.benchmark = benchmark
         self.test_dict = test_dict
@@ -18,7 +22,7 @@ class P4SetupHandler(object):
             for module_name in self.test_dict:
                 for test_name in self.test_dict[module_name]:
                     run = Run(module_name + "." + test_name,
-                    "Fake",
+                    "",
                     "",
                     "",
                     runSet)

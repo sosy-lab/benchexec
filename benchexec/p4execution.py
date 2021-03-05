@@ -16,7 +16,8 @@ STOPPED_BY_INTERRUPT = False
 
 class P4Execution(object):
     """
-        Class for executing p4 benchmarks
+    This Class is for executing p4 benchmarks. The class creates docker containers representing each
+    device in the network. It then executes tests defined for the benchmark on the network. 
     """
     def __init__(self):
         self.nodes = None #Set by init
@@ -29,8 +30,8 @@ class P4Execution(object):
 
     def init(self, config, benchmark):
         """
-            This functions will set up the docker network to execute the test.
-            As a result, it needs root permission for the setup part.
+        This functions will set up the docker network to execute the test.
+        As a result, it needs root permission for the setup part.
         """
 
         tool_locator = tooladapter.create_tool_locator(config)
@@ -59,10 +60,21 @@ class P4Execution(object):
         nrOfNodes = 4
 
         try:
-            #Setup networks
             self.setup_network(nrOfNodes)
 
-            #Create node container
+            #Create the ptf tester container
+            mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
+            try:
+                self.ptf_tester = self.client.containers.create("ptf_tester",
+                    detach=True,
+                    name="ptfTester",
+                    mounts=[mount_ptf_tester],
+                    tty=True,
+                    network="mgnt")
+            except docker.errors.APIError:
+                self.ptf_tester = self.client.containers.get("ptfTester")
+
+            #Create node containers
             self.nodes = []
 
             for device_nr in range(nrOfNodes):
@@ -72,10 +84,9 @@ class P4Execution(object):
                     logging.debug("Old node container find with name: " + "node{0}".format(device_nr+1) + ". Using that")
                 except docker.errors.APIError:
                     self.nodes.append(self.client.containers.create(NodeImageName,
-                        command="python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {2}-1@eth0".format(device_nr ,device_nr+3, device_nr),
                         detach=True,
                         name="node{0}".format(device_nr+1),
-                        network="net{0}".format(device_nr+1)
+                        network="mgnt"
                         ))
 
             #Switch containers
@@ -86,53 +97,31 @@ class P4Execution(object):
             switch_command = "simple_switch "
 
             for device_nr in range(nrOfNodes):
-                switch_command += "-i {0}@eth{0} ".format(device_nr)
+                switch_command += "-i {0}@sv{1}_veth ".format(device_nr, device_nr + 1)
             
             switch_command += "/app/P4/simple_switch.json"
 
             try:
                 self.switches.append(self.client.containers.create("switch_bmv2",
-                    command=switch_command,
                     detach=True,
-                    network="net1",
                     name="switch1",
                     mounts = [mount_switch]
                     ))
             except docker.errors.APIError as e:
-                logging.debug("Failed to create switch. Got error:" + str(e))
-                self.close()
-                raise BenchExecException("Switch contianer with name switch1 might already be running")
-                
-            #Connect all nodes   to the switch
-            for device_nr in range(nrOfNodes)[1:]:
-                self.client.networks.get("net{0}".format(device_nr+1)).connect(self.switches[0])
+                self.switches.append(self.client.containers.get("switch1"))
 
-            #Ptf tester container
-            mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
-            try:
-                self.ptf_tester = self.client.containers.create("ptf_tester",
-                    detach=True,
-                    name="ptfTester",
-                    mounts=[mount_ptf_tester],
-                    tty=True)
-            except docker.errors.APIError:
-                self.close()
-                raise BenchExecException("Cannot create ptf tester container. Might already be running")
-            
-            #Setup mgnt network
-            mgnt = self.client.networks.get("mgnt")
-            mgnt.connect(self.ptf_tester)
-            for node in self.nodes:
-                mgnt.connect(node)
+            self.connect_nodes_to_switch()  
+
         except docker.errors.APIError as e:
             self.close()
             raise BenchExecException(str(e))
 
     def execute_benchmark(self, benchmark, output_handler):
-        self.start_containers()
+        self.start_container_listening()
 
         test_dict = self.read_tests()
-
+        # test_dict = {}
+        # test_dict["Mod1"] = ["Test1", "Test2"]
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
 
@@ -171,7 +160,7 @@ class P4Execution(object):
                 try:
                     with open(run.log_file, "w") as ouputFile:
                         for i in range(6):
-                            ouputFile.write("Logging\n")
+                            ouputFile.write("\n")
 
                         #for result in test_results:
                         ouputFile.write(test_output + "\n")
@@ -196,11 +185,14 @@ class P4Execution(object):
 
                 run.set_result(values)
                 
+                print(run.identifier + ":   ", end='')
+
                 output_handler.output_after_run(run)
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
         self.close()
+        #TODO
         #self.clear_networks()
     
     def _execute_benchmark(self, run, command):
@@ -213,25 +205,25 @@ class P4Execution(object):
             This network represents the bridge between the node and the swtich. Further, it creates
             the management network(mgnt) used by the ptf_teter to inject packages.
         """
-        for net_id in range(nrOfNodes+1)[1:]:
-            try:
-                network = self.client.networks.get("net{0}".format(net_id))
-                self.node_networks.append(network)
-            except docker.errors.NotFound:
-                ipam_pool = docker.types.IPAMPool(
-                    subnet="172.{0}.0.0/16".format(19+net_id),
-                    gateway="172.{0}.0.1".format(19+net_id)
-                )
+        # for net_id in range(nrOfNodes+1)[1:]:
+        #     try:
+        #         network = self.client.networks.get("net{0}".format(net_id))
+        #         self.node_networks.append(network)
+        #     except docker.errors.NotFound:
+        #         ipam_pool = docker.types.IPAMPool(
+        #             subnet="172.{0}.0.0/16".format(19+net_id),
+        #             gateway="172.{0}.0.1".format(19+net_id)
+        #         )
 
-                ipam_config = docker.types.IPAMConfig(
-                    pool_configs=[ipam_pool]
-                )
+        #         ipam_config = docker.types.IPAMConfig(
+        #             pool_configs=[ipam_pool]
+        #         )
 
-                self.client.networks.create(
-                    "net{0}".format(net_id),
-                    driver="bridge",
-                    ipam=ipam_config
-                )
+        #         self.client.networks.create(
+        #             "net{0}".format(net_id),
+        #             driver="bridge",
+        #             ipam=ipam_config
+        #         )
         
         try:
             self.mgnt_network = self.client.networks.get("mgnt")
@@ -250,6 +242,83 @@ class P4Execution(object):
                 driver="bridge",
                 ipam=ipam_config
             )
+
+    def connect_nodes_to_switch(self):
+        """
+        This function is what creates all the connection between the devices in the network.
+        It will create 1 veth-pair for each device. Put each veth-interface in the correct 
+        network namspace, activate them and give them an ipv4 address.
+        """
+        from pyroute2 import IPRoute
+        from pyroute2 import NetNS
+
+        client_low = docker.APIClient()
+
+        self.start_containers()
+
+        switch_name = ""
+        ip = IPRoute()
+
+        try:
+            for switch in self.switches:
+                switch_name = switch.name
+                pid = client_low.inspect_container(switch.name)["State"]["Pid"]
+                switch_is_setup = False
+
+                #Wait until 
+                max_wait_seconds = 10
+                seconds_waited = 0
+                while not switch_is_setup and seconds_waited<=max_wait_seconds:
+                    switch_is_setup = os.path.exists("/proc/{0}/ns/net".format(pid))
+                    time.sleep(1)
+                    seconds_waited += 1
+                
+                #Clear up any old namespaces
+                if os.path.exists("/var/run/netns/{0}".format(switch.name)):
+                    os.remove("/var/run/netns/{0}".format(switch.name))
+                os.symlink("/proc/{0}/ns/net".format(pid), "/var/run/netns/{0}".format(switch.name))
+
+            node_id_nr = 1
+            for node in self.nodes:
+                pid = client_low.inspect_container(node.name)["State"]["Pid"]
+                if os.path.exists("/var/run/netns/{0}".format(node.name)):
+                    os.remove("/var/run/netns/{0}".format(node.name))
+
+                os.symlink("/proc/{0}/ns/net".format(pid), "/var/run/netns/{0}".format(node.name))
+
+                try:
+                    #Create Veth pair and put them in the right namespace
+                    ip.link("add", ifname="n{0}_veth".format(node_id_nr), peer="sv{0}_veth".format(node_id_nr), kind="veth")
+                    id_node = ip.link_lookup(ifname='n{0}_veth'.format(node_id_nr))[0]
+                    ip.link('set', index=id_node, net_ns_fd=node.name)
+                    id_switch = ip.link_lookup(ifname='sv{0}_veth'.format(node_id_nr))[0]
+                    ip.link('set', index=id_switch, net_ns_fd=switch_name)
+
+                    ns = NetNS(node.name)
+                    ns.link('set', index=id_node, state='up')
+                    ns.addr('add', index=id_node, address='192.168.1.{0}'.format(node_id_nr), prefixlen=24)
+                except Exception as e:
+                    logging.error("Failed to setup veth pair." + str(type(e)) + " " + str(e))
+                    self.close()
+                    raise BenchExecException("Setup of networ failed")
+                    
+                
+                node_id_nr += 1
+            
+            #Start all veth in the switch
+            ns = NetNS(switch_name)
+            net_interfaces = ns.get_links()
+            
+            for interface in net_interfaces[2:]:
+                iface_name = interface["attrs"][0][1]
+                id = ns.link_lookup(ifname=iface_name)[0]
+                ns.link('set', index=id, state="up")
+
+        except Exception as e:
+            ns.close()
+            ip.close()
+            logging.error(e)
+            raise BenchExecException("Failed to setup veth pairs for containers.")
 
     def read_tests(self):
         self.ptf_tester.start()
@@ -310,12 +379,15 @@ class P4Execution(object):
         """
             Cleans up all the running containers. Should be called when test is done.
         """
-        logging.debug("Closing containers")
+        logging.debug("Closing containers and cleaning up namespace")
         for container in self.nodes:
             container.remove(force=True)
+            os.remove("/var/run/netns/{0}".format(container.name))
 
         for container in self.switches:
             container.remove(force=True)
+            os.remove("/var/run/netns/{0}".format(container.name))
+            
         if self.ptf_tester:
             self.ptf_tester.remove(force=True)
 
@@ -331,6 +403,23 @@ class P4Execution(object):
         #allow 2 sec of startuptime
         time.sleep(2)
         
+    def start_container_listening(self):
+        node_nr = 1
+        for node_container in self.nodes:
+            command = ("python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {0}-1@n{2}_veth".format(node_nr - 1 , node_nr + 2, node_nr))
+            node_container.exec_run(command, detach=True)
+
+            node_nr += 1
+
+        for switch in self.switches:
+            switch_command = "simple_switch"
+            for node_id in range(len(self.nodes)):
+                switch_command += " -i {0}@sv{1}_veth".format(node_id, node_id + 1)
+
+            switch_command += " /app/P4/simple_switch.json"
+            switch.exec_run(switch_command, detach=True)
+
+
 
 def main(argv=None):
     if argv is None:
@@ -341,3 +430,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
+    
