@@ -25,4 +25,3 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return benchexec.result.RESULT_CLASS_TRUE
             else:
                 return benchexec.result.RESULT_CLASS_FALSE
-            
