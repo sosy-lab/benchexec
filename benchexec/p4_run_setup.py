@@ -40,3 +40,4 @@ class P4SetupHandler(object):
             data = json.load(json_file)
 
             return data
+
