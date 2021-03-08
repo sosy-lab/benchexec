@@ -1,6 +1,8 @@
 from benchexec.model import Run
 from benchexec import result
 import json
+import os
+import logging
 
 class P4SetupHandler(object):
     """
@@ -13,27 +15,32 @@ class P4SetupHandler(object):
 
     def update_runsets(self):
         for runSet in self.benchmark.run_sets:
-            #Divide the defined run into multiple run if necessery
-            old_run = runSet.runs[0]
-            expected_result_filename = old_run.identifier
-            expected_dict = self._read_expected_result_json(expected_result_filename)
-            prop = old_run.properties
-            runSet.runs = []
-            for module_name in self.test_dict:
-                for test_name in self.test_dict[module_name]:
-                    run = Run(module_name + "." + test_name,
-                    "",
-                    "",
-                    "",
-                    runSet)
-                    run.properties = prop
-                    if run.identifier in expected_dict:
-                        run.expected_results[prop[0].filename] = result.ExpectedResult(
-                            expected_dict[run.identifier] == "True" or expected_dict[run.identifier] == "true"
-                            , None)
-                    else:
-                        run.expected_results[prop[0].filename] = result.ExpectedResult(True, None)
-                    runSet.runs.append(run)
+            #Divide the defined run into multiple run if necessery. Check len of runs: If 0, the setup went wrong.
+            if len(runSet.runs) > 0:
+                old_run = runSet.runs[0]
+                expected_result_filename = old_run.identifier
+                if os.path.exists(expected_result_filename):    
+                    expected_dict = self._read_expected_result_json(expected_result_filename)
+                else:
+                    logging.info("Could not identify expected result file. Assuming all test is true.")
+                    expected_dict = {}
+                prop = old_run.properties
+                runSet.runs = []
+                for module_name in self.test_dict:
+                    for test_name in self.test_dict[module_name]:
+                        run = Run(module_name + "." + test_name,
+                        "",
+                        "",
+                        "",
+                        runSet)
+                        run.properties = prop
+                        if run.identifier in expected_dict:
+                            run.expected_results[prop[0].filename] = result.ExpectedResult(
+                                expected_dict[run.identifier] == "True" or expected_dict[run.identifier] == "true"
+                                , None)
+                        else:
+                            run.expected_results[prop[0].filename] = result.ExpectedResult(True, None)
+                        runSet.runs.append(run)
     
     def _read_expected_result_json(self, json_file_path):
         with open(json_file_path) as json_file:
