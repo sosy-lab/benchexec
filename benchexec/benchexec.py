@@ -240,7 +240,6 @@ class BenchExec(object):
         )
 
         parser.add_argument(
-            "-p4",
             "--p4",
             dest="p4",
             action="store_true",
