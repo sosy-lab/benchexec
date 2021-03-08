@@ -14,7 +14,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     
     #Needed for benchexec to run, but irrelevant for p4 extension
     def executable(self, tool):      
-        return ""
+        return "/"
         
     def name(self):
         return "P4 Test"
@@ -25,6 +25,4 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return benchexec.result.RESULT_CLASS_TRUE
             else:
                 return benchexec.result.RESULT_CLASS_FALSE
-
-
             

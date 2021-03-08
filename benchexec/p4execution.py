@@ -418,16 +418,3 @@ class P4Execution(object):
 
             switch_command += " /app/P4/simple_switch.json"
             switch.exec_run(switch_command, detach=True)
-
-
-
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-
-
-    print("Hello World")
-
-if __name__ == "__main__":
-    main()
-    
