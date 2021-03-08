@@ -8,16 +8,30 @@ from benchexec.p4_run_setup import P4SetupHandler
 
 from benchexec import tooladapter
 from benchexec import util
-import docker
 from benchexec import benchexec
 from benchexec import BenchExecException
+
+
+try:
+    import docker
+except Exception as e:
+    raise BenchExecException("Pythond-docker package not found")
+
+try:
+    from pyroute2 import IPRoute
+    from pyroute2 import NetNS
+except:
+    raise BenchExecException("pyroute2 python package not found")
+
 
 STOPPED_BY_INTERRUPT = False
 
 class P4Execution(object):
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
-    device in the network. It then executes tests defined for the benchmark on the network. 
+    device in the network. It creates virutal ethenet connections between all the devices. Finally,
+    it sets up a test container connected to all the nodes in the network. As of now it creates 1 
+    switch with 4 nodes in a tree format.
     """
     def __init__(self):
         self.nodes = None #Set by init
@@ -249,8 +263,6 @@ class P4Execution(object):
         It will create 1 veth-pair for each device. Put each veth-interface in the correct 
         network namspace, activate them and give them an ipv4 address.
         """
-        from pyroute2 import IPRoute
-        from pyroute2 import NetNS
 
         client_low = docker.APIClient()
 
@@ -265,7 +277,7 @@ class P4Execution(object):
                 pid = client_low.inspect_container(switch.name)["State"]["Pid"]
                 switch_is_setup = False
 
-                #Wait until 
+                #Wait until switch is setup
                 max_wait_seconds = 10
                 seconds_waited = 0
                 while not switch_is_setup and seconds_waited<=max_wait_seconds:
@@ -274,14 +286,14 @@ class P4Execution(object):
                     seconds_waited += 1
                 
                 #Clear up any old namespaces
-                if os.path.exists("/var/run/netns/{0}".format(switch.name)):
+                if os.path.islink("/var/run/netns/{0}".format(switch.name)):
                     os.remove("/var/run/netns/{0}".format(switch.name))
                 os.symlink("/proc/{0}/ns/net".format(pid), "/var/run/netns/{0}".format(switch.name))
 
             node_id_nr = 1
             for node in self.nodes:
                 pid = client_low.inspect_container(node.name)["State"]["Pid"]
-                if os.path.exists("/var/run/netns/{0}".format(node.name)):
+                if os.path.islink("/var/run/netns/{0}".format(node.name)):
                     os.remove("/var/run/netns/{0}".format(node.name))
 
                 os.symlink("/proc/{0}/ns/net".format(pid), "/var/run/netns/{0}".format(node.name))
@@ -331,7 +343,6 @@ class P4Execution(object):
         return test_dict
 
     def extract_info_from_test_info(self,test_info):
-        testing = test_info.split("\n")
         test_info = test_info.split("Test List:")[1]
         test_modules = test_info.split("Module ")
         nr_of_modules = len(test_modules) - 1
@@ -369,7 +380,8 @@ class P4Execution(object):
                 elif "ptf" in benchmark.options[option_index].lower():
                     ptf_folder = benchmark.options[option_index +1]
             except:
-                test = ""
+                self.close()
+                raise BenchExecException(benchexec.options[option_index] + " did not match any expected options")
 
             option_index += 2
                
@@ -377,17 +389,19 @@ class P4Execution(object):
             
     def close(self):
         """
-            Cleans up all the running containers. Should be called when test is done.
+            Cleans up all the running containers and clear all created namespaces. Should be called when test is done.
         """
         logging.debug("Closing containers and cleaning up namespace")
         for container in self.nodes:
             container.remove(force=True)
-            os.remove("/var/run/netns/{0}".format(container.name))
+            if os.path.islink("/var/run/netns/{0}".format(container.name)):
+                os.remove("/var/run/netns/{0}".format(container.name))
 
         for container in self.switches:
             container.remove(force=True)
-            os.remove("/var/run/netns/{0}".format(container.name))
-            
+            if os.path.islink("/var/run/netns/{0}".format(container.name)):
+                os.remove("/var/run/netns/{0}".format(container.name))
+
         if self.ptf_tester:
             self.ptf_tester.remove(force=True)
 
@@ -399,11 +413,11 @@ class P4Execution(object):
 
         for container in self.switches:
             container.start()
-
-        #allow 2 sec of startuptime
-        time.sleep(2)
         
     def start_container_listening(self):
+        """
+        This will start all container with the correct listening commands.
+        """
         node_nr = 1
         for node_container in self.nodes:
             command = ("python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {0}-1@n{2}_veth".format(node_nr - 1 , node_nr + 2, node_nr))
