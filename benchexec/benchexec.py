@@ -63,13 +63,7 @@ class BenchExec(object):
 
         self.setup_logging()
 
-        if self.config.p4:
-            if os.getuid() != 0:
-                raise BenchExecException("Superuser is required to run p4 program.")
-            from .p4execution import P4Execution
-            self.executor = P4Execution()
-        else:
-            self.executor = self.load_executor()
+        self.executor = self.load_executor()
 
         returnCode = 0
         for arg in self.config.files:
