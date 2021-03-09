@@ -1,9 +1,0 @@
-format_version: "1.0"
-
-input_files: ../../docker_files/switch_bmv2
-
-properties:
-  - property_file: ALL.prp
-    expected_verdict: true
-  - property_file: other.prp
-    expected_verdict: false
