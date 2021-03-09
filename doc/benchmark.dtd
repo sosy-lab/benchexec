@@ -38,8 +38,6 @@ SPDX-License-Identifier: Apache-2.0
 <!ATTLIST benchmark cpuCores CDATA #IMPLIED>
 <!ATTLIST benchmark threads CDATA #IMPLIED>
 
-
-
 <!ATTLIST tasks name CDATA #IMPLIED>
 
 <!ATTLIST require cpuModel CDATA #IMPLIED>
