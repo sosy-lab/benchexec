@@ -1,9 +1,23 @@
 import sys
 import logging
+import os
+import benchexec.util as util
 
-from benchexec import util as util
+from benchexec.benchexec import BenchExecException
 from benchexec.benchexec import BenchExec
-from benchexec.model import BenchExecException
+
+class P4_BenchExec(BenchExec):
+    """
+    Extension of the basic BenchExec. It overrides the executor and
+    changes it to the p4execution executor
+    """
+    def __init__(self):
+        BenchExec.__init__(self)
+
+    def load_executor(self):
+        from p4.p4execution import P4Execution
+
+        return P4Execution()
 
 def main(benchexec=None, argv=None):
     """
@@ -17,11 +31,11 @@ def main(benchexec=None, argv=None):
     if sys.version_info < (3,):
         sys.exit("benchexec needs Python 3 to run.")
 
+    if os.getuid() != 0:
+        sys.exit("p4-benchmark needs root access to run")
     try:
-
         if not benchexec:
-
-            benchexec = BenchExec()
+            benchexec = P4_BenchExec()
 
         def signal_stop(signum, frame):
             logging.debug("Received signal %d, terminating.", signum)

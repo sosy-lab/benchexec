@@ -4,7 +4,7 @@ import logging
 import time
 from benchexec import systeminfo
 from benchexec.model import Run
-from p4_run_setup import P4SetupHandler
+from p4.p4_run_setup import P4SetupHandler
 
 from benchexec import tooladapter
 from benchexec import util
