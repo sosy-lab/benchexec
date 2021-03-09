@@ -1,4 +1,5 @@
-#Container for using bmv2. See ref https://github.com/p4lang/behavioral-model
+#Container for using bmv2 open source switch. See ref https://github.com/p4lang/behavioral-model
+#It is capable of loading a compiled bmv2 json file
 
 FROM ubuntu:16.04
 
@@ -28,9 +29,6 @@ RUN apt-get update && apt-get install -y \
     git \
     sudo \
     && rm -rf /var/lib/apt/list/*
-
-
-
 
 RUN git clone https://github.com/p4lang/behavioral-model.git /usr/local/behavioral-model
 RUN cd /usr/local/behavioral-model/travis && sudo chmod +x install-thrift.sh install-nanomsg.sh install-nnpy.sh

@@ -1,3 +1,7 @@
+#This dockerfile represents a single node/client in a network.
+#It uses the example from https://github.com/p4lang/ptf/ptf_nn
+#to listen and forward packages
+
 FROM ubuntu:18.04
 
 # Packages

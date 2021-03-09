@@ -1,3 +1,6 @@
+#This dockerfile defines the container responisble for executing the tests.
+#It uses the ptf test framework to do so
+
 FROM ubuntu:18.04
 
 RUN apt-get update
