@@ -233,13 +233,6 @@ class BenchExec(object):
             help="Do not compress result files.",
         )
 
-        parser.add_argument(
-            "--p4",
-            dest="p4",
-            action="store_true",
-            help="Use this flag if a p4 test is to be executed"
-        )
-
         def parse_filesize_value(value):
             try:
                 value = int(value)
@@ -329,7 +322,6 @@ class BenchExec(object):
         """
         logging.debug("This is benchexec %s.", __version__)
         from . import localexecution as executor
-        #from . import p4execution as executor
 
         return executor
 
@@ -416,6 +408,7 @@ class BenchExec(object):
         if self.executor:
             self.executor.stop()
 
+
 def add_container_args(parser):
     container_args = parser.add_argument_group("optional arguments for run container")
     try:
@@ -449,6 +442,7 @@ def add_container_args(parser):
         )
         containerexecutor.add_basic_container_args(container_args)
 
+
 def parse_time_arg(s):
     """
     Parse a time stamp in the "year-month-day hour-minute" format.
@@ -457,6 +451,7 @@ def parse_time_arg(s):
         return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
+
 
 def main(benchexec=None, argv=None):
     """
