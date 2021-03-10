@@ -9,7 +9,7 @@ from benchexec.benchexec import BenchExec
 class P4_BenchExec(BenchExec):
     """
     Extension of the basic BenchExec. It overrides the executor and
-    changes it to the p4execution executor
+    changes it to the p4execution executor to examine p4 programs.
     """
     def __init__(self):
         BenchExec.__init__(self)
