@@ -164,12 +164,6 @@ class P4Execution(object):
 
                 test_output = test_output.decode("utf-8")
 
-                if os.path.exists("/home/sdn/benchexec/test.txt"):
-                    os.remove("/home/sdn/benchexec/test.txt")
-                f = open("/home/sdn/benchexec/test.txt", "w+")
-                f.write("Log file: " + run.log_file)
-                logging.debug("Logs: " + test_output)
-
                 try:
                     with open(run.log_file, "w") as ouputFile:
                         for i in range(6):
@@ -185,16 +179,6 @@ class P4Execution(object):
 
                 test = run.cmdline()
                 run._cmdline = command.split(" ")
-
-                for item in test:
-                    f.write(item + "\n")
-
-                f.write("\n---------- Run object ---------- \n")
-                for item in dir(run):
-                    f.write(item + "\n")
-
-                f.write(run.identifier)
-                f.close()
 
                 run.set_result(values)
                 
@@ -269,6 +253,10 @@ class P4Execution(object):
 
         switch_name = ""
         ip = IPRoute()
+
+        #Check if netns folder exists. If not, create one for netns to look intp
+        if not os.path.exists("/var/run/netns"):
+            os.mkdir("/var/run/netns")
 
         try:
             for switch in self.switches:
