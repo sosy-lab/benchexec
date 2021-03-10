@@ -15,8 +15,3 @@
 /.pytype
 .idea
 node_modules/
-.vscode/
-.eggs/
-*.log
-*.pcap
-results/
