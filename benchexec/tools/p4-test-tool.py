@@ -20,8 +20,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "P4 Test"
 
     def determine_result(self, run):
+        run_succreded = False
+        #Traverse through the output and check for and Ok
         for line in run.output:
-            if run.cmdline[3] + " ... ok" in line:
-                return benchexec.result.RESULT_CLASS_TRUE
-            else:
-                return benchexec.result.RESULT_CLASS_FALSE
+            if "OK" in line:
+                run_succreded = True
+
+        if run_succreded:
+            return benchexec.result.RESULT_CLASS_TRUE
+        else:
+            return benchexec.result.RESULT_CLASS_FALSE
