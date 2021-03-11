@@ -35,14 +35,10 @@ To setup the required docker files, some images has to be created locally. In to
 To build the images, run the following commands or use the setup script provided in `/docker_files`.
 
 ```
+cd contrib/p4/docker_files
 sudo docker build -t basic_node basic_node
 sudo docker build -t switch_bmv2 switch_bmv2
 sudo docker build -t ptf_tester ptf_tester
-```
-or use the installation script(not added yet)
-
-```
-sudo docker_install.sh
 ```
 
 ## Execution
@@ -53,7 +49,14 @@ ptf and the folder which holds the .JSON file that the bsmv2 switch should consu
 
 An complete examlpe of the xml file is located in `/doc/simpleP4Test.XML`. It refers to a simple p4-compiled .JSON file which forwads all packets on port 0 to port 1. It also refers to a ptf test file which sends a simple TCP packet.
 
-To run benchexec with p4 extension. Run benchexec normally, but with tag -p4. An example would be:
+To run benchexec with p4 extension. Execute the python file located in the /contrib folder. An example would be:
 ```
-sudo benchexec -p4 doc/simpleP4Test.XML
+sudo python3 contrib/p4-benchexec.py doc/simpleP4Test.XML
 ```
+
+## Program definition
+The program can only setup a single type of network. It creates 4 nodes all connected to 1 switch. Each node gets assigned a device number and and ip address. How the numbers are set is as follows. The first Node is called Node1 and is device nr 0. Next Node is called Node2 and device nr 1. The given ip address for each node is 192.168.1.{node nr}.
+So the first node would get 192.168.1.1.
+
+## Limitations
+As of now, the switch doesnt set up any 
