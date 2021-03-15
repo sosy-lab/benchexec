@@ -142,10 +142,16 @@ class P4Execution(object):
 
         #Read switch setup log, including table entries
         copyfile(self.switch_source_path + "/log/switch_log.txt", benchmark.log_folder + "Switch_Setup.log")
+        copyfile(self.switch_source_path + "/table_command_output.txt", benchmark.log_folder + "Switch_table_entry.log")
         with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
             f.truncate()
         if output_handler.compress_results:
             self.move_file_to_zip(benchmark.log_folder + "Switch_Setup.log", output_handler, benchmark)
+            self.move_file_to_zip(benchmark.log_folder + "Switch_table_entry.log", output_handler, benchmark)
+
+        #Clear up duplicated files
+        os.remove(self.switch_source_path + "/table_command_output.txt")
+        os.remove(self.switch_source_path + "/table_input.txt")
 
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
