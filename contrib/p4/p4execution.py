@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import time
+import zipfile
 from benchexec import systeminfo
 from benchexec.model import Run
 from p4.p4_run_setup import P4SetupHandler
@@ -10,6 +11,8 @@ from benchexec import tooladapter
 from benchexec import util
 from benchexec import benchexec
 from benchexec import BenchExecException
+
+from shutil import copyfile
 
 try:
     import docker
@@ -51,18 +54,19 @@ class P4Execution(object):
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
-        switch_source_path, ptf_folder_path = self.read_folder_paths(benchmark) 
+        self.switch_source_path, self.ptf_folder_path = self.read_folder_paths(benchmark) 
 
-        if not os.path.isdir(switch_source_path):
-          logging.critical("Switch folder path not found: {0}".format(switch_source_path)) 
-          raise BenchExecException("Switch folder path not found: {0}".format(switch_source_path))
-        if not os.path.isdir(ptf_folder_path):
-            logging.critical("Ptf test folder path not found: {0}".format(ptf_folder_path))
-            raise( BenchExecException("Ptf test folder path not found: {0}".format(ptf_folder_path)))
 
-        if not switch_source_path or not ptf_folder_path:
+        if not os.path.isdir(self.switch_source_path):
+          logging.critical("Switch folder path not found: {0}".format(self.switch_source_path)) 
+          raise BenchExecException("Switch folder path not found: {0}".format(self.switch_source_path))
+        if not os.path.isdir(self.ptf_folder_path):
+            logging.critical("Ptf test folder path not found: {0}".format(self.ptf_folder_path))
+            raise( BenchExecException("Ptf test folder path not found: {0}".format(self.ptf_folder_path)))
+
+        if not self.switch_source_path or not self.ptf_folder_path:
             raise BenchExecException("Switch or Ptf folder path not defined." +
-                "Switch path: {0} Folder path: {1}".format(switch_source_path, ptf_folder_path))
+                "Switch path: {0} Folder path: {1}".format(self.switch_source_path, self.ptf_folder_path))
 
         self.client = docker.from_env()
         
@@ -70,13 +74,13 @@ class P4Execution(object):
         NodeImageName = "basic_node"
         SwitchImageName = "switch_bmv2"
         SwitchTargetPath = "/app"
-        nrOfNodes = 4
+        self.nrOfNodes = 4
 
         try:
-            self.setup_network(nrOfNodes)
+            self.setup_network(self.nrOfNodes)
 
             #Create the ptf tester container
-            mount_ptf_tester = docker.types.Mount("/app", ptf_folder_path, type="bind")
+            mount_ptf_tester = docker.types.Mount("/app", self.ptf_folder_path, type="bind")
             try:
                 self.ptf_tester = self.client.containers.create("ptf_tester",
                     detach=True,
@@ -90,7 +94,7 @@ class P4Execution(object):
             #Create node containers
             self.nodes = []
 
-            for device_nr in range(nrOfNodes):
+            for device_nr in range(self.nrOfNodes):
                 #Try get old node from previous run if it exits
                 try:
                     self.nodes.append(self.client.containers.get("node{0}".format(device_nr+1)))
@@ -105,11 +109,11 @@ class P4Execution(object):
             #Switch containers
             self.switches = []
             
-            mount_switch = docker.types.Mount(SwitchTargetPath, switch_source_path, type="bind")
+            mount_switch = docker.types.Mount(SwitchTargetPath, self.switch_source_path, type="bind")
 
-            switch_command = "simple_switch "
+            switch_command = "simple_switch --log-file /app/log/switch_log --log-flush "
 
-            for device_nr in range(nrOfNodes):
+            for device_nr in range(self.nrOfNodes):
                 switch_command += "-i {0}@sv{1}_veth ".format(device_nr, device_nr + 1)
             
             switch_command += "/app/P4/simple_switch.json"
@@ -133,10 +137,15 @@ class P4Execution(object):
         self.start_container_listening()
 
         test_dict = self.read_tests()
-        # test_dict = {}
-        # test_dict["Mod1"] = ["Test1", "Test2"]
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
+
+        #Read switch setup log, including table entries
+        copyfile(self.switch_source_path + "/log/switch_log.txt", benchmark.log_folder + "Switch_Setup.log")
+        with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
+            f.truncate()
+        if output_handler.compress_results:
+            self.move_file_to_zip(benchmark.log_folder + "Switch_Setup.log", output_handler, benchmark)
 
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
@@ -182,15 +191,27 @@ class P4Execution(object):
 
                 run.set_result(values)
                 
-                print(run.identifier + ":   ", end='')
 
+                #Save swithc log files
+                temp = run.log_file[:-4] + "_switch.log"
+                run.switch_log_file = temp
+
+                copyfile(self.switch_source_path + "/log/switch_log.txt", run.switch_log_file)#"/home/sdn/Documents/Testfolder/switch_log.txt")
+
+                #Clear the log file for next test
+                with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
+                    f.truncate()
+
+
+                print(run.identifier + ":   ", end='')
                 output_handler.output_after_run(run)
+
+                if output_handler.compress_results:
+                    self.move_file_to_zip(run.switch_log_file, output_handler, benchmark)
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
         self.close()
-        #TODO
-        #self.clear_networks()
     
     def _execute_benchmark(self, run, command):
 
@@ -374,6 +395,12 @@ class P4Execution(object):
                
         return switch_folder, ptf_folder
             
+    def stop(self):
+        """
+        Needed for automatic cleanup for benchec.
+        """
+        self.close()
+
     def close(self):
         """
             Cleans up all the running containers and clear all created namespaces. Should be called when test is done.
@@ -413,9 +440,19 @@ class P4Execution(object):
             node_nr += 1
 
         for switch in self.switches:
-            switch_command = "simple_switch"
+            switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
             for node_id in range(len(self.nodes)):
                 switch_command += " -i {0}@sv{1}_veth".format(node_id, node_id + 1)
 
             switch_command += " /app/P4/simple_switch.json"
             switch.exec_run(switch_command, detach=True)
+
+            #This will add table entries
+            switch.exec_run("python3 /app/table_handler.py", detach=True)
+
+    def move_file_to_zip(self, file_path, output_handler, benchmark): 
+        log_file_path = os.path.relpath(
+                file_path, os.path.join(benchmark.log_folder, os.pardir)
+            )
+        output_handler.log_zip.write(file_path, log_file_path)
+        os.remove(file_path)
