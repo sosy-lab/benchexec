@@ -1,12 +1,19 @@
 import os
 import json
 import subprocess
+import argparse
 
 PATH_TO_TABLE_JSON = "/app/ip_table.json"
 PATH_TO_CLI = "/usr/local/behavioral-model/tools/runtime_CLI.py"
 
+#Parser
+parser = argparse.ArgumentParser()
+parser.add_argument("table_file")
+
+args = parser.parse_args()
+
 def main():
-    with open(PATH_TO_TABLE_JSON) as json_file:
+    with open("/app/" + args.table_file) as json_file:
         data = json.load(json_file)
 
         final_command = PATH_TO_CLI
