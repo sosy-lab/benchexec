@@ -47,7 +47,7 @@ To run benchexec with p4, the first thing that is necessary is to create an benc
 the regular benchexec, but requires two extra option tags. The option tags define the path to the test folder for 
 ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. Furthermore, if the task is run with the include tag(can be replaced with withoutfile tag), the user can include a expected results json file. An example of such a file is located in `/doc/task_files/expected_results.json`. The format is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
 
-An complete examlpe of the xml file is located in `/doc/simpleP4Test.XML`. It refers to a simple p4-compiled .JSON file which forwads all packets on port 0 to port 1. It also refers to a ptf test file which sends a simple TCP packet.
+A complete examlpe of the xml file is located in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled .json file for the switch. The switch is a basic ipv4 switch, which forwards packets based on ip address. Furthermore, the file refers to a ptf test file folder with some simple tests.
 
 To run benchexec with p4 extension. Execute the python file located in the /contrib folder. An example would be:
 ```
@@ -58,5 +58,5 @@ sudo python3 contrib/p4-benchexec.py doc/simpleP4Test.XML
 The program can only setup a single type of network. It creates 4 nodes all connected to 1 switch. Each node gets assigned a device number and and ip address. How the numbers are set is as follows. The first Node is called Node1 and is device nr 0. Next Node is called Node2 and device nr 1. The given ip address for each node is 192.168.1.{node nr}.
 So the first node would get 192.168.1.1.
 
-## Limitations
-As of now, the switch doesnt set up any 
+The switch tries to load in the ipv4 address table into the switch. It used the file `ip_table.json`. If you use a different table name, update the table name in the file.
+
