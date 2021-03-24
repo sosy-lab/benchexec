@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
 #Container for using bmv2 open source switch. See ref https://github.com/p4lang/behavioral-model
 #It is capable of loading a compiled bmv2 json file
 

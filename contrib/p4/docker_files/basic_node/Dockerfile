@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
 #This dockerfile represents a single node/client in a network.
 #It uses the example from https://github.com/p4lang/ptf/ptf_nn
 #to listen and forward packages

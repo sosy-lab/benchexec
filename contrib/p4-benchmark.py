@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
+# For instructions on how to use this program, se README in /p4.
+
 import sys
 import logging
 import os
