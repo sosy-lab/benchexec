@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
 # P4 Extension for Benchexec
 
 ## Installation
@@ -5,8 +11,30 @@
 
 ### Dependencies
 
+Pyroute2 python package is required to handle network setup. Install via:
+```
+sudo pip3 install pyroute2
+```
+
 #### Docker Engine
 To install docker, follow the instruction on [dockers website](https://docs.docker.com/engine/install/)
+
+On ubuntu, one can execute these commands to install the latest version of docker.
+```
+sudo apt-get update
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
 
 Also install the extension for docker to be excecuted through python:
 
