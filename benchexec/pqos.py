@@ -51,14 +51,18 @@ class Pqos(object):
             args_list = [self.executable_path] + list(args)
             try:
                 if "-m" in args_list:
-                    self.mon_process = Popen(args_list, stdout=PIPE, stderr=PIPE)
+                    self.mon_process = Popen(
+                        args_list, stdout=PIPE, stderr=PIPE, universal_newlines=True
+                    )
                 else:
-                    ret = json.loads(check_output(args_list, stderr=STDOUT).decode())
+                    ret = json.loads(
+                        check_output(args_list, stderr=STDOUT, universal_newlines=True)
+                    )
                     logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
                 if self.show_warnings and (not suppress_warning):
-                    self.print_error_message(e.output.decode(), __type, args_list)
+                    self.print_error_message(e.output, __type, args_list)
         return False
 
     def print_error_message(self, err, __type, args_list):
@@ -143,7 +147,7 @@ class Pqos(object):
             self.mon_process.send_signal(SIGINT)
             mon_output = self.mon_process.communicate()
             if self.mon_process.returncode == 0:
-                mon_data = json.loads(mon_output[0].decode())
+                mon_data = json.loads(mon_output[0])
                 logging.debug(mon_data["monitor_events"]["message"])
                 ret = self.flatten_mon_data(
                     mon_data["monitor_events"]["function_output"]["monitoring_data"]
@@ -151,7 +155,7 @@ class Pqos(object):
             else:
                 if self.show_warnings:
                     self.print_error_message(
-                        mon_output[1].decode(), "mon", self.mon_process.args
+                        mon_output[1], "mon", self.mon_process.args
                     )
             self.mon_process.kill()
             self.mon_process = None

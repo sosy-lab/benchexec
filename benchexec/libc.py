@@ -70,13 +70,6 @@ unshare.argtypes = [c_int]
 unshare.errcheck = _check_errno
 
 
-sysconf = _libc.sysconf
-"""Retrieve information about system"""
-sysconf.argtypes = [c_int]
-sysconf.restype = c_long
-SC_PAGESIZE = 30  # /usr/include/bits/confname.h
-
-
 mmap = _libc.mmap
 """Map file into memory."""
 mmap.argtypes = [

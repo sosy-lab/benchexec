@@ -71,8 +71,10 @@ This is required for container mode,
 but in general a newer Linux version might also include improvements
 for the kernel features that BenchExec uses,
 and better support for your hardware.
+For example, BenchExec's memory measurements and limits
+have less overhead on Linux 4.14 and newer.
 
-For example, on LTS versions of Ubuntu, consider the [LTS Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
+On LTS versions of Ubuntu, consider the [LTS Enablement Stack](https://wiki.ubuntu.com/Kernel/LTSEnablementStack).
 
 ### Ensure time gets synchronized using NTP
 As described in [this paper on benchmarking](http://raptor.cs.arizona.edu/~rts/pubs/spe16.pdf),

@@ -15,3 +15,5 @@
 /.pytype
 .idea
 node_modules/
+/contrib/vcloud/lib/ivy*.jar
+/contrib/vcloud/lib/vcloud-jars

@@ -96,10 +96,12 @@ class BenchExecIntegrationTests(unittest.TestCase):
         ]
         try:
             output = subprocess.check_output(
-                args=standard_args + list(args), stderr=subprocess.STDOUT
-            ).decode()
+                args=standard_args + list(args),
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
         except subprocess.CalledProcessError as e:
-            print(e.output.decode())
+            print(e.output)
             raise e
         print(output)
         return output
