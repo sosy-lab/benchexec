@@ -19,13 +19,13 @@ parser.add_argument("table_file")
 args = parser.parse_args()
 
 def main():
-    with open("/app/" + args.table_file) as json_file:
+    with open(args.table_file) as json_file:
         data = json.load(json_file)
 
         final_command = PATH_TO_CLI
 
         with open("/app/table_input.txt", "w") as fstdin:
-            for table_entry in data["switch1"]["table_entries"]:
+            for table_entry in data["table_entries"]:
                 CLI_command = "table_add" \
                 " " + str(table_entry["table_name"]) +""\
                 " " + str(table_entry["action_name"]) +""\
