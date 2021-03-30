@@ -203,9 +203,10 @@ You can use a different access mode for directories, e.g., with `--read-only-dir
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
-Your kernel does not allow mounting the overlay filesystem inside a container
-(this is only possible on Ubuntu).
-You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+Your kernel does not allow mounting the overlay filesystem inside a container.
+For this you need either Ubuntu or kernel version 5.11 or newer.
+Alternatively, if you cannot use either,
+you can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`

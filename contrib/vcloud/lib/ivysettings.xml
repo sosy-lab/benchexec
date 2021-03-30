@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+ https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE ivysettings> <!-- generic AcceptAllDTD to make the Eclipse Warning go away -->
+<ivysettings>
+    <settings defaultResolver="Sosy-Lab"/>
+    <property name="ivy.repo.url" value="https://www.sosy-lab.org/ivy"/>
+    <resolvers>
+        <!-- Resolver for downloading dependencies -->
+        <url name="Sosy-Lab" descriptor="required">
+            <ivy pattern="${ivy.repo.url}/[organisation]/[module]/ivy-[revision].xml" />
+            <artifact pattern="${ivy.repo.url}/[organisation]/[module]/[artifact]-[revision](-[classifier]).[ext]" />
+        </url>
+    </resolvers>
+</ivysettings>

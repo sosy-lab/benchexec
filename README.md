@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 
 
 **News**:
+- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu)).
 - BenchExec 2.3 produces improved HTML tables that load much faster and provide more features, subsequent versions improve these tables even further.
   if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.

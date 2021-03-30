@@ -1,9 +1,3 @@
-# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
-# <https://www.castor.kth.se/>
-# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
-
-# SPDX-License-Identifier: Apache-2.0
-
 # P4 Extension for Benchexec
 
 ## Installation
@@ -71,11 +65,9 @@ sudo docker build -t ptf_tester ptf_tester
 
 ## Execution
 
-To run benchexec with p4, the first thing that is necessary is to create an benchmark file. The benchmark file is the same as
-the regular benchexec, but requires two extra option tags. The option tags define the path to the test folder for 
-ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. Furthermore, if the task is run with the include tag(can be replaced with withoutfile tag), the user can include a expected results json file. An example of such a file is located in `/doc/task_files/expected_results.json`. The format is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
+To run benchexec with p4, the first thing that is necessary is to create an benchmark file. The benchmark file is the same as the regular benchexec, but requires two extra option tags. The option tags define the path to the test folder for ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. Furthermore, if the task is run with the include tag (can be replaced with withoutfile tag), the user can include a expected results json file. An example of such a file is located in `/doc/task_files/expected_results.json`. The format is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
 
-A complete examlpe of the xml file is located in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled .json file for the switch. The switch is a basic ipv4 switch, which forwards packets based on ip address. Furthermore, the file refers to a ptf test file folder with some simple tests.
+A complete example of the xml file is located in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled .json file for the switch. The switch is a basic ipv4 switch, which forwards packets based on ip address. Furthermore, the file refers to a ptf test file folder with some simple tests.
 
 To run benchexec with p4 extension. Execute the python file located in the /contrib folder. An example would be:
 ```

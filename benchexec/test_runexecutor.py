@@ -105,11 +105,12 @@ class TestRunExecutor(unittest.TestCase):
             runexec_output = subprocess.check_output(
                 args=self.get_runexec_cmdline(*args, output_filename=output_filename),
                 stderr=subprocess.DEVNULL,
+                universal_newlines=True,
                 **kwargs,
-            ).decode()
+            )
             output = os.read(output_fd, 4096).decode()
         except subprocess.CalledProcessError as e:
-            print(e.output.decode())
+            print(e.output)
             raise e
         finally:
             os.close(output_fd)
@@ -479,9 +480,10 @@ class TestRunExecutor(unittest.TestCase):
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
+                universal_newlines=True,
             )
             try:
-                runexec_output, unused_err = process.communicate(b"TEST_TOKEN")
+                runexec_output, unused_err = process.communicate("TEST_TOKEN")
             except BaseException:
                 # catch everything, we re-raise
                 process.kill()
@@ -489,7 +491,7 @@ class TestRunExecutor(unittest.TestCase):
                 raise
             retcode = process.poll()
             if retcode:
-                print(runexec_output.decode())
+                print(runexec_output)
                 raise subprocess.CalledProcessError(retcode, cmd, output=runexec_output)
 
             output = os.read(output_fd, 4096).decode().splitlines()
@@ -500,7 +502,7 @@ class TestRunExecutor(unittest.TestCase):
         result = {
             key.strip(): value.strip()
             for (key, _, value) in (
-                line.partition("=") for line in runexec_output.decode().splitlines()
+                line.partition("=") for line in runexec_output.splitlines()
             )
         }
         self.check_exitcode_extern(result, 0, "exit code of process is not 0")

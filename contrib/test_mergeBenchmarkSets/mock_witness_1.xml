@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 1.18//EN'
+  'https://www.sosy-lab.org/benchexec/result-1.18.dtd'>
+<result benchmarkname="cpa-seq-validate-correctness-witnesses-cpa-seq" date="2019-11-30 16:07:04 CET" endtime="2019-11-30T17:44:11.345532+01:00" generator="BenchExec 2.5" starttime="2019-11-30T16:07:40.485316+01:00" tool="CPAchecker" toolmodule="benchexec.tools.cpachecker" version="1.9">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo>
+    <os name="Linux 4.15.0-70-generic"/>
+    <cpu cores="8" frequency="3800000000Hz" model="Intel Xeon E3-1230 v5 @ 3.40 GHz"/>
+    <ram size="33546305536B"/>
+    <environment/>
+  </systeminfo>
+  <run name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml">
+    <column title="cputime" value="919.135930672s"/>
+    <column title="host" value="apollon103"/>
+    <column title="memory" value="2308612096B"/>
+    <column title="status" value="TIMEOUT (ERROR (1))"/>
+    <column title="walltime" value="871.4290894800797s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="error"/>
+    <column hidden="true" title="cpuCores" value="0,4"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="1"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml">
+    <column title="cputime" value="0.96134539s"/>
+    <column title="host" value="apollon098"/>
+    <column title="memory" value="48615424B"/>
+    <column title="status" value="ERROR (invalid witness file)"/>
+    <column title="walltime" value="0.5851919981651008s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="error"/>
+    <column hidden="true" title="cpuCores" value="2,6"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="1"/>
+  </run>
+  <run name="../sv-benchmarks/c/array-patterns/array28_pattern.yml">
+    <column title="cputime" value="7.220555471s"/>
+    <column title="host" value="apollon093"/>
+    <column title="memory" value="223555584B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="3.8292284929193556s"/>
+    <column hidden="true" title="blkio-read" value="0B"/>
+    <column hidden="true" title="blkio-write" value="0B"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="cpuCores" value="1,5"/>
+    <column hidden="true" title="memoryNodes" value="0"/>
+    <column hidden="true" title="returnvalue" value="0"/>
+  </run>
+</result>

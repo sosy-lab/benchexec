@@ -1,6 +1,6 @@
 {
     "access_right": "open",
-    "license": "Apache-2.0",
+    "license": "Apache-2.0 AND BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC AND LicenseRef-BSD-3-Clause-CMU",
     "creators": [
         {
             "name": "Philipp Wendler",
@@ -12,5 +12,15 @@
             "affiliation": "@sosy-lab, LMU Munich",
             "orcid": "0000-0003-4832-7662"
         }
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "10.1007/s10009-017-0469-y",
+        "relation": "isDocumentedBy"
+      },
+      {
+        "identifier": "https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf",
+        "relation": "isDocumentedBy"
+      }
     ]
 }

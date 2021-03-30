@@ -9,7 +9,6 @@
 
 import logging
 import os
-import subprocess
 import sys
 
 from benchexec import __version__
@@ -85,27 +84,6 @@ class Benchmark(benchexec.benchexec.BenchExec):
                 "AWS flag was not specified. Benchexec will be executed only on the local machine."
             )
             executor = super(Benchmark, self).load_executor()
-
-        original_load_function = benchexec.model.load_tool_info
-
-        # The following code block is for testing only and will be removed eventually
-        def build_cpachecker_before_load(tool_name, *args, **kwargs):
-            if tool_name == "cpachecker":
-                # This duplicates the logic from the tool-info module,
-                # but it cannot be called here.
-                script = benchexec.util.find_executable("cpa.sh", "scripts/cpa.sh")
-                base_dir = os.path.join(os.path.dirname(script), os.path.pardir)
-                build_file = os.path.join(base_dir, "build.xml")
-                if os.path.exists(build_file) and subprocess.call(
-                    ["ant", "-q", "jar"], cwd=base_dir, shell=False
-                ):
-                    sys.exit("Failed to build CPAchecker, please fix the build first.")
-
-            return original_load_function(tool_name, *args, **kwargs)
-
-        # Monkey-patch BenchExec to build CPAchecker before loading the tool-info
-        # module (https://gitlab.com/sosy-lab/software/cpachecker/issues/549)
-        benchexec.model.load_tool_info = build_cpachecker_before_load
 
         return executor
 

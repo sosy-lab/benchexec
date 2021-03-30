@@ -786,13 +786,18 @@ class OutputHandler(object):
                 Find a file with the given name in the same directory as this script.
                 Returns a path relative to the current directory, or None.
                 """
-                path = os.path.join(os.path.dirname(sys.argv[0]), name)
-                if not os.path.isfile(path):
-                    path = os.path.join(os.path.dirname(__file__), os.path.pardir, name)
-                    if not os.path.isfile(path):
-                        return None
+                main_dir = os.path.dirname(sys.argv[0])
+                search_dirs = [
+                    main_dir,
+                    os.path.join(main_dir, os.path.pardir, "bin"),
+                    os.path.join(os.path.dirname(__file__), os.path.pardir),
+                ]
+                path = util.find_executable2(name, search_dirs)
 
-                if os.path.dirname(path) in os.environ["PATH"].split(os.pathsep):
+                if not path:
+                    return None
+
+                if os.path.dirname(path) in util.get_path():
                     # in PATH, just use command name
                     return os.path.basename(path)
 
