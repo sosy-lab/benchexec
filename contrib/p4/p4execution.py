@@ -20,8 +20,9 @@ from benchexec import BenchExecException
 
 #File handling
 import zipfile
-from shutil import copyfile
+from shutil import copyfile, rmtree
 import json
+from distutils.dir_util import copy_tree
 
 try:
     import docker
@@ -89,7 +90,7 @@ class P4Execution(object):
         NodeImageName = "basic_node"
         SwitchImageName = "switch_bmv2"
         PtfImageName = "ptf_tester"
-        SwitchTargetPath = "/app"
+        self.switch_target_path = "/app"
         self.nrOfNodes = len(self.network_config["nodes"])
 
         try:
@@ -136,9 +137,15 @@ class P4Execution(object):
             #Switch containers
             self.switches = []
             
-            mount_switch = docker.types.Mount(SwitchTargetPath, self.switch_source_path, type="bind")
+            #Each switch needs their own mount copy
+            
+
+            #mount_switch = docker.types.Mount(SwitchTargetPath, self.switch_source_path, type="bind")
             
             for switch_info in self.network_config["switches"]:
+                mount_path = self.create_switch_mount_copy(switch_info)
+                mount_switch = docker.types.Mount(self.switch_target_path, mount_path, type="bind")
+
                 try:
                     self.switches.append(self.client.containers.create("switch_bmv2",
                     detach=True,
@@ -169,19 +176,27 @@ class P4Execution(object):
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
 
-        #Read switch setup log, including table entries
-        copyfile(self.switch_source_path + "/log/switch_log.txt", benchmark.log_folder + "Switch_Setup.log")
-        copyfile(self.switch_source_path + "/table_command_output.txt", benchmark.log_folder + "Switch_table_entry.log")
-        
-        with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
-            f.truncate()
-        if output_handler.compress_results:
-            self.move_file_to_zip(benchmark.log_folder + "Switch_Setup.log", output_handler, benchmark)
-            self.move_file_to_zip(benchmark.log_folder + "Switch_table_entry.log", output_handler, benchmark)
+        #Read all switch setuo logs
+        for switch in self.switches:
+            switch_log_file = self.switch_source_path + "/{0}".format(switch.name) + "/log/switch_log.txt"
+            switch_command_output = self.switch_source_path + "/{0}".format(switch.name) + "/table_command_output.txt"
 
-        #Clear up duplicated files
-        os.remove(self.switch_source_path + "/table_command_output.txt")
-        os.remove(self.switch_source_path + "/table_input.txt")
+            switch_log_file_new = benchmark.log_folder + "{0}_Setup.log".format(switch.name)
+            switch_command_output_new =  benchmark.log_folder + "{0}_table_entry.log".format(switch.name)
+
+            copyfile(switch_log_file, switch_log_file_new)
+            copyfile(switch_command_output, switch_command_output_new)
+        
+            #Clear log file
+            with open(switch_log_file, "r+") as f:
+                f.truncate()
+            if output_handler.compress_results:
+                self.move_file_to_zip(switch_log_file_new, output_handler, benchmark)
+                self.move_file_to_zip(switch_command_output_new, output_handler, benchmark)
+
+            #Clear up duplicated files
+            os.remove(switch_command_output)
+            os.remove(self.switch_source_path + "/{0}/table_input.txt".format(switch.name))
 
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
@@ -229,22 +244,35 @@ class P4Execution(object):
                 run.set_result(values)
                 
 
-                #Save swithc log files
-                temp = run.log_file[:-4] + "_switch.log"
-                run.switch_log_file = temp
+                #Save all switch log_files
+                for switch in self.switches:
+                    switch_log_file = self.switch_source_path + "/{0}".format(switch.name) + "/log/switch_log.txt"
+                    
+                    switch_log_file_new = run.log_file[:-4] + "_{0}.log".format(switch.name)
+                     
+                    copyfile(switch_log_file, switch_log_file_new)
 
-                copyfile(self.switch_source_path + "/log/switch_log.txt", run.switch_log_file)
+                    #Clear the log file for next test
+                    with open(switch_log_file, "r+") as f:
+                        f.truncate()
 
-                #Clear the log file for next test
-                with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
-                    f.truncate()
+                    if output_handler.compress_results:
+                        self.move_file_to_zip(switch_log_file_new, output_handler, benchmark)
+                # #Save swithc log files
+                # temp = run.log_file[:-4] + "_switch.log"
+                # run.switch_log_file = temp
+
+                # copyfile(self.switch_source_path + "/log/switch_log.txt", run.switch_log_file)
+
+                # #Clear the log file for next test
+                # with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
+                #     f.truncate()
 
 
                 print(run.identifier + ":   ", end='')
                 output_handler.output_after_run(run)
 
-                if output_handler.compress_results:
-                    self.move_file_to_zip(run.switch_log_file, output_handler, benchmark)
+                
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
@@ -398,8 +426,8 @@ class P4Execution(object):
                     if not os.path.exists("/var/run/netns/{0}".format(device2)):
                         os.symlink("/proc/{0}/ns/net".format(pid_device2), "/var/run/netns/{0}".format(device2))
 
-                iface_device1 = link["device1"] + "_{0}".format(link["node_port"])
-                iface_device2 = link["device2"] + "_{0}".format(link["switch_port"])
+                iface_device1 = link["device1"] + "_{0}".format(link["device1_port"])
+                iface_device2 = link["device2"] + "_{0}".format(link["device2_port"])
 
                 #Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
@@ -415,16 +443,39 @@ class P4Execution(object):
                     ns.addr('add', index=id_node, address=self.network_config["nodes"][device1]["ipv4_addr"], prefixlen=24)
                 if "ipv6_addr" in link:
                     continue
+            
+            if(link["type"] == "Switch_to_Switch"):
+                switch_is_setup1 = os.path.exists("/proc/{0}/ns/net".format(pid_device1))
+                switch_is_setup2 = os.path.exists("/proc/{0}/ns/net".format(pid_device2))
 
-            #Start all veth in all the switches
-            for switch in self.switches:
-                ns = NetNS(switch.name)
-                net_interfaces = ns.get_links()
-                
-                for interface in net_interfaces[2:]:
-                    iface_name = interface["attrs"][0][1]
-                    id = ns.link_lookup(ifname=iface_name)[0]
-                    ns.link('set', index=id, state="up")
+                max_wait_seconds = 10
+                seconds_waited = 0
+                while not switch_is_setup1 and switch_is_setup2:
+                    switch_is_setup1 = os.path.exists("/proc/{0}/ns/net".format(pid_device1))
+                    switch_is_setup2 = os.path.exists("/proc/{0}/ns/net".format(pid_device2))
+                    time.sleep(1)
+                    seconds_waited += 1
+
+                iface_switch1 = link["device1"] + "_{0}".format(link["device1_port"])
+                iface_switch2 = link["device2"] + "_{0}".format(link["device2_port"])
+
+                #Create Veth pair and put them in the right namespace
+                ip.link("add", ifname=iface_switch1, peer=iface_switch2, kind="veth")
+                id_node = ip.link_lookup(ifname=iface_switch1)[0]
+                ip.link('set', index=id_node, net_ns_fd=link["device1"])
+                id_switch = ip.link_lookup(ifname=iface_switch2)[0]
+                ip.link('set', index=id_switch, net_ns_fd=link["device2"])
+
+
+        #Start all veth in all the switches
+        for switch in self.switches:
+            ns = NetNS(switch.name)
+            net_interfaces = ns.get_links()
+            
+            for interface in net_interfaces[2:]:
+                iface_name = interface["attrs"][0][1]
+                id = ns.link_lookup(ifname=iface_name)[0]
+                ns.link('set', index=id, state="up")
 
     def read_tests(self):
         self.ptf_tester.start()
@@ -501,6 +552,9 @@ class P4Execution(object):
                 os.remove("/var/run/netns/{0}".format(container.name))
 
         for container in self.switches:
+            if os.path.isdir(self.switch_source_path + "/{0}".format(container.name)):
+                rmtree(self.switch_source_path + "/{0}".format(container.name))
+
             container.remove(force=True)
             if os.path.islink("/var/run/netns/{0}".format(container.name)):
                 os.remove("/var/run/netns/{0}".format(container.name))
@@ -547,7 +601,32 @@ class P4Execution(object):
         #     switch.exec_run(switch_command, detach=True)
 
             #This will add table entries
-            switch.exec_run("python3 /app/table_handler.py ip_table.json", detach=True)
+
+            #
+            #TODO Read what tables to initiate from setup_file
+            #Check for defined tables for the switch
+            if "table_entries" in self.network_config["switches"][switch.name]:
+                for table_name in self.network_config["switches"][switch.name]["table_entries"]:
+                    table_file_path = self.switch_source_path + "/" +  switch.name + "/tables/{0}".format(table_name)
+                    if os.path.exists(table_file_path):
+                        switch.exec_run("python3 /app/table_handler.py "+ self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
+
+    def create_switch_mount_copy(self, switch_name):
+        switch_path = self.switch_source_path + "/" + switch_name
+        path = os.mkdir(switch_path)
+
+        #Copy relevant folders
+        os.mkdir(switch_path + "/log")
+        os.mkdir(switch_path + "/P4")
+        os.mkdir(switch_path + "/tables")
+
+        copy_tree(self.switch_source_path + "/log", switch_path + "/log")
+        copy_tree(self.switch_source_path + "/P4", switch_path + "/P4")
+        copy_tree(self.switch_source_path + "/tables", switch_path + "/tables")
+
+        copyfile(self.switch_source_path+ "/table_handler.py", switch_path + "/table_handler.py")
+
+        return switch_path
 
     def move_file_to_zip(self, file_path, output_handler, benchmark): 
         log_file_path = os.path.relpath(
