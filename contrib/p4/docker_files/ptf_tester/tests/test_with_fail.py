@@ -34,38 +34,7 @@ class OneTest(DataplaneBaseTest):
         except Exception as e:
             print(e)
         
-        
         testutils.verify_packet(self, pkt, (1, 1))
-
-class TwoTest(DataplaneBaseTest):
-    def __init__(self):
-        DataplaneBaseTest.__init__(self)
-
-    def runTest(self):
-        #log_to_file("Starting second test")
-        pkt = testutils.simple_tcp_packet(pktlen=100)
-        pkt_failed = testutils.simple_tcp_packet(pktlen=101)
-
-        testutils.send_packet(self, (0,1), pkt)
-
-        testutils.verify_packet(self, pkt_failed, (1, 1))
-
-
-class ThreeTest(DataplaneBaseTest):
-    def __init__(self):
-        DataplaneBaseTest.__init__(self)
-
-    def runTest(self):
-        #log_to_file("Staring Third test")
-        pkt = testutils.simple_tcp_packet(pktlen=200)
-
-        try:
-            testutils.send_packet(self, (0, 1), pkt)
-        except Exception as e:
-            log_to_file(e)
-        
-        testutils.verify_packet(self, pkt, (1, 1))
-
 
 def log_to_file(msg):
     f = open("/app/app.log", "a")
