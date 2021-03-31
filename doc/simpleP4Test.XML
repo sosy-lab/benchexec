@@ -4,12 +4,15 @@
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 
 <benchmark tool="p4-test-tool" displayName="P4 test">
-    <option name="switch_folder">/home/sdn/benchexec/docker_files/switch_bmv2</option>
-    <option name="ptf_test_folder">/home/sdn/benchexec/docker_files/ptf_tester/tests</option>
+    <option name="switch_folder">/home/sdn/benchexec/contrib/p4/docker_files/switch_bmv2</option>
+    <!-- <option name="ptf_tester_folder">/home/sdn/test_nano_ptf/ptf/ptf_nn/ptf_nn_test/</option> -->
+    <option name="ptf_test_folder">/home/sdn/benchexec/contrib/p4/docker_files/ptf_tester/tests</option>
+    <option name="network_config">/home/sdn/benchexec/contrib/p4/network_config.json</option>
     <rundefinition>
         <tasks>
-            <include>task_files/expected_results.json</include>  
-            <propertyfile>task_files/ALL.prp</propertyfile>  
+            <!-- <include>task_files/expected_results.json</include>   -->
+            <include>../contrib/p4/test.json</include>
+            <propertyfile>../test/tasks/test.prp</propertyfile>  
         </tasks>
     </rundefinition>
 </benchmark>
