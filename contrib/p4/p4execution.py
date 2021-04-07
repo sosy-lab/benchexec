@@ -79,10 +79,17 @@ class P4Execution(object):
 
         #Extract network config info
         if not self.network_config_path:
+            logging.error("No network config file was defined")
             raise BenchExecException("No network config file was defined")
         
         with open (self.network_config_path) as json_file:
             self.network_config = json.load(json_file)
+
+
+        setup_is_valid = self.network_file_isValid()
+
+        if not setup_is_valid:
+            raise BenchExecException("Network config file is not valid")
 
         self.client = docker.from_env()
         
@@ -121,27 +128,9 @@ class P4Execution(object):
                         name=node_name,
                         network="mgnt"
                         ))
-
-            # for device_nr in range(self.nrOfNodes):
-            #     #Try get old node from previous run if it exits
-            #     try:
-            #         self.nodes.append(self.client.containers.get("node{0}".format(device_nr+1)))
-            #         logging.debug("Old node container find with name: " + "node{0}".format(device_nr+1) + ". Using that")
-            #     except docker.errors.APIError:
-            #         self.nodes.append(self.client.containers.create(NodeImageName,
-            #             detach=True,
-            #             name="node{0}".format(device_nr+1),
-            #             network="mgnt"
-            #             ))
-
-            #Switch containers
             self.switches = []
             
             #Each switch needs their own mount copy
-            
-
-            #mount_switch = docker.types.Mount(SwitchTargetPath, self.switch_source_path, type="bind")
-            
             for switch_info in self.network_config["switches"]:
                 mount_path = self.create_switch_mount_copy(switch_info)
                 mount_switch = docker.types.Mount(self.switch_target_path, mount_path, type="bind")
@@ -154,14 +143,6 @@ class P4Execution(object):
                     ))
                 except docker.errors.APIError as e:
                     self.switches.append(self.client.containers.get(switch_info))
-            # try:
-            #     self.switches.append(self.client.containers.create("switch_bmv2",
-            #         detach=True,
-            #         name="switch1",
-            #         mounts = [mount_switch]
-            #         ))
-            # except docker.errors.APIError as e:
-            #     self.switches.append(self.client.containers.get("switch1"))
 
             self.connect_nodes_to_switch_new()  
 
@@ -176,7 +157,7 @@ class P4Execution(object):
         setup_handler = P4SetupHandler(benchmark, test_dict)
         setup_handler.update_runsets()
 
-        #Read all switch setuo logs
+        #Read all switch setup logs
         for switch in self.switches:
             switch_log_file = self.switch_source_path + "/{0}".format(switch.name) + "/log/switch_log.txt"
             switch_command_output = self.switch_source_path + "/{0}".format(switch.name) + "/table_command_output.txt"
@@ -258,16 +239,6 @@ class P4Execution(object):
 
                     if output_handler.compress_results:
                         self.move_file_to_zip(switch_log_file_new, output_handler, benchmark)
-                # #Save swithc log files
-                # temp = run.log_file[:-4] + "_switch.log"
-                # run.switch_log_file = temp
-
-                # copyfile(self.switch_source_path + "/log/switch_log.txt", run.switch_log_file)
-
-                # #Clear the log file for next test
-                # with open(self.switch_source_path + "/log/switch_log.txt", "r+") as f:
-                #     f.truncate()
-
 
                 print(run.identifier + ":   ", end='')
                 output_handler.output_after_run(run)
@@ -634,3 +605,53 @@ class P4Execution(object):
             )
         output_handler.log_zip.write(file_path, log_file_path)
         os.remove(file_path)
+
+    def network_file_isValid(self):
+        if not self.network_config:
+            logging.debug("No network file is defined for validation")
+            return False
+        else:
+            #Check nodes
+            if not "nodes" in self.network_config:
+                logging.debug("No nodes defined in network config")
+                return False
+            elif len(self.network_config["nodes"]) == 0:
+                logging.debug("No nodes defined in network config")
+                return False
+
+            #Check for duplicate node names
+            node_names = list(self.network_config["nodes"].keys())
+
+            for node_name in node_names:
+                if node_names.count(node_name) > 1:
+                    logging.debug("Duplicate node name detected")
+                    return False
+
+            #Check switches
+            if not "switches" in self.network_config:
+                logging.debug("No switches defined")
+                return False
+            elif len(self.network_config["switches"]) == 0:
+                logging.debug("No nodes defined in network config")
+                return False
+
+
+            switch_names = list(self.network_config["switches"].keys())
+
+            for switch_name in switch_names:
+                if switch_names.count(switch_name) > 1:
+                    logging.debug("Duplicate switch name detected")
+                    return False
+
+            #Check links
+            if "links" in self.network_config:
+                all_devices = switch_names + node_names
+
+                for link in self.network_config["links"]:
+                    if not link["device1"] in all_devices or not link["device2"] in all_devices:
+                        logging.debug("Link between none defined devices detected")
+                        return False
+                    if not type(link["device1_port"]) == int or not type(link["device2_port"]) == int:
+                        return False
+
+        return True
