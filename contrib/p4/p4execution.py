@@ -389,7 +389,7 @@ class P4Execution(object):
                     seconds_waited += 1
 
 
-                #Check if namespaces are addad. If not add simlinl to namespace
+                #Check if namespaces are addad. If not add simlinuk to namespace
                 if not os.path.islink("/var/run/netns/{0}".format(device1)):
                     os.symlink("/proc/{0}/ns/net".format(pid_device1), "/var/run/netns/{0}".format(device1))
 
@@ -548,8 +548,16 @@ class P4Execution(object):
         """
         node_nr = 1
         for node_container in self.nodes:
+
+            node_command = "python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001".format(node_nr-1, node_nr+2)
+
+            used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
+
+            for port_nr in used_ports:
+                node_command += " -i {0}-{1}@{2}_{1}".format(node_nr-1, port_nr, node_container.name)
+
             command = ("python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {0}-1@{2}_{3}".format(node_nr - 1 , node_nr + 2, node_container.name, self.network_config["nodes"][node_container.name]["used_ports"][0]))
-            node_container.exec_run(command, detach=True)
+            node_container.exec_run(node_command, detach=True)
 
             node_nr += 1
 
