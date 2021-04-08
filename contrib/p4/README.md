@@ -54,7 +54,7 @@ To setup the required docker files, some images has to be created locally. In to
 2. Switch image - Image that runs the bmv2 software provided by the p4 institution
 3. Ptf tester image - Image that runs PTF(package test framwork) also provided by p4 institution
 
-To build the images, run the following commands or use the setup script provided in `/docker_files`.
+To build the images, run the following commands:
 
 ```
 cd contrib/p4/docker_files
@@ -63,20 +63,29 @@ sudo docker build -t switch_bmv2 switch_bmv2
 sudo docker build -t ptf_tester ptf_tester
 ```
 
+## Setup
+
+To run benchexec with p4, there are a few requirements. The first one is to create a benchmark file. The structure of the benchmark file is the same as the regular benchexec, but with 3 extra option tags. The tags are:
+
+
+1.	Path to ptf test folder. Format: <option name="switch_folder">path/to/switch_folder</option>
+2.	Path to switch folder. Format <option name="ptf_test_folder">path/to/ptf_test_folder</option>
+3.	Path to network configuration file <option name="network_config">path/tp/network_config_file<option/>
+
+Finally, the user can define expected results for the test run. If the task is run with the include tag (can be replaced with the withoutfile tag), the user can include an expected results json file. An example of such a file is in `/doc/task_files_expected_results.json`. The format of the file is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
+
+A complete example of the xml file is in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled json file for the switch. The switch is a simple ipv4 forward switch from the p4 tutorial. The file also refers to a network configuration file which sets up the configuration as the picture below. Finally, it refers to some simple ipv4 forwarding test.
+
+
+### Network configuration file
+
+The network configuration file is what defines the test setup. To create such a file, the easiest way is to use the python API. On how to use the API, see the README of that repository.
+
 ## Execution
 
-To run benchexec with p4, the first thing that is necessary is to create an benchmark file. The benchmark file is the same as the regular benchexec, but requires two extra option tags. The option tags define the path to the test folder for ptf and the folder which holds the .JSON file that the bsmv2 switch should consume. Furthermore, if the task is run with the include tag (can be replaced with withoutfile tag), the user can include a expected results json file. An example of such a file is located in `/doc/task_files/expected_results.json`. The format is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test.
+To run the program, execute the p4-benchmark.py file located in `/contrib`. An example would be:
 
-A complete example of the xml file is located in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled .json file for the switch. The switch is a basic ipv4 switch, which forwards packets based on ip address. Furthermore, the file refers to a ptf test file folder with some simple tests.
-
-To run benchexec with p4 extension. Execute the python file located in the /contrib folder. An example would be:
 ```
-sudo python3 contrib/p4-benchexec.py doc/simpleP4Test.XML
+sudo python3 contrib/p4-benchmark.py doc/simpleP4.XML
 ```
-
-## Program definition
-The program can only setup a single type of network. It creates 4 nodes all connected to 1 switch. Each node gets assigned a device number and and ip address. How the numbers are set is as follows. The first Node is called Node1 and is device nr 0. Next Node is called Node2 and device nr 1. The given ip address for each node is 192.168.1.{node nr}.
-So the first node would get 192.168.1.1.
-
-The switch tries to load in the ipv4 address table into the switch. It used the file `ip_table.json`. If you use a different table name, update the table name in the file.
 
