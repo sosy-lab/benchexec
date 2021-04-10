@@ -125,7 +125,7 @@ export default class Summary extends React.Component {
         column={column}
         className="columns"
         title="Show Quantile Plot of this column"
-        onClick={(e) => this.props.changeTab(e, column, 2)}
+        onClick={(e) => this.props.switchToQuantile(column)}
       />
     ),
     show:
