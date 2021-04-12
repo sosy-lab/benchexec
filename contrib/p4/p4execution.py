@@ -38,6 +38,10 @@ except:
 
 STOPPED_BY_INTERRUPT = False
 
+#Static Parameters
+MGNT_NETWORK_SUBNET = "172.19" #Subnet 192.19.x.x/16
+
+
 class P4Execution(object):
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
@@ -198,7 +202,7 @@ class P4Execution(object):
                 command = "ptf --test-dir /app " + run.identifier
 
                 for i in range(self.nrOfNodes):
-                    command += " --device-socket {0}-{{0-64}}@tcp://172.19.0.{1}:10001".format(i, i+3)
+                    command += " --device-socket {0}-{{0-64}}@tcp://".format(i) + MGNT_NETWORK_SUBNET + ".0.{0}:10001".format(i+3)
 
                 command += " --platform nn"
 
@@ -259,13 +263,10 @@ class P4Execution(object):
             This network represents the bridge between the node and the swtich. Further, it creates
             the management network(mgnt) used by the ptf_teter to inject packages.
         """
-        
         try:
-            self.mgnt_network = self.client.networks.get("mgnt")
-        except docker.errors.NotFound:
             ipam_pool = docker.types.IPAMPool(
-                subnet="172.19.0.0/16",
-                gateway="172.19.0.1"
+                subnet=MGNT_NETWORK_SUBNET + ".0.0/16",#"172.19.0.0/16",
+                gateway=MGNT_NETWORK_SUBNET + ".0.1"#"172.19.0.1"
                 )
 
             ipam_config = docker.types.IPAMConfig(
@@ -277,6 +278,12 @@ class P4Execution(object):
                 driver="bridge",
                 ipam=ipam_config
             )
+        except docker.errors.APIError as error:
+            #Check if error is network overlap
+            if "overlap" in str(error):
+                self.mgnt_network = self.client.networks.get("mgnt")
+            else:
+                raise error
 
     def connect_nodes_to_switch(self):
         """
