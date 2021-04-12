@@ -40,6 +40,9 @@ STOPPED_BY_INTERRUPT = False
 
 #Static Parameters
 MGNT_NETWORK_SUBNET = "172.19" #Subnet 192.19.x.x/16
+NODE_IMAGE_NAME = "basic_node"
+SWITCH_IMAGE_NAME = "switch_bmv2"
+PTF_IMAGE_NAME = "ptf_tester"
 
 
 class P4Execution(object):
@@ -98,9 +101,7 @@ class P4Execution(object):
         self.client = docker.from_env()
         
         #To be replaceded by input file
-        NodeImageName = "basic_node"
-        SwitchImageName = "switch_bmv2"
-        PtfImageName = "ptf_tester"
+
         self.switch_target_path = "/app"
         self.nrOfNodes = len(self.network_config["nodes"])
 
@@ -110,7 +111,7 @@ class P4Execution(object):
             #Create the ptf tester container
             mount_ptf_tester = docker.types.Mount("/app", self.ptf_folder_path, type="bind")
             try:
-                self.ptf_tester = self.client.containers.create("ptf_tester",
+                self.ptf_tester = self.client.containers.create(PTF_IMAGE_NAME,
                     detach=True,
                     name="ptfTester",
                     mounts=[mount_ptf_tester],
@@ -127,7 +128,7 @@ class P4Execution(object):
                     self.nodes.append(self.client.containers.get(node_name))
                     logging.debug("Old node container find with name: " + node_name + ". Using that")
                 except docker.errors.APIError:
-                    self.nodes.append(self.client.containers.create(NodeImageName,
+                    self.nodes.append(self.client.containers.create(NODE_IMAGE_NAME,
                         detach=True,
                         name=node_name,
                         network="mgnt"
@@ -140,7 +141,7 @@ class P4Execution(object):
                 mount_switch = docker.types.Mount(self.switch_target_path, mount_path, type="bind")
 
                 try:
-                    self.switches.append(self.client.containers.create("switch_bmv2",
+                    self.switches.append(self.client.containers.create(SWITCH_IMAGE_NAME,
                     detach=True,
                     name=switch_info,
                     mounts = [mount_switch]
