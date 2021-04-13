@@ -29,6 +29,20 @@
             "type": "Node_to_Switch"
         },
         {
+            "device1": "Node1",
+            "device1_port": 1,
+            "device2": "Switch2",
+            "device2_port": 2,
+            "type": "Node_to_Switch"
+        },
+        {
+            "device1": "Node2",
+            "device1_port": 1,
+            "device2": "Switch2",
+            "device2_port": 3,
+            "type": "Node_to_Switch"
+        },
+        {
             "device1": "Switch1",
             "device1_port": 100,
             "device2": "Switch2",
@@ -40,13 +54,15 @@
         "Node1": {
             "ipv4_addr": "192.168.1.1",
             "used_ports": [
-                0
+                0,
+                1
             ]
         },
         "Node2": {
             "ipv4_addr": "192.168.1.2",
             "used_ports": [
-                0
+                0,
+                1
             ]
         },
         "Node3": {
@@ -80,6 +96,8 @@
             "used_ports": [
                 0,
                 1,
+                2,
+                3,
                 100
             ]
         }
