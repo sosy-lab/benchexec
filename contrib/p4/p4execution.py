@@ -183,18 +183,23 @@ class P4Execution(object):
             switch_command_output_new =  benchmark.log_folder + "{0}_table_entry.log".format(switch.name)
 
             copyfile(switch_log_file, switch_log_file_new)
-            copyfile(switch_command_output, switch_command_output_new)
+
+            #Check for table output file
+            if os.path.exists(switch_command_output):
+                
+                copyfile(switch_command_output, switch_command_output_new)
+            else:
+                logging.info("No tables was loaded for switch: {0}".format(switch.name))
         
             #Clear log file
             with open(switch_log_file, "r+") as f:
                 f.truncate()
+            
             if output_handler.compress_results:
                 self.move_file_to_zip(switch_log_file_new, output_handler, benchmark)
-                self.move_file_to_zip(switch_command_output_new, output_handler, benchmark)
-
-            #Clear up duplicated files
-            os.remove(switch_command_output)
-            os.remove(self.switch_source_path + "/{0}/table_input.txt".format(switch.name))
+                
+                if os.path.exists(switch_command_output):
+                    self.move_file_to_zip(switch_command_output_new, output_handler, benchmark)
 
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
@@ -259,8 +264,6 @@ class P4Execution(object):
 
                 print(run.identifier + ":   ", end='')
                 output_handler.output_after_run(run)
-
-                
 
             output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
@@ -654,7 +657,7 @@ class P4Execution(object):
             x = threading.Thread(target=self.thread_setup_switch, args=(switch, switch_command))
             x.start()
 
-        #Loop until all switches are setup
+        #TODO Loop until all switches are setup
         time.sleep(2)
 
     def thread_setup_switch(self, switch_container, switch_command):
