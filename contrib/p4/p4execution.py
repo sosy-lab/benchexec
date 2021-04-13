@@ -619,6 +619,9 @@ class P4Execution(object):
         """
         This will start all container with the correct listening commands.
         """
+
+        exec_container_run = lambda cont, command: cont.exec_run(command, detach=True)
+
         node_nr = 1
         for node_container in self.nodes:
 
@@ -630,7 +633,11 @@ class P4Execution(object):
                 node_command += " -i {0}-{1}@{2}_{1}".format(node_nr-1, port_nr, node_container.name)
 
             command = ("python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {0}-1@{2}_{3}".format(node_nr - 1 , node_nr + 2, node_container.name, self.network_config["nodes"][node_container.name]["used_ports"][0]))
-            node_container.exec_run(node_command, detach=True)
+            
+            x = threading.Thread(target=exec_container_run, args=(node_container, node_command))
+            x.start()
+            
+            #node_container.exec_run(node_command, detach=True)
 
             node_nr += 1
 
@@ -662,6 +669,7 @@ class P4Execution(object):
                     table_file_path = self.switch_source_path + "/" +  switch.name + "/tables/{0}".format(table_name)
                     if os.path.exists(table_file_path):
                         switch.exec_run("python3 /app/table_handler.py "+ self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
+
 
     def create_switch_mount_copy(self, switch_name):
         switch_path = self.switch_source_path + "/" + switch_name
