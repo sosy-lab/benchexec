@@ -9,6 +9,8 @@ import os
 import logging
 import time
 import re
+import threading
+import asyncio
 from benchexec import systeminfo
 from benchexec.model import Run
 from p4.p4_run_setup import P4SetupHandler
@@ -106,22 +108,30 @@ class P4Execution(object):
         self.nrOfNodes = len(self.network_config["nodes"])
 
         try:
-            self.setup_network(self.nrOfNodes)
+ 
 
             #Create the ptf tester container
             mount_ptf_tester = docker.types.Mount("/app", self.ptf_folder_path, type="bind")
             try:
+                # self.ptf_tester = self.client.containers.create(PTF_IMAGE_NAME,
+                #     detach=True,
+                #     name="ptfTester",
+                #     mounts=[mount_ptf_tester],
+                #     tty=True,
+                #     network="mgnt")
                 self.ptf_tester = self.client.containers.create(PTF_IMAGE_NAME,
                     detach=True,
                     name="ptfTester",
                     mounts=[mount_ptf_tester],
                     tty=True,
-                    network="mgnt")
+                    #network="mgnt"
+                    )
             except docker.errors.APIError:
                 self.ptf_tester = self.client.containers.get("ptfTester")
 
             #Create node containers
             self.nodes = []
+
             for node_name in self.network_config["nodes"]:
                 #Try get old node from previous run if it exits
                 try:
@@ -131,7 +141,7 @@ class P4Execution(object):
                     self.nodes.append(self.client.containers.create(NODE_IMAGE_NAME,
                         detach=True,
                         name=node_name,
-                        network="mgnt"
+                        #network="mgnt"
                         ))
             self.switches = []
             
@@ -149,7 +159,9 @@ class P4Execution(object):
                 except docker.errors.APIError as e:
                     self.switches.append(self.client.containers.get(switch_info))
 
-            self.connect_nodes_to_switch_new()  
+            self.setup_network()
+
+            self.connect_nodes_to_switch_new()
 
         except docker.errors.APIError as e:
             self.close()
@@ -258,7 +270,7 @@ class P4Execution(object):
 
         return self.ptf_tester.exec_run(command, tty=True)
     
-    def setup_network(self, nrOfNodes):
+    def setup_network(self):
         """
             Creates the networks required to run the test. It will create 1 network for each node.
             This network represents the bridge between the node and the swtich. Further, it creates
@@ -285,6 +297,15 @@ class P4Execution(object):
                 self.mgnt_network = self.client.networks.get("mgnt")
             else:
                 raise error
+
+        
+        containers_to_connect = [self.ptf_tester] + self.nodes
+
+        ip_address_nr = 2 #1 is used for broadcast
+        for container in containers_to_connect:
+            ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(ip_address_nr)
+            self.mgnt_network.connect(container, ipv4_address=ip_addr)
+            ip_address_nr += 1
 
     def connect_nodes_to_switch(self):
         """
@@ -542,14 +563,58 @@ class P4Execution(object):
             self.ptf_tester.remove(force=True)
 
     def start_containers(self):
-        self.ptf_tester.start()
-
-        for container in self.nodes:
-            container.start()
-
-        for container in self.switches:
-            container.start()
         
+        #Start 2 node async
+        #task1 = asyncio.ensure_future(_start_container_global2(self.nodes[0]))
+        #task2 = asyncio.ensure_future(_start_container_global2(self.nodes[1]))
+
+        #await asyncio.gather(task1, task2)
+
+        # await asyncio.gather(*(_start_container_global2(container) for container in self.nodes + self.switches))
+
+        # self.ptf_tester.start()
+        #await asyncio.gather(*(start_container_global(self.client, name) for name in test))
+        #await asyncio.gather(*[(self.start_container(container) for container in self.nodes)])
+        
+        #await self.start_container(self.ptf_tester)
+        # start_queue = queue.Queue()
+
+        # #Add all containers to start queue
+        # start_queue.put(self.ptf_tester)
+
+        # for container in self.nodes:
+        #     start_queue.put(container)
+
+        # for container in self.switches:
+        #     start_queue.put(container)
+
+        # tasks = [] 
+
+        # #Start all containers
+        # done = False
+        #     while not done:
+
+
+        containers_to_start = self.nodes + self.switches
+        containers_to_start.append(self.ptf_tester)
+
+        for container in containers_to_start:
+            x = threading.Thread(target=self.thread_container_start, args=(container, ))
+            x.start()
+
+            
+
+        # self.ptf_tester.start()
+
+        # for container in self.nodes:
+        #     container.start()
+
+        # for container in self.switches:
+        #     container.start()
+        
+    def thread_container_start(self, container):
+        container.start()
+
     def start_container_listening(self):
         """
         This will start all container with the correct listening commands.
@@ -588,7 +653,7 @@ class P4Execution(object):
         #     switch.exec_run(switch_command, detach=True)
 
             #This will add table entries
-
+            time.sleep(1)
             #
             #TODO Read what tables to initiate from setup_file
             #Check for defined tables for the switch
@@ -671,3 +736,18 @@ class P4Execution(object):
                         return False
 
         return True
+
+# async def start_container_global(client, container_name):
+#     cont = client.containers.get(container_name)
+#     cont.start()
+#     print(container_name + " started")
+
+# async def start_container_global2(container):
+#     await _start_container_global2(container)
+
+
+# async def _start_container_global2(container):
+#     print("starting" + container.name)
+#     await asyncio.sleep(2)
+#     container.start()
+#     print(container.name + " started")
