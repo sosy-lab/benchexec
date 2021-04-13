@@ -650,26 +650,23 @@ class P4Execution(object):
                 switch_command += " -i {0}@".format(port) + switch.name + "_{0}".format(port)
 
             switch_command += " /app/P4/simple_switch.json"
-            switch.exec_run(switch_command, detach=True)
-        # for switch in self.switches:
-        #     switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
-        #     for node_id in range(len(self.nodes)):
-        #         switch_command += " -i {0}@sv{1}_veth".format(node_id, node_id + 1) #TODO
 
-        #     switch_command += " /app/P4/simple_switch.json"
-        #     switch.exec_run(switch_command, detach=True)
+            x = threading.Thread(target=self.thread_setup_switch, args=(switch, switch_command))
+            x.start()
 
-            #This will add table entries
-            time.sleep(1)
-            #
-            #TODO Read what tables to initiate from setup_file
-            #Check for defined tables for the switch
-            if "table_entries" in self.network_config["switches"][switch.name]:
-                for table_name in self.network_config["switches"][switch.name]["table_entries"]:
-                    table_file_path = self.switch_source_path + "/" +  switch.name + "/tables/{0}".format(table_name)
+        #Loop until all switches are setup
+        time.sleep(2)
+
+    def thread_setup_switch(self, switch_container, switch_command):
+
+        switch_container.exec_run(switch_command, detach=True)
+
+        time.sleep(1)
+        if "table_entries" in self.network_config["switches"][switch_container.name]:
+                for table_name in self.network_config["switches"][switch_container.name]["table_entries"]:
+                    table_file_path = self.switch_source_path + "/" +  switch_container.name + "/tables/{0}".format(table_name)
                     if os.path.exists(table_file_path):
-                        switch.exec_run("python3 /app/table_handler.py "+ self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
-
+                        switch_container.exec_run("python3 /app/table_handler.py "+ self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
 
     def create_switch_mount_copy(self, switch_name):
         switch_path = self.switch_source_path + "/" + switch_name
