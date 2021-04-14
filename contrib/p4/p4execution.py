@@ -77,6 +77,7 @@ class P4Execution(object):
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
+        # Read test inputs paths
         (
             self.switch_source_path,
             self.ptf_folder_path,
@@ -262,11 +263,13 @@ class P4Execution(object):
                 # Create ptf command depending on nr of nodes
                 command = "ptf --test-dir /app " + run.identifier
 
-                for i in range(self.nrOfNodes):
+                for node in self.nodes:
+                    node_config = self.network_config["nodes"][node.name]
+
                     command += (
-                        " --device-socket {0}-{{0-64}}@tcp://".format(i)
+                        " --device-socket {0}-{{0-64}}@tcp://".format(node_config["id"])
                         + MGNT_NETWORK_SUBNET
-                        + ".0.{0}:10001".format(i + 3)
+                        + ".0.{0}:10001".format(node_config["id"] + 3)
                     )
 
                 command += " --platform nn"
@@ -351,13 +354,23 @@ class P4Execution(object):
             else:
                 raise error
 
-        containers_to_connect = [self.ptf_tester] + self.nodes
+        self.mgnt_network.connect(
+            self.ptf_tester, ipv4_address=MGNT_NETWORK_SUBNET + ".0.2"
+        )
 
-        ip_address_nr = 2  # 1 is used for broadcast
-        for container in containers_to_connect:
-            ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(ip_address_nr)
-            self.mgnt_network.connect(container, ipv4_address=ip_addr)
-            ip_address_nr += 1
+        for node in self.nodes:
+            node_config = self.network_config["nodes"][node.name]
+
+            ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(node_config["id"] + 3)
+            self.mgnt_network.connect(node, ipv4_address=ip_addr)
+
+        # containers_to_connect = [self.ptf_tester] + self.nodes
+
+        # ip_address_nr = 2  # 1 is used for broadcast
+        # for container in containers_to_connect:
+        #     ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(ip_address_nr)
+        #     self.mgnt_network.connect(container, ipv4_address=ip_addr)
+        #     ip_address_nr += 1
 
     def connect_nodes_to_switch(self):
         """
@@ -660,38 +673,10 @@ class P4Execution(object):
         if self.ptf_tester:
             self.ptf_tester.remove(force=True)
 
+        if self.mgnt_network:
+            self.mgnt_network.remove()
+
     def start_containers(self):
-
-        # Start 2 node async
-        # task1 = asyncio.ensure_future(_start_container_global2(self.nodes[0]))
-        # task2 = asyncio.ensure_future(_start_container_global2(self.nodes[1]))
-
-        # await asyncio.gather(task1, task2)
-
-        # await asyncio.gather(*(_start_container_global2(container) for container in self.nodes + self.switches))
-
-        # self.ptf_tester.start()
-        # await asyncio.gather(*(start_container_global(self.client, name) for name in test))
-        # await asyncio.gather(*[(self.start_container(container) for container in self.nodes)])
-
-        # await self.start_container(self.ptf_tester)
-        # start_queue = queue.Queue()
-
-        # #Add all containers to start queue
-        # start_queue.put(self.ptf_tester)
-
-        # for container in self.nodes:
-        #     start_queue.put(container)
-
-        # for container in self.switches:
-        #     start_queue.put(container)
-
-        # tasks = []
-
-        # #Start all containers
-        # done = False
-        #     while not done:
-
         containers_to_start = self.nodes + self.switches
         containers_to_start.append(self.ptf_tester)
 
@@ -699,14 +684,6 @@ class P4Execution(object):
             print("Staritng container: " + container.name)
             x = threading.Thread(target=self.thread_container_start, args=(container,))
             x.start()
-
-        # self.ptf_tester.start()
-
-        # for container in self.nodes:
-        #     container.start()
-
-        # for container in self.switches:
-        #     container.start()
 
     def thread_container_start(self, container):
         container.start()
@@ -716,25 +693,28 @@ class P4Execution(object):
         """
         This will start all nodes and switches and their respective commands
         """
-        node_nr = 1
         for node_container in self.nodes:
+            # Read node info
+            node_config = self.network_config["nodes"][node_container.name]
 
-            node_command = "python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001".format(
-                node_nr - 1, node_nr + 2
+            node_command = (
+                "python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://".format(
+                    node_config["id"]
+                )
+                + MGNT_NETWORK_SUBNET
+                + ".0.{0}:10001".format(node_config["id"] + 3)
             )
             used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
 
             for port_nr in used_ports:
                 node_command += " -i {0}-{1}@{2}_{1}".format(
-                    node_nr - 1, port_nr, node_container.name
+                    node_config["id"], port_nr, node_container.name
                 )
 
             x = threading.Thread(
                 target=self.thread_setup_node, args=(node_container, node_command)
             )
             x.start()
-
-            node_nr += 1
 
         for switch in self.switches:
             switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
@@ -756,16 +736,16 @@ class P4Execution(object):
 
         switch_container.exec_run(switch_command, detach=True)
         switch_is_setup = False
+        switch_log_file_path = (
+            self.switch_source_path
+            + "/"
+            + switch_container.name
+            + "/log/switch_log.txt"
+        )
 
         # This loop will wait until server is started up
         while not switch_is_setup:
-            with open(
-                self.switch_source_path
-                + "/"
-                + switch_container.name
-                + "/log/switch_log.txt",
-                "r",
-            ) as f:
+            with open(switch_log_file_path, "r") as f:
                 info_string = f.read()
                 switch_is_setup = "Thrift server was started" in info_string
 
@@ -800,7 +780,7 @@ class P4Execution(object):
 
     def create_switch_mount_copy(self, switch_name):
         switch_path = self.switch_source_path + "/" + switch_name
-        path = os.mkdir(switch_path)
+        os.mkdir(switch_path)
 
         # Copy relevant folders
         os.mkdir(switch_path + "/log")
@@ -838,7 +818,7 @@ class P4Execution(object):
                 logging.debug("No nodes defined in network config")
                 return False
 
-            # Check for duplicate node names
+            # Check for duplicate node names TODO Check duplicate ids
             node_names = list(self.network_config["nodes"].keys())
 
             for node_name in node_names:
