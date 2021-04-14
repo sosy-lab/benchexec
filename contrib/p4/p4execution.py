@@ -14,6 +14,7 @@ import asyncio
 from benchexec import systeminfo
 from benchexec.model import Run
 from p4.p4_run_setup import P4SetupHandler
+from p4.Counter import Counter
 
 from benchexec import tooladapter
 from benchexec import util
@@ -58,6 +59,8 @@ class P4Execution(object):
         self.nodes = None #Set by init
         self.switches = None #Set by init
         self.ptf_tester = None #Set by init
+        
+        self.counter = Counter()
 
         self.client = None
         self.node_networks = []
@@ -108,17 +111,9 @@ class P4Execution(object):
         self.nrOfNodes = len(self.network_config["nodes"])
 
         try:
- 
-
             #Create the ptf tester container
             mount_ptf_tester = docker.types.Mount("/app", self.ptf_folder_path, type="bind")
             try:
-                # self.ptf_tester = self.client.containers.create(PTF_IMAGE_NAME,
-                #     detach=True,
-                #     name="ptfTester",
-                #     mounts=[mount_ptf_tester],
-                #     tty=True,
-                #     network="mgnt")
                 self.ptf_tester = self.client.containers.create(PTF_IMAGE_NAME,
                     detach=True,
                     name="ptfTester",
@@ -159,8 +154,8 @@ class P4Execution(object):
                 except docker.errors.APIError as e:
                     self.switches.append(self.client.containers.get(switch_info))
 
+            logging.info("Setting up network")
             self.setup_network()
-
             self.connect_nodes_to_switch_new()
 
         except docker.errors.APIError as e:
@@ -169,6 +164,10 @@ class P4Execution(object):
 
     def execute_benchmark(self, benchmark, output_handler):
         self.start_container_listening()
+
+        #Wait until all nodes and switches are setup
+        while self.counter.value < len(self.nodes + self.switches):
+            time.sleep(1)
 
         test_dict = self.read_tests()
         setup_handler = P4SetupHandler(benchmark, test_dict)
@@ -481,6 +480,8 @@ class P4Execution(object):
                 ns.link('set', index=id, state="up")
 
     def read_tests(self):
+
+        #Make sure it's started. This is a blocking call
         self.ptf_tester.start()
 
         _, test_info = self.ptf_tester.exec_run("ptf --test-dir /app --list")
@@ -602,6 +603,7 @@ class P4Execution(object):
         containers_to_start.append(self.ptf_tester)
 
         for container in containers_to_start:
+            print("Staritng container: " + container.name)
             x = threading.Thread(target=self.thread_container_start, args=(container, ))
             x.start()
 
@@ -617,33 +619,25 @@ class P4Execution(object):
         
     def thread_container_start(self, container):
         container.start()
-
+        logging.debug("{0} started!".format(container.name))
+    
     def start_container_listening(self):
         """
-        This will start all container with the correct listening commands.
+        This will start all nodes and switches and their respective commands
         """
-
-        exec_container_run = lambda cont, command: cont.exec_run(command, detach=True)
-
         node_nr = 1
         for node_container in self.nodes:
 
             node_command = "python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001".format(node_nr-1, node_nr+2)
-
             used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
 
             for port_nr in used_ports:
                 node_command += " -i {0}-{1}@{2}_{1}".format(node_nr-1, port_nr, node_container.name)
-
-            command = ("python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://172.19.0.{1}:10001 -i {0}-1@{2}_{3}".format(node_nr - 1 , node_nr + 2, node_container.name, self.network_config["nodes"][node_container.name]["used_ports"][0]))
             
-            x = threading.Thread(target=exec_container_run, args=(node_container, node_command))
+            x = threading.Thread(target=self.thread_setup_node, args=(node_container, node_command))
             x.start()
             
-            #node_container.exec_run(node_command, detach=True)
-
             node_nr += 1
-
 
         for switch in self.switches:
             switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
@@ -657,19 +651,33 @@ class P4Execution(object):
             x = threading.Thread(target=self.thread_setup_switch, args=(switch, switch_command))
             x.start()
 
-        #TODO Loop until all switches are setup
-        time.sleep(2)
-
     def thread_setup_switch(self, switch_container, switch_command):
 
         switch_container.exec_run(switch_command, detach=True)
+        switch_is_setup = False
 
-        time.sleep(1)
+        #This loop will wait until server is started up
+        while not switch_is_setup:
+            with open(self.switch_source_path + "/" + switch_container.name + "/log/switch_log.txt", "r") as f:
+                info_string = f.read()
+                switch_is_setup = "Thrift server was started" in info_string
+            
+            time.sleep(1)
+
+        #Load tables
         if "table_entries" in self.network_config["switches"][switch_container.name]:
                 for table_name in self.network_config["switches"][switch_container.name]["table_entries"]:
                     table_file_path = self.switch_source_path + "/" +  switch_container.name + "/tables/{0}".format(table_name)
                     if os.path.exists(table_file_path):
-                        switch_container.exec_run("python3 /app/table_handler.py "+ self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
+                        switch_container.exec_run("python3 /app/table_handler.py " + self.switch_target_path +  "/tables/{0}".format(table_name), detach=True)
+                    else:
+                        logging.info("Could not find table: \n {0}".format(table_file_path))
+        
+        self.counter.increment()
+
+    def thread_setup_node(self, node_container, node_command):
+        node_container.exec_run(node_command, detach=True)
+        self.counter.increment()
 
     def create_switch_mount_copy(self, switch_name):
         switch_path = self.switch_source_path + "/" + switch_name
@@ -744,18 +752,3 @@ class P4Execution(object):
                         return False
 
         return True
-
-# async def start_container_global(client, container_name):
-#     cont = client.containers.get(container_name)
-#     cont.start()
-#     print(container_name + " started")
-
-# async def start_container_global2(container):
-#     await _start_container_global2(container)
-
-
-# async def _start_container_global2(container):
-#     print("starting" + container.name)
-#     await asyncio.sleep(2)
-#     container.start()
-#     print(container.name + " started")
