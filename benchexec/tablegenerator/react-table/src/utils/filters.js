@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, getRawOrDefault, omit } from "./utils";
+import { isNil, getRawOrDefault, omit, isNumericColumn } from "./utils";
 
 /**
  * Prepares raw data for filtering by retrieving available distinct values as min
@@ -165,7 +165,7 @@ const buildMatcher = (filters) => {
       acc[tool] = {};
     }
     let filter;
-    if (type === "measure" && value.includes(":")) {
+    if (isNumericColumn({ type }) && value.includes(":")) {
       let [minV, maxV] = value.split(":");
       minV = minV === "" ? -Infinity : Number(minV);
       maxV = maxV === "" ? Infinity : Number(maxV);
