@@ -14,11 +14,13 @@ import benchexec.util as util
 from benchexec.benchexec import BenchExecException
 from benchexec.benchexec import BenchExec
 
+
 class P4_BenchExec(BenchExec):
     """
     Extension of the basic BenchExec. It overrides the executor and
     changes it to the p4execution executor to examine p4 programs.
     """
+
     def __init__(self):
         BenchExec.__init__(self)
 
@@ -26,6 +28,7 @@ class P4_BenchExec(BenchExec):
         from p4.p4execution import P4Execution
 
         return P4Execution()
+
 
 def main(benchexec=None, argv=None):
     """
